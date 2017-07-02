@@ -38,6 +38,7 @@ import javax.net.ssl.SSLSocket;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
@@ -151,6 +152,11 @@ public class ClassicTestServer {
 
         @Override
         public void onError(final Exception ex) {
+            this.log.error(ex.getMessage(), ex);
+        }
+
+        @Override
+        public void onError(final HttpConnection conn, final Exception ex) {
             if (ex instanceof ConnectionClosedException) {
                 this.log.debug(ex.getMessage());
             } else if (ex instanceof SocketException) {

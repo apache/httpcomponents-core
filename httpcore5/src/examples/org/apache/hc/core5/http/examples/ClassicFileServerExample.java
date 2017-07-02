@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ExceptionListener;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
@@ -104,6 +105,11 @@ public class ClassicFileServerExample {
 
                     @Override
                     public void onError(final Exception ex) {
+                        ex.printStackTrace();
+                    }
+
+                    @Override
+                    public void onError(final HttpConnection conn, final Exception ex) {
                         if (ex instanceof SocketTimeoutException) {
                             System.err.println("Connection timed out");
                         } else if (ex instanceof ConnectionClosedException) {

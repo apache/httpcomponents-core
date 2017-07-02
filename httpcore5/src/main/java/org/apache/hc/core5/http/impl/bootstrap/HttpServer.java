@@ -106,7 +106,7 @@ public class HttpServer implements GracefullyCloseable {
         this.workerExecutorService = new WorkerPoolExecutor(
                 0, Integer.MAX_VALUE, 1L, TimeUnit.SECONDS,
                 new SynchronousQueue<Runnable>(),
-                new DefaultThreadFactory("HTTP-worker", this.workerThreads, false));
+                new DefaultThreadFactory("HTTP-worker", this.workerThreads, true));
         this.status = new AtomicReference<>(Status.READY);
     }
 

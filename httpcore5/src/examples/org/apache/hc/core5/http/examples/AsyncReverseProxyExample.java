@@ -40,11 +40,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -58,7 +58,6 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
-import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
@@ -109,14 +108,17 @@ public class AsyncReverseProxyExample {
 
                     @Override
                     public void onLease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
+                        StringBuilder buf = new StringBuilder();
+                        buf.append("[proxy->origin] connection leased ").append(route);
+                        System.out.println(buf.toString());
                     }
 
                     @Override
                     public void onRelease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
                         StringBuilder buf = new StringBuilder();
-                        buf.append(route).append(" ");
+                        buf.append("[proxy->origin] connection released ").append(route);
                         PoolStats totals = connPoolStats.getTotalStats();
-                        buf.append(" total kept alive: ").append(totals.getAvailable()).append("; ");
+                        buf.append("; total kept alive: ").append(totals.getAvailable()).append("; ");
                         buf.append("total allocated: ").append(totals.getLeased() + totals.getAvailable());
                         buf.append(" of ").append(totals.getMax());
                         System.out.println(buf.toString());
@@ -126,11 +128,11 @@ public class AsyncReverseProxyExample {
                 .setStreamListener(new Http1StreamListener() {
 
                     @Override
-                    public void onRequestHead(final HttpConnection connection, HttpRequest request) {
+                    public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
                     }
 
                     @Override
-                    public void onResponseHead(final HttpConnection connection, HttpResponse response) {
+                    public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
                     }
 
                     @Override
@@ -149,11 +151,11 @@ public class AsyncReverseProxyExample {
                 .setStreamListener(new Http1StreamListener() {
 
                     @Override
-                    public void onRequestHead(final HttpConnection connection, HttpRequest request) {
+                    public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
                     }
 
                     @Override
-                    public void onResponseHead(final HttpConnection connection, HttpResponse response) {
+                    public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
                     }
 
                     @Override
@@ -220,17 +222,22 @@ public class AsyncReverseProxyExample {
 
         final String id;
 
-        ProxyBuffer inBuf;
-        ProxyBuffer outBuf;
         HttpRequest request;
-        HttpResponse response;
-        boolean inputEnd;
-        boolean outputEnd;
-        ResponseChannel responseMessageChannel;
-        CapacityChannel requestCapacityChannel;
-        CapacityChannel responseCapacityChannel;
+        EntityDetails requestEntityDetails;
         DataStreamChannel requestDataChannel;
+        CapacityChannel requestCapacityChannel;
+        ProxyBuffer inBuf;
+        boolean inputEnd;
+
+        HttpResponse response;
+        EntityDetails responseEntityDetails;
+        ResponseChannel responseMessageChannel;
         DataStreamChannel responseDataChannel;
+        CapacityChannel responseCapacityChannel;
+        ProxyBuffer outBuf;
+        boolean outputEnd;
+
+        AsyncClientEndpoint clientEndpoint;
 
         ProxyExchangeState() {
             this.id = String.format("%08X", COUNT.getAndIncrement());
@@ -244,14 +251,12 @@ public class AsyncReverseProxyExample {
 
         private final HttpHost targetHost;
         private final HttpAsyncRequester requester;
-        private final AtomicBoolean consistent;
         private final ProxyExchangeState exchangeState;
 
         IncomingExchangeHandler(final HttpHost targetHost, final HttpAsyncRequester requester) {
             super();
             this.targetHost = targetHost;
             this.requester = requester;
-            this.consistent = new AtomicBoolean(true);
             this.exchangeState = new ProxyExchangeState();
         }
 
@@ -265,6 +270,7 @@ public class AsyncReverseProxyExample {
                 System.out.println("[client->proxy] " + exchangeState.id + " " +
                         incomingRequest.getMethod() + " " + incomingRequest.getRequestUri());
                 exchangeState.request = incomingRequest;
+                exchangeState.requestEntityDetails = entityDetails;
                 exchangeState.inputEnd = entityDetails == null;
                 exchangeState.responseMessageChannel = responseChannel;
 
@@ -283,7 +289,10 @@ public class AsyncReverseProxyExample {
                 @Override
                 public void completed(final AsyncClientEndpoint clientEndpoint) {
                     System.out.println("[proxy->origin] " + exchangeState.id + " connection leased");
-                    clientEndpoint.execute(new OutgoingExchangeHandler(clientEndpoint, exchangeState), null);
+                    synchronized (exchangeState) {
+                        exchangeState.clientEndpoint = clientEndpoint;
+                    }
+                    clientEndpoint.execute(new OutgoingExchangeHandler(targetHost, clientEndpoint, exchangeState), null);
                 }
 
                 @Override
@@ -291,8 +300,9 @@ public class AsyncReverseProxyExample {
                     HttpResponse outgoingResponse = new BasicHttpResponse(HttpStatus.SC_SERVICE_UNAVAILABLE);
                     outgoingResponse.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
                     exchangeState.response = outgoingResponse;
-
                     ByteBuffer msg = StandardCharsets.US_ASCII.encode(CharBuffer.wrap(cause.getMessage()));
+                    EntityDetails entityDetails = new BasicEntityDetails(msg.remaining(), ContentType.TEXT_PLAIN);
+                    exchangeState.responseEntityDetails = entityDetails;
                     exchangeState.outBuf = new ProxyBuffer(1024);
                     exchangeState.outBuf.put(msg);
                     exchangeState.outputEnd = true;
@@ -300,7 +310,6 @@ public class AsyncReverseProxyExample {
                     System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
 
                     try {
-                        EntityDetails entityDetails = new BasicEntityDetails(msg.remaining(), ContentType.TEXT_PLAIN);
                         responseChannel.sendResponse(outgoingResponse, entityDetails);
                     } catch (HttpException | IOException ignore) {
                     }
@@ -410,10 +419,15 @@ public class AsyncReverseProxyExample {
 
         @Override
         public void failed(final Exception cause) {
-            System.out.println("[client<-proxy] " + exchangeState.id + " error: " + cause.getMessage());
-            cause.printStackTrace(System.out);
-            consistent.set(false);
-            releaseResources();
+            System.out.println("[client<-proxy] " + exchangeState.id + " " + cause.getMessage());
+            if (!(cause instanceof ConnectionClosedException)) {
+                cause.printStackTrace(System.out);
+            }
+            synchronized (exchangeState) {
+                if (exchangeState.clientEndpoint != null) {
+                    exchangeState.clientEndpoint.releaseAndDiscard();
+                }
+            }
         }
 
         @Override
@@ -428,6 +442,7 @@ public class AsyncReverseProxyExample {
     }
 
     private final static Set<String> HOP_BY_HOP = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+            HttpHeaders.HOST.toLowerCase(Locale.ROOT),
             HttpHeaders.CONTENT_LENGTH.toLowerCase(Locale.ROOT),
             HttpHeaders.TRANSFER_ENCODING.toLowerCase(Locale.ROOT),
             HttpHeaders.CONNECTION.toLowerCase(Locale.ROOT),
@@ -439,10 +454,15 @@ public class AsyncReverseProxyExample {
 
     private static class OutgoingExchangeHandler implements AsyncClientExchangeHandler {
 
+        private final HttpHost targetHost;
         private final AsyncClientEndpoint clientEndpoint;
         private final ProxyExchangeState exchangeState;
 
-        OutgoingExchangeHandler(final AsyncClientEndpoint clientEndpoint, final ProxyExchangeState exchangeState) {
+        OutgoingExchangeHandler(
+                final HttpHost targetHost,
+                final AsyncClientEndpoint clientEndpoint,
+                final ProxyExchangeState exchangeState) {
+            this.targetHost = targetHost;
             this.clientEndpoint = clientEndpoint;
             this.exchangeState = exchangeState;
         }
@@ -452,7 +472,11 @@ public class AsyncReverseProxyExample {
                 final RequestChannel channel) throws HttpException, IOException {
             synchronized (exchangeState) {
                 HttpRequest incomingRequest = exchangeState.request;
-                HttpRequest outgoingRequest = new BasicHttpRequest(incomingRequest.getMethod(), incomingRequest.getPath());
+                EntityDetails entityDetails = exchangeState.requestEntityDetails;
+                HttpRequest outgoingRequest = new BasicHttpRequest(
+                        incomingRequest.getMethod(),
+                        targetHost,
+                        incomingRequest.getPath());
                 for (Iterator<Header> it = incomingRequest.headerIterator(); it.hasNext(); ) {
                     Header header = it.next();
                     if (!HOP_BY_HOP.contains(header.getName().toLowerCase(Locale.ROOT))) {
@@ -463,9 +487,7 @@ public class AsyncReverseProxyExample {
                 System.out.println("[proxy->origin] " + exchangeState.id + " " +
                         outgoingRequest.getMethod() + " " + outgoingRequest.getRequestUri());
 
-                channel.sendRequest(
-                        outgoingRequest,
-                        !exchangeState.inputEnd ? new LazyEntityDetails(outgoingRequest) : null);
+                channel.sendRequest(outgoingRequest, entityDetails);
             }
         }
 
@@ -516,6 +538,9 @@ public class AsyncReverseProxyExample {
                 final EntityDetails entityDetails) throws HttpException, IOException {
             synchronized (exchangeState) {
                 System.out.println("[proxy<-origin] " + exchangeState.id + " status " + incomingResponse.getCode());
+                if (entityDetails == null) {
+                    System.out.println("[proxy<-origin] " + exchangeState.id + " end of input");
+                }
 
                 HttpResponse outgoingResponse = new BasicHttpResponse(incomingResponse.getCode());
                 for (Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
@@ -526,14 +551,17 @@ public class AsyncReverseProxyExample {
                 }
 
                 exchangeState.response = outgoingResponse;
+                exchangeState.responseEntityDetails = entityDetails;
                 exchangeState.outputEnd = entityDetails == null;
 
                 ResponseChannel responseChannel = exchangeState.responseMessageChannel;
-                responseChannel.sendResponse(
-                        outgoingResponse,
-                        !exchangeState.outputEnd ?  new LazyEntityDetails(outgoingResponse) : null);
+                responseChannel.sendResponse(outgoingResponse, entityDetails);
 
                 System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
+                if (entityDetails == null) {
+                    System.out.println("[client<-proxy] " + exchangeState.id + " end of output");
+                    clientEndpoint.releaseAndReuse();
+                }
             }
         }
 
@@ -588,19 +616,22 @@ public class AsyncReverseProxyExample {
                 if (dataChannel != null && (exchangeState.outBuf == null || !exchangeState.outBuf.hasData())) {
                     System.out.println("[client<-proxy] " + exchangeState.id + " end of output");
                     dataChannel.endStream();
+                    clientEndpoint.releaseAndReuse();
                 }
             }
         }
 
         @Override
         public void cancel() {
-            releaseResources();
+            clientEndpoint.releaseAndDiscard();
         }
 
         @Override
         public void failed(final Exception cause) {
-            System.out.println("[client<-proxy] " + exchangeState.id + " error: " + cause.getMessage());
-            cause.printStackTrace(System.out);
+            System.out.println("[client<-proxy] " + exchangeState.id + " " + cause.getMessage());
+            if (!(cause instanceof ConnectionClosedException)) {
+                cause.printStackTrace(System.out);
+            }
             synchronized (exchangeState) {
                 if (exchangeState.response == null) {
                     int status = cause instanceof IOException ? HttpStatus.SC_SERVICE_UNAVAILABLE : HttpStatus.SC_INTERNAL_SERVER_ERROR;
@@ -609,6 +640,7 @@ public class AsyncReverseProxyExample {
                     exchangeState.response = outgoingResponse;
 
                     ByteBuffer msg = StandardCharsets.US_ASCII.encode(CharBuffer.wrap(cause.getMessage()));
+                    int contentLen = msg.remaining();
                     exchangeState.outBuf = new ProxyBuffer(1024);
                     exchangeState.outBuf.put(msg);
                     exchangeState.outputEnd = true;
@@ -616,14 +648,14 @@ public class AsyncReverseProxyExample {
                     System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
 
                     try {
-                        EntityDetails entityDetails = new BasicEntityDetails(msg.remaining(), ContentType.TEXT_PLAIN);
+                        EntityDetails entityDetails = new BasicEntityDetails(contentLen, ContentType.TEXT_PLAIN);
                         exchangeState.responseMessageChannel.sendResponse(outgoingResponse, entityDetails);
                     } catch (HttpException | IOException ignore) {
                     }
                 } else {
                     exchangeState.outputEnd = true;
                 }
-                releaseResources();
+                clientEndpoint.releaseAndDiscard();
             }
         }
 
@@ -632,8 +664,8 @@ public class AsyncReverseProxyExample {
             synchronized (exchangeState) {
                 exchangeState.requestDataChannel = null;
                 exchangeState.responseCapacityChannel = null;
+                clientEndpoint.releaseAndDiscard();
             }
-            clientEndpoint.releaseAndReuse();
         }
 
     }
