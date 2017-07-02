@@ -74,17 +74,18 @@ public class ElementalReverseProxy {
 
     public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
-            System.err.println("Please specified target hostname and port");
+            System.out.println("Usage: <hostname[:port]> [listener port]");
             System.exit(1);
         }
-        final String hostname = args[0];
-        int port = 80;
+        final HttpHost targetHost = HttpHost.create(args[0]);
+        int port = 8080;
         if (args.length > 1) {
             port = Integer.parseInt(args[1]);
         }
-        final HttpHost target = new HttpHost(hostname, port);
 
-        final Thread t = new RequestListenerThread(8888, target);
+        System.out.println("Reverse proxy to " + targetHost);
+
+        final Thread t = new RequestListenerThread(port, targetHost);
         t.setDaemon(false);
         t.start();
     }
@@ -121,6 +122,7 @@ public class ElementalReverseProxy {
             System.out.println(">> Request URI: " + request.getRequestLine().getUri());
 
             // Remove hop-by-hop headers
+            request.removeHeaders(HTTP.TARGET_HOST);
             request.removeHeaders(HTTP.CONTENT_LEN);
             request.removeHeaders(HTTP.TRANSFER_ENCODING);
             request.removeHeaders(HTTP.CONN_DIRECTIVE);
@@ -207,7 +209,7 @@ public class ElementalReverseProxy {
                     inconn.bind(insocket);
 
                     // Set up outgoing HTTP connection
-                    final Socket outsocket = new Socket(this.target.getHostName(), this.target.getPort());
+                    final Socket outsocket = new Socket(this.target.getHostName(), this.target.getPort() >= 0 ? this.target.getPort() : 80);
                     final DefaultBHttpClientConnection outconn = new DefaultBHttpClientConnection(bufsize);
                     outconn.bind(outsocket);
                     System.out.println("Outgoing connection to " + outsocket.getInetAddress());
