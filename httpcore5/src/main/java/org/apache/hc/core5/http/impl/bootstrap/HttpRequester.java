@@ -288,6 +288,12 @@ public class HttpRequester implements GracefullyCloseable {
                     }
 
                 });
+            } else {
+                final HttpClientConnection localConn = connectionHolder.getConnection();
+                if (!requestExecutor.keepAlive(request, response, localConn, context)) {
+                    localConn.close();
+                }
+                connectionHolder.releaseConnection();
             }
             return response;
         } catch (HttpException | IOException | RuntimeException ex) {
