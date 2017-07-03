@@ -24,21 +24,29 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.testing.nio;
 
-import org.apache.hc.core5.util.Identifiable;
+package org.apache.hc.core5.testing.classic;
 
-final class LoggingSupport {
+import java.io.IOException;
+import java.net.Socket;
 
-    static String getId(final Object object) {
-        if (object == null) {
-            return null;
-        }
-        if (object instanceof Identifiable) {
-            return ((Identifiable) object).getId();
-        } else {
-            return object.getClass().getSimpleName() + "-" + Integer.toHexString(System.identityHashCode(object));
-        }
+import javax.net.ssl.SSLSocket;
+
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.io.HttpConnectionFactory;
+
+public class LoggingBHttpServerConnectionFactory implements HttpConnectionFactory<LoggingBHttpServerConnection> {
+
+    public static final LoggingBHttpServerConnectionFactory INSTANCE = new LoggingBHttpServerConnectionFactory();
+
+    @Override
+    public LoggingBHttpServerConnection createConnection(final Socket socket) throws IOException {
+        final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(
+                socket instanceof SSLSocket ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
+                H1Config.DEFAULT);
+        conn.bind(socket);
+        return conn;
     }
 
 }

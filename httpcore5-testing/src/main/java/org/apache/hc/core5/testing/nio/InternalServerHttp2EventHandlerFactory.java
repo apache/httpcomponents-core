@@ -44,6 +44,7 @@ import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiator;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.apache.hc.core5.util.Args;
 
 class InternalServerHttp2EventHandlerFactory implements IOEventHandlerFactory {

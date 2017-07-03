@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.classic;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLContext;
@@ -37,11 +36,9 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
-import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.ShutdownType;
@@ -78,7 +75,9 @@ public class ClassicTestClient {
             final HttpRequester requester = RequesterBootstrap.bootstrap()
                     .setSslSocketFactory(sslContext != null ? sslContext.getSocketFactory() : null)
                     .setHttpProcessor(httpProcessor)
-                    .setConnectFactory(new LoggingConnFactory())
+                    .setConnectFactory(LoggingBHttpClientConnectionFactory.INSTANCE)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
+                    .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                     .create();
             requesterRef.compareAndSet(null, requester);
         } else {
@@ -108,13 +107,4 @@ public class ClassicTestClient {
         return requester.execute(targetHost, request, socketConfig.getSoTimeout(), context);
     }
 
-    class LoggingConnFactory implements HttpConnectionFactory<LoggingBHttpClientConnection> {
-
-        @Override
-        public LoggingBHttpClientConnection createConnection(final Socket socket) throws IOException {
-            final LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(H1Config.DEFAULT);
-            conn.bind(socket);
-            return conn;
-        }
-    }
 }

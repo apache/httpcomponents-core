@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio;
+package org.apache.hc.core5.testing.classic;
 
 import java.util.Iterator;
 
@@ -43,8 +43,8 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
 
     enum Type { CLIENT, SERVER }
 
-    final static LoggingHttp1StreamListener INSTANCE_CLIENT = new LoggingHttp1StreamListener(Type.CLIENT);
-    final static LoggingHttp1StreamListener INSTANCE_SERVER = new LoggingHttp1StreamListener(Type.SERVER);
+    public final static LoggingHttp1StreamListener INSTANCE_CLIENT = new LoggingHttp1StreamListener(Type.CLIENT);
+    public final static LoggingHttp1StreamListener INSTANCE_SERVER = new LoggingHttp1StreamListener(Type.SERVER);
 
     private final Type type;
     private final Logger connLog = LogManager.getLogger("org.apache.hc.core5.http.connection");

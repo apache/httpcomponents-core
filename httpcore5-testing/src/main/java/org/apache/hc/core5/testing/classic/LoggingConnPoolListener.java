@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio;
+package org.apache.hc.core5.testing.classic;
 
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.pool.ConnPoolListener;

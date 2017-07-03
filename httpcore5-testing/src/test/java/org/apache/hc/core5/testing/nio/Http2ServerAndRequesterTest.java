@@ -56,6 +56,8 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
+import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.logging.log4j.LogManager;

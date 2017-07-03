@@ -29,29 +29,19 @@ package org.apache.hc.core5.testing.classic;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.SocketException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
 
-import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
-import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.UriHttpRequestHandlerMapper;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.ShutdownType;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 public class ClassicTestServer {
 
     private final SSLContext sslContext;
@@ -108,8 +98,9 @@ public class ClassicTestServer {
                     .setHttpProcessor(httpProcessor)
                     .setExpectationVerifier(expectationVerifier)
                     .setHandlerMapper(this.registry)
-                    .setConnectionFactory(new LoggingConnFactory())
-                    .setExceptionListener(new SimpleExceptionListener())
+                    .setConnectionFactory(LoggingBHttpServerConnectionFactory.INSTANCE)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
+                    .setExceptionListener(LoggingExceptionListener.INSTANCE)
                     .create();
             if (serverRef.compareAndSet(null, server)) {
                 server.start();
@@ -131,39 +122,6 @@ public class ClassicTestServer {
         final HttpServer server = serverRef.getAndSet(null);
         if (server != null) {
             server.shutdown(shutdownType);
-        }
-    }
-
-    static class LoggingConnFactory implements HttpConnectionFactory<LoggingBHttpServerConnection> {
-
-        @Override
-        public LoggingBHttpServerConnection createConnection(final Socket socket) throws IOException {
-            final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(
-                    socket instanceof SSLSocket ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
-                    H1Config.DEFAULT);
-            conn.bind(socket);
-            return conn;
-        }
-    }
-
-    static class SimpleExceptionListener implements ExceptionListener {
-
-        private final Logger log = LogManager.getLogger(ClassicTestServer.class);
-
-        @Override
-        public void onError(final Exception ex) {
-            this.log.error(ex.getMessage(), ex);
-        }
-
-        @Override
-        public void onError(final HttpConnection conn, final Exception ex) {
-            if (ex instanceof ConnectionClosedException) {
-                this.log.debug(ex.getMessage());
-            } else if (ex instanceof SocketException) {
-                this.log.debug(ex.getMessage());
-            } else {
-                this.log.error(ex.getMessage(), ex);
-            }
         }
     }
 

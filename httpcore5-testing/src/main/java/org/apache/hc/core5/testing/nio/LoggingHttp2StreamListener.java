@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http2.frame.FramePrinter;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
+import org.apache.hc.core5.testing.classic.LoggingSupport;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

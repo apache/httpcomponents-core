@@ -52,6 +52,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.apache.hc.core5.util.Args;
 
 /**

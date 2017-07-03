@@ -30,6 +30,7 @@ package org.apache.hc.core5.testing.nio;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.testing.classic.LoggingSupport;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
