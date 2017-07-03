@@ -34,12 +34,10 @@ import java.net.Socket;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.ConnectionReuseStrategy;
-import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpClientConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -113,8 +111,14 @@ public class ElementalReverseProxy {
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            final HttpClientConnection conn = (HttpClientConnection) context.getAttribute(
+            final DefaultBHttpClientConnection conn = (DefaultBHttpClientConnection) context.getAttribute(
                     HTTP_OUT_CONN);
+
+            if (!conn.isOpen() || conn.isStale()) {
+                final Socket outsocket = new Socket(this.target.getHostName(), this.target.getPort() >= 0 ? this.target.getPort() : 80);
+                conn.bind(outsocket);
+                System.out.println("Outgoing connection to " + outsocket.getInetAddress());
+            }
 
             context.setAttribute(HttpCoreContext.HTTP_CONNECTION, conn);
             context.setAttribute(HttpCoreContext.HTTP_TARGET_HOST, this.target);
@@ -209,10 +213,7 @@ public class ElementalReverseProxy {
                     inconn.bind(insocket);
 
                     // Set up outgoing HTTP connection
-                    final Socket outsocket = new Socket(this.target.getHostName(), this.target.getPort() >= 0 ? this.target.getPort() : 80);
                     final DefaultBHttpClientConnection outconn = new DefaultBHttpClientConnection(bufsize);
-                    outconn.bind(outsocket);
-                    System.out.println("Outgoing connection to " + outsocket.getInetAddress());
 
                     // Start worker thread
                     final Thread t = new ProxyThread(this.httpService, inconn, outconn);
@@ -232,13 +233,13 @@ public class ElementalReverseProxy {
     static class ProxyThread extends Thread {
 
         private final HttpService httpservice;
-        private final HttpServerConnection inconn;
-        private final HttpClientConnection outconn;
+        private final DefaultBHttpServerConnection inconn;
+        private final DefaultBHttpClientConnection outconn;
 
         public ProxyThread(
                 final HttpService httpservice,
-                final HttpServerConnection inconn,
-                final HttpClientConnection outconn) {
+                final DefaultBHttpServerConnection inconn,
+                final DefaultBHttpClientConnection outconn) {
             super();
             this.httpservice = httpservice;
             this.inconn = inconn;
