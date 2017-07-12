@@ -199,9 +199,8 @@ public class TimeValue {
         if (TimeValue.isPositive(timeValue)) {
             final long deadline = currentTimeMillis + timeValue.toMillis();
             return deadline >= 0 ? deadline : Long.MAX_VALUE;
-        } else {
-            return Long.MAX_VALUE;
         }
+        return Long.MAX_VALUE;
     }
 
     private final long duration;
