@@ -183,7 +183,7 @@ public class TimeValue {
             throw new IllegalArgumentException(
                     String.format("Expected format for <Integer><SPACE><TimeUnit>: ", value));
         }
-        return TimeValue.of(NumberFormat.getInstance().parse(split[0]).longValue(),
+        return TimeValue.of(NumberFormat.getInstance(Locale.ROOT).parse(split[0]).longValue(),
                 TimeUnit.valueOf(split[1].trim().toUpperCase(Locale.ROOT)));
     }
 
@@ -296,7 +296,7 @@ public class TimeValue {
 
     @Override
     public String toString() {
-        return String.format("%,d %s", duration, timeUnit);
+        return String.format(Locale.ROOT, "%,d %s", duration, timeUnit);
     }
 
     public Timeout toTimeout() {
