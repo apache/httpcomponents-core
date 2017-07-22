@@ -41,7 +41,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.impl.nio.entity.SharedOutputBuffer;
+import org.apache.hc.core5.http.nio.entity.SharedOutputBuffer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http2.WritableByteChannelMock;
 import org.junit.Assert;

@@ -29,14 +29,17 @@ package org.apache.hc.core5.http.benchmark;
 import java.io.IOException;
 import java.net.URL;
 
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
+import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
+import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.io.ShutdownType;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -48,23 +51,24 @@ public class SmokeTest {
 
     @Before
     public void setup() throws Exception {
-        server = new HttpServer();
-        server.registerHandler("/", new HttpRequestHandler() {
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                response.setCode(HttpStatus.SC_OK);
-                response.setEntity(new StringEntity("0123456789ABCDEF", ContentType.TEXT_PLAIN));
-            }
-        });
+        server = ServerBootstrap.bootstrap()
+                .registerHandler("/", new HttpRequestHandler() {
+                    @Override
+                    public void handle(
+                            final ClassicHttpRequest request,
+                            final ClassicHttpResponse response,
+                            final HttpContext context) throws HttpException, IOException {
+                        response.setCode(HttpStatus.SC_OK);
+                        response.setEntity(new StringEntity("0123456789ABCDEF", ContentType.TEXT_PLAIN));
+                    }
+                })
+                .create();
         server.start();
     }
 
     @After
     public void shutdown() throws Exception {
-        server.shutdown();
+        server.shutdown(ShutdownType.IMMEDIATE);
     }
 
     @Test
@@ -72,7 +76,7 @@ public class SmokeTest {
         final Config config = new Config();
         config.setKeepAlive(true);
         config.setMethod("GET");
-        config.setUrl(new URL("http://localhost:" + server.getPort() + "/"));
+        config.setUrl(new URL("http://localhost:" + server.getLocalPort() + "/"));
         config.setThreads(3);
         config.setRequests(100);
         final HttpBenchmark httpBenchmark = new HttpBenchmark(config);

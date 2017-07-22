@@ -25,13 +25,12 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.bootstrap;
+package org.apache.hc.core5.http.nio.support;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

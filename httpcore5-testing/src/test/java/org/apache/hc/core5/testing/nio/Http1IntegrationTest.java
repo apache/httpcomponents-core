@@ -82,11 +82,8 @@ import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
-import org.apache.hc.core5.http.impl.nio.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.impl.nio.AbstractContentEncoder;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
-import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityConsumer;
-import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
@@ -94,6 +91,7 @@ import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncServerResponseTrigger;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
@@ -106,13 +104,15 @@ import org.apache.hc.core5.http.nio.NHttpMessageParser;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
+import org.apache.hc.core5.http.nio.entity.AbstractClassicEntityConsumer;
+import org.apache.hc.core5.http.nio.entity.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.support.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.ResponseTrigger;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -711,7 +711,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, String> request,
-                            final ResponseTrigger responseTrigger,
+                            final AsyncServerResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
                         responseTrigger.submitResponse(
                                 new BasicResponseProducer(HttpStatus.SC_OK, "All is well"));
@@ -915,7 +915,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                             producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
                         }
                         responseProducer.set(producer);
-                        responseChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
+                        producer.sendResponse(responseChannel);
                     }
 
                     @Override
@@ -1354,7 +1354,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                             @Override
                             protected void handle(
                                     final Message<HttpRequest, String> request,
-                                    final ResponseTrigger responseTrigger,
+                                    final AsyncServerResponseTrigger responseTrigger,
                                     final HttpContext context) throws IOException, HttpException {
                                 responseTrigger.submitResponse(
                                         new BasicResponseProducer(new StringAsyncEntityProducer("useful stuff")));
@@ -1438,7 +1438,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, String> request,
-                            final ResponseTrigger responseTrigger,
+                            final AsyncServerResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
                         throw new HttpException("Boom");
                     }
@@ -1497,7 +1497,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, String> request,
-                            final ResponseTrigger responseTrigger,
+                            final AsyncServerResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
                         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_NO_CONTENT);
                         responseTrigger.submitResponse(new BasicResponseProducer(response));
@@ -1584,7 +1584,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, String> requestMessage,
-                            final ResponseTrigger responseTrigger,
+                            final AsyncServerResponseTrigger responseTrigger,
                             final HttpContext context) throws HttpException, IOException {
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,

@@ -53,7 +53,7 @@ import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpRequestHandlerMapper;
-import org.apache.hc.core5.http.io.UriHttpRequestHandlerMapper;
+import org.apache.hc.core5.http.io.support.UriHttpRequestHandlerMapper;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 
 /**

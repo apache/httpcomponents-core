@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio.entity;
+package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +42,6 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.apache.hc.core5.http.nio.entity.ContentInputStream;
 import org.apache.hc.core5.util.Args;
 
 /**

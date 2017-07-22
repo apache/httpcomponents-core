@@ -38,13 +38,11 @@ import org.apache.hc.core5.http.HttpRequest;
  *
  * @since 5.0
  */
-public interface AsyncServerExchangeHandler extends AsyncDataConsumer, AsyncDataProducer {
+public interface AsyncServerExchangeHandler extends AsyncDataExchangeHandler {
 
     void handleRequest(
             HttpRequest request,
             EntityDetails entityDetails,
             ResponseChannel responseChannel) throws HttpException, IOException;
-
-    void failed(Exception cause);
 
 }

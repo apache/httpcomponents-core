@@ -38,11 +38,10 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
-import org.apache.hc.core5.http.impl.bootstrap.AsyncServerExchangeHandlerRegistry;
+import org.apache.hc.core5.http.nio.support.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
-import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -69,13 +68,12 @@ public class Http1TestServer extends AsyncServer {
 
     public <T> void register(
             final String uriPattern,
-            final RequestConsumerSupplier<T> consumerSupplier,
-            final ResponseHandler<T> responseHandler) {
+            final AsyncServerRequestHandler<T> requestHandler) {
         register(uriPattern, new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
-                return new BasicServerExchangeHandler<>(consumerSupplier, responseHandler);
+                return new BasicServerExchangeHandler<>(requestHandler);
             }
 
         });

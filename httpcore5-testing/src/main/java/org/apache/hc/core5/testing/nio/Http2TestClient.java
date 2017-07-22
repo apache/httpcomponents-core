@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.AsyncPushConsumerRegistry;
+import org.apache.hc.core5.http2.nio.support.AsyncPushConsumerRegistry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;

@@ -25,9 +25,10 @@
  *
  */
 
-package org.apache.hc.core5.http.io;
+package org.apache.hc.core5.http.io.support;
 
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;

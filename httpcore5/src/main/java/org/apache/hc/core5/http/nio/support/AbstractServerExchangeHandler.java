@@ -37,16 +37,18 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
-import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncServerResponseTrigger;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Asserts;
@@ -79,7 +81,7 @@ public abstract class AbstractServerExchangeHandler<T> implements HttpContextAwa
 
     protected abstract void handle(
             T requestMessage,
-            ResponseTrigger responseTrigger,
+            AsyncServerResponseTrigger responseTrigger,
             HttpContext context) throws HttpException, IOException;
 
     @Override
@@ -106,20 +108,25 @@ public abstract class AbstractServerExchangeHandler<T> implements HttpContextAwa
                 if (producer != null) {
                     expectationFailed = true;
                     responseProducerRef.set(producer);
-                    responseChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
+                    producer.sendResponse(responseChannel);
                     return;
                 } else {
                     responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
                 }
             }
         }
-        final ResponseTrigger responseTrigger = new ResponseTrigger() {
+        final AsyncServerResponseTrigger responseTrigger = new AsyncServerResponseTrigger() {
+
+            @Override
+            public void sendInformation(final HttpResponse response) throws HttpException, IOException {
+                responseChannel.sendInformation(response);
+            }
 
             @Override
             public void submitResponse(
                     final AsyncResponseProducer producer) throws HttpException, IOException {
                 if (responseProducerRef.compareAndSet(null, producer)) {
-                    responseChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
+                    producer.sendResponse(responseChannel);
                 }
             }
 

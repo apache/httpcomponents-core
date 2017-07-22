@@ -24,8 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-
-package org.apache.hc.core5.http.nio.support;
+package org.apache.hc.core5.http.nio;
 
 import java.io.IOException;
 
@@ -33,19 +32,16 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.nio.AsyncPushProducer;
-import org.apache.hc.core5.http.nio.AsyncResponseProducer;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
- * Abstract asynchronous response / response promise trigger.
- *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-public interface ResponseTrigger {
+public interface AsyncServerRequestHandler<T> {
 
-    void submitResponse(AsyncResponseProducer responseProducer) throws HttpException, IOException;
+    AsyncRequestConsumer<T> prepare(HttpRequest request, HttpContext context) throws HttpException;
 
-    void pushPromise(HttpRequest promise, AsyncPushProducer responseProducer) throws HttpException, IOException;
+    void handle(T requestMessage, AsyncServerResponseTrigger responseTrigger, HttpContext context) throws HttpException, IOException;
 
 }

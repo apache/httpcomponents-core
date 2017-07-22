@@ -45,13 +45,12 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
+import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
+import org.apache.hc.core5.http.nio.AsyncServerResponseTrigger;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
-import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
-import org.apache.hc.core5.http.nio.support.ResponseHandler;
-import org.apache.hc.core5.http.nio.support.ResponseTrigger;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.ShutdownType;
@@ -83,21 +82,19 @@ public class AsyncFileServerExample {
 
         final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
-                .register("*", new RequestConsumerSupplier<Message<HttpRequest, Void>>() {
+                .register("*", new AsyncServerRequestHandler<Message<HttpRequest, Void>>() {
 
                     @Override
-                    public AsyncRequestConsumer<Message<HttpRequest, Void>> get(
+                    public AsyncRequestConsumer<Message<HttpRequest, Void>> prepare(
                             final HttpRequest request,
                             final HttpContext context) throws HttpException {
                         return new BasicRequestConsumer<>(new NoopEntityConsumer());
                     }
 
-                }, new ResponseHandler<Message<HttpRequest, Void>>() {
-
                     @Override
                     public void handle(
                             final Message<HttpRequest, Void> message,
-                            final ResponseTrigger responseTrigger,
+                            final AsyncServerResponseTrigger responseTrigger,
                             final HttpContext context) throws HttpException, IOException {
                         HttpRequest request = message.getHead();
                         URI requestUri;

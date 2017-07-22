@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio.entity;
+package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -34,7 +34,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.apache.hc.core5.http.nio.entity.ContentInputBuffer;
 
 /**
  * @since 5.0

@@ -25,19 +25,18 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.bootstrap;
+package org.apache.hc.core5.http.nio.support;
 
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;

@@ -43,11 +43,11 @@ import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseWriterFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.http.nio.support.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.RequestConsumerSupplier;
-import org.apache.hc.core5.http.nio.support.ResponseHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -182,13 +182,12 @@ public class AsyncServerBootstrap {
 
     public final <T> AsyncServerBootstrap register(
             final String uriPattern,
-            final RequestConsumerSupplier<T> consumerSupplier,
-            final ResponseHandler<T> responseHandler) {
+            final AsyncServerRequestHandler<T> requestHandler) {
         register(uriPattern, new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
-                return new BasicServerExchangeHandler<>(consumerSupplier, responseHandler);
+                return new BasicServerExchangeHandler<>(requestHandler);
             }
 
         });
@@ -198,13 +197,12 @@ public class AsyncServerBootstrap {
     public final <T> AsyncServerBootstrap registerVirtual(
             final String hostname,
             final String uriPattern,
-            final RequestConsumerSupplier<T> consumerSupplier,
-            final ResponseHandler<T> responseHandler) {
+            final AsyncServerRequestHandler<T> requestHandler) {
         registerVirtual(hostname, uriPattern, new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
             public AsyncServerExchangeHandler get() {
-                return new BasicServerExchangeHandler<>(consumerSupplier, responseHandler);
+                return new BasicServerExchangeHandler<>(requestHandler);
             }
 
         });

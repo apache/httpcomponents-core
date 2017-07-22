@@ -77,14 +77,12 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.impl.nio.AbstractClassicServerExchangeHandler;
-import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityConsumer;
-import org.apache.hc.core5.http.impl.nio.entity.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncServerResponseTrigger;
 import org.apache.hc.core5.http.nio.BasicPushProducer;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
@@ -93,6 +91,8 @@ import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.nio.entity.AbstractClassicEntityConsumer;
+import org.apache.hc.core5.http.nio.entity.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityProducer;
@@ -100,8 +100,8 @@ import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncPushHandler;
+import org.apache.hc.core5.http.nio.support.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.ResponseTrigger;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
@@ -576,7 +576,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, Void> request,
-                            final ResponseTrigger responseTrigger,
+                            final AsyncServerResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
                         responseTrigger.pushPromise(
                                 new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/stuff")),
@@ -656,7 +656,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, Void> request,
-                            final ResponseTrigger responseTrigger,
+                            final AsyncServerResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
 
                         responseTrigger.pushPromise(
@@ -777,7 +777,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, Void> request,
-                            final ResponseTrigger responseTrigger,
+                            final AsyncServerResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
                         responseTrigger.submitResponse(
                                 new BasicResponseProducer(HttpStatus.SC_OK, "All is well"));
@@ -855,7 +855,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                             producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
                         }
                         responseProducer.set(producer);
-                        responseChannel.sendResponse(producer.produceResponse(), producer.getEntityDetails());
+                        producer.sendResponse(responseChannel);
                     }
 
                     @Override
@@ -917,7 +917,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, String> requestMessage,
-                            final ResponseTrigger responseTrigger,
+                            final AsyncServerResponseTrigger responseTrigger,
                             final HttpContext context) throws HttpException, IOException {
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,

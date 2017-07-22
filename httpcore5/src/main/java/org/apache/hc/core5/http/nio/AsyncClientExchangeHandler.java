@@ -38,15 +38,13 @@ import org.apache.hc.core5.http.HttpResponse;
  *
  * @since 5.0
  */
-public interface AsyncClientExchangeHandler extends AsyncDataConsumer, AsyncDataProducer {
+public interface AsyncClientExchangeHandler extends AsyncDataExchangeHandler {
 
     void produceRequest(RequestChannel channel) throws HttpException, IOException;
 
     void consumeResponse(HttpResponse response, EntityDetails entityDetails) throws HttpException, IOException;
 
     void consumeInformation(HttpResponse response) throws HttpException, IOException;
-
-    void failed(Exception cause);
 
     void cancel();
 

@@ -24,21 +24,16 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.nio.support;
-
-import java.io.IOException;
-
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.protocol.HttpContext;
+package org.apache.hc.core5.http.nio;
 
 /**
+ * Abstract asynchronous data exchange handler that acts as a data consumer
+ * and a data producer.
+ *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.SAFE)
-public interface ResponseHandler<T> {
+public interface AsyncDataExchangeHandler extends AsyncDataConsumer, AsyncDataProducer {
 
-    void handle(T requestMessage, ResponseTrigger responseTrigger, HttpContext context) throws HttpException, IOException;
+    void failed(Exception cause);
 
 }

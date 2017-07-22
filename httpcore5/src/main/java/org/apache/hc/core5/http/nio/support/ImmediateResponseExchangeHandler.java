@@ -70,7 +70,7 @@ public final class ImmediateResponseExchangeHandler implements AsyncServerExchan
             final HttpRequest request,
             final EntityDetails entityDetails,
             final ResponseChannel responseChannel) throws HttpException, IOException {
-        responseChannel.sendResponse(responseProducer.produceResponse(), responseProducer.getEntityDetails());
+        responseProducer.sendResponse(responseChannel);
     }
 
     @Override

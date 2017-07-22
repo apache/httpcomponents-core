@@ -46,6 +46,7 @@ import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.http2.impl.nio.ClientHttp2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiatorFactory;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
+import org.apache.hc.core5.http2.nio.support.AsyncPushConsumerRegistry;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
