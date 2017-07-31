@@ -31,11 +31,19 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.config.CharCodingConfig;
+import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
-import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
+import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
+import org.apache.hc.core5.http.impl.io.DefaultClassicHttpResponseFactory;
+import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.support.UriHttpRequestHandlerMapper;
@@ -92,16 +100,25 @@ public class ClassicTestServer {
 
     public void start(final HttpProcessor httpProcessor, final HttpExpectationVerifier expectationVerifier) throws IOException {
         if (serverRef.get() == null) {
-            final HttpServer server = ServerBootstrap.bootstrap()
-                    .setSocketConfig(socketConfig)
-                    .setSslContext(sslContext)
-                    .setHttpProcessor(httpProcessor)
-                    .setExpectationVerifier(expectationVerifier)
-                    .setHandlerMapper(this.registry)
-                    .setConnectionFactory(LoggingBHttpServerConnectionFactory.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
-                    .setExceptionListener(LoggingExceptionListener.INSTANCE)
-                    .create();
+            final HttpService httpService = new HttpService(
+                    httpProcessor != null ? httpProcessor : HttpProcessors.server(),
+                    DefaultConnectionReuseStrategy.INSTANCE,
+                    DefaultClassicHttpResponseFactory.INSTANCE,
+                    registry,
+                    expectationVerifier,
+                    LoggingHttp1StreamListener.INSTANCE_CLIENT);
+            final HttpServer server = new HttpServer(
+                    0,
+                    httpService,
+                    null,
+                    socketConfig,
+                    sslContext != null ? sslContext.getServerSocketFactory() : ServerSocketFactory.getDefault(),
+                    new DefaultBHttpServerConnectionFactory(
+                            sslContext != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
+                            H1Config.DEFAULT,
+                            CharCodingConfig.DEFAULT),
+                    null,
+                    LoggingExceptionListener.INSTANCE);
             if (serverRef.compareAndSet(null, server)) {
                 server.start();
             }
