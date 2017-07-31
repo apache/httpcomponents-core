@@ -40,13 +40,15 @@ import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
+import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.http2.impl.nio.ClientHttp2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiatorFactory;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
-import org.apache.hc.core5.http2.nio.support.AsyncPushConsumerRegistry;
+import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolPolicy;
@@ -63,8 +65,8 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class H2RequesterBootstrap {
 
-    private final List<PushConsumerEntry> pushConsumerList;
-
+    private final List<HandlerEntry<Supplier<AsyncPushConsumer>>> pushConsumerList;
+    private UriPatternType uriPatternType;
     private IOReactorConfig ioReactorConfig;
     private HttpProcessor httpProcessor;
     private CharCodingConfig charCodingConfig;
@@ -209,18 +211,41 @@ public class H2RequesterBootstrap {
         return this;
     }
 
-    public final H2RequesterBootstrap register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
-        Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
-        pushConsumerList.add(new PushConsumerEntry(null, uriPattern, supplier));
+    /**
+     * Assigns {@link UriPatternType} for handler registration.
+     */
+    public final H2RequesterBootstrap setUriPatternType(final UriPatternType uriPatternType) {
+        this.uriPatternType = uriPatternType;
         return this;
     }
 
-    public final H2RequesterBootstrap register(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
+    /**
+     * Registers the given {@link AsyncPushConsumer} {@link Supplier} as a default handler for URIs
+     * matching the given pattern.
+     *
+     * @param uriPattern the pattern to register the handler for.
+     * @param supplier the handler supplier.
+     */
+    public final H2RequesterBootstrap register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
+        Args.notBlank(uriPattern, "URI pattern");
+        Args.notNull(supplier, "Supplier");
+        pushConsumerList.add(new HandlerEntry<>(null, uriPattern, supplier));
+        return this;
+    }
+
+    /**
+     * Registers the given {@link AsyncPushConsumer} {@link Supplier} as a handler for URIs
+     * matching the given host and the pattern.
+     *
+     * @param hostname the host name
+     * @param uriPattern the pattern to register the handler for.
+     * @param supplier the handler supplier.
+     */
+    public final H2RequesterBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
-        pushConsumerList.add(new PushConsumerEntry(hostname, uriPattern, supplier));
+        pushConsumerList.add(new HandlerEntry<>(hostname, uriPattern, supplier));
         return this;
     }
 
@@ -231,9 +256,9 @@ public class H2RequesterBootstrap {
                 timeToLive,
                 connPoolPolicy,
                 connPoolListener);
-        final AsyncPushConsumerRegistry pushConsumerRegistry = new AsyncPushConsumerRegistry();
-        for (final PushConsumerEntry entry: pushConsumerList) {
-            pushConsumerRegistry.register(entry.hostname, entry.uriPattern, entry.supplier);
+        final RequestHandlerRegistry<Supplier<AsyncPushConsumer>> registry = new RequestHandlerRegistry<>(uriPatternType);
+        for (final HandlerEntry<Supplier<AsyncPushConsumer>> entry: pushConsumerList) {
+            registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }
         final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ClientHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
@@ -242,7 +267,7 @@ public class H2RequesterBootstrap {
                 http1StreamListener);
         final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.client(),
-                pushConsumerRegistry,
+                new DefaultAsyncPushConsumerFactory(registry),
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 streamListener);
@@ -258,20 +283,6 @@ public class H2RequesterBootstrap {
                 sessionListener,
                 connPool,
                 tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());
-    }
-
-    private static class PushConsumerEntry {
-
-        final String hostname;
-        final String uriPattern;
-        final Supplier<AsyncPushConsumer> supplier;
-
-        public PushConsumerEntry(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
-            this.hostname = hostname;
-            this.uriPattern = uriPattern;
-            this.supplier = supplier;
-        }
-
     }
 
 }

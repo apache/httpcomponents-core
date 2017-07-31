@@ -173,7 +173,7 @@ public class ClassicReverseProxyExample {
                     }
 
                 })
-                .registerHandler("*", new ProxyHandler(targetHost, requester))
+                .register("*", new ProxyHandler(targetHost, requester))
                 .create();
 
         server.start();

@@ -24,24 +24,26 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.nio;
 
-import java.io.IOException;
-
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.protocol.HttpContext;
+package org.apache.hc.core5.http.protocol;
 
 /**
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.STATELESS)
-public interface AsyncServerRequestHandler<T> {
+public enum UriPatternType {
 
-    AsyncRequestConsumer<T> prepare(HttpRequest request, HttpContext context) throws HttpException;
+    BASIC, REGEX;
 
-    void handle(T requestMessage, AsyncServerResponseTrigger responseTrigger, HttpContext context) throws HttpException, IOException;
+    public static <T> LookupRegistry<T> newMatcher(final UriPatternType type) {
+        if (type == null) {
+            return new UriPatternMatcher<>();
+        }
+        switch (type) {
+            case REGEX:
+                return new UriRegexMatcher<>();
+            default:
+                return new UriPatternMatcher<>();
+        }
+    }
 
 }

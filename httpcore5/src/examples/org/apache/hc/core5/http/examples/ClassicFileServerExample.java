@@ -120,7 +120,7 @@ public class ClassicFileServerExample {
                     }
 
                 })
-                .registerHandler("*", new HttpFileHandler(docRoot))
+                .register("*", new HttpFileHandler(docRoot))
                 .create();
 
         server.start();

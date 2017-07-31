@@ -25,37 +25,67 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.support;
+package org.apache.hc.core5.http.protocol;
 
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.function.Factory;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.protocol.UriPatternMatcher;
+import org.apache.hc.core5.http.HttpRequestMapper;
+import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 
-public class AsyncServerExchangeHandlerRegistry implements HandlerFactory<AsyncServerExchangeHandler> {
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
+public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
 
     private final static String LOCALHOST = "localhost";
 
     private final String canonicalHostName;
-    private final UriPatternMatcher<Supplier<AsyncServerExchangeHandler>> primary;
-    private final ConcurrentMap<String, UriPatternMatcher<Supplier<AsyncServerExchangeHandler>>> virtualMap;
+    private final Factory<LookupRegistry<T>> registryFactory;
+    private final LookupRegistry<T> primary;
+    private final ConcurrentMap<String, LookupRegistry<T>> virtualMap;
 
-    public AsyncServerExchangeHandlerRegistry(final String canonicalHostName) {
+    public RequestHandlerRegistry(final String canonicalHostName, final Factory<LookupRegistry<T>> registryFactory) {
         this.canonicalHostName = Args.notNull(canonicalHostName, "Canonical hostname").toLowerCase(Locale.ROOT);
-        this.primary = new UriPatternMatcher<>();
+        this.registryFactory = registryFactory != null ? registryFactory : new Factory<LookupRegistry<T>>() {
+
+            @Override
+            public LookupRegistry<T> create() {
+                return new UriPatternMatcher<>();
+            }
+
+        };
+        this.primary = this.registryFactory.create();
         this.virtualMap = new ConcurrentHashMap<>();
     }
 
-    private UriPatternMatcher<Supplier<AsyncServerExchangeHandler>> getPatternMatcher(final String hostname) {
+
+
+    public RequestHandlerRegistry(final String canonicalHostName, final UriPatternType patternType) {
+        this(canonicalHostName, new Factory<LookupRegistry<T>>() {
+
+            @Override
+            public LookupRegistry<T> create() {
+                return UriPatternType.newMatcher(patternType);
+            }
+
+        });
+    }
+
+    public RequestHandlerRegistry(final UriPatternType patternType) {
+        this(LOCALHOST, patternType);
+    }
+
+    public RequestHandlerRegistry() {
+        this(LOCALHOST, UriPatternType.BASIC);
+    }
+
+    private LookupRegistry<T> getPatternMatcher(final String hostname) {
         if (hostname == null) {
             return primary;
         }
@@ -66,41 +96,39 @@ public class AsyncServerExchangeHandlerRegistry implements HandlerFactory<AsyncS
     }
 
     @Override
-    public AsyncServerExchangeHandler create(final HttpRequest request) throws HttpException {
+    public T resolve(final HttpRequest request, final HttpContext context) throws MisdirectedRequestException {
         final URIAuthority authority = request.getAuthority();
         final String key = authority != null ? authority.getHostName().toLowerCase(Locale.ROOT) : null;
-        final UriPatternMatcher<Supplier<AsyncServerExchangeHandler>> patternMatcher = getPatternMatcher(key);
+        final LookupRegistry<T> patternMatcher = getPatternMatcher(key);
         if (patternMatcher == null) {
-            return new ImmediateResponseExchangeHandler(HttpStatus.SC_MISDIRECTED_REQUEST, "Not authoritative");
+            throw new MisdirectedRequestException("Not authoritative");
         }
         String path = request.getPath();
         final int i = path.indexOf("?");
         if (i != -1) {
             path = path.substring(0, i);
         }
-        final Supplier<AsyncServerExchangeHandler> supplier = patternMatcher.lookup(path);
-        if (supplier != null) {
-            return supplier.get();
-        }
-        return new ImmediateResponseExchangeHandler(HttpStatus.SC_NOT_FOUND, "Resource not found");
+        return patternMatcher.lookup(path);
     }
 
-    public void register(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
+    public void register(final String hostname, final String uriPattern, final T object) {
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
+        if (object == null) {
+            return;
+        }
         final String key = hostname != null ? hostname.toLowerCase(Locale.ROOT) : null;
         if (hostname == null || hostname.equals(canonicalHostName) || hostname.equals(LOCALHOST)) {
-            primary.register(uriPattern, supplier);
+            primary.register(uriPattern, object);
         } else {
-            UriPatternMatcher<Supplier<AsyncServerExchangeHandler>> matcher = virtualMap.get(key);
-            if (matcher == null) {
-                final UriPatternMatcher<Supplier<AsyncServerExchangeHandler>> newMatcher = new UriPatternMatcher<>();
-                matcher = virtualMap.putIfAbsent(key, newMatcher);
-                if (matcher == null) {
-                    matcher = newMatcher;
+            LookupRegistry<T> patternMatcher = virtualMap.get(key);
+            if (patternMatcher == null) {
+                final LookupRegistry<T> newPatternMatcher = registryFactory.create();
+                patternMatcher = virtualMap.putIfAbsent(key, newPatternMatcher);
+                if (patternMatcher == null) {
+                    patternMatcher = newPatternMatcher;
                 }
             }
-            matcher.register(uriPattern, supplier);
+            patternMatcher.register(uriPattern, object);
         }
     }
 

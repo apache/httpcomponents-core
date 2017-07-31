@@ -27,8 +27,8 @@
 package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.net.InetAddress;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
@@ -52,15 +52,20 @@ import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.io.HttpRequestHandlerMapper;
-import org.apache.hc.core5.http.io.support.UriHttpRequestHandlerMapper;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
+import org.apache.hc.core5.http.protocol.UriPatternType;
+import org.apache.hc.core5.net.InetAddressUtils;
+import org.apache.hc.core5.util.Args;
 
 /**
  * @since 4.4
  */
 public class ServerBootstrap {
 
+    private final List<HandlerEntry<HttpRequestHandler>> handlerList;
+    private String canonicalHostName;
+    private UriPatternType uriPatternType;
     private int listenerPort;
     private InetAddress localAddress;
     private SocketConfig socketConfig;
@@ -69,8 +74,6 @@ public class ServerBootstrap {
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
     private HttpResponseFactory<ClassicHttpResponse> responseFactory;
-    private HttpRequestHandlerMapper handlerMapper;
-    private Map<String, HttpRequestHandler> handlerMap;
     private HttpExpectationVerifier expectationVerifier;
     private ServerSocketFactory serverSocketFactory;
     private SSLContext sslContext;
@@ -80,10 +83,21 @@ public class ServerBootstrap {
     private Http1StreamListener streamListener;
 
     private ServerBootstrap() {
+        this.handlerList = new ArrayList<>();
     }
 
     public static ServerBootstrap bootstrap() {
         return new ServerBootstrap();
+    }
+
+    /**
+     * Sets canonical name (fully qualified domain name) of the server.
+     *
+     * @since 5.0
+     */
+    public final ServerBootstrap setCanonicalHostName(final String canonicalHostName) {
+        this.canonicalHostName = canonicalHostName;
+        return this;
     }
 
     /**
@@ -151,31 +165,40 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpRequestHandlerMapper} instance.
+     * Assigns {@link UriPatternType} for handler registration.
      */
-    public final ServerBootstrap setHandlerMapper(final HttpRequestHandlerMapper handlerMapper) {
-        this.handlerMapper = handlerMapper;
+    public final ServerBootstrap  setUriPatternType(final UriPatternType uriPatternType) {
+        this.uriPatternType = uriPatternType;
+        return this;
+    }
+
+    /**
+     * Registers the given {@link HttpRequestHandler} as a default handler for URIs
+     * matching the given pattern.
+     *
+     * @param uriPattern the pattern to register the handler for.
+     * @param requestHandler the handler.
+     */
+    public final ServerBootstrap register(final String uriPattern, final HttpRequestHandler requestHandler) {
+        Args.notBlank(uriPattern, "URI pattern");
+        Args.notNull(requestHandler, "Supplier");
+        handlerList.add(new HandlerEntry<>(null, uriPattern, requestHandler));
         return this;
     }
 
     /**
      * Registers the given {@link HttpRequestHandler} as a handler for URIs
-     * matching the given pattern.
-     * <p>
-     * Please note this value can be overridden by the {@link #setHandlerMapper(
-     *HttpRequestHandlerMapper)} method.
+     * matching the given host and the pattern.
      *
-     * @param pattern the pattern to register the handler for.
-     * @param handler the handler.
+     * @param hostname
+     * @param uriPattern the pattern to register the handler for.
+     * @param requestHandler the handler.
      */
-    public final ServerBootstrap registerHandler(final String pattern, final HttpRequestHandler handler) {
-        if (pattern == null || handler == null) {
-            return this;
-        }
-        if (handlerMap == null) {
-            handlerMap = new LinkedHashMap<>();
-        }
-        handlerMap.put(pattern, handler);
+    public final ServerBootstrap registerVirtual(final String hostname, final String uriPattern, final HttpRequestHandler requestHandler) {
+        Args.notBlank(hostname, "Hostname");
+        Args.notBlank(uriPattern, "URI pattern");
+        Args.notNull(requestHandler, "Supplier");
+        handlerList.add(new HandlerEntry<>(hostname, uriPattern, requestHandler));
         return this;
     }
 
@@ -240,21 +263,16 @@ public class ServerBootstrap {
     }
 
     public HttpServer create() {
+        final RequestHandlerRegistry<HttpRequestHandler> requestHandlerRegistry = new RequestHandlerRegistry<>(
+                canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
+                uriPatternType);
+        for (final HandlerEntry<HttpRequestHandler> entry: handlerList) {
+            requestHandlerRegistry.register(entry.hostname, entry.uriPattern, entry.handler);
+        }
 
         HttpProcessor httpProcessorCopy = this.httpProcessor;
         if (httpProcessorCopy == null) {
             httpProcessorCopy = HttpProcessors.server();
-        }
-
-        HttpRequestHandlerMapper handlerMapperCopy = this.handlerMapper;
-        if (handlerMapperCopy == null) {
-            final UriHttpRequestHandlerMapper reqistry = new UriHttpRequestHandlerMapper();
-            if (handlerMap != null) {
-                for (final Map.Entry<String, HttpRequestHandler> entry: handlerMap.entrySet()) {
-                    reqistry.register(entry.getKey(), entry.getValue());
-                }
-            }
-            handlerMapperCopy = reqistry;
         }
 
         ConnectionReuseStrategy connStrategyCopy = this.connStrategy;
@@ -268,7 +286,7 @@ public class ServerBootstrap {
         }
 
         final HttpService httpService = new HttpService(
-                httpProcessorCopy, connStrategyCopy, responseFactoryCopy, handlerMapperCopy,
+                httpProcessorCopy, connStrategyCopy, responseFactoryCopy, requestHandlerRegistry,
                 this.expectationVerifier, this.streamListener);
 
         ServerSocketFactory serverSocketFactoryCopy = this.serverSocketFactory;

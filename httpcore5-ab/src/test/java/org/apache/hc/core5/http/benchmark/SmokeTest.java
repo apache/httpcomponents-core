@@ -52,7 +52,7 @@ public class SmokeTest {
     @Before
     public void setup() throws Exception {
         server = ServerBootstrap.bootstrap()
-                .registerHandler("/", new HttpRequestHandler() {
+                .register("/", new HttpRequestHandler() {
                     @Override
                     public void handle(
                             final ClassicHttpRequest request,
@@ -68,7 +68,9 @@ public class SmokeTest {
 
     @After
     public void shutdown() throws Exception {
-        server.shutdown(ShutdownType.IMMEDIATE);
+        if (server != null) {
+            server.shutdown(ShutdownType.IMMEDIATE);
+        }
     }
 
     @Test

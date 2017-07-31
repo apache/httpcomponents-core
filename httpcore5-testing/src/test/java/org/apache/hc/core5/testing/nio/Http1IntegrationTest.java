@@ -1348,7 +1348,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 new HandlerFactory<AsyncServerExchangeHandler>() {
 
                     @Override
-                    public AsyncServerExchangeHandler create(final HttpRequest request) throws HttpException {
+                    public AsyncServerExchangeHandler create(
+                            final HttpRequest request,
+                            final HttpContext context) throws HttpException {
                         return new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
 
                             @Override

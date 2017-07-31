@@ -28,6 +28,7 @@ package org.apache.hc.core5.http.nio;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Abstract handler factory.
@@ -38,6 +39,6 @@ import org.apache.hc.core5.http.HttpRequest;
  */
 public interface HandlerFactory<T extends ResourceHolder> {
 
-    T create(HttpRequest request) throws HttpException;
+    T create(HttpRequest request, HttpContext context) throws HttpException;
 
 }

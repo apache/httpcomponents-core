@@ -100,7 +100,7 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
 
             final AsyncPushConsumer handler;
             try {
-                handler = pushHandlerFactory != null ? pushHandlerFactory.create(request) : null;
+                handler = pushHandlerFactory != null ? pushHandlerFactory.create(request, context) : null;
             } catch (final ProtocolException ex) {
                 throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
             }

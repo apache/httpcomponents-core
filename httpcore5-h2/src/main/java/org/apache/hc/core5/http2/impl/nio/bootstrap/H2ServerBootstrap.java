@@ -37,16 +37,19 @@ import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
-import org.apache.hc.core5.http.nio.support.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestParserFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseWriterFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
+import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
+import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
@@ -66,8 +69,9 @@ import org.apache.hc.core5.util.Args;
  */
 public class H2ServerBootstrap {
 
-    private final List<HandlerEntry> handlerList;
+    private final List<HandlerEntry<Supplier<AsyncServerExchangeHandler>>> handlerList;
     private String canonicalHostName;
+    private UriPatternType uriPatternType;
     private IOReactorConfig ioReactorConfig;
     private HttpProcessor httpProcessor;
     private CharCodingConfig charCodingConfig;
@@ -186,21 +190,51 @@ public class H2ServerBootstrap {
         return this;
     }
 
-    public final H2ServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
-        Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
-        handlerList.add(new HandlerEntry(null, uriPattern, supplier));
+    /**
+     * Assigns {@link UriPatternType} for handler registration.
+     */
+    public final H2ServerBootstrap setUriPatternType(final UriPatternType uriPatternType) {
+        this.uriPatternType = uriPatternType;
         return this;
     }
 
+    /**
+     * Registers the given {@link AsyncServerExchangeHandler} {@link Supplier} as a default handler for URIs
+     * matching the given pattern.
+     *
+     * @param uriPattern the pattern to register the handler for.
+     * @param supplier the handler supplier.
+     */
+    public final H2ServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
+        Args.notBlank(uriPattern, "URI pattern");
+        Args.notNull(supplier, "Supplier");
+        handlerList.add(new HandlerEntry<>(null, uriPattern, supplier));
+        return this;
+    }
+
+    /**
+     * Registers the given {@link AsyncServerExchangeHandler} {@link Supplier} as a handler for URIs
+     * matching the given host and the pattern.
+     *
+     * @param hostname the host name
+     * @param uriPattern the pattern to register the handler for.
+     * @param supplier the handler supplier.
+     */
     public final H2ServerBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
-        handlerList.add(new HandlerEntry(hostname, uriPattern, supplier));
+        handlerList.add(new HandlerEntry<>(hostname, uriPattern, supplier));
         return this;
     }
 
+    /**
+     * Registers the given {@link AsyncServerRequestHandler} as a default handler for URIs
+     * matching the given pattern.
+     *
+     * @param uriPattern the pattern to register the handler for.
+     * @param requestHandler the handler.
+     */
     public final <T> H2ServerBootstrap register(
             final String uriPattern,
             final AsyncServerRequestHandler<T> requestHandler) {
@@ -215,6 +249,14 @@ public class H2ServerBootstrap {
         return this;
     }
 
+    /**
+     * Registers the given {@link AsyncServerRequestHandler} as a handler for URIs
+     * matching the given host and the pattern.
+     *
+     * @param hostname the host name
+     * @param uriPattern the pattern to register the handler for.
+     * @param requestHandler the handler.
+     */
     public final <T> H2ServerBootstrap registerVirtual(
             final String hostname,
             final String uriPattern,
@@ -231,11 +273,13 @@ public class H2ServerBootstrap {
     }
 
     public HttpAsyncServer create() {
-        final AsyncServerExchangeHandlerRegistry exchangeHandlerFactory = new AsyncServerExchangeHandlerRegistry(
-                canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName());
-        for (final HandlerEntry entry: handlerList) {
-            exchangeHandlerFactory.register(entry.hostname, entry.uriPattern, entry.supplier);
+        final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry = new RequestHandlerRegistry<>(
+                canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
+                uriPatternType);
+        for (final HandlerEntry<Supplier<AsyncServerExchangeHandler>> entry: handlerList) {
+            registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }
+        final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(registry);
         final ServerHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ServerHttp2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.server(),
                 exchangeHandlerFactory,
@@ -259,20 +303,6 @@ public class H2ServerBootstrap {
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(new int[] {443, 8443}));
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener);
-    }
-
-    private static class HandlerEntry {
-
-        final String hostname;
-        final String uriPattern;
-        final Supplier<AsyncServerExchangeHandler> supplier;
-
-        public HandlerEntry(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
-            this.hostname = hostname;
-            this.uriPattern = uriPattern;
-            this.supplier = supplier;
-        }
-
     }
 
 }

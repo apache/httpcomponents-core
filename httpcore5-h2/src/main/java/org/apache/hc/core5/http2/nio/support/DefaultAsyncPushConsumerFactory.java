@@ -24,24 +24,40 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.nio;
+package org.apache.hc.core5.http2.nio.support;
 
-import java.io.IOException;
-
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpRequestMapper;
+import org.apache.hc.core5.http.MisdirectedRequestException;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.util.Args;
 
 /**
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.STATELESS)
-public interface AsyncServerRequestHandler<T> {
+public final class DefaultAsyncPushConsumerFactory implements HandlerFactory<AsyncPushConsumer> {
 
-    AsyncRequestConsumer<T> prepare(HttpRequest request, HttpContext context) throws HttpException;
+    private final HttpRequestMapper<Supplier<AsyncPushConsumer>> mapper;
 
-    void handle(T requestMessage, AsyncServerResponseTrigger responseTrigger, HttpContext context) throws HttpException, IOException;
+    public DefaultAsyncPushConsumerFactory(final HttpRequestMapper<Supplier<AsyncPushConsumer>> mapper) {
+        this.mapper = Args.notNull(mapper, "Request handler mapper");
+    }
 
+    @Override
+    public AsyncPushConsumer create(final HttpRequest request, final HttpContext context) throws HttpException {
+        try {
+            final Supplier<AsyncPushConsumer> supplier = mapper.resolve(request, context);
+            if (supplier != null) {
+                return supplier.get();
+            } else {
+                return null;
+            }
+        } catch (final MisdirectedRequestException ex) {
+            return null;
+        }
+    }
 }

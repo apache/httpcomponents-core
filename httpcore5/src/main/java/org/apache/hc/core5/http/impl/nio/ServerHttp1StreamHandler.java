@@ -238,7 +238,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
 
         AsyncServerExchangeHandler handler;
         try {
-            handler = exchangeHandlerFactory.create(request);
+            handler = exchangeHandlerFactory.create(request, context);
         } catch (final MisdirectedRequestException ex) {
             handler =  new ImmediateResponseExchangeHandler(HttpStatus.SC_MISDIRECTED_REQUEST, ex.getMessage());
         } catch (final HttpException ex) {

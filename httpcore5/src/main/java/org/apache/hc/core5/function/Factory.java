@@ -24,24 +24,16 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.nio;
 
-import java.io.IOException;
-
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.protocol.HttpContext;
+package org.apache.hc.core5.function;
 
 /**
+ * Abstract object factory.
+ *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.STATELESS)
-public interface AsyncServerRequestHandler<T> {
+public interface Factory<T> {
 
-    AsyncRequestConsumer<T> prepare(HttpRequest request, HttpContext context) throws HttpException;
-
-    void handle(T requestMessage, AsyncServerResponseTrigger responseTrigger, HttpContext context) throws HttpException, IOException;
+    T create();
 
 }

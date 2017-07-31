@@ -187,7 +187,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
 
                 final AsyncServerExchangeHandler handler;
                 try {
-                    handler = exchangeHandlerFactory != null ? exchangeHandlerFactory.create(request) : null;
+                    handler = exchangeHandlerFactory != null ? exchangeHandlerFactory.create(request, context) : null;
                 } catch (final ProtocolException ex) {
                     throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
                 }

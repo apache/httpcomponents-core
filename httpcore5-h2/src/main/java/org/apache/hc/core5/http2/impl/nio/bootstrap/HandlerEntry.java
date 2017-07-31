@@ -24,24 +24,18 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.nio;
+package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
-import java.io.IOException;
+final class HandlerEntry<T> {
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.protocol.HttpContext;
+    final String hostname;
+    final String uriPattern;
+    final T handler;
 
-/**
- * @since 5.0
- */
-@Contract(threading = ThreadingBehavior.STATELESS)
-public interface AsyncServerRequestHandler<T> {
-
-    AsyncRequestConsumer<T> prepare(HttpRequest request, HttpContext context) throws HttpException;
-
-    void handle(T requestMessage, AsyncServerResponseTrigger responseTrigger, HttpContext context) throws HttpException, IOException;
+    public HandlerEntry(final String hostname, final String uriPattern, final T handler) {
+        this.hostname = hostname;
+        this.uriPattern = uriPattern;
+        this.handler = handler;
+    }
 
 }

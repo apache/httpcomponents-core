@@ -37,11 +37,12 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
-import org.apache.hc.core5.http.nio.support.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
+import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
@@ -52,12 +53,12 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 public class Http2TestServer extends AsyncServer {
 
     private final SSLContext sslContext;
-    private final AsyncServerExchangeHandlerRegistry handlerRegistry;
+    private final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry;
 
     public Http2TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig);
         this.sslContext = sslContext;
-        this.handlerRegistry = new AsyncServerExchangeHandlerRegistry("localhost");
+        this.registry = new RequestHandlerRegistry<>();
     }
 
     public Http2TestServer() throws IOException {
@@ -65,7 +66,7 @@ public class Http2TestServer extends AsyncServer {
     }
 
     public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
-        handlerRegistry.register(null, uriPattern, supplier);
+        registry.register(null, uriPattern, supplier);
     }
 
     public <T> void register(
@@ -88,7 +89,7 @@ public class Http2TestServer extends AsyncServer {
     public InetSocketAddress start(final HttpProcessor httpProcessor, final H2Config h2Config) throws Exception {
         start(new InternalServerHttp2EventHandlerFactory(
                 httpProcessor,
-                handlerRegistry,
+                new DefaultAsyncResponseExchangeHandlerFactory(registry),
                 HttpVersionPolicy.FORCE_HTTP_2,
                 h2Config,
                 H1Config.DEFAULT,
@@ -102,7 +103,7 @@ public class Http2TestServer extends AsyncServer {
     public InetSocketAddress start(final HttpProcessor httpProcessor, final H1Config h1Config) throws Exception {
         start(new InternalServerHttp2EventHandlerFactory(
                 httpProcessor,
-                handlerRegistry,
+                new DefaultAsyncResponseExchangeHandlerFactory(registry),
                 HttpVersionPolicy.FORCE_HTTP_1,
                 H2Config.DEFAULT,
                 h1Config,

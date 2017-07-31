@@ -46,15 +46,15 @@ import org.apache.hc.core5.http.impl.io.DefaultClassicHttpResponseFactory;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.io.support.UriHttpRequestHandlerMapper;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.io.ShutdownType;
 
 public class ClassicTestServer {
 
     private final SSLContext sslContext;
     private final SocketConfig socketConfig;
-    private final UriHttpRequestHandlerMapper registry;
+    private final RequestHandlerRegistry<HttpRequestHandler> registry;
 
     private final AtomicReference<HttpServer> serverRef;
 
@@ -62,7 +62,7 @@ public class ClassicTestServer {
         super();
         this.sslContext = sslContext;
         this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
-        this.registry = new UriHttpRequestHandlerMapper();
+        this.registry = new RequestHandlerRegistry<>();
         this.serverRef = new AtomicReference<>(null);
     }
 
@@ -74,10 +74,12 @@ public class ClassicTestServer {
         this(null, null);
     }
 
-    public void registerHandler(
-            final String pattern,
-            final HttpRequestHandler handler) {
-        this.registry.register(pattern, handler);
+    public void registerHandler(final String pattern, final HttpRequestHandler handler) {
+        this.registry.register(null, pattern, handler);
+    }
+
+    public void registerHandlerVirtual(final String hostname, final String pattern, final HttpRequestHandler handler) {
+        this.registry.register(hostname, pattern, handler);
     }
 
     public int getPort() {

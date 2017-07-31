@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpRequestMapper;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
@@ -51,7 +52,6 @@ import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.io.HttpRequestHandlerMapper;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -69,7 +69,7 @@ import org.apache.hc.core5.util.Args;
  * individual {@link HttpRequestHandler}s are expected to implement
  * application specific content generation and processing.
  * <p>
- * {@code HttpService} uses {@link HttpRequestHandlerMapper} to map
+ * {@code HttpService} uses {@link HttpRequestMapper} to map
  * matching request handler for a particular request URI of an incoming HTTP
  * request.
  * <p>
@@ -82,7 +82,7 @@ import org.apache.hc.core5.util.Args;
 public class HttpService {
 
     private final HttpProcessor processor;
-    private final HttpRequestHandlerMapper handlerMapper;
+    private final HttpRequestMapper<HttpRequestHandler> handlerMapper;
     private final ConnectionReuseStrategy connReuseStrategy;
     private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
     private final HttpExpectationVerifier expectationVerifier;
@@ -105,7 +105,7 @@ public class HttpService {
             final HttpProcessor processor,
             final ConnectionReuseStrategy connReuseStrategy,
             final HttpResponseFactory<ClassicHttpResponse> responseFactory,
-            final HttpRequestHandlerMapper handlerMapper,
+            final HttpRequestMapper<HttpRequestHandler> handlerMapper,
             final HttpExpectationVerifier expectationVerifier,
             final Http1StreamListener streamListener) {
         super();
@@ -135,7 +135,7 @@ public class HttpService {
             final HttpProcessor processor,
             final ConnectionReuseStrategy connReuseStrategy,
             final HttpResponseFactory<ClassicHttpResponse> responseFactory,
-            final HttpRequestHandlerMapper handlerMapper) {
+            final HttpRequestMapper<HttpRequestHandler> handlerMapper) {
         this(processor, connReuseStrategy, responseFactory, handlerMapper, null, null);
     }
 
@@ -148,7 +148,7 @@ public class HttpService {
      * @since 4.3
      */
     public HttpService(
-            final HttpProcessor processor, final HttpRequestHandlerMapper handlerMapper) {
+            final HttpProcessor processor, final HttpRequestMapper<HttpRequestHandler> handlerMapper) {
         this(processor, null, null, handlerMapper);
     }
 
@@ -314,7 +314,7 @@ public class HttpService {
             final HttpContext context) throws HttpException, IOException {
         HttpRequestHandler handler = null;
         if (this.handlerMapper != null) {
-            handler = this.handlerMapper.lookup(request, context);
+            handler = this.handlerMapper.resolve(request, context);
         }
         if (handler != null) {
             handler.handle(request, response, context);

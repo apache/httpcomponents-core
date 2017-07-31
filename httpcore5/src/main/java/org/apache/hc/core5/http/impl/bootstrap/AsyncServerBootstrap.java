@@ -46,9 +46,11 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
-import org.apache.hc.core5.http.nio.support.AsyncServerExchangeHandlerRegistry;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
+import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
+import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -61,8 +63,9 @@ import org.apache.hc.core5.util.Args;
  */
 public class AsyncServerBootstrap {
 
-    private final List<HandlerEntry> handlerList;
+    private final List<HandlerEntry<Supplier<AsyncServerExchangeHandler>>> handlerList;
     private String canonicalHostName;
+    private UriPatternType uriPatternType;
     private IOReactorConfig ioReactorConfig;
     private H1Config h1Config;
     private CharCodingConfig charCodingConfig;
@@ -83,8 +86,6 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets canonical name (fully qualified domain name) of the server.
-     *
-     * @since 5.0
      */
     public final AsyncServerBootstrap setCanonicalHostName(final String canonicalHostName) {
         this.canonicalHostName = canonicalHostName;
@@ -165,21 +166,51 @@ public class AsyncServerBootstrap {
         return this;
     }
 
-    public final AsyncServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
-        Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
-        handlerList.add(new HandlerEntry(null, uriPattern, supplier));
+    /**
+     * Assigns {@link UriPatternType} for handler registration.
+     */
+    public final AsyncServerBootstrap setUriPatternType(final UriPatternType uriPatternType) {
+        this.uriPatternType = uriPatternType;
         return this;
     }
 
+    /**
+     * Registers the given {@link AsyncServerExchangeHandler} {@link Supplier} as a default handler for URIs
+     * matching the given pattern.
+     *
+     * @param uriPattern the pattern to register the handler for.
+     * @param supplier the handler supplier.
+     */
+    public final AsyncServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
+        Args.notBlank(uriPattern, "URI pattern");
+        Args.notNull(supplier, "Supplier");
+        handlerList.add(new HandlerEntry<>(null, uriPattern, supplier));
+        return this;
+    }
+
+    /**
+     * Registers the given {@link AsyncServerExchangeHandler} {@link Supplier} as a handler for URIs
+     * matching the given host and the pattern.
+     *
+     * @param hostname the host name
+     * @param uriPattern the pattern to register the handler for.
+     * @param supplier the handler supplier.
+     */
     public final AsyncServerBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
-        handlerList.add(new HandlerEntry(hostname, uriPattern, supplier));
+        handlerList.add(new HandlerEntry<>(hostname, uriPattern, supplier));
         return this;
     }
 
+    /**
+     * Registers the given {@link AsyncServerRequestHandler} as a default handler for URIs
+     * matching the given pattern.
+     *
+     * @param uriPattern the pattern to register the handler for.
+     * @param requestHandler the handler.
+     */
     public final <T> AsyncServerBootstrap register(
             final String uriPattern,
             final AsyncServerRequestHandler<T> requestHandler) {
@@ -194,6 +225,14 @@ public class AsyncServerBootstrap {
         return this;
     }
 
+    /**
+     * Registers the given {@link AsyncServerRequestHandler} as a handler for URIs
+     * matching the given host and the pattern.
+     *
+     * @param hostname the host name
+     * @param uriPattern the pattern to register the handler for.
+     * @param requestHandler the handler.
+     */
     public final <T> AsyncServerBootstrap registerVirtual(
             final String hostname,
             final String uriPattern,
@@ -210,14 +249,15 @@ public class AsyncServerBootstrap {
     }
 
     public HttpAsyncServer create() {
-        final AsyncServerExchangeHandlerRegistry exchangeHandlerFactory = new AsyncServerExchangeHandlerRegistry(
-                canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName());
-        for (final HandlerEntry entry: handlerList) {
-            exchangeHandlerFactory.register(entry.hostname, entry.uriPattern, entry.supplier);
+        final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry = new RequestHandlerRegistry<>(
+                canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
+                uriPatternType);
+        for (final HandlerEntry<Supplier<AsyncServerExchangeHandler>> entry: handlerList) {
+            registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }
         final ServerHttp1StreamDuplexerFactory streamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
-                exchangeHandlerFactory,
+                new DefaultAsyncResponseExchangeHandlerFactory(registry),
                 h1Config != null ? h1Config : H1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 connStrategy != null ? connStrategy : DefaultConnectionReuseStrategy.INSTANCE,
@@ -230,20 +270,6 @@ public class AsyncServerBootstrap {
                 streamHandlerFactory,
                 tlsStrategy != null ? tlsStrategy : new BasicServerTlsStrategy(new int[] {443, 8443}));
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener);
-    }
-
-    private static class HandlerEntry {
-
-        final String hostname;
-        final String uriPattern;
-        final Supplier<AsyncServerExchangeHandler> supplier;
-
-        public HandlerEntry(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
-            this.hostname = hostname;
-            this.uriPattern = uriPattern;
-            this.supplier = supplier;
-        }
-
     }
 
 }

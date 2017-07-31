@@ -40,10 +40,11 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
-import org.apache.hc.core5.http2.nio.support.AsyncPushConsumerRegistry;
+import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -53,12 +54,12 @@ import org.apache.hc.core5.util.TimeValue;
 public class Http2TestClient extends AsyncRequester {
 
     private final SSLContext sslContext;
-    private final AsyncPushConsumerRegistry pushConsumerRegistry;
+    private final RequestHandlerRegistry<Supplier<AsyncPushConsumer>> registry;
 
     public Http2TestClient(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig);
         this.sslContext = sslContext;
-        this.pushConsumerRegistry = new AsyncPushConsumerRegistry();
+        this.registry = new RequestHandlerRegistry<>();
     }
 
     public Http2TestClient() throws IOException {
@@ -68,7 +69,7 @@ public class Http2TestClient extends AsyncRequester {
     public void register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notNull(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
-        pushConsumerRegistry.register(null, uriPattern, supplier);
+        registry.register(null, uriPattern, supplier);
     }
 
     public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
@@ -78,7 +79,7 @@ public class Http2TestClient extends AsyncRequester {
     public void start(final HttpProcessor httpProcessor, final H2Config h2Config) throws IOException {
         start(new InternalClientHttp2EventHandlerFactory(
                 httpProcessor,
-                pushConsumerRegistry,
+                new DefaultAsyncPushConsumerFactory(registry),
                 HttpVersionPolicy.FORCE_HTTP_2,
                 h2Config,
                 H1Config.DEFAULT,
@@ -89,7 +90,7 @@ public class Http2TestClient extends AsyncRequester {
     public void start(final HttpProcessor httpProcessor, final H1Config h1Config) throws IOException {
         start(new InternalClientHttp2EventHandlerFactory(
                 httpProcessor,
-                pushConsumerRegistry,
+                new DefaultAsyncPushConsumerFactory(registry),
                 HttpVersionPolicy.FORCE_HTTP_1,
                 H2Config.DEFAULT,
                 h1Config,

@@ -231,7 +231,7 @@ public class TestingFramework {
 
         final ServerBootstrap serverBootstrap = ServerBootstrap.bootstrap()
                                           .setSocketConfig(socketConfig)
-                                          .registerHandler("/*", requestHandler);
+                                          .register("/*", requestHandler);
 
         server = serverBootstrap.create();
         try {
