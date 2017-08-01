@@ -43,7 +43,6 @@ import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -111,10 +110,6 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
 
             context.setProtocolVersion(HttpVersion.HTTP_2);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-
-            if (exchangeHandler instanceof HttpContextAware) {
-                ((HttpContextAware) exchangeHandler).setContext(context);
-            }
 
             httpProcessor.process(request, null, context);
             connMetrics.incrementRequestCount();

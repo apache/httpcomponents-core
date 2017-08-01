@@ -32,6 +32,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
@@ -40,8 +41,18 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 @Contract(threading = ThreadingBehavior.STATELESS)
 public interface AsyncServerRequestHandler<T> {
 
+    interface ResponseTrigger {
+
+        void sendInformation(HttpResponse response) throws HttpException, IOException;
+
+        void submitResponse(AsyncResponseProducer responseProducer) throws HttpException, IOException;
+
+        void pushPromise(HttpRequest promise, AsyncPushProducer responseProducer) throws HttpException, IOException;
+
+    }
+
     AsyncRequestConsumer<T> prepare(HttpRequest request, HttpContext context) throws HttpException;
 
-    void handle(T requestMessage, AsyncServerResponseTrigger responseTrigger, HttpContext context) throws HttpException, IOException;
+    void handle(T requestMessage, ResponseTrigger responseTrigger, HttpContext context) throws HttpException, IOException;
 
 }

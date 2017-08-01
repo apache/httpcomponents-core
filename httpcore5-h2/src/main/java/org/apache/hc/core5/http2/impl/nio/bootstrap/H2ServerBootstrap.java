@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -279,16 +280,24 @@ public class H2ServerBootstrap {
         for (final HandlerEntry<Supplier<AsyncServerExchangeHandler>> entry: handlerList) {
             registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }
-        final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(registry);
+        final HandlerFactory<AsyncServerExchangeHandler> handlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(
+                registry, new Decorator<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
+                return new BasicAsyncServerExpectationDecorator(handler);
+            }
+
+        });
         final ServerHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ServerHttp2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.server(),
-                exchangeHandlerFactory,
+                handlerFactory,
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 http2StreamListener);
         final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
-                exchangeHandlerFactory,
+                handlerFactory,
                 h1Config != null ? h1Config : H1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,

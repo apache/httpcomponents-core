@@ -55,8 +55,9 @@ import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.io.EofSensorInputStream;
 import org.apache.hc.core5.http.io.EofSensorWatcher;
 import org.apache.hc.core5.http.io.HttpClientConnection;
+import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
-import org.apache.hc.core5.http.io.ResponseHandler;
+import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.HttpEntityWrapper;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -100,6 +101,7 @@ public class HttpRequester implements GracefullyCloseable {
     public ClassicHttpResponse execute(
             final HttpClientConnection connection,
             final ClassicHttpRequest request,
+            final HttpResponseInformationCallback informationCallback,
             final HttpContext context) throws HttpException, IOException {
         Args.notNull(connection, "HTTP connection");
         Args.notNull(request, "HTTP request");
@@ -108,9 +110,16 @@ public class HttpRequester implements GracefullyCloseable {
             throw new ConnectionClosedException("Connection is closed");
         }
         requestExecutor.preProcess(request, httpProcessor, context);
-        final ClassicHttpResponse response = requestExecutor.execute(request, connection, context);
+        final ClassicHttpResponse response = requestExecutor.execute(request, connection, informationCallback, context);
         requestExecutor.postProcess(response, httpProcessor, context);
         return response;
+    }
+
+    public ClassicHttpResponse execute(
+            final HttpClientConnection connection,
+            final ClassicHttpRequest request,
+            final HttpContext context) throws HttpException, IOException {
+        return execute(connection, request, null, context);
     }
 
     public boolean keepAlive(
@@ -129,7 +138,7 @@ public class HttpRequester implements GracefullyCloseable {
             final HttpClientConnection connection,
             final ClassicHttpRequest request,
             final HttpContext context,
-            final ResponseHandler<T> responseHandler) throws HttpException, IOException {
+            final HttpClientResponseHandler<T> responseHandler) throws HttpException, IOException {
         try (final ClassicHttpResponse response = execute(connection, request, context)) {
             final T result = responseHandler.handleResponse(response);
             EntityUtils.consume(response.getEntity());
@@ -188,6 +197,7 @@ public class HttpRequester implements GracefullyCloseable {
     public ClassicHttpResponse execute(
             final HttpHost targetHost,
             final ClassicHttpRequest request,
+            final HttpResponseInformationCallback informationCallback,
             final Timeout connectTimeout,
             final HttpContext context) throws HttpException, IOException {
         Args.notNull(targetHost, "HTTP host");
@@ -212,7 +222,7 @@ public class HttpRequester implements GracefullyCloseable {
                 connection = connectFactory.createConnection(socket);
                 poolEntry.assignConnection(connection);
             }
-            final ClassicHttpResponse response = execute(connection, request, context);
+            final ClassicHttpResponse response = execute(connection, request, informationCallback, context);
             final HttpEntity entity = response.getEntity();
             if (entity != null) {
                 response.setEntity(new HttpEntityWrapper(entity) {
@@ -302,13 +312,21 @@ public class HttpRequester implements GracefullyCloseable {
         }
     }
 
+    public ClassicHttpResponse execute(
+            final HttpHost targetHost,
+            final ClassicHttpRequest request,
+            final Timeout connectTimeout,
+            final HttpContext context) throws HttpException, IOException {
+        return execute(targetHost, request, null, connectTimeout, context);
+    }
+
     public <T> T  execute(
             final HttpHost targetHost,
             final ClassicHttpRequest request,
             final Timeout connectTimeout,
             final HttpContext context,
-            final ResponseHandler<T> responseHandler) throws HttpException, IOException {
-        try (final ClassicHttpResponse response = execute(targetHost, request, connectTimeout, context)) {
+            final HttpClientResponseHandler<T> responseHandler) throws HttpException, IOException {
+        try (final ClassicHttpResponse response = execute(targetHost, request, null, connectTimeout, context)) {
             final T result = responseHandler.handleResponse(response);
             EntityUtils.consume(response.getEntity());
             return result;

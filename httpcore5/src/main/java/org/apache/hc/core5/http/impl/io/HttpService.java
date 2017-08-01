@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -36,7 +37,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -50,10 +51,14 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
-import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerConnection;
+import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.io.support.BasicHttpServerExpectationDecorator;
+import org.apache.hc.core5.http.io.support.BasicHttpServerRequestHandler;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -72,9 +77,6 @@ import org.apache.hc.core5.util.Args;
  * {@code HttpService} uses {@link HttpRequestMapper} to map
  * matching request handler for a particular request URI of an incoming HTTP
  * request.
- * <p>
- * {@code HttpService} can use optional {@link HttpExpectationVerifier}
- * to ensure that incoming requests meet server's expectations.
  *
  * @since 4.0
  */
@@ -82,40 +84,69 @@ import org.apache.hc.core5.util.Args;
 public class HttpService {
 
     private final HttpProcessor processor;
-    private final HttpRequestMapper<HttpRequestHandler> handlerMapper;
+    private final HttpServerRequestHandler requestHandler;
     private final ConnectionReuseStrategy connReuseStrategy;
-    private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
-    private final HttpExpectationVerifier expectationVerifier;
     private final Http1StreamListener streamListener;
 
     /**
      * Create a new HTTP service.
      *
      * @param processor the processor to use on requests and responses
+     * @param handlerMapper  the handler mapper
+     * @param responseFactory  the response factory. If {@code null}
+     *   {@link DefaultClassicHttpResponseFactory#INSTANCE} will be used.
+     * @param connReuseStrategy the connection reuse strategy. If {@code null}
+     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
+     * @param streamListener message stream listener.
+     */
+    public HttpService(
+            final HttpProcessor processor,
+            final HttpRequestMapper<HttpRequestHandler> handlerMapper,
+            final ConnectionReuseStrategy connReuseStrategy,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory,
+            final Http1StreamListener streamListener) {
+        this(processor,
+                new BasicHttpServerExpectationDecorator(new BasicHttpServerRequestHandler(handlerMapper, responseFactory)),
+                connReuseStrategy,
+                streamListener);
+    }
+
+    /**
+     * Create a new HTTP service.
+     *
+     * @param processor the processor to use on requests and responses
+     * @param handlerMapper  the handler mapper
      * @param connReuseStrategy the connection reuse strategy. If {@code null}
      *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
      * @param responseFactory  the response factory. If {@code null}
      *   {@link DefaultClassicHttpResponseFactory#INSTANCE} will be used.
-     * @param handlerMapper  the handler mapper. May be null.
-     * @param expectationVerifier the expectation verifier. May be null.
-     *
-     * @since 4.3
      */
     public HttpService(
             final HttpProcessor processor,
-            final ConnectionReuseStrategy connReuseStrategy,
-            final HttpResponseFactory<ClassicHttpResponse> responseFactory,
             final HttpRequestMapper<HttpRequestHandler> handlerMapper,
-            final HttpExpectationVerifier expectationVerifier,
+            final ConnectionReuseStrategy connReuseStrategy,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory) {
+        this(processor, handlerMapper, connReuseStrategy, responseFactory, null);
+    }
+
+    /**
+     * Create a new HTTP service.
+     *
+     * @param processor the processor to use on requests and responses
+     * @param requestHandler  the request handler.
+     * @param connReuseStrategy the connection reuse strategy. If {@code null}
+     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
+     * @param streamListener message stream listener.
+     */
+    public HttpService(
+            final HttpProcessor processor,
+            final HttpServerRequestHandler requestHandler,
+            final ConnectionReuseStrategy connReuseStrategy,
             final Http1StreamListener streamListener) {
         super();
         this.processor =  Args.notNull(processor, "HTTP processor");
-        this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
-            DefaultConnectionReuseStrategy.INSTANCE;
-        this.responseFactory = responseFactory != null ? responseFactory :
-            DefaultClassicHttpResponseFactory.INSTANCE;
-        this.handlerMapper = handlerMapper;
-        this.expectationVerifier = expectationVerifier;
+        this.requestHandler =  Args.notNull(requestHandler, "Request handler");
+        this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy : DefaultConnectionReuseStrategy.INSTANCE;
         this.streamListener = streamListener;
     }
 
@@ -123,33 +154,11 @@ public class HttpService {
      * Create a new HTTP service.
      *
      * @param processor the processor to use on requests and responses
-     * @param connReuseStrategy the connection reuse strategy. If {@code null}
-     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
-     * @param responseFactory  the response factory. If {@code null}
-     *   {@link DefaultClassicHttpResponseFactory#INSTANCE} will be used.
-     * @param handlerMapper  the handler mapper. May be null.
-     *
-     * @since 4.3
+     * @param requestHandler  the request handler.
      */
     public HttpService(
-            final HttpProcessor processor,
-            final ConnectionReuseStrategy connReuseStrategy,
-            final HttpResponseFactory<ClassicHttpResponse> responseFactory,
-            final HttpRequestMapper<HttpRequestHandler> handlerMapper) {
-        this(processor, connReuseStrategy, responseFactory, handlerMapper, null, null);
-    }
-
-    /**
-     * Create a new HTTP service.
-     *
-     * @param processor the processor to use on requests and responses
-     * @param handlerMapper  the handler mapper. May be null.
-     *
-     * @since 4.3
-     */
-    public HttpService(
-            final HttpProcessor processor, final HttpRequestMapper<HttpRequestHandler> handlerMapper) {
-        this(processor, null, null, handlerMapper);
+            final HttpProcessor processor, final HttpServerRequestHandler requestHandler) {
+        this(processor, requestHandler, null, null);
     }
 
     /**
@@ -166,96 +175,95 @@ public class HttpService {
             final HttpServerConnection conn,
             final HttpContext context) throws IOException, HttpException {
 
-        final ClassicHttpRequest request = conn.receiveRequestHeader();
-        if (streamListener != null) {
-            streamListener.onRequestHead(conn, request);
-        }
-        ClassicHttpResponse response = null;
+        final AtomicBoolean responseSubmitted = new AtomicBoolean(false);
         try {
-            try {
-                conn.receiveRequestEntity(request);
-                final ProtocolVersion transportVersion = request.getVersion();
-                if (transportVersion != null) {
-                    context.setProtocolVersion(transportVersion);
-                }
-                context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
-                context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
-                context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-                this.processor.process(request, request.getEntity(), context);
+            final ClassicHttpRequest request = conn.receiveRequestHeader();
+            if (streamListener != null) {
+                streamListener.onRequestHead(conn, request);
+            }
+            conn.receiveRequestEntity(request);
+            final ProtocolVersion transportVersion = request.getVersion();
+            if (transportVersion != null) {
+                context.setProtocolVersion(transportVersion);
+            }
+            context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
+            context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
+            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+            this.processor.process(request, request.getEntity(), context);
 
-                final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-                final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+            this.requestHandler.handle(request, new HttpServerRequestHandler.ResponseTrigger() {
 
-                if (expectContinue) {
-                    final ClassicHttpResponse ack = this.responseFactory.newHttpResponse(HttpStatus.SC_CONTINUE);
-                    if (this.expectationVerifier != null) {
-                        this.expectationVerifier.verify(request, ack, context);
+                @Override
+                public void sendInformation(final ClassicHttpResponse response) throws HttpException, IOException {
+                    if (responseSubmitted.get()) {
+                        throw new HttpException("Response already submitted");
                     }
-                    if (ack.getCode() < HttpStatus.SC_SUCCESS) {
-                        // Send 1xx response indicating the server expectations
-                        // have been met
-                        conn.sendResponseHeader(ack);
+                    if (response.getCode() >= HttpStatus.SC_SUCCESS) {
+                        throw new HttpException("Invalid intermediate response");
+                    }
+                    if (streamListener != null) {
+                        streamListener.onResponseHead(conn, response);
+                    }
+                    conn.sendResponseHeader(response);
+                    conn.flush();
+                }
+
+                @Override
+                public void submitResponse(final ClassicHttpResponse response) throws HttpException, IOException {
+                    try {
+                        context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+                        processor.process(response, response.getEntity(), context);
+
+                        responseSubmitted.set(true);
+                        conn.sendResponseHeader(response);
                         if (streamListener != null) {
-                            streamListener.onResponseHead(conn, ack);
+                            streamListener.onResponseHead(conn, response);
+                        }
+                        if (MessageSupport.canResponseHaveBody(request.getMethod(), response)) {
+                            conn.sendResponseEntity(response);
+                        }
+                        // Make sure the request content is fully consumed
+                        final HttpEntity entity = request.getEntity();
+                        if (entity != null && entity.isStreaming()) {
+                            final InputStream instream = entity.getContent();
+                            if (instream != null) {
+                                instream.close();
+                            }
+                        }
+                        final boolean keepAlive = connReuseStrategy.keepAlive(request, response, context);
+                        if (streamListener != null) {
+                            streamListener.onExchangeComplete(conn, keepAlive);
+                        }
+                        if (!keepAlive) {
+                            conn.close();
                         }
                         conn.flush();
-                    } else {
-                        response = ack;
+                    } finally {
+                        response.close();
                     }
                 }
-                if (response == null) {
-                    response = this.responseFactory.newHttpResponse(HttpStatus.SC_OK);
-                    doService(request, response, context);
-                }
-            } catch (final HttpException ex) {
-                if (response != null) {
-                    response.close();
-                }
-                response = this.responseFactory.newHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-                handleException(ex, response);
-            }
-            context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-            this.processor.process(response, response.getEntity(), context);
 
-            conn.sendResponseHeader(response);
-            if (streamListener != null) {
-                streamListener.onResponseHead(conn, response);
-            }
-            if (canResponseHaveBody(request, response)) {
-                conn.sendResponseEntity(response);
-            }
-            conn.flush();
+            }, context);
 
-            // Make sure the request content is fully consumed
-            final HttpEntity entity = request.getEntity();
-            if (entity != null && entity.isStreaming()) {
-                final InputStream instream = entity.getContent();
-                if (instream != null) {
-                    instream.close();
+        } catch (final HttpException ex) {
+            if (responseSubmitted.get()) {
+                throw ex;
+            } else {
+                try (final ClassicHttpResponse errorResponse = new BasicClassicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR)) {
+                    handleException(ex, errorResponse);
+                    errorResponse.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                    context.setAttribute(HttpCoreContext.HTTP_RESPONSE, errorResponse);
+                    this.processor.process(errorResponse, errorResponse.getEntity(), context);
+
+                    conn.sendResponseHeader(errorResponse);
+                    if (streamListener != null) {
+                        streamListener.onResponseHead(conn, errorResponse);
+                    }
+                    conn.sendResponseEntity(errorResponse);
+                    conn.close();
                 }
-            }
-            final boolean keepAlive = this.connReuseStrategy.keepAlive(request, response, context);
-            if (streamListener != null) {
-                streamListener.onExchangeComplete(conn, keepAlive);
-            }
-            if (!keepAlive) {
-                conn.close();
-            }
-        } finally {
-            if (response != null) {
-                response.close();
             }
         }
-    }
-
-    private boolean canResponseHaveBody(final ClassicHttpRequest request, final ClassicHttpResponse response) {
-        if (request != null && "HEAD".equalsIgnoreCase(request.getMethod())) {
-            return false;
-        }
-        final int status = response.getCode();
-        return status >= HttpStatus.SC_SUCCESS
-                && status != HttpStatus.SC_NO_CONTENT
-                && status != HttpStatus.SC_NOT_MODIFIED;
     }
 
     /**
@@ -289,38 +297,6 @@ public class HttpService {
             code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         }
         return code;
-    }
-
-    /**
-     * The default implementation of this method attempts to resolve an
-     * {@link HttpRequestHandler} for the request URI of the given request
-     * and, if found, executes its
-     * {@link HttpRequestHandler#handle(ClassicHttpRequest, ClassicHttpResponse, HttpContext)}
-     * method.
-     * <p>
-     * Super-classes can override this method in order to provide a custom
-     * implementation of the request processing logic.
-     *
-     * @param request the HTTP request.
-     * @param response the HTTP response.
-     * @param context the execution context.
-     * @throws IOException in case of an I/O error.
-     * @throws HttpException in case of HTTP protocol violation or a processing
-     *   problem.
-     */
-    protected void doService(
-            final ClassicHttpRequest request,
-            final ClassicHttpResponse response,
-            final HttpContext context) throws HttpException, IOException {
-        HttpRequestHandler handler = null;
-        if (this.handlerMapper != null) {
-            handler = this.handlerMapper.resolve(request, context);
-        }
-        if (handler != null) {
-            handler.handle(request, response, context);
-        } else {
-            response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
-        }
     }
 
 }

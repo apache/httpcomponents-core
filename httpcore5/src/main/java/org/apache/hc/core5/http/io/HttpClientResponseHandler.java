@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.HttpException;
  *
  * @since 4.0
  */
-public interface ResponseHandler<T> {
+public interface HttpClientResponseHandler<T> {
 
     /**
      * Processes an {@link ClassicHttpResponse} and returns some value

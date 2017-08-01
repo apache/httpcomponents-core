@@ -28,20 +28,23 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.io.HttpClientConnection;
+import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 public class TestHttpRequestExecutor {
@@ -152,16 +155,30 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicClassicHttpResponse(100, "OK"),
-                new BasicClassicHttpResponse(101, "OK"),
-                new BasicClassicHttpResponse(102, "OK"),
+                new BasicClassicHttpResponse(100, "Continue"),
+                new BasicClassicHttpResponse(110, "Huh?"),
+                new BasicClassicHttpResponse(111, "Huh?"),
                 new BasicClassicHttpResponse(200, "OK"));
 
-        final ClassicHttpResponse response = executor.execute(request, conn, context);
+        final HttpResponseInformationCallback callback = Mockito.mock(HttpResponseInformationCallback.class);
+
+        final ClassicHttpResponse response = executor.execute(request, conn, callback, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).flush();
         Mockito.verify(conn, Mockito.times(4)).receiveResponseHeader();
         Mockito.verify(conn, Mockito.times(1)).receiveResponseEntity(response);
+
+        final ArgumentCaptor<HttpResponse> responseCaptor = ArgumentCaptor.forClass(HttpResponse.class);
+        Mockito.verify(callback, Mockito.times(2)).execute(responseCaptor.capture(), Mockito.eq(conn), Mockito.eq(context));
+        final List<HttpResponse> infos = responseCaptor.getAllValues();
+        Assert.assertNotNull(infos);
+        Assert.assertEquals(2, infos.size());
+        final HttpResponse info1 = infos.get(0);
+        Assert.assertNotNull(info1);
+        Assert.assertEquals(110, info1.getCode());
+        final HttpResponse info2 = infos.get(1);
+        Assert.assertNotNull(info2);
+        Assert.assertEquals(111, info2.getCode());
 
         executor.postProcess(response, httprocessor, context);
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
@@ -313,7 +330,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionEntityEnclosingRequestUnsupportedIntermediateResponse() throws Exception {
+    public void testExecutionEntityEnclosingRequestWithExpectContinueMultiple1xxResponses() throws Exception {
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
@@ -328,15 +345,36 @@ public class TestHttpRequestExecutor {
         Mockito.verify(httprocessor).process(request, request.getEntity(), context);
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
-                new BasicClassicHttpResponse(101, "OK"));
+                new BasicClassicHttpResponse(110, "Huh?"),
+                new BasicClassicHttpResponse(100, "Continue"),
+                new BasicClassicHttpResponse(111, "Huh?"),
+                new BasicClassicHttpResponse(200, "OK"));
         Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
 
-        try {
-            executor.execute(request, conn, context);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (final ProtocolException ex) {
-            Mockito.verify(conn).close();
-        }
+        final HttpResponseInformationCallback callback = Mockito.mock(HttpResponseInformationCallback.class);
+
+        final ClassicHttpResponse response = executor.execute(request, conn, callback, context);
+        Mockito.verify(conn).sendRequestHeader(request);
+        Mockito.verify(conn).sendRequestEntity(request);
+        Mockito.verify(conn, Mockito.times(2)).flush();
+        Mockito.verify(conn, Mockito.times(2)).isDataAvailable(3000);
+        Mockito.verify(conn, Mockito.times(4)).receiveResponseHeader();
+        Mockito.verify(conn).receiveResponseEntity(response);
+
+        final ArgumentCaptor<HttpResponse> responseCaptor = ArgumentCaptor.forClass(HttpResponse.class);
+        Mockito.verify(callback, Mockito.times(2)).execute(responseCaptor.capture(), Mockito.eq(conn), Mockito.eq(context));
+        final List<HttpResponse> infos = responseCaptor.getAllValues();
+        Assert.assertNotNull(infos);
+        Assert.assertEquals(2, infos.size());
+        final HttpResponse info1 = infos.get(0);
+        Assert.assertNotNull(info1);
+        Assert.assertEquals(110, info1.getCode());
+        final HttpResponse info2 = infos.get(1);
+        Assert.assertNotNull(info2);
+        Assert.assertEquals(111, info2.getCode());
+
+        executor.postProcess(response, httprocessor, context);
+        Mockito.verify(httprocessor).process(response, response.getEntity(), context);
     }
 
     @Test

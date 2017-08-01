@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.LengthRequiredException;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
@@ -189,6 +190,10 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         }
         this.version = transportVersion;
         onResponseReceived(response);
+        final int status = response.getCode();
+        if (status < HttpStatus.SC_INFORMATIONAL) {
+            throw new ProtocolException("Invalid response: " + status);
+        }
         if (response.getCode() >= HttpStatus.SC_SUCCESS) {
             incrementResponseCount();
         }

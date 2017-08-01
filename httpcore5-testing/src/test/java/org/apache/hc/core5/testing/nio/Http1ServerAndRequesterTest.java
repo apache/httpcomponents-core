@@ -57,6 +57,7 @@ import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -102,7 +103,8 @@ public class Http1ServerAndRequesterTest {
                                 public void handleRequest(
                                         final HttpRequest request,
                                         final EntityDetails entityDetails,
-                                        final ResponseChannel responseChannel) throws HttpException, IOException {
+                                        final ResponseChannel responseChannel,
+                                        final HttpContext context) throws HttpException, IOException {
                                     super.handleRequest(request, entityDetails, new ResponseChannel() {
 
                                         @Override
@@ -125,7 +127,7 @@ public class Http1ServerAndRequesterTest {
                                             responseChannel.pushPromise(promise, pushProducer);
                                         }
 
-                                    });
+                                    }, context);
                                 }
                             };
                         }

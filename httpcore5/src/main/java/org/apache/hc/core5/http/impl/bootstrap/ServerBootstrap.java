@@ -50,7 +50,6 @@ import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
 import org.apache.hc.core5.http.impl.io.DefaultClassicHttpResponseFactory;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
-import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
@@ -74,7 +73,6 @@ public class ServerBootstrap {
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
     private HttpResponseFactory<ClassicHttpResponse> responseFactory;
-    private HttpExpectationVerifier expectationVerifier;
     private ServerSocketFactory serverSocketFactory;
     private SSLContext sslContext;
     private SSLServerSetupHandler sslSetupHandler;
@@ -203,14 +201,6 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpExpectationVerifier} instance.
-     */
-    public final ServerBootstrap setExpectationVerifier(final HttpExpectationVerifier expectationVerifier) {
-        this.expectationVerifier = expectationVerifier;
-        return this;
-    }
-
-    /**
      * Assigns {@link HttpConnectionFactory} instance.
      */
     public final ServerBootstrap setConnectionFactory(
@@ -286,8 +276,7 @@ public class ServerBootstrap {
         }
 
         final HttpService httpService = new HttpService(
-                httpProcessorCopy, connStrategyCopy, responseFactoryCopy, requestHandlerRegistry,
-                this.expectationVerifier, this.streamListener);
+                httpProcessorCopy, requestHandlerRegistry, connStrategyCopy, responseFactoryCopy, this.streamListener);
 
         ServerSocketFactory serverSocketFactoryCopy = this.serverSocketFactory;
         if (serverSocketFactoryCopy == null) {

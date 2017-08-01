@@ -47,7 +47,6 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.message.HttpResponseWrapper;
-import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -63,7 +62,7 @@ import org.apache.hc.core5.util.Asserts;
 /**
  * @since 5.0
  */
-public abstract class AbstractClassicServerExchangeHandler implements HttpContextAware, AsyncServerExchangeHandler {
+public abstract class AbstractClassicServerExchangeHandler implements AsyncServerExchangeHandler {
 
     private enum State { IDLE, ACTIVE, COMPLETED }
 
@@ -72,7 +71,6 @@ public abstract class AbstractClassicServerExchangeHandler implements HttpContex
     private final AtomicReference<State> state;
     private final AtomicReference<Exception> exception;
 
-    private volatile HttpContext context;
     private volatile SharedInputBuffer inputBuffer;
     private volatile SharedOutputBuffer outputBuffer;
 
@@ -87,11 +85,6 @@ public abstract class AbstractClassicServerExchangeHandler implements HttpContex
         return exception.get();
     }
 
-    @Override
-    public void setContext(final HttpContext context) {
-        this.context = context;
-    }
-
     protected abstract void handle(
             HttpRequest request, InputStream requestStream,
             HttpResponse response, OutputStream responseStream,
@@ -101,14 +94,8 @@ public abstract class AbstractClassicServerExchangeHandler implements HttpContex
     public final void handleRequest(
             final HttpRequest request,
             final EntityDetails entityDetails,
-            final ResponseChannel responseChannel) throws HttpException, IOException {
-
-        if (entityDetails != null) {
-            final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-            if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
-                responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
-            }
-        }
+            final ResponseChannel responseChannel,
+            final HttpContext context) throws HttpException, IOException {
         final AtomicBoolean responseCommitted = new AtomicBoolean(false);
 
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);

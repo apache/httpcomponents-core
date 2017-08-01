@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 public class EchoHandler implements AsyncServerExchangeHandler {
 
@@ -67,7 +68,8 @@ public class EchoHandler implements AsyncServerExchangeHandler {
     public void handleRequest(
             final HttpRequest request,
             final EntityDetails entityDetails,
-            final ResponseChannel responseChannel) throws HttpException, IOException {
+            final ResponseChannel responseChannel,
+            final HttpContext context) throws HttpException, IOException {
         if (entityDetails != null) {
             final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
             if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {

@@ -24,17 +24,34 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.nio;
+package org.apache.hc.core5.http.io;
 
+import java.io.IOException;
+
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
- * {@link HttpContext} aware protocol handler.
- *
  * @since 5.0
  */
-public interface HttpContextAware {
+@Contract(threading = ThreadingBehavior.STATELESS)
+public interface HttpServerRequestHandler {
 
-    void setContext(HttpContext context);
+    interface ResponseTrigger {
+
+        void sendInformation(ClassicHttpResponse response) throws HttpException, IOException;
+
+        void submitResponse(ClassicHttpResponse response) throws HttpException, IOException;
+
+    }
+
+    void handle(
+            ClassicHttpRequest request,
+            ResponseTrigger responseTrigger,
+            HttpContext context) throws HttpException, IOException;
 
 }

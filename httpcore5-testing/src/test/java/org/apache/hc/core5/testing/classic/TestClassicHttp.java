@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -53,13 +54,15 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.config.SocketConfig;
-import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
+import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.io.support.BasicHttpServerExpectationDecorator;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -452,7 +455,6 @@ public class TestClassicHttp {
         }
     }
 
-
     /**
      * This test case executes a series of simple POST requests that do not
      * meet the target server expectations.
@@ -477,28 +479,34 @@ public class TestClassicHttp {
 
         });
 
-        this.server.start(new HttpExpectationVerifier() {
+        this.server.start(null, new Decorator<HttpServerRequestHandler>() {
 
             @Override
-            public void verify(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException {
-                final Header someheader = request.getFirstHeader("Secret");
-                if (someheader != null) {
-                    final int secretNumber;
-                    try {
-                        secretNumber = Integer.parseInt(someheader.getValue());
-                    } catch (final NumberFormatException ex) {
-                        response.setCode(HttpStatus.SC_BAD_REQUEST);
-                        return;
+            public HttpServerRequestHandler decorate(final HttpServerRequestHandler handler) {
+                return new BasicHttpServerExpectationDecorator(handler) {
+
+                    @Override
+                    protected ClassicHttpResponse verify(final ClassicHttpRequest request, final HttpContext context) {
+                        final Header someheader = request.getFirstHeader("Secret");
+                        if (someheader != null) {
+                            final int secretNumber;
+                            try {
+                                secretNumber = Integer.parseInt(someheader.getValue());
+                            } catch (final NumberFormatException ex) {
+                                final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_BAD_REQUEST);
+                                response.setEntity(new StringEntity(ex.toString()));
+                                return response;
+                            }
+                            if (secretNumber >= 2) {
+                                final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED);
+                                response.setEntity(new StringEntity("Wrong secret number", ContentType.TEXT_PLAIN));
+                                return response;
+                            }
+                        }
+                        return null;
                     }
-                    if (secretNumber >= 2) {
-                        response.setCode(HttpStatus.SC_EXPECTATION_FAILED);
-                        response.setEntity(
-                                new StringEntity("Wrong secret number", ContentType.TEXT_PLAIN));
-                    }
-                }
+
+                };
             }
 
         });

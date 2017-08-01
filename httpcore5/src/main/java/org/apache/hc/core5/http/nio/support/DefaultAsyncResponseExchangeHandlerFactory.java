@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http.nio.support;
 
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -43,13 +44,20 @@ import org.apache.hc.core5.util.Args;
 public final class DefaultAsyncResponseExchangeHandlerFactory implements HandlerFactory<AsyncServerExchangeHandler> {
 
     private final HttpRequestMapper<Supplier<AsyncServerExchangeHandler>> mapper;
+    private final Decorator<AsyncServerExchangeHandler> decorator;
 
-    public DefaultAsyncResponseExchangeHandlerFactory(final HttpRequestMapper<Supplier<AsyncServerExchangeHandler>> mapper) {
+    public DefaultAsyncResponseExchangeHandlerFactory(
+            final HttpRequestMapper<Supplier<AsyncServerExchangeHandler>> mapper,
+            final Decorator<AsyncServerExchangeHandler> decorator) {
         this.mapper = Args.notNull(mapper, "Request handler mapper");
+        this.decorator = decorator;
     }
 
-    @Override
-    public AsyncServerExchangeHandler create(final HttpRequest request, final HttpContext context) throws HttpException {
+    public DefaultAsyncResponseExchangeHandlerFactory(final HttpRequestMapper<Supplier<AsyncServerExchangeHandler>> mapper) {
+        this(mapper, null);
+    }
+
+    private AsyncServerExchangeHandler createHandler(final HttpRequest request, final HttpContext context) throws HttpException {
         try {
             final Supplier<AsyncServerExchangeHandler> supplier = mapper.resolve(request, context);
             if (supplier != null) {
@@ -61,4 +69,15 @@ public final class DefaultAsyncResponseExchangeHandlerFactory implements Handler
             return new ImmediateResponseExchangeHandler(HttpStatus.SC_MISDIRECTED_REQUEST, "Not authoritative");
         }
     }
+
+    @Override
+    public AsyncServerExchangeHandler create(final HttpRequest request, final HttpContext context) throws HttpException {
+        final AsyncServerExchangeHandler handler = createHandler(request, context);
+        if (handler != null) {
+            return decorator != null ? decorator.decorate(handler) : handler;
+        } else {
+            return null;
+        }
+    }
+
 }

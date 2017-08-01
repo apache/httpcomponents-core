@@ -36,7 +36,6 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.AsyncServerResponseTrigger;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
@@ -58,7 +57,7 @@ public class MultiLineResponseHandler extends BasicServerExchangeHandler<Message
                   @Override
                   public void handle(
                           final Message<HttpRequest, String> requestMessage,
-                          final AsyncServerResponseTrigger responseTrigger,
+                          final ResponseTrigger responseTrigger,
                           final HttpContext context) throws HttpException, IOException {
                       final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
                       responseTrigger.submitResponse(new BasicResponseProducer(

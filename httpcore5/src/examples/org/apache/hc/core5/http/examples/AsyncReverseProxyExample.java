@@ -72,6 +72,7 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolStats;
@@ -264,7 +265,8 @@ public class AsyncReverseProxyExample {
         public void handleRequest(
                 final HttpRequest incomingRequest,
                 final EntityDetails entityDetails,
-                final ResponseChannel responseChannel) throws HttpException, IOException {
+                final ResponseChannel responseChannel,
+                final HttpContext context) throws HttpException, IOException {
 
             synchronized (exchangeState) {
                 System.out.println("[client->proxy] " + exchangeState.id + " " +

@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
@@ -42,10 +43,11 @@ import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
-import org.apache.hc.core5.http.impl.io.DefaultClassicHttpResponseFactory;
 import org.apache.hc.core5.http.impl.io.HttpService;
-import org.apache.hc.core5.http.io.HttpExpectationVerifier;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
+import org.apache.hc.core5.http.io.HttpServerRequestHandler;
+import org.apache.hc.core5.http.io.support.BasicHttpServerExpectationDecorator;
+import org.apache.hc.core5.http.io.support.BasicHttpServerRequestHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.io.ShutdownType;
@@ -100,14 +102,13 @@ public class ClassicTestServer {
         }
     }
 
-    public void start(final HttpProcessor httpProcessor, final HttpExpectationVerifier expectationVerifier) throws IOException {
+    public void start(final HttpProcessor httpProcessor, final Decorator<HttpServerRequestHandler> handlerDecorator) throws IOException {
         if (serverRef.get() == null) {
+            final HttpServerRequestHandler handler = new BasicHttpServerRequestHandler(registry);
             final HttpService httpService = new HttpService(
                     httpProcessor != null ? httpProcessor : HttpProcessors.server(),
+                    handlerDecorator != null ? handlerDecorator.decorate(handler) : new BasicHttpServerExpectationDecorator(handler),
                     DefaultConnectionReuseStrategy.INSTANCE,
-                    DefaultClassicHttpResponseFactory.INSTANCE,
-                    registry,
-                    expectationVerifier,
                     LoggingHttp1StreamListener.INSTANCE_CLIENT);
             final HttpServer server = new HttpServer(
                     0,
@@ -127,10 +128,6 @@ public class ClassicTestServer {
         } else {
             throw new IllegalStateException("Server already running");
         }
-    }
-
-    public void start(final HttpExpectationVerifier expectationVerifier) throws IOException {
-        start(null, expectationVerifier);
     }
 
     public void start() throws IOException {

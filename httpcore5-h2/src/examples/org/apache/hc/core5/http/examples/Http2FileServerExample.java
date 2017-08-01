@@ -48,7 +48,6 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.AsyncServerResponseTrigger;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
@@ -132,7 +131,7 @@ public class Http2FileServerExample {
                     @Override
                     public void handle(
                             final Message<HttpRequest, Void> message,
-                            final AsyncServerResponseTrigger responseTrigger,
+                            final ResponseTrigger responseTrigger,
                             final HttpContext context) throws HttpException, IOException {
                         HttpRequest request = message.getHead();
                         URI requestUri;

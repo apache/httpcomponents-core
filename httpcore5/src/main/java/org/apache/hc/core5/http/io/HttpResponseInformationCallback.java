@@ -27,36 +27,18 @@
 
 package org.apache.hc.core5.http.io;
 
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
- * Defines an interface to verify whether an incoming HTTP request meets
- * the target server's expectations.
+ * Information message callback.
  *
- * @since 4.0
+ * @since 5.0
  */
-public interface HttpExpectationVerifier {
+public interface HttpResponseInformationCallback {
 
-    /**
-     * Verifies whether the given request meets the server's expectations.
-     * <p>
-     * If the request fails to meet particular criteria, this method can
-     * trigger a terminal response back to the client by setting the status
-     * code of the response object to a value greater or equal to
-     * {@code 200}. In this case the client will not have to transmit
-     * the request body. If the request meets expectations this method can
-     * terminate without modifying the response object. Per default the status
-     * code of the response object will be set to {@code 100}.
-     *
-     * @param request the HTTP request.
-     * @param response the HTTP response.
-     * @param context the HTTP context.
-     * @throws HttpException in case of an HTTP protocol violation.
-     */
-    void verify(ClassicHttpRequest request, ClassicHttpResponse response, HttpContext context)
-            throws HttpException;
+    void execute(HttpResponse response, HttpConnection connection, HttpContext context) throws HttpException;
 
 }

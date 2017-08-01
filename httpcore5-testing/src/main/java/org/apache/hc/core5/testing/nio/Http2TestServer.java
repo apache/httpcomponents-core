@@ -33,12 +33,14 @@ import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
+import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -86,10 +88,22 @@ public class Http2TestServer extends AsyncServer {
         execute(handlerFactory);
     }
 
-    public InetSocketAddress start(final HttpProcessor httpProcessor, final H2Config h2Config) throws Exception {
+    public InetSocketAddress start(
+            final HttpProcessor httpProcessor,
+            final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
+            final H2Config h2Config) throws Exception {
         start(new InternalServerHttp2EventHandlerFactory(
-                httpProcessor,
-                new DefaultAsyncResponseExchangeHandlerFactory(registry),
+                httpProcessor != null ? httpProcessor : Http2Processors.server(),
+                new DefaultAsyncResponseExchangeHandlerFactory(
+                        registry,
+                        exchangeHandlerDecorator != null ? exchangeHandlerDecorator : new Decorator<AsyncServerExchangeHandler>() {
+
+                            @Override
+                            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
+                                return new BasicAsyncServerExpectationDecorator(handler);
+                            }
+
+                        }),
                 HttpVersionPolicy.FORCE_HTTP_2,
                 h2Config,
                 H1Config.DEFAULT,
@@ -100,10 +114,22 @@ public class Http2TestServer extends AsyncServer {
         return (InetSocketAddress) listener.getAddress();
     }
 
-    public InetSocketAddress start(final HttpProcessor httpProcessor, final H1Config h1Config) throws Exception {
+    public InetSocketAddress start(
+            final HttpProcessor httpProcessor,
+            final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
+            final H1Config h1Config) throws Exception {
         start(new InternalServerHttp2EventHandlerFactory(
-                httpProcessor,
-                new DefaultAsyncResponseExchangeHandlerFactory(registry),
+                httpProcessor != null ? httpProcessor : HttpProcessors.server(),
+                new DefaultAsyncResponseExchangeHandlerFactory(
+                        registry,
+                        exchangeHandlerDecorator != null ? exchangeHandlerDecorator : new Decorator<AsyncServerExchangeHandler>() {
+
+                    @Override
+                    public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
+                        return new BasicAsyncServerExpectationDecorator(handler);
+                    }
+
+                }),
                 HttpVersionPolicy.FORCE_HTTP_1,
                 H2Config.DEFAULT,
                 h1Config,
@@ -115,11 +141,11 @@ public class Http2TestServer extends AsyncServer {
     }
 
     public InetSocketAddress start(final H2Config h2Config) throws Exception {
-        return start(Http2Processors.server(), h2Config);
+        return start(null, null, h2Config);
     }
 
     public InetSocketAddress start(final H1Config h1Config) throws Exception {
-        return start(HttpProcessors.server(), h1Config);
+        return start(null, null, h1Config);
     }
 
     public InetSocketAddress start() throws Exception {

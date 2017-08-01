@@ -39,11 +39,12 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.io.HttpClientConnection;
+import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -95,26 +96,97 @@ public class HttpRequestExecutor {
     }
 
     /**
-     * Decide whether a response comes with an entity.
-     * The implementation in this class is based on RFC 2616.
-     * <p>
-     * Derived executors can override this method to handle
-     * methods and response codes not specified in RFC 2616.
-     * </p>
+     * Sends the request and obtain a response.
      *
-     * @param request   the request, to obtain the executed method
-     * @param response  the response, to obtain the status code
+     * @param request   the request to execute.
+     * @param conn      the connection over which to execute the request.
+     * @param informationCallback   callback to execute upon receipt of information status (1xx).
+     *                              May be null.
+     * @param context the context
+     * @return  the response to the request.
+     *
+     * @throws IOException in case of an I/O error.
+     * @throws HttpException in case of HTTP protocol violation or a processing
+     *   problem.
      */
-    protected boolean canResponseHaveBody(final ClassicHttpRequest request,
-                                          final ClassicHttpResponse response) {
+    public ClassicHttpResponse execute(
+            final ClassicHttpRequest request,
+            final HttpClientConnection conn,
+            final HttpResponseInformationCallback informationCallback,
+            final HttpContext context) throws IOException, HttpException {
+        Args.notNull(request, "HTTP request");
+        Args.notNull(conn, "Client connection");
+        Args.notNull(context, "HTTP context");
+        try {
+            context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
+            context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
 
-        if ("HEAD".equalsIgnoreCase(request.getMethod())) {
-            return false;
+            conn.sendRequestHeader(request);
+            if (streamListener != null) {
+                streamListener.onRequestHead(conn, request);
+            }
+            boolean expectContinue = false;
+            final HttpEntity entity = request.getEntity();
+            if (entity != null) {
+                final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
+                expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+                if (!expectContinue) {
+                    conn.sendRequestEntity(request);
+                }
+            }
+            conn.flush();
+            ClassicHttpResponse response = null;
+            while (response == null) {
+                if (expectContinue) {
+                    if (conn.isDataAvailable(this.waitForContinue)) {
+                        response = conn.receiveResponseHeader();
+                        if (streamListener != null) {
+                            streamListener.onResponseHead(conn, response);
+                        }
+                        final int status = response.getCode();
+                        if (status == HttpStatus.SC_CONTINUE) {
+                            // discard 100-continue
+                            response = null;
+                            conn.sendRequestEntity(request);
+                        } else if (status < HttpStatus.SC_SUCCESS) {
+                            if (informationCallback != null) {
+                                informationCallback.execute(response, conn, context);
+                            }
+                            response = null;
+                            continue;
+                        } else if (status >= HttpStatus.SC_CLIENT_ERROR){
+                            conn.terminateRequest(request);
+                        } else {
+                            conn.sendRequestEntity(request);
+                        }
+                    } else {
+                        conn.sendRequestEntity(request);
+                    }
+                    conn.flush();
+                    expectContinue = false;
+                } else {
+                    response = conn.receiveResponseHeader();
+                    if (streamListener != null) {
+                        streamListener.onResponseHead(conn, response);
+                    }
+                    final int status = response.getCode();
+                    if (status < HttpStatus.SC_SUCCESS) {
+                        if (informationCallback != null && status != HttpStatus.SC_CONTINUE) {
+                            informationCallback.execute(response, conn, context);
+                        }
+                        response = null;
+                    }
+                }
+            }
+            if (MessageSupport.canResponseHaveBody(request.getMethod(), response)) {
+                conn.receiveResponseEntity(response);
+            }
+            return response;
+
+        } catch (final HttpException | IOException | RuntimeException ex) {
+            closeConnection(conn);
+            throw ex;
         }
-        final int status = response.getCode();
-        return status >= HttpStatus.SC_SUCCESS
-            && status != HttpStatus.SC_NO_CONTENT
-            && status != HttpStatus.SC_NOT_MODIFIED;
     }
 
     /**
@@ -122,7 +194,7 @@ public class HttpRequestExecutor {
      *
      * @param request   the request to execute.
      * @param conn      the connection over which to execute the request.
-     *
+     * @param context the context
      * @return  the response to the request.
      *
      * @throws IOException in case of an I/O error.
@@ -133,70 +205,7 @@ public class HttpRequestExecutor {
             final ClassicHttpRequest request,
             final HttpClientConnection conn,
             final HttpContext context) throws IOException, HttpException {
-        Args.notNull(request, "HTTP request");
-        Args.notNull(conn, "Client connection");
-        Args.notNull(context, "HTTP context");
-        try {
-            ClassicHttpResponse response = null;
-
-            context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
-            context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
-
-            conn.sendRequestHeader(request);
-            if (streamListener != null) {
-                streamListener.onRequestHead(conn, request);
-            }
-            final HttpEntity entity = request.getEntity();
-            if (entity != null) {
-                final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-                final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
-                if (expectContinue) {
-
-                    conn.flush();
-                    // Don't wait for a 100-continue response forever. On timeout, send the entity.
-                    if (conn.isDataAvailable(this.waitForContinue)) {
-                        response = conn.receiveResponseHeader();
-                        if (streamListener != null) {
-                            streamListener.onResponseHead(conn, response);
-                        }
-                        final int status = response.getCode();
-                        if (status < HttpStatus.SC_SUCCESS) {
-                            if (status != HttpStatus.SC_CONTINUE) {
-                                throw new ProtocolException("Unexpected response: " + response.getCode());
-                            }
-                            // discard 100-continue
-                            response = null;
-                            conn.sendRequestEntity(request);
-                        } else {
-                            if (canResponseHaveBody(request, response)) {
-                                conn.receiveResponseEntity(response);
-                            }
-                            conn.terminateRequest(request);
-                        }
-                    } else {
-                        conn.sendRequestEntity(request);
-                    }
-                } else {
-                    conn.sendRequestEntity(request);
-                }
-            }
-            conn.flush();
-
-            while (response == null || response.getCode() < HttpStatus.SC_OK) {
-                response = conn.receiveResponseHeader();
-                if (streamListener != null) {
-                    streamListener.onResponseHead(conn, response);
-                }
-                if (canResponseHaveBody(request, response)) {
-                    conn.receiveResponseEntity(response);
-                }
-            }
-            return response;
-
-        } catch (final HttpException | IOException | RuntimeException ex) {
-            closeConnection(conn);
-            throw ex;
-        }
+        return execute(request, conn, null, context);
     }
 
     private static void closeConnection(final HttpClientConnection conn) {

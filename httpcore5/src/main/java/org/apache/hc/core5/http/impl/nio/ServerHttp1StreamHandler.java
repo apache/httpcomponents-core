@@ -53,7 +53,6 @@ import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
@@ -257,10 +256,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         context.setProtocolVersion(transportVersion);
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
-        if (exchangeHandler instanceof HttpContextAware) {
-            ((HttpContextAware) exchangeHandler).setContext(context);
-        }
-
         final EntityDetails requestEntityDetails = requestEndStream ? null : new LazyEntityDetails(request);
         final ResponseChannel responseChannel = new ResponseChannel() {
 
@@ -285,12 +280,12 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         };
         try {
             httpProcessor.process(request, requestEntityDetails, context);
-            exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel);
+            exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
         } catch (final HttpException ex) {
             if (!responseCommitted.get()) {
                 final AsyncResponseProducer responseProducer = handleException(ex);
                 exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
-                exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel);
+                exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
             } else {
                 throw ex;
             }

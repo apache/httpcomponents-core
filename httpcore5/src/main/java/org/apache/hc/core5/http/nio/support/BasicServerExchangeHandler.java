@@ -32,7 +32,6 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.AsyncServerResponseTrigger;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
@@ -58,7 +57,7 @@ public class BasicServerExchangeHandler<T> extends AbstractServerExchangeHandler
     @Override
     protected void handle(
             final T requestMessage,
-            final AsyncServerResponseTrigger responseTrigger,
+            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
             final HttpContext context) throws HttpException, IOException {
         requestHandler.handle(requestMessage, responseTrigger, context);
     }

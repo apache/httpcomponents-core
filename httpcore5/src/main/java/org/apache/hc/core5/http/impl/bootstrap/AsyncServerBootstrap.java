@@ -44,8 +44,10 @@ import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -255,9 +257,18 @@ public class AsyncServerBootstrap {
         for (final HandlerEntry<Supplier<AsyncServerExchangeHandler>> entry: handlerList) {
             registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }
+        final HandlerFactory<AsyncServerExchangeHandler> handlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(
+                registry, new Decorator<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
+                return new BasicAsyncServerExpectationDecorator(handler);
+            }
+
+        });
         final ServerHttp1StreamDuplexerFactory streamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
-                new DefaultAsyncResponseExchangeHandlerFactory(registry),
+                handlerFactory,
                 h1Config != null ? h1Config : H1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 connStrategy != null ? connStrategy : DefaultConnectionReuseStrategy.INSTANCE,

@@ -58,6 +58,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -91,7 +92,7 @@ import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.AsyncServerResponseTrigger;
+import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
@@ -113,6 +114,7 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
+import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -697,9 +699,26 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 return new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
 
                     @Override
-                    protected AsyncResponseProducer verify(
-                            final HttpRequest request,
+                    protected void handle(
+                            final Message<HttpRequest, String> request,
+                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
+                        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"));
+
+                    }
+                };
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start(null, new Decorator<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
+
+                return new BasicAsyncServerExpectationDecorator(handler) {
+
+                    @Override
+                    protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
                         final Header h = request.getFirstHeader("password");
                         if (h != null && "secret".equals(h.getValue())) {
                             return null;
@@ -707,21 +726,10 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                             return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
                         }
                     }
-
-                    @Override
-                    protected void handle(
-                            final Message<HttpRequest, String> request,
-                            final AsyncServerResponseTrigger responseTrigger,
-                            final HttpContext context) throws IOException, HttpException {
-                        responseTrigger.submitResponse(
-                                new BasicResponseProducer(HttpStatus.SC_OK, "All is well"));
-
-                    }
                 };
-            }
 
-        });
-        final InetSocketAddress serverEndpoint = server.start();
+            }
+        }, H1Config.DEFAULT);
 
         client.start();
         final Future<IOSession> sessionFuture = client.requestSession(
@@ -805,7 +813,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     public void handleRequest(
                             final HttpRequest request,
                             final EntityDetails entityDetails,
-                            final ResponseChannel responseChannel) throws HttpException, IOException {
+                            final ResponseChannel responseChannel,
+                            final HttpContext context) throws HttpException, IOException {
 
                         Executors.newSingleThreadExecutor().execute(new Runnable() {
                             @Override
@@ -906,7 +915,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     public void handleRequest(
                             final HttpRequest request,
                             final EntityDetails entityDetails,
-                            final ResponseChannel responseChannel) throws HttpException, IOException {
+                            final ResponseChannel responseChannel,
+                            final HttpContext context) throws HttpException, IOException {
                         final AsyncResponseProducer producer;
                         final Header h = request.getFirstHeader("password");
                         if (h != null && "secret".equals(h.getValue())) {
@@ -1356,7 +1366,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                             @Override
                             protected void handle(
                                     final Message<HttpRequest, String> request,
-                                    final AsyncServerResponseTrigger responseTrigger,
+                                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                                     final HttpContext context) throws IOException, HttpException {
                                 responseTrigger.submitResponse(
                                         new BasicResponseProducer(new StringAsyncEntityProducer("useful stuff")));
@@ -1440,7 +1450,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, String> request,
-                            final AsyncServerResponseTrigger responseTrigger,
+                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
                         throw new HttpException("Boom");
                     }
@@ -1499,7 +1509,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, String> request,
-                            final AsyncServerResponseTrigger responseTrigger,
+                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
                         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_NO_CONTENT);
                         responseTrigger.submitResponse(new BasicResponseProducer(response));
@@ -1586,7 +1596,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     @Override
                     protected void handle(
                             final Message<HttpRequest, String> requestMessage,
-                            final AsyncServerResponseTrigger responseTrigger,
+                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                             final HttpContext context) throws HttpException, IOException {
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,
@@ -1648,7 +1658,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     public void handleRequest(
                             final HttpRequest request,
                             final EntityDetails entityDetails,
-                            final ResponseChannel responseChannel) throws HttpException, IOException {
+                            final ResponseChannel responseChannel,
+                            final HttpContext context) throws HttpException, IOException {
                         final String requestUri = request.getRequestUri();
                         if (requestUri.endsWith("boom")) {
                             throw new ProtocolException("Boom!!!");

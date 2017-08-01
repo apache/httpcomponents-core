@@ -48,7 +48,6 @@ import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.HttpContextAware;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -150,10 +149,6 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             context.setProtocolVersion(transportVersion);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
-            if (exchangeHandler instanceof HttpContextAware) {
-                ((HttpContextAware) exchangeHandler).setContext(context);
-            }
-
             httpProcessor.process(request, entityDetails, context);
 
             final boolean endStream = entityDetails == null;
@@ -214,7 +209,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         if (status < HttpStatus.SC_INFORMATIONAL) {
             throw new ProtocolException("Invalid response: " + status);
         }
-        if (status < HttpStatus.SC_SUCCESS) {
+        if (status > HttpStatus.SC_CONTINUE && status < HttpStatus.SC_SUCCESS) {
             exchangeHandler.consumeInformation(response);
         } else {
             if (!connectionReuseStrategy.keepAlive(committedRequest, response, context)) {
