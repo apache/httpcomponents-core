@@ -33,7 +33,6 @@ import java.util.List;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -70,12 +69,6 @@ public class EchoHandler implements AsyncServerExchangeHandler {
             final EntityDetails entityDetails,
             final ResponseChannel responseChannel,
             final HttpContext context) throws HttpException, IOException {
-        if (entityDetails != null) {
-            final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-            if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
-                responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
-            }
-        }
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
         responseChannel.sendResponse(response, entityDetails);
     }
