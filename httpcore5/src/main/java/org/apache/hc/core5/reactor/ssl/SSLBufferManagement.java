@@ -34,13 +34,27 @@ import org.apache.hc.core5.util.Args;
 /**
  * @since 5.0
  */
-public enum SSLBufferManagement {
+public abstract class SSLBufferManagement {
 
-    STATIC,
-    DYNAMIC;
+    public static final SSLBufferManagement STATIC = new StaticSSLBufferManagement();
+    public static final SSLBufferManagement DYNAMIC = new DynamicSSLBufferManagement();
+
+    public abstract SSLBuffer create(int size);
 
     static SSLBuffer create(final SSLBufferManagement mode, final int size) {
-        return mode == DYNAMIC ? new DynamicBuffer(size) : new StaticBuffer(size);
+        if (mode == null) {
+            return STATIC.create(size);
+        }
+        return mode.create(size);
+    }
+
+    private static final class StaticSSLBufferManagement extends SSLBufferManagement {
+
+        @Override
+        public SSLBuffer create(final int size) {
+            return new StaticBuffer(size);
+        }
+
     }
 
     private static final class StaticBuffer implements SSLBuffer {
@@ -70,6 +84,15 @@ public enum SSLBufferManagement {
         @Override
         public boolean hasData() {
             return buffer.position() > 0;
+        }
+
+    }
+
+    private static final class DynamicSSLBufferManagement extends SSLBufferManagement {
+
+        @Override
+        public SSLBuffer create(final int size) {
+            return new DynamicBuffer(size);
         }
 
     }
