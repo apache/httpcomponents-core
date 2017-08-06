@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
-public abstract class AsyncServerExpectationFilter implements AsyncFilterHandler {
+public class AsyncServerExpectationFilter implements AsyncFilterHandler {
 
     protected boolean verify(final HttpRequest request, final HttpContext context) throws HttpException {
         return true;

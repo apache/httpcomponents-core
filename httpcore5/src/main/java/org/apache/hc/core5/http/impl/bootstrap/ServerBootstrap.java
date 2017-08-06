@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.NamedElementChain;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -50,7 +51,15 @@ import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
 import org.apache.hc.core5.http.impl.io.DefaultClassicHttpResponseFactory;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
+import org.apache.hc.core5.http.io.HttpFilterHandler;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
+import org.apache.hc.core5.http.io.HttpServerRequestHandler;
+import org.apache.hc.core5.http.io.support.BasicHttpServerExpectationDecorator;
+import org.apache.hc.core5.http.io.support.BasicHttpServerRequestHandler;
+import org.apache.hc.core5.http.io.support.HttpServerExpectationFilter;
+import org.apache.hc.core5.http.io.support.HttpServerFilterChainElement;
+import org.apache.hc.core5.http.io.support.HttpServerFilterChainRequestHandler;
+import org.apache.hc.core5.http.io.support.TerminalServerFilter;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
@@ -63,6 +72,7 @@ import org.apache.hc.core5.util.Args;
 public class ServerBootstrap {
 
     private final List<HandlerEntry<HttpRequestHandler>> handlerList;
+    private final List<FilterEntry<HttpFilterHandler>> filters;
     private String canonicalHostName;
     private UriPatternType uriPatternType;
     private int listenerPort;
@@ -82,6 +92,7 @@ public class ServerBootstrap {
 
     private ServerBootstrap() {
         this.handlerList = new ArrayList<>();
+        this.filters = new ArrayList<>();
     }
 
     public static ServerBootstrap bootstrap() {
@@ -252,31 +263,116 @@ public class ServerBootstrap {
         return this;
     }
 
+    /**
+     * Adds the filter before the filter with the given name.
+     */
+    public final ServerBootstrap addFilterBefore(final String existing, final String name, final HttpFilterHandler filterHandler) {
+        Args.notBlank(existing, "Existing");
+        Args.notBlank(name, "Name");
+        Args.notNull(filterHandler, "Filter handler");
+        filters.add(new FilterEntry<>(FilterEntry.Postion.BEFORE, name, filterHandler, existing));
+        return this;
+    }
+
+    /**
+     * Adds the filter after the filter with the given name.
+     */
+    public final ServerBootstrap addFilterAfter(final String existing, final String name, final HttpFilterHandler filterHandler) {
+        Args.notBlank(existing, "Existing");
+        Args.notBlank(name, "Name");
+        Args.notNull(filterHandler, "Filter handler");
+        filters.add(new FilterEntry<>(FilterEntry.Postion.AFTER, name, filterHandler, existing));
+        return this;
+    }
+
+    /**
+     * Replace an existing filter with the given name with new filter.
+     */
+    public final ServerBootstrap replaceFilter(final String existing, final HttpFilterHandler filterHandler) {
+        Args.notBlank(existing, "Existing");
+        Args.notNull(filterHandler, "Filter handler");
+        filters.add(new FilterEntry<>(FilterEntry.Postion.REPLACE, existing, filterHandler, existing));
+        return this;
+    }
+
+    /**
+     * Add an filter to the head of the processing list.
+     */
+    public final ServerBootstrap addFilterFirst(final String name, final HttpFilterHandler filterHandler) {
+        Args.notNull(name, "Name");
+        Args.notNull(filterHandler, "Filter handler");
+        filters.add(new FilterEntry<>(FilterEntry.Postion.FIRST, name, filterHandler, null));
+        return this;
+    }
+
+    /**
+     * Add an filter to the tail of the processing list.
+     */
+    public final ServerBootstrap addFilterLast(final String name, final HttpFilterHandler filterHandler) {
+        Args.notNull(name, "Name");
+        Args.notNull(filterHandler, "Filter handler");
+        filters.add(new FilterEntry<>(FilterEntry.Postion.LAST, name, filterHandler, null));
+        return this;
+    }
+
     public HttpServer create() {
-        final RequestHandlerRegistry<HttpRequestHandler> requestHandlerRegistry = new RequestHandlerRegistry<>(
+        final RequestHandlerRegistry<HttpRequestHandler> handlerRegistry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
                 uriPatternType);
         for (final HandlerEntry<HttpRequestHandler> entry: handlerList) {
-            requestHandlerRegistry.register(entry.hostname, entry.uriPattern, entry.handler);
+            handlerRegistry.register(entry.hostname, entry.uriPattern, entry.handler);
         }
 
-        HttpProcessor httpProcessorCopy = this.httpProcessor;
-        if (httpProcessorCopy == null) {
-            httpProcessorCopy = HttpProcessors.server();
-        }
+        final HttpServerRequestHandler requestHandler;
+        if (!filters.isEmpty()) {
+            final NamedElementChain<HttpFilterHandler> filterChainDefinition = new NamedElementChain<>();
+            filterChainDefinition.addLast(
+                    new TerminalServerFilter(
+                            handlerRegistry,
+                            this.responseFactory != null ? this.responseFactory : DefaultClassicHttpResponseFactory.INSTANCE),
+                    StandardFilters.MAIN_HANDLER.name());
+            filterChainDefinition.addFirst(
+                    new HttpServerExpectationFilter(),
+                    StandardFilters.EXPECT_CONTINUE.name());
 
-        ConnectionReuseStrategy connStrategyCopy = this.connStrategy;
-        if (connStrategyCopy == null) {
-            connStrategyCopy = DefaultConnectionReuseStrategy.INSTANCE;
-        }
+            for (final FilterEntry<HttpFilterHandler> entry: filters) {
+                switch (entry.postion) {
+                    case AFTER:
+                        filterChainDefinition.addAfter(entry.existing, entry.filterHandler, entry.name);
+                        break;
+                    case BEFORE:
+                        filterChainDefinition.addBefore(entry.existing, entry.filterHandler, entry.name);
+                        break;
+                    case REPLACE:
+                        filterChainDefinition.replace(entry.existing, entry.filterHandler);
+                        break;
+                    case FIRST:
+                        filterChainDefinition.addFirst(entry.filterHandler, entry.name);
+                        break;
+                    case LAST:
+                        filterChainDefinition.addLast(entry.filterHandler, entry.name);
+                        break;
+                }
+            }
 
-        HttpResponseFactory<ClassicHttpResponse> responseFactoryCopy = this.responseFactory;
-        if (responseFactoryCopy == null) {
-            responseFactoryCopy = DefaultClassicHttpResponseFactory.INSTANCE;
+            NamedElementChain<HttpFilterHandler>.Node current = filterChainDefinition.getLast();
+            HttpServerFilterChainElement filterChain = null;
+            while (current != null) {
+                filterChain = new HttpServerFilterChainElement(current.getValue(), filterChain);
+                current = current.getPrevious();
+            }
+            requestHandler = new HttpServerFilterChainRequestHandler(filterChain);
+        } else {
+            requestHandler = new BasicHttpServerExpectationDecorator(new BasicHttpServerRequestHandler(
+                    handlerRegistry,
+                    this.responseFactory != null ? this.responseFactory : DefaultClassicHttpResponseFactory.INSTANCE));
         }
 
         final HttpService httpService = new HttpService(
-                httpProcessorCopy, requestHandlerRegistry, connStrategyCopy, responseFactoryCopy, this.streamListener);
+                this.httpProcessor != null ? this.httpProcessor : HttpProcessors.server(),
+                requestHandler,
+                this.connStrategy != null ? this.connStrategy : DefaultConnectionReuseStrategy.INSTANCE,
+                this.streamListener);
 
         ServerSocketFactory serverSocketFactoryCopy = this.serverSocketFactory;
         if (serverSocketFactoryCopy == null) {
@@ -293,11 +389,6 @@ public class ServerBootstrap {
             connectionFactoryCopy = new DefaultBHttpServerConnectionFactory(scheme, this.h1Config, this.charCodingConfig);
         }
 
-        ExceptionListener exceptionListenerCopy = this.exceptionListener;
-        if (exceptionListenerCopy == null) {
-            exceptionListenerCopy = ExceptionListener.NO_OP;
-        }
-
         return new HttpServer(
                 this.listenerPort > 0 ? this.listenerPort : 0,
                 httpService,
@@ -306,7 +397,7 @@ public class ServerBootstrap {
                 serverSocketFactoryCopy,
                 connectionFactoryCopy,
                 this.sslSetupHandler,
-                exceptionListenerCopy);
+                this.exceptionListener != null ? this.exceptionListener : ExceptionListener.NO_OP);
     }
 
 }

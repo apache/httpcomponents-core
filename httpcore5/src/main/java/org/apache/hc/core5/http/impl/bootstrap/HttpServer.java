@@ -97,7 +97,7 @@ public class HttpServer implements GracefullyCloseable {
                 H1Config.DEFAULT,
                 CharCodingConfig.DEFAULT);
         this.sslSetupHandler = sslSetupHandler;
-        this.exceptionListener = exceptionListener;
+        this.exceptionListener = exceptionListener != null ? exceptionListener : ExceptionListener.NO_OP;
         this.listenerExecutorService = new ThreadPoolExecutor(
                 1, 1, 0L, TimeUnit.MILLISECONDS,
                 new SynchronousQueue<Runnable>(),

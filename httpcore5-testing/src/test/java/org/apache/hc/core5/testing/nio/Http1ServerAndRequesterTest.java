@@ -49,12 +49,16 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
+import org.apache.hc.core5.http.nio.AsyncDataConsumer;
+import org.apache.hc.core5.http.nio.AsyncEntityProducer;
+import org.apache.hc.core5.http.nio.AsyncFilterChain;
+import org.apache.hc.core5.http.nio.AsyncFilterHandler;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
-import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -93,46 +97,6 @@ public class Http1ServerAndRequesterTest {
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
-                    .register("/no-keep-alive*", new Supplier<AsyncServerExchangeHandler>() {
-
-                        @Override
-                        public AsyncServerExchangeHandler get() {
-                            return new EchoHandler(2048) {
-
-                                @Override
-                                public void handleRequest(
-                                        final HttpRequest request,
-                                        final EntityDetails entityDetails,
-                                        final ResponseChannel responseChannel,
-                                        final HttpContext context) throws HttpException, IOException {
-                                    super.handleRequest(request, entityDetails, new ResponseChannel() {
-
-                                        @Override
-                                        public void sendInformation(final HttpResponse response) throws HttpException, IOException {
-                                            responseChannel.sendInformation(response);
-                                        }
-
-                                        @Override
-                                        public void sendResponse(
-                                                final HttpResponse response,
-                                                final EntityDetails entityDetails) throws HttpException, IOException {
-                                            response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-                                            responseChannel.sendResponse(response, entityDetails);
-                                        }
-
-                                        @Override
-                                        public void pushPromise(
-                                                final HttpRequest promise,
-                                                final AsyncPushProducer pushProducer) throws HttpException, IOException {
-                                            responseChannel.pushPromise(promise, pushProducer);
-                                        }
-
-                                    }, context);
-                                }
-                            };
-                        }
-
-                    })
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
                         @Override
@@ -140,6 +104,43 @@ public class Http1ServerAndRequesterTest {
                             return new EchoHandler(2048);
                         }
 
+                    })
+                    .addFilterBefore(StandardFilters.MAIN_HANDLER.name(), "no-keepalive", new AsyncFilterHandler() {
+
+                        @Override
+                        public AsyncDataConsumer handle(
+                                final HttpRequest request,
+                                final EntityDetails entityDetails,
+                                final HttpContext context,
+                                final AsyncFilterChain.ResponseTrigger responseTrigger,
+                                final AsyncFilterChain chain) throws HttpException, IOException {
+                            return chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
+
+                                @Override
+                                public void sendInformation(
+                                        final HttpResponse response) throws HttpException, IOException {
+                                    responseTrigger.sendInformation(response);
+                                }
+
+                                @Override
+                                public void submitResponse(
+                                        final HttpResponse response,
+                                        final AsyncEntityProducer entityProducer) throws HttpException, IOException {
+                                    if (request.getPath().startsWith("/no-keep-alive")) {
+                                        response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                                    }
+                                    responseTrigger.submitResponse(response, entityProducer);
+                                }
+
+                                @Override
+                                public void pushPromise(
+                                        final HttpRequest promise,
+                                        final AsyncPushProducer responseProducer) throws HttpException, IOException {
+                                    responseTrigger.pushPromise(promise, responseProducer);
+                                }
+
+                            });
+                        }
                     })
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE)

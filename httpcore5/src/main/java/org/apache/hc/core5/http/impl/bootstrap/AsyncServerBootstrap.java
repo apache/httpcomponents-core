@@ -34,6 +34,7 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.NamedElementChain;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -42,14 +43,19 @@ import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestParserFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseWriterFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
+import org.apache.hc.core5.http.nio.AsyncFilterHandler;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.http.nio.support.AsyncServerExpectationFilter;
+import org.apache.hc.core5.http.nio.support.AsyncServerFilterChainElement;
+import org.apache.hc.core5.http.nio.support.AsyncServerFilterChainExchangeHandlerFactory;
 import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
+import org.apache.hc.core5.http.nio.support.TerminalAsyncServerFilter;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
@@ -66,6 +72,7 @@ import org.apache.hc.core5.util.Args;
 public class AsyncServerBootstrap {
 
     private final List<HandlerEntry<Supplier<AsyncServerExchangeHandler>>> handlerList;
+    private final List<FilterEntry<AsyncFilterHandler>> filters;
     private String canonicalHostName;
     private UriPatternType uriPatternType;
     private IOReactorConfig ioReactorConfig;
@@ -80,6 +87,7 @@ public class AsyncServerBootstrap {
 
     private AsyncServerBootstrap() {
         this.handlerList = new ArrayList<>();
+        this.filters = new ArrayList<>();
     }
 
     public static AsyncServerBootstrap bootstrap() {
@@ -250,6 +258,58 @@ public class AsyncServerBootstrap {
         return this;
     }
 
+    /**
+     * Adds the filter before the filter with the given name.
+     */
+    public final AsyncServerBootstrap addFilterBefore(final String existing, final String name, final AsyncFilterHandler filterHandler) {
+        Args.notBlank(existing, "Existing");
+        Args.notBlank(name, "Name");
+        Args.notNull(filterHandler, "Filter handler");
+        filters.add(new FilterEntry<>(FilterEntry.Postion.BEFORE, name, filterHandler, existing));
+        return this;
+    }
+
+    /**
+     * Adds the filter after the filter with the given name.
+     */
+    public final AsyncServerBootstrap addFilterAfter(final String existing, final String name, final AsyncFilterHandler filterHandler) {
+        Args.notBlank(existing, "Existing");
+        Args.notBlank(name, "Name");
+        Args.notNull(filterHandler, "Filter handler");
+        filters.add(new FilterEntry<>(FilterEntry.Postion.AFTER, name, filterHandler, existing));
+        return this;
+    }
+
+    /**
+     * Replace an existing filter with the given name with new filter.
+     */
+    public final AsyncServerBootstrap replaceFilter(final String existing, final AsyncFilterHandler filterHandler) {
+        Args.notBlank(existing, "Existing");
+        Args.notNull(filterHandler, "Filter handler");
+        filters.add(new FilterEntry<>(FilterEntry.Postion.REPLACE, existing, filterHandler, existing));
+        return this;
+    }
+
+    /**
+     * Add an filter to the head of the processing list.
+     */
+    public final AsyncServerBootstrap addFilterFirst(final String name, final AsyncFilterHandler filterHandler) {
+        Args.notNull(name, "Name");
+        Args.notNull(filterHandler, "Filter handler");
+        filters.add(new FilterEntry<>(FilterEntry.Postion.FIRST, name, filterHandler, null));
+        return this;
+    }
+
+    /**
+     * Add an filter to the tail of the processing list.
+     */
+    public final AsyncServerBootstrap addFilterLast(final String name, final AsyncFilterHandler filterHandler) {
+        Args.notNull(name, "Name");
+        Args.notNull(filterHandler, "Filter handler");
+        filters.add(new FilterEntry<>(FilterEntry.Postion.LAST, name, filterHandler, null));
+        return this;
+    }
+
     public HttpAsyncServer create() {
         final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
@@ -257,15 +317,56 @@ public class AsyncServerBootstrap {
         for (final HandlerEntry<Supplier<AsyncServerExchangeHandler>> entry: handlerList) {
             registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }
-        final HandlerFactory<AsyncServerExchangeHandler> handlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(
-                registry, new Decorator<AsyncServerExchangeHandler>() {
 
-            @Override
-            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
-                return new BasicAsyncServerExpectationDecorator(handler);
+        final HandlerFactory<AsyncServerExchangeHandler> handlerFactory;
+        if (!filters.isEmpty()) {
+            final NamedElementChain<AsyncFilterHandler> filterChainDefinition = new NamedElementChain<>();
+            filterChainDefinition.addLast(
+                    new TerminalAsyncServerFilter(new DefaultAsyncResponseExchangeHandlerFactory(registry)),
+                    StandardFilters.MAIN_HANDLER.name());
+            filterChainDefinition.addFirst(
+                    new AsyncServerExpectationFilter(),
+                    StandardFilters.EXPECT_CONTINUE.name());
+
+            for (final FilterEntry<AsyncFilterHandler> entry: filters) {
+                switch (entry.postion) {
+                    case AFTER:
+                        filterChainDefinition.addAfter(entry.existing, entry.filterHandler, entry.name);
+                        break;
+                    case BEFORE:
+                        filterChainDefinition.addBefore(entry.existing, entry.filterHandler, entry.name);
+                        break;
+                    case REPLACE:
+                        filterChainDefinition.replace(entry.existing, entry.filterHandler);
+                        break;
+                    case FIRST:
+                        filterChainDefinition.addFirst(entry.filterHandler, entry.name);
+                        break;
+                    case LAST:
+                        filterChainDefinition.addLast(entry.filterHandler, entry.name);
+                        break;
+                }
             }
 
-        });
+            NamedElementChain<AsyncFilterHandler>.Node current = filterChainDefinition.getLast();
+            AsyncServerFilterChainElement execChain = null;
+            while (current != null) {
+                execChain = new AsyncServerFilterChainElement(current.getValue(), execChain);
+                current = current.getPrevious();
+            }
+
+            handlerFactory = new AsyncServerFilterChainExchangeHandlerFactory(execChain);
+        } else {
+            handlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(registry, new Decorator<AsyncServerExchangeHandler>() {
+
+                @Override
+                public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
+                    return new BasicAsyncServerExpectationDecorator(handler);
+                }
+
+            });
+        }
+
         final ServerHttp1StreamDuplexerFactory streamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 handlerFactory,
