@@ -62,7 +62,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
 
     @Override
     public final int available() {
-        return buffer.length();
+        return Integer.MAX_VALUE;
     }
 
     @Override
