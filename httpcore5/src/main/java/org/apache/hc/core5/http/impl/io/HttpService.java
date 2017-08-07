@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -38,7 +37,6 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HeaderElements;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequestMapper;
@@ -54,6 +52,7 @@ import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.BasicHttpServerExpectationDecorator;
 import org.apache.hc.core5.http.io.support.BasicHttpServerRequestHandler;
@@ -223,13 +222,7 @@ public class HttpService {
                             conn.sendResponseEntity(response);
                         }
                         // Make sure the request content is fully consumed
-                        final HttpEntity entity = request.getEntity();
-                        if (entity != null && entity.isStreaming()) {
-                            final InputStream instream = entity.getContent();
-                            if (instream != null) {
-                                instream.close();
-                            }
-                        }
+                        EntityUtils.consume(request.getEntity());
                         final boolean keepAlive = connReuseStrategy.keepAlive(request, response, context);
                         if (streamListener != null) {
                             streamListener.onExchangeComplete(conn, keepAlive);
