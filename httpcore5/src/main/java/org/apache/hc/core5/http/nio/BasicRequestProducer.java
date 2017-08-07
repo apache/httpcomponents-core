@@ -79,7 +79,13 @@ public class BasicRequestProducer implements AsyncRequestProducer {
 
     @Override
     public void failed(final Exception cause) {
-        releaseResources();
+        try {
+            if (dataProducer != null) {
+                dataProducer.failed(cause);
+            }
+        } finally {
+            releaseResources();
+        }
     }
 
     @Override
