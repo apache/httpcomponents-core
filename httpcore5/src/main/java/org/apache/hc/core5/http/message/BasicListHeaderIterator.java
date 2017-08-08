@@ -30,6 +30,10 @@ package org.apache.hc.core5.http.message;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.Args;
@@ -47,6 +51,11 @@ class BasicListHeaderIterator implements Iterator<Header> {
      * Not all elements of this array are necessarily part of the iteration.
      */
     private final List<Header> allHeaders;
+
+    /**
+     * Lock used while reading {@link #allHeaders allHeaders}.
+     */
+    private final ReadWriteLock headerLock;
 
     /**
      * The position of the next header in {@link #allHeaders allHeaders}.
@@ -70,15 +79,35 @@ class BasicListHeaderIterator implements Iterator<Header> {
      * Creates a new header iterator.
      *
      * @param headers   a list of headers over which to iterate
+     * @param headerLock lock to avoid unexpected concurrent modification
      * @param name      the name of the headers over which to iterate, or
      *                  {@code null} for any
      */
-    public BasicListHeaderIterator(final List<Header> headers, final String name) {
+    public BasicListHeaderIterator(final List<Header> headers, final ReadWriteLock headerLock, final String name) {
         super();
         this.allHeaders = Args.notNull(headers, "Header list");
+        this.headerLock = Args.notNull(headerLock, "Header lock");
         this.headerName = name;
-        this.currentIndex = findNext(-1);
+        headerLock.readLock().lock();
+        try {
+            this.currentIndex = findNext(-1);
+        } finally {
+            headerLock.readLock().unlock();
+        }
         this.lastIndex = -1;
+    }
+
+    /**
+     * Creates a new header iterator.
+     *
+     * @param headers   a list of headers over which to iterate
+     * @param name      the name of the headers over which to iterate, or
+     *                  {@code null} for any
+     * @deprecated Please use {@link BasicListHeaderIterator#BasicListHeaderIterator(List, ReadWriteLock, String)}.
+     */
+    @Deprecated
+    public BasicListHeaderIterator(final List<Header> headers, final String name) {
+        this(headers, DummyReadWriteLock.INSTANCE, name);
     }
 
     /**
@@ -143,10 +172,15 @@ class BasicListHeaderIterator implements Iterator<Header> {
             throw new NoSuchElementException("Iteration already finished.");
         }
 
-        this.lastIndex    = current;
-        this.currentIndex = findNext(current);
+        headerLock.readLock().lock();
+        try {
+            this.lastIndex = current;
+            this.currentIndex = findNext(current);
 
-        return this.allHeaders.get(current);
+            return this.allHeaders.get(current);
+        } finally {
+            headerLock.readLock().unlock();
+        }
     }
 
     /**
@@ -155,9 +189,62 @@ class BasicListHeaderIterator implements Iterator<Header> {
     @Override
     public void remove() throws UnsupportedOperationException {
         Asserts.check(this.lastIndex >= 0, "No header to remove");
-        this.allHeaders.remove(this.lastIndex);
-        this.lastIndex = -1;
-        this.currentIndex--; // adjust for the removed element
+        headerLock.writeLock().lock();
+        try {
+            Asserts.check(this.lastIndex < allHeaders.size(), "Headers have been concurrently removed");
+            this.allHeaders.remove(this.lastIndex);
+            this.lastIndex = -1;
+            this.currentIndex--; // adjust for the removed element
+        } finally {
+            headerLock.writeLock().unlock();
+        }
     }
 
+    private static final class DummyReadWriteLock implements ReadWriteLock {
+        static final ReadWriteLock INSTANCE = new DummyReadWriteLock();
+
+        @Override
+        public Lock readLock() {
+            return DummyLock.INSTANCE;
+        }
+
+        @Override
+        public Lock writeLock() {
+            return DummyLock.INSTANCE;
+        }
+    }
+
+    private static final class DummyLock implements Lock {
+        static final Lock INSTANCE = new DummyLock();
+
+        @Override
+        public void lock() {
+            // no-op
+        }
+
+        @Override
+        public void lockInterruptibly() throws InterruptedException {
+            // no-op
+        }
+
+        @Override
+        public boolean tryLock() {
+            return true;
+        }
+
+        @Override
+        public boolean tryLock(final long time, final TimeUnit unit) throws InterruptedException {
+            return true;
+        }
+
+        @Override
+        public void unlock() {
+            // no-op
+        }
+
+        @Override
+        public Condition newCondition() {
+            throw new UnsupportedOperationException("newCondition has not been implemented");
+        }
+    }
 }

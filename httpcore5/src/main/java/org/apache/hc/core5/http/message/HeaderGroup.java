@@ -33,7 +33,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.http.ProtocolException;
@@ -47,6 +51,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  *
  * @since 4.0
  */
+@Contract(threading = ThreadingBehavior.SAFE)
 public class HeaderGroup implements MessageHeaders, Serializable {
 
 
@@ -59,19 +64,26 @@ public class HeaderGroup implements MessageHeaders, Serializable {
 
     /** The list of headers for this group, in the order in which they were added */
     private final List<Header> headers;
+    private final ReadWriteLock headerLock;
 
     /**
      * Constructor for HeaderGroup.
      */
     public HeaderGroup() {
         this.headers = new ArrayList<>(16);
+        this.headerLock = new ReentrantReadWriteLock();
     }
 
     /**
      * Removes any contained headers.
      */
     public void clear() {
-        headers.clear();
+        headerLock.writeLock().lock();
+        try {
+            headers.clear();
+        } finally {
+            headerLock.writeLock().unlock();
+        }
     }
 
     /**
@@ -84,7 +96,12 @@ public class HeaderGroup implements MessageHeaders, Serializable {
         if (header == null) {
             return;
         }
-        headers.add(header);
+        headerLock.writeLock().lock();
+        try {
+            headers.add(header);
+        } finally {
+            headerLock.writeLock().unlock();
+        }
     }
 
     /**
@@ -96,7 +113,12 @@ public class HeaderGroup implements MessageHeaders, Serializable {
         if (header == null) {
             return;
         }
-        headers.remove(header);
+        headerLock.writeLock().lock();
+        try {
+            headers.remove(header);
+        } finally {
+            headerLock.writeLock().unlock();
+        }
     }
 
     /**
@@ -112,14 +134,19 @@ public class HeaderGroup implements MessageHeaders, Serializable {
         if (header == null) {
             return;
         }
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header current = this.headers.get(i);
-            if (current.getName().equalsIgnoreCase(header.getName())) {
-                this.headers.set(i, header);
-                return;
+        headerLock.writeLock().lock();
+        try {
+            for (int i = 0; i < this.headers.size(); i++) {
+                final Header current = this.headers.get(i);
+                if (current.getName().equalsIgnoreCase(header.getName())) {
+                    this.headers.set(i, header);
+                    return;
+                }
             }
+            this.headers.add(header);
+        } finally {
+            headerLock.writeLock().unlock();
         }
-        this.headers.add(header);
     }
 
     /**
@@ -130,11 +157,16 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * @param headers the headers to set
      */
     public void setHeaders(final Header[] headers) {
-        clear();
-        if (headers == null) {
-            return;
+        headerLock.writeLock().lock();
+        try {
+            clear();
+            if (headers == null) {
+                return;
+            }
+            Collections.addAll(this.headers, headers);
+        } finally {
+            headerLock.writeLock().unlock();
         }
-        Collections.addAll(this.headers, headers);
     }
 
     /**
@@ -180,14 +212,19 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     @Override
     public Header[] getHeaders(final String name) {
         List<Header> headersFound = null;
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
-            if (header.getName().equalsIgnoreCase(name)) {
-                if (headersFound == null) {
-                    headersFound = new ArrayList<>();
+        headerLock.readLock().lock();
+        try {
+            for (int i = 0; i < this.headers.size(); i++) {
+                final Header header = this.headers.get(i);
+                if (header.getName().equalsIgnoreCase(name)) {
+                    if (headersFound == null) {
+                        headersFound = new ArrayList<>();
+                    }
+                    headersFound.add(header);
                 }
-                headersFound.add(header);
             }
+        } finally {
+            headerLock.readLock().unlock();
         }
         return headersFound != null ? headersFound.toArray(new Header[headersFound.size()]) : EMPTY;
     }
@@ -202,11 +239,16 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public Header getFirstHeader(final String name) {
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
-            if (header.getName().equalsIgnoreCase(name)) {
-                return header;
+        headerLock.readLock().lock();
+        try {
+            for (int i = 0; i < this.headers.size(); i++) {
+                final Header header = this.headers.get(i);
+                if (header.getName().equalsIgnoreCase(name)) {
+                    return header;
+                }
             }
+        } finally {
+            headerLock.readLock().unlock();
         }
         return null;
     }
@@ -224,12 +266,17 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     public Header getSingleHeader(final String name) throws ProtocolException {
         int count = 0;
         Header singleHeader = null;
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
-            if (header.getName().equalsIgnoreCase(name)) {
-                singleHeader = header;
-                count++;
+        headerLock.readLock().lock();
+        try {
+            for (int i = 0; i < this.headers.size(); i++) {
+                final Header header = this.headers.get(i);
+                if (header.getName().equalsIgnoreCase(name)) {
+                    singleHeader = header;
+                    count++;
+                }
             }
+        } finally {
+            headerLock.readLock().unlock();
         }
         if (count > 1) {
             throw new ProtocolException("Multiple headers '" + name + "' found");
@@ -247,12 +294,17 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public Header getLastHeader(final String name) {
-        // start at the end of the list and work backwards
-        for (int i = headers.size() - 1; i >= 0; i--) {
-            final Header header = headers.get(i);
-            if (header.getName().equalsIgnoreCase(name)) {
-                return header;
+        headerLock.readLock().lock();
+        try {
+            // start at the end of the list and work backwards
+            for (int i = headers.size() - 1; i >= 0; i--) {
+                final Header header = headers.get(i);
+                if (header.getName().equalsIgnoreCase(name)) {
+                    return header;
+                }
             }
+        } finally {
+            headerLock.readLock().unlock();
         }
 
         return null;
@@ -265,7 +317,12 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public Header[] getAllHeaders() {
-        return headers.toArray(new Header[headers.size()]);
+        headerLock.readLock().lock();
+        try {
+            return headers.toArray(new Header[headers.size()]);
+        } finally {
+            headerLock.readLock().unlock();
+        }
     }
 
     /**
@@ -279,14 +336,19 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public boolean containsHeader(final String name) {
-        // HTTPCORE-361 : we don't use the for-each syntax, i.e.
-        //     for (Header header : headers)
-        // as that creates an Iterator that needs to be garbage-collected
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
-            if (header.getName().equalsIgnoreCase(name)) {
-                return true;
+        headerLock.readLock().lock();
+        try {
+            // HTTPCORE-361 : we don't use the for-each syntax, i.e.
+            //     for (Header header : headers)
+            // as that creates an Iterator that needs to be garbage-collected
+            for (int i = 0; i < this.headers.size(); i++) {
+                final Header header = this.headers.get(i);
+                if (header.getName().equalsIgnoreCase(name)) {
+                    return true;
+                }
             }
+        } finally {
+            headerLock.readLock().unlock();
         }
 
         return false;
@@ -301,15 +363,20 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public int containsHeaders(final String name) {
-        // HTTPCORE-361 : we don't use the for-each syntax, i.e.
-        //     for (Header header : headers)
-        // as that creates an Iterator that needs to be garbage-collected
         int count = 0;
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
-            if (header.getName().equalsIgnoreCase(name)) {
-                count++;
+        headerLock.readLock().lock();
+        try {
+            // HTTPCORE-361 : we don't use the for-each syntax, i.e.
+            //     for (Header header : headers)
+            // as that creates an Iterator that needs to be garbage-collected
+            for (int i = 0; i < this.headers.size(); i++) {
+                final Header header = this.headers.get(i);
+                if (header.getName().equalsIgnoreCase(name)) {
+                    count++;
+                }
             }
+        } finally {
+            headerLock.readLock().unlock();
         }
         return count;
     }
@@ -323,7 +390,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public Iterator<Header> headerIterator() {
-        return new BasicListHeaderIterator(this.headers, null);
+        return new BasicListHeaderIterator(this.headers, headerLock, null);
     }
 
     /**
@@ -338,7 +405,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public Iterator<Header> headerIterator(final String name) {
-        return new BasicListHeaderIterator(this.headers, name);
+        return new BasicListHeaderIterator(this.headers, headerLock, name);
     }
 
     /**
@@ -352,17 +419,27 @@ public class HeaderGroup implements MessageHeaders, Serializable {
         if (name == null) {
             return;
         }
-        for (final Iterator<Header> i = headerIterator(); i.hasNext(); ) {
-            final Header header = i.next();
-            if (header.getName().equalsIgnoreCase(name)) {
-                i.remove();
+        headerLock.writeLock().lock();
+        try {
+            for (final Iterator<Header> i = headerIterator(); i.hasNext(); ) {
+                final Header header = i.next();
+                if (header.getName().equalsIgnoreCase(name)) {
+                    i.remove();
+                }
             }
+        } finally {
+            headerLock.writeLock().unlock();
         }
     }
 
     @Override
     public String toString() {
-        return this.headers.toString();
+        headerLock.readLock().lock();
+        try {
+            return this.headers.toString();
+        } finally {
+            headerLock.readLock().unlock();
+        }
     }
 
 }
