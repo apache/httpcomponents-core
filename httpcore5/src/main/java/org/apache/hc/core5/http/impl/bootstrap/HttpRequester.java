@@ -64,6 +64,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ControlledConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
@@ -221,6 +222,9 @@ public class HttpRequester implements GracefullyCloseable {
                 final Socket socket = createSocket(targetHost);
                 connection = connectFactory.createConnection(socket);
                 poolEntry.assignConnection(connection);
+            }
+            if (request.getAuthority() == null) {
+                request.setAuthority(new URIAuthority(targetHost.getHostName(), targetHost.getPort()));
             }
             final ClassicHttpResponse response = execute(connection, request, informationCallback, context);
             final HttpEntity entity = response.getEntity();
