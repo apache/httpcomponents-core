@@ -77,7 +77,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
 
-public class TestClassicHttp {
+public class ClassicIntegrationTest {
 
     private ClassicTestServer server;
 

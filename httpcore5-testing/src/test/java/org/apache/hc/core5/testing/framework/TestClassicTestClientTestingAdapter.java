@@ -40,17 +40,13 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.config.SocketConfig;
-import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.testing.classic.ClassicTestServer;
+import org.apache.hc.core5.testing.classic.EchoHandler;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -207,34 +203,7 @@ public class TestClassicTestClientTestingAdapter {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         // Initialize the server-side request handler
-        server.registerHandler("/echo/*", new HttpRequestHandler() {
-
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                final HttpEntity entity = request.getEntity();
-                // For some reason, just putting the incoming entity into
-                // the response will not work. We have to buffer the message.
-                final byte[] data;
-                if (entity == null) {
-                    data = new byte [0];
-                } else {
-                    data = EntityUtils.toByteArray(entity);
-                }
-
-                final ByteArrayEntity bae = new ByteArrayEntity(data);
-                if (entity != null) {
-                    bae.setContentType(entity.getContentType());
-                }
-
-                response.setCode(HttpStatus.SC_OK);
-                response.setEntity(bae);
-            }
-
-        });
+        server.registerHandler("/echo/*", new EchoHandler());
 
 
         this.server.start();
@@ -317,4 +286,5 @@ public class TestClassicTestClientTestingAdapter {
 
         Assert.assertSame("Same response expectations were not returned as expected.", responseExpectations, returnedResponseExpectations);
     }
+
 }
