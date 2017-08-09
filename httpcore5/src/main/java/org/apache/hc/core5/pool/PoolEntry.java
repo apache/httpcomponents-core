@@ -26,10 +26,9 @@
  */
 package org.apache.hc.core5.pool;
 
-import static java.lang.System.currentTimeMillis;
-
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
@@ -58,6 +57,19 @@ public final class PoolEntry<T, C extends GracefullyCloseable> {
     private volatile long updated;
     private volatile long expiry;
     private volatile long validityDeadline;
+    private Supplier<Long> currentTimeSupplier;
+
+    PoolEntry(final T route, final TimeValue timeToLive, final Supplier<Long> currentTimeSupplier) {
+        super();
+        this.route = Args.notNull(route, "Route");
+        this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
+        this.connRef = new AtomicReference<>(null);
+        this.currentTimeSupplier = currentTimeSupplier;
+    }
+
+    long getCurrentTime() {
+        return currentTimeSupplier != null ? currentTimeSupplier.get() : System.currentTimeMillis();
+    }
 
     /**
      * Creates new {@code PoolEntry} instance.
@@ -67,10 +79,7 @@ public final class PoolEntry<T, C extends GracefullyCloseable> {
      *   does not have an expiry deadline.
      */
     public PoolEntry(final T route, final TimeValue timeToLive) {
-        super();
-        this.route = Args.notNull(route, "Route");
-        this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
-        this.connRef = new AtomicReference<>(null);
+        this(route, timeToLive, null);
     }
 
     public PoolEntry(final T route) {
@@ -117,7 +126,7 @@ public final class PoolEntry<T, C extends GracefullyCloseable> {
     public void assignConnection(final C conn) {
         Args.notNull(conn, "connection");
         if (this.connRef.compareAndSet(null, conn)) {
-            this.created = currentTimeMillis();
+            this.created = getCurrentTime();
             this.updated = this.created;
             this.validityDeadline = TimeValue.calculateDeadline(this.created, this.timeToLive);
             this.expiry = this.validityDeadline;
@@ -147,9 +156,9 @@ public final class PoolEntry<T, C extends GracefullyCloseable> {
      */
     public void updateExpiry(final TimeValue expiryTime) {
         Args.notNull(expiryTime, "Expiry time");
-        final long currentTime = System.currentTimeMillis();
+        final long currentTime = getCurrentTime();
         final long newExpiry = TimeValue.calculateDeadline(currentTime, expiryTime);
-        this.expiry = Math.min(newExpiry, getValidityDeadline());
+        this.expiry = Math.min(newExpiry, this.validityDeadline);
         this.updated = currentTime;
     }
 
@@ -158,7 +167,7 @@ public final class PoolEntry<T, C extends GracefullyCloseable> {
      */
     public void updateState(final Object state) {
         this.state = state;
-        this.updated = System.currentTimeMillis();
+        this.updated = getCurrentTime();
     }
 
     @Override
