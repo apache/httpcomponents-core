@@ -39,7 +39,9 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.io.HttpClientConnection;
@@ -120,6 +122,13 @@ public class HttpRequestExecutor {
         try {
             context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
             context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
+            final ProtocolVersion transportVersion = request.getVersion();
+            if (transportVersion != null) {
+                if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+                    throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
+                }
+                context.setProtocolVersion(transportVersion);
+            }
 
             conn.sendRequestHeader(request);
             if (streamListener != null) {
