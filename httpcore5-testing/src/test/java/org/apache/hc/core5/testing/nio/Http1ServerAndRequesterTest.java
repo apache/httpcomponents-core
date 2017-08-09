@@ -142,7 +142,7 @@ public class Http1ServerAndRequesterTest {
 
                     })
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .create();
         }
@@ -181,7 +181,7 @@ public class Http1ServerAndRequesterTest {
                             .setSoTimeout(TIMEOUT)
                             .build())
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                     .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .create();

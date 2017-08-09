@@ -125,7 +125,7 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
                 responseWriterFactory.create(),
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                LoggingHttp1StreamListener.INSTANCE_SERVER);
+                LoggingHttp1StreamListener.INSTANCE);
         return new ServerHttp1IOEventHandler(streamDuplexer);
     }
 

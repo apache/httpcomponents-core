@@ -107,7 +107,7 @@ public class Http2ServerAndRequesterTest {
                                     .setSoTimeout(TIMEOUT)
                                     .build())
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
@@ -155,7 +155,7 @@ public class Http2ServerAndRequesterTest {
                             .setSoTimeout(TIMEOUT)
                             .build())
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                     .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .create();

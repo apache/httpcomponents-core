@@ -27,59 +27,25 @@
 
 package org.apache.hc.core5.testing.classic;
 
-import java.util.Iterator;
-
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
-import org.apache.hc.core5.http.message.RequestLine;
-import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class LoggingHttp1StreamListener implements Http1StreamListener {
 
-    enum Type { CLIENT, SERVER }
+    public static final LoggingHttp1StreamListener INSTANCE = new LoggingHttp1StreamListener();
 
-    public final static LoggingHttp1StreamListener INSTANCE_CLIENT = new LoggingHttp1StreamListener(Type.CLIENT);
-    public final static LoggingHttp1StreamListener INSTANCE_SERVER = new LoggingHttp1StreamListener(Type.SERVER);
-
-    private final Type type;
     private final Logger connLog = LogManager.getLogger("org.apache.hc.core5.http.connection");
-    private final Logger headerLog = LogManager.getLogger("org.apache.hc.core5.http.headers");
-
-    private LoggingHttp1StreamListener(final Type type) {
-        this.type = type;
-    }
-
-    private String requestDirection() {
-        return type == Type.CLIENT ? " >> " : " << ";
-    }
-
-    private String responseDirection() {
-        return type == Type.CLIENT ? " << " : " >> ";
-    }
 
     @Override
     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
-        if (headerLog.isDebugEnabled()) {
-            headerLog.debug(LoggingSupport.getId(connection) + requestDirection() + new RequestLine(request));
-            for (final Iterator<Header> it = request.headerIterator(); it.hasNext(); ) {
-                headerLog.debug(LoggingSupport.getId(connection) + requestDirection() + it.next());
-            }
-        }
     }
 
     @Override
     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
-        if (headerLog.isDebugEnabled()) {
-            headerLog.debug(LoggingSupport.getId(connection) + responseDirection() + new StatusLine(response));
-            for (final Iterator<Header> it = response.headerIterator(); it.hasNext(); ) {
-                headerLog.debug(LoggingSupport.getId(connection) + responseDirection() + it.next());
-            }
-        }
     }
 
     @Override

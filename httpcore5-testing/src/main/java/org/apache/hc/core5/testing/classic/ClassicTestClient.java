@@ -84,7 +84,7 @@ public class ClassicTestClient {
             final HttpRequestExecutor requestExecutor = new HttpRequestExecutor(
                     HttpRequestExecutor.DEFAULT_WAIT_FOR_CONTINUE,
                     DefaultConnectionReuseStrategy.INSTANCE,
-                    LoggingHttp1StreamListener.INSTANCE_CLIENT);
+                    LoggingHttp1StreamListener.INSTANCE);
             final StrictConnPool<HttpHost, HttpClientConnection> connPool = new StrictConnPool<>(
                     20,
                     50,

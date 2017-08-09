@@ -94,7 +94,7 @@ public class RequesterBootstrap {
         return this;
     }
 
-    public final RequesterBootstrap setConnectFactory(final HttpConnectionFactory<? extends HttpClientConnection> connectFactory) {
+    public final RequesterBootstrap setConnectionFactory(final HttpConnectionFactory<? extends HttpClientConnection> connectFactory) {
         this.connectFactory = connectFactory;
         return this;
     }

@@ -83,7 +83,7 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 h1Config,
                 charCodingConfig,
-                LoggingHttp1StreamListener.INSTANCE_CLIENT);
+                LoggingHttp1StreamListener.INSTANCE);
         final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.client(),
                 exchangeHandlerFactory,

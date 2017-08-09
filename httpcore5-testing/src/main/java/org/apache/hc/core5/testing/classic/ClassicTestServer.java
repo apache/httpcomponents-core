@@ -109,7 +109,7 @@ public class ClassicTestServer {
                     httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                     handlerDecorator != null ? handlerDecorator.decorate(handler) : new BasicHttpServerExpectationDecorator(handler),
                     DefaultConnectionReuseStrategy.INSTANCE,
-                    LoggingHttp1StreamListener.INSTANCE_CLIENT);
+                    LoggingHttp1StreamListener.INSTANCE);
             final HttpServer server = new HttpServer(
                     0,
                     httpService,

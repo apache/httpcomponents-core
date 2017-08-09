@@ -89,7 +89,7 @@ public class ClassicServerAndRequesterTest {
                         }
                     })
                     .setExceptionListener(LoggingExceptionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                     .create();
         }
 
@@ -120,7 +120,7 @@ public class ClassicServerAndRequesterTest {
                             .build())
                     .setMaxTotal(2)
                     .setDefaultMaxPerRoute(2)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                     .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                     .create();
         }
