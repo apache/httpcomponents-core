@@ -398,6 +398,29 @@ public class TestHttpAsyncRequestExecutor {
     }
 
     @Test
+    public void testEarlyNonErrorResponse() throws Exception {
+        final State state = new HttpAsyncRequestExecutor.State();
+        state.setRequestState(MessageState.BODY_STREAM);
+        state.setTimeout(1000);
+        final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
+        request.setEntity(new NStringEntity("stuff"));
+        state.setRequest(request);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_EXCHANGE_STATE, state);
+        this.connContext.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, this.exchangeHandler);
+        final BasicHttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
+        Mockito.when(this.conn.getHttpResponse()).thenReturn(response);
+
+        this.protocolHandler.responseReceived(this.conn);
+
+        Assert.assertSame(response, state.getResponse());
+        Assert.assertEquals(MessageState.BODY_STREAM, state.getRequestState());
+        Assert.assertEquals(MessageState.BODY_STREAM, state.getResponseState());
+        Mockito.verify(this.conn, Mockito.never()).suspendOutput();
+        Mockito.verify(this.conn, Mockito.never()).resetOutput();
+        Assert.assertTrue(state.isValid());
+    }
+
+    @Test
     public void testResponseToHead() throws Exception {
         final State state = new HttpAsyncRequestExecutor.State();
         final HttpRequest request = new BasicHttpRequest("HEAD", "/");

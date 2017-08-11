@@ -43,8 +43,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.nio.ContentDecoder;
 import org.apache.http.nio.ContentEncoder;
 import org.apache.http.nio.NHttpClientConnection;
@@ -294,10 +294,12 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             state.setRequestState(MessageState.COMPLETED);
         } else if (state.getRequestState() == MessageState.BODY_STREAM) {
             // Early response
-            conn.resetOutput();
-            conn.suspendOutput();
-            state.setRequestState(MessageState.COMPLETED);
-            state.invalidate();
+            if (statusCode >= 400) {
+                conn.resetOutput();
+                conn.suspendOutput();
+                state.setRequestState(MessageState.COMPLETED);
+                state.invalidate();
+            }
         }
 
         if (canResponseHaveBody(request, response)) {
