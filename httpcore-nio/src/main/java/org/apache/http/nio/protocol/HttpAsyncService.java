@@ -525,7 +525,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     public void timeout(final NHttpServerConnection conn) throws IOException {
         final State state = getState(conn);
         if (state != null) {
-            closeHandlers(state, new SocketTimeoutException());
+            exception(conn, new SocketTimeoutException());
         }
         if (conn.getStatus() == NHttpConnection.ACTIVE) {
             conn.close();
@@ -632,6 +632,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             code = HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED;
         } else if (ex instanceof ProtocolException) {
             code = HttpStatus.SC_BAD_REQUEST;
+        } else if (ex instanceof SocketTimeoutException) {
+            code = HttpStatus.SC_GATEWAY_TIMEOUT;
         } else {
             code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         }
