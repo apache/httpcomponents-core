@@ -530,7 +530,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     public void timeout(final NHttpServerConnection conn) throws IOException {
         final State state = getState(conn);
         if (state != null) {
-            exception(conn, new SocketTimeoutException());
+            exception(conn, new SocketTimeoutException(
+                    String.format("%,d milliseconds timeout on connection %s", conn.getSocketTimeout(), conn)));
         }
         if (conn.getStatus() == NHttpConnection.ACTIVE) {
             conn.close();

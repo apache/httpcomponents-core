@@ -375,7 +375,8 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
             state.invalidate();
             final HttpAsyncClientExchangeHandler handler = getHandler(conn);
             if (handler != null) {
-                handler.failed(new SocketTimeoutException());
+                handler.failed(new SocketTimeoutException(
+                        String.format("%,d milliseconds timeout on connection %s", conn.getSocketTimeout(), conn)));
                 handler.close();
             }
         }
