@@ -46,8 +46,8 @@ import org.apache.http.HttpVersion;
 import org.apache.http.MethodNotSupportedException;
 import org.apache.http.ProtocolException;
 import org.apache.http.UnsupportedHttpVersionException;
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.concurrent.Cancellable;
 import org.apache.http.entity.ContentType;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -400,9 +400,14 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 "Unexpected response state %s", state.getResponseState());
 
         if (state.getRequestState() == MessageState.ACK_EXPECTED) {
-            final Outgoing outgoing = state.getOutgoing();
-            Asserts.notNull(outgoing, "Outgoing response");
-
+            final Outgoing outgoing;
+            synchronized (state) {
+                outgoing = state.getOutgoing();
+                if (outgoing == null) {
+                    conn.suspendOutput();
+                    return;
+                }
+            }
             final HttpResponse response = outgoing.getResponse();
             final int status = response.getStatusLine().getStatusCode();
             if (status == 100) {
