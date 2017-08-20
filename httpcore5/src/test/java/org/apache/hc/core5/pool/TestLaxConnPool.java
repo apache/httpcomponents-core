@@ -38,16 +38,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class TestStrictConnPool {
+public class TestLaxConnPool {
 
     @Test
     public void testEmptyPool() throws Exception {
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 10);
         final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
         Assert.assertEquals(0, totals.getPending());
-        Assert.assertEquals(10, totals.getMax());
+        Assert.assertEquals(0, totals.getMax());
         Assert.assertEquals(Collections.emptySet(), pool.getRoutes());
         final PoolStats stats = pool.getStats("somehost");
         Assert.assertEquals(0, stats.getAvailable());
@@ -60,12 +60,12 @@ public class TestStrictConnPool {
     @Test
     public void testInvalidConstruction() throws Exception {
         try {
-            new StrictConnPool<String, HttpConnection>(-1, 1);
+            new LaxConnPool<String, HttpConnection>(-1, 1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
         try {
-            new StrictConnPool<String, HttpConnection>(1, -1);
+            new LaxConnPool<String, HttpConnection>(1, -1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
@@ -77,7 +77,7 @@ public class TestStrictConnPool {
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
 
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 10);
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
         final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("otherhost", null);
@@ -107,7 +107,7 @@ public class TestStrictConnPool {
 
     @Test
     public void testLeaseIllegal() throws Exception {
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 10);
         try {
             pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -122,7 +122,7 @@ public class TestStrictConnPool {
 
     @Test(expected = IllegalStateException.class)
     public void testReleaseUnknownEntry() throws Exception {
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
         pool.release(new PoolEntry<String, HttpConnection>("somehost"), true);
     }
 
@@ -132,10 +132,9 @@ public class TestStrictConnPool {
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
 
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 10);
         pool.setMaxPerRoute("somehost", 2);
         pool.setMaxPerRoute("otherhost", 1);
-        pool.setMaxTotal(3);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
@@ -207,160 +206,10 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testConnectionRedistributionOnTotalMaxLimit() throws Exception {
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
-        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
-        final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
-        final HttpConnection conn4 = Mockito.mock(HttpConnection.class);
-        final HttpConnection conn5 = Mockito.mock(HttpConnection.class);
-
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10);
-        pool.setMaxPerRoute("somehost", 2);
-        pool.setMaxPerRoute("otherhost", 2);
-        pool.setMaxTotal(2);
-
-        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
-        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
-        final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("otherhost", null);
-        final Future<PoolEntry<String, HttpConnection>> future4 = pool.lease("otherhost", null);
-
-        Assert.assertTrue(future1.isDone());
-        final PoolEntry<String, HttpConnection> entry1 = future1.get();
-        Assert.assertNotNull(entry1);
-        Assert.assertFalse(entry1.hasConnection());
-        entry1.assignConnection(conn1);
-        Assert.assertTrue(future2.isDone());
-        final PoolEntry<String, HttpConnection> entry2 = future2.get();
-        Assert.assertNotNull(entry2);
-        Assert.assertFalse(entry2.hasConnection());
-        entry2.assignConnection(conn2);
-
-        Assert.assertFalse(future3.isDone());
-        Assert.assertFalse(future4.isDone());
-
-        PoolStats totals = pool.getTotalStats();
-        Assert.assertEquals(0, totals.getAvailable());
-        Assert.assertEquals(2, totals.getLeased());
-        Assert.assertEquals(2, totals.getPending());
-
-        pool.release(entry1, true);
-        pool.release(entry2, true);
-
-        Assert.assertTrue(future3.isDone());
-        final PoolEntry<String, HttpConnection> entry3 = future3.get();
-        Assert.assertNotNull(entry3);
-        Assert.assertFalse(entry3.hasConnection());
-        entry3.assignConnection(conn3);
-        Assert.assertTrue(future4.isDone());
-        final PoolEntry<String, HttpConnection> entry4 = future4.get();
-        Assert.assertNotNull(entry4);
-        Assert.assertFalse(entry4.hasConnection());
-        entry4.assignConnection(conn4);
-
-        totals = pool.getTotalStats();
-        Assert.assertEquals(0, totals.getAvailable());
-        Assert.assertEquals(2, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
-
-        final Future<PoolEntry<String, HttpConnection>> future5 = pool.lease("somehost", null);
-        final Future<PoolEntry<String, HttpConnection>> future6 = pool.lease("otherhost", null);
-
-        pool.release(entry3, true);
-        pool.release(entry4, true);
-
-        Assert.assertTrue(future5.isDone());
-        final PoolEntry<String, HttpConnection> entry5 = future5.get();
-        Assert.assertNotNull(entry5);
-        Assert.assertFalse(entry5.hasConnection());
-        entry5.assignConnection(conn5);
-        Assert.assertTrue(future6.isDone());
-        final PoolEntry<String, HttpConnection> entry6 = future6.get();
-        Assert.assertNotNull(entry6);
-        Assert.assertTrue(entry6.hasConnection());
-        Assert.assertSame(conn4, entry6.getConnection());
-
-        totals = pool.getTotalStats();
-        Assert.assertEquals(0, totals.getAvailable());
-        Assert.assertEquals(2, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
-
-        pool.release(entry5, true);
-        pool.release(entry6, true);
-
-        totals = pool.getTotalStats();
-        Assert.assertEquals(2, totals.getAvailable());
-        Assert.assertEquals(0, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
-    }
-
-    @Test
-    public void testStatefulConnectionRedistributionOnPerRouteMaxLimit() throws Exception {
-        final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
-        final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
-
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10);
-        pool.setMaxPerRoute("somehost", 2);
-        pool.setMaxTotal(2);
-
-        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
-        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
-
-        Assert.assertTrue(future1.isDone());
-        final PoolEntry<String, HttpConnection> entry1 = future1.get();
-        entry1.assignConnection(conn1);
-        Assert.assertNotNull(entry1);
-        Assert.assertTrue(future2.isDone());
-        final PoolEntry<String, HttpConnection> entry2 = future2.get();
-        Assert.assertNotNull(entry2);
-        entry2.assignConnection(conn2);
-
-        PoolStats totals = pool.getTotalStats();
-        Assert.assertEquals(0, totals.getAvailable());
-        Assert.assertEquals(2, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
-
-        entry1.updateState("some-stuff");
-        pool.release(entry1, true);
-        entry2.updateState("some-stuff");
-        pool.release(entry2, true);
-
-        final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", "some-stuff");
-        final Future<PoolEntry<String, HttpConnection>> future4 = pool.lease("somehost", "some-stuff");
-
-        Assert.assertTrue(future1.isDone());
-        final PoolEntry<String, HttpConnection> entry3 = future3.get();
-        Assert.assertNotNull(entry3);
-        Assert.assertSame(conn2, entry3.getConnection());
-        Assert.assertTrue(future4.isDone());
-        final PoolEntry<String, HttpConnection> entry4 = future4.get();
-        Assert.assertNotNull(entry4);
-        Assert.assertSame(conn1, entry4.getConnection());
-
-        pool.release(entry3, true);
-        pool.release(entry4, true);
-
-        totals = pool.getTotalStats();
-        Assert.assertEquals(2, totals.getAvailable());
-        Assert.assertEquals(0, totals.getLeased());
-        Assert.assertEquals(0, totals.getPending());
-
-        final Future<PoolEntry<String, HttpConnection>> future5 = pool.lease("somehost", "some-other-stuff");
-
-        Assert.assertTrue(future5.isDone());
-
-        Mockito.verify(conn2).shutdown(ShutdownType.GRACEFUL);
-        Mockito.verify(conn1, Mockito.never()).shutdown(Mockito.<ShutdownType>any());
-
-        totals = pool.getTotalStats();
-        Assert.assertEquals(1, totals.getAvailable());
-        Assert.assertEquals(1, totals.getLeased());
-    }
-
-    @Test
     public void testCreateNewIfExpired() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
 
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
 
@@ -394,7 +243,7 @@ public class TestStrictConnPool {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
 
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
@@ -436,7 +285,7 @@ public class TestStrictConnPool {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
 
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
@@ -490,7 +339,7 @@ public class TestStrictConnPool {
     public void testLeaseRequestTimeout() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
 
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(1, 1);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
@@ -513,7 +362,7 @@ public class TestStrictConnPool {
 
     @Test
     public void testLeaseRequestCanceled() throws Exception {
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(1, 1);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
 
@@ -534,18 +383,13 @@ public class TestStrictConnPool {
 
     @Test(expected=IllegalArgumentException.class)
     public void testGetStatsInvalid() throws Exception {
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
         pool.getStats(null);
     }
 
     @Test
     public void testSetMaxInvalid() throws Exception {
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
-        try {
-            pool.setMaxTotal(-1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
         try {
             pool.setMaxPerRoute(null, 1);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -565,7 +409,7 @@ public class TestStrictConnPool {
 
     @Test
     public void testShutdown() throws Exception {
-        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
         pool.shutdown(ShutdownType.GRACEFUL);
         try {
             pool.lease("somehost", null);
