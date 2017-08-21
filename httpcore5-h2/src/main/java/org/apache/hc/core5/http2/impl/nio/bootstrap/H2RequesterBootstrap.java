@@ -51,7 +51,7 @@ import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.pool.ConnPoolListener;
-import org.apache.hc.core5.pool.ConnPoolPolicy;
+import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -76,7 +76,7 @@ public class H2RequesterBootstrap {
     private int defaultMaxPerRoute;
     private int maxTotal;
     private TimeValue timeToLive;
-    private ConnPoolPolicy connPoolPolicy;
+    private PoolReusePolicy poolReusePolicy;
     private TlsStrategy tlsStrategy;
     private Decorator<IOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
@@ -156,10 +156,10 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link ConnPoolPolicy} instance.
+     * Assigns {@link PoolReusePolicy} instance.
      */
-    public final H2RequesterBootstrap setConnPoolPolicy(final ConnPoolPolicy connPoolPolicy) {
-        this.connPoolPolicy = connPoolPolicy;
+    public final H2RequesterBootstrap setPoolReusePolicy(final PoolReusePolicy poolReusePolicy) {
+        this.poolReusePolicy = poolReusePolicy;
         return this;
     }
 
@@ -254,7 +254,7 @@ public class H2RequesterBootstrap {
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
                 timeToLive,
-                connPoolPolicy,
+                poolReusePolicy,
                 connPoolListener);
         final RequestHandlerRegistry<Supplier<AsyncPushConsumer>> registry = new RequestHandlerRegistry<>(uriPatternType);
         for (final HandlerEntry<Supplier<AsyncPushConsumer>> entry: pushConsumerList) {

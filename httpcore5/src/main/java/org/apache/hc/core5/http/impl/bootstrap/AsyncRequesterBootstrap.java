@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
-import org.apache.hc.core5.pool.ConnPoolPolicy;
+import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -60,7 +60,7 @@ public class AsyncRequesterBootstrap {
     private int defaultMaxPerRoute;
     private int maxTotal;
     private Timeout timeToLive;
-    private ConnPoolPolicy connPoolPolicy;
+    private PoolReusePolicy poolReusePolicy;
     private TlsStrategy tlsStrategy;
     private Decorator<IOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
@@ -130,10 +130,10 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link ConnPoolPolicy} instance.
+     * Assigns {@link PoolReusePolicy} instance.
      */
-    public final AsyncRequesterBootstrap setConnPoolPolicy(final ConnPoolPolicy connPoolPolicy) {
-        this.connPoolPolicy = connPoolPolicy;
+    public final AsyncRequesterBootstrap setPoolReusePolicy(final PoolReusePolicy poolReusePolicy) {
+        this.poolReusePolicy = poolReusePolicy;
         return this;
     }
 
@@ -182,7 +182,7 @@ public class AsyncRequesterBootstrap {
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
                 timeToLive,
-                connPoolPolicy,
+                poolReusePolicy,
                 connPoolListener);
         final ClientHttp1StreamDuplexerFactory streamDuplexerFactory = new ClientHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),

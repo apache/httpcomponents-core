@@ -62,11 +62,11 @@ import org.apache.hc.core5.util.Timeout;
  * @since 4.2
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-public class StrictConnPool<T, C extends GracefullyCloseable> implements ControlledConnPool<T, C> {
+public class StrictConnPool<T, C extends GracefullyCloseable> implements ManagedConnPool<T, C> {
 
     private final TimeValue timeToLive;
     private final ConnPoolListener<T> connPoolListener;
-    private final ConnPoolPolicy policy;
+    private final PoolReusePolicy policy;
     private final Map<T, PerRoutePool<T, C>> routeToPool;
     private final LinkedList<LeaseRequest<T, C>> leasingRequests;
     private final Set<PoolEntry<T, C>> leased;
@@ -86,14 +86,14 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
             final int defaultMaxPerRoute,
             final int maxTotal,
             final TimeValue timeToLive,
-            final ConnPoolPolicy policy,
+            final PoolReusePolicy policy,
             final ConnPoolListener<T> connPoolListener) {
         super();
         Args.positive(defaultMaxPerRoute, "Max per route value");
         Args.positive(maxTotal, "Max total value");
         this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
         this.connPoolListener = connPoolListener;
-        this.policy = policy != null ? policy : ConnPoolPolicy.LIFO;
+        this.policy = policy != null ? policy : PoolReusePolicy.LIFO;
         this.routeToPool = new HashMap<>();
         this.leasingRequests = new LinkedList<>();
         this.leased = new HashSet<>();
@@ -107,7 +107,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Control
     }
 
     public StrictConnPool(final int defaultMaxPerRoute, final int maxTotal) {
-        this(defaultMaxPerRoute, maxTotal, TimeValue.NEG_ONE_MILLISECONDS, ConnPoolPolicy.LIFO, null);
+        this(defaultMaxPerRoute, maxTotal, TimeValue.NEG_ONE_MILLISECONDS, PoolReusePolicy.LIFO, null);
     }
 
     public boolean isShutdown() {

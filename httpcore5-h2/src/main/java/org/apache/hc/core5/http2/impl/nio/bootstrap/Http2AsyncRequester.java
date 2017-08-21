@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.pool.ControlledConnPool;
+import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -56,7 +56,7 @@ public class Http2AsyncRequester extends HttpAsyncRequester {
             final IOEventHandlerFactory eventHandlerFactory,
             final Decorator<IOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
-            final ControlledConnPool<HttpHost, IOSession> connPool,
+            final ManagedConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy) {
         super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, sessionListener, connPool, tlsStrategy);
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;

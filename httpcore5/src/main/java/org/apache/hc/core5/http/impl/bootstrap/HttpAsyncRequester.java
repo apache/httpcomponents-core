@@ -61,7 +61,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.URIAuthority;
-import org.apache.hc.core5.pool.ControlledConnPool;
+import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -76,7 +76,7 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class HttpAsyncRequester extends AsyncRequester {
 
-    private final ControlledConnPool<HttpHost, IOSession> connPool;
+    private final ManagedConnPool<HttpHost, IOSession> connPool;
     private final TlsStrategy tlsStrategy;
 
     public HttpAsyncRequester(
@@ -84,7 +84,7 @@ public class HttpAsyncRequester extends AsyncRequester {
             final IOEventHandlerFactory eventHandlerFactory,
             final Decorator<IOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
-            final ControlledConnPool<HttpHost, IOSession> connPool,
+            final ManagedConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener, new Callback<IOSession>() {
 

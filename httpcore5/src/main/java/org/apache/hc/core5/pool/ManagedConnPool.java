@@ -26,19 +26,16 @@
  */
 package org.apache.hc.core5.pool;
 
+import org.apache.hc.core5.io.GracefullyCloseable;
+
 /**
- * @since 5.0
+ * {@link ConnPool} that also implements {@link ConnPoolControl} and {@link AutoCloseable}.
+ *
+ * @param <T> the route type that represents the opposite endpoint of a pooled
+ *   connection.
+ * @param <C> the type of pooled connections.
+ * @since 4.2
  */
-public enum ConnPoolPolicy{
-
-    /**
-     * Re-use as few connections as possible making it possible for connections to become idle and expire.
-     */
-    LIFO,
-
-    /**
-     * Re-use all connections equally preventing them from becoming idle and expiring.
-     */
-    FIFO
+public interface ManagedConnPool<T, C extends GracefullyCloseable> extends ConnPool<T, C>, ConnPoolControl<T>, GracefullyCloseable {
 
 }

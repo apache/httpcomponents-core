@@ -49,7 +49,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.URIAuthority;
-import org.apache.hc.core5.pool.ConnPoolPolicy;
+import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -89,7 +89,7 @@ public class ClassicTestClient {
                     20,
                     50,
                     TimeValue.NEG_ONE_MILLISECONDS,
-                    ConnPoolPolicy.LIFO,
+                    PoolReusePolicy.LIFO,
                     LoggingConnPoolListener.INSTANCE);
             final HttpRequester requester = new HttpRequester(
                     requestExecutor,

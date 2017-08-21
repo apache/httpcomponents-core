@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
-import org.apache.hc.core5.pool.ConnPoolPolicy;
+import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.util.Timeout;
 
@@ -59,7 +59,7 @@ public class RequesterBootstrap {
     private int defaultMaxPerRoute;
     private int maxTotal;
     private Timeout timeToLive;
-    private ConnPoolPolicy connPoolPolicy;
+    private PoolReusePolicy poolReusePolicy;
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
 
@@ -119,8 +119,8 @@ public class RequesterBootstrap {
         return this;
     }
 
-    public final RequesterBootstrap setConnPoolPolicy(final ConnPoolPolicy connPoolPolicy) {
-        this.connPoolPolicy = connPoolPolicy;
+    public final RequesterBootstrap setPoolReusePolicy(final PoolReusePolicy poolReusePolicy) {
+        this.poolReusePolicy = poolReusePolicy;
         return this;
     }
 
@@ -143,7 +143,7 @@ public class RequesterBootstrap {
                 defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                 maxTotal > 0 ? maxTotal : 50,
                 timeToLive,
-                connPoolPolicy,
+                poolReusePolicy,
                 connPoolListener);
         return new HttpRequester(
                 requestExecutor,

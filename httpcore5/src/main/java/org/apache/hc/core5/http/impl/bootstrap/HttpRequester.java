@@ -66,7 +66,7 @@ import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
-import org.apache.hc.core5.pool.ControlledConnPool;
+import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
@@ -78,7 +78,7 @@ public class HttpRequester implements GracefullyCloseable {
 
     private final HttpRequestExecutor requestExecutor;
     private final HttpProcessor httpProcessor;
-    private final ControlledConnPool<HttpHost, HttpClientConnection> connPool;
+    private final ManagedConnPool<HttpHost, HttpClientConnection> connPool;
     private final SocketConfig socketConfig;
     private final HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
     private final SSLSocketFactory sslSocketFactory;
@@ -86,7 +86,7 @@ public class HttpRequester implements GracefullyCloseable {
     public HttpRequester(
             final HttpRequestExecutor requestExecutor,
             final HttpProcessor httpProcessor,
-            final ControlledConnPool<HttpHost, HttpClientConnection> connPool,
+            final ManagedConnPool<HttpHost, HttpClientConnection> connPool,
             final SocketConfig socketConfig,
             final HttpConnectionFactory<? extends HttpClientConnection> connectFactory,
             final SSLSocketFactory sslSocketFactory) {
