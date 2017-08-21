@@ -77,13 +77,11 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
      */
     public LaxConnPool(
             final int defaultMaxPerRoute,
-            final int maxTotal,
             final TimeValue timeToLive,
             final PoolReusePolicy policy,
             final ConnPoolListener<T> connPoolListener) {
         super();
         Args.positive(defaultMaxPerRoute, "Max per route value");
-        Args.positive(maxTotal, "Max total value");
         this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
         this.connPoolListener = connPoolListener;
         this.policy = policy != null ? policy : PoolReusePolicy.LIFO;
@@ -92,8 +90,8 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
         this.defaultMaxPerRoute = defaultMaxPerRoute;
     }
 
-    public LaxConnPool(final int defaultMaxPerRoute, final int maxTotal) {
-        this(defaultMaxPerRoute, maxTotal, TimeValue.NEG_ONE_MILLISECONDS, PoolReusePolicy.LIFO, null);
+    public LaxConnPool(final int defaultMaxPerRoute) {
+        this(defaultMaxPerRoute, TimeValue.NEG_ONE_MILLISECONDS, PoolReusePolicy.LIFO, null);
     }
 
     public boolean isShutdown() {

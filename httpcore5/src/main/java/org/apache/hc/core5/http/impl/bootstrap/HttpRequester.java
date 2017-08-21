@@ -68,13 +68,15 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
+import org.apache.hc.core5.pool.PoolStats;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 /**
  * @since 5.0
  */
-public class HttpRequester implements GracefullyCloseable {
+public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyCloseable {
 
     private final HttpRequestExecutor requestExecutor;
     private final HttpProcessor httpProcessor;
@@ -97,6 +99,56 @@ public class HttpRequester implements GracefullyCloseable {
         this.connectFactory = connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
                 H1Config.DEFAULT, CharCodingConfig.DEFAULT);
         this.sslSocketFactory = sslSocketFactory != null ? sslSocketFactory : (SSLSocketFactory) SSLSocketFactory.getDefault();
+    }
+
+    @Override
+    public PoolStats getTotalStats() {
+        return connPool.getTotalStats();
+    }
+
+    @Override
+    public PoolStats getStats(final HttpHost route) {
+        return connPool.getStats(route);
+    }
+
+    @Override
+    public void setMaxTotal(final int max) {
+        connPool.setMaxTotal(max);
+    }
+
+    @Override
+    public int getMaxTotal() {
+        return connPool.getMaxTotal();
+    }
+
+    @Override
+    public void setDefaultMaxPerRoute(final int max) {
+        connPool.setDefaultMaxPerRoute(max);
+    }
+
+    @Override
+    public int getDefaultMaxPerRoute() {
+        return connPool.getDefaultMaxPerRoute();
+    }
+
+    @Override
+    public void setMaxPerRoute(final HttpHost route, final int max) {
+        connPool.setMaxPerRoute(route, max);
+    }
+
+    @Override
+    public int getMaxPerRoute(final HttpHost route) {
+        return connPool.getMaxPerRoute(route);
+    }
+
+    @Override
+    public void closeIdle(final TimeValue idleTime) {
+        connPool.closeIdle(idleTime);
+    }
+
+    @Override
+    public void closeExpired() {
+        connPool.closeExpired();
     }
 
     public ClassicHttpResponse execute(

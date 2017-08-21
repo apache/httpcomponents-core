@@ -61,8 +61,10 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
+import org.apache.hc.core5.pool.PoolStats;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -74,7 +76,7 @@ import org.apache.hc.core5.util.TimeValue;
 /**
  * @since 5.0
  */
-public class HttpAsyncRequester extends AsyncRequester {
+public class HttpAsyncRequester extends AsyncRequester implements ConnPoolControl<HttpHost> {
 
     private final ManagedConnPool<HttpHost, IOSession> connPool;
     private final TlsStrategy tlsStrategy;
@@ -96,6 +98,56 @@ public class HttpAsyncRequester extends AsyncRequester {
         });
         this.connPool = Args.notNull(connPool, "Connection pool");
         this.tlsStrategy = tlsStrategy;
+    }
+
+    @Override
+    public PoolStats getTotalStats() {
+        return connPool.getTotalStats();
+    }
+
+    @Override
+    public PoolStats getStats(final HttpHost route) {
+        return connPool.getStats(route);
+    }
+
+    @Override
+    public void setMaxTotal(final int max) {
+        connPool.setMaxTotal(max);
+    }
+
+    @Override
+    public int getMaxTotal() {
+        return connPool.getMaxTotal();
+    }
+
+    @Override
+    public void setDefaultMaxPerRoute(final int max) {
+        connPool.setDefaultMaxPerRoute(max);
+    }
+
+    @Override
+    public int getDefaultMaxPerRoute() {
+        return connPool.getDefaultMaxPerRoute();
+    }
+
+    @Override
+    public void setMaxPerRoute(final HttpHost route, final int max) {
+        connPool.setMaxPerRoute(route, max);
+    }
+
+    @Override
+    public int getMaxPerRoute(final HttpHost route) {
+        return connPool.getMaxPerRoute(route);
+    }
+
+    @Override
+    public void closeIdle(final TimeValue idleTime) {
+        connPool.closeIdle(idleTime);
+    }
+
+    @Override
+    public void closeExpired() {
+        connPool.closeExpired();
     }
 
     public Future<AsyncClientEndpoint> connect(

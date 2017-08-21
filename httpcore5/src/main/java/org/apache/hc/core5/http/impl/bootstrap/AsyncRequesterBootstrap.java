@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http.impl.bootstrap;
 
+import org.apache.hc.core5.annotation.Experimental;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpHost;
@@ -39,6 +40,9 @@ import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
+import org.apache.hc.core5.pool.LaxConnPool;
+import org.apache.hc.core5.pool.ManagedConnPool;
+import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
 import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -61,6 +65,7 @@ public class AsyncRequesterBootstrap {
     private int maxTotal;
     private Timeout timeToLive;
     private PoolReusePolicy poolReusePolicy;
+    private PoolConcurrencyPolicy poolConcurrencyPolicy;
     private TlsStrategy tlsStrategy;
     private Decorator<IOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
@@ -138,6 +143,15 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
+     * Assigns {@link PoolConcurrencyPolicy} instance.
+     */
+    @Experimental
+    public final AsyncRequesterBootstrap setPoolConcurrencyPolicy(final PoolConcurrencyPolicy poolConcurrencyPolicy) {
+        this.poolConcurrencyPolicy = poolConcurrencyPolicy;
+        return this;
+    }
+
+    /**
      * Assigns {@link TlsStrategy} instance.
      */
     public final AsyncRequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
@@ -178,12 +192,25 @@ public class AsyncRequesterBootstrap {
     }
 
     public HttpAsyncRequester create() {
-        final StrictConnPool<HttpHost, IOSession> connPool = new StrictConnPool<>(
-                defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
-                maxTotal > 0 ? maxTotal : 50,
-                timeToLive,
-                poolReusePolicy,
-                connPoolListener);
+        final ManagedConnPool<HttpHost, IOSession> connPool;
+        switch (poolConcurrencyPolicy != null ? poolConcurrencyPolicy : PoolConcurrencyPolicy.STRICT) {
+            case LAX:
+                connPool = new LaxConnPool<>(
+                        defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
+                        timeToLive,
+                        poolReusePolicy,
+                        connPoolListener);
+                break;
+            case STRICT:
+            default:
+                connPool = new StrictConnPool<>(
+                        defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
+                        maxTotal > 0 ? maxTotal : 50,
+                        timeToLive,
+                        poolReusePolicy,
+                        connPoolListener);
+                break;
+        }
         final ClientHttp1StreamDuplexerFactory streamDuplexerFactory = new ClientHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 h1Config != null ? h1Config : H1Config.DEFAULT,

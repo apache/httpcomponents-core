@@ -42,7 +42,7 @@ public class TestLaxConnPool {
 
     @Test
     public void testEmptyPool() throws Exception {
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 10);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
         Assert.assertEquals(0, totals.getLeased());
@@ -60,12 +60,7 @@ public class TestLaxConnPool {
     @Test
     public void testInvalidConstruction() throws Exception {
         try {
-            new LaxConnPool<String, HttpConnection>(-1, 1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
-            new LaxConnPool<String, HttpConnection>(1, -1);
+            new LaxConnPool<String, HttpConnection>(-1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
@@ -77,7 +72,7 @@ public class TestLaxConnPool {
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
 
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 10);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
         final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("otherhost", null);
@@ -107,7 +102,7 @@ public class TestLaxConnPool {
 
     @Test
     public void testLeaseIllegal() throws Exception {
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 10);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         try {
             pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -122,7 +117,7 @@ public class TestLaxConnPool {
 
     @Test(expected = IllegalStateException.class)
     public void testReleaseUnknownEntry() throws Exception {
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         pool.release(new PoolEntry<String, HttpConnection>("somehost"), true);
     }
 
@@ -132,7 +127,7 @@ public class TestLaxConnPool {
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
 
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 10);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         pool.setMaxPerRoute("somehost", 2);
         pool.setMaxPerRoute("otherhost", 1);
 
@@ -209,7 +204,7 @@ public class TestLaxConnPool {
     public void testCreateNewIfExpired() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
 
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
 
@@ -243,7 +238,7 @@ public class TestLaxConnPool {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
 
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
@@ -285,7 +280,7 @@ public class TestLaxConnPool {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
 
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null);
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null);
@@ -339,7 +334,7 @@ public class TestLaxConnPool {
     public void testLeaseRequestTimeout() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
 
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(1, 1);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(1);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
@@ -362,7 +357,7 @@ public class TestLaxConnPool {
 
     @Test
     public void testLeaseRequestCanceled() throws Exception {
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(1, 1);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(1);
 
         final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
 
@@ -383,13 +378,13 @@ public class TestLaxConnPool {
 
     @Test(expected=IllegalArgumentException.class)
     public void testGetStatsInvalid() throws Exception {
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         pool.getStats(null);
     }
 
     @Test
     public void testSetMaxInvalid() throws Exception {
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         try {
             pool.setMaxPerRoute(null, 1);
             Assert.fail("IllegalArgumentException should have been thrown");
@@ -409,7 +404,7 @@ public class TestLaxConnPool {
 
     @Test
     public void testShutdown() throws Exception {
-        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2, 2);
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         pool.shutdown(ShutdownType.GRACEFUL);
         try {
             pool.lease("somehost", null);
