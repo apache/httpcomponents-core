@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -47,7 +48,6 @@ import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
@@ -74,8 +74,6 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final H1Config h1Config;
     private final ConnectionReuseStrategy connectionReuseStrategy;
-    private final ContentLengthStrategy incomingContentStrategy;
-    private final ContentLengthStrategy outgoingContentStrategy;
     private final Http1StreamListener streamListener;
     private final Queue<ServerHttp1StreamHandler> pipeline;
     private final Http1StreamChannel<HttpResponse> outputChannel;
@@ -96,17 +94,13 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final Http1StreamListener streamListener) {
-        super(ioSession, h1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter);
+        super(ioSession, h1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter, incomingContentStrategy, outgoingContentStrategy);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.scheme = scheme;
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
-        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
-        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
         this.streamListener = streamListener;
         this.pipeline = new ConcurrentLinkedQueue<>();
         this.outputChannel = new Http1StreamChannel<HttpResponse>() {
@@ -255,12 +249,16 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
-    protected ContentDecoder handleIncomingMessage(
-            final HttpRequest request,
+    protected boolean handleIncomingMessage(final HttpRequest request) throws HttpException {
+        return true;
+    }
+
+    @Override
+    protected ContentDecoder createContentDecoder(
+            final long len,
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
             final BasicHttpTransportMetrics metrics) throws HttpException {
-        final long len = incomingContentStrategy.determineLength(request);
         if (len >= 0) {
             return new LengthDelimitedDecoder(channel, buffer, metrics, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {
@@ -271,12 +269,16 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
-    protected ContentEncoder handleOutgoingMessage(
-            final HttpResponse response,
+    protected boolean handleOutgoingMessage(final HttpResponse response) throws HttpException {
+        return true;
+    }
+
+    @Override
+    protected ContentEncoder createContentEncoder(
+            final long len,
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final BasicHttpTransportMetrics metrics) throws HttpException {
-        final long len = outgoingContentStrategy.determineLength(response);
         if (len >= 0) {
             return new LengthDelimitedEncoder(channel, buffer, metrics, len, h1Config.getChunkSizeHint());
         } else if (len == ContentLengthStrategy.CHUNKED) {
@@ -298,7 +300,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
-    void consumeHeader(final HttpRequest request, final boolean endStream) throws HttpException, IOException {
+    void consumeHeader(final HttpRequest request, final EntityDetails entityDetails) throws HttpException, IOException {
         if (streamListener != null) {
             streamListener.onRequestHead(this, request);
         }
@@ -324,7 +326,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             pipeline.add(streamHandler);
         }
         request.setScheme(scheme);
-        streamHandler.consumeHeader(request, endStream);
+        streamHandler.consumeHeader(request, entityDetails);
         incoming = streamHandler;
     }
 

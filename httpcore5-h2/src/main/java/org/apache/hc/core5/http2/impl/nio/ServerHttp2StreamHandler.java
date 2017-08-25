@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
-import org.apache.hc.core5.http.impl.LazyEntityDetails;
+import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -182,7 +182,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
                 requestState = endStream ? MessageState.COMPLETE : MessageState.BODY;
 
                 final HttpRequest request = DefaultH2RequestConverter.INSTANCE.convert(headers);
-                final EntityDetails requestEntityDetails = endStream ? null : new LazyEntityDetails(request);
+                final EntityDetails requestEntityDetails = endStream ? null : new IncomingEntityDetails(request, -1);
 
                 final AsyncServerExchangeHandler handler;
                 try {

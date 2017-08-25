@@ -42,17 +42,23 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-public class LazyEntityDetails implements EntityDetails {
+public class IncomingEntityDetails implements EntityDetails {
 
     private final MessageHeaders message;
+    private final long contentLength;
 
-    public LazyEntityDetails(final MessageHeaders message) {
+    public IncomingEntityDetails(final MessageHeaders message, final long contentLength) {
         this.message = Args.notNull(message, "Message");
+        this.contentLength = contentLength;
+    }
+
+    public IncomingEntityDetails(final MessageHeaders message) {
+        this(message, -1);
     }
 
     @Override
     public long getContentLength() {
-        return -1;
+        return contentLength;
     }
 
     @Override
@@ -63,13 +69,13 @@ public class LazyEntityDetails implements EntityDetails {
 
     @Override
     public String getContentEncoding() {
-        final Header h = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+        final Header h = message.getFirstHeader(HttpHeaders.CONTENT_ENCODING);
         return h != null ? h.getValue() : null;
     }
 
     @Override
     public boolean isChunked() {
-        return false;
+        return contentLength < 0;
     }
 
     @Override

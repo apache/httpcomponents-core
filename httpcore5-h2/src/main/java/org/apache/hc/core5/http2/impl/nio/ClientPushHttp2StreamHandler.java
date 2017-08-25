@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
-import org.apache.hc.core5.http.impl.LazyEntityDetails;
+import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -126,7 +126,7 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
             Asserts.notNull(exchangeHandler, "Exchange handler");
 
             final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
-            final EntityDetails entityDetails = endStream ? null : new LazyEntityDetails(request);
+            final EntityDetails entityDetails = endStream ? null : new IncomingEntityDetails(request, -1);
 
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             httpProcessor.process(response, entityDetails, context);

@@ -1402,16 +1402,15 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                         streamListener) {
 
                     @Override
-                    protected ContentEncoder handleOutgoingMessage(
-                            final HttpResponse response,
+                    protected ContentEncoder createContentEncoder(
+                            final long len,
                             final WritableByteChannel channel,
                             final SessionOutputBuffer buffer,
                             final BasicHttpTransportMetrics metrics) throws HttpException {
-                        final long len = outgoingContentStrategy.determineLength(response);
                         if (len == ContentLengthStrategy.CHUNKED) {
                             return new BrokenChunkEncoder(channel, buffer, metrics);
                         } else {
-                            return super.handleOutgoingMessage(response, channel, buffer, metrics);
+                            return super.createContentEncoder(len, channel, buffer, metrics);
                         }
                     }
 

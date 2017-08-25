@@ -45,7 +45,6 @@ import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -228,12 +227,12 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         return code;
     }
 
-    void consumeHeader(final HttpRequest request, final boolean requestEndStream) throws HttpException, IOException {
+    void consumeHeader(final HttpRequest request, final EntityDetails requestEntityDetails) throws HttpException, IOException {
         if (done.get() || requestState != MessageState.HEADERS) {
             throw new ProtocolException("Unexpected message head");
         }
         receivedRequest = request;
-        requestState = requestEndStream ? MessageState.COMPLETE : MessageState.BODY;
+        requestState = requestEntityDetails == null ? MessageState.COMPLETE : MessageState.BODY;
 
         AsyncServerExchangeHandler handler;
         try {
@@ -256,7 +255,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         context.setProtocolVersion(transportVersion);
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
-        final EntityDetails requestEntityDetails = requestEndStream ? null : new LazyEntityDetails(request);
         final ResponseChannel responseChannel = new ResponseChannel() {
 
             @Override

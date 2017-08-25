@@ -44,7 +44,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.EndpointDetails;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
@@ -56,6 +58,8 @@ import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
+import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
+import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.ContentDecoder;
@@ -93,6 +97,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     private final BasicHttpConnectionMetrics connMetrics;
     private final NHttpMessageParser<IncomingMessage> incomingMessageParser;
     private final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter;
+    private final ContentLengthStrategy incomingContentStrategy;
+    private final ContentLengthStrategy outgoingContentStrategy;
     private final ByteBuffer contentBuffer;
     private final Lock outputLock;
     private final AtomicInteger outputRequests;
@@ -109,7 +115,9 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,
             final NHttpMessageParser<IncomingMessage> incomingMessageParser,
-            final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter) {
+            final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         final int bufferSize = this.h1Config.getBufferSize();
@@ -123,6 +131,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         this.connMetrics = new BasicHttpConnectionMetrics(inTransportMetrics, outTransportMetrics);
         this.incomingMessageParser = incomingMessageParser;
         this.outgoingMessageWriter = outgoingMessageWriter;
+        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
+                DefaultContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
+                DefaultContentLengthStrategy.INSTANCE;
         this.contentBuffer = ByteBuffer.allocate(this.h1Config.getBufferSize());
         this.outputLock = new ReentrantLock();
         this.outputRequests = new AtomicInteger(0);
@@ -161,16 +173,20 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     abstract void updateOutputMetrics(OutgoingMessage outgoingMessage, BasicHttpConnectionMetrics connMetrics);
 
-    abstract void consumeHeader(IncomingMessage messageHead, boolean endStream) throws HttpException, IOException;
+    abstract void consumeHeader(IncomingMessage messageHead, EntityDetails entityDetails) throws HttpException, IOException;
 
-    abstract ContentDecoder handleIncomingMessage(
-            IncomingMessage incomingMessage,
+    abstract boolean handleIncomingMessage(IncomingMessage incomingMessage) throws HttpException;
+
+    abstract boolean handleOutgoingMessage(OutgoingMessage outgoingMessage) throws HttpException;
+
+    abstract ContentDecoder createContentDecoder(
+            long contentLength,
             ReadableByteChannel channel,
             SessionInputBuffer buffer,
             BasicHttpTransportMetrics metrics) throws HttpException;
 
-    abstract ContentEncoder handleOutgoingMessage(
-            OutgoingMessage outgoingMessage,
+    abstract ContentEncoder createContentEncoder(
+            long contentLength,
             WritableByteChannel channel,
             SessionOutputBuffer buffer,
             BasicHttpTransportMetrics metrics) throws HttpException;
@@ -253,8 +269,15 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                         this.version = messageHead.getVersion();
 
                         updateInputMetrics(messageHead, connMetrics);
-                        final ContentDecoder contentDecoder = handleIncomingMessage(messageHead, ioSession.channel(), inbuf, inTransportMetrics);
-                        consumeHeader(messageHead, contentDecoder == null);
+                        final ContentDecoder contentDecoder;
+                        if (handleIncomingMessage(messageHead)) {
+                            final long len = incomingContentStrategy.determineLength(messageHead);
+                            contentDecoder = createContentDecoder(len, ioSession.channel(), inbuf, inTransportMetrics);
+                            consumeHeader(messageHead, contentDecoder != null ? new IncomingEntityDetails(messageHead, len) : null);
+                        } else {
+                            consumeHeader(messageHead, null);
+                            contentDecoder = null;
+                        }
                         if (contentDecoder != null) {
                             incomingMessage = new Message<>(messageHead, contentDecoder);
                             break;
@@ -436,7 +459,13 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             outgoingMessageWriter.write(messageHead, outbuf);
             updateOutputMetrics(messageHead, connMetrics);
             if (!endStream) {
-                final ContentEncoder contentEncoder = handleOutgoingMessage(messageHead, ioSession.channel(), outbuf, outTransportMetrics);
+                final ContentEncoder contentEncoder;
+                if (handleOutgoingMessage(messageHead)) {
+                    final long len = outgoingContentStrategy.determineLength(messageHead);
+                    contentEncoder = createContentEncoder(len, ioSession.channel(), outbuf, outTransportMetrics);
+                } else {
+                    contentEncoder = null;
+                }
                 if (contentEncoder != null) {
                     outgoingMessage = new Message<>(messageHead, contentEncoder);
                 }

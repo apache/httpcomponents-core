@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
-import org.apache.hc.core5.http.impl.LazyEntityDetails;
+import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -199,7 +199,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
                     return;
                 }
 
-                final EntityDetails entityDetails = endStream ? null : new LazyEntityDetails(response);
+                final EntityDetails entityDetails = endStream ? null : new IncomingEntityDetails(response, -1);
                 context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
                 httpProcessor.process(response, entityDetails, context);
                 connMetrics.incrementResponseCount();

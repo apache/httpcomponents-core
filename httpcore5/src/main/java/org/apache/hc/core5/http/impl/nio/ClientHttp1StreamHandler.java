@@ -44,7 +44,6 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.LazyEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -196,7 +195,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         }
     }
 
-    void consumeHeader(final HttpResponse response, final boolean endStream) throws HttpException, IOException {
+    void consumeHeader(final HttpResponse response, final EntityDetails entityDetails) throws HttpException, IOException {
         if (done.get() || responseState != MessageState.HEADERS) {
             throw new ProtocolException("Unexpected message head");
         }
@@ -237,12 +236,11 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             }
         }
 
-        final EntityDetails entityDetails = endStream ? null : new LazyEntityDetails(response);
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         httpProcessor.process(response, entityDetails, context);
 
         exchangeHandler.consumeResponse(response, entityDetails);
-        if (endStream) {
+        if (entityDetails == null) {
             if (!keepAlive) {
                 outputChannel.close();
             }
