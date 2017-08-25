@@ -87,7 +87,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     private final SSLBuffer inEncrypted;
     private final SSLBuffer outEncrypted;
     private final SSLBuffer inPlain;
-    private final SSLBuffer outPlain;
     private final InternalByteChannel channel;
     private final SSLSetupHandler handler;
 
@@ -164,7 +163,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         // Allocate buffers for application (unencrypted) data
         final int appBuffersize = this.sslEngine.getSession().getApplicationBufferSize();
         this.inPlain = bufferManagementStrategy.constructBuffer(appBuffersize);
-        this.outPlain = bufferManagementStrategy.constructBuffer(appBuffersize);
     }
 
     /**
@@ -239,7 +237,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         this.inEncrypted.release();
         this.outEncrypted.release();
         this.inPlain.release();
-        this.outPlain.release();
 
         doHandshake();
     }
@@ -295,28 +292,18 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         while (handshaking) {
             switch (this.sslEngine.getHandshakeStatus()) {
             case NEED_WRAP:
-                // Generate outgoing handshake data
+               // Generate outgoing handshake data
 
-                // Acquire buffers
-                ByteBuffer outPlainBuf = this.outPlain.acquire();
-                final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
+               // Acquire buffer
+               final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
 
-                // Perform operations
-                outPlainBuf.flip();
-                result = doWrap(outPlainBuf, outEncryptedBuf);
-                outPlainBuf.compact();
+               // Just wrap an empty buffer because there is no data to write.
+               result = doWrap(ByteBuffer.allocate(0), outEncryptedBuf);
 
-                // Release outPlain if empty
-                if (outPlainBuf.position() == 0) {
-                    this.outPlain.release();
-                    outPlainBuf = null;
-                }
-
-
-                if (result.getStatus() != Status.OK) {
-                    handshaking = false;
-                }
-                break;
+               if (result.getStatus() != Status.OK) {
+                   handshaking = false;
+               }
+               break;
             case NEED_UNWRAP:
                 // Process incoming handshake data
 
@@ -573,31 +560,12 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         if (this.status != ACTIVE) {
             throw new ClosedChannelException();
         }
-        if (this.outPlain.hasData()) {
-            // Acquire buffers
-            final ByteBuffer outPlainBuf = this.outPlain.acquire();
-            final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
-
-            // Perform operations
-            outPlainBuf.flip();
-            doWrap(outPlainBuf, outEncryptedBuf);
-            outPlainBuf.compact();
-
-            // Release outPlain if empty
-            if (outPlainBuf.position() == 0) {
-                this.outPlain.release();
-            }
+        final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
+        final SSLEngineResult result = doWrap(src, outEncryptedBuf);
+        if (result.getStatus() == Status.CLOSED) {
+           this.status = CLOSED;
         }
-        if (!this.outPlain.hasData()) {
-            final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
-            final SSLEngineResult result = doWrap(src, outEncryptedBuf);
-            if (result.getStatus() == Status.CLOSED) {
-                this.status = CLOSED;
-            }
-            return result.bytesConsumed();
-        } else {
-            return 0;
-        }
+        return result.bytesConsumed();
     }
 
     private synchronized int readPlain(final ByteBuffer dst) {
@@ -656,7 +624,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         this.inEncrypted.release();
         this.outEncrypted.release();
         this.inPlain.release();
-        this.outPlain.release();
 
     }
 
@@ -728,8 +695,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     @Override
     public synchronized boolean hasBufferedOutput() {
         return (this.appBufferStatus != null && this.appBufferStatus.hasBufferedOutput())
-            || this.outEncrypted.hasData()
-            || this.outPlain.hasData();
+            || this.outEncrypted.hasData();
     }
 
     @Override
@@ -796,8 +762,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         buffer.append(!this.inPlain.hasData() ? 0 : inPlain.acquire().position());
         buffer.append("][");
         buffer.append(!this.outEncrypted.hasData() ? 0 : outEncrypted.acquire().position());
-        buffer.append("][");
-        buffer.append(!this.outPlain.hasData() ? 0 : outPlain.acquire().position());
         buffer.append("]");
         return buffer.toString();
     }
