@@ -1,8 +1,118 @@
 Release 5.0-ALPHA4
 -------------------
 
+This is a major release that renders HttpCore API incompatible with the stable 4.x branch
+and upgrades HTTP/1.1 and HTTP/2 protocol conformance to the requirements and recommendations
+of the latest protocol specification.
+
+Notable changes and features included in the 5.0 series are:
+
+* Support for HTTP/2 protocol and conformance to requirements and recommendations
+  of the latest HTTP/2 protocol specification (RFC 7540, RFC 7541)
+
+  Supported features:
+
+    ** HPACK header compression
+    ** stream multiplexing (client and server)
+    ** flow control
+    ** response push (client and server)
+    ** message trailers
+    ** expect-continue handshake
+    ** connection validation (ping)
+    ** application-layer protocol negotiation (ALPN) on Java 1.9+
+    ** TLS 1.2 security features
+
+   Features out of scope for 5.0 release:
+
+    ** padding of outgoing frames
+    ** stream priority
+    ** plain connection HTTP/1.1 upgrade
+    ** CONNECT method
+
+* Improved conformance to requirements and recommendations of the latest HTTP/1.1 protocol
+  specification (RFC 7230, RFC 7231)
+
+* New asynchronous HTTP transport APIs consistent for both HTTP/1.1 and HTTP/2 transport.
+
+* Redesigned I/O reactor APIs and improved NIO based reactor implementation for a greater
+  performance and scalability.
+
+* Support for server side request filters for classic and asynchronous server implementations.
+  Request filters could be used to implement cross-cutting protocol aspects such
+  as the 'expect-continue' handshaking and user authentication / authorization.
+
+* Redesigned connection pool implementation with strict connection limit guarantees.
+  The connection pool is expected to have a better performance under higher concurrency
+  due to reduced global pool lock contention.
+
+* New connection pool implementation with lax connection limit guarantees and better
+  performance under higher concurrency due to absence of a global pool lock.
+
+* Package name space changed to 'org.apache.hc.core5'
+
+* Maven group id changed to 'org.apache.httpcomponents.core5'
+
+HttpCore 5.0 releases can be co-located with earlier versions.
+
+Please note that at this point 5.0 APIs are considered API experimental and unstable and are
+expected to change in the coming releases without providing a migration path.
+
+
 Changelog
 -------------------
+
+* HTTPCORE-485: Reduced memory footprint of non-blocking SSL sessions by 25%.
+  Contributed by Todor Bonchev <31352118+todorbonchev at users.noreply.github.com>
+
+* Fixed propagation of entity details of incoming HTTP/1.1 messages by non-blocking HTTP/1.1
+  stream duplexer
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Configurable connection pool concurrency policy
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-390: Connection pool implementation with higher concurrency characteristics
+  and lax total and per route max guarantees.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Request filters for classic and asynchronous server side protocol handlers
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improved handling of 1xx status messages by the classic transport; server expectation
+  (expect-continue) handshake can now be implemented as a cross-cutting aspect by both
+  the classic and asynchronous transports
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed bug in the classic (blocking) HTTP requester causing incorrect release of connections
+  in case a response message has no entity (such as 204)
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-454: use Timeout class to represent timeout values
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Made HTTP/2 data window update precede sending of the DATA frame to the opposite endpoint.
+  In some extreme circumstances the opposite endpoint can send back a WINDOW_UPDATE frame
+  in-between of these two operation causing the data window value to exceed its maximum
+  valid value
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* I/O interest flag in IOSessionImpl requires synchronization instead of atomic operation
+  in order to avoid race condition
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-472: Fixed problem with blocking message parsers incorrectly throwing
+  "Maximum line length limit exceeded" exception in some corner cases
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improved I/O reactor APIs with a smaller public API footprint
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Rewrite of I/O reactor internal channel management; more efficient handling of outgoing
+  connection requests
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed delineation of 200 status message in response to CONNECT method
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-468: Allow HttpAsyncService subclasses to customize the HTTP status code.
   Contributed by Gary Gregory <ggregory at apache.org>
@@ -12,6 +122,7 @@ Changelog
 
 * HTTPCORE-466: Round out the SslContextBuilder by adding missing APIs.
   Contributed by Gary Gregory <ggregory at apache.org>
+
 
 
 Release 5.0-ALPHA3
@@ -115,6 +226,54 @@ Release 5.0-ALPHA2
 This is a major release that renders HttpCore API incompatible with the stable 4.x branch
 and upgrades HTTP/1.1 and HTTP/2 protocol conformance to the requirements and recommendations
 of the latest protocol specification.
+
+Notable changes and features included in the 5.0 series are:
+
+* Partial support for HTTP/2 protocol and partial conformance to requirements and
+  recommendations of the latest HTTP/2 protocol specification (RFC 7540, RFC 7541)
+
+  Supported features:
+
+    ** HPACK header compression
+    ** stream multiplexing (client and server)
+    ** flow control
+    ** response push (client and server)
+    ** message trailers
+    ** expect-continue handshake
+    ** connection validation (ping)
+    ** TLS 1.2 features
+
+   Unsupported features:
+
+    ** application-layer protocol negotiation (ALPN)
+    ** padding of outgoing frames
+    ** stream priority
+    ** plain connection HTTP/1.1 upgrade
+    ** CONNECT method
+    ** TLS renegotiation and compression cannot be disabled with Java 1.7 JSSE APIs
+
+* Improved conformance to requirements and recommendations of the latest HTTP/1.1 protocol
+  specification (RFC 7230, RFC 7231)
+
+* New asynchronous HTTP transport APIs consistent for both HTTP/1.1 and HTTP/2 transport.
+
+* Improved HTTP/1.1 and HTTP/2 requester and server implementations.
+
+* Redesigned connection pool implementation with reduced pool lock contention.
+
+* Support for HTTP/1.1 protocol switch / upgrade.
+
+* Package name space changed to 'org.apache.hc.core5'
+
+* Maven group id changed to 'org.apache.httpcomponents.core5'
+
+HttpCore 5.0 releases can be co-located with earlier versions.
+
+Please note that as of 5.0 HttpCore requires Java 1.7 or newer.
+
+Please note that at this point 5.0 APIs are considered API experimental and unstable and are
+expected to change in the coming releases without providing a migration path.
+
 
 Changelog
 -------------------
