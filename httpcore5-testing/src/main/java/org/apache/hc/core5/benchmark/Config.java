@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.benchmark;
+package org.apache.hc.core5.benchmark;
 
 import java.io.File;
 import java.net.URL;

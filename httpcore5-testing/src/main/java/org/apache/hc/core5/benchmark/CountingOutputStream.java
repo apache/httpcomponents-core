@@ -24,55 +24,37 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.benchmark;
+package org.apache.hc.core5.benchmark;
 
-import java.io.FilterInputStream;
+import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 
-class CountingInputStream extends FilterInputStream {
+class CountingOutputStream extends FilterOutputStream {
 
     private final Stats stats;
 
-    CountingInputStream(final InputStream instream, final Stats stats) {
-        super(instream);
+    CountingOutputStream(final OutputStream outstream, final Stats stats) {
+        super(outstream);
         this.stats = stats;
     }
 
     @Override
-    public int read() throws IOException {
-        final int b = this.in.read();
-        if (b != -1) {
-            this.stats.incTotalBytesRecv(1);
-        }
-        return b;
+    public void write(final int b) throws IOException {
+        this.out.write(b);
+        this.stats.incTotalBytesSent(1);
     }
 
     @Override
-    public int read(final byte[] b) throws IOException {
-        final int bytesRead = this.in.read(b);
-        if (bytesRead > 0) {
-            this.stats.incTotalBytesRecv(bytesRead);
-        }
-        return bytesRead;
+    public void write(final byte[] b) throws IOException {
+        this.out.write(b);
+        this.stats.incTotalBytesSent(b.length);
     }
 
     @Override
-    public int read(final byte[] b, final int off, final int len) throws IOException {
-        final int bytesRead = this.in.read(b, off, len);
-        if (bytesRead > 0) {
-            this.stats.incTotalBytesRecv(bytesRead);
-        }
-        return bytesRead;
-    }
-
-    @Override
-    public long skip(final long n) throws IOException {
-        final long bytesRead = this.in.skip(n);
-        if (bytesRead > 0) {
-            this.stats.incTotalBytesRecv(bytesRead);
-        }
-        return bytesRead;
+    public void write(final byte[] b, final int off, final int len) throws IOException {
+        this.out.write(b, off, len);
+        this.stats.incTotalBytesSent(len);
     }
 
 }

@@ -28,4 +28,4 @@
 /**
  * Apache Bench (AB) clone based on HttpCore.
  */
-package org.apache.hc.core5.http.benchmark;
+package org.apache.hc.core5.benchmark;

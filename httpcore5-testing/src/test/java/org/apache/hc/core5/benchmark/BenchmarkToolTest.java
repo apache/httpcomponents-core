@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.benchmark;
+package org.apache.hc.core5.benchmark;
 
 import java.io.IOException;
 import java.net.URL;
@@ -45,7 +45,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class SmokeTest {
+public class BenchmarkToolTest {
 
     private HttpServer server;
 
