@@ -178,7 +178,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     private void processPendingChannels() throws IOException {
         SocketChannel socketChannel;
-        while ((socketChannel = this.channelQueue.poll()) != null) {
+        for (int i = 0;i < 100000 && (socketChannel = this.channelQueue.poll()) != null;i++) {
             try {
                 prepareSocket(socketChannel.socket());
                 socketChannel.configureBlocking(false);
@@ -279,7 +279,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     private void processPendingConnectionRequests() {
         IOSessionRequest sessionRequest;
-        while ((sessionRequest = this.requestQueue.poll()) != null) {
+        for (int i = 0;i < 100000 && (sessionRequest = this.requestQueue.poll()) != null;i++) {
             if (!sessionRequest.isCancelled()) {
                 final SocketChannel socketChannel;
                 try {
