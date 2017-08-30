@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.apache.httpcomponents.core5</groupId>
     <artifactId>httpcore5-parent</artifactId>
-    <version>5.0-alpha4-SNAPSHOT</version>
+    <version>5.0-alpha4</version>
   </parent>
   <artifactId>httpcore5-testing</artifactId>
   <name>Apache HttpComponents Core Integration Tests</name>
@@ -47,6 +47,12 @@
       <groupId>org.apache.httpcomponents.core5</groupId>
       <artifactId>httpcore5-h2</artifactId>
       <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+      <version>1.2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>

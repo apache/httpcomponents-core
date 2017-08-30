@@ -34,7 +34,7 @@
   <groupId>org.apache.httpcomponents.core5</groupId>
   <artifactId>httpcore5-parent</artifactId>
   <name>Apache HttpComponents Core Parent</name>
-  <version>5.0-alpha4-SNAPSHOT</version>
+  <version>5.0-alpha4</version>
   <description>Apache HttpComponents Core is a library of components for building HTTP enabled services</description>
   <url>http://hc.apache.org/httpcomponents-core</url>
   <inceptionYear>2005</inceptionYear>
@@ -62,13 +62,12 @@
     <connection>scm:git:https://git-wip-us.apache.org/repos/asf/httpcomponents-core.git</connection>
     <developerConnection>scm:git:https://git-wip-us.apache.org/repos/asf/httpcomponents-core.git</developerConnection>
     <url>https://github.com/apache/httpcomponents-core/tree/${project.scm.tag}</url>
-    <tag>master</tag>
+    <tag>5.0-alpha4</tag>
   </scm>
 
   <modules>
     <module>httpcore5</module>
     <module>httpcore5-h2</module>
-    <module>httpcore5-ab</module>
     <module>httpcore5-osgi</module>
     <module>httpcore5-testing</module>
   </modules>

@@ -24,37 +24,17 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.benchmark;
 
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+package org.apache.hc.core5.benchmark;
 
-class CountingOutputStream extends FilterOutputStream {
+import org.apache.hc.core5.http.message.BasicHeader;
 
-    private final Stats stats;
+class DefaultHeader extends BasicHeader {
 
-    CountingOutputStream(final OutputStream outstream, final Stats stats) {
-        super(outstream);
-        this.stats = stats;
-    }
+    private static final long serialVersionUID = 3465786867105185103L;
 
-    @Override
-    public void write(final int b) throws IOException {
-        this.out.write(b);
-        this.stats.incTotalBytesSent(1);
-    }
-
-    @Override
-    public void write(final byte[] b) throws IOException {
-        this.out.write(b);
-        this.stats.incTotalBytesSent(b.length);
-    }
-
-    @Override
-    public void write(final byte[] b, final int off, final int len) throws IOException {
-        this.out.write(b, off, len);
-        this.stats.incTotalBytesSent(len);
+    public DefaultHeader(final String name, final String value) {
+        super(name, value);
     }
 
 }
