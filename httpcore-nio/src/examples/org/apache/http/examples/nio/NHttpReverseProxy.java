@@ -487,7 +487,7 @@ public class NHttpReverseProxy {
 
         public void requestCompleted(final HttpContext context) {
             synchronized (this.httpExchange) {
-                this.completed = true;;
+                this.completed = true;
                 System.out.println("[client->proxy] " + this.httpExchange.getId() + " request completed");
                 this.httpExchange.setRequestReceived();
                 if (this.httpExchange.getOriginIOControl() != null) {
@@ -797,7 +797,7 @@ public class NHttpReverseProxy {
             return keepAlive;
         }
 
-    };
+    }
 
     static class ProxyOutgoingConnectionReuseStrategy extends DefaultConnectionReuseStrategy {
 
@@ -812,7 +812,7 @@ public class NHttpReverseProxy {
             return keepAlive;
         }
 
-    };
+    }
 
     static class ProxyServiceHandler extends HttpAsyncService {
 
