@@ -6,6 +6,9 @@ This is a maintenance release that fixes a number of issues discovered since 4.4
 Changelog
 -------------------
 
+* HTTPCORE-487: org.apache.http.nio.reactor.ssl.SSLIOSession and SSLNHttpClientConnectionFactory do not always use the HTTP host setting.
+  Contributed by Gary Gregory <ggregory at apache.org> and Oleg Kalnichevski <olegk at apache.org>
+
 * HTTPCORE-450: Add a Provider parameter in SSLContextBuilder.
   Contributed by lujianbo <387852424 at qq dot com>, Gary Gregory <ggregory at apache.org>
 

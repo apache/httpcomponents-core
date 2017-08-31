@@ -28,11 +28,12 @@ package org.apache.http.impl.nio;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpResponseFactory;
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.entity.ContentLengthStrategy;
 import org.apache.http.impl.ConnSupport;
@@ -217,9 +218,10 @@ public class SSLNHttpClientConnectionFactory
             final IOSession iosession,
             final SSLContext sslContext,
             final SSLSetupHandler sslHandler) {
-        final SSLIOSession ssliosession = new SSLIOSession(iosession, SSLMode.CLIENT,
+        final Object attachment = iosession.getAttribute(IOSession.ATTACHMENT_KEY);
+        return new SSLIOSession(iosession, SSLMode.CLIENT,
+                attachment instanceof HttpHost ? (HttpHost) attachment : null,
                 sslContext, sslHandler);
-        return ssliosession;
     }
 
     @Override
