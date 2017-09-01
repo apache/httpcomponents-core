@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.apache.httpcomponents.core5</groupId>
     <artifactId>httpcore5-parent</artifactId>
-    <version>5.0-alpha4</version>
+    <version>5.0-alpha5-SNAPSHOT</version>
   </parent>
   <artifactId>httpcore5-testing</artifactId>
   <name>Apache HttpComponents Core Integration Tests</name>
