@@ -67,9 +67,9 @@ import org.apache.http.protocol.RequestUserAgent;
  */
 public class NHttpClient {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         // Create HTTP protocol processing chain
-        HttpProcessor httpproc = HttpProcessorBuilder.create()
+        final HttpProcessor httpproc = HttpProcessorBuilder.create()
                 // Use standard client-side protocol interceptors
                 .add(new RequestContent())
                 .add(new RequestTargetHost())
@@ -77,27 +77,27 @@ public class NHttpClient {
                 .add(new RequestUserAgent("Test/1.1"))
                 .add(new RequestExpectContinue(true)).build();
         // Create client-side HTTP protocol handler
-        HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
+        final HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
         // Create client-side I/O event dispatch
         final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler,
                 ConnectionConfig.DEFAULT);
         // Create client-side I/O reactor
         final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
         // Create HTTP connection pool
-        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, ConnectionConfig.DEFAULT);
+        final BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, ConnectionConfig.DEFAULT);
         // Limit total number of connections to just two
         pool.setDefaultMaxPerRoute(2);
         pool.setMaxTotal(2);
         // Run the I/O reactor in a separate thread
-        Thread t = new Thread(new Runnable() {
+        final Thread t = new Thread(new Runnable() {
 
             public void run() {
                 try {
                     // Ready to go!
                     ioReactor.execute(ioEventDispatch);
-                } catch (InterruptedIOException ex) {
+                } catch (final InterruptedIOException ex) {
                     System.err.println("Interrupted");
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     System.err.println("I/O error: " + e.getMessage());
                 }
                 System.out.println("Shutdown");
@@ -107,17 +107,17 @@ public class NHttpClient {
         // Start the client thread
         t.start();
         // Create HTTP requester
-        HttpAsyncRequester requester = new HttpAsyncRequester(httpproc);
+        final HttpAsyncRequester requester = new HttpAsyncRequester(httpproc);
         // Execute HTTP GETs to the following hosts and
-        HttpHost[] targets = new HttpHost[] {
+        final HttpHost[] targets = new HttpHost[] {
                 new HttpHost("www.apache.org", 80, "http"),
                 new HttpHost("www.verisign.com", 443, "https"),
                 new HttpHost("www.google.com", 80, "http")
         };
         final CountDownLatch latch = new CountDownLatch(targets.length);
         for (final HttpHost target: targets) {
-            BasicHttpRequest request = new BasicHttpRequest("GET", "/");
-            HttpCoreContext coreContext = HttpCoreContext.create();
+            final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
+            final HttpCoreContext coreContext = HttpCoreContext.create();
             requester.execute(
                     new BasicAsyncRequestProducer(target, request),
                     new BasicAsyncResponseConsumer(),

@@ -263,7 +263,7 @@ public class TestNIOConnPool {
         try {
             future.get();
             Assert.fail("CancellationException expected");
-        } catch (CancellationException ignore) {
+        } catch (final CancellationException ignore) {
         }
 
         totals = pool.getTotalStats();
@@ -1053,7 +1053,7 @@ public class TestNIOConnPool {
         try {
             future1.get();
             Assert.fail("CancellationException expected");
-        } catch (CancellationException ignore) {
+        } catch (final CancellationException ignore) {
         }
 
         final PoolStats totals = pool.getTotalStats();

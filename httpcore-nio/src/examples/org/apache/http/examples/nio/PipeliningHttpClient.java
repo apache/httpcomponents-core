@@ -69,9 +69,9 @@ import org.apache.http.protocol.RequestUserAgent;
  */
 public class PipeliningHttpClient {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         // Create HTTP protocol processing chain
-        HttpProcessor httpproc = HttpProcessorBuilder.create()
+        final HttpProcessor httpproc = HttpProcessorBuilder.create()
                 // Use standard client-side protocol interceptors
                 .add(new RequestContent())
                 .add(new RequestTargetHost())
@@ -79,27 +79,27 @@ public class PipeliningHttpClient {
                 .add(new RequestUserAgent("Test/1.1"))
                 .add(new RequestExpectContinue(true)).build();
         // Create client-side HTTP protocol handler
-        HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
+        final HttpAsyncRequestExecutor protocolHandler = new HttpAsyncRequestExecutor();
         // Create client-side I/O event dispatch
         final IOEventDispatch ioEventDispatch = new DefaultHttpClientIODispatch(protocolHandler,
                 ConnectionConfig.DEFAULT);
         // Create client-side I/O reactor
         final ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
         // Create HTTP connection pool
-        BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, ConnectionConfig.DEFAULT);
+        final BasicNIOConnPool pool = new BasicNIOConnPool(ioReactor, ConnectionConfig.DEFAULT);
         // Limit total number of connections to just two
         pool.setDefaultMaxPerRoute(2);
         pool.setMaxTotal(2);
         // Run the I/O reactor in a separate thread
-        Thread t = new Thread(new Runnable() {
+        final Thread t = new Thread(new Runnable() {
 
             public void run() {
                 try {
                     // Ready to go!
                     ioReactor.execute(ioEventDispatch);
-                } catch (InterruptedIOException ex) {
+                } catch (final InterruptedIOException ex) {
                     System.err.println("Interrupted");
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     System.err.println("I/O error: " + e.getMessage());
                 }
                 System.out.println("Shutdown");
@@ -109,15 +109,15 @@ public class PipeliningHttpClient {
         // Start the client thread
         t.start();
         // Create HTTP requester
-        HttpAsyncRequester requester = new HttpAsyncRequester(httpproc);
+        final HttpAsyncRequester requester = new HttpAsyncRequester(httpproc);
 
         final HttpHost target = new HttpHost("www.apache.org");
-        List<BasicAsyncRequestProducer> requestProducers = Arrays.asList(
+        final List<BasicAsyncRequestProducer> requestProducers = Arrays.asList(
                 new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/index.html")),
                 new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/foundation/index.html")),
                 new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/foundation/how-it-works.html"))
         );
-        List<BasicAsyncResponseConsumer> responseConsumers = Arrays.asList(
+        final List<BasicAsyncResponseConsumer> responseConsumers = Arrays.asList(
                 new BasicAsyncResponseConsumer(),
                 new BasicAsyncResponseConsumer(),
                 new BasicAsyncResponseConsumer()
@@ -125,7 +125,7 @@ public class PipeliningHttpClient {
 
         final CountDownLatch latch = new CountDownLatch(1);
 
-        HttpCoreContext context = HttpCoreContext.create();
+        final HttpCoreContext context = HttpCoreContext.create();
         requester.executePipelined(
                 target, requestProducers, responseConsumers, pool, context,
                 new FutureCallback<List<HttpResponse>>() {
@@ -133,7 +133,7 @@ public class PipeliningHttpClient {
                     @Override
                     public void completed(final List<HttpResponse> result) {
                         latch.countDown();
-                        for (HttpResponse response: result) {
+                        for (final HttpResponse response: result) {
                             System.out.println(target + "->" + response.getStatusLine());
                         }
                     }

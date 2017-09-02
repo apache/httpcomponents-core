@@ -39,15 +39,15 @@ import org.apache.http.nio.reactor.ListeningIOReactor;
 
 public class ElementalEchoServer {
 
-    public static void main(String[] args) throws Exception {
-        IOEventDispatch ioEventDispatch = new DefaultIoEventDispatch();
-        ListeningIOReactor ioReactor = new DefaultListeningIOReactor();
+    public static void main(final String[] args) throws Exception {
+        final IOEventDispatch ioEventDispatch = new DefaultIoEventDispatch();
+        final ListeningIOReactor ioReactor = new DefaultListeningIOReactor();
         ioReactor.listen(new InetSocketAddress(8080));
         try {
             ioReactor.execute(ioEventDispatch);
-        } catch (InterruptedIOException ex) {
+        } catch (final InterruptedIOException ex) {
             System.err.println("Interrupted");
-        } catch (IOException e) {
+        } catch (final IOException e) {
             System.err.println("I/O error: " + e.getMessage());
         }
         System.out.println("Shutdown");
@@ -57,7 +57,7 @@ public class ElementalEchoServer {
 
         private final ByteBuffer buffer = ByteBuffer.allocate(1024);
 
-        public void connected(IOSession session) {
+        public void connected(final IOSession session) {
             System.out.println("connected");
             session.setEventMask(EventMask.READ);
             session.setSocketTimeout(20000);
@@ -67,7 +67,7 @@ public class ElementalEchoServer {
             System.out.println("readable");
             try {
                 this.buffer.compact();
-                int bytesRead = session.channel().read(this.buffer);
+                final int bytesRead = session.channel().read(this.buffer);
                 if (this.buffer.position() > 0) {
                     session.setEventMask(EventMask.READ_WRITE);
                 }
@@ -75,7 +75,7 @@ public class ElementalEchoServer {
                 if (bytesRead == -1) {
                     session.close();
                 }
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 System.err.println("I/O error: " + ex.getMessage());
             }
         }
@@ -84,12 +84,12 @@ public class ElementalEchoServer {
             System.out.println("writeable");
             try {
                 this.buffer.flip();
-                int bytesWritten = session.channel().write(this.buffer);
+                final int bytesWritten = session.channel().write(this.buffer);
                 if (!this.buffer.hasRemaining()) {
                     session.setEventMask(EventMask.READ);
                 }
                 System.out.println("Bytes written: " + bytesWritten);
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 System.err.println("I/O error: " + ex.getMessage());
             }
         }

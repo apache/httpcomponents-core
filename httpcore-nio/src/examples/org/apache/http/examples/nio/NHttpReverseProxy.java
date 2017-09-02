@@ -113,14 +113,14 @@ import org.apache.http.ssl.TrustStrategy;
  */
 public class NHttpReverseProxy {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         if (args.length < 2) {
             System.out.println("Usage: NHttpReverseProxy <HostNameURI> <Port> [\"TrustSelfSignedStrategy\"]");
             System.exit(1);
         }
         // Extract command line arguments
-        URI uri = new URI(args[0]);
-        int port = Integer.parseInt(args[1]);
+        final URI uri = new URI(args[0]);
+        final int port = Integer.parseInt(args[1]);
         SSLContext sslContext = null;
         if (args.length > 2 && args[2].equals("TrustSelfSignedStrategy")) {
             System.out.println("Using TrustSelfSignedStrategy (not for production)");
@@ -136,14 +136,14 @@ public class NHttpReverseProxy {
         }
 
         // Target host
-        HttpHost targetHost = new HttpHost(
+        final HttpHost targetHost = new HttpHost(
                 uri.getHost(),
                 uri.getPort() > 0 ? uri.getPort() : 80,
                 uri.getScheme() != null ? uri.getScheme() : "http");
 
         System.out.println("Reverse proxy to " + targetHost);
 
-        IOReactorConfig config = IOReactorConfig.custom()
+        final IOReactorConfig config = IOReactorConfig.custom()
             .setIoThreadCount(1)
             .setSoTimeout(3000)
             .setConnectTimeout(3000)
@@ -152,7 +152,7 @@ public class NHttpReverseProxy {
         final ListeningIOReactor listeningIOReactor = new DefaultListeningIOReactor(config);
 
         // Set up HTTP protocol processor for incoming connections
-        HttpProcessor inhttpproc = new ImmutableHttpProcessor(
+        final HttpProcessor inhttpproc = new ImmutableHttpProcessor(
                 new HttpResponseInterceptor[] {
                         new ResponseDate(),
                         new ResponseServer("Test/1.1"),
@@ -161,7 +161,7 @@ public class NHttpReverseProxy {
          });
 
         // Set up HTTP protocol processor for outgoing connections
-        HttpProcessor outhttpproc = new ImmutableHttpProcessor(
+        final HttpProcessor outhttpproc = new ImmutableHttpProcessor(
                 new HttpRequestInterceptor[] {
                         new RequestContent(),
                         new RequestTargetHost(),
@@ -170,22 +170,22 @@ public class NHttpReverseProxy {
                         new RequestExpectContinue(true)
         });
 
-        ProxyClientProtocolHandler clientHandler = new ProxyClientProtocolHandler();
-        HttpAsyncRequester executor = new HttpAsyncRequester(
+        final ProxyClientProtocolHandler clientHandler = new ProxyClientProtocolHandler();
+        final HttpAsyncRequester executor = new HttpAsyncRequester(
                 outhttpproc, new ProxyOutgoingConnectionReuseStrategy());
 
         // Without SSL: ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor, ConnectionConfig.DEFAULT);
-        ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor,
+        final ProxyConnPool connPool = new ProxyConnPool(connectingIOReactor,
                 new BasicNIOConnFactory(new DefaultNHttpClientConnectionFactory(ConnectionConfig.DEFAULT),
                         new SSLNHttpClientConnectionFactory(sslContext, null, ConnectionConfig.DEFAULT)),
                 0);
         connPool.setMaxTotal(100);
         connPool.setDefaultMaxPerRoute(20);
 
-        UriHttpAsyncRequestHandlerMapper handlerRegistry = new UriHttpAsyncRequestHandlerMapper();
+        final UriHttpAsyncRequestHandlerMapper handlerRegistry = new UriHttpAsyncRequestHandlerMapper();
         handlerRegistry.register("*", new ProxyRequestHandler(targetHost, executor, connPool));
 
-        ProxyServiceHandler serviceHandler = new ProxyServiceHandler(
+        final ProxyServiceHandler serviceHandler = new ProxyServiceHandler(
                 inhttpproc,
                 new ProxyIncomingConnectionReuseStrategy(),
                 handlerRegistry);
@@ -196,19 +196,19 @@ public class NHttpReverseProxy {
         final IOEventDispatch listeningEventDispatch = new DefaultHttpServerIODispatch(
                 serviceHandler, ConnectionConfig.DEFAULT);
 
-        Thread t = new Thread(new Runnable() {
+        final Thread t = new Thread(new Runnable() {
 
             public void run() {
                 try {
                     connectingIOReactor.execute(connectingEventDispatch);
-                } catch (InterruptedIOException ex) {
+                } catch (final InterruptedIOException ex) {
                     System.err.println("Interrupted");
-                } catch (IOException ex) {
+                } catch (final IOException ex) {
                     ex.printStackTrace();
                 } finally {
                     try {
                         listeningIOReactor.shutdown();
-                    } catch (IOException ex2) {
+                    } catch (final IOException ex2) {
                         ex2.printStackTrace();
                     }
                 }
@@ -219,14 +219,14 @@ public class NHttpReverseProxy {
         try {
             listeningIOReactor.listen(new InetSocketAddress(port));
             listeningIOReactor.execute(listeningEventDispatch);
-        } catch (InterruptedIOException ex) {
+        } catch (final InterruptedIOException ex) {
             System.err.println("Interrupted");
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             ex.printStackTrace();
         } finally {
             try {
                 connectingIOReactor.shutdown();
-            } catch (IOException ex2) {
+            } catch (final IOException ex2) {
                 ex2.printStackTrace();
             }
         }
@@ -387,7 +387,7 @@ public class NHttpReverseProxy {
             }
             synchronized (httpExchange) {
                 httpExchange.reset();
-                String id = String.format("%08X", this.counter.getAndIncrement());
+                final String id = String.format("%08X", this.counter.getAndIncrement());
                 httpExchange.setId(id);
                 httpExchange.setTarget(this.target);
                 return new ProxyRequestConsumer(httpExchange, this.executor, this.connPool);
@@ -399,11 +399,11 @@ public class NHttpReverseProxy {
                 final HttpAsyncExchange responseTrigger,
                 final HttpContext context) throws HttpException, IOException {
             synchronized (httpExchange) {
-                Exception ex = httpExchange.getException();
+                final Exception ex = httpExchange.getException();
                 if (ex != null) {
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " " + ex);
-                    int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
+                    final int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                    final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
                             EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
                     String message = ex.getMessage();
                     if (message == null) {
@@ -413,7 +413,7 @@ public class NHttpReverseProxy {
                     responseTrigger.submitResponse(new BasicAsyncResponseProducer(response));
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " error response triggered");
                 }
-                HttpResponse response = httpExchange.getResponse();
+                final HttpResponse response = httpExchange.getResponse();
                 if (response != null) {
                     responseTrigger.submitResponse(new ProxyResponseProducer(httpExchange));
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " response triggered");
@@ -462,8 +462,8 @@ public class NHttpReverseProxy {
             synchronized (this.httpExchange) {
                 this.httpExchange.setClientIOControl(ioctrl);
                 // Receive data from the client
-                ByteBuffer buf = this.httpExchange.getInBuffer();
-                int n = decoder.read(buf);
+                final ByteBuffer buf = this.httpExchange.getInBuffer();
+                final int n = decoder.read(buf);
                 System.out.println("[client->proxy] " + this.httpExchange.getId() + " " + n + " bytes read");
                 if (decoder.isCompleted()) {
                     System.out.println("[client->proxy] " + this.httpExchange.getId() + " content fully read");
@@ -535,11 +535,11 @@ public class NHttpReverseProxy {
 
         public HttpRequest generateRequest() {
             synchronized (this.httpExchange) {
-                HttpRequest request = this.httpExchange.getRequest();
+                final HttpRequest request = this.httpExchange.getRequest();
                 System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + request.getRequestLine());
                 // Rewrite request!!!!
                 if (request instanceof HttpEntityEnclosingRequest) {
-                    BasicHttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest(
+                    final BasicHttpEntityEnclosingRequest r = new BasicHttpEntityEnclosingRequest(
                             request.getRequestLine());
                     r.setEntity(((HttpEntityEnclosingRequest) request).getEntity());
                     return r;
@@ -554,9 +554,9 @@ public class NHttpReverseProxy {
             synchronized (this.httpExchange) {
                 this.httpExchange.setOriginIOControl(ioctrl);
                 // Send data to the origin server
-                ByteBuffer buf = this.httpExchange.getInBuffer();
+                final ByteBuffer buf = this.httpExchange.getInBuffer();
                 buf.flip();
-                int n = encoder.write(buf);
+                final int n = encoder.write(buf);
                 buf.compact();
                 System.out.println("[proxy->origin] " + this.httpExchange.getId() + " " + n + " bytes written");
                 // If there is space in the buffer and the message has not been
@@ -618,7 +618,7 @@ public class NHttpReverseProxy {
             synchronized (this.httpExchange) {
                 System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + response.getStatusLine());
                 this.httpExchange.setResponse(response);
-                HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
+                final HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
                 if (responseTrigger != null && !responseTrigger.isCompleted()) {
                     System.out.println("[client<-proxy] " + this.httpExchange.getId() + " response triggered");
                     responseTrigger.submitResponse(new ProxyResponseProducer(this.httpExchange));
@@ -631,8 +631,8 @@ public class NHttpReverseProxy {
             synchronized (this.httpExchange) {
                 this.httpExchange.setOriginIOControl(ioctrl);
                 // Receive data from the origin
-                ByteBuffer buf = this.httpExchange.getOutBuffer();
-                int n = decoder.read(buf);
+                final ByteBuffer buf = this.httpExchange.getOutBuffer();
+                final int n = decoder.read(buf);
                 System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " " + n + " bytes read");
                 if (decoder.isCompleted()) {
                     System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " content fully read");
@@ -676,11 +676,11 @@ public class NHttpReverseProxy {
                 }
                 this.completed = true;
                 this.httpExchange.setException(ex);
-                HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
+                final HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
                 if (responseTrigger != null && !responseTrigger.isCompleted()) {
                     System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + ex);
-                    int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
+                    final int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                    final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
                             EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
                     String message = ex.getMessage();
                     if (message == null) {
@@ -731,10 +731,10 @@ public class NHttpReverseProxy {
 
         public HttpResponse generateResponse() {
             synchronized (this.httpExchange) {
-                HttpResponse response = this.httpExchange.getResponse();
+                final HttpResponse response = this.httpExchange.getResponse();
                 System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + response.getStatusLine());
                 // Rewrite response!!!!
-                BasicHttpResponse r = new BasicHttpResponse(response.getStatusLine());
+                final BasicHttpResponse r = new BasicHttpResponse(response.getStatusLine());
                 r.setEntity(response.getEntity());
                 return r;
             }
@@ -745,9 +745,9 @@ public class NHttpReverseProxy {
             synchronized (this.httpExchange) {
                 this.httpExchange.setClientIOControl(ioctrl);
                 // Send data to the client
-                ByteBuffer buf = this.httpExchange.getOutBuffer();
+                final ByteBuffer buf = this.httpExchange.getOutBuffer();
                 buf.flip();
-                int n = encoder.write(buf);
+                final int n = encoder.write(buf);
                 buf.compact();
                 System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + n + " bytes written");
                 // If there is space in the buffer and the message has not been
@@ -788,9 +788,9 @@ public class NHttpReverseProxy {
 
         @Override
         public boolean keepAlive(final HttpResponse response, final HttpContext context) {
-            NHttpConnection conn = (NHttpConnection) context.getAttribute(
+            final NHttpConnection conn = (NHttpConnection) context.getAttribute(
                     HttpCoreContext.HTTP_CONNECTION);
-            boolean keepAlive = super.keepAlive(response, context);
+            final boolean keepAlive = super.keepAlive(response, context);
             if (keepAlive) {
                 System.out.println("[client->proxy] connection kept alive " + conn);
             }
@@ -803,9 +803,9 @@ public class NHttpReverseProxy {
 
         @Override
         public boolean keepAlive(final HttpResponse response, final HttpContext context) {
-            NHttpConnection conn = (NHttpConnection) context.getAttribute(
+            final NHttpConnection conn = (NHttpConnection) context.getAttribute(
                     HttpCoreContext.HTTP_CONNECTION);
-            boolean keepAlive = super.keepAlive(response, context);
+            final boolean keepAlive = super.keepAlive(response, context);
             if (keepAlive) {
                 System.out.println("[proxy->origin] connection kept alive " + conn);
             }
@@ -878,11 +878,11 @@ public class NHttpReverseProxy {
         }
 
         @Override
-        public void release(final BasicNIOPoolEntry entry, boolean reusable) {
+        public void release(final BasicNIOPoolEntry entry, final boolean reusable) {
             System.out.println("[proxy->origin] connection released " + entry.getConnection());
             super.release(entry, reusable);
-            StringBuilder buf = new StringBuilder();
-            PoolStats totals = getTotalStats();
+            final StringBuilder buf = new StringBuilder();
+            final PoolStats totals = getTotalStats();
             buf.append("[total kept alive: ").append(totals.getAvailable()).append("; ");
             buf.append("total allocated: ").append(totals.getLeased() + totals.getAvailable());
             buf.append(" of ").append(totals.getMax()).append("]");

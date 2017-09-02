@@ -63,13 +63,13 @@ import org.apache.http.ssl.SSLContexts;
  */
 public class NHttpFileServer {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
             System.err.println("Please specify document root directory");
             System.exit(1);
         }
         // Document root directory
-        File docRoot = new File(args[0]);
+        final File docRoot = new File(args[0]);
         int port = 8080;
         if (args.length >= 2) {
             port = Integer.parseInt(args[1]);
@@ -78,7 +78,7 @@ public class NHttpFileServer {
         SSLContext sslContext = null;
         if (port == 8443) {
             // Initialize SSL context
-            URL url = NHttpFileServer.class.getResource("/test.keystore");
+            final URL url = NHttpFileServer.class.getResource("/test.keystore");
             if (url == null) {
                 System.out.println("Keystore not found");
                 System.exit(1);
@@ -89,7 +89,7 @@ public class NHttpFileServer {
                     .build();
         }
 
-        IOReactorConfig config = IOReactorConfig.custom()
+        final IOReactorConfig config = IOReactorConfig.custom()
                 .setSoTimeout(15000)
                 .setTcpNoDelay(true)
                 .build();
@@ -137,7 +137,7 @@ public class NHttpFileServer {
                 final HttpRequest request,
                 final HttpAsyncExchange httpexchange,
                 final HttpContext context) throws HttpException, IOException {
-            HttpResponse response = httpexchange.getResponse();
+            final HttpResponse response = httpexchange.getResponse();
             handleInternal(request, response, context);
             httpexchange.submitResponse(new BasicAsyncResponseProducer(response));
         }
@@ -147,17 +147,17 @@ public class NHttpFileServer {
                 final HttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
+            final String method = request.getRequestLine().getMethod().toUpperCase(Locale.ENGLISH);
             if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported");
             }
 
-            String target = request.getRequestLine().getUri();
+            final String target = request.getRequestLine().getUri();
             final File file = new File(this.docRoot, URLDecoder.decode(target, "UTF-8"));
             if (!file.exists()) {
 
                 response.setStatusCode(HttpStatus.SC_NOT_FOUND);
-                NStringEntity entity = new NStringEntity(
+                final NStringEntity entity = new NStringEntity(
                         "<html><body><h1>File " + file.getPath() +
                         " not found</h1></body></html>",
                         ContentType.create("text/html", "UTF-8"));
@@ -167,7 +167,7 @@ public class NHttpFileServer {
             } else if (!file.canRead() || file.isDirectory()) {
 
                 response.setStatusCode(HttpStatus.SC_FORBIDDEN);
-                NStringEntity entity = new NStringEntity(
+                final NStringEntity entity = new NStringEntity(
                         "<html><body><h1>Access denied</h1></body></html>",
                         ContentType.create("text/html", "UTF-8"));
                 response.setEntity(entity);
@@ -175,10 +175,10 @@ public class NHttpFileServer {
 
             } else {
 
-                HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                HttpConnection conn = coreContext.getConnection(HttpConnection.class);
+                final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
+                final HttpConnection conn = coreContext.getConnection(HttpConnection.class);
                 response.setStatusCode(HttpStatus.SC_OK);
-                NFileEntity body = new NFileEntity(file, ContentType.create("text/html"));
+                final NFileEntity body = new NFileEntity(file, ContentType.create("text/html"));
                 response.setEntity(body);
                 System.out.println(conn + ": serving file " + file.getPath());
             }
