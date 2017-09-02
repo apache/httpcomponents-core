@@ -38,6 +38,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -113,10 +114,10 @@ public class TestBasicNIOConnPool {
         Mockito.when(sessionRequest.getSession()).thenReturn(session);
         Mockito.when(sessionRequest.getAttachment()).thenReturn(host);
         Mockito.when(reactor.connect(
-                Mockito.any(SocketAddress.class),
-                Mockito.any(SocketAddress.class),
-                Mockito.eq(host),
-                Mockito.any(SessionRequestCallback.class))).
+                Matchers.any(SocketAddress.class),
+                Matchers.any(SocketAddress.class),
+                Matchers.eq(host),
+                Matchers.any(SessionRequestCallback.class))).
                 thenReturn(sessionRequest);
 
         Mockito.when(session.getSocketTimeout()).thenReturn(999);

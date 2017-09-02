@@ -47,6 +47,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 public class TestHttpAsyncRequester {
@@ -174,8 +175,8 @@ public class TestHttpAsyncRequester {
                 this.responseConsumer,
                 this.conn, this.exchangeContext, null);
         Assert.assertNotNull(future);
-        Mockito.verify(this.requestProducer).failed(Mockito.any(ConnectionClosedException.class));
-        Mockito.verify(this.responseConsumer).failed(Mockito.any(ConnectionClosedException.class));
+        Mockito.verify(this.requestProducer).failed(Matchers.any(ConnectionClosedException.class));
+        Mockito.verify(this.responseConsumer).failed(Matchers.any(ConnectionClosedException.class));
         Mockito.verify(this.requestProducer, Mockito.atLeastOnce()).close();
         Mockito.verify(this.responseConsumer, Mockito.atLeastOnce()).close();
         Assert.assertTrue(future.isDone());
@@ -203,7 +204,7 @@ public class TestHttpAsyncRequester {
         Assert.assertNotNull(future);
         final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
-                Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
+                Matchers.eq(host), Matchers.isNull(), argCaptor.capture());
         final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
         final Exception oppsie = new Exception();
@@ -227,7 +228,7 @@ public class TestHttpAsyncRequester {
         Assert.assertNotNull(future);
         final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
-                Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
+                Matchers.eq(host), Matchers.isNull(), argCaptor.capture());
         final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
         connRequestCallback.cancelled();
@@ -250,7 +251,7 @@ public class TestHttpAsyncRequester {
         Assert.assertNotNull(future);
         final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
-                Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
+                Matchers.eq(host), Matchers.isNull(), argCaptor.capture());
         final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
         future.cancel(true);
@@ -275,7 +276,7 @@ public class TestHttpAsyncRequester {
         Assert.assertNotNull(future);
         final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
-                Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
+                Matchers.eq(host), Matchers.isNull(), argCaptor.capture());
         final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
         final BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
@@ -308,7 +309,7 @@ public class TestHttpAsyncRequester {
         Assert.assertNotNull(future);
         final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
-                Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
+                Matchers.eq(host), Matchers.isNull(), argCaptor.capture());
         final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
         final BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);
@@ -341,7 +342,7 @@ public class TestHttpAsyncRequester {
         Assert.assertNotNull(future);
         final ArgumentCaptor<FutureCallback> argCaptor = ArgumentCaptor.forClass(FutureCallback.class);
         Mockito.verify(this.connPool).lease(
-                Mockito.eq(host), Mockito.isNull(), argCaptor.capture());
+                Matchers.eq(host), Matchers.isNull(), argCaptor.capture());
         final ConnRequestCallback connRequestCallback = (ConnRequestCallback) argCaptor.getValue();
 
         final BasicNIOPoolEntry entry = new BasicNIOPoolEntry("id", host, this.conn);

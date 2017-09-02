@@ -38,6 +38,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 public class TestBasicAsyncRequestHandler {
@@ -89,7 +90,7 @@ public class TestBasicAsyncRequestHandler {
         this.asyncRequestHandler.handle(this.request, this.httpexchange, this.context);
 
         Mockito.verify(this.requestHandler).handle(
-                Mockito.eq(this.request), Mockito.eq(this.response), Mockito.eq(this.context));
+                Matchers.eq(this.request), Matchers.eq(this.response), Matchers.eq(this.context));
         Mockito.verify(this.httpexchange).submitResponse();
     }
 
