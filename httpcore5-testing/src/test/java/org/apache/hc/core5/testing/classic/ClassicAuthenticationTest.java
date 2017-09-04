@@ -56,6 +56,7 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -111,12 +112,19 @@ public class ClassicAuthenticationTest {
 
                         @Override
                         protected boolean authenticate(
-                                final String challengeResponse, final HttpContext context) {
+                                final String challengeResponse,
+                                final URIAuthority authority,
+                                final String requestUri,
+                                final HttpContext context) {
                             return challengeResponse != null && challengeResponse.equals("let me pass");
                         }
 
                         @Override
-                        protected String generateChallenge(final String challengeResponse, final HttpContext context) {
+                        protected String generateChallenge(
+                                final String challengeResponse,
+                                final URIAuthority authority,
+                                final String requestUri,
+                                final HttpContext context) {
                             return "who goes there?";
                         }
 

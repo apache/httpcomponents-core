@@ -59,6 +59,7 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncServerAuthFilter;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
@@ -125,12 +126,19 @@ public class Http1AuthenticationTest {
 
                         @Override
                         protected boolean authenticate(
-                                final String challengeResponse, final HttpContext context) {
+                                final String challengeResponse,
+                                final URIAuthority authority,
+                                final String requestUri,
+                                final HttpContext context) {
                             return challengeResponse != null && challengeResponse.equals("let me pass");
                         }
 
                         @Override
-                        protected String generateChallenge(final String challengeResponse, final HttpContext context) {
+                        protected String generateChallenge(
+                                final String challengeResponse,
+                                final URIAuthority authority,
+                                final String requestUri,
+                                final HttpContext context) {
                             return "who goes there?";
                         }
 

@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.io.support.AbstractHttpServerAuthFilter;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
@@ -80,13 +81,19 @@ public class ClassicServerFilterExample {
 
                     @Override
                     protected boolean authenticate(
-                            final String challengeResponse, final HttpContext context) {
+                            final String challengeResponse,
+                            final URIAuthority authority,
+                            final String requestUri,
+                            final HttpContext context) {
                         return "let me pass".equals(challengeResponse);
                     }
 
                     @Override
                     protected String generateChallenge(
-                            final String challengeResponse, final HttpContext context) {
+                            final String challengeResponse,
+                            final URIAuthority authority,
+                            final String requestUri,
+                            final HttpContext context) {
                         return "who goes there?";
                     }
 
