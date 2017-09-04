@@ -32,6 +32,7 @@ import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
@@ -149,6 +150,11 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
     @Override
     public void closeExpired() {
         connPool.closeExpired();
+    }
+
+    @Override
+    public Set<HttpHost> getRoutes() {
+        return connPool.getRoutes();
     }
 
     public ClassicHttpResponse execute(
