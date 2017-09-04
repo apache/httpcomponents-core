@@ -48,6 +48,7 @@ import org.apache.hc.core5.http.nio.AsyncFilterHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.net.URIAuthority;
 
 /**
  * @since 5.0
@@ -61,11 +62,11 @@ public abstract class AbstractAsyncServerAuthFilter<T> implements AsyncFilterHan
         this.respondImmediately = respondImmediately;
     }
 
-    protected abstract T parseChallengeResponse(String challenge, HttpContext context) throws HttpException;
+    protected abstract T parseChallengeResponse(String authorizationValue, HttpContext context) throws HttpException;
 
-    protected abstract boolean authenticate(T challengeResponse, HttpContext context);
+    protected abstract boolean authenticate(T challengeResponse, URIAuthority authority, String requestUri, HttpContext context);
 
-    protected abstract String generateChallenge(T challengeResponse, HttpContext context);
+    protected abstract String generateChallenge(T challengeResponse, URIAuthority authority, String requestUri, HttpContext context);
 
     protected AsyncEntityProducer generateResponseContent(final HttpResponse unauthorized) {
         return new BasicAsyncEntityProducer("Unauthorized");
@@ -80,7 +81,11 @@ public abstract class AbstractAsyncServerAuthFilter<T> implements AsyncFilterHan
             final AsyncFilterChain chain) throws HttpException, IOException {
         final Header h = request.getFirstHeader(HttpHeaders.AUTHORIZATION);
         final T challengeResponse = h != null ? parseChallengeResponse(h.getValue(), context) : null;
-        final boolean authenticated = authenticate(challengeResponse, context);
+
+        final URIAuthority authority = request.getAuthority();
+        final String requestUri = request.getRequestUri();
+
+        final boolean authenticated = authenticate(challengeResponse, authority, requestUri, context);
         final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
         final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
 
@@ -91,7 +96,7 @@ public abstract class AbstractAsyncServerAuthFilter<T> implements AsyncFilterHan
             return chain.proceed(request, entityDetails, context, responseTrigger);
         } else {
             final HttpResponse unauthorized = new BasicHttpResponse(HttpStatus.SC_UNAUTHORIZED);
-            unauthorized.addHeader(HttpHeaders.WWW_AUTHENTICATE, generateChallenge(challengeResponse, context));
+            unauthorized.addHeader(HttpHeaders.WWW_AUTHENTICATE, generateChallenge(challengeResponse, authority, requestUri, context));
             final AsyncEntityProducer responseContentProducer = generateResponseContent(unauthorized);
             if (respondImmediately || expectContinue || entityDetails == null) {
                 responseTrigger.submitResponse(unauthorized, responseContentProducer);

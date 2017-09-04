@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.net.URIAuthority;
 
 /**
  * @since 5.0
@@ -57,11 +58,11 @@ public abstract class AbstractHttpServerAuthFilter<T> implements HttpFilterHandl
         this.respondImmediately = respondImmediately;
     }
 
-    protected abstract T parseChallengeResponse(String challenge, HttpContext context) throws HttpException;
+    protected abstract T parseChallengeResponse(String authorizationValue, HttpContext context) throws HttpException;
 
-    protected abstract boolean authenticate(T challengeResponse, HttpContext context);
+    protected abstract boolean authenticate(T challengeResponse, URIAuthority authority, String requestUri, HttpContext context);
 
-    protected abstract String generateChallenge(T challengeResponse, HttpContext context);
+    protected abstract String generateChallenge(T challengeResponse, URIAuthority authority, String requestUri, HttpContext context);
 
     protected HttpEntity generateResponseContent(final HttpResponse unauthorized) {
         return new StringEntity("Unauthorized");
@@ -75,7 +76,11 @@ public abstract class AbstractHttpServerAuthFilter<T> implements HttpFilterHandl
             final HttpFilterChain chain) throws HttpException, IOException {
         final Header h = request.getFirstHeader(HttpHeaders.AUTHORIZATION);
         final T challengeResponse = h != null ? parseChallengeResponse(h.getValue(), context) : null;
-        final boolean authenticated = authenticate(challengeResponse, context);
+
+        final URIAuthority authority = request.getAuthority();
+        final String requestUri = request.getRequestUri();
+
+        final boolean authenticated = authenticate(challengeResponse, authority, requestUri, context);
         final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
         final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
 
@@ -86,7 +91,7 @@ public abstract class AbstractHttpServerAuthFilter<T> implements HttpFilterHandl
             chain.proceed(request, responseTrigger, context);
         } else {
             final ClassicHttpResponse unauthorized = new BasicClassicHttpResponse(HttpStatus.SC_UNAUTHORIZED);
-            unauthorized.addHeader(HttpHeaders.WWW_AUTHENTICATE, generateChallenge(challengeResponse, context));
+            unauthorized.addHeader(HttpHeaders.WWW_AUTHENTICATE, generateChallenge(challengeResponse, authority, requestUri, context));
             final HttpEntity responseContent = generateResponseContent(unauthorized);
             unauthorized.setEntity(responseContent);
             if (respondImmediately || expectContinue || request.getEntity() == null) {

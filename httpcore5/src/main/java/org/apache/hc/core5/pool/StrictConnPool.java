@@ -507,6 +507,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
      *
      * @since 4.4
      */
+    @Override
     public Set<T> getRoutes() {
         this.lock.lock();
         try {

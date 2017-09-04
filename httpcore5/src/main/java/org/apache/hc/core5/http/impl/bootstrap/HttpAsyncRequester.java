@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -148,6 +149,11 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
     @Override
     public void closeExpired() {
         connPool.closeExpired();
+    }
+
+    @Override
+    public Set<HttpHost> getRoutes() {
+        return connPool.getRoutes();
     }
 
     public Future<AsyncClientEndpoint> connect(
