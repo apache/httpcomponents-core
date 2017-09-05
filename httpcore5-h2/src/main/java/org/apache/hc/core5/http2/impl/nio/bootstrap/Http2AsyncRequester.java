@@ -41,7 +41,7 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * @since 5.0
@@ -65,7 +65,7 @@ public class Http2AsyncRequester extends HttpAsyncRequester {
     @Override
     protected Future<AsyncClientEndpoint> doConnect(
             final HttpHost host,
-            final TimeValue timeout,
+            final Timeout timeout,
             final Object attachment,
             final FutureCallback<AsyncClientEndpoint> callback) {
         return super.doConnect(host, timeout, attachment != null ? attachment : versionPolicy, callback);

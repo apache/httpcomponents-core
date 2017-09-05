@@ -108,11 +108,6 @@ public class TestLaxConnPool {
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
-        try {
-            pool.lease("somehost", null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
     }
 
     @Test(expected = IllegalStateException.class)

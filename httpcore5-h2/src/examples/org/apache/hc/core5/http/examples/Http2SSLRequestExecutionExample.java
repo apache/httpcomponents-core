@@ -58,7 +58,7 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.ssl.TrustStrategy;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * This example demonstrates how to execute HTTP/2 requests over TLS connections.
@@ -154,7 +154,7 @@ public class Http2SSLRequestExecutionExample {
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
-            final Future<AsyncClientEndpoint> future = requester.connect(target, TimeValue.ofSeconds(5));
+            final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
             final AsyncClientEndpoint clientEndpoint = future.get();
             clientEndpoint.execute(
                     new BasicRequestProducer("GET", target, requestUri),

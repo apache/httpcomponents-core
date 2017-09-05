@@ -79,6 +79,7 @@ import org.apache.hc.core5.pool.ConnPoolStats;
 import org.apache.hc.core5.pool.PoolStats;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Example of asynchronous embedded  HTTP/1.1 reverse proxy with full content streaming.
@@ -286,7 +287,7 @@ public class AsyncReverseProxyExample {
 
             System.out.println("[proxy->origin] " + exchangeState.id + " request connection to " + targetHost);
 
-            requester.connect(targetHost, TimeValue.ofSeconds(30), null, new FutureCallback<AsyncClientEndpoint>() {
+            requester.connect(targetHost, Timeout.ofSeconds(30), null, new FutureCallback<AsyncClientEndpoint>() {
 
                 @Override
                 public void completed(final AsyncClientEndpoint clientEndpoint) {

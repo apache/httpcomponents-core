@@ -132,20 +132,15 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
         return routePool;
     }
 
+    @Override
     public Future<PoolEntry<T, C>> lease(
             final T route, final Object state,
             final Timeout requestTimeout,
             final FutureCallback<PoolEntry<T, C>> callback) {
         Args.notNull(route, "Route");
-        Args.notNull(requestTimeout, "Request timeout");
         Asserts.check(!isShutDown.get(), "Connection pool shut down");
         final PerRoutePool<T, C> routePool = getPool(route);
         return routePool.lease(state, requestTimeout, callback);
-    }
-
-    @Override
-    public Future<PoolEntry<T, C>> lease(final T route, final Object state, final FutureCallback<PoolEntry<T, C>> callback) {
-        return lease(route, state, Timeout.DISABLED, callback);
     }
 
     public Future<PoolEntry<T, C>> lease(final T route, final Object state) {

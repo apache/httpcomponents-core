@@ -261,7 +261,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
             final HttpContext context) throws HttpException, IOException {
         Args.notNull(targetHost, "HTTP host");
         Args.notNull(request, "HTTP request");
-        final Future<PoolEntry<HttpHost, HttpClientConnection>> leaseFuture = connPool.lease(targetHost, null, null);
+        final Future<PoolEntry<HttpHost, HttpClientConnection>> leaseFuture = connPool.lease(targetHost, null, connectTimeout, null);
         final PoolEntry<HttpHost, HttpClientConnection> poolEntry;
         final Timeout timeout = Timeout.defaultsToDisabled(connectTimeout);
         try {
