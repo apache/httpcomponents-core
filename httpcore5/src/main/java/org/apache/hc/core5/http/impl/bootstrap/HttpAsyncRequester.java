@@ -73,6 +73,7 @@ import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * @since 5.0
@@ -158,7 +159,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
     public Future<AsyncClientEndpoint> connect(
             final HttpHost host,
-            final TimeValue timeout,
+            final Timeout timeout,
             final Object attachment,
             final FutureCallback<AsyncClientEndpoint> callback) {
         return doConnect(host, timeout, attachment, callback);
@@ -166,14 +167,14 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
     protected Future<AsyncClientEndpoint> doConnect(
             final HttpHost host,
-            final TimeValue timeout,
+            final Timeout timeout,
             final Object attachment,
             final FutureCallback<AsyncClientEndpoint> callback) {
         Args.notNull(host, "Host");
         Args.notNull(timeout, "Timeout");
         final ComplexFuture<AsyncClientEndpoint> resultFuture = new ComplexFuture<>(callback);
         final Future<PoolEntry<HttpHost, IOSession>> leaseFuture = connPool.lease(
-                host, null, new FutureCallback<PoolEntry<HttpHost, IOSession>>() {
+                host, null, timeout, new FutureCallback<PoolEntry<HttpHost, IOSession>>() {
 
             @Override
             public void completed(final PoolEntry<HttpHost, IOSession> poolEntry) {
@@ -242,13 +243,13 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         return resultFuture;
     }
 
-    public Future<AsyncClientEndpoint> connect(final HttpHost host, final TimeValue timeout) throws InterruptedException {
+    public Future<AsyncClientEndpoint> connect(final HttpHost host, final Timeout timeout) throws InterruptedException {
         return connect(host, timeout, null, null);
     }
 
     public void execute(
             final AsyncClientExchangeHandler exchangeHandler,
-            final TimeValue timeout,
+            final Timeout timeout,
             final HttpContext context) {
         Args.notNull(exchangeHandler, "Exchange handler");
         Args.notNull(timeout, "Timeout");
@@ -363,7 +364,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
     public final <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
-            final TimeValue timeout,
+            final Timeout timeout,
             final HttpContext context,
             final FutureCallback<T> callback) {
         Args.notNull(requestProducer, "Request producer");
@@ -395,7 +396,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
     public final <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
-            final TimeValue timeout,
+            final Timeout timeout,
             final FutureCallback<T> callback) {
         return execute(requestProducer, responseConsumer, timeout, null, callback);
     }

@@ -46,7 +46,7 @@ import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.io.ShutdownType;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Example of HTTP/2 request execution.
@@ -110,7 +110,7 @@ public class Http2RequestExecutionExample {
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
-            final Future<AsyncClientEndpoint> future = requester.connect(target, TimeValue.ofSeconds(5));
+            final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
             final AsyncClientEndpoint clientEndpoint = future.get();
             clientEndpoint.execute(
                     new BasicRequestProducer("GET", target, requestUri),

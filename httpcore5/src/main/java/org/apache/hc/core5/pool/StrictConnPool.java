@@ -147,6 +147,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
         return pool;
     }
 
+    @Override
     public Future<PoolEntry<T, C>> lease(
             final T route, final Object state,
             final Timeout requestTimeout,
@@ -170,11 +171,6 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
         }
         fireCallbacks();
         return future;
-    }
-
-    @Override
-    public Future<PoolEntry<T, C>> lease(final T route, final Object state, final FutureCallback<PoolEntry<T, C>> callback) {
-        return lease(route, state, Timeout.DISABLED, callback);
     }
 
     public Future<PoolEntry<T, C>> lease(final T route, final Object state) {

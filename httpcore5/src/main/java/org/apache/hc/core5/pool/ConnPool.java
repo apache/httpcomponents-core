@@ -30,6 +30,7 @@ import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * {@code ConnPool} represents a shared pool connections can be leased from
@@ -51,11 +52,12 @@ public interface ConnPool<T, C extends GracefullyCloseable> {
      *  (usually a security principal or a unique token identifying
      *  the user whose credentials have been used while establishing the connection).
      *  May be {@code null}.
+     * @param requestTimeout request timeout.
      * @param callback operation completion callback.
      *
      * @return future for a leased pool entry.
      */
-    Future<PoolEntry<T, C>> lease(final T route, final Object state, final FutureCallback<PoolEntry<T, C>> callback);
+    Future<PoolEntry<T, C>> lease(T route, Object state, Timeout requestTimeout, FutureCallback<PoolEntry<T, C>> callback);
 
     /**
      * Releases the pool entry back to the pool.
