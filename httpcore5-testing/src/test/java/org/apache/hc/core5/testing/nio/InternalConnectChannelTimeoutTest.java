@@ -28,16 +28,13 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.SSLTestContexts;
@@ -67,8 +64,7 @@ public class InternalConnectChannelTimeoutTest extends InternalHttp1ServerTestBa
         super(scheme);
     }
 
-    private static final TimeValue TIMEOUT = TimeValue.ofSeconds(1);
-    private static final TimeValue LONG_TIMEOUT = TimeValue.ofSeconds(60);
+    private static final TimeValue TIMEOUT = TimeValue.ofMillis(1);
 
     private Http1TestClient client;
 
@@ -97,40 +93,36 @@ public class InternalConnectChannelTimeoutTest extends InternalHttp1ServerTestBa
         }
     }
 
-    private URI createRequestURI(final InetSocketAddress serverEndpoint, final String path) {
-        try {
-            return new URI(scheme.id, null, "localhost", serverEndpoint.getPort(), path, null, null);
-        } catch (final URISyntaxException e) {
-            throw new IllegalStateException();
-        }
-    }
-
-    @Test
-    public void testSimpleGet() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
-        final InetSocketAddress serverEndpoint = server.start();
-
+    //TIMEOUT set to be 1 MILLISECOND,so connect to bing.com will connect time out
+    @Test(expected = ExecutionException.class)
+    public void testConnectTimeout() throws Exception {
         client.start();
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
-        //这里需要让
-        ClientSessionEndpoint streamEndpoint = null;
-        try {
-            streamEndpoint = connectFuture.get();
-        } catch (Exception e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        
+                "www.bing.com", 80, TIMEOUT);
+        //connecttimeout exception will be thrown
+        connectFuture.get();
     }
-
+    
+    //connect port is wrong , can not be connected
+    @Test(expected = ExecutionException.class)
+    public void testCannotConnectedTimeout() throws Exception {
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "www.bing.com", 8080, TIMEOUT);
+        //connecttimeout exception will be thrown
+        connectFuture.get();
+    }
+    
+    // connect to wrong port with localhost
+    @Test(expected = ExecutionException.class)
+    public void testCannotConnectedTimeoutLocalHost() throws Exception {
+        final InetSocketAddress serverEndpoint = server.start();
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort() + 1, TIMEOUT);
+        //connecttimeout exception will be thrown
+        connectFuture.get();
+    }
 
 
 }
