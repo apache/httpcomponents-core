@@ -77,15 +77,12 @@ abstract class InternalChannel implements GracefullyCloseable {
                 } finally {
                     timeOut = true;
                 }
-            } 
+            }
         }
         return timeOut;
     }
 
-    public void setLastEventTime(long lastEventTime) {
+    public void setLastEventTime(final long lastEventTime) {
         this.lastEventTime = lastEventTime;
     }
-    
-    
-
 }

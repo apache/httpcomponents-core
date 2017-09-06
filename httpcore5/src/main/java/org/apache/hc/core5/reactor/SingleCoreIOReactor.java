@@ -316,7 +316,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             sock.bind(sessionRequest.localAddress);
         }
         final boolean connected = socketChannel.connect(sessionRequest.remoteAddress);
-        
+
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
         final InternalChannel channel = new InternalConnectChannel(key, socketChannel, sessionRequest, new InternalDataChannelFactory() {
 

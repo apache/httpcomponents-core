@@ -71,10 +71,8 @@ public class InternalConnectChannelTimeoutTest extends InternalHttp1ServerTestBa
     @Before
     public void setup() throws Exception {
         log.debug("Starting up test client");
-        IOReactorConfig io = IOReactorConfig.custom().setIoThreadCount(1).build();
-        
         client = new Http1TestClient(
-                io,
+                IOReactorConfig.DEFAULT,
                 scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
     }
 
@@ -102,7 +100,7 @@ public class InternalConnectChannelTimeoutTest extends InternalHttp1ServerTestBa
         //connecttimeout exception will be thrown
         connectFuture.get();
     }
-    
+
     //connect port is wrong , can not be connected
     @Test(expected = ExecutionException.class)
     public void testCannotConnectedTimeout() throws Exception {
@@ -112,7 +110,7 @@ public class InternalConnectChannelTimeoutTest extends InternalHttp1ServerTestBa
         //connecttimeout exception will be thrown
         connectFuture.get();
     }
-    
+
     // connect to wrong port with localhost
     @Test(expected = ExecutionException.class)
     public void testCannotConnectedTimeoutLocalHost() throws Exception {

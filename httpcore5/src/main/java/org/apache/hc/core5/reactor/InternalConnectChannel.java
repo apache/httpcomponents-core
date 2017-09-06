@@ -40,7 +40,7 @@ final class InternalConnectChannel extends InternalChannel {
     private final SocketChannel socketChannel;
     private final IOSessionRequest sessionRequest;
     private final InternalDataChannelFactory dataChannelFactory;
-    
+
     InternalConnectChannel(
             final SelectionKey key,
             final SocketChannel socketChannel,
@@ -60,7 +60,7 @@ final class InternalConnectChannel extends InternalChannel {
                 socketChannel.finishConnect();
             }
             //check out connectTimeout
-            long now = System.currentTimeMillis();
+            final long now = System.currentTimeMillis();
             if(!checkTimeout(now)){
                 final InternalDataChannel dataChannel = dataChannelFactory.create(
                         key,
@@ -103,8 +103,4 @@ final class InternalConnectChannel extends InternalChannel {
         } catch (final IOException ignore) {
         }
     }
-
-    
-    
-
 }
