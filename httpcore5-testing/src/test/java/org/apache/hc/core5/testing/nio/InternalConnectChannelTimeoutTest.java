@@ -91,15 +91,20 @@ public class InternalConnectChannelTimeoutTest extends InternalHttp1ServerTestBa
         }
     }
 
-    //TIMEOUT set to be 1 MILLISECOND,so connect to bing.com will connect time out
-    @Test(expected = ExecutionException.class)
+    //I want to simulate:
+    //1. connect to bing.com last more than 1 MILLISECOND
+    //2. because the TIMEOUT set to be 1 MILLISECOND, the get method should throw an expecption,and close the connection to bing.com
+    //though TIMEOUT set to be 1 MILLISECOND,connect to bing.com will still less than 1 MILLISECOND.
+    //use debug mode with breakpoints is an easy way to simulate,however I don't find a way to simulate in unit test.
+
+    /*@Test(expected = ExecutionException.class)
     public void testConnectTimeout() throws Exception {
         client.start();
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "www.bing.com", 80, TIMEOUT);
         //connecttimeout exception will be thrown
         connectFuture.get();
-    }
+    }*/
 
     //connect port is wrong , can not be connected
     @Test(expected = ExecutionException.class)
