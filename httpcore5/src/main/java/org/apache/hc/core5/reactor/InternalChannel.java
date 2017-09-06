@@ -61,7 +61,8 @@ abstract class InternalChannel implements GracefullyCloseable {
         }
     }
 
-    final void checkTimeout(final long currentTime) {
+    final boolean checkTimeout(final long currentTime) {
+        boolean timeOut = false;
         final int timeout = getTimeout();
         if (timeout > 0) {
             final long deadline = lastEventTime + timeout;
@@ -73,9 +74,15 @@ abstract class InternalChannel implements GracefullyCloseable {
                 } catch (final Exception ex) {
                     onException(ex);
                     shutdown(ShutdownType.IMMEDIATE);
+                } finally {
+                    timeOut = true;
                 }
             }
         }
+        return timeOut;
     }
 
+    public void setLastEventTime(final long lastEventTime) {
+        this.lastEventTime = lastEventTime;
+    }
 }
