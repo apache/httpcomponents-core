@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcomponents-core</artifactId>
-    <version>4.4.7</version>
+    <version>4.4.8-SNAPSHOT</version>
   </parent>
   <artifactId>httpcore-nio</artifactId>
   <name>Apache HttpCore NIO</name>
