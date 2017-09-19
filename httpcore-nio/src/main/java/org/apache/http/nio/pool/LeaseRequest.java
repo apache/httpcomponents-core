@@ -26,18 +26,23 @@
  */
 package org.apache.http.nio.pool;
 
-import org.apache.http.concurrent.BasicFuture;
-import org.apache.http.pool.PoolEntry;
-
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
-class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
+import org.apache.http.concurrent.BasicFuture;
+import org.apache.http.concurrent.Cancellable;
+import org.apache.http.nio.reactor.SessionRequest;
+import org.apache.http.pool.PoolEntry;
+import org.apache.http.util.Asserts;
+
+class LeaseRequest<T, C, E extends PoolEntry<T, C>> implements Cancellable {
 
     private final T route;
     private final Object state;
     private final long connectTimeout;
     private final long deadline;
     private final BasicFuture<E> future;
+    private final AtomicReference<SessionRequest> sessionRequestRef;
     private final AtomicBoolean completed;
     private volatile E result;
     private volatile Exception ex;
@@ -60,9 +65,9 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
         this.route = route;
         this.state = state;
         this.connectTimeout = connectTimeout;
-        this.deadline = leaseTimeout > 0 ? System.currentTimeMillis() + leaseTimeout :
-                Long.MAX_VALUE;
+        this.deadline = leaseTimeout > 0 ? System.currentTimeMillis() + leaseTimeout : Long.MAX_VALUE;
         this.future = future;
+        this.sessionRequestRef = new AtomicReference<SessionRequest>(null);
         this.completed = new AtomicBoolean(false);
     }
 
@@ -84,6 +89,20 @@ class LeaseRequest<T, C, E extends PoolEntry<T, C>> {
 
     public boolean isDone() {
         return this.completed.get();
+    }
+
+    public void attachSessionRequest(final SessionRequest sessionRequest) {
+        Asserts.check(this.sessionRequestRef.compareAndSet(null, sessionRequest), "Session request has already been set");
+    }
+
+    @Override
+    public boolean cancel() {
+        final boolean cancelled = this.completed.compareAndSet(false, true);
+        final SessionRequest sessionRequest = this.sessionRequestRef.getAndSet(null);
+        if (sessionRequest != null) {
+            sessionRequest.cancel();
+        }
+        return cancelled;
     }
 
     public void failed(final Exception ex) {

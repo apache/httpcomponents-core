@@ -130,16 +130,12 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         }
     }
 
-    public void addPending(
-            final SessionRequest sessionRequest,
-            final BasicFuture<E> future) {
-        this.pending.put(sessionRequest, future);
+    public void addPending(final SessionRequest request, final BasicFuture<E> future) {
+        this.pending.put(request, future);
     }
 
     private BasicFuture<E> removeRequest(final SessionRequest request) {
-        final BasicFuture<E> future = this.pending.remove(request);
-        Asserts.notNull(future, "Session request future");
-        return future;
+        return this.pending.remove(request);
     }
 
     public E createEntry(final SessionRequest request, final C conn) {
@@ -150,27 +146,38 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
 
     public boolean completed(final SessionRequest request, final E entry) {
         final BasicFuture<E> future = removeRequest(request);
-        return future.completed(entry);
+        if (future != null) {
+            return future.completed(entry);
+        } else {
+            request.cancel();
+            return false;
+        }
     }
 
     public void cancelled(final SessionRequest request) {
         final BasicFuture<E> future = removeRequest(request);
-        future.cancel(true);
+        if (future != null) {
+            future.cancel(true);
+        }
     }
 
     public void failed(final SessionRequest request, final Exception ex) {
         final BasicFuture<E> future = removeRequest(request);
-        future.failed(ex);
+        if (future != null) {
+            future.failed(ex);
+        }
     }
 
     public void timeout(final SessionRequest request) {
         final BasicFuture<E> future = removeRequest(request);
-        future.failed(new ConnectException());
+        if (future != null) {
+            future.failed(new ConnectException());
+        }
     }
 
     public void shutdown() {
-        for (final SessionRequest sessionRequest: this.pending.keySet()) {
-            sessionRequest.cancel();
+        for (final SessionRequest request: this.pending.keySet()) {
+            request.cancel();
         }
         this.pending.clear();
         for (final E entry: this.available) {

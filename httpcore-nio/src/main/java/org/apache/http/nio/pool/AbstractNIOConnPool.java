@@ -36,6 +36,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -270,24 +271,57 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         Args.notNull(tunit, "Time unit");
         Asserts.check(!this.isShutDown.get(), "Connection pool shut down");
         final BasicFuture<E> future = new BasicFuture<E>(callback);
+        final LeaseRequest<T, C, E> leaseRequest = new LeaseRequest<T, C, E>(route, state,
+                connectTimeout >= 0 ? tunit.toMillis(connectTimeout) : -1,
+                leaseTimeout > 0 ? tunit.toMillis(leaseTimeout) : 0,
+                future);
         this.lock.lock();
         try {
-            final LeaseRequest<T, C, E> request = new LeaseRequest<T, C, E>(route, state,
-                    connectTimeout >= 0 ? tunit.toMillis(connectTimeout) : -1,
-                    leaseTimeout > 0 ? tunit.toMillis(leaseTimeout) : 0,
-                    future);
-            final boolean completed = processPendingRequest(request);
-            if (!request.isDone() && !completed) {
-                this.leasingRequests.add(request);
+            final boolean completed = processPendingRequest(leaseRequest);
+            if (!leaseRequest.isDone() && !completed) {
+                this.leasingRequests.add(leaseRequest);
             }
-            if (request.isDone()) {
-                this.completedRequests.add(request);
+            if (leaseRequest.isDone()) {
+                this.completedRequests.add(leaseRequest);
             }
         } finally {
             this.lock.unlock();
         }
         fireCallbacks();
-        return future;
+        return new Future<E>() {
+
+            @Override
+            public E get() throws InterruptedException, ExecutionException {
+                return future.get();
+            }
+
+            @Override
+            public E get(
+                    final long timeout,
+                    final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                return future.get(timeout, unit);
+            }
+
+            @Override
+            public boolean cancel(final boolean mayInterruptIfRunning) {
+                try {
+                    leaseRequest.cancel();
+                } finally {
+                    return future.cancel(mayInterruptIfRunning);
+                }
+            }
+
+            @Override
+            public boolean isCancelled() {
+                return future.isCancelled();
+            }
+
+            @Override
+            public boolean isDone() {
+                return future.isDone();
+            }
+
+        };
     }
 
     @Override
@@ -446,6 +480,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
 
             final SessionRequest sessionRequest = this.ioreactor.connect(
                     remoteAddress, localAddress, route, this.sessionRequestCallback);
+            request.attachSessionRequest(sessionRequest);
             final long connectTimeout = request.getConnectTimeout();
             if (connectTimeout >= 0) {
                 sessionRequest.setConnectTimeout(connectTimeout < Integer.MAX_VALUE ? (int) connectTimeout : Integer.MAX_VALUE);
