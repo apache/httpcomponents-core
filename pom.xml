@@ -28,8 +28,8 @@
     <!-- Parent 8 -->
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcomponents-parent</artifactId>
-    <version>9</version>
     <relativePath>../httpcomponents-parent/pom.xml</relativePath>
+    <version>9</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>httpcomponents-core</artifactId>
@@ -304,7 +304,6 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>clirr-maven-plugin</artifactId>
-        <version>${hc.clirr.version}</version>
         <configuration>
           <comparisonVersion>${api.comparison.version}</comparisonVersion>
           <excludes>
