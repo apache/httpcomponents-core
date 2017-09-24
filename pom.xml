@@ -27,14 +27,9 @@
   <parent>
     <!-- Parent 8 -->
     <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>project</artifactId>
-    <version>8</version>
-    <relativePath>../project/pom.xml</relativePath>
-    <!-- Parent 9 (forthcoming) -->
-<!--     <groupId>org.apache.httpcomponents</groupId> -->
-<!--     <artifactId>httpcomponents-parent</artifactId> -->
-<!--     <version>9</version> -->
-<!--     <relativePath>../httpcomponents-parent/pom.xml</relativePath> -->
+    <artifactId>httpcomponents-parent</artifactId>
+    <version>9</version>
+    <relativePath>../httpcomponents-parent/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>httpcomponents-core</artifactId>
