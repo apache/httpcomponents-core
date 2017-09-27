@@ -50,6 +50,8 @@ import org.apache.http.util.Asserts;
  */
 public class BasicAsyncRequestConsumer extends AbstractAsyncRequestConsumer<HttpRequest> {
 
+    private static final int MAX_INITIAL_BUFFER_SIZE = 256 * 1024;
+
     private volatile HttpRequest request;
     private volatile SimpleInputBuffer buf;
 
@@ -72,7 +74,8 @@ public class BasicAsyncRequestConsumer extends AbstractAsyncRequestConsumer<Http
         if (len < 0) {
             len = 4096;
         }
-        this.buf = new SimpleInputBuffer((int) len, new HeapByteBufferAllocator());
+        final int initialBufferSize = Math.min((int) len, MAX_INITIAL_BUFFER_SIZE);
+        this.buf = new SimpleInputBuffer(initialBufferSize, new HeapByteBufferAllocator());
         ((HttpEntityEnclosingRequest) this.request).setEntity(
                 new ContentBufferEntity(entity, this.buf));
     }
