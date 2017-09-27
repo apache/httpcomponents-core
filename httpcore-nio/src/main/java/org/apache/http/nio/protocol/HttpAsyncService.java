@@ -1087,4 +1087,13 @@ public class HttpAsyncService implements NHttpServerEventHandler {
 
     }
 
+    /**
+     * Gets the HttpResponseFactory for this service.
+     *
+     * @since 4.4.8
+     */
+    protected HttpResponseFactory getResponseFactory() {
+      return responseFactory;
+    }
+
 }
