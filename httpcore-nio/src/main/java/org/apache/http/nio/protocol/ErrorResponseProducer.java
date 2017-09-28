@@ -38,14 +38,19 @@ import org.apache.http.nio.entity.HttpAsyncContentProducer;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.protocol.HttpContext;
 
-class ErrorResponseProducer implements HttpAsyncResponseProducer {
+/**
+ * This class changed from package private to public in version 4.4.8.
+ *
+ * @since 4.4.8
+ */
+public class ErrorResponseProducer implements HttpAsyncResponseProducer {
 
     private final HttpResponse response;
     private final HttpEntity entity;
     private final HttpAsyncContentProducer contentProducer;
     private final boolean keepAlive;
 
-    ErrorResponseProducer(
+    public ErrorResponseProducer(
             final HttpResponse response,
             final HttpEntity entity,
             final boolean keepAlive) {
