@@ -57,7 +57,6 @@ import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
-import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -106,7 +105,7 @@ public class Http2ServerAndRequesterTest {
                                     .setSoTimeout(TIMEOUT)
                                     .build())
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
@@ -154,7 +153,7 @@ public class Http2ServerAndRequesterTest {
                             .setSoTimeout(TIMEOUT)
                             .build())
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                     .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .create();

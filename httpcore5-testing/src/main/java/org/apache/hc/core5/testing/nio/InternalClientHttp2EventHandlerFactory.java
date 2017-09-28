@@ -44,7 +44,6 @@ import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiator;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
-import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.apache.hc.core5.util.Args;
 
 class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
@@ -83,7 +82,7 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 h1Config,
                 charCodingConfig,
-                LoggingHttp1StreamListener.INSTANCE);
+                LoggingHttp1StreamListener.INSTANCE_CLIENT);
         final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.client(),
                 exchangeHandlerFactory,
