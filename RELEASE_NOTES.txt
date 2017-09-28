@@ -1,3 +1,24 @@
+Release 4.4.8
+-------------------
+
+This is a maintenance release that fixes a number of issues discovered since 4.4.6.
+
+Changelog
+-------------------
+
+* HTTPCORE-492: Make org.apache.http.nio.protocol.ErrorResponseProducer public.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-493: Make org.apache.http.nio.protocol.HttpAsyncService.responseFactory available to subclasses.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-491 Make BasicAsyncRequest|ResponseConsumer more paranoid
+  Contributed by Michael Heemskerk <mheemskerk@atlassian.com>
+
+* HTTPCORE-490: session requests do not get cancelled correctly if the associated HTTP response futures get cancelled
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 4.4.7
 -------------------
 
@@ -8,30 +29,30 @@ Changelog
 
 * HTTPCORE-487: org.apache.http.nio.reactor.ssl.SSLIOSession and SSLNHttpClientConnectionFactory
   do not always use the HTTP host setting.
-  Conributed by Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-485: Reduce memory footprint of non-blocking SSL sessions by 25%.
   Contributed by Todor Bonchev <31352118+TodorBonchev at users.noreply.github.com>
 
 * HTTPCORE-483: back-ported SSL session termination bug fix from 5.x.
-  Conributed by Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Fixed a race condition in message exchange state synchronization during an expect-continue handshake.
-  Conributed by Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-481: async request executor to treat non-error (status >= 200 and status < 400)
   out of sequence responses as valid.
-  Conributed by Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-472: Fixed problem with blocking message parsers incorrectly throwing "Maximum line
   length limit exceeded" exception in some corner cases.
-  Conributed by Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-463: Fixed incorrect use of connect timeout setting in AbstractNIOConnPool.
-  Conributed by Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-455: fatal Error in an individual worker thread does not cause proper I/O reactor shutdown.
-  Conributed by Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-487: org.apache.http.nio.reactor.ssl.SSLIOSession and SSLNHttpClientConnectionFactory
   do not always use the HTTP host setting.
@@ -42,11 +63,11 @@ Changelog
 
 * HTTPCORE-456: BasicFuture fails to honor Future interface contract by not throwing
   CancellationException when cancelled.
-  Conributed by Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-455: fatal Error in an individual worker thread does not cause proper I/O reactor
   shutdown.
-  Conributed by Oleg Kalnichevski <olegk at apache.org>
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-460: Add factory methods to DefaultHttpClientIODispatch to handle a null SSLContext.
   Contributed by Gary Gregory <ggregory at apache.org>
