@@ -35,6 +35,12 @@ import org.apache.hc.core5.http.EntityDetails;
  */
 public interface AsyncEntityProducer extends AsyncDataProducer, EntityDetails {
 
+    /**
+     * Determines whether the producer can consistently produce the same content
+     * after invocation of {@link ResourceHolder#releaseResources()}.
+     */
+    boolean isRepeatable();
+
     void failed(Exception cause);
 
 }

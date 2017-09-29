@@ -37,34 +37,15 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestBasicAsyncEntityProducer {
-
-    @Test
-    public void testBinaryContent() throws Exception {
-
-        final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
-                new byte[] { 'a', 'b', 'c' }, ContentType.DEFAULT_BINARY);
-
-        Assert.assertEquals(3, producer.getContentLength());
-        Assert.assertEquals(ContentType.DEFAULT_BINARY.toString(), producer.getContentType());
-        Assert.assertEquals(null, producer.getContentEncoding());
-
-        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
-        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
-
-        producer.produce(streamChannel);
-
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
-    }
+public class TestStringAsyncEntityProducer {
 
     @Test
     public void testTextContent() throws Exception {
 
-        final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
+        final AsyncEntityProducer producer = new StringAsyncEntityProducer(
                 "abc", ContentType.TEXT_PLAIN);
 
-        Assert.assertEquals(3, producer.getContentLength());
+        Assert.assertEquals(-1, producer.getContentLength());
         Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
         Assert.assertEquals(null, producer.getContentEncoding());
 
@@ -79,10 +60,10 @@ public class TestBasicAsyncEntityProducer {
 
     @Test
     public void testTextContentRepeatable() throws Exception {
-        final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
+        final AsyncEntityProducer producer = new StringAsyncEntityProducer(
                 "abc", ContentType.TEXT_PLAIN);
 
-        Assert.assertEquals(3, producer.getContentLength());
+        Assert.assertEquals(-1, producer.getContentLength());
         Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
         Assert.assertEquals(null, producer.getContentEncoding());
 

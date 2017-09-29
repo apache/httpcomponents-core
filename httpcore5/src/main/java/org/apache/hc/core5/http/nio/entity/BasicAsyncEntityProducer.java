@@ -78,6 +78,11 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
+    public boolean isRepeatable() {
+        return true;
+    }
+
+    @Override
     public final String getContentType() {
         return contentType != null ? contentType.toString() : null;
     }
@@ -128,6 +133,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
 
     @Override
     public void releaseResources() {
+        bytebuf.clear();
     }
 
 }

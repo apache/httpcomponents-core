@@ -31,8 +31,8 @@ import java.io.IOException;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -54,6 +54,11 @@ public class TestAbstractCharAsyncEntityProducer {
                 final String... content) {
             super(bufferSize, fragmentSizeHint, contentType);
             this.content = content;
+        }
+
+        @Override
+        public boolean isRepeatable() {
+            return false;
         }
 
         @Override
@@ -79,10 +84,6 @@ public class TestAbstractCharAsyncEntityProducer {
 
         @Override
         public void failed(final Exception cause) {
-        }
-
-        @Override
-        public void releaseResources() {
         }
 
     };
