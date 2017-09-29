@@ -27,6 +27,10 @@
 
 package org.apache.hc.core5.http.nio.entity;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ContentType;
@@ -34,37 +38,37 @@ import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
-public class TestBasicAsyncEntityProducer {
+public class TestFileAsyncEntityProducer {
 
-    @Test
-    public void testBinaryContent() throws Exception {
+    private File tempFile;
 
-        final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
-                new byte[] { 'a', 'b', 'c' }, ContentType.DEFAULT_BINARY);
-
-        Assert.assertEquals(3, producer.getContentLength());
-        Assert.assertEquals(ContentType.DEFAULT_BINARY.toString(), producer.getContentType());
-        Assert.assertEquals(null, producer.getContentEncoding());
-
-        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
-        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
-
-        producer.produce(streamChannel);
-
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
+    @Before
+    public void setup() throws Exception {
+        tempFile = File.createTempFile("testing", ".txt");
+        try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.US_ASCII)) {
+            writer.append("abcdef");
+            writer.flush();
+        }
     }
 
+    @After
+    public void cleanup() {
+        if (tempFile != null) {
+            tempFile.delete();
+            tempFile = null;
+        }
+    }
     @Test
     public void testTextContent() throws Exception {
 
-        final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
-                "abc", ContentType.TEXT_PLAIN);
+        final AsyncEntityProducer producer = new FileEntityProducer(tempFile, ContentType.TEXT_PLAIN);
 
-        Assert.assertEquals(3, producer.getContentLength());
+        Assert.assertEquals(6, producer.getContentLength());
         Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
         Assert.assertEquals(null, producer.getContentEncoding());
 
@@ -72,17 +76,17 @@ public class TestBasicAsyncEntityProducer {
         final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
         producer.produce(streamChannel);
+        producer.produce(streamChannel);
 
         Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assert.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
     }
 
     @Test
     public void testTextContentRepeatable() throws Exception {
-        final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
-                "abc", ContentType.TEXT_PLAIN);
+        final AsyncEntityProducer producer = new FileEntityProducer(tempFile, ContentType.TEXT_PLAIN);
 
-        Assert.assertEquals(3, producer.getContentLength());
+        Assert.assertEquals(6, producer.getContentLength());
         Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
         Assert.assertEquals(null, producer.getContentEncoding());
 
@@ -91,9 +95,10 @@ public class TestBasicAsyncEntityProducer {
             final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
             producer.produce(streamChannel);
+            producer.produce(streamChannel);
 
             Assert.assertFalse(byteChannel.isOpen());
-            Assert.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
+            Assert.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
 
             producer.releaseResources();
         }

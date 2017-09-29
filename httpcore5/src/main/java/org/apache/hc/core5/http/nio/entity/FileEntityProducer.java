@@ -37,11 +37,12 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * @since 5.0
  */
-public class FileEntityProducer implements AsyncEntityProducer {
+public final class FileEntityProducer implements AsyncEntityProducer {
 
     private final File file;
     private final ByteBuffer bytebuf;
@@ -49,15 +50,16 @@ public class FileEntityProducer implements AsyncEntityProducer {
     private final ContentType contentType;
     private final AtomicReference<Exception> exception;
 
-    private RandomAccessFile accessFile;
+    private AtomicReference<RandomAccessFile> accessFileRef;
     private boolean eof;
 
     public FileEntityProducer(final File file, final int bufferSize, final ContentType contentType) {
         this.file = Args.notNull(file, "File");
         this.length = file.length();
-        this.contentType = contentType;
-        this.exception = new AtomicReference<>(null);
         this.bytebuf = ByteBuffer.allocate((int)(bufferSize > this.length ? bufferSize : this.length));
+        this.contentType = contentType;
+        this.accessFileRef = new AtomicReference<>(null);
+        this.exception = new AtomicReference<>(null);
     }
 
     public FileEntityProducer(final File file, final ContentType contentType) {
@@ -69,7 +71,12 @@ public class FileEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
-    public final String getContentType() {
+    public boolean isRepeatable() {
+        return true;
+    }
+
+    @Override
+    public String getContentType() {
         return contentType != null ? contentType.toString() : null;
     }
 
@@ -99,9 +106,11 @@ public class FileEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
-    public final void produce(final DataStreamChannel channel) throws IOException {
+    public void produce(final DataStreamChannel channel) throws IOException {
+        RandomAccessFile accessFile = accessFileRef.get();
         if (accessFile == null) {
             accessFile = new RandomAccessFile(file, "r");
+            Asserts.check(accessFileRef.getAndSet(accessFile) == null, "Illegal producer state");
         }
         if (!eof) {
             final int bytesRead = accessFile.getChannel().read(bytebuf);
@@ -121,24 +130,25 @@ public class FileEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public void failed(final Exception cause) {
         if (exception.compareAndSet(null, cause)) {
             releaseResources();
         }
     }
 
-    public final Exception getException() {
+    public Exception getException() {
         return exception.get();
     }
 
     @Override
     public void releaseResources() {
+        eof = false;
+        final RandomAccessFile accessFile = accessFileRef.getAndSet(null);
         if (accessFile != null) {
             try {
                 accessFile.close();
             } catch (final IOException ignore) {
             }
-            accessFile = null;
         }
     }
 

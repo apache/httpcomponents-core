@@ -58,6 +58,11 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
         this.exception = new AtomicReference<>(null);
     }
 
+    @Override
+    public final boolean isRepeatable() {
+        return false;
+    }
+
     protected abstract void produceData(ContentType contentType, OutputStream outputStream) throws IOException;
 
     @Override

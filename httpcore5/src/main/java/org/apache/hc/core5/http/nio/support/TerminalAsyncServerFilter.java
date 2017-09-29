@@ -88,6 +88,11 @@ public final class TerminalAsyncServerFilter implements AsyncFilterHandler {
                         }
 
                         @Override
+                        public boolean isRepeatable() {
+                            return false;
+                        }
+
+                        @Override
                         public long getContentLength() {
                             return entityDetails.getContentLength();
                         }

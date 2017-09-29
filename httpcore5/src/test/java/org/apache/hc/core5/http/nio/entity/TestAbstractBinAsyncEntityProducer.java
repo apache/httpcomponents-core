@@ -57,6 +57,11 @@ public class TestAbstractBinAsyncEntityProducer {
         }
 
         @Override
+        public boolean isRepeatable() {
+            return false;
+        }
+
+        @Override
         protected void produceData(final StreamChannel<ByteBuffer> channel) throws IOException {
             if (count < content.length) {
                 channel.write(ByteBuffer.wrap(content[count]));
