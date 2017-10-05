@@ -78,6 +78,16 @@ public final class ContentType implements Serializable {
             "application/xhtml+xml", StandardCharsets.ISO_8859_1);
     public static final ContentType APPLICATION_XML = create(
             "application/xml", StandardCharsets.ISO_8859_1);
+    public static final ContentType IMAGE_BMP = create(
+            "image/bmp");
+    public static final ContentType IMAGE_GIF= create(
+            "image/gif");
+    public static final ContentType IMAGE_JPEG = create(
+            "image/jpeg");
+    public static final ContentType IMAGE_PNG = create(
+            "image/png");
+    public static final ContentType IMAGE_WEBP = create(
+            "image/webp");
     public static final ContentType MULTIPART_FORM_DATA = create(
             "multipart/form-data", StandardCharsets.ISO_8859_1);
     public static final ContentType TEXT_HTML = create(
@@ -100,6 +110,11 @@ public final class ContentType implements Serializable {
             APPLICATION_SVG_XML,
             APPLICATION_XHTML_XML,
             APPLICATION_XML,
+            IMAGE_BMP,
+            IMAGE_GIF,
+            IMAGE_JPEG,
+            IMAGE_PNG,
+            IMAGE_WEBP,
             MULTIPART_FORM_DATA,
             TEXT_HTML,
             TEXT_PLAIN,
