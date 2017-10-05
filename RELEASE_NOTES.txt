@@ -1,3 +1,15 @@
+Release 5.0-ALPHA5
+-------------------
+
+...TODO...
+
+Changelog
+-------------------
+
+* HTTPCORE-494: Add image constants to ContentType.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+
 Release 5.0-ALPHA4
 -------------------
 
