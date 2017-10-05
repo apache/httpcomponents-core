@@ -86,6 +86,10 @@ public final class ContentType implements Serializable {
             "image/jpeg");
     public static final ContentType IMAGE_PNG = create(
             "image/png");
+    public static final ContentType IMAGE_SVG= create(
+            "image/svg+xml");
+    public static final ContentType IMAGE_TIFF = create(
+            "image/tiff");
     public static final ContentType IMAGE_WEBP = create(
             "image/webp");
     public static final ContentType MULTIPART_FORM_DATA = create(
@@ -114,6 +118,8 @@ public final class ContentType implements Serializable {
             IMAGE_GIF,
             IMAGE_JPEG,
             IMAGE_PNG,
+            IMAGE_SVG,
+            IMAGE_TIFF,
             IMAGE_WEBP,
             MULTIPART_FORM_DATA,
             TEXT_HTML,
