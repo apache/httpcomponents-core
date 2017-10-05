@@ -1,7 +1,19 @@
+Release 4.4.9
+-------------------
+
+This is a maintenance release that fixes a number of issues discovered since 4.4.8.
+
+Changelog
+-------------------
+
+* HTTPCORE-494: Add image constants to ContentType.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+
 Release 4.4.8
 -------------------
 
-This is a maintenance release that fixes a number of issues discovered since 4.4.6.
+This is a maintenance release that fixes a number of issues discovered since 4.4.7.
 
 Changelog
 -------------------
