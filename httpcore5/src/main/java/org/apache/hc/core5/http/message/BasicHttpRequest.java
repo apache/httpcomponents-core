@@ -187,7 +187,14 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
                     buf.append(":").append(this.authority.getPort());
                 }
             }
-            buf.append(this.path != null ? this.path : "/");
+            if (this.path == null) {
+                buf.append("/");
+            } else {
+                if (buf.length() > 0 && !this.path.startsWith("/")) {
+                    buf.append("/");
+                }
+                buf.append(this.path);
+            }
             this.requestUri = new URI(buf.toString());
         }
         return this.requestUri;

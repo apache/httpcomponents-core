@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.message;
 
 import java.net.URI;
 
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -173,6 +174,24 @@ public class TestBasicMessages {
         Assert.assertEquals(new URIAuthority("user:pwd", "host", 9443), request.getAuthority());
         Assert.assertEquals("https", request.getScheme());
         Assert.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
+    }
+
+    @Test
+    public void testRequestWithAuthority() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("somehost", -1, "http"), "/stuff");
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("/stuff", request.getPath());
+        Assert.assertEquals(new URIAuthority("somehost"), request.getAuthority());
+        Assert.assertEquals(new URI("http://somehost/stuff"), request.getUri());
+    }
+
+    @Test
+    public void testRequestWithAuthorityRelativePath() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("somehost", -1, "http"), "stuff");
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("stuff", request.getPath());
+        Assert.assertEquals(new URIAuthority("somehost"), request.getAuthority());
+        Assert.assertEquals(new URI("http://somehost/stuff"), request.getUri());
     }
 
 }
