@@ -36,11 +36,14 @@ public class ParseException extends ProtocolException {
 
     private static final long serialVersionUID = -7288819855864183578L;
 
+    private final int errorOffset;
+
     /**
      * Creates a {@link ParseException} without details.
      */
     public ParseException() {
         super();
+        this.errorOffset = -1;
     }
 
     /**
@@ -50,6 +53,35 @@ public class ParseException extends ProtocolException {
      */
     public ParseException(final String message) {
         super(message);
+        this.errorOffset = -1;
+    }
+
+    /**
+     * Creates a {@link ParseException} with parsing context details.
+     *
+     * @since 5.0
+     */
+    public ParseException(final String description, final CharSequence text, final int off, final int len, final int errorOffset) {
+        super(description +
+                (errorOffset >= 0 ? "; error at offset " + errorOffset : "") +
+                (text != null && len < 1024 ? ": <" + text.subSequence(off, off + len) + ">" : ""));
+        this.errorOffset = errorOffset;
+    }
+
+    /**
+     * Creates a {@link ParseException} with parsing context details.
+     *
+     * @since 5.0
+     */
+    public ParseException(final String description, final CharSequence text, final int off, final int len) {
+        this(description, text, off, len, -1);
+    }
+
+    /**
+     * @since 5.0
+     */
+    public int getErrorOffset() {
+        return errorOffset;
     }
 
 }
