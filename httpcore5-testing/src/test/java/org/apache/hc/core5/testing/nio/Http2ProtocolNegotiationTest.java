@@ -180,29 +180,29 @@ public class Http2ProtocolNegotiationTest {
 
     };
 
-    private static int version;
+    private static int javaVersion;
 
     @BeforeClass
     public static void determineJavaVersion() {
-        version = 7;
+        javaVersion = 7;
         final String s = System.getProperty("java.version");
-        if (s.equals("9-ea")) {
-            version = 9;
-        }
         final String[] parts = s.split("\\.");
-        if (parts.length >= 2) {
-            if (parts[0].equals("1")) {
-                try {
-                    version = Integer.parseInt(parts[1]);
-                } catch (NumberFormatException ignore) {
+        if (parts.length > 0) {
+            try {
+                final int majorVersion = Integer.parseInt(parts[0]);
+                if (majorVersion > 1) {
+                    javaVersion = majorVersion;
+                } else if (majorVersion == 1 && parts.length > 1) {
+                    javaVersion = Integer.parseInt(parts[1]);
                 }
+            } catch (final NumberFormatException ignore) {
             }
         }
     }
 
     @Before
     public void checkVersion() {
-        Assume.assumeTrue("Java version must be 1.8 or greater", version > 7);
+        Assume.assumeTrue("Java version must be 1.8 or greater", javaVersion > 7);
     }
 
     @Test
@@ -272,12 +272,10 @@ public class Http2ProtocolNegotiationTest {
         final HttpResponse response1 = message1.getHead();
         Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
 
-        if (version < 9) {
+        if (javaVersion < 9) {
             Assert.assertThat(response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_1_1));
         } else {
-//            Assert.assertThat("Requires --add-opens java.base/sun.security.ssl=ALL-UNNAMED with Java 1.9+ " +
-//                    " in order to enable reflective access to SSLEngine",
-//                    response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_2));
+            Assert.assertThat(response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_2));
         }
     }
 

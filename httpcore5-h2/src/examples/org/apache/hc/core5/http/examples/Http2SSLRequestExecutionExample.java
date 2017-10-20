@@ -92,16 +92,11 @@ public class Http2SSLRequestExecutionExample {
 
                     @Override
                     public TlsDetails verify(final NamedEndpoint endpoint, final SSLEngine sslEngine) throws SSLException {
-                        // IMPORTANT
-                        // In order for HTTP/2 protocol negotiation to succeed one must allow access
-                        // to Java 9 specific properties of SSLEngine via reflection
-                        // by adding the following line to the JVM arguments
-                        //
-                        // --add-opens java.base/sun.security.ssl=ALL-UNNAMED
-                        //
-                        // or uncomment the method below
-
+                        // IMPORTANT uncomment the following line when running Java 9 or older
+                        // in order to avoid the illegal reflective access operation warning
+                        // ====
                         // return new TlsDetails(sslEngine.getSession(), sslEngine.getApplicationProtocol());
+                        // ====
                         return null;
                     }
 
