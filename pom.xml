@@ -152,7 +152,6 @@
           </execution>
         </executions>
         <configuration>
-          <additionalparam>-Xdoclint:-missing</additionalparam>
           <!-- reduce console output. Can override with -Dquiet=false -->
           <quiet>true</quiet>
           <source>${maven.compiler.source}</source>
