@@ -82,7 +82,7 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
             final SingleCoreIOReactor dispatcher = new SingleCoreIOReactor(
                     auditLog,
                     eventHandlerFactory,
-                    ioReactorConfig,
+                    ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT,
                     ioSessionDecorator,
                     sessionListener,
                     sessionShutdownCallback);
