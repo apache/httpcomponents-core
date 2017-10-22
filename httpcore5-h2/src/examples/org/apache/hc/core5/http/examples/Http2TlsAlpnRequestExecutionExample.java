@@ -62,8 +62,10 @@ import org.apache.hc.core5.util.Timeout;
 
 /**
  * This example demonstrates how to execute HTTP/2 requests over TLS connections.
+ * <p>
+ * It requires Java runtime with ALPN protocol support (such as Oracle JRE 9).
  */
-public class Http2SSLRequestExecutionExample {
+public class Http2TlsAlpnRequestExecutionExample {
 
     public final static void main(final String[] args) throws Exception {
         // Trust standard CA and those trusted by our custom strategy
