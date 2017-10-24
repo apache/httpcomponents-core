@@ -188,6 +188,26 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
+    public void updateReadTime() {
+        this.session.updateReadTime();
+    }
+
+    @Override
+    public void updateWriteTime() {
+        this.session.updateWriteTime();
+    }
+
+    @Override
+    public long getLastReadTime() {
+        return this.session.getLastReadTime();
+    }
+
+    @Override
+    public long getLastWriteTime() {
+        return this.session.getLastWriteTime();
+    }
+
+    @Override
     public IOEventHandler getHandler() {
         return this.session.getHandler();
     }

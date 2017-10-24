@@ -35,12 +35,6 @@ import org.apache.hc.core5.io.ShutdownType;
 
 abstract class InternalChannel implements GracefullyCloseable {
 
-    private volatile long lastEventTime;
-
-    InternalChannel() {
-        this.lastEventTime = System.currentTimeMillis();
-    }
-
     abstract void onIOEvent(final int ops) throws IOException;
 
     abstract void onTimeout() throws IOException;
@@ -49,8 +43,9 @@ abstract class InternalChannel implements GracefullyCloseable {
 
     abstract int getTimeout();
 
+    abstract long getLastReadTime();
+
     final void handleIOEvent(final int ops) {
-        lastEventTime = System.currentTimeMillis();
         try {
             onIOEvent(ops);
         } catch (final CancelledKeyException ex) {
@@ -64,7 +59,7 @@ abstract class InternalChannel implements GracefullyCloseable {
     final boolean checkTimeout(final long currentTime) {
         final int timeout = getTimeout();
         if (timeout > 0) {
-            final long deadline = lastEventTime + timeout;
+            final long deadline = getLastReadTime() + timeout;
             if (currentTime > deadline) {
                 try {
                     onTimeout();

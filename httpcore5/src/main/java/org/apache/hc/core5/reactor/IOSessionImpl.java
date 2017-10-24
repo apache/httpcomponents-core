@@ -52,14 +52,14 @@ class IOSessionImpl implements IOSession {
 
     private volatile IOEventHandler eventHandler;
     private volatile int socketTimeout;
+    private volatile long lastReadTime;
+    private volatile long lastWriteTime;
 
     /**
      * Creates new instance of IOSessionImpl.
      *
      * @param key the selection key.
      * @param socketChannel the socket channel
-     *
-     * @since 4.1
      */
     public IOSessionImpl(final SelectionKey key, final SocketChannel socketChannel) {
         super();
@@ -69,6 +69,8 @@ class IOSessionImpl implements IOSession {
         this.socketTimeout = 0;
         this.id = String.format("i/o-%08X", COUNT.getAndIncrement());
         this.status = new AtomicInteger(ACTIVE);
+        this.lastReadTime = System.currentTimeMillis();
+        this.lastWriteTime = System.currentTimeMillis();
     }
 
     @Override
@@ -164,6 +166,26 @@ class IOSessionImpl implements IOSession {
     @Override
     public void setSocketTimeout(final int timeout) {
         this.socketTimeout = timeout;
+    }
+
+    @Override
+    public void updateReadTime() {
+        lastReadTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public void updateWriteTime() {
+        lastWriteTime = System.currentTimeMillis();
+    }
+
+    @Override
+    public long getLastReadTime() {
+        return lastReadTime;
+    }
+
+    @Override
+    public long getLastWriteTime() {
+        return lastWriteTime;
     }
 
     @Override

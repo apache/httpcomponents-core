@@ -106,6 +106,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                 ioSession.clearEvent(SelectionKey.OP_CONNECT);
             }
             if ((readyOps & SelectionKey.OP_READ) != 0) {
+                ioSession.updateReadTime();
                 if (tlsSession.isAppInputReady()) {
                     do {
                         if (sessionListener != null) {
@@ -121,6 +122,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                 }
             }
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                ioSession.updateWriteTime();
                 if (tlsSession.isAppOutputReady()) {
                     if (sessionListener != null) {
                         sessionListener.outputReady(this);
@@ -145,6 +147,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                 }
             }
             if ((readyOps & SelectionKey.OP_READ) != 0) {
+                ioSession.updateReadTime();
                 if (sessionListener != null) {
                     sessionListener.inputReady(this);
                 }
@@ -152,6 +155,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                 handler.inputReady(this);
             }
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+                ioSession.updateWriteTime();
                 if (sessionListener != null) {
                     sessionListener.outputReady(this);
                 }
@@ -341,6 +345,26 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
     @Override
     public void setSocketTimeout(final int timeout) {
         ioSession.setSocketTimeout(timeout);
+    }
+
+    @Override
+    public void updateReadTime() {
+        ioSession.updateReadTime();
+    }
+
+    @Override
+    public void updateWriteTime() {
+        ioSession.updateWriteTime();
+    }
+
+    @Override
+    public long getLastReadTime() {
+        return ioSession.getLastReadTime();
+    }
+
+    @Override
+    public long getLastWriteTime() {
+        return ioSession.getLastWriteTime();
     }
 
     @Override
