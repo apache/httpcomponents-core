@@ -39,6 +39,7 @@ final class InternalConnectChannel extends InternalChannel {
     private final SelectionKey key;
     private final SocketChannel socketChannel;
     private final IOSessionRequest sessionRequest;
+    private final long creationTime;
     private final InternalDataChannelFactory dataChannelFactory;
 
     InternalConnectChannel(
@@ -50,6 +51,7 @@ final class InternalConnectChannel extends InternalChannel {
         this.key = key;
         this.socketChannel = socketChannel;
         this.sessionRequest = sessionRequest;
+        this.creationTime = System.currentTimeMillis();
         this.dataChannelFactory = dataChannelFactory;
     }
 
@@ -77,6 +79,11 @@ final class InternalConnectChannel extends InternalChannel {
     @Override
     int getTimeout() {
         return sessionRequest.timeout.toMillisIntBound();
+    }
+
+    @Override
+    long getLastReadTime() {
+        return creationTime;
     }
 
     @Override

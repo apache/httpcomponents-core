@@ -187,4 +187,28 @@ public interface IOSession extends GracefullyCloseable, Identifiable {
      */
     void setSocketTimeout(int timeout);
 
+    /**
+     * Returns timestamp of the last read event.
+     *
+     * @return timestamp.
+     */
+    long getLastReadTime();
+
+    /**
+     * Returns timestamp of the last write event.
+     *
+     * @return timestamp.
+     */
+    long getLastWriteTime();
+
+    /**
+     * Updates the timestamp of the last read event
+     */
+    void updateReadTime();
+
+    /**
+     * Updates the timestamp of the last write event
+     */
+    void updateWriteTime();
+
 }
