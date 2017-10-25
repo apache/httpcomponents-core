@@ -32,6 +32,7 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hc.core5.http.NameValuePair;
@@ -183,6 +184,22 @@ public class TestURIBuilder {
             .setParameter("blah", "blah");
         final URI result = uribuilder.build();
         Assert.assertEquals(new URI("http://localhost:80/?param=some+other+stuff&blah=blah"), result);
+    }
+
+    @Test
+    public void testSetParametersWithEmptyArg() throws Exception {
+        final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
+        final URIBuilder uribuilder = new URIBuilder(uri).setParameters();
+        final URI result = uribuilder.build();
+        Assert.assertEquals(new URI("http://localhost:80/test"), result);
+    }
+
+    @Test
+    public void testSetParametersWithEmptyList() throws Exception {
+        final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
+        final URIBuilder uribuilder = new URIBuilder(uri).setParameters(Arrays.<NameValuePair>asList());
+        final URI result = uribuilder.build();
+        Assert.assertEquals(new URI("http://localhost:80/test"), result);
     }
 
     @Test
