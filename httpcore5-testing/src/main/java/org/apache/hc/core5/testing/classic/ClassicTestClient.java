@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
+import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
@@ -97,7 +98,8 @@ public class ClassicTestClient {
                     connPool,
                     socketConfig,
                     new DefaultBHttpClientConnectionFactory(H1Config.DEFAULT, CharCodingConfig.DEFAULT),
-                    sslContext != null ? sslContext.getSocketFactory() : null);
+                    sslContext != null ? sslContext.getSocketFactory() : null,
+                    DefaultAddressResolver.INSTANCE);
             requesterRef.compareAndSet(null, requester);
         } else {
             throw new IllegalStateException("Requester has already been started");

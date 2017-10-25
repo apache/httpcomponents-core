@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -176,7 +177,8 @@ public class RequesterBootstrap {
                 socketConfig != null ? socketConfig : SocketConfig.DEFAULT,
                 connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
                         H1Config.DEFAULT, CharCodingConfig.DEFAULT),
-                sslSocketFactory);
+                sslSocketFactory,
+                DefaultAddressResolver.INSTANCE);
     }
 
 }
