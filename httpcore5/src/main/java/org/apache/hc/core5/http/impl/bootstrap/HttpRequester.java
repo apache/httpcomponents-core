@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.hc.core5.function.Resolver;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -51,6 +52,7 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.io.EofSensorInputStream;
@@ -85,6 +87,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
     private final SocketConfig socketConfig;
     private final HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
     private final SSLSocketFactory sslSocketFactory;
+    private final Resolver<HttpHost, InetSocketAddress> addressResolver;
 
     public HttpRequester(
             final HttpRequestExecutor requestExecutor,
@@ -92,7 +95,8 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
             final ManagedConnPool<HttpHost, HttpClientConnection> connPool,
             final SocketConfig socketConfig,
             final HttpConnectionFactory<? extends HttpClientConnection> connectFactory,
-            final SSLSocketFactory sslSocketFactory) {
+            final SSLSocketFactory sslSocketFactory,
+            final Resolver<HttpHost, InetSocketAddress> addressResolver) {
         this.requestExecutor = Args.notNull(requestExecutor, "Request executor");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.connPool = Args.notNull(connPool, "Connection pool");
@@ -100,6 +104,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
         this.connectFactory = connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
                 H1Config.DEFAULT, CharCodingConfig.DEFAULT);
         this.sslSocketFactory = sslSocketFactory != null ? sslSocketFactory : (SSLSocketFactory) SSLSocketFactory.getDefault();
+        this.addressResolver = addressResolver != null ? addressResolver : DefaultAddressResolver.INSTANCE;
     }
 
     @Override
@@ -229,25 +234,10 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
             sock.setSoLinger(true, linger);
         }
 
-        final String scheme = targetHost.getSchemeName();
-        int port = targetHost.getPort();
-        if (port < 0) {
-            if (URIScheme.HTTP.same(scheme)) {
-                port = 80;
-            } else if (URIScheme.HTTPS.same(scheme)) {
-                port = 443;
-            }
-        }
-        final InetSocketAddress targetAddress;
-        if (targetHost.getAddress() != null) {
-            targetAddress = new InetSocketAddress(targetHost.getAddress(), port);
-        } else {
-            targetAddress = new InetSocketAddress(targetHost.getHostName(), port);
-        }
+        final InetSocketAddress targetAddress = addressResolver.resolve(targetHost);
         sock.connect(targetAddress, socketConfig.getSoTimeout().toMillisIntBound());
-
-        if (URIScheme.HTTPS.same(scheme)) {
-            return sslSocketFactory.createSocket(sock, targetHost.getHostName(), port, true);
+        if (URIScheme.HTTPS.same(targetHost.getSchemeName())) {
+            return sslSocketFactory.createSocket(sock, targetHost.getHostName(), targetAddress.getPort(), true);
         } else {
             return sock;
         }

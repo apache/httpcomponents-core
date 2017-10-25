@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
@@ -97,7 +98,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                 session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
             }
 
-        });
+        }, DefaultAddressResolver.INSTANCE);
         this.connPool = Args.notNull(connPool, "Connection pool");
         this.tlsStrategy = tlsStrategy;
     }
