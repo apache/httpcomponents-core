@@ -121,7 +121,7 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
                     try {
                         responseTrigger.submitResponse(
                                 new BasicResponseProducer(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage()));
-                    } catch (HttpException | IOException ex2) {
+                    } catch (final HttpException | IOException ex2) {
                         failed(ex2);
                     }
                 } catch (final IOException ex) {

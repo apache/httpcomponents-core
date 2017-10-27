@@ -137,7 +137,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
             }
             try {
                 ioReactor.awaitShutdown(graceTime);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
             ioReactor.shutdown(ShutdownType.IMMEDIATE);

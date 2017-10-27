@@ -85,7 +85,7 @@ public final class FrameOutputBuffer {
 
         buffer[5] = (byte) (streamId >> 24 & 0xff);
         buffer[6] = (byte) (streamId >> 16 & 0xff);
-        buffer[7] = (byte) (streamId >> 8 & 0xff);;
+        buffer[7] = (byte) (streamId >> 8 & 0xff);
         buffer[8] = (byte) (streamId & 0xff);
 
         int frameLen = FrameConsts.HEAD_LEN;

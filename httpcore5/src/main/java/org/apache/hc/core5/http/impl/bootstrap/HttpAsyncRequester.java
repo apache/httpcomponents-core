@@ -357,7 +357,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
             });
 
-        } catch (IOException | HttpException ex) {
+        } catch (final IOException | HttpException ex) {
             exchangeHandler.failed(ex);
         }
     }
@@ -437,7 +437,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.getAndSet(null);
             if (poolEntry != null) {
                 poolEntry.discardConnection(ShutdownType.IMMEDIATE);
-                connPool.release(poolEntry, false);    ;
+                connPool.release(poolEntry, false);
             }
         }
 
