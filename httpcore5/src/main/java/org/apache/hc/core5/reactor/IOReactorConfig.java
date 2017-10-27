@@ -251,7 +251,7 @@ public final class IOReactorConfig {
         }
 
         public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
-            this.soTimeout = Timeout.of(soTimeout, timeUnit);;
+            this.soTimeout = Timeout.of(soTimeout, timeUnit);
             return this;
         }
 
@@ -266,7 +266,7 @@ public final class IOReactorConfig {
         }
 
         public Builder setSoLinger(final int soLinger, final TimeUnit timeUnit) {
-            this.soLinger = TimeValue.of(soLinger, timeUnit);;
+            this.soLinger = TimeValue.of(soLinger, timeUnit);
             return this;
         }
 

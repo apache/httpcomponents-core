@@ -446,8 +446,8 @@ public class TestingFramework {
             final ByteArrayInputStream bin = new ByteArrayInputStream(bos.toByteArray());
             final ObjectInputStream ois = new ObjectInputStream(bin);
             return ois.readObject();
-        } catch (ClassNotFoundException | IOException e) {
-            throw new TestingFrameworkException(e);
+        } catch (final ClassNotFoundException | IOException ex) {
+            throw new TestingFrameworkException(ex);
         }
     }
 }

@@ -211,7 +211,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
                 connection.close();
             }
             return result;
-        } catch (HttpException | IOException | RuntimeException ex) {
+        } catch (final HttpException | IOException | RuntimeException ex) {
             connection.shutdown(ShutdownType.IMMEDIATE);
             throw ex;
         }
@@ -358,7 +358,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
                 connectionHolder.releaseConnection();
             }
             return response;
-        } catch (HttpException | IOException | RuntimeException ex) {
+        } catch (final HttpException | IOException | RuntimeException ex) {
             connectionHolder.discardConnection();
             throw ex;
         }

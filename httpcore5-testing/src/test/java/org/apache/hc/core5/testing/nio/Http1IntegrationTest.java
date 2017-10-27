@@ -1246,7 +1246,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         try {
             future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assert.fail("CancellationException expected");
-        } catch (CancellationException ignore) {
+        } catch (final CancellationException ignore) {
             Assert.assertTrue(future4.isCancelled());
         }
     }
