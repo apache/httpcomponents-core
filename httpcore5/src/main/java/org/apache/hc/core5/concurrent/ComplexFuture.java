@@ -74,6 +74,20 @@ public final class ComplexFuture<T> extends BasicFuture<T> {
     }
 
     @Override
+    public boolean completed(final T result) {
+        final boolean completed = super.completed(result);
+        clearDependency();
+        return completed;
+    }
+
+    @Override
+    public boolean failed(final Exception exception) {
+        final boolean failed = super.failed(exception);
+        clearDependency();
+        return failed;
+    }
+
+    @Override
     public boolean cancel(final boolean mayInterruptIfRunning) {
         final boolean cancelled = super.cancel(mayInterruptIfRunning);
         final Cancellable dependency = dependencyRef.getAndSet(null);
