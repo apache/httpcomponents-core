@@ -28,8 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -41,54 +39,36 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
-import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequester;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequesterBootstrap;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-@RunWith(Parameterized.class)
-public class Http2ServerAndRequesterTest {
+@Ignore
+public class Http2ServerAndMultiplexingRequesterTest {
 
     private final Logger log = LogManager.getLogger(getClass());
 
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> protocols() {
-        return Arrays.asList(new Object[][]{
-                { HttpVersionPolicy.NEGOTIATE },
-                { HttpVersionPolicy.FORCE_HTTP_1 },
-                { HttpVersionPolicy.FORCE_HTTP_2 }
-        });
-    }
-
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
-
-    private final HttpVersionPolicy versionPolicy;
-
-    public Http2ServerAndRequesterTest(final HttpVersionPolicy versionPolicy) {
-        this.versionPolicy = versionPolicy;
-    }
+    private static final Timeout TIMEOUT = Timeout.ofDays(30);
 
     private HttpAsyncServer server;
 
@@ -99,15 +79,13 @@ public class Http2ServerAndRequesterTest {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             server = H2ServerBootstrap.bootstrap()
-                    .setVersionPolicy(versionPolicy)
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
-                    .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                    .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
                         @Override
@@ -140,7 +118,7 @@ public class Http2ServerAndRequesterTest {
 
     };
 
-    private HttpAsyncRequester requester;
+    private Http2MultiplexingRequester requester;
 
     @Rule
     public ExternalResource clientResource = new ExternalResource() {
@@ -148,16 +126,13 @@ public class Http2ServerAndRequesterTest {
         @Override
         protected void before() throws Throwable {
             log.debug("Starting up test client");
-            requester = H2RequesterBootstrap.bootstrap()
-                    .setVersionPolicy(versionPolicy)
+            requester = Http2MultiplexingRequesterBootstrap.bootstrap()
                     .setIOReactorConfig(IOReactorConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
-                    .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
-                    .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                    .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .create();
         }
 
@@ -226,7 +201,7 @@ public class Http2ServerAndRequesterTest {
     }
 
     @Test
-    public void testSequentialRequestsSameEndpoint() throws Exception {
+    public void testMultiplexedRequests() throws Exception {
         server.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
@@ -234,89 +209,78 @@ public class Http2ServerAndRequesterTest {
         requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort());
-        final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
-        final AsyncClientEndpoint endpoint = endpointFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        try {
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
 
-            final Future<Message<HttpResponse, String>> resultFuture1 = endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/stuff",
-                            new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.assertThat(message1, CoreMatchers.notNullValue());
-            final HttpResponse response1 = message1.getHead();
-            Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-            final String body1 = message1.getBody();
-            Assert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+        queue.add(requester.execute(
+                new BasicRequestProducer("POST", target, "/stuff",
+                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null));
+        queue.add(requester.execute(
+                new BasicRequestProducer("POST", target, "/other-stuff",
+                        new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null));
+        queue.add(requester.execute(
+                new BasicRequestProducer("POST", target, "/more-stuff",
+                        new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null));
 
-            final Future<Message<HttpResponse, String>> resultFuture2 = endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/other-stuff",
-                            new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.assertThat(message2, CoreMatchers.notNullValue());
-            final HttpResponse response2 = message2.getHead();
-            Assert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-            final String body2 = message2.getBody();
-            Assert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
-
-            final Future<Message<HttpResponse, String>> resultFuture3 = endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/more-stuff",
-                            new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.assertThat(message3, CoreMatchers.notNullValue());
-            final HttpResponse response3 = message3.getHead();
-            Assert.assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-            final String body3 = message3.getBody();
-            Assert.assertThat(body3, CoreMatchers.equalTo("some more stuff"));
-
-        } finally {
-            endpoint.releaseAndReuse();
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> resultFuture = queue.remove();
+            final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.assertThat(message, CoreMatchers.notNullValue());
+            final HttpResponse response = message.getHead();
+            Assert.assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            final String body = message.getBody();
+            Assert.assertThat(body, CoreMatchers.containsString("stuff"));
         }
     }
 
     @Test
-    public void testPipelinedRequests() throws Exception {
+    public void testValidityCheck() throws Exception {
         server.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
+        requester.setValidateAfterInactivity(TimeValue.ofMillis(10));
 
         final HttpHost target = new HttpHost("localhost", address.getPort());
-        final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
-        final AsyncClientEndpoint endpoint = endpointFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        try {
+        final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
+                new BasicRequestProducer("POST", target, "/stuff",
+                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assert.assertThat(message1, CoreMatchers.notNullValue());
+        final HttpResponse response1 = message1.getHead();
+        Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        final String body1 = message1.getBody();
+        Assert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
 
-            final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+        Thread.sleep(100);
 
-            queue.add(endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/stuff",
-                            new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
-            queue.add(endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/other-stuff",
-                            new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
-            queue.add(endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/more-stuff",
-                            new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
+        final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
+                new BasicRequestProducer("POST", target, "/other-stuff",
+                        new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+        final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assert.assertThat(message2, CoreMatchers.notNullValue());
+        final HttpResponse response2 = message2.getHead();
+        Assert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        final String body2 = message2.getBody();
+        Assert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
 
-            while (!queue.isEmpty()) {
-                final Future<Message<HttpResponse, String>> resultFuture = queue.remove();
-                final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-                Assert.assertThat(message, CoreMatchers.notNullValue());
-                final HttpResponse response = message.getHead();
-                Assert.assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-                final String body = message.getBody();
-                Assert.assertThat(body, CoreMatchers.containsString("stuff"));
-            }
+        Thread.sleep(100);
 
-        } finally {
-            endpoint.releaseAndReuse();
-        }
+        final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
+                new BasicRequestProducer("POST", target, "/more-stuff",
+                        new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+        final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assert.assertThat(message3, CoreMatchers.notNullValue());
+        final HttpResponse response3 = message3.getHead();
+        Assert.assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        final String body3 = message3.getBody();
+        Assert.assertThat(body3, CoreMatchers.equalTo("some more stuff"));
     }
 
 }
