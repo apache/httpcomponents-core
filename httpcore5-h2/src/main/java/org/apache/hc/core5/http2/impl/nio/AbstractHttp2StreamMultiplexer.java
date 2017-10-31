@@ -449,9 +449,9 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             }
         }
 
-        if (connState.compareTo(ConnectionHandshake.SHUTDOWN) < 0 && remoteSettingState == SettingsHandshake.ACKED) {
+        if (connState.compareTo(ConnectionHandshake.SHUTDOWN) < 0) {
 
-            if (connOutputWindow.get() > 0) {
+            if (connOutputWindow.get() > 0 && remoteSettingState == SettingsHandshake.ACKED) {
                 produceOutput();
             }
             final int pendingOutputRequests = outputRequests.get();
