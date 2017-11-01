@@ -1,13 +1,86 @@
-Release 5.0-ALPHA5
+Release 5.0-BETA1
 -------------------
 
-...TODO...
+This is a major release that renders HttpCore API incompatible with the stable 4.x branch
+and upgrades HTTP/1.1 and HTTP/2 protocol conformance to the requirements and recommendations
+of the latest protocol specification.
+
+Notable new features in this release:
+
+* New HTTP/2 requester optimized for multiplexed execution of requests.
+
+Notable changes and features included in the 5.0 series:
+
+* Support for HTTP/2 protocol and conformance to requirements and recommendations
+  of the latest HTTP/2 protocol specification (RFC 7540, RFC 7541)
+
+  Supported features:
+
+    ** HPACK header compression
+    ** stream multiplexing (client and server)
+    ** flow control
+    ** response push (client and server)
+    ** message trailers
+    ** expect-continue handshake
+    ** connection validation (ping)
+    ** application-layer protocol negotiation (ALPN) on Java 9+
+    ** TLS 1.2 security features
+
+   Features out of scope for 5.0 release:
+
+    ** padding of outgoing frames
+    ** stream priority
+    ** plain connection HTTP/1.1 upgrade
+    ** CONNECT method
+
+* Improved conformance to requirements and recommendations of the latest HTTP/1.1 protocol
+  specification (RFC 7230, RFC 7231)
+
+* New asynchronous HTTP transport APIs consistent for both HTTP/1.1 and HTTP/2 transport.
+
+* Redesigned I/O reactor APIs and improved NIO based reactor implementation for a greater
+  performance and scalability.
+
+* Support for server side request filters for classic and asynchronous server implementations.
+  Request filters could be used to implement cross-cutting protocol aspects such
+  as the 'expect-continue' handshaking and user authentication / authorization.
+
+* Redesigned connection pool implementation with strict connection limit guarantees.
+  The connection pool is expected to have a better performance under higher concurrency
+  due to reduced global pool lock contention.
+
+* New connection pool implementation with lax connection limit guarantees and better
+  performance under higher concurrency due to absence of a global pool lock.
+
+* Package name space changed to 'org.apache.hc.core5'
+
+* Maven group id changed to 'org.apache.httpcomponents.core5'
+
+HttpCore 5.0 releases can be co-located with earlier versions.
+
+The 5.0 APIs are considered feature complete and are not expected to undergo any major changes
+anymore. The focus of development is now shifting to API polish, code stabilisation
+and documentation improvements.
+
 
 Changelog
 -------------------
 
+* HTTP/2 multiplexing requester.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Compatibility with Java 9 (tested with Oracle JDK 9.0.1).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed handling of relative request paths in BasicHttpRequest.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * HTTPCORE-494: Add image constants to ContentType.
   Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-486: set a time limit on processing of pending I/O events by I/O reactors.
+  Contributed by xiaohu-zhang <silver9886@126.com>
+
 
 
 Release 5.0-ALPHA4
