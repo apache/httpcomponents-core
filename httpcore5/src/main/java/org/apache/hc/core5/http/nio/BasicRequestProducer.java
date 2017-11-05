@@ -78,6 +78,11 @@ public class BasicRequestProducer implements AsyncRequestProducer {
     }
 
     @Override
+    public boolean isRepeatable() {
+        return dataProducer == null || dataProducer.isRepeatable();
+    }
+
+    @Override
     public void failed(final Exception cause) {
         try {
             if (dataProducer != null) {

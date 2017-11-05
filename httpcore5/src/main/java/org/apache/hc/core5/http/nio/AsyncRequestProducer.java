@@ -39,6 +39,8 @@ public interface AsyncRequestProducer extends AsyncDataProducer {
 
     void sendRequest(RequestChannel requestChannel) throws HttpException, IOException;
 
+    boolean isRepeatable();
+
     void failed(Exception cause);
 
 }
