@@ -27,15 +27,12 @@
 
 package org.apache.hc.core5.http;
 
-
 /**
  * Signals that an HTTP method is not supported.
  *
  * @since 4.0
  */
-public class MethodNotSupportedException extends HttpException {
-
-    private static final long serialVersionUID = 3365359036840171201L;
+public class MethodNotSupportedException extends ProtocolException {
 
     /**
      * Creates a new MethodNotSupportedException with the specified detail message.
