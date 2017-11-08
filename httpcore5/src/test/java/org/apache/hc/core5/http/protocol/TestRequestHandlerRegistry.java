@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import org.apache.hc.core5.function.Factory;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
@@ -42,10 +42,10 @@ public class TestRequestHandlerRegistry {
 
     @Before
     public void setUp() {
-        handlerRegistry = new RequestHandlerRegistry<>("myhost", new Factory<LookupRegistry<String>>() {
+        handlerRegistry = new RequestHandlerRegistry<>("myhost", new Supplier<LookupRegistry<String>>() {
 
             @Override
-            public LookupRegistry<String> create() {
+            public LookupRegistry<String> get() {
                 return new UriPatternMatcher<>();
             }
 

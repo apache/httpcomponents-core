@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.function.Factory;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestMapper;
 import org.apache.hc.core5.http.MisdirectedRequestException;
@@ -46,31 +46,31 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
     private final static String LOCALHOST = "localhost";
 
     private final String canonicalHostName;
-    private final Factory<LookupRegistry<T>> registryFactory;
+    private final Supplier<LookupRegistry<T>> registrySupplier;
     private final LookupRegistry<T> primary;
     private final ConcurrentMap<String, LookupRegistry<T>> virtualMap;
 
-    public RequestHandlerRegistry(final String canonicalHostName, final Factory<LookupRegistry<T>> registryFactory) {
+    public RequestHandlerRegistry(final String canonicalHostName, final Supplier<LookupRegistry<T>> registrySupplier) {
         this.canonicalHostName = Args.notNull(canonicalHostName, "Canonical hostname").toLowerCase(Locale.ROOT);
-        this.registryFactory = registryFactory != null ? registryFactory : new Factory<LookupRegistry<T>>() {
+        this.registrySupplier = registrySupplier != null ? registrySupplier : new Supplier<LookupRegistry<T>>() {
 
             @Override
-            public LookupRegistry<T> create() {
+            public LookupRegistry<T> get() {
                 return new UriPatternMatcher<>();
             }
 
         };
-        this.primary = this.registryFactory.create();
+        this.primary = this.registrySupplier.get();
         this.virtualMap = new ConcurrentHashMap<>();
     }
 
 
 
     public RequestHandlerRegistry(final String canonicalHostName, final UriPatternType patternType) {
-        this(canonicalHostName, new Factory<LookupRegistry<T>>() {
+        this(canonicalHostName, new Supplier<LookupRegistry<T>>() {
 
             @Override
-            public LookupRegistry<T> create() {
+            public LookupRegistry<T> get() {
                 return UriPatternType.newMatcher(patternType);
             }
 
@@ -122,7 +122,7 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
         } else {
             LookupRegistry<T> patternMatcher = virtualMap.get(key);
             if (patternMatcher == null) {
-                final LookupRegistry<T> newPatternMatcher = registryFactory.create();
+                final LookupRegistry<T> newPatternMatcher = registrySupplier.get();
                 patternMatcher = virtualMap.putIfAbsent(key, newPatternMatcher);
                 if (patternMatcher == null) {
                     patternMatcher = newPatternMatcher;
