@@ -39,7 +39,7 @@ import org.apache.hc.core5.util.Args;
  * @param <T> the future result type of an asynchronous operation.
  * @since 5.0
  */
-public final class ComplexFuture<T> extends BasicFuture<T> {
+public final class ComplexFuture<T> extends BasicFuture<T> implements CancellableDependency {
 
     private final AtomicReference<Cancellable> dependencyRef;
 
@@ -48,6 +48,7 @@ public final class ComplexFuture<T> extends BasicFuture<T> {
         this.dependencyRef = new AtomicReference<>(null);
     }
 
+    @Override
     public void setDependency(final Cancellable dependency) {
         Args.notNull(dependency, "dependency");
         if (isDone()) {
@@ -59,31 +60,31 @@ public final class ComplexFuture<T> extends BasicFuture<T> {
 
     public void setDependency(final Future<?> dependency) {
         Args.notNull(dependency, "dependency");
-        setDependency(new Cancellable() {
+        if (dependency instanceof Cancellable) {
+            setDependency((Cancellable) dependency);
+        } else {
+            setDependency(new Cancellable() {
 
-            @Override
-            public boolean cancel() {
-                return dependency.cancel(true);
-            }
+                @Override
+                public boolean cancel() {
+                    return dependency.cancel(true);
+                }
 
-        });
-    }
-
-    public void clearDependency() {
-        dependencyRef.set(null);
+            });
+        }
     }
 
     @Override
     public boolean completed(final T result) {
         final boolean completed = super.completed(result);
-        clearDependency();
+        dependencyRef.set(null);
         return completed;
     }
 
     @Override
     public boolean failed(final Exception exception) {
         final boolean failed = super.failed(exception);
-        clearDependency();
+        dependencyRef.set(null);
         return failed;
     }
 
