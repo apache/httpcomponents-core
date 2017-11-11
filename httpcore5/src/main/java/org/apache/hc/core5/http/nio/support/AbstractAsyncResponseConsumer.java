@@ -87,7 +87,8 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
 
             });
         } else {
-            resultCallback.completed(buildResult(response, null, null));
+            result = buildResult(response, null, null);
+            resultCallback.completed(result);
             entityConsumer.releaseResources();
         }
 
