@@ -30,10 +30,12 @@ package org.apache.hc.core5.testing.nio;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -67,6 +69,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
 
 public class Http2ALPNTest {
@@ -159,6 +162,9 @@ public class Http2ALPNTest {
 
     };
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private static int javaVersion;
 
     @BeforeClass
@@ -202,6 +208,47 @@ public class Http2ALPNTest {
         Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body1 = message1.getBody();
         Assert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+    }
+
+    @Test()
+    public void testALPNStrict() throws Exception {
+
+        thrown.expect(HttpException.class);
+        thrown.expectMessage("ALPN: missing application protocol");
+
+        log.debug("Starting up test client");
+        requester = Http2MultiplexingRequesterBootstrap.bootstrap()
+                .setIOReactorConfig(IOReactorConfig.custom()
+                        .setSoTimeout(TIMEOUT)
+                        .build())
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+                .setStrictALPNHandshake(true)
+                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
+                .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
+                .create();
+
+        server.start();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
+        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+        requester.start();
+
+        final HttpHost target = new HttpHost("localhost", address.getPort(), URIScheme.HTTPS.id);
+        final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
+                new BasicRequestProducer("POST", target, "/stuff",
+                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+        try {
+            resultFuture1.get();
+            Assert.fail("ExecutionException expected");
+        } catch (final ExecutionException ex) {
+            if (ex.getCause() instanceof HttpException) {
+                throw (Exception) ex.getCause();
+            } else {
+                throw ex;
+            }
+        }
     }
 
 }

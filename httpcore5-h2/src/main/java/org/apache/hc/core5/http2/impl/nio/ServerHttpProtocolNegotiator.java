@@ -36,15 +36,15 @@ import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.ShutdownType;
@@ -111,8 +111,12 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     @Override
     public void inputReady(final IOSession session) {
         try {
+            boolean endOfStream = false;
             if (bytebuf.position() < PREFACE.length) {
-                session.channel().read(bytebuf);
+                final int bytesRead = session.channel().read(bytebuf);
+                if (bytesRead == -1) {
+                    endOfStream = true;
+                }
             }
             if (bytebuf.position() >= PREFACE.length) {
                 bytebuf.flip();
@@ -121,7 +125,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 for (int i = 0; i < PREFACE.length; i++) {
                     if (bytebuf.get() != PREFACE[i]) {
                         if (expectValidH2Preface) {
-                            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected HTTP/2 preface");
+                            throw new HttpException("Unexpected HTTP/2 preface");
                         } else {
                             validH2Preface = false;
                         }
@@ -141,6 +145,10 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     bytebuf.rewind();
                     http1StreamHandler.onConnect(bytebuf);
                     http1StreamHandler.onInput();
+                }
+            } else {
+                if (endOfStream) {
+                    throw new ConnectionClosedException("Connection closed");
                 }
             }
         } catch (final Exception ex) {
