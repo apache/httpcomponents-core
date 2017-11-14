@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.nio.ssl;
 
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 import javax.net.ssl.SSLContext;
@@ -48,46 +47,46 @@ import org.apache.hc.core5.util.Args;
  */
 public class BasicServerTlsStrategy implements TlsStrategy {
 
-    private final int[] securePorts;
     private final SSLContext sslContext;
+    private final SecurePortStrategy securePortStrategy;
     private final SSLBufferManagement sslBufferManagement;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
 
     public BasicServerTlsStrategy(
-            final int[] securePorts,
             final SSLContext sslContext,
+            final SecurePortStrategy securePortStrategy,
             final SSLBufferManagement sslBufferManagement,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
-        this.securePorts = Args.notNull(securePorts, "Array of ports");
         this.sslContext = Args.notNull(sslContext, "SSL context");
+        this.securePortStrategy = securePortStrategy;
         this.sslBufferManagement = sslBufferManagement;
         this.initializer = initializer;
         this.verifier = verifier;
     }
 
     public BasicServerTlsStrategy(
-            final int[] securePorts,
             final SSLContext sslContext,
+            final SecurePortStrategy securePortStrategy,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
-        this(securePorts, sslContext, null, initializer, verifier);
+        this(sslContext, securePortStrategy, null, initializer, verifier);
     }
 
     public BasicServerTlsStrategy(
-            final int[] securePorts,
             final SSLContext sslContext,
+            final SecurePortStrategy securePortStrategy,
             final SSLSessionVerifier verifier) {
-        this(securePorts, sslContext, null, null, verifier);
+        this(sslContext, securePortStrategy, null, null, verifier);
     }
 
-    public BasicServerTlsStrategy(final int[] securePorts, final SSLContext sslContext) {
-        this(securePorts, sslContext, null, null, null);
+    public BasicServerTlsStrategy(final SSLContext sslContext, final SecurePortStrategy securePortStrategy) {
+        this(sslContext, securePortStrategy, null, null, null);
     }
 
-    public BasicServerTlsStrategy(final int[] securePorts) {
-        this(securePorts, SSLContexts.createSystemDefault());
+    public BasicServerTlsStrategy(final SecurePortStrategy securePortStrategy) {
+        this(SSLContexts.createSystemDefault(), securePortStrategy);
     }
 
     @Override
@@ -97,12 +96,9 @@ public class BasicServerTlsStrategy implements TlsStrategy {
             final SocketAddress localAddress,
             final SocketAddress remoteAddress,
             final Object attachment) {
-        final int port = ((InetSocketAddress) localAddress).getPort();
-        for (final int securePort: securePorts) {
-            if (port == securePort) {
-                tlsSession.startTls(sslContext, sslBufferManagement, initializer, verifier);
-                return true;
-            }
+        if (securePortStrategy != null && securePortStrategy.isSecure(localAddress)) {
+            tlsSession.startTls(sslContext, sslBufferManagement, initializer, verifier);
+            return true;
         }
         return false;
     }

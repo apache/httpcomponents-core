@@ -25,17 +25,32 @@
  *
  */
 
-package org.apache.hc.core5.http2.ssl;
+package org.apache.hc.core5.http.nio.ssl;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+import org.apache.hc.core5.util.Args;
+
 /**
- * Side-side strategy to determine if local endpoint should be secured with TLS.
- *
  * @since 5.0
  */
-public interface SecurePortStrategy {
+public final class FixedPortStrategy implements SecurePortStrategy {
 
-    boolean isSecure(SocketAddress localAddress);
+    private final int[] securePorts;
+
+    public FixedPortStrategy(final int[] securePorts) {
+        this.securePorts = Args.notNull(securePorts, "Secure ports");
+    }
+
+    public boolean isSecure(final SocketAddress localAddress) {
+        final int port = ((InetSocketAddress) localAddress).getPort();
+        for (final int securePort: securePorts) {
+            if (port == securePort) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

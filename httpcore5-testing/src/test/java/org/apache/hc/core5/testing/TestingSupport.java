@@ -25,32 +25,25 @@
  *
  */
 
-package org.apache.hc.core5.http2.ssl;
+package org.apache.hc.core5.testing;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+public final class TestingSupport {
 
-import org.apache.hc.core5.util.Args;
-
-/**
- * @since 5.0
- */
-public final class FixedPortStrategy implements SecurePortStrategy {
-
-    private final int[] securePorts;
-
-    public FixedPortStrategy(final int[] securePorts) {
-        this.securePorts = Args.notNull(securePorts, "Secure ports");
-    }
-
-    public boolean isSecure(final SocketAddress localAddress) {
-        final int port = ((InetSocketAddress) localAddress).getPort();
-        for (final int securePort: securePorts) {
-            if (port == securePort) {
-                return true;
+    public static int determineJRELevel() {
+        final String s = System.getProperty("java.version");
+        final String[] parts = s.split("\\.");
+        if (parts.length > 0) {
+            try {
+                final int majorVersion = Integer.parseInt(parts[0]);
+                if (majorVersion > 1) {
+                    return majorVersion;
+                } else if (majorVersion == 1 && parts.length > 1) {
+                    return Integer.parseInt(parts[1]);
+                }
+            } catch (final NumberFormatException ignore) {
             }
         }
-        return false;
+        return 7;
     }
 
 }
