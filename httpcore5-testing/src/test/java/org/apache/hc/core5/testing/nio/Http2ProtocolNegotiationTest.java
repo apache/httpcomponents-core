@@ -47,18 +47,19 @@ import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2AsyncRequester;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
-import org.apache.hc.core5.http2.ssl.SecurePortStrategy;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.TestingSupport;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.apache.hc.core5.util.Timeout;
@@ -101,6 +102,16 @@ public class Http2ProtocolNegotiationTest {
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
+                    .setTlsStrategy(new H2ServerTlsStrategy(
+                            SSLTestContexts.createServerSSLContext(),
+                            new SecurePortStrategy() {
+
+                                @Override
+                                public boolean isSecure(final SocketAddress localAddress) {
+                                    return true;
+                                }
+
+                            }))
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
                         @Override
@@ -151,6 +162,7 @@ public class Http2ProtocolNegotiationTest {
                     .setIOReactorConfig(IOReactorConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
+                    .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
@@ -184,20 +196,7 @@ public class Http2ProtocolNegotiationTest {
 
     @BeforeClass
     public static void determineJavaVersion() {
-        javaVersion = 7;
-        final String s = System.getProperty("java.version");
-        final String[] parts = s.split("\\.");
-        if (parts.length > 0) {
-            try {
-                final int majorVersion = Integer.parseInt(parts[0]);
-                if (majorVersion > 1) {
-                    javaVersion = majorVersion;
-                } else if (majorVersion == 1 && parts.length > 1) {
-                    javaVersion = Integer.parseInt(parts[1]);
-                }
-            } catch (final NumberFormatException ignore) {
-            }
-        }
+        javaVersion = TestingSupport.determineJRELevel();
     }
 
     @Before
