@@ -65,6 +65,7 @@ public class Http2MultiplexingRequesterBootstrap {
     private CharCodingConfig charCodingConfig;
     private H2Config h2Config;
     private TlsStrategy tlsStrategy;
+    private boolean strictALPNHandshake;
     private Decorator<IOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
     private Http2StreamListener streamListener;
@@ -114,6 +115,12 @@ public class Http2MultiplexingRequesterBootstrap {
      */
     public final Http2MultiplexingRequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
+        return this;
+    }
+
+
+    public final Http2MultiplexingRequesterBootstrap setStrictALPNHandshake(final boolean strictALPNHandshake) {
+        this.strictALPNHandshake = strictALPNHandshake;
         return this;
     }
 
@@ -196,7 +203,7 @@ public class Http2MultiplexingRequesterBootstrap {
 
                     @Override
                     public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
-                        return new Http2OnlyClientProtocolNegotiator(ioSession, http2StreamHandlerFactory);
+                        return new Http2OnlyClientProtocolNegotiator(ioSession, http2StreamHandlerFactory, strictALPNHandshake);
                     }
 
                 },
