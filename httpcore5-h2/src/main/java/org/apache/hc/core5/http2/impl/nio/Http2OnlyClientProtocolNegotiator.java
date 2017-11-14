@@ -39,12 +39,11 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
@@ -53,6 +52,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.TlsCapableIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * @since 5.0
@@ -62,14 +62,17 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
 
     private final TlsCapableIOSession ioSession;
     private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
+    private final boolean strictALPNHandshake;
 
     private final ByteBuffer preface;
 
     public Http2OnlyClientProtocolNegotiator(
             final TlsCapableIOSession ioSession,
-            final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory) {
+            final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
+            final boolean strictALPNHandshake) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
+        this.strictALPNHandshake = strictALPNHandshake;
         this.preface = ByteBuffer.wrap(ClientHttpProtocolNegotiator.PREFACE);
     }
 
@@ -79,10 +82,13 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
             final TlsDetails tlsDetails = ioSession.getTlsDetails();
             if (tlsDetails != null) {
                 final String applicationProtocol = tlsDetails.getApplicationProtocol();
-                if (applicationProtocol != null) {
+                if (TextUtils.isEmpty(applicationProtocol)) {
+                    if (strictALPNHandshake) {
+                        throw new HttpException("ALPN: missing application protocol");
+                    }
+                } else {
                     if (!ApplicationProtocols.HTTP_2.id.equals(applicationProtocol)) {
-                        throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected application protocol: " +
-                                applicationProtocol);
+                        throw new HttpException("ALPN: unexpected application protocol '" + applicationProtocol + "'");
                     }
                 }
             }
