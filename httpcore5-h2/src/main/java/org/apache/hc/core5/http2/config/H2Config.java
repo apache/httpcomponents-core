@@ -48,11 +48,9 @@ public class H2Config {
     private final int initialWindowSize;
     private final int maxFrameSize;
     private final int maxHeaderListSize;
-    private final boolean settingAckNeeded;
 
     H2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
-             final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize,
-             final boolean settingAckNeeded) {
+             final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize) {
         super();
         this.headerTableSize = headerTableSize;
         this.pushEnabled = pushEnabled;
@@ -60,7 +58,6 @@ public class H2Config {
         this.initialWindowSize = initialWindowSize;
         this.maxFrameSize = maxFrameSize;
         this.maxHeaderListSize = maxHeaderListSize;
-        this.settingAckNeeded = settingAckNeeded;
     }
 
     public int getHeaderTableSize() {
@@ -87,10 +84,6 @@ public class H2Config {
         return maxHeaderListSize;
     }
 
-    public boolean isSettingAckNeeded() {
-        return settingAckNeeded;
-    }
-
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -100,7 +93,6 @@ public class H2Config {
                 .append(", initialWindowSize=").append(this.initialWindowSize)
                 .append(", maxFrameSize=").append(this.maxFrameSize)
                 .append(", maxHeaderListSize=").append(this.maxHeaderListSize)
-                .append(", settingAckNeeded=").append(this.settingAckNeeded)
                 .append("]");
         return builder.toString();
     }
@@ -117,8 +109,7 @@ public class H2Config {
                 .setMaxConcurrentStreams(config.getMaxConcurrentStreams())
                 .setInitialWindowSize(config.getInitialWindowSize())
                 .setMaxFrameSize(config.getMaxFrameSize())
-                .setMaxHeaderListSize(config.getMaxHeaderListSize())
-                .setSettingAckNeeded(config.isSettingAckNeeded());
+                .setMaxHeaderListSize(config.getMaxHeaderListSize());
     }
 
     public static class Builder {
@@ -129,7 +120,6 @@ public class H2Config {
         private int initialWindowSize;
         private int maxFrameSize;
         private int maxHeaderListSize;
-        private boolean settingAckNeeded;
 
         Builder() {
             this.headerTableSize = 8192;
@@ -138,7 +128,6 @@ public class H2Config {
             this.initialWindowSize = 65535;
             this.maxFrameSize  = FrameConsts.MIN_FRAME_SIZE * 4;
             this.maxHeaderListSize = FrameConsts.MAX_FRAME_SIZE;
-            this.settingAckNeeded = true;
         }
 
         public Builder setHeaderTableSize(final int headerTableSize) {
@@ -176,15 +165,9 @@ public class H2Config {
             return this;
         }
 
-        public Builder setSettingAckNeeded(final boolean settingAckNeeded) {
-            this.settingAckNeeded = settingAckNeeded;
-            return this;
-        }
-
         public H2Config build() {
             return new H2Config(
-                    headerTableSize, pushEnabled, maxConcurrentStreams, initialWindowSize, maxFrameSize, maxHeaderListSize,
-                    settingAckNeeded);
+                    headerTableSize, pushEnabled, maxConcurrentStreams, initialWindowSize, maxFrameSize, maxHeaderListSize);
         }
 
     }

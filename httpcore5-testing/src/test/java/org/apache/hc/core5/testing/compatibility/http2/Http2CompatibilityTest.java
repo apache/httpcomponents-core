@@ -78,8 +78,6 @@ public class Http2CompatibilityTest {
             case APACHE_HTTPD:
                 h2Config = H2Config.custom()
                         .setPushEnabled(true)
-                        // Required for compatibility with Apache HTTPD 2.4
-                        .setSettingAckNeeded(false)
                         .build();
                 break;
             case NGINX:
