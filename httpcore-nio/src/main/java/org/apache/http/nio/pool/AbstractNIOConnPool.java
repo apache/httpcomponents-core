@@ -408,7 +408,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
 
         final long now = System.currentTimeMillis();
         if (now > deadline) {
-            request.failed(new TimeoutException());
+            request.failed(new TimeoutException("Connection lease request time out"));
             return false;
         }
 
@@ -528,7 +528,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 } else {
                     final long deadline = request.getDeadline();
                     if (now > deadline) {
-                        request.failed(new TimeoutException());
+                        request.failed(new TimeoutException("Connection lease request time out"));
                     }
                     if (request.isDone()) {
                         it.remove();
