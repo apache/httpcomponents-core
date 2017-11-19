@@ -42,11 +42,14 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
+import org.apache.hc.core5.http.impl.nio.ServerSupport;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
+import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -198,11 +201,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
                 context.setProtocolVersion(HttpVersion.HTTP_2);
                 context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
-                httpProcessor.process(request, requestEntityDetails, context);
-                connMetrics.incrementRequestCount();
-                receivedRequest = request;
-
-                exchangeHandler.handleRequest(request, requestEntityDetails, new ResponseChannel() {
+                final ResponseChannel responseChannel = new ResponseChannel() {
 
                     @Override
                     public void sendInformation(final HttpResponse response) throws HttpException, IOException {
@@ -212,6 +211,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
                     @Override
                     public void sendResponse(
                             final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
+                        ServerSupport.validateResponse(response, responseEntityDetails);
                         commitResponse(response, responseEntityDetails);
                     }
 
@@ -221,7 +221,23 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
                         commitPromise(promise, pushProducer);
                     }
 
-                }, context);
+                };
+
+                try {
+                    httpProcessor.process(request, requestEntityDetails, context);
+                    connMetrics.incrementRequestCount();
+                    receivedRequest = request;
+
+                    exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
+                } catch (final HttpException ex) {
+                    if (!responseCommitted.get()) {
+                        final AsyncResponseProducer responseProducer = ServerSupport.handleException(ex);
+                        exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
+                        exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
+                    } else {
+                        throw ex;
+                    }
+                }
                 break;
             case BODY:
                 responseState = MessageState.COMPLETE;

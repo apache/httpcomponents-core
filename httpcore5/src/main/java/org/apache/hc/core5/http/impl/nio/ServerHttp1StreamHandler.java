@@ -39,16 +39,13 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.MisdirectedRequestException;
-import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -122,19 +119,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         this.responseState = MessageState.IDLE;
     }
 
-    private void validateResponse(
-            final HttpResponse response,
-            final EntityDetails responseEntityDetails) throws HttpException {
-        final int status = response.getCode();
-        switch (status) {
-            case HttpStatus.SC_NO_CONTENT:
-            case HttpStatus.SC_NOT_MODIFIED:
-                if (responseEntityDetails != null) {
-                    throw new HttpException("Response " + status + " must not enclose an entity");
-                }
-        }
-    }
-
     private void commitResponse(
             final HttpResponse response,
             final EntityDetails responseEntityDetails) throws HttpException, IOException {
@@ -203,30 +187,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         return requestState == MessageState.COMPLETE && responseState == MessageState.COMPLETE;
     }
 
-    AsyncResponseProducer handleException(final Exception ex) {
-        String message = ex.getMessage();
-        if (message == null) {
-            message = ex.toString();
-        }
-        return new BasicResponseProducer(toStatusCode(ex), message);
-    }
-
-    protected int toStatusCode(final Exception ex) {
-        final int code;
-        if (ex instanceof MethodNotSupportedException) {
-            code = HttpStatus.SC_NOT_IMPLEMENTED;
-        } else if (ex instanceof UnsupportedHttpVersionException) {
-            code = HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED;
-        } else if (ex instanceof NotImplementedException) {
-            code = HttpStatus.SC_NOT_IMPLEMENTED;
-        } else if (ex instanceof ProtocolException) {
-            code = HttpStatus.SC_BAD_REQUEST;
-        } else {
-            code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-        }
-        return code;
-    }
-
     void consumeHeader(final HttpRequest request, final EntityDetails requestEntityDetails) throws HttpException, IOException {
         if (done.get() || requestState != MessageState.HEADERS) {
             throw new ProtocolException("Unexpected message head");
@@ -265,7 +225,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             @Override
             public void sendResponse(
                     final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
-                validateResponse(response, responseEntityDetails);
+                ServerSupport.validateResponse(response, responseEntityDetails);
                 commitResponse(response, responseEntityDetails);
             }
 
@@ -281,7 +241,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
         } catch (final HttpException ex) {
             if (!responseCommitted.get()) {
-                final AsyncResponseProducer responseProducer = handleException(ex);
+                final AsyncResponseProducer responseProducer = ServerSupport.handleException(ex);
                 exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
                 exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
             } else {
