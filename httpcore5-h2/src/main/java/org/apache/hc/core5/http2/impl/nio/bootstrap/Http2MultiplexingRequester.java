@@ -34,7 +34,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.Cancellable;
+import org.apache.hc.core5.concurrent.CancellableDependency;
+import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
@@ -112,8 +114,21 @@ public class Http2MultiplexingRequester extends AsyncRequester{
         connPool.setValidateAfterInactivity(timeValue);
     }
 
-    public void execute(
+    public Cancellable execute(
             final AsyncClientExchangeHandler exchangeHandler,
+            final Timeout timeout,
+            final HttpContext context) {
+        Args.notNull(exchangeHandler, "Exchange handler");
+        Args.notNull(timeout, "Timeout");
+        Args.notNull(context, "Context");
+        final CancellableExecution cancellableExecution = new CancellableExecution();
+        execute(exchangeHandler, cancellableExecution, timeout, context);
+        return cancellableExecution;
+    }
+
+    private void execute(
+            final AsyncClientExchangeHandler exchangeHandler,
+            final CancellableDependency cancellableDependency,
             final Timeout timeout,
             final HttpContext context) {
         Args.notNull(exchangeHandler, "Exchange handler");
@@ -194,7 +209,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
                                     exchangeHandler.failed(cause);
                                 }
 
-                            }, context));
+                            }, cancellableDependency, context));
                         }
 
                         @Override
@@ -226,7 +241,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
         Args.notNull(requestProducer, "Request producer");
         Args.notNull(responseConsumer, "Response consumer");
         Args.notNull(timeout, "Timeout");
-        final BasicFuture<T> future = new BasicFuture<>(callback);
+        final ComplexFuture<T> future = new ComplexFuture<>(callback);
         final AsyncClientExchangeHandler exchangeHandler = new BasicClientExchangeHandler<>(requestProducer, responseConsumer, new FutureCallback<T>() {
 
             @Override
@@ -245,7 +260,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
             }
 
         });
-        execute(exchangeHandler, timeout, context != null ? context : HttpCoreContext.create());
+        execute(exchangeHandler, future, timeout, context != null ? context : HttpCoreContext.create());
         return future;
     }
 

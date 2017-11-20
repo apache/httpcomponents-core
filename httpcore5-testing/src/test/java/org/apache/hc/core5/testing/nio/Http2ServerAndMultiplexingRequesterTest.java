@@ -34,8 +34,11 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
+import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
@@ -50,6 +53,8 @@ import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
+import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequester;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequesterBootstrap;
@@ -332,6 +337,38 @@ public class Http2ServerAndMultiplexingRequesterTest {
         Assert.assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body3 = message3.getBody();
         Assert.assertThat(body3, CoreMatchers.equalTo("some more stuff"));
+    }
+
+    @Test
+    public void testMultiplexedRequestCancellation() throws Exception {
+        server.start();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
+        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+        requester.start();
+
+        final int reqNo = 20;
+
+        final CountDownLatch countDownLatch = new CountDownLatch(reqNo);
+        final Random random = new Random();
+        final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
+        for (int i = 0; i < reqNo; i++) {
+            final Cancellable cancellable = requester.execute(
+                    new BasicClientExchangeHandler<>(new BasicRequestProducer("POST", target, "/stuff",
+                            new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
+                            new BasicResponseConsumer<>(new StringAsyncEntityConsumer() {
+
+                                @Override
+                                public void releaseResources() {
+                                    super.releaseResources();
+                                    countDownLatch.countDown();
+                                }
+                            }), null), TIMEOUT, HttpCoreContext.create());
+            Thread.sleep(random.nextInt(10));
+            cancellable.cancel();
+        }
+        Assert.assertThat(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()), CoreMatchers.equalTo(true));
+        Thread.sleep(1500);
     }
 
 }
