@@ -30,13 +30,14 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 
-interface Http2StreamChannel extends DataStreamChannel, CapacityChannel {
+interface Http2StreamChannel extends DataStreamChannel, CapacityChannel, Cancellable {
 
     void submit(List<Header> headers, boolean endStream) throws HttpException, IOException;
 

@@ -60,6 +60,7 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
     private final AsyncPushProducer pushProducer;
     private final HttpCoreContext context;
     private final AtomicBoolean responseCommitted;
+    private final AtomicBoolean failed;
     private final AtomicBoolean done;
 
     private volatile MessageState requestState;
@@ -102,6 +103,7 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
         this.pushProducer = pushProducer;
         this.context = context;
         this.responseCommitted = new AtomicBoolean(false);
+        this.failed = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.COMPLETE;
         this.responseState = MessageState.IDLE;
@@ -220,15 +222,12 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
     @Override
     public void failed(final Exception cause) {
         try {
-            pushProducer.failed(cause);
+            if (failed.compareAndSet(false, true)) {
+                pushProducer.failed(cause);
+            }
         } finally {
             releaseResources();
         }
-    }
-
-    @Override
-    public void cancel() {
-        releaseResources();
     }
 
     @Override

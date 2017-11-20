@@ -36,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -45,6 +46,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLSession;
 
+import org.apache.hc.core5.concurrent.Cancellable;
+import org.apache.hc.core5.concurrent.CancellableDependency;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.Header;
@@ -597,10 +600,11 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
                 final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
+                final CancellableDependency cancellableDependency = executionCommand.getCancellableDependency();
                 final HttpCoreContext context = HttpCoreContext.adapt(executionCommand.getContext());
                 context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
                 context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
-                final Http2StreamHandler streamHandler = new ClientHttp2StreamHandler(
+                final ClientHttp2StreamHandler streamHandler = new ClientHttp2StreamHandler(
                         channel,
                         httpProcessor,
                         connMetrics,
@@ -612,7 +616,16 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 if (stream.isOutputReady()) {
                     stream.produceOutput();
                 }
+                if (cancellableDependency != null) {
+                    cancellableDependency.setDependency(new Cancellable() {
 
+                        @Override
+                        public boolean cancel() {
+                            return stream.abort();
+                        }
+
+                    });
+                }
                 if (!outputQueue.isEmpty()) {
                     return;
                 }
@@ -988,11 +1001,11 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 }
             }
         }
-        if (stream.isResetLocally()) {
-            return;
-        }
         if (stream.isRemoteClosed()) {
             throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
+        }
+        if (stream.isLocalReset()) {
+            return;
         }
         if (frame.isFlagSet(FrameFlag.END_STREAM)) {
             stream.setRemoteEndStream();
@@ -1041,14 +1054,14 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             if (streamListener != null) {
                 streamListener.onHeaderInput(this, streamId, headers);
             }
-            if (connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
-                throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, "Stream refused");
-            }
-            if (stream.isResetLocally()) {
-                return;
-            }
             if (stream.isRemoteClosed()) {
                 throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
+            }
+            if (stream.isLocalReset()) {
+                return;
+            }
+            if (connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
+                throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, "Stream refused");
             }
             if (frame.isFlagSet(FrameFlag.END_STREAM)) {
                 stream.setRemoteEndStream();
@@ -1074,11 +1087,11 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             if (connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
                 throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, "Stream refused");
             }
-            if (stream.isResetLocally()) {
-                return;
-            }
             if (stream.isRemoteClosed()) {
                 throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
+            }
+            if (stream.isLocalReset()) {
+                return;
             }
             if (continuation.endStream) {
                 stream.setRemoteEndStream();
@@ -1397,43 +1410,53 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             remoteEndStream = true;
         }
 
-        void setLocalEndStream() {
-            localEndStream = true;
-        }
-
         boolean isLocalClosed() {
             return localEndStream;
         }
 
-        boolean isClosed() {
-            return remoteEndStream && localEndStream;
-        }
-
-        void close() {
+        void setLocalEndStream() {
             localEndStream = true;
-            remoteEndStream = true;
         }
 
-        void localReset(final int code) throws IOException {
-            deadline = System.currentTimeMillis() + LINGER_TIME;
-            close();
-            if (!idle) {
-                outputLock.lock();
-                try {
+        boolean isLocalReset() {
+            return deadline > 0;
+        }
+
+        boolean isResetDeadline() {
+            final long l = deadline;
+            return l > 0 && l < System.currentTimeMillis();
+        }
+
+        boolean localReset(final int code) throws IOException {
+            outputLock.lock();
+            try {
+                if (localEndStream) {
+                    return false;
+                }
+                localEndStream = true;
+                deadline = System.currentTimeMillis() + LINGER_TIME;
+                if (!idle) {
                     final RawFrame resetStream = frameFactory.createResetStream(id, code);
                     commitFrameInternal(resetStream);
-                } finally {
-                    outputLock.unlock();
+                    return true;
                 }
+                return false;
+            } finally {
+                outputLock.unlock();
             }
         }
 
-        void localReset(final H2Error error) throws IOException {
-            localReset(error!= null ? error.getCode() : H2Error.INTERNAL_ERROR.getCode());
+        boolean localReset(final H2Error error) throws IOException {
+            return localReset(error!= null ? error.getCode() : H2Error.INTERNAL_ERROR.getCode());
         }
 
-        long getDeadline() {
-            return deadline;
+        @Override
+        public boolean cancel() {
+            try {
+                return localReset(H2Error.CANCEL);
+            } catch (final IOException ignore) {
+                return false;
+            }
         }
 
         @Override
@@ -1455,8 +1478,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         private final Http2StreamHandler handler;
         private final boolean remoteInitiated;
 
-        private volatile boolean resetLocally;
-
         private Http2Stream(
                 final Http2StreamChannelImpl channel,
                 final Http2StreamHandler handler,
@@ -1470,7 +1491,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             return channel.getId();
         }
 
-        public boolean isRemoteInitiated() {
+        boolean isRemoteInitiated() {
             return remoteInitiated;
         }
 
@@ -1483,7 +1504,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         }
 
         boolean isTerminated() {
-            return channel.isClosed() && channel.getDeadline() < System.currentTimeMillis();
+            return channel.isLocalClosed() && (channel.isRemoteClosed() || channel.isResetDeadline());
         }
 
         boolean isRemoteClosed() {
@@ -1492,6 +1513,10 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
         boolean isLocalClosed() {
             return channel.isLocalClosed();
+        }
+
+        boolean isLocalReset() {
+            return channel.isLocalReset();
         }
 
         void setRemoteEndStream() {
@@ -1542,12 +1567,12 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         }
 
         void reset(final Exception cause) {
-            channel.close();
+            channel.setRemoteEndStream();
+            channel.setLocalEndStream();
             handler.failed(cause);
         }
 
         void localReset(final Exception cause, final int code) throws IOException {
-            resetLocally = true;
             channel.localReset(code);
             handler.failed(cause);
         }
@@ -1560,13 +1585,14 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             localReset(ex, ex.getCode());
         }
 
-        public boolean isResetLocally() {
-            return resetLocally;
+        void cancel() {
+            reset(new CancellationException("HTTP/2 message exchange cancelled"));
         }
 
-        void cancel() {
-            channel.close();
-            handler.cancel();
+        boolean abort() {
+            final boolean cancelled = channel.cancel();
+            handler.failed(new CancellationException("HTTP/2 message exchange cancelled"));
+            return cancelled;
         }
 
         void releaseResources() {

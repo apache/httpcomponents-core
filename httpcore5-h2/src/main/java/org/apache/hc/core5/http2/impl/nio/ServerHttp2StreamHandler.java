@@ -68,6 +68,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final HttpCoreContext context;
     private final AtomicBoolean responseCommitted;
+    private final AtomicBoolean failed;
     private final AtomicBoolean done;
 
     private volatile AsyncServerExchangeHandler exchangeHandler;
@@ -112,6 +113,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
         this.exchangeHandlerFactory = exchangeHandlerFactory;
         this.context = context;
         this.responseCommitted = new AtomicBoolean(false);
+        this.failed = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.IDLE;
@@ -285,17 +287,14 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
     @Override
     public void failed(final Exception cause) {
         try {
-            if (exchangeHandler != null) {
-                exchangeHandler.failed(cause);
+            if (failed.compareAndSet(false, true)) {
+                if (exchangeHandler != null) {
+                    exchangeHandler.failed(cause);
+                }
             }
         } finally {
             releaseResources();
         }
-    }
-
-    @Override
-    public void cancel() {
-        releaseResources();
     }
 
     @Override
