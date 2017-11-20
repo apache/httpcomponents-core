@@ -59,6 +59,7 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
     private final BasicHttpConnectionMetrics connMetrics;
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
     private final HttpCoreContext context;
+    private final AtomicBoolean failed;
     private final AtomicBoolean done;
 
     private volatile HttpRequest request;
@@ -77,6 +78,7 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
         this.connMetrics = connMetrics;
         this.pushHandlerFactory = pushHandlerFactory;
         this.context = context;
+        this.failed = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.HEADERS;
@@ -171,16 +173,15 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
 
     @Override
     public void failed(final Exception cause) {
-        final AsyncPushConsumer localHandler = exchangeHandler;
-        if (localHandler != null) {
-            localHandler.failed(cause);
+        try {
+            if (failed.compareAndSet(false, true)) {
+                if (exchangeHandler != null) {
+                    exchangeHandler.failed(cause);
+                }
+            }
+        } finally {
+            releaseResources();
         }
-        releaseResources();
-    }
-
-    @Override
-    public void cancel() {
-        releaseResources();
     }
 
     @Override

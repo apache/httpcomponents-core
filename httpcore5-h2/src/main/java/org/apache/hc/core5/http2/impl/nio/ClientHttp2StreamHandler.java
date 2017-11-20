@@ -62,6 +62,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
     private final AsyncClientExchangeHandler exchangeHandler;
     private final HttpCoreContext context;
     private final AtomicBoolean requestCommitted;
+    private final AtomicBoolean failed;
     private final AtomicBoolean done;
 
     private volatile MessageState requestState;
@@ -104,6 +105,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
         this.exchangeHandler = exchangeHandler;
         this.context = context;
         this.requestCommitted = new AtomicBoolean(false);
+        this.failed = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.HEADERS;
@@ -238,16 +240,11 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
     @Override
     public void failed(final Exception cause) {
         try {
-            exchangeHandler.failed(cause);
-        } finally {
-            releaseResources();
-        }
-    }
-
-    @Override
-    public void cancel() {
-        try {
-            exchangeHandler.cancel();
+            if (failed.compareAndSet(false, true)) {
+                if (exchangeHandler != null) {
+                    exchangeHandler.failed(cause);
+                }
+            }
         } finally {
             releaseResources();
         }

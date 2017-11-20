@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.nio.command;
 
+import org.apache.hc.core5.concurrent.CancellableDependency;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.reactor.Command;
@@ -40,19 +41,34 @@ import org.apache.hc.core5.util.Args;
 public final class ExecutionCommand implements Command {
 
     private final AsyncClientExchangeHandler exchangeHandler;
+    private final CancellableDependency cancellableDependency;
     private final HttpContext context;
 
-    public ExecutionCommand(final AsyncClientExchangeHandler exchangeHandler, final HttpContext context) {
+    public ExecutionCommand(
+            final AsyncClientExchangeHandler exchangeHandler,
+            final CancellableDependency cancellableDependency,
+            final HttpContext context) {
         this.exchangeHandler = Args.notNull(exchangeHandler, "Handler");
+        this.cancellableDependency = cancellableDependency;
         this.context = context;
     }
 
-    public HttpContext getContext() {
-        return context;
+    public ExecutionCommand(
+            final AsyncClientExchangeHandler exchangeHandler,
+            final HttpContext context) {
+        this(exchangeHandler, null, context);
     }
 
     public AsyncClientExchangeHandler getExchangeHandler() {
         return exchangeHandler;
+    }
+
+    public CancellableDependency getCancellableDependency() {
+        return cancellableDependency;
+    }
+
+    public HttpContext getContext() {
+        return context;
     }
 
     @Override
