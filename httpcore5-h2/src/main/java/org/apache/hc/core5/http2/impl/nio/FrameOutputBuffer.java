@@ -62,13 +62,6 @@ public final class FrameOutputBuffer {
         this(new BasicH2TransportMetrics(), maxFramePayloadSize);
     }
 
-    private void writeToChannel(final WritableByteChannel channel, final ByteBuffer src) throws IOException {
-        final int bytesWritten = channel.write(src);
-        if (bytesWritten > 0) {
-            metrics.incrementBytesTransferred(bytesWritten);
-        }
-    }
-
     public void write(final RawFrame frame, final WritableByteChannel channel) throws IOException {
         Args.notNull(frame, "Frame");
 
@@ -94,11 +87,7 @@ public final class FrameOutputBuffer {
             }
         }
 
-        if (buffer.position() > 0) {
-            buffer.flip();
-            writeToChannel(channel, buffer);
-            buffer.compact();
-        }
+        flush(channel);
 
         metrics.incrementFramesTransferred();
     }
@@ -106,8 +95,14 @@ public final class FrameOutputBuffer {
     public void flush(final WritableByteChannel channel) throws IOException {
         if (buffer.position() > 0) {
             buffer.flip();
-            writeToChannel(channel, buffer);
-            buffer.compact();
+            try {
+                final int bytesWritten = channel.write(buffer);
+                if (bytesWritten > 0) {
+                    metrics.incrementBytesTransferred(bytesWritten);
+                }
+            } finally {
+                buffer.compact();
+            }
         }
     }
 
