@@ -107,19 +107,20 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
             }
             if ((readyOps & SelectionKey.OP_READ) != 0) {
                 ioSession.updateReadTime();
-                if (tlsSession.isAppInputReady()) {
-                    do {
+                do {
+                    tlsSession.resetReadCount();
+                    if (tlsSession.isAppInputReady()) {
                         if (sessionListener != null) {
                             sessionListener.inputReady(this);
                         }
                         final IOEventHandler handler = getEventHandler();
                         handler.inputReady(this);
-                    } while (tlsSession.hasInputDate());
-                }
-                tlsSession.inboundTransport();
-                if (sessionListener != null) {
-                    sessionListener.tlsInbound(tlsSession);
-                }
+                    }
+                    tlsSession.inboundTransport();
+                    if (sessionListener != null) {
+                        sessionListener.tlsInbound(tlsSession);
+                    }
+                } while (tlsSession.getReadCount() > 0);
             }
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                 ioSession.updateWriteTime();

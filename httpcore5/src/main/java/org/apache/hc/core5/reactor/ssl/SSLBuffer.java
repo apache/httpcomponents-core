@@ -28,9 +28,12 @@ package org.apache.hc.core5.reactor.ssl;
 
 import java.nio.ByteBuffer;
 
+import org.apache.hc.core5.annotation.Internal;
+
 /**
  * Managed internal SSL buffer.
  */
+@Internal
 interface SSLBuffer {
     /**
      * Allocates the resources required for this buffer, or returns the resources already allocated for this buffer.

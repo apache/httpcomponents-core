@@ -34,6 +34,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -44,6 +45,7 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.ShutdownType;
@@ -64,6 +66,7 @@ import org.apache.hc.core5.util.Asserts;
  * @since 4.2
  */
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
+@Internal
 public class SSLIOSession implements IOSession {
 
     private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate(0);
@@ -78,6 +81,7 @@ public class SSLIOSession implements IOSession {
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
     private final Callback<SSLIOSession> callback;
+    private final AtomicLong bytesReadCount;
 
     private int appEventMask;
 
@@ -181,6 +185,7 @@ public class SSLIOSession implements IOSession {
             }
 
         };
+        this.bytesReadCount = new AtomicLong(0);
     }
 
     @Override
@@ -584,6 +589,7 @@ public class SSLIOSession implements IOSession {
             if (inPlainBuf.position() == 0) {
                 this.inPlain.release();
             }
+            bytesReadCount.addAndGet(n);
             return n;
         }
         if (this.endOfStream) {
@@ -592,11 +598,12 @@ public class SSLIOSession implements IOSession {
         return 0;
     }
 
-    /**
-     * @since 5.0
-     */
-    public synchronized boolean hasInputDate() {
-        return this.inPlain.hasData();
+    public void resetReadCount() {
+        bytesReadCount.set(0L);
+    }
+
+    public long getReadCount() {
+        return bytesReadCount.get();
     }
 
     @Override
