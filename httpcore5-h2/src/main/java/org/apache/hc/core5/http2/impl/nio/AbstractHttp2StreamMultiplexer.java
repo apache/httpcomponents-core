@@ -579,9 +579,9 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     connState = ConnectionHandshake.SHUTDOWN;
                 } else {
                     if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
-                        connState = ConnectionHandshake.GRACEFUL_SHUTDOWN;
                         final RawFrame goAway = frameFactory.createGoAway(processedRemoteStreamId, H2Error.NO_ERROR, "Graceful shutdown");
                         commitFrame(goAway);
+                        connState = streamMap.isEmpty() ? ConnectionHandshake.SHUTDOWN : ConnectionHandshake.GRACEFUL_SHUTDOWN;
                     }
                 }
                 break;
@@ -636,12 +636,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     break;
                 }
             }
-            for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
-                final Map.Entry<Integer, Http2Stream> entry = it.next();
-                final Http2Stream stream = entry.getValue();
-                stream.reset(cause);
-            }
-            streamMap.clear();
             for (;;) {
                 final Command command = ioSession.getCommand();
                 if (command != null) {
@@ -657,17 +651,28 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     break;
                 }
             }
-            if (!(cause instanceof ConnectionClosedException)) {
-                final H2Error errorCode;
-                if (cause instanceof H2ConnectionException) {
-                    errorCode = H2Error.getByCode(((H2ConnectionException) cause).getCode());
-                } else if (cause instanceof ProtocolException){
-                    errorCode = H2Error.PROTOCOL_ERROR;
-                } else {
-                    errorCode = H2Error.INTERNAL_ERROR;
+            for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
+                final Map.Entry<Integer, Http2Stream> entry = it.next();
+                final Http2Stream stream = entry.getValue();
+                if (stream.isLocalClosed() && (stream.isRemoteClosed() || stream.isLocalReset())) {
+                    stream.reset(cause);
                 }
-                final RawFrame goAway = frameFactory.createGoAway(processedRemoteStreamId, errorCode, cause.getMessage());
-                commitFrame(goAway);
+                stream.releaseResources();
+            }
+            streamMap.clear();
+            if (!(cause instanceof ConnectionClosedException)) {
+                if (connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) <= 0) {
+                    final H2Error errorCode;
+                    if (cause instanceof H2ConnectionException) {
+                        errorCode = H2Error.getByCode(((H2ConnectionException) cause).getCode());
+                    } else if (cause instanceof ProtocolException){
+                        errorCode = H2Error.PROTOCOL_ERROR;
+                    } else {
+                        errorCode = H2Error.INTERNAL_ERROR;
+                    }
+                    final RawFrame goAway = frameFactory.createGoAway(processedRemoteStreamId, errorCode, cause.getMessage());
+                    commitFrame(goAway);
+                }
             }
             connState = ConnectionHandshake.SHUTDOWN;
         } catch (final IOException ignore) {
@@ -938,7 +943,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 final int errorCode = payload.getInt();
                 if (errorCode == H2Error.NO_ERROR.getCode()) {
                     if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0) {
-                        connState = ConnectionHandshake.GRACEFUL_SHUTDOWN;
                         for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
                             final Map.Entry<Integer, Http2Stream> entry = it.next();
                             final int activeStreamId = entry.getKey();
@@ -949,16 +953,18 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                             }
                         }
                     }
+                    connState = streamMap.isEmpty() ? ConnectionHandshake.SHUTDOWN : ConnectionHandshake.GRACEFUL_SHUTDOWN;
                 } else {
-                    connState = ConnectionHandshake.SHUTDOWN;
                     for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
                         final Map.Entry<Integer, Http2Stream> entry = it.next();
                         final Http2Stream stream = entry.getValue();
                         stream.reset(new H2StreamResetException(errorCode, "Connection terminated by the peer"));
                     }
                     streamMap.clear();
+                    connState = ConnectionHandshake.SHUTDOWN;
                 }
             }
+            ioSession.setEvent(SelectionKey.OP_WRITE);
             break;
         }
     }
