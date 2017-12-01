@@ -75,8 +75,6 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
      *
      * @param eventHandlerFactory the factory to create I/O event handlers.
      * @param ioReactorConfig I/O reactor configuration.
-     * @param listenerThreadFactory the factory to create I/O dispatch threads.
-     *   Can be {@code null}.
      * @param listenerThreadFactory the factory to create listener thread.
      *   Can be {@code null}.
      *
