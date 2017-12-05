@@ -29,9 +29,11 @@ package org.apache.http.protocol;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.util.Args;
 
 /**
@@ -58,6 +60,18 @@ public class UriPatternMatcher<T> {
     public UriPatternMatcher() {
         super();
         this.map = new HashMap<String, T>();
+    }
+
+    /**
+     * Returns a {@link Set} view of the mappings contained in this matcher.
+     *
+     * @return  a set view of the mappings contained in this matcher.
+     *
+     * @see Map#entrySet()
+     * @since 4.4.9
+     */
+    public Set<Entry<String, T>> entrySet() {
+        return map.entrySet();
     }
 
     /**

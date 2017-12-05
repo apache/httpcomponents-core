@@ -8,6 +8,9 @@ Changelog
 
 * HTTPCORE-494: Add image constants to ContentType.
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* HTTPCORE-496: Add API org.apache.http.protocol.UriPatternMatcher.entrySet().
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 
 Release 4.4.8
