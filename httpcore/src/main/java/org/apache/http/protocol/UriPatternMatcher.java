@@ -47,6 +47,7 @@ import org.apache.http.util.Args;
  * This class can be used to resolve an object matching a particular request
  * URI.
  *
+ * @param <T> The type of registered objects.
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
