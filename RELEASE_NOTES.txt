@@ -11,6 +11,9 @@ Changelog
   
 * HTTPCORE-496: Add API org.apache.http.protocol.UriPatternMatcher.entrySet().
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* HTTPCORE-497: Add API Add API org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper.getUriPatternMatcher().
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 
 Release 4.4.8

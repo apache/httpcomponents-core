@@ -59,6 +59,16 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
         this.matcher = Args.notNull(matcher, "Pattern matcher");
     }
 
+    /**
+     * Gets the matcher.
+     *
+     * @return the matcher
+     * @since 4.4.9
+     */
+    public UriPatternMatcher<HttpAsyncRequestHandler<?>> getUriPatternMatcher() {
+        return matcher;
+    }
+
     public UriHttpAsyncRequestHandlerMapper() {
         this(new UriPatternMatcher<HttpAsyncRequestHandler<?>>());
     }
