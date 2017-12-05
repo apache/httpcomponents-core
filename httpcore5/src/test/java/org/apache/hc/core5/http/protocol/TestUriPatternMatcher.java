@@ -33,6 +33,22 @@ import org.junit.Test;
 public class TestUriPatternMatcher {
 
     @Test
+    public void testEntrySet() throws Exception {
+        final Object h1 = new Object();
+        final Object h2 = new Object();
+        final Object h3 = new Object();
+
+        final UriPatternMatcher<Object> matcher = new UriPatternMatcher<>();
+        Assert.assertEquals(0, matcher.entrySet().size());
+        matcher.register("/h1", h1);
+        Assert.assertEquals(1, matcher.entrySet().size());
+        matcher.register("/h2", h2);
+        Assert.assertEquals(2, matcher.entrySet().size());
+        matcher.register("/h3", h3);
+        Assert.assertEquals(3, matcher.entrySet().size());
+    }
+
+    @Test
     public void testRegisterUnregister() throws Exception {
         final Object h1 = new Object();
         final Object h2 = new Object();
