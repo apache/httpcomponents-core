@@ -90,11 +90,11 @@ public class UriHttpRequestHandlerMapper implements HttpRequestHandlerMapper {
      */
     protected String getRequestPath(final HttpRequest request) {
         String uriPath = request.getRequestLine().getUri();
-        int index = uriPath.indexOf("?");
+        int index = uriPath.indexOf('?');
         if (index != -1) {
             uriPath = uriPath.substring(0, index);
         } else {
-            index = uriPath.indexOf("#");
+            index = uriPath.indexOf('#');
             if (index != -1) {
                 uriPath = uriPath.substring(0, index);
             }
