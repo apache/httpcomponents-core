@@ -28,6 +28,7 @@
 package org.apache.http.protocol;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -70,8 +71,8 @@ public class UriPatternMatcher<T> {
      * @see Map#entrySet()
      * @since 4.4.9
      */
-    public Set<Entry<String, T>> entrySet() {
-        return map.entrySet();
+    public synchronized Set<Entry<String, T>> entrySet() {
+        return new HashSet<Entry<String, T>>(map.entrySet());
     }
 
     /**
