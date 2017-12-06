@@ -28,9 +28,10 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -68,8 +69,8 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
      * @see Map#entrySet()
      * @since 4.4.9
      */
-    public Set<Entry<String, T>> entrySet() {
-        return map.entrySet();
+    public synchronized Set<Entry<String, T>> entrySet() {
+        return new HashSet<>(map.entrySet());
     }
 
     /**
