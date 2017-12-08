@@ -157,6 +157,16 @@ public class TestBasicMessages {
     }
 
     @Test
+    public void testRequestWithAbsoluteURIAsPath() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", "https://host:9443/stuff?param=value");
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("/stuff?param=value", request.getPath());
+        Assert.assertEquals(new URIAuthority("host", 9443), request.getAuthority());
+        Assert.assertEquals("https", request.getScheme());
+        Assert.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
+    }
+
+    @Test
     public void testRequestWithNoPath() throws Exception {
         final HttpRequest request = new BasicHttpRequest("GET", new URI("http://host"));
         Assert.assertEquals("GET", request.getMethod());

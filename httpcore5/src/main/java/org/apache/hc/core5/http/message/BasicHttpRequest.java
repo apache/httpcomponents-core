@@ -60,7 +60,15 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      * @param path request path.
      */
     public BasicHttpRequest(final String method, final String path) {
-        this(method, null, path);
+        super();
+        this.method = method;
+        if (path != null) {
+            try {
+                setUri(new URI(path));
+            } catch (final URISyntaxException ex) {
+                this.path = path;
+            }
+        }
     }
 
     /**
@@ -91,24 +99,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     public BasicHttpRequest(final String method, final URI requestUri) {
         super();
         this.method = Args.notNull(method, "Method name");
-        Args.notNull(requestUri, "Request URI");
-        this.scheme = requestUri.getScheme();
-        this.authority = requestUri.getHost() != null ? new URIAuthority(
-                requestUri.getRawUserInfo(),
-                requestUri.getHost(),
-                requestUri.getPort()) : null;
-        final StringBuilder buf = new StringBuilder();
-        final String path = requestUri.getRawPath();
-        if (!TextUtils.isBlank(path)) {
-            buf.append(path);
-        } else {
-            buf.append("/");
-        }
-        final String query = requestUri.getRawQuery();
-        if (query != null) {
-            buf.append('?').append(query);
-        }
-        this.path = buf.toString();
+        setUri(Args.notNull(requestUri, "Request URI"));
     }
 
     @Override
@@ -174,6 +165,26 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     @Override
     public String getRequestUri() {
         return getPath();
+    }
+
+    void setUri(final URI requestUri) {
+        this.scheme = requestUri.getScheme();
+        this.authority = requestUri.getHost() != null ? new URIAuthority(
+                requestUri.getRawUserInfo(),
+                requestUri.getHost(),
+                requestUri.getPort()) : null;
+        final StringBuilder buf = new StringBuilder();
+        final String path = requestUri.getRawPath();
+        if (!TextUtils.isBlank(path)) {
+            buf.append(path);
+        } else {
+            buf.append("/");
+        }
+        final String query = requestUri.getRawQuery();
+        if (query != null) {
+            buf.append('?').append(query);
+        }
+        this.path = buf.toString();
     }
 
     @Override
