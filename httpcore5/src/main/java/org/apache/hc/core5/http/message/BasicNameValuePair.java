@@ -28,11 +28,13 @@
 package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
+import java.util.Locale;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.LangUtils;
 
 /**
  * Basic implementation of {@link NameValuePair}.
@@ -82,6 +84,26 @@ public class BasicNameValuePair implements NameValuePair, Serializable {
         buffer.append("=");
         buffer.append(this.value);
         return buffer.toString();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof BasicNameValuePair) {
+            final BasicNameValuePair that = (BasicNameValuePair) obj;
+            return this.name.equalsIgnoreCase(that.name) && LangUtils.equals(this.value, that.value);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = LangUtils.HASH_SEED;
+        hash = LangUtils.hashCode(hash, this.name.toLowerCase(Locale.ROOT));
+        hash = LangUtils.hashCode(hash, this.value);
+        return hash;
     }
 
 }

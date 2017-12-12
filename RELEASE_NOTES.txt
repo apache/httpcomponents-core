@@ -7,6 +7,9 @@ Changelog
 * HTTPCORE-496: Add API org.apache.http.protocol.UriPatternMatcher.entrySet().
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-499 Make interface Header extend NameValuePair
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 5.0-BETA1
 -------------------

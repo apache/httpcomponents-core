@@ -27,15 +27,12 @@
 
 package org.apache.hc.core5.http.message;
 
-import java.io.Serializable;
-import java.util.Locale;
 import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.LangUtils;
 
 /**
  * Immutable {@link Header}.
@@ -43,12 +40,10 @@ import org.apache.hc.core5.util.LangUtils;
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class BasicHeader implements Header, Serializable {
+public class BasicHeader extends BasicNameValuePair implements Header {
 
     private static final long serialVersionUID = -5427236326487562174L;
 
-    private final String name;
-    private final String value;
     private final boolean sensitive;
 
     /**
@@ -61,9 +56,7 @@ public class BasicHeader implements Header, Serializable {
      * @since 5.0
      */
     public BasicHeader(final String name, final Object value, final boolean sensitive) {
-        super();
-        this.name = Args.notNull(name, "Name");
-        this.value = Objects.toString(value, null);
+        super(Args.notNull(name, "Name"), Objects.toString(value, null));
         this.sensitive = sensitive;
     }
 
@@ -78,16 +71,6 @@ public class BasicHeader implements Header, Serializable {
     }
 
     @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getValue() {
-        return this.value;
-    }
-
-    @Override
     public boolean isSensitive() {
         return this.sensitive;
     }
@@ -95,30 +78,11 @@ public class BasicHeader implements Header, Serializable {
     @Override
     public String toString() {
         final StringBuilder buf = new StringBuilder();
-        buf.append(this.name).append(": ");
-        if (this.value != null) {
-            buf.append(this.value);
+        buf.append(this.getName()).append(": ");
+        if (this.getValue() != null) {
+            buf.append(this.getValue());
         }
         return buf.toString();
     }
 
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj instanceof BasicHeader) {
-            final BasicHeader that = (BasicHeader) obj;
-            return this.name.equalsIgnoreCase(that.name) && LangUtils.equals(this.value, that.value);
-        }
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, this.name.toLowerCase(Locale.ROOT));
-        hash = LangUtils.hashCode(hash, this.value);
-        return hash;
-    }
 }
