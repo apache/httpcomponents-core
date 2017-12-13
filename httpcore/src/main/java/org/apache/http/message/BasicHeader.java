@@ -27,13 +27,11 @@
 
 package org.apache.http.message;
 
-import java.io.Serializable;
-
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
 import org.apache.http.ParseException;
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.util.Args;
 
 /**
@@ -42,12 +40,9 @@ import org.apache.http.util.Args;
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class BasicHeader implements Header, Cloneable, Serializable {
+public class BasicHeader extends BasicNameValuePair implements Header {
 
     private static final long serialVersionUID = -5427236326487562174L;
-
-    private final String name;
-    private final String value;
 
     /**
      * Constructor with name and value
@@ -56,19 +51,7 @@ public class BasicHeader implements Header, Cloneable, Serializable {
      * @param value the header value
      */
     public BasicHeader(final String name, final String value) {
-        super();
-        this.name = Args.notNull(name, "Name");
-        this.value = value;
-    }
-
-    @Override
-    public String getName() {
-        return this.name;
-    }
-
-    @Override
-    public String getValue() {
-        return this.value;
+        super(Args.notNull(name, "Name"), value);
     }
 
     @Override
@@ -79,12 +62,11 @@ public class BasicHeader implements Header, Cloneable, Serializable {
 
     @Override
     public HeaderElement[] getElements() throws ParseException {
-        if (this.value != null) {
+        if (this.getValue() != null) {
             // result intentionally not cached, it's probably not used again
-            return BasicHeaderValueParser.parseElements(this.value, null);
-        } else {
-            return new HeaderElement[] {};
+            return BasicHeaderValueParser.parseElements(this.getValue(), null);
         }
+        return new HeaderElement[] {};
     }
 
     @Override

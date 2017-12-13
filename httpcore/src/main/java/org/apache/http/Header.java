@@ -47,21 +47,7 @@ package org.apache.http;
  *
  * @since 4.0
  */
-public interface Header {
-
-    /**
-     * Get the name of the Header.
-     *
-     * @return the name of the Header,  never {@code null}
-     */
-    String getName();
-
-    /**
-     * Get the value of the Header.
-     *
-     * @return the value of the Header,  may be {@code null}
-     */
-    String getValue();
+public interface Header extends NameValuePair {
 
     /**
      * Parses the value.

@@ -15,6 +15,9 @@ Changelog
 * HTTPCORE-497: Add API Add API org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper.getUriPatternMatcher().
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-499 Make interface Header extend NameValuePair
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.8
 -------------------

@@ -28,7 +28,8 @@
 package org.apache.http;
 
 /**
- * A name / value pair parameter used as an element of HTTP messages.
+ * A name-value pair parameter used as an element of HTTP messages.
+ *
  * <pre>
  * parameter               = attribute "=" value
  * attribute               = token
