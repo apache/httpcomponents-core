@@ -110,6 +110,11 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
         return uriPath;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getName() + " [matcher=" + matcher + "]";
+    }
+
     /**
      * Looks up a handler matching the given request URI.
      *
