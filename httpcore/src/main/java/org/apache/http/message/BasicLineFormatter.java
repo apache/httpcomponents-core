@@ -32,8 +32,8 @@ import org.apache.http.Header;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.RequestLine;
 import org.apache.http.StatusLine;
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.util.Args;
 import org.apache.http.util.CharArrayBuffer;
 
@@ -316,7 +316,17 @@ public class BasicLineFormatter implements LineFormatter {
         buffer.append(name);
         buffer.append(": ");
         if (value != null) {
-            buffer.append(value);
+            buffer.ensureCapacity(buffer.length() + value.length());
+            for (int valueIndex = 0; valueIndex < value.length(); valueIndex++) {
+                char valueChar = value.charAt(valueIndex);
+                if (valueChar == '\r'
+                        || valueChar == '\n'
+                        || valueChar == '\f'
+                        || valueChar == 0x0b) {
+                    valueChar = ' ';
+                }
+                buffer.append(valueChar);
+            }
         }
     }
 
