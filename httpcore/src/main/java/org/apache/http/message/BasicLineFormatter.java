@@ -316,7 +316,18 @@ public class BasicLineFormatter implements LineFormatter {
         buffer.append(name);
         buffer.append(": ");
         if (value != null) {
-            buffer.append(value);
+            buffer.ensureCapacity(buffer.length() + value.length());
+            for (int valueIndex = 0; valueIndex < value.length(); ++valueIndex) {
+                char valueChar = value.charAt(valueIndex);
+                if (valueChar == '\r'
+                        || valueChar == '\n'
+                        || valueChar == '\f'
+                        || valueChar == 0x0b)  // vertical tab
+                {
+                    valueChar = ' ';
+                }
+                buffer.append(valueChar);
+            }
         }
     }
 
