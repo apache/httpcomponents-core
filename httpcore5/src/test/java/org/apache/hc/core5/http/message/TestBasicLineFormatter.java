@@ -144,4 +144,13 @@ public class TestBasicLineFormatter {
         }
     }
 
+    @Test
+    public void testHeaderFormattingRequestSplitting() throws Exception {
+        final CharArrayBuffer buf = new CharArrayBuffer(64);
+        final Header header = new BasicHeader("Host", "apache.org\r\nOops: oops");
+        formatter.formatHeader(buf, header);
+        final String s = buf.toString();
+        Assert.assertFalse(s.contains("\n"));
+        Assert.assertEquals("Host: apache.org  Oops: oops", s);
+    }
 }
