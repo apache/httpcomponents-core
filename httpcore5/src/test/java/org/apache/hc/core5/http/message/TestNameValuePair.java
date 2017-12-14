@@ -62,4 +62,124 @@ public class TestNameValuePair {
         Assert.assertEquals("name1", param2.toString());
     }
 
+    @Test
+    public void testNullNotEqual() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
+
+        Assert.assertFalse(NameValuePair.equals(null));
+    }
+
+    @Test
+    public void testObjectNotEqual() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
+
+        Assert.assertFalse(NameValuePair.equals(new Object()));
+    }
+
+    @Test
+    public void testNameEquals() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
+        final NameValuePair NameValuePair2 = new BasicNameValuePair("NAME", "value");
+
+        Assert.assertEquals(NameValuePair, NameValuePair2);
+        Assert.assertEquals(NameValuePair.hashCode(), NameValuePair2.hashCode());
+
+        final NameValuePair NameValuePair3 = new BasicNameValuePair("NAME", "value");
+        final NameValuePair NameValuePair4 = new BasicNameValuePair("name", "value");
+
+        Assert.assertEquals(NameValuePair3, NameValuePair4);
+        Assert.assertEquals(NameValuePair3.hashCode(), NameValuePair4.hashCode());
+    }
+
+    @Test
+    public void testValueEquals() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
+        final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value");
+
+        Assert.assertEquals(NameValuePair, NameValuePair2);
+        Assert.assertEquals(NameValuePair.hashCode(), NameValuePair2.hashCode());
+    }
+
+    @Test
+    public void testNameNotEqual() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
+        final NameValuePair NameValuePair2 = new BasicNameValuePair("name2", "value");
+
+        Assert.assertNotEquals(NameValuePair, NameValuePair2);
+    }
+
+    @Test
+    public void testValueNotEqual() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
+        final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value2");
+
+        Assert.assertNotEquals(NameValuePair, NameValuePair2);
+
+        final NameValuePair NameValuePair3 = new BasicNameValuePair("name", "value");
+        final NameValuePair NameValuePair4 = new BasicNameValuePair("name", "VALUE");
+
+        Assert.assertNotEquals(NameValuePair3, NameValuePair4);
+
+        final NameValuePair NameValuePair5 = new BasicNameValuePair("name", "VALUE");
+        final NameValuePair NameValuePair6 = new BasicNameValuePair("name", "value");
+
+        Assert.assertNotEquals(NameValuePair5, NameValuePair6);
+    }
+
+    @Test
+    public void testNullValuesEquals() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", null);
+        final NameValuePair NameValuePair2 = new BasicNameValuePair("name", null);
+
+        Assert.assertEquals(NameValuePair, NameValuePair2);
+        Assert.assertEquals(NameValuePair.hashCode(), NameValuePair2.hashCode());
+    }
+
+    @Test
+    public void testNullValueNotEqual() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", null);
+        final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value");
+
+        Assert.assertNotEquals(NameValuePair, NameValuePair2);
+    }
+
+    @Test
+    public void testNullValue2NotEqual() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
+        final NameValuePair NameValuePair2 = new BasicNameValuePair("name", null);
+
+        Assert.assertNotEquals(NameValuePair, NameValuePair2);
+    }
+
+    @Test
+    public void testEquals() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
+        final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value");
+
+        Assert.assertEquals(NameValuePair, NameValuePair);
+        Assert.assertEquals(NameValuePair.hashCode(), NameValuePair.hashCode());
+        Assert.assertEquals(NameValuePair2, NameValuePair2);
+        Assert.assertEquals(NameValuePair2.hashCode(), NameValuePair2.hashCode());
+        Assert.assertEquals(NameValuePair, NameValuePair2);
+        Assert.assertEquals(NameValuePair.hashCode(), NameValuePair2.hashCode());
+    }
+
+    @Test
+    public void testHashCode() throws Exception {
+        final NameValuePair NameValuePair = new BasicNameValuePair("name", null);
+        final NameValuePair NameValuePair2 = new BasicNameValuePair("name2", null);
+
+        Assert.assertNotEquals(NameValuePair.hashCode(), NameValuePair2.hashCode());
+
+        final NameValuePair NameValuePair3 = new BasicNameValuePair("name", "value");
+        final NameValuePair NameValuePair4 = new BasicNameValuePair("name", "value2");
+
+        Assert.assertNotEquals(NameValuePair3.hashCode(), NameValuePair4.hashCode());
+
+        final NameValuePair NameValuePair5 = new BasicNameValuePair("name", "value");
+        final NameValuePair NameValuePair6 = new BasicNameValuePair("name", null);
+
+        Assert.assertNotEquals(NameValuePair5.hashCode(), NameValuePair6.hashCode());
+    }
+
 }
