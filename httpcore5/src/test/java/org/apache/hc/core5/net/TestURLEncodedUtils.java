@@ -232,6 +232,14 @@ public class TestURLEncodedUtils {
     }
 
     @Test
+    public void testEmptyQuery() throws Exception {
+        final List<NameValuePair> result = URLEncodedUtils.parse("", StandardCharsets.UTF_8);
+        Assert.assertEquals(0, result.size());
+        // [HTTPCLIENT-1889]:
+        result.add(new BasicNameValuePair("key", "value"));
+    }
+
+    @Test
     public void testFormat() throws Exception {
         final List <NameValuePair> params = new ArrayList<>();
         Assert.assertEquals(0, URLEncodedUtils.format(params, StandardCharsets.US_ASCII).length());
