@@ -10,6 +10,10 @@ Changelog
 * HTTPCORE-499 Make interface Header extend NameValuePair
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-501 org.apache.http.client.utils.URLEncodedUtils.parse() 
+  should return a new ArrayList when there are no query parameters.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 5.0-BETA1
 -------------------
