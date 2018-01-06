@@ -27,6 +27,9 @@ Changelog
 * HTTPCORE-504: Update DefaultHttpClientIODispatch constructor to type for subclasses of DefaultNHttpClientConnection (like DefaultHttpServerIODispatch.)
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-505: Make org.apache.http.nio.protocol.HttpAsyncService instance variables available to subclasses.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.8
 -------------------

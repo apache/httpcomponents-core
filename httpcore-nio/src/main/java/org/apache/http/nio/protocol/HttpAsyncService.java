@@ -105,7 +105,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     static final String HTTP_EXCHANGE_STATE = "http.nio.http-exchange-state";
 
     private final HttpProcessor httpProcessor;
-    private final ConnectionReuseStrategy connStrategy;
+    private final ConnectionReuseStrategy connectionStrategy;
     private final HttpResponseFactory responseFactory;
     private final HttpAsyncRequestHandlerMapper handlerMapper;
     private final HttpAsyncExpectationVerifier expectationVerifier;
@@ -213,7 +213,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             final ExceptionLogger exceptionLogger) {
         super();
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.connStrategy = connStrategy != null ? connStrategy :
+        this.connectionStrategy = connStrategy != null ? connStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.responseFactory = responseFactory != null ? responseFactory :
                 DefaultHttpResponseFactory.INSTANCE;
@@ -755,7 +755,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         } finally {
             responseProducer.close();
         }
-        if (!this.connStrategy.keepAlive(response, context)) {
+        if (!this.connectionStrategy.keepAlive(response, context)) {
             conn.close();
         } else {
             conn.requestInput();
@@ -1090,10 +1090,61 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     /**
      * Gets the HttpResponseFactory for this service.
      *
+     * @return  the HttpResponseFactory for this service.
      * @since 4.4.8
      */
     protected HttpResponseFactory getResponseFactory() {
       return responseFactory;
+    }
+
+    /**
+     * Gets the HttpProcessor for this service.
+     *
+     * @return the HttpProcessor for this service.
+     * @since 4.4.9
+     */
+    protected HttpProcessor getHttpProcessor() {
+        return httpProcessor;
+    }
+
+    /**
+     * Gets the ConnectionReuseStrategy for this service.
+     *
+     * @return the ConnectionReuseStrategy for this service.
+     * @since 4.4.9
+     */
+    protected ConnectionReuseStrategy getConnectionStrategy() {
+        return connectionStrategy;
+    }
+
+    /**
+     * Gets the HttpAsyncRequestHandlerMapper for this service.
+     *
+     * @return the HttpAsyncRequestHandlerMapper for this service.
+     * @since 4.4.9
+     */
+    protected HttpAsyncRequestHandlerMapper getHandlerMapper() {
+        return handlerMapper;
+    }
+
+    /**
+     * Gets the HttpAsyncExpectationVerifier for this service.
+     *
+     * @return the HttpAsyncExpectationVerifier for this service.
+     * @since 4.4.9
+     */
+    protected HttpAsyncExpectationVerifier getExpectationVerifier() {
+        return expectationVerifier;
+    }
+
+    /**
+     * Gets the ExceptionLogger for this service.
+     *
+     * @return the ExceptionLogger for this service.
+     * @since 4.4.9
+     */
+    protected ExceptionLogger getExceptionLogger() {
+        return exceptionLogger;
     }
 
 }
