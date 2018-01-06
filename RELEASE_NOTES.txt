@@ -21,6 +21,9 @@ Changelog
 * HTTPCORE-502: Add APIs to DefaultHttpServerIODispatch to get its connection factory and handler.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-504: Update DefaultHttpClientIODispatch constructor to type for subclasses of DefaultNHttpClientConnection (like DefaultHttpServerIODispatch.)
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.8
 -------------------

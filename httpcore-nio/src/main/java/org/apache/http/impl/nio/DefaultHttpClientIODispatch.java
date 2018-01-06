@@ -91,7 +91,7 @@ public class DefaultHttpClientIODispatch
     }
 
     private final NHttpClientEventHandler handler;
-    private final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory;
+    private final NHttpConnectionFactory<? extends DefaultNHttpClientConnection> connFactory;
 
     /**
      * Creates a new instance of this class to be used for dispatching I/O event
@@ -102,7 +102,7 @@ public class DefaultHttpClientIODispatch
      */
     public DefaultHttpClientIODispatch(
             final NHttpClientEventHandler handler,
-            final NHttpConnectionFactory<DefaultNHttpClientConnection> connFactory) {
+            final NHttpConnectionFactory<? extends DefaultNHttpClientConnection> connFactory) {
         super();
         this.handler = Args.notNull(handler, "HTTP client handler");
         this.connFactory = Args.notNull(connFactory, "HTTP client connection factory");
