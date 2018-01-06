@@ -91,14 +91,14 @@ public class DefaultHttpServerIODispatch
     }
 
     private final NHttpServerEventHandler handler;
-    private final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connFactory;
+    private final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connectionFactory;
 
     public DefaultHttpServerIODispatch(
             final NHttpServerEventHandler handler,
             final NHttpConnectionFactory<? extends DefaultNHttpServerConnection> connFactory) {
         super();
         this.handler = Args.notNull(handler, "HTTP client handler");
-        this.connFactory = Args.notNull(connFactory, "HTTP server connection factory");
+        this.connectionFactory = Args.notNull(connFactory, "HTTP server connection factory");
     }
 
     /**
@@ -167,7 +167,27 @@ public class DefaultHttpServerIODispatch
 
     @Override
     protected DefaultNHttpServerConnection createConnection(final IOSession session) {
-        return this.connFactory.createConnection(session);
+        return this.connectionFactory.createConnection(session);
+    }
+
+    /**
+     * Gets the connection factory used to construct this dispatch.
+     *
+     * @return the connection factory used to construct this dispatch.
+     * @since 4.4.9
+     */
+    public NHttpConnectionFactory<? extends DefaultNHttpServerConnection> getConnectionFactory() {
+        return connectionFactory;
+    }
+
+    /**
+     * Gets the handler used to construct this dispatch.
+     *
+     * @return the handler used to construct this dispatch.
+     * @since 4.4.9
+     */
+    public NHttpServerEventHandler getHandler() {
+        return handler;
     }
 
     @Override
