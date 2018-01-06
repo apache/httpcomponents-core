@@ -12,10 +12,10 @@ Changelog
 * HTTPCORE-496: Add API org.apache.http.protocol.UriPatternMatcher.entrySet().
   Contributed by Gary Gregory <ggregory at apache.org>
   
-* HTTPCORE-497: Add API Add API org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper.getUriPatternMatcher().
+* HTTPCORE-497: Add API org.apache.http.nio.protocol.UriHttpAsyncRequestHandlerMapper.getUriPatternMatcher().
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* HTTPCORE-499 Make interface Header extend NameValuePair
+* HTTPCORE-499: Make interface Header extend NameValuePair
   Contributed by Gary Gregory <ggregory at apache.org>
 
 
