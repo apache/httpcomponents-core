@@ -29,7 +29,7 @@ package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 class LogAppendable implements Appendable {
 

@@ -29,7 +29,7 @@ package org.apache.hc.core5.testing.classic;
 
 import java.nio.ByteBuffer;
 
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 public class Wire {
 
     private final Logger log;

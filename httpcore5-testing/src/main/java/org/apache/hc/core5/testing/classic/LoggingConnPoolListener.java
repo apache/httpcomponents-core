@@ -31,14 +31,14 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolStats;
 import org.apache.hc.core5.pool.PoolStats;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class LoggingConnPoolListener implements ConnPoolListener<HttpHost> {
 
     public final static LoggingConnPoolListener INSTANCE = new LoggingConnPoolListener();
 
-    private final Logger connLog = LogManager.getLogger("org.apache.hc.core5.http.connection");
+    private final Logger connLog = LoggerFactory.getLogger("org.apache.hc.core5.http.connection");
 
     private LoggingConnPoolListener() {
     }

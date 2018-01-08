@@ -76,8 +76,8 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Timeout;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -89,7 +89,7 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class Http1ServerAndRequesterTest {
 
-    private final Logger log = LogManager.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {

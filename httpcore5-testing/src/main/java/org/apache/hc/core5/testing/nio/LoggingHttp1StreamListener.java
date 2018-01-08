@@ -37,8 +37,8 @@ import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.testing.classic.LoggingSupport;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class LoggingHttp1StreamListener implements Http1StreamListener {
 
@@ -48,8 +48,8 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
     public final static LoggingHttp1StreamListener INSTANCE_SERVER = new LoggingHttp1StreamListener(Type.SERVER);
 
     private final Type type;
-    private final Logger connLog = LogManager.getLogger("org.apache.hc.core5.http.connection");
-    private final Logger headerLog = LogManager.getLogger("org.apache.hc.core5.http.headers");
+    private final Logger connLog = LoggerFactory.getLogger("org.apache.hc.core5.http.connection");
+    private final Logger headerLog = LoggerFactory.getLogger("org.apache.hc.core5.http.headers");
 
     private LoggingHttp1StreamListener(final Type type) {
         this.type = type;

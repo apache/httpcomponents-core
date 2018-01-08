@@ -38,7 +38,7 @@ import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.classic.Wire;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
 
 public class LoggingIOSession implements IOSession {
 

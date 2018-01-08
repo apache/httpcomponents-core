@@ -31,14 +31,14 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.testing.classic.LoggingSupport;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class LoggingIOSessionListener implements IOSessionListener {
 
     public final static LoggingIOSessionListener INSTANCE = new LoggingIOSessionListener();
 
-    private final Logger connLog = LogManager.getLogger("org.apache.hc.core5.http.connection");
+    private final Logger connLog = LoggerFactory.getLogger("org.apache.hc.core5.http.connection");
 
     private LoggingIOSessionListener() {
     }

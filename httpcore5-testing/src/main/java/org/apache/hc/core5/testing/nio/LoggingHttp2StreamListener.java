@@ -36,8 +36,8 @@ import org.apache.hc.core5.http2.frame.FramePrinter;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.testing.classic.LoggingSupport;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggingHttp2StreamListener implements Http2StreamListener {
 
@@ -51,10 +51,10 @@ public class LoggingHttp2StreamListener implements Http2StreamListener {
 
     private LoggingHttp2StreamListener() {
         this.framePrinter = new FramePrinter();
-        this.headerLog = LogManager.getLogger("org.apache.hc.core5.http.headers");
-        this.frameLog = LogManager.getLogger("org.apache.hc.core5.http2.frame");
-        this.framePayloadLog = LogManager.getLogger("org.apache.hc.core5.http2.frame.payload");
-        this.flowCtrlLog = LogManager.getLogger("org.apache.hc.core5.http2.flow");
+        this.headerLog = LoggerFactory.getLogger("org.apache.hc.core5.http.headers");
+        this.frameLog = LoggerFactory.getLogger("org.apache.hc.core5.http2.frame");
+        this.framePayloadLog = LoggerFactory.getLogger("org.apache.hc.core5.http2.frame.payload");
+        this.flowCtrlLog = LoggerFactory.getLogger("org.apache.hc.core5.http2.flow");
     }
 
     private void logFrameInfo(final String prefix, final RawFrame frame) {
