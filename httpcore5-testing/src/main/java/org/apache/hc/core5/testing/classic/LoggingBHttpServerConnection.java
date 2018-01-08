@@ -46,8 +46,8 @@ import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Identifiable;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection implements Identifiable {
 
     private static final AtomicLong COUNT = new AtomicLong();
@@ -70,9 +70,9 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
                 incomingContentStrategy, outgoingContentStrategy,
                 requestParserFactory, responseWriterFactory);
         this.id = "http-incoming-" + COUNT.incrementAndGet();
-        this.log = LogManager.getLogger(getClass());
-        this.headerlog = LogManager.getLogger("org.apache.hc.core5.http.headers");
-        this.wire = new Wire(LogManager.getLogger("org.apache.hc.core5.http.wire"), this.id);
+        this.log = LoggerFactory.getLogger(getClass());
+        this.headerlog = LoggerFactory.getLogger("org.apache.hc.core5.http.headers");
+        this.wire = new Wire(LoggerFactory.getLogger("org.apache.hc.core5.http.wire"), this.id);
     }
 
     @Override

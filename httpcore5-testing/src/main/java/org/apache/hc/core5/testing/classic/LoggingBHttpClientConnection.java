@@ -46,8 +46,8 @@ import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Identifiable;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 
 public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection implements Identifiable {
 
@@ -70,9 +70,9 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection i
                 incomingContentStrategy, outgoingContentStrategy,
                 requestWriterFactory, responseParserFactory);
         this.id = "http-outgoing-" + COUNT.incrementAndGet();
-        this.log = LogManager.getLogger(getClass());
-        this.headerlog = LogManager.getLogger("org.apache.hc.core5.http.headers");
-        this.wire = new Wire(LogManager.getLogger("org.apache.hc.core5.http.wire"), this.id);
+        this.log = LoggerFactory.getLogger(getClass());
+        this.headerlog = LoggerFactory.getLogger("org.apache.hc.core5.http.headers");
+        this.wire = new Wire(LoggerFactory.getLogger("org.apache.hc.core5.http.wire"), this.id);
     }
 
     public LoggingBHttpClientConnection(final H1Config h1Config) {
