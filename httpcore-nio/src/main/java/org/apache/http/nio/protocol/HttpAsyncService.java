@@ -1093,7 +1093,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * @return  the HttpResponseFactory for this service.
      * @since 4.4.8
      */
-    protected HttpResponseFactory getResponseFactory() {
+    public HttpResponseFactory getResponseFactory() {
       return responseFactory;
     }
 
@@ -1103,7 +1103,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * @return the HttpProcessor for this service.
      * @since 4.4.9
      */
-    protected HttpProcessor getHttpProcessor() {
+    public HttpProcessor getHttpProcessor() {
         return httpProcessor;
     }
 
@@ -1113,7 +1113,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * @return the ConnectionReuseStrategy for this service.
      * @since 4.4.9
      */
-    protected ConnectionReuseStrategy getConnectionStrategy() {
+    public ConnectionReuseStrategy getConnectionStrategy() {
         return connectionStrategy;
     }
 
@@ -1123,7 +1123,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * @return the HttpAsyncRequestHandlerMapper for this service.
      * @since 4.4.9
      */
-    protected HttpAsyncRequestHandlerMapper getHandlerMapper() {
+    public HttpAsyncRequestHandlerMapper getHandlerMapper() {
         return handlerMapper;
     }
 
@@ -1133,7 +1133,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * @return the HttpAsyncExpectationVerifier for this service.
      * @since 4.4.9
      */
-    protected HttpAsyncExpectationVerifier getExpectationVerifier() {
+    public HttpAsyncExpectationVerifier getExpectationVerifier() {
         return expectationVerifier;
     }
 
@@ -1143,7 +1143,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
      * @return the ExceptionLogger for this service.
      * @since 4.4.9
      */
-    protected ExceptionLogger getExceptionLogger() {
+    public ExceptionLogger getExceptionLogger() {
         return exceptionLogger;
     }
 
