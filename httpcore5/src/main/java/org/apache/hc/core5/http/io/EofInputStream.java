@@ -33,8 +33,8 @@ public abstract class EofInputStream extends InputStream {
 
     /**
      * Tries to determine, without blocking, if the entire content of the stream has already been read
-     * @return true if the entire content of the stream has already been read, false of either
-     * the entire content has not been read or a determination cannot be made without potentially blocking
+     * @return true if the entire content of the stream has already been read, false if either
+     * the entire content has not been read or a determination cannot be made without blocking
      */
     public abstract boolean atEof();
 }
