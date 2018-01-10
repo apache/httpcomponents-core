@@ -207,7 +207,7 @@ public class EofSensorInputStream extends InputStream {
         }
     }
 
-    private static boolean atEof(InputStream toCheckStream) {
+    private static boolean atEof(final InputStream toCheckStream) {
         return (toCheckStream instanceof EofInputStream) && ((EofInputStream)toCheckStream).atEof();
     }
 
