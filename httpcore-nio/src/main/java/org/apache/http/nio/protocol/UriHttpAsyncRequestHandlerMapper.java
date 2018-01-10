@@ -60,7 +60,7 @@ public class UriHttpAsyncRequestHandlerMapper implements HttpAsyncRequestHandler
     }
 
     /**
-     * Gets the matcher.
+     * Gets the pattern matcher.
      *
      * @return the matcher
      * @since 4.4.9
