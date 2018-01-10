@@ -192,7 +192,7 @@ public class EofSensorInputStream extends InputStream {
     private void checkEOF(final int eof) throws IOException {
 
         final InputStream toCheckStream = wrappedStream;
-        if ((toCheckStream != null) && (eof < 0)) {
+        if ((toCheckStream != null) && (eof < 0 || atEof(toCheckStream))) {
             try {
                 boolean scws = true; // should close wrapped stream?
                 if (eofWatcher != null) {
@@ -205,6 +205,10 @@ public class EofSensorInputStream extends InputStream {
                 wrappedStream = null;
             }
         }
+    }
+
+    private static boolean atEof(InputStream toCheckStream) {
+        return (toCheckStream instanceof EofInputStream) && ((EofInputStream)toCheckStream).atEof();
     }
 
     /**

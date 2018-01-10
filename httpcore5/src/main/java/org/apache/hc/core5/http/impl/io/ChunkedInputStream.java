@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.io.EofInputStream;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -57,7 +58,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * @since 4.0
  *
  */
-public class ChunkedInputStream extends InputStream {
+public class ChunkedInputStream extends EofInputStream {
 
     private static final int CHUNK_LEN               = 1;
     private static final int CHUNK_DATA              = 2;
@@ -322,6 +323,11 @@ public class ChunkedInputStream extends InputStream {
 
     public Header[] getFooters() {
         return this.footers.clone();
+    }
+
+    @Override
+    public boolean atEof() {
+        return eof;
     }
 
 }
