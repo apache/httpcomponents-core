@@ -33,6 +33,9 @@ Changelog
 * HTTPCORE-506: Add generics to DefaultHttpClientIODispatch to specify the NHttpClientEventHandler implementation type.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-507: Add generics to DefaultHttpServerIODispatch to specify the NHttpServerEventHandler implementation type.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.8
 -------------------
