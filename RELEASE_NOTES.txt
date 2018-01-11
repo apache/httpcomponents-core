@@ -1,8 +1,83 @@
 Release 5.0-BETA2
 -------------------
 
+This BETA release fixes a number of defects found since the previous release and
+adds several incremental improvements.
+
+Notable changes and features included in the 5.0 series:
+
+* Support for HTTP/2 protocol and conformance to requirements and recommendations
+  of the latest HTTP/2 protocol specification (RFC 7540, RFC 7541)
+
+  Supported features:
+
+    ** HPACK header compression
+    ** stream multiplexing (client and server)
+    ** flow control
+    ** response push (client and server)
+    ** message trailers
+    ** expect-continue handshake
+    ** connection validation (ping)
+    ** application-layer protocol negotiation (ALPN) on Java 9+
+    ** TLS 1.2 security features
+
+   Features out of scope for 5.0 release:
+
+    ** padding of outgoing frames
+    ** stream priority
+    ** plain connection HTTP/1.1 upgrade
+    ** CONNECT method
+
+* Improved conformance to requirements and recommendations of the latest HTTP/1.1 protocol
+  specification (RFC 7230, RFC 7231)
+
+* New asynchronous HTTP transport APIs consistent for both HTTP/1.1 and HTTP/2 transport.
+
+* Redesigned I/O reactor APIs and improved NIO based reactor implementation for a greater
+  performance and scalability.
+
+* Support for server side request filters for classic and asynchronous server implementations.
+  Request filters could be used to implement cross-cutting protocol aspects such
+  as the 'expect-continue' handshaking and user authentication / authorization.
+
+* Redesigned connection pool implementation with strict connection limit guarantees.
+  The connection pool is expected to have a better performance under higher concurrency
+  due to reduced global pool lock contention.
+
+* New connection pool implementation with lax connection limit guarantees and better
+  performance under higher concurrency due to absence of a global pool lock.
+
+* Package name space changed to 'org.apache.hc.core5'
+
+* Maven group id changed to 'org.apache.httpcomponents.core5'
+
+HttpCore 5.0 releases can be co-located with earlier versions.
+
+The 5.0 APIs are considered feature complete and are not expected to undergo any major changes
+anymore. The focus of development is now shifting to API polish, code stabilisation
+and documentation improvements.
+
+
 Changelog
 -------------------
+
+* HTTP/2 multiplexed requester to support cancellation of individual message exchanges without termination
+  of the underlying I/O session.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bugfix: corrected handling of GOAWAY frames by HTTP/2 stream multiplexer
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bugfix: prevent a tight loop in non-blocking SSL I/O sessions due to a HTTP/2 frame fragment in the SSL
+  input buffer.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bugfix: incorrect handing of premature i/o session termination by the server side application protocol
+  negotiator.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Strict / lax ALPN handshake mode for HTTP/2 multiplexing requester.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-496: Add API org.apache.http.protocol.UriPatternMatcher.entrySet().
   Contributed by Gary Gregory <ggregory at apache.org>
