@@ -30,6 +30,9 @@ Changelog
 * HTTPCORE-505: Make org.apache.http.nio.protocol.HttpAsyncService instance variables available through getters.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-506: Add generics to DefaultHttpClientIODispatch to specify the NHttpClientEventHandler implementation type.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.8
 -------------------

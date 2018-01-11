@@ -46,12 +46,13 @@ import org.apache.http.util.Args;
  * Default {@link org.apache.http.nio.reactor.IOEventDispatch} implementation
  * that supports both plain (non-encrypted) and SSL encrypted client side HTTP
  * connections.
+ * @param <H> an implementation of {@link NHttpClientEventHandler}.
  *
  * @since 4.2
  */
 @SuppressWarnings("deprecation")
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public class DefaultHttpClientIODispatch
+public class DefaultHttpClientIODispatch<H extends NHttpClientEventHandler>
                     extends AbstractIODispatch<DefaultNHttpClientConnection> {
 
     /**
@@ -64,11 +65,11 @@ public class DefaultHttpClientIODispatch
      * @return a new instance
      * @since 4.4.7
      */
-    public static DefaultHttpClientIODispatch create(final NHttpClientEventHandler handler,
+    public static <T extends NHttpClientEventHandler> DefaultHttpClientIODispatch<T> create(final T handler,
             final SSLContext sslContext,
             final ConnectionConfig config) {
-        return sslContext == null ? new DefaultHttpClientIODispatch(handler, config)
-                : new DefaultHttpClientIODispatch(handler, sslContext, config);
+        return sslContext == null ? new DefaultHttpClientIODispatch<T>(handler, config)
+                : new DefaultHttpClientIODispatch<T>(handler, sslContext, config);
     }
 
     /**
@@ -82,15 +83,15 @@ public class DefaultHttpClientIODispatch
      * @return a new instance
      * @since 4.4.7
      */
-    public static DefaultHttpClientIODispatch create(final NHttpClientEventHandler handler,
+    public static <T extends NHttpClientEventHandler> DefaultHttpClientIODispatch<T> create(final T handler,
             final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final ConnectionConfig config) {
-        return sslContext == null ? new DefaultHttpClientIODispatch(handler, config)
-                : new DefaultHttpClientIODispatch(handler, sslContext, sslHandler, config);
+        return sslContext == null ? new DefaultHttpClientIODispatch<T>(handler, config)
+                : new DefaultHttpClientIODispatch<T>(handler, sslContext, sslHandler, config);
     }
 
-    private final NHttpClientEventHandler handler;
+    private final H handler;
     private final NHttpConnectionFactory<? extends DefaultNHttpClientConnection> connectionFactory;
 
     /**
@@ -101,7 +102,7 @@ public class DefaultHttpClientIODispatch
      * @param connFactory HTTP client connection factory.
      */
     public DefaultHttpClientIODispatch(
-            final NHttpClientEventHandler handler,
+            final H handler,
             final NHttpConnectionFactory<? extends DefaultNHttpClientConnection> connFactory) {
         super();
         this.handler = Args.notNull(handler, "HTTP client handler");
@@ -114,7 +115,7 @@ public class DefaultHttpClientIODispatch
      */
     @Deprecated
     public DefaultHttpClientIODispatch(
-            final NHttpClientEventHandler handler,
+            final H handler,
             final HttpParams params) {
         this(handler, new DefaultNHttpClientConnectionFactory(params));
     }
@@ -125,7 +126,7 @@ public class DefaultHttpClientIODispatch
      */
     @Deprecated
     public DefaultHttpClientIODispatch(
-            final NHttpClientEventHandler handler,
+            final H handler,
             final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final HttpParams params) {
@@ -138,7 +139,7 @@ public class DefaultHttpClientIODispatch
      */
     @Deprecated
     public DefaultHttpClientIODispatch(
-            final NHttpClientEventHandler handler,
+            final H handler,
             final SSLContext sslContext,
             final HttpParams params) {
         this(handler, sslContext, null, params);
@@ -147,7 +148,7 @@ public class DefaultHttpClientIODispatch
     /**
      * @since 4.3
      */
-    public DefaultHttpClientIODispatch(final NHttpClientEventHandler handler, final ConnectionConfig config) {
+    public DefaultHttpClientIODispatch(final H handler, final ConnectionConfig config) {
         this(handler, new DefaultNHttpClientConnectionFactory(config));
     }
 
@@ -155,7 +156,7 @@ public class DefaultHttpClientIODispatch
      * @since 4.3
      */
     public DefaultHttpClientIODispatch(
-            final NHttpClientEventHandler handler,
+            final H handler,
             final SSLContext sslContext,
             final SSLSetupHandler sslHandler,
             final ConnectionConfig config) {
@@ -166,7 +167,7 @@ public class DefaultHttpClientIODispatch
      * @since 4.3
      */
     public DefaultHttpClientIODispatch(
-            final NHttpClientEventHandler handler,
+            final H handler,
             final SSLContext sslContext,
             final ConnectionConfig config) {
         this(handler, new SSLNHttpClientConnectionFactory(sslContext, null, config));
@@ -193,7 +194,7 @@ public class DefaultHttpClientIODispatch
      * @return the handler used to construct this dispatch.
      * @since 4.4.9
      */
-    public NHttpClientEventHandler getHandler() {
+    public H getHandler() {
         return handler;
     }
 
