@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -155,6 +156,7 @@ public class ChunkedInputStream extends EofInputStream {
             pos++;
             if (pos >= chunkSize) {
                 state = CHUNK_CRLF;
+                consumeEndOfMessageIfCached();
             }
         }
         return b;
@@ -191,6 +193,7 @@ public class ChunkedInputStream extends EofInputStream {
             pos += bytesRead;
             if (pos >= chunkSize) {
                 state = CHUNK_CRLF;
+                consumeEndOfMessageIfCached();
             }
             return bytesRead;
         }
@@ -325,9 +328,60 @@ public class ChunkedInputStream extends EofInputStream {
         return this.footers.clone();
     }
 
+    private void consumeEndOfMessageIfCached() throws IOException {
+        if (eof || state != CHUNK_CRLF) {
+            return;
+        }
+
+        // To avoid blocking, peek at the unread buffered bytes.
+        // All content has been read if the unread bytes consist of:
+        // - CR+LF
+        // - A chunk size of 0, followed by CR+LF
+        // - Zero or more footers followed by CR+LF
+        // - An empty line
+        int bufferedLen = buffer.getBufferedLen();
+        if (bufferedLen < 2 || buffer.peekBuffered(0) != Chars.CR || buffer.peekBuffered(1) != Chars.LF) {
+            return;
+        }
+
+        // check if the next buffered line contains all zeros
+        int cur = 2;
+        boolean foundZeros = false;
+        for (; cur < bufferedLen; cur++) {
+            if (buffer.peekBuffered(cur) == Chars.CR) {
+                break;
+            } else if (buffer.peekBuffered(cur) == '0') {
+                foundZeros = true;
+            } else {
+                return;
+            }
+        }
+        if (!foundZeros) {
+            return;
+        }
+
+        // check if the remaining buffered data contains an empty line,
+        // skipping any footers
+        boolean foundEmptyLine = false;
+        for (; cur + 3 < bufferedLen; cur++) {
+            if (buffer.peekBuffered(cur) == Chars.CR &&
+                buffer.peekBuffered(cur + 1) == Chars.LF &&
+                buffer.peekBuffered(cur + 2) == Chars.CR &&
+                buffer.peekBuffered(cur + 3) == Chars.LF) {
+                foundEmptyLine = true;
+                break;
+            }
+        }
+        if (foundEmptyLine == false) {
+            return;
+        }
+
+        // Read the next chunk header and footers. The operation should not block
+        nextChunk();
+    }
+
     @Override
     public boolean atEof() {
         return eof;
     }
-
 }

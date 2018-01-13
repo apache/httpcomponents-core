@@ -46,13 +46,15 @@ public class TestContentLengthInputStream {
         final String s = "1234567890123456";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
-        final InputStream in = new ContentLengthInputStream(inbuffer, inputStream, 10L);
+        final ContentLengthInputStream in = new ContentLengthInputStream(inbuffer, inputStream, 10L);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         final byte[] buffer = new byte[50];
         int len = in.read(buffer, 0, 2);
+        Assert.assertFalse(in.atEof());
         outputStream.write(buffer, 0, len);
         len = in.read(buffer);
+        Assert.assertTrue(in.atEof());
         outputStream.write(buffer, 0, len);
 
         final String result = new String(outputStream.toByteArray(), StandardCharsets.ISO_8859_1);
@@ -64,34 +66,44 @@ public class TestContentLengthInputStream {
     public void testSkip() throws IOException {
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(16);
-        final InputStream in1 = new ContentLengthInputStream(inbuffer1, inputStream1, 10L);
+        final ContentLengthInputStream in1 = new ContentLengthInputStream(inbuffer1, inputStream1, 10L);
         Assert.assertEquals(10, in1.skip(10));
+        Assert.assertTrue(in1.atEof());
         Assert.assertTrue(in1.read() == -1);
+        Assert.assertTrue(in1.atEof());
         in1.close();
 
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(16);
-        final InputStream in2 = new ContentLengthInputStream(inbuffer2, inputStream2, 10L);
+        final ContentLengthInputStream in2 = new ContentLengthInputStream(inbuffer2, inputStream2, 10L);
         in2.read();
+        Assert.assertFalse(in2.atEof());
         Assert.assertEquals(9, in2.skip(10));
+        Assert.assertTrue(in2.atEof());
         Assert.assertTrue(in2.read() == -1);
+        Assert.assertTrue(in2.atEof());
         in2.close();
 
         final ByteArrayInputStream inputStream3 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inbuffer3 = new SessionInputBufferImpl(16);
-        final InputStream in3 = new ContentLengthInputStream(inbuffer3, inputStream3, 2L);
+        final ContentLengthInputStream in3 = new ContentLengthInputStream(inbuffer3, inputStream3, 2L);
         in3.read();
+        Assert.assertFalse(in3.atEof());
         in3.read();
+        Assert.assertTrue(in3.atEof());
         Assert.assertTrue(in3.skip(10) <= 0);
         Assert.assertTrue(in3.skip(-1) == 0);
         Assert.assertTrue(in3.read() == -1);
+        Assert.assertTrue(in3.atEof());
         in3.close();
 
         final ByteArrayInputStream inputStream4 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inbuffer4 = new SessionInputBufferImpl(16);
-        final InputStream in4 = new ContentLengthInputStream(inbuffer4, inputStream4, 10L);
+        final ContentLengthInputStream in4 = new ContentLengthInputStream(inbuffer4, inputStream4, 10L);
         Assert.assertEquals(5,in4.skip(5));
+        Assert.assertFalse(in4.atEof());
         Assert.assertEquals(5, in4.read(new byte[20]));
+        Assert.assertTrue(in4.atEof());
         in4.close();
     }
 
@@ -139,24 +151,25 @@ public class TestContentLengthInputStream {
         final String s = "1234567890123456";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
-        final InputStream in = new ContentLengthInputStream(inbuffer, inputStream, 32L);
+        final ContentLengthInputStream in = new ContentLengthInputStream(inbuffer, inputStream, 32L);
 
         final byte[] tmp = new byte[32];
         final int byteRead = in.read(tmp);
         Assert.assertEquals(16, byteRead);
+        Assert.assertFalse(in.atEof());
         try {
             in.read(tmp);
-            Assert.fail("ConnectionClosedException should have been closed");
+            Assert.fail("ConnectionClosedException should have been thrown");
         } catch (final ConnectionClosedException ex) {
         }
         try {
             in.read();
-            Assert.fail("ConnectionClosedException should have been closed");
+            Assert.fail("ConnectionClosedException should have been thrown");
         } catch (final ConnectionClosedException ex) {
         }
         try {
             in.close();
-            Assert.fail("ConnectionClosedException should have been closed");
+            Assert.fail("ConnectionClosedException should have been thrown");
         } catch (final ConnectionClosedException ex) {
         }
     }

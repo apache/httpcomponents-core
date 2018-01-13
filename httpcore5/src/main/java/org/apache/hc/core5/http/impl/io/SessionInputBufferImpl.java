@@ -384,4 +384,14 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         return this.metrics;
     }
 
+    @Override
+    public int getBufferedLen() {
+        return bufferlen - bufferpos;
+    }
+
+    @Override
+    public byte peekBuffered(int offset) {
+        return buffer[this.bufferpos + offset];
+    }
+
 }

@@ -67,8 +67,11 @@ public class TestChunkCoding {
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
+        Assert.assertTrue(in.atEof());
         Assert.assertEquals(-1, in.read(buffer));
+        Assert.assertTrue(in.atEof());
         Assert.assertEquals(-1, in.read(buffer));
+        Assert.assertTrue(in.atEof());
 
         in.close();
 
@@ -97,8 +100,12 @@ public class TestChunkCoding {
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
+        Assert.assertTrue(in.atEof());
         Assert.assertEquals(-1, in.read(buffer));
+        Assert.assertTrue(in.atEof());
         Assert.assertEquals(-1, in.read(buffer));
+        Assert.assertTrue(in.atEof());
+
 
         in.close();
 
@@ -124,8 +131,12 @@ public class TestChunkCoding {
             Assert.assertEquals(i, ch);
             i++;
         }
+        Assert.assertTrue(in.atEof());
         Assert.assertEquals(-1, in.read());
+        Assert.assertTrue(in.atEof());
         Assert.assertEquals(-1, in.read());
+        Assert.assertTrue(in.atEof());
+
 
         in.close();
     }
@@ -505,6 +516,44 @@ public class TestChunkCoding {
 
         final String result = new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
         Assert.assertEquals("01234567", result);
+    }
+
+    @Test
+    public void testAtEof() throws IOException {
+        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(128);
+        String chunkedInput = CHUNKED_INPUT + "\r\n";
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(chunkedInput.getBytes(StandardCharsets.ISO_8859_1));
+        final ChunkedInputStream in = new ChunkedInputStream(inbuffer, inputStream);
+        final byte[] buffer = new byte[64];
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int len;
+        len = in.read(buffer);
+        Assert.assertEquals(16, len);
+        Assert.assertFalse(in.atEof());
+        out.write(buffer, 0, len);
+
+        len = in.read(buffer);
+        Assert.assertEquals(5, len);
+        Assert.assertTrue(in.atEof());
+        out.write(buffer, 0, len);
+
+        Assert.assertEquals(-1, in.read(buffer));
+        Assert.assertTrue(in.atEof());
+        Assert.assertEquals(-1, in.read(buffer));
+        Assert.assertTrue(in.atEof());
+
+        in.close();
+
+        final String result = new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
+        Assert.assertEquals(result, CHUNKED_RESULT);
+
+        final Header[] footers = in.getFooters();
+        Assert.assertNotNull(footers);
+        Assert.assertEquals(2, footers.length);
+        Assert.assertEquals("Footer1", footers[0].getName());
+        Assert.assertEquals("abcde", footers[0].getValue());
+        Assert.assertEquals("Footer2", footers[1].getName());
+        Assert.assertEquals("fghij", footers[1].getValue());
     }
 
 }
