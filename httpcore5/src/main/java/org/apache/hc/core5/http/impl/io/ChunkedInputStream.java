@@ -156,7 +156,7 @@ public class ChunkedInputStream extends EofInputStream {
             pos++;
             if (pos >= chunkSize) {
                 state = CHUNK_CRLF;
-                consumeEndOfMessageIfCached();
+                consumeEndOfMessageIfBuffered();
             }
         }
         return b;
@@ -193,7 +193,7 @@ public class ChunkedInputStream extends EofInputStream {
             pos += bytesRead;
             if (pos >= chunkSize) {
                 state = CHUNK_CRLF;
-                consumeEndOfMessageIfCached();
+                consumeEndOfMessageIfBuffered();
             }
             return bytesRead;
         }
@@ -328,7 +328,7 @@ public class ChunkedInputStream extends EofInputStream {
         return this.footers.clone();
     }
 
-    private void consumeEndOfMessageIfCached() throws IOException {
+    private void consumeEndOfMessageIfBuffered() throws IOException {
         if (eof || state != CHUNK_CRLF) {
             return;
         }
