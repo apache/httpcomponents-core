@@ -521,7 +521,7 @@ public class TestChunkCoding {
     @Test
     public void testAtEof() throws IOException {
         final SessionInputBuffer inbuffer = new SessionInputBufferImpl(128);
-        String chunkedInput = CHUNKED_INPUT + "\r\n";
+        final String chunkedInput = CHUNKED_INPUT + "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(chunkedInput.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inbuffer, inputStream);
         final byte[] buffer = new byte[64];

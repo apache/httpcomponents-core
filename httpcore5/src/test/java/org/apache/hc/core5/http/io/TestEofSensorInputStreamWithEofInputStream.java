@@ -49,8 +49,8 @@ public class TestEofSensorInputStreamWithEofInputStream {
     @Test
     public void testReadAtEof() throws Exception {
         Mockito.when(instream.read()).thenReturn(0);
-    	Mockito.when(instream.atEof()).thenReturn(true);
-    	Mockito.when(eofwatcher.eofDetected(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
+        Mockito.when(instream.atEof()).thenReturn(true);
+        Mockito.when(eofwatcher.eofDetected(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
 
         Assert.assertEquals(0, eofstream.read());
         Assert.assertNull(eofstream.getWrappedStream());
@@ -61,8 +61,8 @@ public class TestEofSensorInputStreamWithEofInputStream {
     @Test
     public void testReadNotAtEof() throws Exception {
         Mockito.when(instream.read()).thenReturn(0);
-    	Mockito.when(instream.atEof()).thenReturn(false);
-    	Mockito.when(eofwatcher.eofDetected(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
+        Mockito.when(instream.atEof()).thenReturn(false);
+        Mockito.when(eofwatcher.eofDetected(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
 
         Assert.assertEquals(0, eofstream.read());
         Assert.assertNotNull(eofstream.getWrappedStream());
@@ -74,8 +74,8 @@ public class TestEofSensorInputStreamWithEofInputStream {
     public void testReadByteArrayAtEof() throws Exception {
         Mockito.when(instream.read(Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt()))
             .thenReturn(1);
-    	Mockito.when(instream.atEof()).thenReturn(true);
-    	Mockito.when(eofwatcher.eofDetected(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
+        Mockito.when(instream.atEof()).thenReturn(true);
+        Mockito.when(eofwatcher.eofDetected(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
 
         final byte[] tmp = new byte[1];
 
@@ -89,7 +89,7 @@ public class TestEofSensorInputStreamWithEofInputStream {
     public void testReadByteArrayNotAtEof() throws Exception {
         Mockito.when(instream.read(Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt()))
             .thenReturn(1);
-    	Mockito.when(instream.atEof()).thenReturn(false);
+        Mockito.when(instream.atEof()).thenReturn(false);
 
         final byte[] tmp = new byte[1];
 
