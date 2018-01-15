@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -37,6 +38,7 @@ import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.io.EofInputStream;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -57,7 +59,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * @since 4.0
  *
  */
-public class ChunkedInputStream extends InputStream {
+public class ChunkedInputStream extends EofInputStream {
 
     private static final int CHUNK_LEN               = 1;
     private static final int CHUNK_DATA              = 2;
@@ -154,6 +156,7 @@ public class ChunkedInputStream extends InputStream {
             pos++;
             if (pos >= chunkSize) {
                 state = CHUNK_CRLF;
+                consumeEndOfMessageIfBuffered();
             }
         }
         return b;
@@ -190,6 +193,7 @@ public class ChunkedInputStream extends InputStream {
             pos += bytesRead;
             if (pos >= chunkSize) {
                 state = CHUNK_CRLF;
+                consumeEndOfMessageIfBuffered();
             }
             return bytesRead;
         }
@@ -324,4 +328,60 @@ public class ChunkedInputStream extends InputStream {
         return this.footers.clone();
     }
 
+    private void consumeEndOfMessageIfBuffered() throws IOException {
+        if (eof || state != CHUNK_CRLF) {
+            return;
+        }
+
+        // To avoid blocking, peek at the unread buffered bytes.
+        // All content has been read if the unread bytes consist of:
+        // - CR+LF
+        // - A chunk size of 0, followed by CR+LF
+        // - Zero or more footers followed by CR+LF
+        // - An empty line
+        final int bufferedLen = buffer.getBufferedLen();
+        if (bufferedLen < 2 || buffer.peekBuffered(0) != Chars.CR || buffer.peekBuffered(1) != Chars.LF) {
+            return;
+        }
+
+        // check if the next buffered line contains all zeros
+        int cur = 2;
+        boolean foundZeros = false;
+        for (; cur < bufferedLen; cur++) {
+            if (buffer.peekBuffered(cur) == Chars.CR) {
+                break;
+            } else if (buffer.peekBuffered(cur) == '0') {
+                foundZeros = true;
+            } else {
+                return;
+            }
+        }
+        if (!foundZeros) {
+            return;
+        }
+
+        // check if the remaining buffered data contains an empty line,
+        // skipping any footers
+        boolean foundEmptyLine = false;
+        for (; cur + 3 < bufferedLen; cur++) {
+            if (buffer.peekBuffered(cur) == Chars.CR &&
+                buffer.peekBuffered(cur + 1) == Chars.LF &&
+                buffer.peekBuffered(cur + 2) == Chars.CR &&
+                buffer.peekBuffered(cur + 3) == Chars.LF) {
+                foundEmptyLine = true;
+                break;
+            }
+        }
+        if (foundEmptyLine == false) {
+            return;
+        }
+
+        // Read the next chunk header and footers. The operation should not block
+        nextChunk();
+    }
+
+    @Override
+    public boolean atEof() {
+        return eof;
+    }
 }

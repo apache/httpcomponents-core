@@ -144,4 +144,17 @@ public interface SessionInputBuffer {
      */
     HttpTransportMetrics getMetrics();
 
+    /**
+     * Returns the number of bytes stored in the session buffer
+     * @return     the number of bytes in the session buffer
+     */
+    int getBufferedLen();
+
+    /**
+     * Returns the byte stored at the given offset in the session buffer.
+     * The offset must be >= 0 and < getBufferedLen() - 1.
+     * @param       offset in the buffer
+     * @return      the buffered byte
+     */
+    byte peekBuffered(int offset);
 }
