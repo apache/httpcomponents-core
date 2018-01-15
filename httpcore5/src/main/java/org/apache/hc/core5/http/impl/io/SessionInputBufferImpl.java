@@ -390,7 +390,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     }
 
     @Override
-    public byte peekBuffered(int offset) {
+    public byte peekBuffered(final int offset) {
         return buffer[this.bufferpos + offset];
     }
 

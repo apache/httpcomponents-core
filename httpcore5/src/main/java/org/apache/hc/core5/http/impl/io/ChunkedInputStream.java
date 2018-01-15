@@ -339,7 +339,7 @@ public class ChunkedInputStream extends EofInputStream {
         // - A chunk size of 0, followed by CR+LF
         // - Zero or more footers followed by CR+LF
         // - An empty line
-        int bufferedLen = buffer.getBufferedLen();
+        final int bufferedLen = buffer.getBufferedLen();
         if (bufferedLen < 2 || buffer.peekBuffered(0) != Chars.CR || buffer.peekBuffered(1) != Chars.LF) {
             return;
         }
