@@ -1,7 +1,7 @@
 Release 4.4.9
 -------------------
 
-This is a maintenance release that fixes a number of issues discovered since 4.4.8 ands a few low-level methods.
+This is a maintenance release that fixes a number of issues discovered since 4.4.8 and adds a few low-level methods.
 
 Changelog
 -------------------
