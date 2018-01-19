@@ -284,5 +284,28 @@ public class TestDefaultConnectionReuseStrategy {
         Assert.assertTrue(reuseStrategy.keepAlive(request, response, context));
     }
 
+    @Test
+    public void testHttp204ContentLengthGreaterThanZero() throws Exception {
+        final HttpResponse response = new BasicHttpResponse(204, "OK");
+        response.addHeader("Content-Length", "10");
+        response.addHeader("Connection", "keep-alive");
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
+    }
+
+    @Test
+    public void testHttp204ContentLengthEqualToZero() throws Exception {
+        final HttpResponse response = new BasicHttpResponse(204, "OK");
+        response.addHeader("Content-Length", "0");
+        response.addHeader("Connection", "keep-alive");
+        Assert.assertTrue(reuseStrategy.keepAlive(null, response, context));
+    }
+
+    @Test
+    public void testHttp204ChunkedContent() throws Exception {
+        final HttpResponse response = new BasicHttpResponse(204, "OK");
+        response.addHeader("Transfer-Encoding", "chunked");
+        response.addHeader("Connection", "keep-alive");
+        Assert.assertFalse(reuseStrategy.keepAlive(null, response, context));
+    }
 }
 

@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicTokenIterator;
@@ -86,6 +87,26 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
                     return false;
                 }
+            }
+        }
+
+        // If a HTTP 204 No Content response contains a Content-length with value > 0 or Transfer-Encoding header,
+        // don't reuse the connection. This is to avoid getting out-of-sync if a misbehaved HTTP server
+        // returns content as part of a HTTP 204 response.
+        if (response.getCode() == HttpStatus.SC_NO_CONTENT) {
+            final Header clh = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
+            if (clh != null) {
+                try {
+                    final int contentLen = Integer.parseInt(clh.getValue());
+                    if (contentLen > 0) {
+                        return false;
+                    }
+                } catch (final NumberFormatException ex) {
+                    // fall through
+                }
+            }
+            if (response.containsHeader(HttpHeaders.TRANSFER_ENCODING)) {
+                return false;
             }
         }
 
