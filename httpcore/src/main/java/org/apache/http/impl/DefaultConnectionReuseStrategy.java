@@ -80,6 +80,19 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         Args.notNull(response, "HTTP response");
         Args.notNull(context, "HTTP context");
 
+        // If a HTTP 204 No Content response contain a Content-length or Transfer-encoding:Chunked header,
+        // don't reuse the connection. This is to avoid getting out-of-sync if a misbehaved HTTP server
+        // returns content as part of a HTTP 204 response.
+        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_NO_CONTENT) {
+              if (response.getFirstHeader(HTTP.CONTENT_LEN) != null) {
+                  return false;
+              }
+              final Header transferEncodingHeader = response.getFirstHeader(HTTP.TRANSFER_ENCODING);
+              if (transferEncodingHeader != null && HTTP.CHUNK_CODING.equalsIgnoreCase(transferEncodingHeader.getValue())) {
+                  return false;
+              }
+        }
+
         final HttpRequest request = (HttpRequest) context.getAttribute(HttpCoreContext.HTTP_REQUEST);
         if (request != null) {
             try {
