@@ -285,11 +285,19 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testHttp204ContentLength() throws Exception {
+    public void testHttp204ContentLengthGreaterThanZero() throws Exception {
         final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK");
         response.addHeader("Content-Length", "10");
         response.addHeader("Connection", "keep-alive");
         Assert.assertFalse(reuseStrategy.keepAlive(response, context));
+    }
+
+    @Test
+    public void testHttp204ContentLengthEqualToZero() throws Exception {
+        final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, 204, "OK");
+        response.addHeader("Content-Length", "0");
+        response.addHeader("Connection", "keep-alive");
+        Assert.assertTrue(reuseStrategy.keepAlive(response, context));
     }
 
     @Test
