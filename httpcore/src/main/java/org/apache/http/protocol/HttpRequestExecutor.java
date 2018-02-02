@@ -38,8 +38,8 @@ import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.util.Args;
 
 /**
@@ -271,10 +271,13 @@ public class HttpRequestExecutor {
         while (response == null || statusCode < HttpStatus.SC_OK) {
 
             response = conn.receiveResponseHeader();
+            statusCode = response.getStatusLine().getStatusCode();
+            if (statusCode < HttpStatus.SC_CONTINUE) {
+                throw new ProtocolException("Invalid response: " + response.getStatusLine());
+            }
             if (canResponseHaveBody(request, response)) {
                 conn.receiveResponseEntity(response);
             }
-            statusCode = response.getStatusLine().getStatusCode();
 
         } // while intermediate response
 

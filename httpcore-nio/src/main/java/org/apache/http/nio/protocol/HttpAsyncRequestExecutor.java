@@ -272,6 +272,9 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         final HttpResponse response = conn.getHttpResponse();
 
         final int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode < HttpStatus.SC_CONTINUE) {
+            throw new ProtocolException("Invalid response: " + response.getStatusLine());
+        }
         if (statusCode < HttpStatus.SC_OK) {
             // 1xx intermediate response
             if (statusCode != HttpStatus.SC_CONTINUE) {
