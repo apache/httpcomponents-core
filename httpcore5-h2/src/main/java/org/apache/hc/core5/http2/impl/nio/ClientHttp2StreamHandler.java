@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
@@ -186,7 +187,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
                 final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
                 final int status = response.getCode();
                 if (status < HttpStatus.SC_INFORMATIONAL) {
-                    throw new ProtocolException("Invalid response: " + status);
+                    throw new ProtocolException("Invalid response: " + new StatusLine(response));
                 }
                 if (status > HttpStatus.SC_CONTINUE && status < HttpStatus.SC_SUCCESS) {
                     exchangeHandler.consumeInformation(response);
