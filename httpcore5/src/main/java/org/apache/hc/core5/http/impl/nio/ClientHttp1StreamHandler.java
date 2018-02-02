@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -206,7 +207,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
 
         final int status = response.getCode();
         if (status < HttpStatus.SC_INFORMATIONAL) {
-            throw new ProtocolException("Invalid response: " + status);
+            throw new ProtocolException("Invalid response: " + new StatusLine(response));
         }
         if (status > HttpStatus.SC_CONTINUE && status < HttpStatus.SC_SUCCESS) {
             exchangeHandler.consumeInformation(response);

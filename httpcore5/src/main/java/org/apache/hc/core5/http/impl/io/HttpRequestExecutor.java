@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
@@ -47,6 +48,7 @@ import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
 import org.apache.hc.core5.http.message.MessageSupport;
+import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -179,6 +181,9 @@ public class HttpRequestExecutor {
                         streamListener.onResponseHead(conn, response);
                     }
                     final int status = response.getCode();
+                    if (status < HttpStatus.SC_INFORMATIONAL) {
+                        throw new ProtocolException("Invalid response: " + new StatusLine(response));
+                    }
                     if (status < HttpStatus.SC_SUCCESS) {
                         if (informationCallback != null && status != HttpStatus.SC_CONTINUE) {
                             informationCallback.execute(response, conn, context);
