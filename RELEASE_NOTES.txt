@@ -1,3 +1,16 @@
+Release 5.0-BETA3
+-------------------
+
+This BETA release fixes a number of defects found since the previous release and
+adds several incremental improvements.
+
+* HTTPCORE-510: Avoid an ArithmeticException in AbstractMultiworkerIOReactor by failing earlier by checking ioThreadCount in IOReactorConfig constructor.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-511: Do not cache result of Runtime.getRuntime().availableProcessors() in IOReactorConfig.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+
 Release 5.0-BETA2
 -------------------
 

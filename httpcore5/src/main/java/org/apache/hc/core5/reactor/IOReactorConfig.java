@@ -43,8 +43,6 @@ import org.apache.hc.core5.util.Timeout;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public final class IOReactorConfig {
 
-    private static final int AVAIL_PROCS = Runtime.getRuntime().availableProcessors();
-
     public static final IOReactorConfig DEFAULT = new Builder().build();
 
     private final long selectInterval;
@@ -71,7 +69,7 @@ public final class IOReactorConfig {
             final int backlogSize) {
         super();
         this.selectInterval = selectInterval;
-        this.ioThreadCount = ioThreadCount;
+        this.ioThreadCount = Args.positive(ioThreadCount, "ioThreadCount");
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
         this.soLinger = soLinger;
@@ -229,7 +227,7 @@ public final class IOReactorConfig {
 
         Builder() {
             this.selectInterval = 1000;
-            this.ioThreadCount = AVAIL_PROCS;
+            this.ioThreadCount = Runtime.getRuntime().availableProcessors();
             this.soTimeout = Timeout.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
             this.soLinger = TimeValue.NEG_ONE_SECONDS;
