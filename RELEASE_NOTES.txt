@@ -1,3 +1,15 @@
+Release 4.4.10
+-------------------
+
+This is a maintenance release that fixes a number of issues discovered since 4.4.9.
+
+Changelog
+-------------------
+
+* HTTPCORE-510: Avoid an ArithmeticException in AbstractMultiworkerIOReactor by failing earlier by checking ioThreadCount in IOReactorConfig constructor.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+  
 Release 4.4.9
 -------------------
 

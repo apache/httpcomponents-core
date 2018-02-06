@@ -91,7 +91,7 @@ public final class IOReactorConfig implements Cloneable {
         this.selectInterval = selectInterval;
         this.shutdownGracePeriod = shutdownGracePeriod;
         this.interestOpQueued = interestOpQueued;
-        this.ioThreadCount = ioThreadCount;
+        this.ioThreadCount = Args.positive(ioThreadCount, "ioThreadCount");
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
         this.soLinger = soLinger;
