@@ -36,8 +36,6 @@ import org.apache.http.util.Args;
  */
 public final class IOReactorConfig implements Cloneable {
 
-    private static final int AVAIL_PROCS = Runtime.getRuntime().availableProcessors();
-
     public static final IOReactorConfig DEFAULT = new Builder().build();
 
     // TODO: make final
@@ -61,7 +59,7 @@ public final class IOReactorConfig implements Cloneable {
         this.selectInterval = 1000;
         this.shutdownGracePeriod = 500;
         this.interestOpQueued = false;
-        this.ioThreadCount = AVAIL_PROCS;
+        this.ioThreadCount = Runtime.getRuntime().availableProcessors();
         this.soTimeout = 0;
         this.soReuseAddress = false;
         this.soLinger = -1;
@@ -396,7 +394,7 @@ public final class IOReactorConfig implements Cloneable {
             this.selectInterval = 1000;
             this.shutdownGracePeriod = 500;
             this.interestOpQueued = false;
-            this.ioThreadCount = AVAIL_PROCS;
+            this.ioThreadCount = Runtime.getRuntime().availableProcessors();
             this.soTimeout = 0;
             this.soReuseAddress = false;
             this.soLinger = -1;
