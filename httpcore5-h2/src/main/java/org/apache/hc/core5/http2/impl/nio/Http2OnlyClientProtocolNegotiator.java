@@ -49,7 +49,7 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
@@ -60,14 +60,14 @@ import org.apache.hc.core5.util.TextUtils;
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHandler {
 
-    private final TlsCapableIOSession ioSession;
+    private final ProtocolIOSession ioSession;
     private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final boolean strictALPNHandshake;
 
     private final ByteBuffer preface;
 
     public Http2OnlyClientProtocolNegotiator(
-            final TlsCapableIOSession ioSession,
+            final ProtocolIOSession ioSession,
             final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
             final boolean strictALPNHandshake) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
@@ -108,7 +108,7 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
             final ClientHttp2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
             final IOEventHandler newHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
             newHandler.connected(session);
-            session.setHandler(newHandler);
+            ioSession.upgrade(newHandler);
         }
     }
 

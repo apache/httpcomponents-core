@@ -79,16 +79,6 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public IOEventHandler getHandler() {
-        return this.eventHandler;
-    }
-
-    @Override
-    public void setHandler(final IOEventHandler handler) {
-        this.eventHandler = handler;
-    }
-
-    @Override
     public void addLast(final Command command) {
         commandQueue.addLast(command);
         setEvent(SelectionKey.OP_WRITE);

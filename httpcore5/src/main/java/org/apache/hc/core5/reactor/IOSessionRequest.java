@@ -69,7 +69,7 @@ final class IOSessionRequest implements Future<IOSession> {
         this.closeableRef = new AtomicReference<>(null);
     }
 
-    public void completed(final TlsCapableIOSession ioSession) {
+    public void completed(final ProtocolIOSession ioSession) {
         future.completed(ioSession);
         closeableRef.set(null);
     }

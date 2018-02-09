@@ -33,7 +33,7 @@ import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -59,7 +59,7 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     }
 
     @Override
-    public ServerHttpProtocolNegotiator createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
+    public ServerHttpProtocolNegotiator createHandler(final ProtocolIOSession ioSession, final Object attachment) {
         if (tlsStrategy != null) {
             tlsStrategy.upgrade(
                     ioSession,

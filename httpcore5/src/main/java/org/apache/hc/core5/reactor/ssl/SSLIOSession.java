@@ -52,7 +52,6 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
-import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.ssl.ReflectionSupport;
 import org.apache.hc.core5.util.Args;
@@ -728,16 +727,6 @@ public class SSLIOSession implements IOSession {
     @Override
     public long getLastWriteTime() {
         return this.session.getLastWriteTime();
-    }
-
-    @Override
-    public IOEventHandler getHandler() {
-        return this.session.getHandler();
-    }
-
-    @Override
-    public void setHandler(final IOEventHandler handler) {
-        this.session.setHandler(handler);
     }
 
     private static void formatOps(final StringBuilder buffer, final int ops) {

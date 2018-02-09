@@ -25,30 +25,15 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.nio;
+package org.apache.hc.core5.reactor;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.reactor.IOEventHandler;
-import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 
 /**
+ * TLS capable {@link IOSession}.
+ *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
-
-    private final ClientHttp1StreamDuplexerFactory streamDuplexerFactory;
-
-    public ClientHttp1IOEventHandlerFactory(final ClientHttp1StreamDuplexerFactory streamDuplexerFactory) {
-        this.streamDuplexerFactory = Args.notNull(streamDuplexerFactory, "Stream duplexer factory");
-    }
-
-    @Override
-    public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
-        return new ClientHttp1IOEventHandler(streamDuplexerFactory.create(ioSession));
-    }
+public interface ProtocolIOSession extends IOSession, ProtocolLayer, TransportSecurityLayer {
 
 }

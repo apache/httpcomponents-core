@@ -84,7 +84,7 @@ import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
@@ -99,7 +99,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     enum SettingsHandshake { READY, TRANSMITTED, ACKED }
 
     private final Mode mode;
-    private final TlsCapableIOSession ioSession;
+    private final ProtocolIOSession ioSession;
     private final FrameFactory frameFactory;
     private final StreamIdGenerator idGenerator;
     private final HttpProcessor httpProcessor;
@@ -134,7 +134,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
     AbstractHttp2StreamMultiplexer(
             final Mode mode,
-            final TlsCapableIOSession ioSession,
+            final ProtocolIOSession ioSession,
             final FrameFactory frameFactory,
             final StreamIdGenerator idGenerator,
             final HttpProcessor httpProcessor,

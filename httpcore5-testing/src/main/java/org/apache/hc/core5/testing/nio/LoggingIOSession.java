@@ -35,7 +35,6 @@ import java.nio.channels.SelectionKey;
 
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
-import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.classic.Wire;
 import org.slf4j.Logger;
@@ -205,16 +204,6 @@ public class LoggingIOSession implements IOSession {
     @Override
     public long getLastWriteTime() {
         return this.session.getLastWriteTime();
-    }
-
-    @Override
-    public IOEventHandler getHandler() {
-        return this.session.getHandler();
-    }
-
-    @Override
-    public void setHandler(final IOEventHandler handler) {
-        this.session.setHandler(handler);
     }
 
     @Override

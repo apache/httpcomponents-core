@@ -52,7 +52,7 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 
@@ -68,7 +68,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             0x2f, 0x32, 0x2e, 0x30, 0x0d, 0x0a, 0x0d, 0x0a, 0x53, 0x4d,
             0x0d, 0x0a, 0x0d, 0x0a};
 
-    private final TlsCapableIOSession ioSession;
+    private final ProtocolIOSession ioSession;
     private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
     private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
@@ -76,7 +76,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private volatile ByteBuffer preface;
 
     public ClientHttpProtocolNegotiator(
-            final TlsCapableIOSession ioSession,
+            final ProtocolIOSession ioSession,
             final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
             final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
             final HttpVersionPolicy versionPolicy) {
@@ -105,7 +105,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             }
             if (preface == null) {
                 final ClientHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(ioSession);
-                session.setHandler(new ClientHttp1IOEventHandler(http1StreamHandler));
+                ioSession.upgrade(new ClientHttp1IOEventHandler(http1StreamHandler));
                 http1StreamHandler.onConnect(null);
             } else {
                 writePreface(session);
@@ -125,7 +125,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             final ClientHttp2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
             final IOEventHandler newHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
             newHandler.connected(session);
-            session.setHandler(newHandler);
+            ioSession.upgrade(newHandler);
         }
     }
 

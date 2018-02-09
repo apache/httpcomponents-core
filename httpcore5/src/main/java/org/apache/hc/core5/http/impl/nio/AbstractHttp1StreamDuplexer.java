@@ -48,6 +48,7 @@ import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.Message;
@@ -75,20 +76,22 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOEventHandler;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolLayer;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Identifiable;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
-        implements Identifiable, ResourceHolder, UpgradeableHttpConnection {
+        implements Identifiable, ResourceHolder, TransportSecurityLayer, ProtocolLayer, HttpConnection {
 
     private enum ConnectionState { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
 
-    private final TlsCapableIOSession ioSession;
+    private final ProtocolIOSession ioSession;
     private final H1Config h1Config;
     private final SessionInputBufferImpl inbuf;
     private final SessionOutputBufferImpl outbuf;
@@ -105,13 +108,13 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     private volatile Message<IncomingMessage, ContentDecoder> incomingMessage;
     private volatile Message<OutgoingMessage, ContentEncoder> outgoingMessage;
-    private volatile ConnectionState connState = ConnectionState.READY;
+    private volatile ConnectionState connState;
 
     private volatile ProtocolVersion version;
     private volatile EndpointDetails endpointDetails;
 
     AbstractHttp1StreamDuplexer(
-            final TlsCapableIOSession ioSession,
+            final ProtocolIOSession ioSession,
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,
             final NHttpMessageParser<IncomingMessage> incomingMessageParser,
@@ -623,8 +626,13 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     @Override
+    public IOEventHandler getHandler() {
+        return ioSession.getHandler();
+    }
+
+    @Override
     public void upgrade(final IOEventHandler eventHandler) {
-        ioSession.setHandler(eventHandler);
+        ioSession.upgrade(eventHandler);
     }
 
 }

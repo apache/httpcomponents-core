@@ -50,7 +50,7 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -202,7 +202,7 @@ public class Http2MultiplexingRequesterBootstrap {
                 new IOEventHandlerFactory() {
 
                     @Override
-                    public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
+                    public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
                         return new Http2OnlyClientProtocolNegotiator(ioSession, http2StreamHandlerFactory, strictALPNHandshake);
                     }
 

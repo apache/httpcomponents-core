@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -113,7 +113,7 @@ public final class ClientHttp1StreamDuplexerFactory {
         this(httpProcessor, h1Config, charCodingConfig, null);
     }
 
-    public ClientHttp1StreamDuplexer create(final TlsCapableIOSession ioSession) {
+    public ClientHttp1StreamDuplexer create(final ProtocolIOSession ioSession) {
         return new ClientHttp1StreamDuplexer(
                 ioSession,
                 httpProcessor,
