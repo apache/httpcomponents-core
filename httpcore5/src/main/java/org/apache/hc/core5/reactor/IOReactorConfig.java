@@ -214,6 +214,33 @@ public final class IOReactorConfig {
 
     public static class Builder {
 
+        private static int DefaultMaxIoThreadCount = -1;
+
+        /**
+         * Gets the default value for {@code ioThreadCount}. Returns
+         * {@link Runtime#availableProcessors()} if
+         * {@link #setDefaultMaxIoThreadCount(int)} was called with a value <=0.
+         *
+         * @return the default value for ioThreadCount.
+         * @since 4.4.10
+         */
+        public static int getDefaultMaxIoThreadCount() {
+            return DefaultMaxIoThreadCount > 0 ? DefaultMaxIoThreadCount : Runtime.getRuntime().availableProcessors();
+        }
+
+        /**
+         * Sets the default value for {@code ioThreadCount}. Use a value <= 0 to
+         * cause {@link #getDefaultMaxIoThreadCount()} to return
+         * {@link Runtime#availableProcessors()}.
+         *
+         * @param defaultMaxIoThreadCount
+         *            the default value for ioThreadCount.
+         * @since 4.4.10
+         */
+        public static void setDefaultMaxIoThreadCount(final int defaultMaxIoThreadCount) {
+            DefaultMaxIoThreadCount = defaultMaxIoThreadCount;
+        }
+
         private long selectInterval;
         private int ioThreadCount;
         private Timeout  soTimeout;
@@ -227,7 +254,7 @@ public final class IOReactorConfig {
 
         Builder() {
             this.selectInterval = 1000;
-            this.ioThreadCount = Runtime.getRuntime().availableProcessors();
+            this.ioThreadCount = Builder.getDefaultMaxIoThreadCount();
             this.soTimeout = Timeout.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
             this.soLinger = TimeValue.NEG_ONE_SECONDS;
