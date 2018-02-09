@@ -10,6 +10,9 @@ adds several incremental improvements.
 * HTTPCORE-511: Do not cache result of Runtime.getRuntime().availableProcessors() in IOReactorConfig.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-509: AVAIL_PROCS is auto-configured based on core count.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 5.0-BETA2
 -------------------
