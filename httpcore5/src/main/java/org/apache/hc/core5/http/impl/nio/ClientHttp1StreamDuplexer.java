@@ -64,7 +64,7 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.InetAddressUtils;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
@@ -81,7 +81,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     private volatile ClientHttp1StreamHandler incoming;
 
     public ClientHttp1StreamDuplexer(
-            final TlsCapableIOSession ioSession,
+            final ProtocolIOSession ioSession,
             final HttpProcessor httpProcessor,
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,

@@ -32,7 +32,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -55,7 +55,7 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     }
 
     @Override
-    public ClientHttpProtocolNegotiator createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
+    public ClientHttpProtocolNegotiator createHandler(final ProtocolIOSession ioSession, final Object attachment) {
         return new ClientHttpProtocolNegotiator(
                 ioSession,
                 http1StreamHandlerFactory,

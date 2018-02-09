@@ -43,7 +43,7 @@ import org.apache.hc.core5.http2.impl.nio.ClientHttp2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiator;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
@@ -74,7 +74,7 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
     }
 
     @Override
-    public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
+    public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
         if (sslContext != null) {
             ioSession.startTls(sslContext, null ,null, null);
         }

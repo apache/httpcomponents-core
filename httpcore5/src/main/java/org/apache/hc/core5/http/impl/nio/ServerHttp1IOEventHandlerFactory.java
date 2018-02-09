@@ -33,7 +33,7 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -53,7 +53,7 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     }
 
     @Override
-    public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
+    public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
         final boolean tlsSecured;
         if (tlsStrategy != null) {
             tlsSecured = tlsStrategy.upgrade(

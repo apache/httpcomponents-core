@@ -49,7 +49,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 
@@ -61,7 +61,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     final static byte[] PREFACE = ClientHttpProtocolNegotiator.PREFACE;
 
-    private final TlsCapableIOSession ioSession;
+    private final ProtocolIOSession ioSession;
     private final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory;
     private final ServerHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
@@ -70,7 +70,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private volatile boolean expectValidH2Preface;
 
     public ServerHttpProtocolNegotiator(
-            final TlsCapableIOSession ioSession,
+            final ProtocolIOSession ioSession,
             final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory,
             final ServerHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
             final HttpVersionPolicy versionPolicy) {
@@ -99,7 +99,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(
                             tlsDetails != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
                             ioSession);
-                    session.setHandler(new ServerHttp1IOEventHandler(http1StreamHandler));
+                    ioSession.upgrade(new ServerHttp1IOEventHandler(http1StreamHandler));
                     http1StreamHandler.onConnect(null);
                     break;
             }
@@ -133,7 +133,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 }
                 if (validH2Preface) {
                     final ServerHttp2StreamMultiplexer http2StreamHandler = http2StreamHandlerFactory.create(ioSession);
-                    session.setHandler(new ServerHttp2IOEventHandler(http2StreamHandler));
+                    ioSession.upgrade(new ServerHttp2IOEventHandler(http2StreamHandler));
                     http2StreamHandler.onConnect(bytebuf.hasRemaining() ? bytebuf : null);
                     http2StreamHandler.onInput();
                 } else {
@@ -141,7 +141,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(
                             tlsDetails != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
                             ioSession);
-                    session.setHandler(new ServerHttp1IOEventHandler(http1StreamHandler));
+                    ioSession.upgrade(new ServerHttp1IOEventHandler(http1StreamHandler));
                     bytebuf.rewind();
                     http1StreamHandler.onConnect(bytebuf);
                     http1StreamHandler.onInput();

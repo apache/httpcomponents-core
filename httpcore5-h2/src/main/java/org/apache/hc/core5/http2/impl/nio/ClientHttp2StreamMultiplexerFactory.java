@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -76,7 +76,7 @@ public final class ClientHttp2StreamMultiplexerFactory {
         this(httpProcessor, null, streamListener);
     }
 
-    public ClientHttp2StreamMultiplexer create(final TlsCapableIOSession ioSession) {
+    public ClientHttp2StreamMultiplexer create(final ProtocolIOSession ioSession) {
         return new ClientHttp2StreamMultiplexer(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor,
                 pushHandlerFactory, h2Config, charCodingConfig, streamListener);
     }

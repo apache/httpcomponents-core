@@ -65,7 +65,6 @@ import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
@@ -122,22 +121,21 @@ import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
 import org.apache.hc.core5.reactor.ExceptionEvent;
-import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
@@ -737,11 +735,6 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final IOSession ioSession = sessionFuture.get();
         final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(ioSession);
 
-        final IOEventHandler handler = ioSession.getHandler();
-        Assert.assertNotNull(handler);
-        Assert.assertTrue(handler instanceof HttpConnection);
-        final HttpConnection conn = (HttpConnection) handler;
-
         final HttpRequest request1 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         request1.addHeader("password", "secret");
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
@@ -754,7 +747,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(200, response1.getCode());
         Assert.assertNotNull("All is well", result1.getBody());
 
-        Assert.assertTrue(conn.isOpen());
+        Assert.assertFalse(ioSession.isClosed());
 
         final HttpRequest request2 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
@@ -767,7 +760,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response2.getCode());
         Assert.assertNotNull("You shall not pass", result2.getBody());
 
-        Assert.assertTrue(conn.isOpen());
+        Assert.assertFalse(ioSession.isClosed());
 
         final HttpRequest request3 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         request3.addHeader("password", "secret");
@@ -781,7 +774,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(200, response3.getCode());
         Assert.assertNotNull("All is well", result3.getBody());
 
-        Assert.assertTrue(conn.isOpen());
+        Assert.assertFalse(ioSession.isClosed());
 
         final HttpRequest request4 = new BasicHttpRequest("POST", createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
@@ -794,7 +787,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response4.getCode());
         Assert.assertNotNull("You shall not pass", result4.getBody());
 
-        Assert.assertFalse(conn.isOpen());
+        Assert.assertTrue(ioSession.isClosed());
     }
 
     @Test
@@ -1383,7 +1376,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
             @Override
             protected ServerHttp1StreamDuplexer createServerHttp1StreamDuplexer(
-                    final TlsCapableIOSession ioSession,
+                    final ProtocolIOSession ioSession,
                     final HttpProcessor httpProcessor,
                     final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
                     final H1Config h1Config,

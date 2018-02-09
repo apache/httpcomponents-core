@@ -40,7 +40,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.TimeValue;
 import org.junit.After;
 import org.junit.Assert;
@@ -57,7 +57,7 @@ public class TestDefaultListeningIOReactor {
     private static class NoopIOEventHandlerFactory implements IOEventHandlerFactory {
 
         @Override
-        public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
+        public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
             return new IOEventHandler() {
 
                 @Override

@@ -51,7 +51,7 @@ import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -85,7 +85,7 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
     }
 
     protected ClientHttp1StreamDuplexer createClientHttp1StreamDuplexer(
-            final TlsCapableIOSession ioSession,
+            final ProtocolIOSession ioSession,
             final HttpProcessor httpProcessor,
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,
@@ -101,7 +101,7 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
     }
 
     @Override
-    public IOEventHandler createHandler(final TlsCapableIOSession ioSession, final Object attachment) {
+    public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
         if (sslContext != null) {
             ioSession.startTls(sslContext, null ,null, null);
         }

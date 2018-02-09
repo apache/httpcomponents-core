@@ -113,11 +113,10 @@ import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -125,6 +124,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
@@ -1040,7 +1041,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
             Assert.assertThat(ex.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
         }
 
-        final HttpConnection eventHandler = (HttpConnection) session.getHandler();
+        final HttpConnection eventHandler = (HttpConnection) ((ProtocolIOSession) session).getHandler();
         final EndpointDetails endpointDetails = eventHandler.getEndpointDetails();
         Assert.assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
     }

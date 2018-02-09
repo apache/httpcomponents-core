@@ -39,7 +39,7 @@ import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.net.InetAddressUtils;
-import org.apache.hc.core5.reactor.TlsCapableIOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -52,7 +52,7 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
 
     public ServerHttp2StreamMultiplexer(
-            final TlsCapableIOSession ioSession,
+            final ProtocolIOSession ioSession,
             final FrameFactory frameFactory,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
@@ -64,7 +64,7 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     }
 
     public ServerHttp2StreamMultiplexer(
-            final TlsCapableIOSession ioSession,
+            final ProtocolIOSession ioSession,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final CharCodingConfig charCodingConfig,

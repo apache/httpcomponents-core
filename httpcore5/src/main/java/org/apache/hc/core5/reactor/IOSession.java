@@ -56,20 +56,6 @@ public interface IOSession extends GracefullyCloseable, Identifiable {
     int CLOSED       = Integer.MAX_VALUE;
 
     /**
-     * Returns the event handler for this session.
-     *
-     * @since 5.0
-     */
-    IOEventHandler getHandler();
-
-    /**
-     * Sets the event handler for this session.
-     *
-     * @since 5.0
-     */
-    void setHandler(IOEventHandler handler);
-
-    /**
      * Inserts {@link Command} at the end of the command queue.
      *
      * @since 5.0

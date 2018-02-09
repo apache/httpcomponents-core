@@ -48,13 +48,14 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Asserts;
 
-final class InternalDataChannel extends InternalChannel implements TlsCapableIOSession {
+final class InternalDataChannel extends InternalChannel implements ProtocolIOSession {
 
     private final IOSession ioSession;
     private final NamedEndpoint namedEndpoint;
     private final IOSessionListener sessionListener;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final Queue<InternalDataChannel> closedSessions;
+    private final AtomicReference<IOEventHandler> handlerRef;
     private final AtomicBoolean connected;
     private final AtomicBoolean closed;
 
@@ -68,6 +69,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
         this.closedSessions = closedSessions;
         this.sessionListener = sessionListener;
         this.tlsSessionRef = new AtomicReference<>(null);
+        this.handlerRef = new AtomicReference<>(null);
         this.connected = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
     }
@@ -75,6 +77,16 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
     @Override
     public String getId() {
         return ioSession.getId();
+    }
+
+    @Override
+    public IOEventHandler getHandler() {
+        return handlerRef.get();
+    }
+
+    @Override
+    public void upgrade(final IOEventHandler handler) {
+        handlerRef.set(handler);
     }
 
     private IOSession getSessionImpl() {
@@ -86,8 +98,8 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
         }
     }
 
-    private IOEventHandler getEventHandler() {
-        final IOEventHandler handler = ioSession.getHandler();
+    private IOEventHandler ensureHandler() {
+        final IOEventHandler handler = handlerRef.get();
         Asserts.notNull(handler, "IO event handler");
         return handler;
     }
@@ -113,7 +125,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                         if (sessionListener != null) {
                             sessionListener.inputReady(this);
                         }
-                        final IOEventHandler handler = getEventHandler();
+                        final IOEventHandler handler = ensureHandler();
                         handler.inputReady(this);
                     }
                     tlsSession.inboundTransport();
@@ -128,7 +140,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                     if (sessionListener != null) {
                         sessionListener.outputReady(this);
                     }
-                    final IOEventHandler handler = getEventHandler();
+                    final IOEventHandler handler = ensureHandler();
                     handler.outputReady(this);
                 }
                 tlsSession.outboundTransport();
@@ -143,7 +155,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                     if (sessionListener != null) {
                         sessionListener.connected(this);
                     }
-                    final IOEventHandler handler = getEventHandler();
+                    final IOEventHandler handler = ensureHandler();
                     handler.connected(this);
                 }
             }
@@ -152,7 +164,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                 if (sessionListener != null) {
                     sessionListener.inputReady(this);
                 }
-                final IOEventHandler handler = getEventHandler();
+                final IOEventHandler handler = ensureHandler();
                 handler.inputReady(this);
             }
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
@@ -160,7 +172,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                 if (sessionListener != null) {
                     sessionListener.outputReady(this);
                 }
-                final IOEventHandler handler = getEventHandler();
+                final IOEventHandler handler = ensureHandler();
                 handler.outputReady(this);
             }
         }
@@ -173,7 +185,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
 
     @Override
     void onTimeout() throws IOException {
-        final IOEventHandler handler = getEventHandler();
+        final IOEventHandler handler = ensureHandler();
         handler.timeout(this);
         final SSLIOSession tlsSession = tlsSessionRef.get();
         if (tlsSession != null) {
@@ -186,7 +198,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
 
     @Override
     void onException(final Exception cause) {
-        final IOEventHandler handler = getEventHandler();
+        final IOEventHandler handler = ensureHandler();
         if (sessionListener != null) {
             sessionListener.exception(this, cause);
         }
@@ -197,7 +209,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
         if (sessionListener != null) {
             sessionListener.disconnected(this);
         }
-        final IOEventHandler handler = getEventHandler();
+        final IOEventHandler handler = ensureHandler();
         handler.disconnected(this);
     }
 
@@ -220,7 +232,7 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
                     @Override
                     public void execute(final SSLIOSession sslSession) {
                         if (connected.compareAndSet(false, true)) {
-                            final IOEventHandler handler = getEventHandler();
+                            final IOEventHandler handler = ensureHandler();
                             try {
                                 if (sessionListener != null) {
                                     sessionListener.connected(InternalDataChannel.this);
@@ -276,16 +288,6 @@ final class InternalDataChannel extends InternalChannel implements TlsCapableIOS
     @Override
     public boolean isClosed() {
         return getSessionImpl().isClosed();
-    }
-
-    @Override
-    public IOEventHandler getHandler() {
-        return ioSession.getHandler();
-    }
-
-    @Override
-    public void setHandler(final IOEventHandler eventHandler) {
-        ioSession.setHandler(eventHandler);
     }
 
     @Override

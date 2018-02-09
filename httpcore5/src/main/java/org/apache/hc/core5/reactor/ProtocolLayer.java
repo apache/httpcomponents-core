@@ -27,13 +27,18 @@
 
 package org.apache.hc.core5.reactor;
 
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.annotation.Internal;
 
 /**
- * TLS capable {@link IOSession}.
+ * Represents application protocol layer.
  *
  * @since 5.0
  */
-public interface TlsCapableIOSession extends IOSession, TransportSecurityLayer {
+@Internal
+public interface ProtocolLayer {
+
+    IOEventHandler getHandler();
+
+    void upgrade(IOEventHandler handler);
 
 }
