@@ -36,6 +36,8 @@ import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.Args;
@@ -46,9 +48,10 @@ class IOSessionImpl implements IOSession {
 
     private final SelectionKey key;
     private final SocketChannel channel;
+    private final Deque<Command> commandQueue;
+    private final Lock lock;
     private final String id;
     private final AtomicInteger status;
-    private final Deque<Command> commandQueue;
 
     private volatile IOEventHandler eventHandler;
     private volatile int socketTimeout;
@@ -66,6 +69,7 @@ class IOSessionImpl implements IOSession {
         this.key = Args.notNull(key, "Selection key");
         this.channel = Args.notNull(socketChannel, "Socket channel");
         this.commandQueue = new ConcurrentLinkedDeque<>();
+        this.lock = new ReentrantLock();
         this.socketTimeout = 0;
         this.id = String.format("i/o-%08X", COUNT.getAndIncrement());
         this.status = new AtomicInteger(ACTIVE);
@@ -76,6 +80,11 @@ class IOSessionImpl implements IOSession {
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public Lock lock() {
+        return lock;
     }
 
     @Override
@@ -120,10 +129,8 @@ class IOSessionImpl implements IOSession {
         if (this.status.get() == CLOSED) {
             return;
         }
-        synchronized (this.key) {
-            this.key.interestOps(newValue);
-            this.key.selector().wakeup();
-        }
+        this.key.interestOps(newValue);
+        this.key.selector().wakeup();
     }
 
     @Override
@@ -131,10 +138,13 @@ class IOSessionImpl implements IOSession {
         if (this.status.get() == CLOSED) {
             return;
         }
-        synchronized (this.key) {
+        lock.lock();
+        try {
             this.key.interestOps(this.key.interestOps() | op);
-            this.key.selector().wakeup();
+        } finally {
+            lock.unlock();
         }
+        this.key.selector().wakeup();
     }
 
     @Override
@@ -142,10 +152,13 @@ class IOSessionImpl implements IOSession {
         if (this.status.get() == CLOSED) {
             return;
         }
-        synchronized (this.key) {
+        lock.lock();
+        try {
             this.key.interestOps(this.key.interestOps() & ~op);
-            this.key.selector().wakeup();
+        } finally {
+            lock.unlock();
         }
+        this.key.selector().wakeup();
     }
 
     @Override

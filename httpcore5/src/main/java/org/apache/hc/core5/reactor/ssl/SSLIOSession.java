@@ -35,6 +35,7 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Lock;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -192,6 +193,11 @@ public class SSLIOSession implements IOSession {
         return session.getId();
     }
 
+    @Override
+    public Lock lock() {
+        return this.session.lock();
+    }
+
     /**
      * Returns {@code true} is the session has been fully initialized,
      * {@code false} otherwise.
@@ -208,32 +214,37 @@ public class SSLIOSession implements IOSession {
      * @throws SSLException in case of a SSL protocol exception.
      * @throws IllegalStateException if the session has already been initialized.
      */
-    public synchronized void initialize() throws SSLException {
+    public void initialize() throws SSLException {
         Asserts.check(!this.initialized, "SSL I/O session already initialized");
-        if (this.status >= IOSession.CLOSING) {
-            return;
-        }
-        switch (this.sslMode) {
-        case CLIENT:
-            this.sslEngine.setUseClientMode(true);
-            break;
-        case SERVER:
-            this.sslEngine.setUseClientMode(false);
-            break;
-        }
-        if (this.initializer != null) {
-            this.initializer.initialize(this.targetEndpoint, this.sslEngine);
-        }
-        this.initialized = true;
-        this.sslEngine.beginHandshake();
+        this.session.lock().lock();
+        try {
+            if (this.status >= IOSession.CLOSING) {
+                return;
+            }
+            switch (this.sslMode) {
+                case CLIENT:
+                    this.sslEngine.setUseClientMode(true);
+                    break;
+                case SERVER:
+                    this.sslEngine.setUseClientMode(false);
+                    break;
+            }
+            if (this.initializer != null) {
+                this.initializer.initialize(this.targetEndpoint, this.sslEngine);
+            }
+            this.initialized = true;
+            this.sslEngine.beginHandshake();
 
-        this.inEncrypted.release();
-        this.outEncrypted.release();
-        this.inPlain.release();
-        doHandshake();
+            this.inEncrypted.release();
+            this.outEncrypted.release();
+            this.inPlain.release();
+            doHandshake();
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
-    public synchronized TlsDetails getTlsDetails() {
+    public TlsDetails getTlsDetails() {
         return tlsDetails;
     }
 
@@ -492,20 +503,25 @@ public class SSLIOSession implements IOSession {
      *
      * @throws IOException in case of an I/O error.
      */
-    public synchronized boolean isAppInputReady() throws IOException {
-        do {
-            final int bytesRead = receiveEncryptedData();
-            if (bytesRead == -1) {
-                this.endOfStream = true;
-            }
-            doHandshake();
-            final HandshakeStatus status = this.sslEngine.getHandshakeStatus();
-            if (status == HandshakeStatus.NOT_HANDSHAKING || status == HandshakeStatus.FINISHED) {
-                decryptData();
-            }
-        } while (this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_TASK);
-        // Some decrypted data is available or at the end of stream
-        return this.inPlain.hasData() || (this.endOfStream && this.status == ACTIVE);
+    public boolean isAppInputReady() throws IOException {
+        this.session.lock().lock();
+        try {
+            do {
+                final int bytesRead = receiveEncryptedData();
+                if (bytesRead == -1) {
+                    this.endOfStream = true;
+                }
+                doHandshake();
+                final HandshakeStatus status = this.sslEngine.getHandshakeStatus();
+                if (status == HandshakeStatus.NOT_HANDSHAKING || status == HandshakeStatus.FINISHED) {
+                    decryptData();
+                }
+            } while (this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_TASK);
+            // Some decrypted data is available or at the end of stream
+            return this.inPlain.hasData() || (this.endOfStream && this.status == ACTIVE);
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     /**
@@ -514,10 +530,15 @@ public class SSLIOSession implements IOSession {
      *
      * @throws IOException - not thrown currently
      */
-    public synchronized boolean isAppOutputReady() throws IOException {
-        return (this.appEventMask & SelectionKey.OP_WRITE) > 0
-            && this.status == ACTIVE
-            && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING;
+    public boolean isAppOutputReady() throws IOException {
+        this.session.lock().lock();
+        try {
+            return (this.appEventMask & SelectionKey.OP_WRITE) > 0
+                    && this.status == ACTIVE
+                    && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING;
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     /**
@@ -525,8 +546,13 @@ public class SSLIOSession implements IOSession {
      *
      * @throws IOException - not thrown currently
      */
-    public synchronized void inboundTransport() throws IOException {
-        updateEventMask();
+    public void inboundTransport() throws IOException {
+        this.session.lock().lock();
+        try {
+            updateEventMask();
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     /**
@@ -534,67 +560,82 @@ public class SSLIOSession implements IOSession {
      *
      * @throws IOException in case of an I/O error.
      */
-    public synchronized void outboundTransport() throws IOException {
-        if (this.session.isClosed()) {
-            return;
+    public void outboundTransport() throws IOException {
+        this.session.lock().lock();
+        try {
+            if (this.session.isClosed()) {
+                return;
+            }
+            sendEncryptedData();
+            doHandshake();
+            updateEventMask();
+        } finally {
+            this.session.lock().unlock();
         }
-        sendEncryptedData();
-        doHandshake();
-        updateEventMask();
     }
 
     /**
      * Returns whether the session will produce any more inbound data.
      */
-    public synchronized boolean isInboundDone() {
+    public boolean isInboundDone() {
         return this.sslEngine.isInboundDone();
     }
 
     /**
      * Returns whether the session will accept any more outbound data.
      */
-    public synchronized boolean isOutboundDone() {
+    public boolean isOutboundDone() {
         return this.sslEngine.isOutboundDone();
     }
 
-    private synchronized int writePlain(final ByteBuffer src) throws IOException {
+    private int writePlain(final ByteBuffer src) throws IOException {
         Args.notNull(src, "Byte buffer");
-        if (this.status != ACTIVE) {
-            throw new ClosedChannelException();
+        this.session.lock().lock();
+        try {
+            if (this.status != ACTIVE) {
+                throw new ClosedChannelException();
+            }
+            final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
+            final SSLEngineResult result = doWrap(src, outEncryptedBuf);
+            if (result.getStatus() == Status.CLOSED) {
+                this.status = CLOSED;
+            }
+            return result.bytesConsumed();
+        } finally {
+            this.session.lock().unlock();
         }
-        final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
-        final SSLEngineResult result = doWrap(src, outEncryptedBuf);
-        if (result.getStatus() == Status.CLOSED) {
-            this.status = CLOSED;
-        }
-        return result.bytesConsumed();
     }
 
-    private synchronized int readPlain(final ByteBuffer dst) {
+    private int readPlain(final ByteBuffer dst) {
         Args.notNull(dst, "Byte buffer");
-        if (this.inPlain.hasData()) {
-            // Acquire buffer
-            final ByteBuffer inPlainBuf = this.inPlain.acquire();
+        this.session.lock().lock();
+        try {
+            if (this.inPlain.hasData()) {
+                // Acquire buffer
+                final ByteBuffer inPlainBuf = this.inPlain.acquire();
 
-            // Perform opertaions
-            inPlainBuf.flip();
-            final int n = Math.min(inPlainBuf.remaining(), dst.remaining());
-            for (int i = 0; i < n; i++) {
-                dst.put(inPlainBuf.get());
-            }
-            inPlainBuf.compact();
+                // Perform opertaions
+                inPlainBuf.flip();
+                final int n = Math.min(inPlainBuf.remaining(), dst.remaining());
+                for (int i = 0; i < n; i++) {
+                    dst.put(inPlainBuf.get());
+                }
+                inPlainBuf.compact();
 
-            // Release if empty
-            if (inPlainBuf.position() == 0) {
-                this.inPlain.release();
+                // Release if empty
+                if (inPlainBuf.position() == 0) {
+                    this.inPlain.release();
+                }
+                bytesReadCount.addAndGet(n);
+                return n;
             }
-            bytesReadCount.addAndGet(n);
-            return n;
+            if (this.endOfStream) {
+                return -1;
+            }
+            return 0;
+        } finally {
+            this.session.lock().unlock();
         }
-        if (this.endOfStream) {
-            return -1;
-        }
-        return 0;
     }
 
     public void resetReadCount() {
@@ -606,32 +647,42 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public synchronized void close() {
-        if (this.status >= CLOSING) {
-            return;
-        }
-        this.status = CLOSING;
-        if (this.session.getSocketTimeout() == 0) {
-            this.session.setSocketTimeout(1000);
-        }
+    public void close() {
+        this.session.lock().lock();
         try {
-            updateEventMask();
-        } catch (final CancelledKeyException ex) {
-            shutdown(ShutdownType.GRACEFUL);
+            if (this.status >= CLOSING) {
+                return;
+            }
+            this.status = CLOSING;
+            if (this.session.getSocketTimeout() == 0) {
+                this.session.setSocketTimeout(1000);
+            }
+            try {
+                updateEventMask();
+            } catch (final CancelledKeyException ex) {
+                shutdown(ShutdownType.GRACEFUL);
+            }
+        } finally {
+            this.session.lock().unlock();
         }
     }
 
     @Override
-    public synchronized void shutdown(final ShutdownType shutdownType) {
-        if (this.status == CLOSED) {
-            return;
-        }
-        this.inEncrypted.release();
-        this.outEncrypted.release();
-        this.inPlain.release();
+    public void shutdown(final ShutdownType shutdownType) {
+        this.session.lock().lock();
+        try {
+            if (this.status == CLOSED) {
+                return;
+            }
+            this.inEncrypted.release();
+            this.outEncrypted.release();
+            this.inPlain.release();
 
-        this.status = CLOSED;
-        this.session.shutdown(shutdownType);
+            this.status = CLOSED;
+            this.session.shutdown(shutdownType);
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     @Override
@@ -645,15 +696,25 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public synchronized void addLast(final Command command) {
-        this.session.addLast(command);
-        setEvent(SelectionKey.OP_WRITE);
+    public void addLast(final Command command) {
+        this.session.lock().lock();
+        try {
+            this.session.addLast(command);
+            setEvent(SelectionKey.OP_WRITE);
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     @Override
-    public synchronized void addFirst(final Command command) {
-        this.session.addFirst(command);
-        setEvent(SelectionKey.OP_WRITE);
+    public void addFirst(final Command command) {
+        this.session.lock().lock();
+        try {
+            this.session.addFirst(command);
+            setEvent(SelectionKey.OP_WRITE);
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     @Override
@@ -677,26 +738,46 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public synchronized int getEventMask() {
-        return this.appEventMask;
+    public int getEventMask() {
+        this.session.lock().lock();
+        try {
+            return this.appEventMask;
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     @Override
-    public synchronized void setEventMask(final int ops) {
-        this.appEventMask = ops;
-        updateEventMask();
+    public void setEventMask(final int ops) {
+        this.session.lock().lock();
+        try {
+            this.appEventMask = ops;
+            updateEventMask();
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     @Override
-    public synchronized void setEvent(final int op) {
-        this.appEventMask = this.appEventMask | op;
-        updateEventMask();
+    public void setEvent(final int op) {
+        this.session.lock().lock();
+        try {
+            this.appEventMask = this.appEventMask | op;
+            updateEventMask();
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     @Override
-    public synchronized void clearEvent(final int op) {
-        this.appEventMask = this.appEventMask & ~op;
-        updateEventMask();
+    public void clearEvent(final int op) {
+        this.session.lock().lock();
+        try {
+            this.appEventMask = this.appEventMask & ~op;
+            updateEventMask();
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     @Override
@@ -740,41 +821,46 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append(this.session);
-        buffer.append("[");
-        switch (this.status) {
-        case ACTIVE:
-            buffer.append("ACTIVE");
-            break;
-        case CLOSING:
-            buffer.append("CLOSING");
-            break;
-        case CLOSED:
-            buffer.append("CLOSED");
-            break;
+        this.session.lock().lock();
+        try {
+            final StringBuilder buffer = new StringBuilder();
+            buffer.append(this.session);
+            buffer.append("[");
+            switch (this.status) {
+                case ACTIVE:
+                    buffer.append("ACTIVE");
+                    break;
+                case CLOSING:
+                    buffer.append("CLOSING");
+                    break;
+                case CLOSED:
+                    buffer.append("CLOSED");
+                    break;
+            }
+            buffer.append("][");
+            formatOps(buffer, this.appEventMask);
+            buffer.append("][");
+            buffer.append(this.sslEngine.getHandshakeStatus());
+            if (this.sslEngine.isInboundDone()) {
+                buffer.append("][inbound done][");
+            }
+            if (this.sslEngine.isOutboundDone()) {
+                buffer.append("][outbound done][");
+            }
+            if (this.endOfStream) {
+                buffer.append("][EOF][");
+            }
+            buffer.append("][");
+            buffer.append(!this.inEncrypted.hasData() ? 0 : inEncrypted.acquire().position());
+            buffer.append("][");
+            buffer.append(!this.inPlain.hasData() ? 0 : inPlain.acquire().position());
+            buffer.append("][");
+            buffer.append(!this.outEncrypted.hasData() ? 0 : outEncrypted.acquire().position());
+            buffer.append("]");
+            return buffer.toString();
+        } finally {
+            this.session.lock().unlock();
         }
-        buffer.append("][");
-        formatOps(buffer, this.appEventMask);
-        buffer.append("][");
-        buffer.append(this.sslEngine.getHandshakeStatus());
-        if (this.sslEngine.isInboundDone()) {
-            buffer.append("][inbound done][");
-        }
-        if (this.sslEngine.isOutboundDone()) {
-            buffer.append("][outbound done][");
-        }
-        if (this.endOfStream) {
-            buffer.append("][EOF][");
-        }
-        buffer.append("][");
-        buffer.append(!this.inEncrypted.hasData() ? 0 : inEncrypted.acquire().position());
-        buffer.append("][");
-        buffer.append(!this.inPlain.hasData() ? 0 : inPlain.acquire().position());
-        buffer.append("][");
-        buffer.append(!this.outEncrypted.hasData() ? 0 : outEncrypted.acquire().position());
-        buffer.append("]");
-        return buffer.toString();
     }
 
 }

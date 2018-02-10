@@ -34,6 +34,7 @@ import java.nio.channels.SelectionKey;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
 
 import javax.net.ssl.SSLContext;
 
@@ -79,6 +80,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         return ioSession.getId();
     }
 
+
     @Override
     public IOEventHandler getHandler() {
         return handlerRef.get();
@@ -87,15 +89,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     @Override
     public void upgrade(final IOEventHandler handler) {
         handlerRef.set(handler);
-    }
-
-    private IOSession getSessionImpl() {
-        final SSLIOSession tlsSession = tlsSessionRef.get();
-        if (tlsSession != null) {
-            return tlsSession;
-        } else {
-            return ioSession;
-        }
     }
 
     private IOEventHandler ensureHandler() {
@@ -256,6 +249,20 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     public TlsDetails getTlsDetails() {
         final SSLIOSession sslIoSession = tlsSessionRef.get();
         return sslIoSession != null ? sslIoSession.getTlsDetails() : null;
+    }
+
+    @Override
+    public Lock lock() {
+        return ioSession.lock();
+    }
+
+    private IOSession getSessionImpl() {
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        if (tlsSession != null) {
+            return tlsSession;
+        } else {
+            return ioSession;
+        }
     }
 
     @Override

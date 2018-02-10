@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
+import java.util.concurrent.locks.Lock;
 
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
@@ -61,6 +62,11 @@ public class LoggingIOSession implements IOSession {
     @Override
     public String getId() {
         return session.getId();
+    }
+
+    @Override
+    public Lock lock() {
+        return this.session.lock();
     }
 
     @Override
