@@ -65,6 +65,7 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.nio.pool.H2ConnPool;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -91,7 +92,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
 
             @Override
             public void execute(final IOSession session) {
-                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+                session.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.IMMEDIATE);
             }
 
         }, DefaultAddressResolver.INSTANCE);
@@ -151,7 +152,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
 
                         @Override
                         public void completed(final IOSession ioSession) {
-                            ioSession.addLast(new ExecutionCommand(new AsyncClientExchangeHandler() {
+                            ioSession.enqueue(new ExecutionCommand(new AsyncClientExchangeHandler() {
 
                                 @Override
                                 public void releaseResources() {
@@ -209,7 +210,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
                                     exchangeHandler.failed(cause);
                                 }
 
-                            }, cancellableDependency, context));
+                            }, cancellableDependency, context), Command.Priority.NORMAL);
                         }
 
                         @Override

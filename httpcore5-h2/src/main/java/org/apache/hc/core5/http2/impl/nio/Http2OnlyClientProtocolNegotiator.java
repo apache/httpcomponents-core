@@ -140,7 +140,7 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
     public void exception(final IOSession session, final Exception cause) {
         try {
             for (;;) {
-                final Command command = ioSession.getCommand();
+                final Command command = ioSession.poll();
                 if (command != null) {
                     if (command instanceof ExecutionCommand) {
                         final ExecutionCommand executionCommand = (ExecutionCommand) command;
@@ -162,7 +162,7 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
     @Override
     public void disconnected(final IOSession session) {
         for (;;) {
-            final Command command = ioSession.getCommand();
+            final Command command = ioSession.poll();
             if (command != null) {
                 if (command instanceof ExecutionCommand) {
                     final ExecutionCommand executionCommand = (ExecutionCommand) command;

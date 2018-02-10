@@ -69,21 +69,21 @@ public interface IOSession extends GracefullyCloseable, Identifiable {
      *
      * @since 5.0
      */
-    void addLast(Command command);
+    void enqueue(Command command, Command.Priority priority);
 
     /**
-     * Inserts {@link Command} at the front of the command queue.
+     * Tests if there enqueued commands pending execution.
      *
      * @since 5.0
      */
-    void addFirst(Command command);
+    boolean hasCommands();
 
     /**
-     * Retrieves and removes first {@link Command} from the command queue.
+     * Removes first {@link Command} from the command queue if available.
      *
      * @since 5.0
      */
-    Command getCommand();
+    Command poll();
 
     /**
      * Returns the underlying I/O channel associated with this session.

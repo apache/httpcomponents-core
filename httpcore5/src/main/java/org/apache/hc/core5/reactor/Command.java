@@ -36,4 +36,6 @@ import org.apache.hc.core5.concurrent.Cancellable;
  */
 public interface Command extends Cancellable {
 
+    enum Priority { NORMAL, IMMEDIATE }
+
 }

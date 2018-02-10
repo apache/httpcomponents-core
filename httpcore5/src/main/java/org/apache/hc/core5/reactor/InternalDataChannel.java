@@ -298,18 +298,18 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    public void addLast(final Command command) {
-        getSessionImpl().addLast(command);
+    public void enqueue(final Command command, final Command.Priority priority) {
+        getSessionImpl().enqueue(command, priority);
     }
 
     @Override
-    public void addFirst(final Command command) {
-        getSessionImpl().addFirst(command);
+    public boolean hasCommands() {
+        return getSessionImpl().hasCommands();
     }
 
     @Override
-    public Command getCommand() {
-        return getSessionImpl().getCommand();
+    public Command poll() {
+        return getSessionImpl().poll();
     }
 
     @Override
