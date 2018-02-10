@@ -29,6 +29,7 @@ package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
+import java.util.concurrent.locks.Lock;
 
 import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.util.Identifiable;
@@ -54,6 +55,14 @@ public interface IOSession extends GracefullyCloseable, Identifiable {
     int ACTIVE       = 0;
     int CLOSING      = 1;
     int CLOSED       = Integer.MAX_VALUE;
+
+    /**
+     * Returns session lock that should be used by I/O event handlers
+     * to synchronize access to the session.
+     *
+     * @since 5.0
+     */
+    Lock lock();
 
     /**
      * Inserts {@link Command} at the end of the command queue.
