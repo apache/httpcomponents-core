@@ -65,8 +65,8 @@ public final class ClientSessionEndpoint implements GracefullyCloseable {
         this.closed = new AtomicBoolean(false);
     }
 
-    public void execute(final Command command) {
-        ioSession.addLast(command);
+    public void execute(final Command command, final Command.Priority priority) {
+        ioSession.enqueue(command, priority);
         if (ioSession.isClosed()) {
             command.cancel();
         }
@@ -77,7 +77,7 @@ public final class ClientSessionEndpoint implements GracefullyCloseable {
             final HttpContext context) {
         Asserts.check(!closed.get(), "Connection is already closed");
         final Command executionCommand = new ExecutionCommand(exchangeHandler, context);
-        execute(executionCommand);
+        execute(executionCommand, Command.Priority.NORMAL);
     }
 
     public <T> Future<T> execute(
@@ -125,7 +125,7 @@ public final class ClientSessionEndpoint implements GracefullyCloseable {
     public void shutdown(final ShutdownType shutdownType) {
         if (closed.compareAndSet(false, true)) {
             if (shutdownType == ShutdownType.GRACEFUL) {
-                ioSession.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+                ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.NORMAL);
             } else {
                 ioSession.shutdown(shutdownType);
             }
@@ -135,7 +135,7 @@ public final class ClientSessionEndpoint implements GracefullyCloseable {
     @Override
     public void close() throws IOException {
         if (closed.compareAndSet(false, true)) {
-            ioSession.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+            ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.IMMEDIATE);
         }
     }
 

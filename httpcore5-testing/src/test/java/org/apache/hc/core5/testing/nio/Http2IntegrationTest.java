@@ -110,6 +110,7 @@ import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
+import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -1004,7 +1005,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                     latch.countDown();
                 }
 
-            })));
+            })), Command.Priority.NORMAL);
 
         }
         Assert.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));

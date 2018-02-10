@@ -696,10 +696,10 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public void addLast(final Command command) {
+    public void enqueue(final Command command, final Command.Priority priority) {
         this.session.lock().lock();
         try {
-            this.session.addLast(command);
+            this.session.enqueue(command, priority);
             setEvent(SelectionKey.OP_WRITE);
         } finally {
             this.session.lock().unlock();
@@ -707,19 +707,13 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public void addFirst(final Command command) {
-        this.session.lock().lock();
-        try {
-            this.session.addFirst(command);
-            setEvent(SelectionKey.OP_WRITE);
-        } finally {
-            this.session.lock().unlock();
-        }
+    public boolean hasCommands() {
+        return this.session.hasCommands();
     }
 
     @Override
-    public Command getCommand() {
-        return this.session.getCommand();
+    public Command poll() {
+        return this.session.poll();
     }
 
     @Override

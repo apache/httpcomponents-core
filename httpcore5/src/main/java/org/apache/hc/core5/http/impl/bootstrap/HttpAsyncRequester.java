@@ -67,6 +67,7 @@ import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.pool.PoolStats;
+import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -95,7 +96,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
             @Override
             public void execute(final IOSession session) {
-                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+                session.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.IMMEDIATE);
             }
 
         }, DefaultAddressResolver.INSTANCE);
@@ -420,7 +421,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             if (ioSession == null) {
                 throw new IllegalStateException("I/O session is invalid");
             }
-            ioSession.addLast(new ExecutionCommand(exchangeHandler, context));
+            ioSession.enqueue(new ExecutionCommand(exchangeHandler, context), Command.Priority.NORMAL);
         }
 
         @Override

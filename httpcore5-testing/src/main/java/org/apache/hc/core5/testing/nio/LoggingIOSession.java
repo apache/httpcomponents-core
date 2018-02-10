@@ -70,24 +70,21 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
-    public void addLast(final Command command) {
-        this.session.addLast(command);
+    public void enqueue(final Command command, final Command.Priority priority) {
+        this.session.enqueue(command, priority);
         if (this.log.isDebugEnabled()) {
-            this.log.debug(command.getClass().getSimpleName() + " added last");
+            this.log.debug("Enqueued " + command.getClass().getSimpleName() + " with priority " + priority);
         }
     }
 
     @Override
-    public void addFirst(final Command command) {
-        this.session.addFirst(command);
-        if (this.log.isDebugEnabled()) {
-            this.log.debug(command.getClass().getSimpleName() + " added first");
-        }
+    public boolean hasCommands() {
+        return this.session.hasCommands();
     }
 
     @Override
-    public Command getCommand() {
-        return this.session.getCommand();
+    public Command poll() {
+        return this.session.poll();
     }
 
     @Override

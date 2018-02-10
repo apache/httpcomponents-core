@@ -43,6 +43,7 @@ import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.AbstractIOSessionPool;
+import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
@@ -85,7 +86,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final IOSession ioSession,
             final ShutdownType shutdownType) {
         if (shutdownType == ShutdownType.GRACEFUL) {
-            ioSession.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+            ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.NORMAL);
         } else {
             ioSession.shutdown(shutdownType);
         }
@@ -138,7 +139,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final long deadline = lastAccessTime + timeValue.toMillis();
             if (deadline <= System.currentTimeMillis()) {
                 final int socketTimeout = ioSession.getSocketTimeout();
-                ioSession.addLast(new PingCommand(new BasicPingHandler(new Callback<Boolean>() {
+                ioSession.enqueue(new PingCommand(new BasicPingHandler(new Callback<Boolean>() {
 
                     @Override
                     public void execute(final Boolean result) {
@@ -146,7 +147,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
                         callback.execute(result);
                     }
 
-                })));
+                })), Command.Priority.NORMAL);
                 return;
             }
         }

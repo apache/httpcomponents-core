@@ -76,8 +76,8 @@ import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOEventHandler;
-import org.apache.hc.core5.reactor.ProtocolLayer;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
+import org.apache.hc.core5.reactor.ProtocolLayer;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
@@ -152,7 +152,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     void shutdownSession(final ShutdownType shutdownType) {
         if (shutdownType == ShutdownType.GRACEFUL) {
             connState = ConnectionState.GRACEFUL_SHUTDOWN;
-            ioSession.addLast(new ShutdownCommand(ShutdownType.GRACEFUL));
+            ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.NORMAL);
         } else {
             connState = ConnectionState.SHUTDOWN;
             ioSession.close();
@@ -218,7 +218,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     private void processCommands() throws HttpException, IOException {
         for (;;) {
-            final Command command = ioSession.getCommand();
+            final Command command = ioSession.poll();
             if (command == null) {
                 return;
             }
@@ -408,7 +408,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     public final void onException(final Exception ex) {
         shutdownSession(ex);
         for (;;) {
-            final Command command = ioSession.getCommand();
+            final Command command = ioSession.poll();
             if (command != null) {
                 if (command instanceof ExecutionCommand) {
                     final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
@@ -426,7 +426,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     public final void onDisconnect() {
         disconnected();
         for (;;) {
-            final Command command = ioSession.getCommand();
+            final Command command = ioSession.poll();
             if (command != null) {
                 if (command instanceof ExecutionCommand) {
                     final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
@@ -559,12 +559,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     @Override
     public void close() throws IOException {
-        ioSession.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+        ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.NORMAL);
     }
 
     @Override
     public void shutdown(final ShutdownType shutdownType) {
-        ioSession.addFirst(new ShutdownCommand(shutdownType));
+        ioSession.enqueue(new ShutdownCommand(shutdownType), Command.Priority.IMMEDIATE);
     }
 
     @Override

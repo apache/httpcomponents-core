@@ -549,7 +549,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             stream.cancel();
         }
         for (;;) {
-            final Command command = ioSession.getCommand();
+            final Command command = ioSession.poll();
             if (command != null) {
                 if (command instanceof ExecutionCommand) {
                     final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
@@ -566,7 +566,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
     private void processPendingCommands() throws IOException, HttpException {
         while (streamMap.size() < remoteConfig.getMaxConcurrentStreams()) {
-            final Command command = ioSession.getCommand();
+            final Command command = ioSession.poll();
             if (command == null) {
                 break;
             }
@@ -650,7 +650,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 }
             }
             for (;;) {
-                final Command command = ioSession.getCommand();
+                final Command command = ioSession.poll();
                 if (command != null) {
                     if (command instanceof ExecutionCommand) {
                         final ExecutionCommand executionCommand = (ExecutionCommand) command;
@@ -1189,7 +1189,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
     @Override
     public void close() throws IOException {
-        ioSession.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+        ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.IMMEDIATE);
     }
 
     @Override

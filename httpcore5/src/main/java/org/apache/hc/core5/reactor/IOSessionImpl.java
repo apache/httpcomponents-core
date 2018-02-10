@@ -88,19 +88,22 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public void addLast(final Command command) {
-        commandQueue.addLast(command);
+    public void enqueue(final Command command, final Command.Priority priority) {
+        if (priority == Command.Priority.IMMEDIATE) {
+            commandQueue.addFirst(command);
+        } else {
+            commandQueue.add(command);
+        }
         setEvent(SelectionKey.OP_WRITE);
     }
 
     @Override
-    public void addFirst(final Command command) {
-        commandQueue.addFirst(command);
-        setEvent(SelectionKey.OP_WRITE);
+    public boolean hasCommands() {
+        return !commandQueue.isEmpty();
     }
 
     @Override
-    public Command getCommand() {
+    public Command poll() {
         return commandQueue.poll();
     }
 

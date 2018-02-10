@@ -30,6 +30,7 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -49,7 +50,7 @@ public class HttpAsyncServer extends AsyncServer {
 
             @Override
             public void execute(final IOSession session) {
-                session.addFirst(new ShutdownCommand(ShutdownType.GRACEFUL));
+                session.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.NORMAL);
             }
 
         });
