@@ -116,7 +116,19 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
     protected void expand() {
         int newcapacity = (this.buffer.capacity() + 1) << 1;
         if (newcapacity < 0) {
-            newcapacity = Integer.MAX_VALUE;
+            final int vmBytes = Long.SIZE >> 3;
+            final int javaBytes = 8; // this is to be checked when the JVM version changes
+            @SuppressWarnings("unused") // we really need the 8 if we're going to make this foolproof
+            final int headRoom = (vmBytes >= javaBytes) ? vmBytes : javaBytes;
+            // Reason: In GC the size of objects is passed as int (2 bytes).
+            // Then, the header size of the objects is added to the size.
+            // Long has the longest header available. Object header seems to be linked to it.
+            // Details: I added a minimum of 8 just to be safe and because 8 is used in
+            // java.lang.Object.ArrayList: private static final int MAX_ARRAY_SIZE = 2147483639.
+            //
+            // WARNING: This code assumes you are providing enough heap room with -Xmx.
+            // source of inspiration: https://bugs.openjdk.java.net/browse/JDK-8059914
+            newcapacity = Integer.MAX_VALUE - headRoom;
         }
         expandCapacity(newcapacity);
     }
