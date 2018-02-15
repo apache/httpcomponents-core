@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
 /**
@@ -106,8 +107,10 @@ public class ExpandableBuffer {
 
     /**
      * Expands buffer's capacity.
+     *
+     * @throws BufferOverflowException in case we get over the maximum allowed value
      */
-    protected void expand() {
+    protected void expand() throws BufferOverflowException {
         int newcapacity = (this.buffer.capacity() + 1) << 1;
         if (newcapacity < 0) {
             final int vmBytes = Long.SIZE >> 3;
@@ -123,6 +126,10 @@ public class ExpandableBuffer {
             // WARNING: This code assumes you are providing enough heap room with -Xmx.
             // source of inspiration: https://bugs.openjdk.java.net/browse/JDK-8059914
             newcapacity = Integer.MAX_VALUE - headRoom;
+
+            if (newcapacity <= this.buffer.capacity()) {
+                throw new BufferOverflowException();
+            }
         }
         expandCapacity(newcapacity);
     }
