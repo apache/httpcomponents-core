@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.nio;
 
 import java.nio.ByteBuffer;
+import org.apache.hc.core5.http.MessageConstraintException;
 
 /**
  * A buffer that expand its capacity on demand. Internally, this class is backed
