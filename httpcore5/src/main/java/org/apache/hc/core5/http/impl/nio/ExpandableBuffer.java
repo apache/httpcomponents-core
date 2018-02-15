@@ -123,10 +123,6 @@ public class ExpandableBuffer {
             // WARNING: This code assumes you are providing enough heap room with -Xmx.
             // source of inspiration: https://bugs.openjdk.java.net/browse/JDK-8059914
             newcapacity = Integer.MAX_VALUE - headRoom;
-            if (newcapacity == this.buffer.capacity()) {
-                // avoid an endless loop in org.apache.http.nio.util.SimpleInputBuffer.consumeContent(ContentDecoder)
-                throw new MessageConstraintException("Maximum buffer size (" + newcapacity + ") exceeded");
-            }
         }
         expandCapacity(newcapacity);
     }
