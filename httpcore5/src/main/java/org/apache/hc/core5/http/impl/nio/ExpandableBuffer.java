@@ -107,7 +107,7 @@ public class ExpandableBuffer {
 
     /**
      * Expands buffer's capacity.
-     * 
+     *
      * @throws BufferOverflowException in case we get over the maximum allowed value
      */
     protected void expand() throws BufferOverflowException {
