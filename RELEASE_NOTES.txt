@@ -13,6 +13,9 @@ adds several incremental improvements.
 * HTTPCORE-509: AVAIL_PROCS is auto-configured based on core count.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-514: Exceptions defined by HttpCore should clean message strings when built to replace non-printable characters with hex values.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 5.0-BETA2
 -------------------
