@@ -44,8 +44,20 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 public class TimeValue {
 
     static final int INT_UNDEFINED = -1;
+
+    /**
+     * A negative one millisecond {@link TimeValue}.
+     */
     public static final TimeValue NEG_ONE_MILLISECONDS = TimeValue.of(INT_UNDEFINED, TimeUnit.MILLISECONDS);
+
+    /**
+     * A negative one second {@link TimeValue}.
+     */
     public static final TimeValue NEG_ONE_SECONDS = TimeValue.of(INT_UNDEFINED, TimeUnit.SECONDS);
+
+    /**
+     * A zero milliseconds {@link TimeValue}.
+     */
     public static final TimeValue ZERO_MILLISECONDS = TimeValue.of(0, TimeUnit.MILLISECONDS);
 
     /**
