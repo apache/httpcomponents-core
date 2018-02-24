@@ -41,6 +41,9 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class Timeout extends TimeValue {
 
+    /**
+     * A zero milliseconds {@link Timeout}.
+     */
     public static final Timeout ZERO_MILLISECONDS = Timeout.of(0, TimeUnit.MILLISECONDS);
 
     /**
