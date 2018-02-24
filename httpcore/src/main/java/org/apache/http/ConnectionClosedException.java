@@ -44,7 +44,7 @@ public class ConnectionClosedException extends IOException {
      * @param message The exception detail message
      */
     public ConnectionClosedException(final String message) {
-        super(message);
+        super(HttpException.clean(message));
     }
 
 }
