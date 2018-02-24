@@ -44,7 +44,7 @@ public class NoHttpResponseException extends IOException {
      * @param message exception message
      */
     public NoHttpResponseException(final String message) {
-        super(message);
+        super(HttpException.clean(message));
     }
 
 }
