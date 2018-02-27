@@ -43,6 +43,7 @@ public interface HttpRequestFactory<T extends HttpRequest> {
      * @param uri the request URI
      *
      * @return  request message
+     * @throws MethodNotSupportedException if the given {@code method} is not supported.
      *
      * @since 5.0
      */
@@ -55,6 +56,7 @@ public interface HttpRequestFactory<T extends HttpRequest> {
      * @param uri the request URI
      *
      * @return  request message
+     * @throws MethodNotSupportedException if the given {@code method} is not supported.
      */
     T newHttpRequest(String method, URI uri) throws MethodNotSupportedException;
 
