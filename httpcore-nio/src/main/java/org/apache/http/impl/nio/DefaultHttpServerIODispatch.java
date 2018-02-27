@@ -31,11 +31,15 @@ import java.io.IOException;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestFactory;
 import org.apache.http.annotation.Contract;
 import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.config.ConnectionConfig;
+import org.apache.http.impl.nio.codecs.DefaultHttpRequestParserFactory;
 import org.apache.http.impl.nio.reactor.AbstractIODispatch;
 import org.apache.http.nio.NHttpConnectionFactory;
+import org.apache.http.nio.NHttpMessageParserFactory;
 import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.ssl.SSLSetupHandler;
@@ -59,7 +63,7 @@ public class DefaultHttpServerIODispatch<H extends NHttpServerEventHandler>
      * Creates a new instance of this class to be used for dispatching I/O event
      * notifications to the given protocol handler.
      *
-     * @param handler the client protocol handler.
+     * @param handler the server protocol handler.
      * @param sslContext an SSLContext or null (for a plain text connection.)
      * @param config a connection configuration
      * @return a new instance
@@ -76,7 +80,31 @@ public class DefaultHttpServerIODispatch<H extends NHttpServerEventHandler>
      * Creates a new instance of this class to be used for dispatching I/O event
      * notifications to the given protocol handler.
      *
-     * @param handler the client protocol handler.
+     * @param eventHandler the server protocol handler.
+     * @param sslContext an SSLContext or null (for a plain text connection.)
+     * @param config a connection configuration
+     * @param httpRequestFactory the request factory used by this object to generate {@link HttpRequest} instances.
+     * @return a new instance
+     * @since 4.4.10
+     */
+    public static <T extends NHttpServerEventHandler> DefaultHttpServerIODispatch<T> create(final T eventHandler,
+            final SSLContext sslContext, final ConnectionConfig config, final HttpRequestFactory httpRequestFactory) {
+        final NHttpMessageParserFactory<HttpRequest> httpRequestParserFactory = new DefaultHttpRequestParserFactory(
+                null, httpRequestFactory);
+        // @formatter:off
+        return sslContext == null
+                ? new DefaultHttpServerIODispatch<T>(eventHandler,
+                        new DefaultNHttpServerConnectionFactory(null, httpRequestParserFactory, null, config))
+                : new DefaultHttpServerIODispatch<T>(eventHandler,
+                        new SSLNHttpServerConnectionFactory(sslContext, null, httpRequestParserFactory, null, config));
+        // @formatter:om
+    }
+
+    /**
+     * Creates a new instance of this class to be used for dispatching I/O event
+     * notifications to the given protocol handler.
+     *
+     * @param handler the server protocol handler.
      * @param sslContext an SSLContext or null (for a plain text connection.)
      * @param sslHandler customizes various aspects of the TLS/SSL protocol.
      * @param config a connection configuration
