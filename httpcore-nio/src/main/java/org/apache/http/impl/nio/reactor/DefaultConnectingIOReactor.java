@@ -280,6 +280,10 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 closeChannel(socketChannel);
                 request.failed(ex);
                 return;
+            } catch (final SecurityException ex) {
+                closeChannel(socketChannel);
+                request.failed(new IOException(ex));
+                return;
             }
 
             final SessionRequestHandle requestHandle = new SessionRequestHandle(request);

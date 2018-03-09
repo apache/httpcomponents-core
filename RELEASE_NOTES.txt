@@ -21,6 +21,9 @@ Changelog
 * HTTPCORE-515: Add convenience API org.apache.http.impl.nio.DefaultHttpServerIODispatch.create(T, SSLContext, ConnectionConfig, HttpRequestFactory).
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-517: Allow SecurityManager to stop socket connections.
+  Contributed by Gary Gregory <ggregory at apache.org> and Paul Thompson <pathompson at atlassian dot com>
+
   
 Release 4.4.9
 -------------------
