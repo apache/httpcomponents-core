@@ -86,65 +86,76 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
     }
 
-    @Override
-    public void connected(final IOSession session) {
+    private void startHttp1(final IOSession session) {
+        final ClientHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(ioSession);
+        final ClientHttp1IOEventHandler newHandler = new ClientHttp1IOEventHandler(http1StreamHandler);
         try {
-            switch (versionPolicy) {
-                case NEGOTIATE:
-                    final TlsDetails tlsDetails = ioSession.getTlsDetails();
-                    if (tlsDetails != null) {
-                        if (ApplicationProtocols.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
-                            // Proceed with the H2 preface
-                            preface = ByteBuffer.wrap(PREFACE);
-                        }
-                    }
-                    break;
-                case FORCE_HTTP_2:
-                    preface = ByteBuffer.wrap(PREFACE);
-                    break;
-            }
-            if (preface == null) {
-                final ClientHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(ioSession);
-                ioSession.upgrade(new ClientHttp1IOEventHandler(http1StreamHandler));
-                http1StreamHandler.onConnect(null);
-            } else {
-                writePreface(session);
-            }
+            ioSession.upgrade(newHandler);
+            newHandler.connected(session);
         } catch (final Exception ex) {
+            newHandler.exception(session, ex);
             session.shutdown(ShutdownType.IMMEDIATE);
-            exception(session, ex);
         }
     }
 
-    private void writePreface(final IOSession session) throws IOException  {
-        if (preface.hasRemaining()) {
-            final ByteChannel channel = session.channel();
-            channel.write(preface);
-        }
-        if (!preface.hasRemaining()) {
-            final ClientHttp2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
-            final IOEventHandler newHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
-            newHandler.connected(session);
+    private void startHttp2(final IOSession session) {
+        final ClientHttp2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
+        final IOEventHandler newHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
+        try {
             ioSession.upgrade(newHandler);
+            newHandler.connected(session);
+        } catch (final Exception ex) {
+            newHandler.exception(session, ex);
+            session.shutdown(ShutdownType.IMMEDIATE);
         }
     }
 
     @Override
-    public void inputReady(final IOSession session) {
+    public void connected(final IOSession session) throws IOException {
+        switch (versionPolicy) {
+            case NEGOTIATE:
+                final TlsDetails tlsDetails = ioSession.getTlsDetails();
+                if (tlsDetails != null) {
+                    if (ApplicationProtocols.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
+                        // Proceed with the H2 preface
+                        preface = ByteBuffer.wrap(PREFACE);
+                    }
+                }
+                break;
+            case FORCE_HTTP_2:
+                preface = ByteBuffer.wrap(PREFACE);
+                break;
+        }
+        if (preface == null) {
+            startHttp1(session);
+        } else {
+            if (preface.hasRemaining()) {
+                final ByteChannel channel = session.channel();
+                channel.write(preface);
+            }
+            if (!preface.hasRemaining()) {
+                startHttp2(session);
+            }
+        }
+    }
+
+    @Override
+    public void inputReady(final IOSession session)throws IOException  {
         outputReady(session);
     }
 
     @Override
-    public void outputReady(final IOSession session) {
-        try {
-            if (preface != null) {
-                writePreface(session);
-            } else {
-                session.shutdown(ShutdownType.IMMEDIATE);
+    public void outputReady(final IOSession session) throws IOException {
+        if (preface != null) {
+            if (preface.hasRemaining()) {
+                final ByteChannel channel = session.channel();
+                channel.write(preface);
             }
-        } catch (final IOException ex) {
+            if (!preface.hasRemaining()) {
+                startHttp2(session);
+            }
+        } else {
             session.shutdown(ShutdownType.IMMEDIATE);
-            exception(session, ex);
         }
     }
 
