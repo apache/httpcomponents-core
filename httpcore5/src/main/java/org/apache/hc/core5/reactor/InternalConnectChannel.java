@@ -33,6 +33,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.util.TimeValue;
 
 final class InternalConnectChannel extends InternalChannel {
 
@@ -78,7 +79,7 @@ final class InternalConnectChannel extends InternalChannel {
 
     @Override
     int getTimeout() {
-        return sessionRequest.timeout.toMillisIntBound();
+        return TimeValue.defaultsToZeroMillis(sessionRequest.timeout).toMillisIntBound();
     }
 
     @Override
