@@ -291,7 +291,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     void failed(final Exception cause) {
-        exchangeHandler.failed(cause);
+        if (!done.get()) {
+            exchangeHandler.failed(cause);
+        }
     }
 
     @Override
