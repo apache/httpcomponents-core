@@ -26,22 +26,29 @@
  */
 package org.apache.hc.core5.http.examples;
 
+import java.io.IOException;
+import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
+import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.RequestChannel;
+import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
@@ -51,22 +58,21 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Example of HTTP/2 concurrent request execution using multiple streams.
+ * Example of full-duplex, streaming HTTP message exchanges with an asynchronous HTTP/2 requester.
  */
-public class Http2MultiStreamExecutionExample {
+public class Http2FullDuplexClientExample {
 
     public static void main(String[] args) throws Exception {
 
-        // Create and start requester
         IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
                 .setSoTimeout(5, TimeUnit.SECONDS)
                 .build();
 
+        // Create and start requester
         H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
                 .setMaxConcurrentStreams(100)
                 .build();
-
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(ioReactorConfig)
                 .setH2Config(h2Config)
@@ -104,6 +110,7 @@ public class Http2MultiStreamExecutionExample {
 
                 })
                 .create();
+
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -113,48 +120,76 @@ public class Http2MultiStreamExecutionExample {
         });
         requester.start();
 
-        HttpHost target = new HttpHost("http2bin.org");
-        String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
+        final URI requestUri = new URI("http://http2bin.org/post");
+        final BasicRequestProducer requestProducer = new BasicRequestProducer(
+                "POST", requestUri, new BasicAsyncEntityProducer("stuff", ContentType.TEXT_PLAIN));
+        final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(
+                new StringAsyncEntityConsumer());
 
-        Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
-        AsyncClientEndpoint clientEndpoint = future.get();
+        final CountDownLatch latch = new CountDownLatch(1);
+        requester.execute(new AsyncClientExchangeHandler() {
 
-        final CountDownLatch latch = new CountDownLatch(requestUris.length);
-        for (final String requestUri: requestUris) {
-            clientEndpoint.execute(
-                    new BasicRequestProducer("GET", target, requestUri),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                    new FutureCallback<Message<HttpResponse, String>>() {
+            @Override
+            public void releaseResources() {
+                requestProducer.releaseResources();
+                responseConsumer.releaseResources();
+                latch.countDown();
+            }
 
-                        @Override
-                        public void completed(final Message<HttpResponse, String> message) {
-                            latch.countDown();
-                            HttpResponse response = message.getHead();
-                            String body = message.getBody();
-                            System.out.println(requestUri + "->" + response.getCode());
-                            System.out.println(body);
-                        }
+            @Override
+            public void cancel() {
+                System.out.println(requestUri + " cancelled");
+            }
 
-                        @Override
-                        public void failed(final Exception ex) {
-                            latch.countDown();
-                            System.out.println(requestUri + "->" + ex);
-                        }
+            @Override
+            public void failed(final Exception cause) {
+                System.out.println(requestUri + "->" + cause);
+            }
 
-                        @Override
-                        public void cancelled() {
-                            latch.countDown();
-                            System.out.println(requestUri + " cancelled");
-                        }
+            @Override
+            public void produceRequest(final RequestChannel channel) throws HttpException, IOException {
+                requestProducer.sendRequest(channel);
+            }
 
-                    });
-        }
+            @Override
+            public int available() {
+                return requestProducer.available();
+            }
+
+            @Override
+            public void produce(final DataStreamChannel channel) throws IOException {
+                requestProducer.produce(channel);
+            }
+
+            @Override
+            public void consumeInformation(final HttpResponse response) throws HttpException, IOException {
+                System.out.println(requestUri + "->" + response.getCode());
+            }
+
+            @Override
+            public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails) throws HttpException, IOException {
+                System.out.println(requestUri + "->" + response.getCode());
+                responseConsumer.consumeResponse(response, entityDetails, null);
+            }
+
+            @Override
+            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                responseConsumer.updateCapacity(capacityChannel);
+            }
+
+            @Override
+            public int consume(final ByteBuffer src) throws IOException {
+                return responseConsumer.consume(src);
+            }
+
+            @Override
+            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+                responseConsumer.streamEnd(trailers);
+            }
+
+        }, Timeout.ofSeconds(30), HttpCoreContext.create());
 
         latch.await();
-
-        // Manually release client endpoint when done !!!
-        clientEndpoint.releaseAndDiscard();
-
         System.out.println("Shutting down I/O reactor");
         requester.initiateShutdown();
     }

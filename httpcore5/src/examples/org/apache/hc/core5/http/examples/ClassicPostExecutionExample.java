@@ -76,9 +76,9 @@ public class ClassicPostExecutionExample {
                     @Override
                     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
                         if (keepAlive) {
-                            System.out.println(connection + " can be kept alive");
+                            System.out.println(connection + " exchange completed (connection kept alive)");
                         } else {
-                            System.out.println(connection + " cannot be kept alive");
+                            System.out.println(connection + " exchange completed (connection closed)");
                         }
                     }
 
