@@ -42,6 +42,8 @@ public interface AsyncResponseConsumer<T> extends AsyncDataConsumer {
 
     void consumeResponse(HttpResponse response, EntityDetails entityDetails, FutureCallback<T> resultCallback) throws HttpException, IOException;
 
+    void informationResponse(HttpResponse response) throws HttpException, IOException;
+
     void failed(Exception cause);
 
     T getResult();
