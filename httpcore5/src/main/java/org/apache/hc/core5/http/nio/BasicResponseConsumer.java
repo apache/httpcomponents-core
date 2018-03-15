@@ -95,6 +95,10 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     }
 
     @Override
+    public void informationResponse(final HttpResponse response) throws HttpException, IOException {
+    }
+
+    @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         dataConsumer.updateCapacity(capacityChannel);
     }
