@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ContentType;
@@ -45,12 +46,14 @@ import org.apache.hc.core5.util.Args;
 public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncResponseConsumer<T> {
 
     private final AsyncEntityConsumer<E> entityConsumer;
-
-    private volatile T result;
+    private final AtomicReference<T> resultRef;
+    private final AtomicReference<Exception> exceptionRef;
 
     public AbstractAsyncResponseConsumer(final AsyncEntityConsumer<E> entityConsumer) {
         Args.notNull(entityConsumer, "Entity consumer");
         this.entityConsumer = entityConsumer;
+        this.resultRef = new AtomicReference<>(null);
+        this.exceptionRef = new AtomicReference<>(null);
     }
 
     protected abstract T buildResult(HttpResponse response, E entity, ContentType contentType);
@@ -68,27 +71,41 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
                     final ContentType contentType;
                     try {
                         contentType = ContentType.parse(entityDetails.getContentType());
-                        result = buildResult(response, entity, contentType);
-                        resultCallback.completed(result);
+                        final T result = buildResult(response, entity, contentType);
+                        resultRef.compareAndSet(null, result);
+                        if (resultCallback != null) {
+                            resultCallback.completed(result);
+                        }
                     } catch (final UnsupportedCharsetException ex) {
-                        resultCallback.failed(ex);
+                        exceptionRef.compareAndSet(null, ex);
+                        if (resultCallback != null) {
+                            resultCallback.failed(ex);
+                        }
                     }
                 }
 
                 @Override
                 public void failed(final Exception ex) {
-                    resultCallback.failed(ex);
+                    exceptionRef.compareAndSet(null, ex);
+                    if (resultCallback != null) {
+                        resultCallback.failed(ex);
+                    }
                 }
 
                 @Override
                 public void cancelled() {
-                    resultCallback.cancelled();
+                    if (resultCallback != null) {
+                        resultCallback.cancelled();
+                    }
                 }
 
             });
         } else {
-            result = buildResult(response, null, null);
-            resultCallback.completed(result);
+            final T result = buildResult(response, null, null);
+            resultRef.compareAndSet(null, result);
+            if (resultCallback != null) {
+                resultCallback.completed(result);
+            }
             entityConsumer.releaseResources();
         }
 
@@ -111,11 +128,16 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
 
     @Override
     public T getResult() {
-        return result;
+        return resultRef.get();
+    }
+
+    public Exception getException() {
+        return exceptionRef.get();
     }
 
     @Override
     public final void failed(final Exception cause) {
+        exceptionRef.compareAndSet(null, cause);
         releaseResources();
     }
 
