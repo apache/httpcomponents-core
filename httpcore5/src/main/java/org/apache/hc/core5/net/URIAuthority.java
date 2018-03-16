@@ -58,7 +58,7 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         super();
         this.userInfo = userInfo;
         this.hostname = hostname;
-        this.port = Ports.check(port);
+        this.port = Ports.checkWithDefault(port);
     }
 
     /**
@@ -74,7 +74,7 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         }
         this.userInfo = userInfo;
         this.hostname = hostname.toLowerCase(Locale.ROOT);
-        this.port = Ports.check(port);
+        this.port = Ports.checkWithDefault(port);
     }
 
     public URIAuthority(final String hostname, final int port) {

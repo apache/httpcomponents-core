@@ -61,8 +61,24 @@ public class Ports {
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
      *             65535, inclusive. {@code -1} indicates the scheme default port.
      */
-    public static int check(final int port) {
+    public static int checkWithDefault(final int port) {
         return Args.checkRange(port, SCHEME_DEFAULT, MAX_VALUE,
                 "Port number(Use -1 to specify the scheme default port)");
     }
+
+    /**
+     * Checks a port number.
+     *
+     * @param port
+     *            The port to check.
+     * @return the port
+     *
+     * @throws IllegalArgumentException
+     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
+     *             65535, inclusive.
+     */
+    public static int check(final int port) {
+        return Args.checkRange(port, MIN_VALUE, MAX_VALUE, "Port number");
+    }
+
 }
