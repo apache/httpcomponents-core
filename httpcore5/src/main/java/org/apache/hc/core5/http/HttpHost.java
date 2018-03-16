@@ -79,7 +79,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         this.hostname = hostname;
         this.lcHostname = hostname;
         this.schemeName = scheme;
-        this.port = Ports.check(port);
+        this.port = Ports.checkWithDefault(port);
         this.address = null;
     }
 
@@ -106,7 +106,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         } else {
             this.schemeName = DEFAULT_SCHEME.id;
         }
-        this.port = Ports.check(port);
+        this.port = Ports.checkWithDefault(port);
         this.address = null;
     }
 
@@ -237,7 +237,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         } else {
             this.schemeName = DEFAULT_SCHEME.id;
         }
-        this.port = Ports.check(port);
+        this.port = Ports.checkWithDefault(port);
     }
 
     /**
