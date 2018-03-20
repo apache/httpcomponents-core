@@ -24,6 +24,9 @@ Changelog
 * HTTPCORE-517: Allow SecurityManager to stop socket connections.
   Contributed by Gary Gregory <ggregory at apache.org> and Paul Thompson <pathompson at atlassian dot com>
 
+* HTTPCORE-519: Failing tests on Fedora 28 due to weak encryption algorithms in test keystore.
+  Contributed by Gary Gregory <ggregory at apache.org> and Michael Simacek <msimacek at redhat dot com>
+
   
 Release 4.4.9
 -------------------
