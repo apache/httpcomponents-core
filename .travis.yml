@@ -1,25 +1,14 @@
-# Licensed to the Apache Software Foundation (ASF) under one or more
-# contributor license agreements.  See the NOTICE file distributed with
-# this work for additional information regarding copyright ownership.
-# The ASF licenses this file to You under the Apache License, Version 2.0
-# (the "License"); you may not use this file except in compliance with
-# the License.  You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 language: java
 sudo: false
-
 jdk:
-  - openjdk7
-  - oraclejdk8
-  - oraclejdk9
-
+- openjdk7
+- oraclejdk8
+- oraclejdk9
 after_success:
-  - mvn clean cobertura:cobertura coveralls:report
+- mvn clean cobertura:cobertura coveralls:report
+env:
+  global:
+  - secure: SyREvnL7rnjT/6+NWQK/F/ZXjCXkt/jfbLmzE34bTm5LXhOlqTJ7Ata/d/tM0mISRFENVbip6m+w8ZWMnoUFQ0Rwm8yeziEdHt8QYbEpFYsaS4TlIwHqzLxe6YmuDgU/iyG/i+MwR412vktQEVrufdA81TiYSHGOB6APkNE1VDvOyGcQvViO+upto/Dp2wiOBSTTiHCJ5MNvWofe2orBSpYxb7OUPo0T0C8ZUuxOMNKin5QQOBztP+vO13pCZkukzxw3jceyu22pR9bz/EFUI0mBbZyZl7/apiSVrDWhTXBBnmlm3kPXQJRYSdVZHViP8kE2h0Y2U2D8N+KzgB9HjgWEIvFnl4WqxW8LK3V1JK9TzNtKp38zx/ANDiRIo9ip/e7ma+5tebj5dGmJzwh5Zr1xnf3JZBE4j/xGRKlD4Lk5n7ALOlJsyLdjOyCBQTShFoVGcDVszHAoxcypZsJDO3JP4fuD4C+Q39qgVgL4TOmROaV/kSUtgp/tACgG065hgMHX5lVtRwGEcYfEZm8UGZ/warPSxjzGoiUFr8kXPUru0ux8HEezB49Oupx3w1lU6B+5Kp/NKF3ycTMZc3X6ZFM53FIukZhS9MhTXD4oDuFkYYTIqBjJeIpGoRqRzHT7szm6b2fUMdZ93COFjcdt/GmC7yoW2uClFG2DdXdWenI=
+  - secure: Tnc81pRkJy+2wBbh6eK0d+miqKD5hXq8IOqVpXRrEnnoyxFMXdQ43TeQZKUj2ds2DmVRicDGc7yK7yeYaezMmSI7Nu6HpwT0+yPIR2aXMp4ArPkiK3CDc7dicssTCwpJjm8kIgEDY6sb9JToOvJyd9bJ8RwEsnWfFEssyOk8cb/vO1ELLf7ysEl7IU3Q3jIJPOfThCFTc4hVsTY43/0ZvW889iYJo62FQDDza8VQrugmQ1WSM+A78L7JcCM28NNcu5HDpMf8kkfK9e+u+HIvXzbCeeQlWUbIKUuIOjOC9Xu3g0fI0n43c8DTLLAUsRPmcZ+0XFis8FqoRvjFJgYLdnJY1IYctk3RyAenJk5lwxFzW7ZhlrhKaEaUwgfsQiLfFYo1JAtSnkaSfseD3J9MFFGD1TPuCj8iP9uzZ/Fh+qjgxKvWXvjjNeHKq4LcUTkDilPfcthbqlwu9CCmmY4LGr9lR9Ga11AiUstPH9sK6O7EQRmpD7BMDYteF9lDUKUe+OMIuPbONtoxoaCxB4bCAkRVyiEJ2Pijiq/VCb9dbuNPGa7tKAVeCb9Z8GgiYv50X4x3Vcn7cgr9Pb8KoxlQym0kXe2R1D4fLAY6R/HgLKFqy7OQ3saCOh2sa2wFV4HgTW6YUAP1Mn2x5qyd68zWeULaRyzrtJtqu4S2CXTdowg=
+  - secure: I6wwL2fMtx/q+cN2TRZkFZY3+Qj3Wf3WcIFlBl6RrXpk2fwaGUKQZtJjlPAE+qTewrmN7hWIAR498WV5JTusJD/VUOdPeV0LwhGDTQxKwLojt1TYHjjiDeivLSA91Po6wQUPLsYExlXXFkeBfcWAeKc6JXiqyyA9Hbf2MOTHVBfIar61Wi6fyWvtY2sDiPwhMtahYPQBH74sEIEzrcblIRzmkNXcMYqSs+QiMkdwE7ix+3Edg47nqNsSZcQ8truQ3Lkt2O3BLQ4/7YvfrA1d8d6ncnuY2w/0WS4G4YLYjr6mO6+MaBIDPJ5iwy0MdVCsD/4rcX2jHrW2fGonvNJ83saf/kE5uolDwOJjSU65Whr5fxkQbznMHysu8ZZR+rjPHlkCusAZuSBkrXqPjmGQeBU5PxRb8YrULmIfUEb82vys1KrxbxLPAA7C2hz+O3I3CQizd1+YqZuzltzlnQ8iK+lu5JFoIOLkMN6HlRA5Az0+wIgWEQMCxchulCLV78qsFl8kDAo7cQSwE/0nM/NlCRKGADJYHAg0xHhINezvZ0Q5yWemhg8pQbyDYpJ2sPZbj7+W2YoM82Y2ijK0+nJgk+VStcpjZSK+q1fSDc2lVLjlr29Ge0eepdfkg8VpzF+C8z9zG7TewRLCa3yEKeEUVC2fhAiMtcgPoS0NxqeusUM=
+  - secure: A6rNcMSY1iOnrnGmwQjHrzRj13OuS0DvcuLxNUW+xhrRIzTohdvrxSUbhvxHyqxyC+9/oj0BSSAePn2LBKIsAlcfDEtgovhAwAxruS/+gNl0bxJAHBucGeCKwiiIPmKcq9rf5YxbId4T21ZggPIVZnFfu0lPEQQ9NndoRYo7K+4zV8QGPB+RRkXiqnrXYdnyP+Z33AQWhTBdJBGlZKV1t6VYRuxRrOCQob1QWmmiPn2V3T9315QVJD8RuPplWcHDEWr3OgBTtUFUXwcQcW58vg0A8zHcfwpyz73Z4wqf8HSIkgPHReNfuzfpHmWA/5yCof8pbzOIfs1YTGYcsM9lZl8GG8vtJkCeDWnNqmnrTY6bEgzR1LjIEH/XLb752hf5j0owmpYQKAsakwDGumpWYLqg7N4tG1ZTqeBcLwKWs5Xa6V82tEZXhTzpcibgmZfthZauluq19uicLefK+kCtUGPigzCg4C0mPW3Ua0538WEO2aQQ/GC5lOW6gNfyv0Xb1+rb6Pf/2NtFC2y6F/pmWIrRfrX+97v/993wc3Tj1HP/1eoTD5i/MfNooRQ8eeBRpU6lNLrqX24EMYAIY0dLoOq7N0X2guNeLe0izGfm1xvjz2+EcgqnXdq/pyjVgDCBany/ZgwjbLajN5b0xErIS/GsPaDB1L4RxnvM8msTkz0=
