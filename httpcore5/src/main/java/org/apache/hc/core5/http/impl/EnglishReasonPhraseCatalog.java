@@ -93,8 +93,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         new String[3],  // 1xx
         new String[8],  // 2xx
         new String[8],  // 3xx
-        new String[25], // 4xx
-        new String[8]   // 5xx
+        new String[32], // 4xx
+        new String[12]   // 5xx
     };
 
 
@@ -221,6 +221,18 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                   "Insufficient Storage");
         setReason(HttpStatus.SC_FAILED_DEPENDENCY,
                   "Failed Dependency");
+
+        // Additional HTTP Status Code - see RFC 6585
+        setReason(HttpStatus.SC_PRECONDITION_REQUIRED,
+                "Precondition Required");
+        setReason(HttpStatus.SC_TOO_MANY_REQUESTS,
+                "Too Many Requests");
+        setReason(HttpStatus.SC_REQUEST_HEADER_FIELDS_TOO_LARGE,
+                "Request Header Fields Too Large");
+        setReason(HttpStatus.SC_NETWORK_AUTHENTICATION_REQUIRED,
+                "Network Authentication Required");
+
+
     }
 
 
