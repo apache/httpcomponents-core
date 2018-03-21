@@ -225,8 +225,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         // Additional HTTP Status Code - see RFC 6585
         setReason(HttpStatus.SC_PRECONDITION_REQUIRED,
                 "Precondition Required");
-        setReason(HttpStatus.SC_TOO_MANY_REQUEST,
-                "Too Many Request");
+        setReason(HttpStatus.SC_TOO_MANY_REQUESTS,
+                "Too Many Requests");
         setReason(HttpStatus.SC_REQUEST_HEADER_FIELDS_TOO_LARGE,
                 "Request Header Fields Too Large");
         setReason(HttpStatus.SC_NETWORK_AUTHENTICATION_REQUIRED,
