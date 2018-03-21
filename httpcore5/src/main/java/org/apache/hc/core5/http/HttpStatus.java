@@ -30,12 +30,13 @@ package org.apache.hc.core5.http;
 /**
  * Constants enumerating the HTTP status codes.
  * All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1),
- * RFC2518 (WebDAV) and RFC7540 (HTTP/2) are listed.
+ * RFC2518 (WebDAV), RFC7540 (HTTP/2) and RFC6585 (Additional HTTP Status Codes) are listed.
  *
  * @see <a href="https://tools.ietf.org/html/rfc1945">RFC1945 (HTTP/1.0)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2616">RFC2616 (HTTP/1.1)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2518">RFC2518 (WebDAV)</a>
  * @see <a href="https://tools.ietf.org/html/rfc7540">RFC7540 (HTTP/2)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6585">RFC6585 (Additional HTTP Status Codes)</a>
  * @since 4.0
  */
 public interface HttpStatus {
@@ -166,6 +167,12 @@ public interface HttpStatus {
     int SC_LOCKED = 423;
     /** {@code 424 Failed Dependency} (WebDAV - RFC 2518) */
     int SC_FAILED_DEPENDENCY = 424;
+    /** {@code 428 Precondition Required} (Additional HTTP Status Codes - RFC 6585) */
+    int SC_PRECONDITION_REQUIRED = 428;
+    /** {@code 429 Too Many Requests} (Additional HTTP Status Codes - RFC 6585) */
+    int SC_TOO_MANY_REQUESTS = 429;
+    /** {@code 431 Request Header Fields Too Large} (Additional HTTP Status Codes - RFC 6585) */
+    int SC_REQUEST_HEADER_FIELDS_TOO_LARGE = 431;
 
     // --- 5xx Server Error ---
     /** {@code 500 Server Error} (HTTP/1.0 - RFC 1945) */
@@ -187,4 +194,6 @@ public interface HttpStatus {
     /** {@code 507 Insufficient Storage} (WebDAV - RFC 2518) */
     int SC_INSUFFICIENT_STORAGE = 507;
 
+    /** {@code  511 Network Authentication Required} (Additional HTTP Status Codes - RFC 6585) */
+    int SC_NETWORK_AUTHENTICATION_REQUIRED = 511;
 }
