@@ -167,26 +167,6 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
-    public void releaseResources() {
-        if (incoming != null) {
-            incoming.releaseResources();
-            incoming = null;
-        }
-        if (outgoing != null) {
-            outgoing.releaseResources();
-            outgoing = null;
-        }
-        for (;;) {
-            final ClientHttp1StreamHandler handler = pipeline.poll();
-            if (handler != null) {
-                handler.releaseResources();
-            } else {
-                break;
-            }
-        }
-    }
-
-    @Override
     void terminate(final Exception exception) {
         if (incoming != null) {
             incoming.failed(exception);

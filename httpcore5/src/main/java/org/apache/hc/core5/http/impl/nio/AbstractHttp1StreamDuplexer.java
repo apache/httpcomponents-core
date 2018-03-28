@@ -66,7 +66,6 @@ import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
-import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
@@ -80,7 +79,7 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Identifiable;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
-        implements Identifiable, HttpConnection, ResourceHolder {
+        implements Identifiable, HttpConnection {
 
     private enum ConnectionState { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
 
@@ -388,7 +387,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
         if (connState.compareTo(ConnectionState.SHUTDOWN) >= 0) {
             ioSession.close();
-            releaseResources();
         }
     }
 
@@ -432,7 +430,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 break;
             }
         }
-        releaseResources();
     }
 
     void requestShutdown(final ShutdownType shutdownType) {
