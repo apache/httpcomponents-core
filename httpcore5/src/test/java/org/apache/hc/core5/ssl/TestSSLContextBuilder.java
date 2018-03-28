@@ -90,6 +90,10 @@ public class TestSSLContextBuilder {
         }
     }
 
+    private URL getResource(final String name) {
+        return getClass().getResource(name);
+    }
+
     @Test
     public void testBuildAllDefaults() throws Exception {
         final SSLContext sslContext = SSLContextBuilder.create()
@@ -143,7 +147,7 @@ public class TestSSLContextBuilder {
 
     @Test(expected=NoSuchAlgorithmException.class)
     public void testBuildNoSuchKeyManagerFactoryAlgorithm() throws Exception {
-        final URL resource1 = getClass().getResource("/test-keypasswd.keystore");
+        final URL resource1 = getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "password";
         SSLContextBuilder.create()
@@ -154,7 +158,7 @@ public class TestSSLContextBuilder {
 
     @Test(expected=KeyStoreException.class)
     public void testBuildNoSuchKeyStoreType() throws Exception {
-        final URL resource1 = getClass().getResource("/test-keypasswd.keystore");
+        final URL resource1 = getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "password";
         SSLContextBuilder.create()
@@ -165,7 +169,7 @@ public class TestSSLContextBuilder {
 
     @Test(expected=NoSuchAlgorithmException.class)
     public void testBuildNoSuchTrustManagerFactoryAlgorithm() throws Exception {
-        final URL resource1 = getClass().getResource("/test-keypasswd.keystore");
+        final URL resource1 = getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";
         SSLContextBuilder.create()
                 .setTrustManagerFactoryAlgorithm(" BAD ")
@@ -175,7 +179,7 @@ public class TestSSLContextBuilder {
 
     @Test
     public void testBuildWithProvider() throws Exception {
-        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext sslContext=SSLContextBuilder.create()
@@ -187,7 +191,7 @@ public class TestSSLContextBuilder {
 
     @Test
     public void testBuildWithProviderName() throws Exception {
-        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext sslContext=SSLContextBuilder.create()
@@ -199,7 +203,7 @@ public class TestSSLContextBuilder {
 
     @Test
     public void testKeyWithAlternatePassword() throws Exception {
-        final URL resource1 = getClass().getResource("/test-keypasswd.keystore");
+        final URL resource1 = getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "password";
         final SSLContext sslContext = SSLContextBuilder.create()
@@ -216,7 +220,7 @@ public class TestSSLContextBuilder {
 
         thrown.expect(UnrecoverableKeyException.class);
 
-        final URL resource1 = getClass().getResource("/test-keypasswd.keystore");
+        final URL resource1 = getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "!password";
         SSLContextBuilder.create()
@@ -227,7 +231,7 @@ public class TestSSLContextBuilder {
 
     @Test
     public void testSSLHanskshakeServerTrusted() throws Exception {
-        final URL resource1 = getClass().getResource("/test.keystore");
+        final URL resource1 = getResource("/test.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext serverSslContext = SSLContextBuilder.create()
@@ -275,14 +279,14 @@ public class TestSSLContextBuilder {
 
         thrown.expect(SSLHandshakeException.class);
 
-        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext serverSslContext = SSLContextBuilder.create()
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .build();
         Assert.assertNotNull(serverSslContext);
-        final URL resource2 = getClass().getResource("/test.keystore");
+        final URL resource2 = getResource("/test.keystore");
         final SSLContext clientSslContext = SSLContextBuilder.create()
                 .loadTrustMaterial(resource2, storePassword.toCharArray())
                 .build();
@@ -312,7 +316,7 @@ public class TestSSLContextBuilder {
 
     @Test
     public void testSSLHanskshakeServerCustomTrustStrategy() throws Exception {
-        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext serverSslContext = SSLContextBuilder.create()
@@ -391,14 +395,14 @@ public class TestSSLContextBuilder {
 
     @Test
     public void testSSLHanskshakeClientUnauthenticated() throws Exception {
-        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext serverSslContext = SSLContextBuilder.create()
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .build();
         Assert.assertNotNull(serverSslContext);
-        final URL resource2 = getClass().getResource("/test-client.keystore");
+        final URL resource2 = getResource("/test-client.keystore");
         final SSLContext clientSslContext = SSLContextBuilder.create()
                 .loadTrustMaterial(resource2, storePassword.toCharArray())
                 .build();
@@ -448,14 +452,14 @@ public class TestSSLContextBuilder {
 
         thrown.expect(IOException.class);
 
-        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext serverSslContext = SSLContextBuilder.create()
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .build();
         Assert.assertNotNull(serverSslContext);
-        final URL resource2 = getClass().getResource("/test-client.keystore");
+        final URL resource2 = getResource("/test-client.keystore");
         final SSLContext clientSslContext = SSLContextBuilder.create()
                 .loadTrustMaterial(resource2, storePassword.toCharArray())
                 .build();
@@ -487,7 +491,7 @@ public class TestSSLContextBuilder {
 
     @Test
     public void testSSLHanskshakeClientAuthenticated() throws Exception {
-        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext serverSslContext = SSLContextBuilder.create()
@@ -495,7 +499,7 @@ public class TestSSLContextBuilder {
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .build();
         Assert.assertNotNull(serverSslContext);
-        final URL resource2 = getClass().getResource("/test-client.keystore");
+        final URL resource2 = getResource("/test-client.keystore");
         final SSLContext clientSslContext = SSLContextBuilder.create()
                 .loadTrustMaterial(resource2, storePassword.toCharArray())
                 .loadKeyMaterial(resource2, storePassword.toCharArray(), storePassword.toCharArray())
@@ -538,7 +542,7 @@ public class TestSSLContextBuilder {
 
     @Test
     public void testSSLHanskshakeClientAuthenticatedPrivateKeyStrategy() throws Exception {
-        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext serverSslContext = SSLContextBuilder.create()
@@ -558,7 +562,7 @@ public class TestSSLContextBuilder {
             }
         };
 
-        final URL resource2 = getClass().getResource("/test-client.keystore");
+        final URL resource2 = getResource("/test-client.keystore");
         final SSLContext clientSslContext = SSLContextBuilder.create()
                 .loadTrustMaterial(resource2, storePassword.toCharArray())
                 .loadKeyMaterial(resource2, storePassword.toCharArray(), storePassword.toCharArray(), privateKeyStrategy)
@@ -607,14 +611,14 @@ public class TestSSLContextBuilder {
 
         thrown.expect(IOException.class);
 
-        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext serverSslContext = SSLContextBuilder.create()
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .build();
         Assert.assertNotNull(serverSslContext);
-        final URL resource2 = getClass().getResource("/test-client.keystore");
+        final URL resource2 = getResource("/test-client.keystore");
         final SSLContext clientSslContext = SSLContextBuilder.create()
                 .loadTrustMaterial(resource2, storePassword.toCharArray())
                 .build();
@@ -658,14 +662,14 @@ public class TestSSLContextBuilder {
             thrown.expect(SSLHandshakeException.class);
         }
 
-        final URL resource1 = getClass().getResource("/test-server.keystore");
+        final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
         final SSLContext serverSslContext = SSLContextBuilder.create()
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .build();
         Assert.assertNotNull(serverSslContext);
-        final URL resource2 = getClass().getResource("/test-client.keystore");
+        final URL resource2 = getResource("/test-client.keystore");
         final SSLContext clientSslContext = SSLContextBuilder.create()
                 .loadTrustMaterial(resource2, storePassword.toCharArray())
                 .build();
