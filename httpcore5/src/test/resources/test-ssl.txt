@@ -1,0 +1,193 @@
+# ====================================================================
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# ====================================================================
+#
+# This software consists of voluntary contributions made by many
+# individuals on behalf of the Apache Software Foundation.  For more
+# information on the Apache Software Foundation, please see
+# <http://www.apache.org/>.
+
+== generate test key store with a self signed key
+
+---
+keytool -genkey \
+  -keystore test.keystore -storepass nopassword \
+  -keyalg RSA -keysize 2048 \
+  -alias simple-http-server \
+  -validity 100000 \
+  -dname "CN=localhost, OU=Apache HttpComponents, O=Apache Software Foundation" \
+  -ext SAN="DNS:localhost"
+---
+
+== generate test key store with a self signed key protected with a key password
+
+---
+keytool -genkey \
+  -keystore test-keypasswd.keystore -storepass nopassword \
+  -keyalg RSA -keysize 2048 -keypass password \
+  -alias simple-http-server \
+  -validity 100000 \
+  -dname "CN=localhost, OU=Apache HttpComponents, O=Apache Software Foundation" \
+  -ext SAN="DNS:localhost"
+---
+
+== generate test CA
+
+---
+keytool -genkeypair \
+  -keystore ca.keystore -storepass nopassword \
+  -keyalg RSA -keysize 2048 -keypass password \
+  -alias ca \
+  -validity 100000 \
+  -dname "EMAILADDRESS=dev@hc.apache.org, CN=Test CA, OU=HttpComponents Project, O=Apache Software Foundation" \
+  -ext KeyUsage:critical="keyCertSign" \
+  -ext BasicConstraints:critical="ca:true" \
+  -ext SAN="EMAIL:dev@hc.apache.org"
+---
+
+== export test CA certificate
+
+---
+keytool -export \
+  -keystore ca.keystore -storepass nopassword -keypass password \
+  -alias ca \
+  -file test-ca.crt \
+  -rfc
+---
+
+== generate test server key
+
+---
+keytool -genkeypair \
+  -keystore test-server.keystore -storepass nopassword \
+  -keyalg RSA -keysize 2048 \
+  -alias server \
+  -validity 100000 \
+  -dname "CN=Test Server, OU=HttpComponents Project, O=Apache Software Foundation"
+---
+
+== create server certificate signing request
+
+---
+keytool -certreq \
+  -keystore test-server.keystore -storepass nopassword \
+  -alias server \
+  -file server.csr
+---
+
+== sign server certificate
+
+---
+keytool -gencert \
+  -keystore ca.keystore -storepass nopassword -keypass password \
+  -alias ca \
+  -infile server.csr \
+  -outfile server.crt \
+  -ext KeyUsage:critical="digitalSignature,keyEncipherment" \
+  -ext EKU="serverAuth" \
+  -ext SAN="DNS:localhost" \
+  -rfc
+---
+
+== import CA root certificate and signed server certificate
+
+---
+keytool -importcert \
+  -keystore test-server.keystore -storepass nopassword \
+  -file test-ca.crt \
+  -alias caroot
+---
+keytool -importcert \
+  -keystore test-server.keystore -storepass nopassword \
+  -file server.crt \
+  -alias server
+---
+
+== generate client keys
+
+---
+keytool -genkeypair \
+  -keystore test-client.keystore -storepass nopassword \
+  -keyalg RSA -keysize 2048 \
+  -alias client1 \
+  -validity 100000 \
+  -dname "CN=Test Client 1, OU=HttpComponents Project, O=Apache Software Foundation"
+---
+keytool -genkeypair \
+  -keystore test-client.keystore -storepass nopassword \
+  -keyalg RSA -keysize 2048 \
+  -alias client2 \
+  -validity 100000 \
+  -dname "CN=Test Client 2, OU=HttpComponents Project, O=Apache Software Foundation"
+---
+
+== create client certificate signing requests
+
+---
+keytool -certreq \
+  -keystore test-client.keystore -storepass nopassword \
+  -alias client1 \
+  -file client1.csr
+---
+keytool -certreq \
+  -keystore test-client.keystore -storepass nopassword \
+  -alias client2 \
+  -file client2.csr
+---
+
+== sign client certificates
+
+---
+keytool -gencert \
+  -keystore ca.keystore -storepass nopassword -keypass password \
+  -alias ca \
+  -infile client1.csr \
+  -outfile client1.crt \
+  -ext EKU="clientAuth" \
+  -ext SAN="EMAIL:test-client-1@hc.apache.org" \
+  -rfc
+---
+keytool -gencert \
+  -keystore ca.keystore -storepass nopassword -keypass password \
+  -alias ca \
+  -infile client2.csr \
+  -outfile client2.crt \
+  -ext EKU="clientAuth" \
+  -ext SAN="EMAIL:test-client-2@hc.apache.org" \
+  -rfc
+---
+
+== import CA root certificate and signed server certificate
+
+---
+keytool -importcert \
+  -keystore test-client.keystore -storepass nopassword \
+  -file test-ca.crt \
+  -alias caroot
+---
+keytool -importcert \
+  -keystore test-client.keystore -storepass nopassword \
+  -file client1.crt \
+  -alias client1
+---
+keytool -importcert \
+  -keystore test-client.keystore -storepass nopassword \
+  -file client2.crt \
+  -alias client2
+---
+
