@@ -191,9 +191,8 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
     @Override
     public void setMaxPerRoute(final T route, final int max) {
         Args.notNull(route, "Route");
-        Args.positive(max, "Max value");
         final PerRoutePool<T, C> routePool = getPool(route);
-        routePool.setMax(max);
+        routePool.setMax(max > -1 ? max : defaultMaxPerRoute);
     }
 
     @Override

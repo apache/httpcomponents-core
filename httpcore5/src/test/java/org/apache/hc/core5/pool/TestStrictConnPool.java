@@ -552,15 +552,21 @@ public class TestStrictConnPool {
         } catch (final IllegalArgumentException expected) {
         }
         try {
-            pool.setMaxPerRoute("somehost", -1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
             pool.setDefaultMaxPerRoute(-1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
+    }
+
+    @Test
+    public void testSetMaxPerRoute() throws Exception {
+        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
+        pool.setMaxPerRoute("somehost", 1);
+        Assert.assertEquals(1, pool.getMaxPerRoute("somehost"));
+        pool.setMaxPerRoute("somehost", 0);
+        Assert.assertEquals(0, pool.getMaxPerRoute("somehost"));
+        pool.setMaxPerRoute("somehost", -1);
+        Assert.assertEquals(2, pool.getMaxPerRoute("somehost"));
     }
 
     @Test
