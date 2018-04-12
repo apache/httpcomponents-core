@@ -386,11 +386,6 @@ public class TestLaxConnPool {
         } catch (final IllegalArgumentException expected) {
         }
         try {
-            pool.setMaxPerRoute("somehost", -1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
             pool.setDefaultMaxPerRoute(-1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
