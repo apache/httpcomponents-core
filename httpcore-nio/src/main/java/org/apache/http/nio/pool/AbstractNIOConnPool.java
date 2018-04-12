@@ -688,10 +688,13 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     @Override
     public void setMaxPerRoute(final T route, final int max) {
         Args.notNull(route, "Route");
-        Args.positive(max, "Max value");
         this.lock.lock();
         try {
-            this.maxPerRoute.put(route, Integer.valueOf(max));
+            if (max > -1) {
+                this.maxPerRoute.put(route, Integer.valueOf(max));
+            } else {
+                this.maxPerRoute.remove(route);
+            }
         } finally {
             this.lock.unlock();
         }
