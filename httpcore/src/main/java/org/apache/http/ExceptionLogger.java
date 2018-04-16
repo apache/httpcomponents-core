@@ -35,6 +35,7 @@ public interface ExceptionLogger {
 
         @Override
         public void log(final Exception ex) {
+            // do nothing
         }
 
     };
