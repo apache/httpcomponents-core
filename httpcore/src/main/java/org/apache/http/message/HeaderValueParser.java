@@ -68,6 +68,12 @@ public interface HeaderValueParser {
      * element or param will be stored as the empty {@link String};
      * if the "=" is also missing <var>null</var> will be stored instead.
      * </p>
+     * <p>
+     * Note that this parser does not apply to list-typed HTTP header fields in
+     * general; it is only suitable for fields that use the syntax described
+     * above. Counter-examples are "Link" (RFC 8288), "If-None-Match" (RFC 7232)
+     * or "Dav" (RFC 4918).
+     * </p>
      *
      * @param buffer    buffer holding the header value to parse
      * @param cursor    the parser cursor containing the current position and
