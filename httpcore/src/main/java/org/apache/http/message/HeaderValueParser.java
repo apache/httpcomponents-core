@@ -71,7 +71,7 @@ public interface HeaderValueParser {
      * <p>
      * Note that this parser does not apply to list-typed HTTP header fields in
      * general; it is only suitable for fields that use the syntax described
-     * above. Counter-examples are "Link" (RFC 8269), "If-None-Match" (RFC 7232)
+     * above. Counter-examples are "Link" (RFC 8288), "If-None-Match" (RFC 7232)
      * or "Dav" (RFC 4918).
      * </p>
      *
