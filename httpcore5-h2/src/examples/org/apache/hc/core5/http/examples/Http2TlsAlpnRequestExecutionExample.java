@@ -26,13 +26,10 @@
  */
 package org.apache.hc.core5.http.examples;
 
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
-import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
@@ -57,32 +54,16 @@ import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.apache.hc.core5.ssl.TrustStrategy;
 import org.apache.hc.core5.util.Timeout;
 
 /**
  * This example demonstrates how to execute HTTP/2 requests over TLS connections.
  * <p>
- * It requires Java runtime with ALPN protocol support (such as Oracle JRE 9).
+ * It requires Java runtime with ALPN protocol support (such as Oracle JRE 9 or newer).
  */
 public class Http2TlsAlpnRequestExecutionExample {
 
     public final static void main(final String[] args) throws Exception {
-        // Trust standard CA and those trusted by our custom strategy
-        final SSLContext sslContext = SSLContexts.custom()
-                .loadTrustMaterial(new TrustStrategy() {
-
-                    @Override
-                    public boolean isTrusted(
-                            final X509Certificate[] chain,
-                            final String authType) throws CertificateException {
-                        final X509Certificate cert = chain[0];
-                        return "CN=http2bin.org".equalsIgnoreCase(cert.getSubjectDN().getName());
-                    }
-
-                })
-                .build();
-
         // Create and start requester
         H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
@@ -90,7 +71,7 @@ public class Http2TlsAlpnRequestExecutionExample {
 
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
                 .setH2Config(h2Config)
-                .setTlsStrategy(new H2ClientTlsStrategy(sslContext, new SSLSessionVerifier() {
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLContexts.createSystemDefault(), new SSLSessionVerifier() {
 
                     @Override
                     public TlsDetails verify(final NamedEndpoint endpoint, final SSLEngine sslEngine) throws SSLException {
@@ -146,8 +127,8 @@ public class Http2TlsAlpnRequestExecutionExample {
         });
         requester.start();
 
-        HttpHost target = new HttpHost("http2bin.org", 443, "https");
-        String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
+        HttpHost target = new HttpHost("nghttp2.org", 443, "https");
+        String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
