@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
@@ -69,6 +70,7 @@ public class Http2MultiStreamExecutionExample {
 
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(ioReactorConfig)
+                .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
                 .setH2Config(h2Config)
                 .setStreamListener(new Http2StreamListener() {
 
@@ -113,8 +115,8 @@ public class Http2MultiStreamExecutionExample {
         });
         requester.start();
 
-        HttpHost target = new HttpHost("http2bin.org");
-        String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
+        HttpHost target = new HttpHost("nghttp2.org");
+        String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
 
         Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
         AsyncClientEndpoint clientEndpoint = future.get();

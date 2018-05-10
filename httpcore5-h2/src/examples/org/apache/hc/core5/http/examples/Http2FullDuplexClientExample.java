@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
@@ -76,6 +77,7 @@ public class Http2FullDuplexClientExample {
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(ioReactorConfig)
                 .setH2Config(h2Config)
+                .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
                 .setStreamListener(new Http2StreamListener() {
 
                     @Override
@@ -120,7 +122,7 @@ public class Http2FullDuplexClientExample {
         });
         requester.start();
 
-        final URI requestUri = new URI("http://http2bin.org/post");
+        final URI requestUri = new URI("http://nghttp2.org/httpbin/post");
         final BasicRequestProducer requestProducer = new BasicRequestProducer(
                 "POST", requestUri, new BasicAsyncEntityProducer("stuff", ContentType.TEXT_PLAIN));
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(
