@@ -171,7 +171,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     public void timeout(final SessionRequest request) {
         final BasicFuture<E> future = removeRequest(request);
         if (future != null) {
-            future.failed(new ConnectException());
+            future.failed(new ConnectException("timeout connecting to [" + request.getRemoteAddress() + "]"));
         }
     }
 

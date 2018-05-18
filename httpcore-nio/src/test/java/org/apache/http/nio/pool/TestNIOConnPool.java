@@ -28,6 +28,7 @@ package org.apache.http.nio.pool;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
@@ -278,6 +279,8 @@ public class TestNIOConnPool {
         final IOSession iosession = Mockito.mock(IOSession.class);
         final SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
         Mockito.when(sessionRequest.getAttachment()).thenReturn("somehost");
+        Mockito.when(sessionRequest.getRemoteAddress())
+                .thenReturn(new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 80));
         Mockito.when(sessionRequest.getSession()).thenReturn(iosession);
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
         Mockito.when(ioreactor.connect(
@@ -302,6 +305,7 @@ public class TestNIOConnPool {
             Assert.fail("ExecutionException should have been thrown");
         } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof ConnectException);
+            Assert.assertEquals("timeout connecting to [/127.0.0.1:80]", ex.getCause().getMessage());
         }
 
         totals = pool.getTotalStats();
