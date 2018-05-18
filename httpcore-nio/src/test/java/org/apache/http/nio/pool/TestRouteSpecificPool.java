@@ -28,6 +28,8 @@ package org.apache.http.nio.pool;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.http.concurrent.BasicFuture;
@@ -158,6 +160,8 @@ public class TestRouteSpecificPool {
     public void testConnectTimeout() throws Exception {
         final LocalRoutePool pool = new LocalRoutePool();
         final SessionRequest sessionRequest = Mockito.mock(SessionRequest.class);
+        Mockito.when(sessionRequest.getRemoteAddress())
+                .thenReturn(new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 80));
         final BasicFuture<LocalPoolEntry> future = new BasicFuture<LocalPoolEntry>(null);
         pool.addPending(sessionRequest, future);
         Assert.assertEquals(1, pool.getAllocatedCount());
@@ -172,6 +176,7 @@ public class TestRouteSpecificPool {
             Assert.fail("ExecutionException should have been thrown");
         } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof ConnectException);
+            Assert.assertEquals("timeout connecting to [/127.0.0.1:80]", ex.getCause().getMessage());
         }
         Assert.assertEquals(0, pool.getAllocatedCount());
         Assert.assertEquals(0, pool.getAvailableCount());
