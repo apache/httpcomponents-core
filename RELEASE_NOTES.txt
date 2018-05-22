@@ -27,6 +27,9 @@ Changelog
 * HTTPCORE-519: Failing tests on Fedora 28 due to weak encryption algorithms in test keystore.
   Contributed by Gary Gregory <ggregory at apache.org> and Michael Simacek <msimacek at redhat dot com>
 
+* HTTPCORE-527: Add remote address when throwing a ConnectException.
+  Contributed by Jason Tedor <jason at tedor dot me>
+
   
 Release 4.4.9
 -------------------
