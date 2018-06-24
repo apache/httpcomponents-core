@@ -376,7 +376,7 @@ public class SSLIOSession implements IOSession {
             this.status = CLOSED;
         }
         // Abnormal session termination
-        if (this.status == ACTIVE && this.endOfStream
+        if (this.status <= CLOSING && this.endOfStream
                 && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
             this.status = CLOSED;
         }
@@ -401,6 +401,10 @@ public class SSLIOSession implements IOSession {
             break;
         case FINISHED:
             break;
+        }
+
+        if (this.endOfStream) {
+            newMask = newMask & ~EventMask.READ;
         }
 
         // Do we have encrypted data ready to be sent?
