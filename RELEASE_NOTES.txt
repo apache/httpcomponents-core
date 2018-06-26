@@ -1,13 +1,22 @@
 Release 4.4.10
 -------------------
 
-This is a maintenance release that fixes a number of issues discovered since 4.4.9.
+This is a maintenance release that adds Automatic-Module-Name to the manifest for compatibility
+with Java 9 Platform Module System and fixes a number of issues discovered since 4.4.9
+
 
 Changelog
 -------------------
 
-* HTTPCORE-510: Avoid an ArithmeticException in AbstractMultiworkerIOReactor by failing earlier by checking ioThreadCount in IOReactorConfig constructor.
+* HTTPCORE-510: Avoid an ArithmeticException in AbstractMultiworkerIOReactor by failing earlier by checking
+  ioThreadCount in IOReactorConfig constructor.
   Contributed by Gary Gregory <ggregory at apache.org>
+
+* Workaround for misbehaved servers that return HTTP 204 responses with a content
+  Contributed by Alessandro Gherardi <alessandro.gherardi at schneider-electric.com>
+
+* HTTPCORE-508: Reject response messages with status code lesser than 100 as invalid
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-511: Do not cache result of Runtime.getRuntime().availableProcessors() in IOReactorConfig.
   Contributed by Gary Gregory <ggregory at apache.org>
@@ -15,10 +24,15 @@ Changelog
 * HTTPCORE-509: AVAIL_PROCS is auto-configured based on core count.
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* HTTPCORE-514: Exceptions defined by HttpCore should clean message strings when built to replace non-printable characters with hex values.
+* [HTTPCORE-513] Better handling of very large content by ExpandableBuffer
+  Contributed by imoldovan-intacct <imoldovan at intacct.com>
+
+* HTTPCORE-514: Exceptions defined by HttpCore should clean message strings when built to replace non-printable
+  characters with hex values.
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* HTTPCORE-515: Add convenience API org.apache.http.impl.nio.DefaultHttpServerIODispatch.create(T, SSLContext, ConnectionConfig, HttpRequestFactory).
+* HTTPCORE-515: Add convenience API org.apache.http.impl.nio.DefaultHttpServerIODispatch.create(T, SSLContext,
+  ConnectionConfig, HttpRequestFactory).
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * HTTPCORE-517: Allow SecurityManager to stop socket connections.
@@ -27,10 +41,23 @@ Changelog
 * HTTPCORE-519: Failing tests on Fedora 28 due to weak encryption algorithms in test keystore.
   Contributed by Gary Gregory <ggregory at apache.org> and Michael Simacek <msimacek at redhat dot com>
 
+* HTTPCLIENT-1914: negative value of max connection per route to restore the default max value (by removing
+  the underlying entry from the route map).
+  Contributed by Corneliu Chitic <corneliu.chitic at computaris.com>
+
 * HTTPCORE-527: Add remote address when throwing a ConnectException.
   Contributed by Jason Tedor <jason at tedor dot me>
 
-  
+* HTTPCORE-523: Improve HeaderValueParser API doc
+  Contributed by Julian Reschke <julian.reschke at gmx.de>
+
+* Add Automatic-Module-Name in manifest so Java9 modular applications can depend on this library
+  Contributed by Varun Nandi <varunkn at amazon.com>
+
+* HTTPCORE-528: Non-blocking SSL I/O session spins upon abnormal connection closure by the opposite endpoint.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 4.4.9
 -------------------
 
