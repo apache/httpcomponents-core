@@ -82,7 +82,6 @@
     <commons-logging.version>1.2</commons-logging.version>
     <api.comparison.version>4.4</api.comparison.version>
     <hc.stylecheck.version>1</hc.stylecheck.version>
-    <commons-lang.version>3.4</commons-lang.version>
   </properties>
 
   <dependencyManagement>
@@ -103,12 +102,6 @@
         <groupId>commons-logging</groupId>
         <artifactId>commons-logging</artifactId>
         <version>${commons-logging.version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-lang3</artifactId>
-        <version>${commons-lang.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>

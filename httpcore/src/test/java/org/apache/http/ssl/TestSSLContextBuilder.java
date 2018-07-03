@@ -33,7 +33,6 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.URL;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -64,11 +63,11 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.commons.lang3.JavaVersion;
-import org.apache.commons.lang3.SystemUtils;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 /**
  * Unit tests for {@link org.apache.http.ssl.SSLContextBuilder}.
@@ -76,6 +75,14 @@ import org.junit.Test;
 public class TestSSLContextBuilder {
 
     private static final String PROVIDER_SUN_JSSE = "SunJSSE";
+
+    private static boolean isWindows() {
+        return System.getProperty("os.name").contains("Windows");
+    }
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private static final int TIMEOUT = 5000;
     private ExecutorService executorService;
 
@@ -130,8 +137,10 @@ public class TestSSLContextBuilder {
         Assert.assertEquals(PROVIDER_SUN_JSSE,  sslContext.getProvider().getName());
     }
 
-    @Test(expected=KeyStoreException.class)
+    @Test
     public void testBuildNoSuchKeyStoreType() throws Exception {
+        thrown.expect(KeyStoreException.class);
+
         final URL resource1 = getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "password";
@@ -141,8 +150,10 @@ public class TestSSLContextBuilder {
                 .build();
     }
 
-    @Test(expected=NoSuchAlgorithmException.class)
+    @Test
     public void testBuildNoSuchKeyManagerFactoryAlgorithm() throws Exception {
+        thrown.expect(NoSuchAlgorithmException.class);
+
         final URL resource1 = getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "password";
@@ -152,8 +163,10 @@ public class TestSSLContextBuilder {
                 .build();
     }
 
-    @Test(expected=NoSuchAlgorithmException.class)
+    @Test
     public void testBuildNoSuchTrustManagerFactoryAlgorithm() throws Exception {
+        thrown.expect(NoSuchAlgorithmException.class);
+
         final URL resource1 = getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";
         SSLContextBuilder.create()
@@ -188,8 +201,10 @@ public class TestSSLContextBuilder {
         Assert.assertNotNull(socketFactory);
     }
 
-    @Test(expected=UnrecoverableKeyException.class)
+    @Test
     public void testKeyWithAlternatePasswordInvalid() throws Exception {
+        thrown.expect(UnrecoverableKeyException.class);
+
         final URL resource1 = getResource("/test-keypasswd.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "!password";
@@ -200,7 +215,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeServerTrusted() throws Exception {
+    public void testSSLHandshakeServerTrusted() throws Exception {
         final URL resource1 = getResource("/test.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -247,8 +262,10 @@ public class TestSSLContextBuilder {
         Assert.assertNotNull(result);
     }
 
-    @Test(expected = IOException.class)
-    public void testSSLHanskshakeServerNotTrusted() throws Exception {
+    @Test
+    public void testSSLHandshakeServerNotTrusted() throws Exception {
+        thrown.expect(IOException.class);
+
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -289,7 +306,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeServerCustomTrustStrategy() throws Exception {
+    public void testSSLHandshakeServerCustomTrustStrategy() throws Exception {
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -371,7 +388,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeClientUnauthenticated() throws Exception {
+    public void testSSLHandshakeClientUnauthenticated() throws Exception {
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -428,8 +445,10 @@ public class TestSSLContextBuilder {
         Assert.assertNull(clientPrincipal);
     }
 
-    @Test(expected = IOException.class)
-    public void testSSLHanskshakeClientUnauthenticatedError() throws Exception {
+    @Test
+    public void testSSLHandshakeClientUnauthenticatedError() throws Exception {
+        thrown.expect(IOException.class);
+
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -472,7 +491,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeClientAuthenticated() throws Exception {
+    public void testSSLHandshakeClientAuthenticated() throws Exception {
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -527,7 +546,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeClientAuthenticatedPrivateKeyStrategy() throws Exception {
+    public void testSSLHandshakeClientAuthenticatedPrivateKeyStrategy() throws Exception {
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -595,8 +614,14 @@ public class TestSSLContextBuilder {
     }
 
 
-    @Test(expected = IOException.class)
-    public void testSSLHanskshakeProtocolMismatch1() throws Exception {
+    @Test
+    public void testSSLHandshakeProtocolMismatch1() throws Exception {
+        if (isWindows()) {
+            thrown.expect(IOException.class);
+        } else {
+            thrown.expect(SSLHandshakeException.class);
+        }
+
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -644,7 +669,13 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeProtocolMismatch2() throws Exception {
+    public void testSSLHandshakeProtocolMismatch2() throws Exception {
+        if (isWindows()) {
+            thrown.expect(IOException.class);
+        } else {
+            thrown.expect(SSLHandshakeException.class);
+        }
+
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -686,15 +717,7 @@ public class TestSSLContextBuilder {
             clientSocket.setEnabledProtocols(new String[] { "TLSv1" });
             clientSocket.connect(new InetSocketAddress("localhost", localPort), TIMEOUT);
             clientSocket.setSoTimeout(TIMEOUT);
-            final Class<? extends IOException> expectedExceptionClass = SystemUtils.IS_OS_WINDOWS
-                    && SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_7) ? SocketException.class
-                            : SSLHandshakeException.class;
-            try {
-                clientSocket.startHandshake();
-                Assert.fail();
-            } catch (final Exception e) {
-                Assert.assertEquals(expectedExceptionClass, e.getClass());
-            }
+            clientSocket.startHandshake();
         } finally {
             clientSocket.close();
         }
