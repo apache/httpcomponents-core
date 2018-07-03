@@ -31,9 +31,13 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.TimerTask;
+import org.apache.hc.core5.util.WheelTimeout;
 
 final class InternalConnectChannel extends InternalChannel {
 
@@ -62,21 +66,27 @@ final class InternalConnectChannel extends InternalChannel {
             if (socketChannel.isConnectionPending()) {
                 socketChannel.finishConnect();
             }
-            //check out connectTimeout
-            final long now = System.currentTimeMillis();
-            if (checkTimeout(now)) {
+            //if cas return true,that means connect timeout task has not been triggered,timeoutTask can be canceled.
+            if (timeOutState.compareAndSet(TimeOutState.NOTSET, TimeOutState.CANCEL)) {
+            	getWheelTimeOut().cancel();//cancle connect timeout task
+            	setWheelTimeOut(null);
                 final InternalDataChannel dataChannel = dataChannelFactory.create(
                         key,
                         socketChannel,
                         sessionRequest.remoteEndpoint,
                         sessionRequest.attachment);
+                //use HashedWheelTimer to trigger read timeout task
+                if(dataChannel.getSocketTimeout() > 0){
+                	WheelTimeout readWheelTimeout =  SingleCoreIOReactor.timeWheel.newTimeout(new ReadTimeoutTask(dataChannel), dataChannel.getSocketTimeout(), TimeUnit.MILLISECONDS);
+                	dataChannel.setWheelTimeOut(readWheelTimeout);
+                }
                 key.attach(dataChannel);
                 sessionRequest.completed(dataChannel);
                 dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
             }
         }
     }
-
+    
     @Override
     int getTimeout() {
         return TimeValue.defaultsToZeroMillis(sessionRequest.timeout).toMillisIntBound();

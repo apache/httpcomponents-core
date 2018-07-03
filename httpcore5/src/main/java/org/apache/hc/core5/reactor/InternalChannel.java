@@ -29,9 +29,11 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.io.GracefullyCloseable;
 import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.util.WheelTimeout;
 
 abstract class InternalChannel implements GracefullyCloseable {
 
@@ -44,6 +46,12 @@ abstract class InternalChannel implements GracefullyCloseable {
     abstract int getTimeout();
 
     abstract long getLastReadTime();
+    
+    public static enum TimeOutState { NOTSET, CANCEL , ACTIVE } 
+    
+    protected final AtomicReference<TimeOutState> timeOutState = new AtomicReference<>(TimeOutState.NOTSET);
+    
+    protected WheelTimeout wheelTimeOut;
 
     final void handleIOEvent(final int ops) {
         try {
@@ -74,5 +82,21 @@ abstract class InternalChannel implements GracefullyCloseable {
         }
         return true;
     }
+
+	public AtomicReference<TimeOutState> getTimeOutState() {
+		return timeOutState;
+	}
+
+	public WheelTimeout getWheelTimeOut() {
+		return wheelTimeOut;
+	}
+
+	public void setWheelTimeOut(WheelTimeout wheelTimeOut) {
+		this.wheelTimeOut = wheelTimeOut;
+	}
+	
+	
+    
+   
 
 }
