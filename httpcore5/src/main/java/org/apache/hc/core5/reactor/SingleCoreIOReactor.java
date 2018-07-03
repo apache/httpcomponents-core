@@ -40,6 +40,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -48,11 +49,15 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.ShutdownType;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.HashedWheelTimer;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.TimerTask;
+import org.apache.hc.core5.util.WheelTimeout;
 
 class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
 
     private static final int MAX_CHANNEL_REQUESTS = 10000;
+    public static HashedWheelTimer timeWheel = new HashedWheelTimer();
 
     private final IOEventHandlerFactory eventHandlerFactory;
     private final IOReactorConfig reactorConfig;
@@ -63,8 +68,6 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private final Queue<SocketChannel> channelQueue;
     private final Queue<IOSessionRequest> requestQueue;
     private final AtomicBoolean shutdownInitiated;
-
-    private volatile long lastTimeoutCheck;
 
     SingleCoreIOReactor(
             final Queue<ExceptionEvent> auditLog,
@@ -123,8 +126,6 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 processEvents(this.selector.selectedKeys());
             }
 
-            validateActiveChannels();
-
             // Process closed sessions
             processClosedSessions();
 
@@ -152,16 +153,6 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 if (channel instanceof InternalDataChannel) {
                     this.sessionShutdownCallback.execute((InternalDataChannel) channel);
                 }
-            }
-        }
-    }
-
-    private void validateActiveChannels() {
-        final long currentTime = System.currentTimeMillis();
-        if( (currentTime - this.lastTimeoutCheck) >= this.reactorConfig.getSelectInterval()) {
-            this.lastTimeoutCheck = currentTime;
-            for (final SelectionKey key : this.selector.keys()) {
-                timeoutCheck(key, currentTime);
             }
         }
     }
@@ -225,19 +216,12 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         }
     }
 
-    private void timeoutCheck(final SelectionKey key, final long now) {
-        final InternalChannel channel = (InternalChannel) key.attachment();
-        if (channel != null) {
-            channel.checkTimeout(now);
-        }
-    }
-
     @Override
     public Future<IOSession> connect(
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
-            final TimeValue timeout,
+            final TimeValue connectTimeout,
             final Object attachment,
             final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
         Args.notNull(remoteEndpoint, "Remote endpoint");
@@ -245,7 +229,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 remoteEndpoint,
                 remoteAddress != null ? remoteAddress : new InetSocketAddress(remoteEndpoint.getHostName(), remoteEndpoint.getPort()),
                 localAddress,
-                timeout,
+                connectTimeout,
                 attachment,
                 callback);
 
@@ -316,6 +300,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             sock.setReuseAddress(this.reactorConfig.isSoReuseAddress());
             sock.bind(sessionRequest.localAddress);
         }
+        int connectTimeout = TimeValue.defaultsToZeroMillis(sessionRequest.timeout).toMillisIntBound();
         final boolean connected = socketChannel.connect(sessionRequest.remoteAddress);
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
         final InternalChannel channel = new InternalConnectChannel(key, socketChannel, sessionRequest, new InternalDataChannelFactory() {
@@ -337,6 +322,21 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             }
 
         });
+        if(connectTimeout > 0){
+        	WheelTimeout connectWheelTimeout = timeWheel.newTimeout(new TimerTask(){
+
+				@Override
+				public void run(WheelTimeout timeout) throws Exception {
+					// TODO Auto-generated method stub
+					if(channel.getTimeOutState().compareAndSet(InternalChannel.TimeOutState.NOTSET, InternalChannel.TimeOutState.ACTIVE)){
+						//do channel timeout 
+						channel.onTimeout();
+					}
+				}
+        		
+        	}, connectTimeout, TimeUnit.MILLISECONDS);//add
+        	channel.setWheelTimeOut(connectWheelTimeout);
+        }
         if (connected) {
             channel.handleIOEvent(SelectionKey.OP_CONNECT);
         } else {

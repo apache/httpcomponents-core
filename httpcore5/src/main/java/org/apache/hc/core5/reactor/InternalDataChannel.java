@@ -270,6 +270,8 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (closed.compareAndSet(false, true)) {
             try {
                 getSessionImpl().close();
+                //cancel the readTimeOut task in time wheel,in case the connection closed by peer
+                getWheelTimeOut().cancel();
             } finally {
                 closedSessions.add(this);
             }
