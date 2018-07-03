@@ -78,6 +78,10 @@ public class TestSSLContextBuilder {
 
     private static final String PROVIDER_SUN_JSSE = "SunJSSE";
 
+    private static boolean isWindows() {
+        return System.getProperty("os.name").contains("Windows");
+    }
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -232,7 +236,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeServerTrusted() throws Exception {
+    public void testSSLHandshakeServerTrusted() throws Exception {
         final URL resource1 = getResource("/test.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -278,9 +282,8 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeServerNotTrusted() throws Exception {
-
-        thrown.expect(SSLHandshakeException.class);
+    public void testSSLHandshakeServerNotTrusted() throws Exception {
+        thrown.expect(IOException.class);
 
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
@@ -319,7 +322,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeServerCustomTrustStrategy() throws Exception {
+    public void testSSLHandshakeServerCustomTrustStrategy() throws Exception {
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -398,7 +401,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeClientUnauthenticated() throws Exception {
+    public void testSSLHandshakeClientUnauthenticated() throws Exception {
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -453,8 +456,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeClientUnauthenticatedError() throws Exception {
-
+    public void testSSLHandshakeClientUnauthenticatedError() throws Exception {
         thrown.expect(IOException.class);
 
         final URL resource1 = getResource("/test-server.keystore");
@@ -496,7 +498,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeClientAuthenticated() throws Exception {
+    public void testSSLHandshakeClientAuthenticated() throws Exception {
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -548,7 +550,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeClientAuthenticatedPrivateKeyStrategy() throws Exception {
+    public void testSSLHandshakeClientAuthenticatedPrivateKeyStrategy() throws Exception {
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -614,9 +616,12 @@ public class TestSSLContextBuilder {
 
 
     @Test
-    public void testSSLHanskshakeProtocolMismatch1() throws Exception {
-
-        thrown.expect(IOException.class);
+    public void testSSLHandshakeProtocolMismatch1() throws Exception {
+        if (isWindows()) {
+            thrown.expect(IOException.class);
+        } else {
+            thrown.expect(SSLHandshakeException.class);
+        }
 
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
@@ -662,9 +667,8 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHanskshakeProtocolMismatch2() throws Exception {
-        final boolean isWindows = System.getProperty("os.name").contains("Windows");
-        if (isWindows) {
+    public void testSSLHandshakeProtocolMismatch2() throws Exception {
+        if (isWindows()) {
             thrown.expect(IOException.class);
         } else {
             thrown.expect(SSLHandshakeException.class);
