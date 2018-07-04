@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
@@ -48,6 +49,7 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.WheelTimeout;
 
 final class InternalDataChannel extends InternalChannel implements ProtocolIOSession {
 
@@ -270,6 +272,10 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (closed.compareAndSet(false, true)) {
             try {
                 getSessionImpl().close();
+                //cancel the readTimeOut task in time wheel,in case the connection closed by peer
+                if(getWheelTimeOut() != null){
+                    getWheelTimeOut().cancel();
+                }
             } finally {
                 closedSessions.add(this);
             }
@@ -355,6 +361,22 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     @Override
     public void setSocketTimeout(final int timeout) {
         ioSession.setSocketTimeout(timeout);
+        putIntoTimeWheel(timeout);
+    }
+
+    private void putIntoTimeWheel(final int timeout) {
+        if(timeout > 0){
+            //use HashedWheelTimer to trigger read timeout task
+            final long delayTime = getLastReadTime() + timeout - System.currentTimeMillis();
+            final WheelTimeout readWheelTimeout =  SingleCoreIOReactor.timeWheel.newTimeout(new ReadTimeoutTask(this),delayTime, TimeUnit.MILLISECONDS);
+            setWheelTimeOut(readWheelTimeout);
+        }else{
+            //if timeout has been set > 0 and set <= 0 next time,means cancel the time out
+            final WheelTimeout wheelTimeout = getWheelTimeOut();
+            if(wheelTimeout != null){
+                wheelTimeout.cancel();
+            }
+        }
     }
 
     @Override
