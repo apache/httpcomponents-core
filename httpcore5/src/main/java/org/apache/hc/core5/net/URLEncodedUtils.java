@@ -41,7 +41,6 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.ParserCursor;
 import org.apache.hc.core5.http.message.TokenParser;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
  * A collection of utilities for encoding URLs.
@@ -97,43 +96,18 @@ public class URLEncodedUtils {
      *
      * @since 4.2
      */
-    public static List<NameValuePair> parse(final String s, final Charset charset) {
+    public static List<NameValuePair> parse(final CharSequence s, final Charset charset) {
         if (s == null) {
             return createEmptyList();
         }
-        final CharArrayBuffer buffer = new CharArrayBuffer(s.length());
-        buffer.append(s);
-        return parse(buffer, charset, QP_SEP_A, QP_SEP_S);
-    }
-
-    /**
-     * Returns a list of {@link NameValuePair NameValuePairs} as parsed from the given string using the given character
-     * encoding.
-     *
-     * @param s
-     *            text to parse.
-     * @param charset
-     *            Encoding to use when decoding the parameters.
-     * @param separators
-     *            element separators.
-     * @return a list of {@link NameValuePair} as built from the URI's query portion.
-     *
-     * @since 4.3
-     */
-    public static List<NameValuePair> parse(final String s, final Charset charset, final char... separators) {
-        if (s == null) {
-            return createEmptyList();
-        }
-        final CharArrayBuffer buffer = new CharArrayBuffer(s.length());
-        buffer.append(s);
-        return parse(buffer, charset, separators);
+        return parse(s, charset, QP_SEP_A, QP_SEP_S);
     }
 
     /**
      * Returns a list of {@link NameValuePair NameValuePairs} as parsed from the given string using
      * the given character encoding.
      *
-     * @param buf
+     * @param s
      *            text to parse.
      * @param charset
      *            Encoding to use when decoding the parameters.
@@ -144,25 +118,25 @@ public class URLEncodedUtils {
      * @since 4.4
      */
     public static List<NameValuePair> parse(
-            final CharArrayBuffer buf, final Charset charset, final char... separators) {
-        Args.notNull(buf, "Char array buffer");
+            final CharSequence s, final Charset charset, final char... separators) {
+        Args.notNull(s, "Char array buffer");
         final TokenParser tokenParser = TokenParser.INSTANCE;
         final BitSet delimSet = new BitSet();
         for (final char separator: separators) {
             delimSet.set(separator);
         }
-        final ParserCursor cursor = new ParserCursor(0, buf.length());
+        final ParserCursor cursor = new ParserCursor(0, s.length());
         final List<NameValuePair> list = new ArrayList<>();
         while (!cursor.atEnd()) {
             delimSet.set('=');
-            final String name = tokenParser.parseToken(buf, cursor, delimSet);
+            final String name = tokenParser.parseToken(s, cursor, delimSet);
             String value = null;
             if (!cursor.atEnd()) {
-                final int delim = buf.charAt(cursor.getPos());
+                final int delim = s.charAt(cursor.getPos());
                 cursor.updatePos(cursor.getPos() + 1);
                 if (delim == '=') {
                     delimSet.clear('=');
-                    value = tokenParser.parseToken(buf, cursor, delimSet);
+                    value = tokenParser.parseToken(s, cursor, delimSet);
                     if (!cursor.atEnd()) {
                         cursor.updatePos(cursor.getPos() + 1);
                     }
