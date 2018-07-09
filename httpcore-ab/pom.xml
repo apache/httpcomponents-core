@@ -73,7 +73,7 @@
             <configuration>
               <archive combine.children="append">
                 <manifestEntries>
-                  <Automatic-Module-Name>org.apache.httpcomponents.httpcore-ab</Automatic-Module-Name>
+                  <Automatic-Module-Name>org.apache.httpcomponents.httpcore.ab</Automatic-Module-Name>
                 </manifestEntries>
               </archive>
             </configuration>
