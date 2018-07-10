@@ -63,8 +63,6 @@ import org.apache.hc.core5.testing.TestingSupport;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -73,6 +71,8 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Http2ProtocolNegotiationTest {
 
@@ -206,11 +206,10 @@ public class Http2ProtocolNegotiationTest {
 
     @Test
     public void testForceHttp1() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), "https");
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_1, null);
@@ -229,11 +228,10 @@ public class Http2ProtocolNegotiationTest {
 
     @Test
     public void testForceHttp2() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), "https");
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
@@ -252,11 +250,10 @@ public class Http2ProtocolNegotiationTest {
 
     @Test
     public void testNegotiateProtocol() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), "https");
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.NEGOTIATE, null);

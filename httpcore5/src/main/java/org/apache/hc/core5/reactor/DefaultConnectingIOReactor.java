@@ -110,8 +110,8 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
     }
 
     @Override
-    public void start() {
-        ioReactor.start();
+    public void start(final int i) {
+        ioReactor.start(i);
     }
 
     @Override
@@ -138,6 +138,7 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
         }
         final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
         try {
+            start(i);
             return dispatchers[i].connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();

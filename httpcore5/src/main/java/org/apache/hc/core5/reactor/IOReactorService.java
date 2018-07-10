@@ -36,7 +36,7 @@ import java.util.List;
  */
 public interface IOReactorService extends IOReactor {
 
-    void start();
+    void start(int i );
 
     List<ExceptionEvent> getExceptionLog();
 

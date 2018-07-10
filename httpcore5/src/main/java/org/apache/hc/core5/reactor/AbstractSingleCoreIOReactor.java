@@ -35,6 +35,7 @@ import java.nio.channels.Selector;
 import java.util.Date;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.io.ShutdownType;
@@ -110,6 +111,8 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
                     }
                 }
             }
+        }else if (this.status.get().compareTo(IOReactorStatus.ACTIVE) > 0 ){
+            throw new RejectedExecutionException("SingleCoreIOReactor terminated");
         }
     }
 

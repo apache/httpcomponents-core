@@ -85,7 +85,10 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
 
                 }))) {
             if (status.compareAndSet(Status.READY, Status.RUNNING)) {
-                ioReactorRef.get().start();
+                if(this instanceof AsyncServer){
+                    //start DefaultListeningIOReactor
+                    ioReactorRef.get().start(0);
+                }
             }
         } else {
             throw new IllegalStateException("I/O reactor has already been started");

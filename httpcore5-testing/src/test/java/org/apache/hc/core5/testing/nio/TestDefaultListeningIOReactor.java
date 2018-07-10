@@ -104,7 +104,7 @@ public class TestDefaultListeningIOReactor {
 
     @Test
     public void testEndpointUpAndDown() throws Exception {
-        ioreactor.start();
+        ioreactor.start(0);
 
         Set<ListenerEndpoint> endpoints = ioreactor.getEndpoints();
         Assert.assertNotNull(endpoints);
@@ -138,7 +138,7 @@ public class TestDefaultListeningIOReactor {
 
     @Test
     public void testEndpointAlreadyBound() throws Exception {
-        ioreactor.start();
+        ioreactor.start(0);
 
         final Future<ListenerEndpoint> future1 = ioreactor.listen(new InetSocketAddress(0));
         final ListenerEndpoint endpoint1 = future1.get();

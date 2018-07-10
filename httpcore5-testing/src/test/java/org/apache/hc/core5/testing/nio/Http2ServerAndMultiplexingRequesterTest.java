@@ -68,8 +68,6 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.TestingSupport;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -80,6 +78,8 @@ import org.junit.Test;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class Http2ServerAndMultiplexingRequesterTest {
@@ -215,11 +215,10 @@ public class Http2ServerAndMultiplexingRequesterTest {
 
     @Test
     public void testSequentialRequests() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
@@ -258,11 +257,10 @@ public class Http2ServerAndMultiplexingRequesterTest {
 
     @Test
     public void testMultiplexedRequests() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
@@ -293,11 +291,10 @@ public class Http2ServerAndMultiplexingRequesterTest {
 
     @Test
     public void testValidityCheck() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
         requester.setValidateAfterInactivity(TimeValue.ofMillis(10));
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
@@ -341,11 +338,10 @@ public class Http2ServerAndMultiplexingRequesterTest {
 
     @Test
     public void testMultiplexedRequestCancellation() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final int reqNo = 20;
 

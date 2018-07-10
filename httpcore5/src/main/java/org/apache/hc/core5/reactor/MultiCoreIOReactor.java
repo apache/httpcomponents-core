@@ -28,6 +28,7 @@
 package org.apache.hc.core5.reactor;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.io.ShutdownType;
@@ -39,12 +40,17 @@ class MultiCoreIOReactor implements IOReactor {
     private final IOReactor[] ioReactors;
     private final Thread[] threads;
     private final AtomicReference<IOReactorStatus> status;
+    private final AtomicBoolean[] threadsStart;
 
     MultiCoreIOReactor(final IOReactor[] ioReactors, final Thread[] threads) {
         super();
         this.ioReactors = ioReactors.clone();
         this.threads = threads.clone();
         this.status = new AtomicReference<>(IOReactorStatus.INACTIVE);
+        threadsStart = new AtomicBoolean[threads.length];
+        for(int i = 0;i < threads.length;++i){
+            threadsStart[i] = new AtomicBoolean(false);
+        }
     }
 
     @Override
@@ -59,17 +65,16 @@ class MultiCoreIOReactor implements IOReactor {
      * reacting to I/O events and dispatch I/O event notifications to the
      * {@link IOEventHandler} associated with the given I/O session.
      */
-    public final void start() {
-        if (this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.ACTIVE)) {
-            for (int i = 0; i < this.threads.length; i++) {
-                this.threads[i].start();
-            }
-        }
+    public final void start(final int i) {
+       this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.ACTIVE);
+       if(threadsStart[i].compareAndSet(false, true)){
+           this.threads[i].start();
+       }
     }
 
     @Override
     public final void initiateShutdown() {
-        if (this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)) {
+        if(this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)){
             for (int i = 0; i < this.ioReactors.length; i++) {
                 final IOReactor ioReactor = this.ioReactors[i];
                 ioReactor.initiateShutdown();

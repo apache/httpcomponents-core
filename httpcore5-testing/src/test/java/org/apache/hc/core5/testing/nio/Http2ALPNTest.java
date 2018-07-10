@@ -60,8 +60,6 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.TestingSupport;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -71,6 +69,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Http2ALPNTest {
 
@@ -191,11 +191,10 @@ public class Http2ALPNTest {
                 .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                 .create();
 
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), URIScheme.HTTPS.id);
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
@@ -228,11 +227,10 @@ public class Http2ALPNTest {
                 .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                 .create();
 
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), URIScheme.HTTPS.id);
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
