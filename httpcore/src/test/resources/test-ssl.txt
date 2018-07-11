@@ -96,6 +96,7 @@ keytool -certreq \
 keytool -gencert \
   -keystore ca.keystore -storepass nopassword -keypass password \
   -alias ca \
+  -validity 100000 \
   -infile server.csr \
   -outfile server.crt \
   -ext KeyUsage:critical="digitalSignature,keyEncipherment" \
@@ -156,6 +157,7 @@ keytool -certreq \
 keytool -gencert \
   -keystore ca.keystore -storepass nopassword -keypass password \
   -alias ca \
+  -validity 100000 \
   -infile client1.csr \
   -outfile client1.crt \
   -ext EKU="clientAuth" \
@@ -165,6 +167,7 @@ keytool -gencert \
 keytool -gencert \
   -keystore ca.keystore -storepass nopassword -keypass password \
   -alias ca \
+  -validity 100000 \
   -infile client2.csr \
   -outfile client2.crt \
   -ext EKU="clientAuth" \
