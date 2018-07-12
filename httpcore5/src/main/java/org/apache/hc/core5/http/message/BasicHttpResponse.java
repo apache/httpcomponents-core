@@ -165,7 +165,7 @@ public class BasicHttpResponse extends HeaderGroup implements HttpResponse {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append(this.code).append(" ").append(this.code).append(this.reasonPhrase);
+        sb.append(this.code).append(' ').append(this.reasonPhrase).append(' ').append(this.version);
         return sb.toString();
     }
 

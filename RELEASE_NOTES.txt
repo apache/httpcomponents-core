@@ -18,7 +18,9 @@ adds several incremental improvements.
 
 * HTTPCORE-517: Allow SecurityManager to stop socket connections.
   Contributed by Gary Gregory <ggregory at apache.org> and Paul Thompson <pathompson at atlassian dot com>
-
+  
+* HTTPCORE-537: org.apache.hc.core5.http.message.BasicHttpResponse.toString() prints its code twice and no protocol version.
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 Release 5.0-BETA2
 -------------------
