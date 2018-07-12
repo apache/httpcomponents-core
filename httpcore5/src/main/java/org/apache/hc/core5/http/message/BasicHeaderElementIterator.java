@@ -59,7 +59,7 @@ public class BasicHeaderElementIterator extends AbstractHeaderElementIterator<He
     @Override
     HeaderElement parseHeaderElement(final CharSequence buf, final ParserCursor cursor) {
         final HeaderElement e = this.parser.parseHeaderElement(buf, cursor);
-        if (!(e.getName().length() == 0 && e.getValue() == null)) {
+        if (!(e.getName().isEmpty() && e.getValue() == null)) {
             return e;
         }
         return null;

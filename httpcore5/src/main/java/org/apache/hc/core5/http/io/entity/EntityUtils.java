@@ -366,7 +366,7 @@ public final class EntityUtils {
         } finally {
             instream.close();
         }
-        if (buf.length() == 0) {
+        if (buf.isEmpty()) {
             return Collections.emptyList();
         }
         return URLEncodedUtils.parse(buf, charset, '&');

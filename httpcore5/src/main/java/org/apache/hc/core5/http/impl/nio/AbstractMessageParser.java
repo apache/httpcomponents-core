@@ -105,7 +105,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     protected abstract T createMessage(CharArrayBuffer buffer) throws HttpException;
 
     private T parseHeadLine() throws IOException, HttpException {
-        if (this.lineBuf.length() == 0) {
+        if (this.lineBuf.isEmpty()) {
             this.emptyLineCount++;
             if (this.emptyLineCount >= this.messageConstraints.getMaxEmptyLineCount()) {
                 throw new MessageConstraintException("Maximum empty line limit exceeded");
