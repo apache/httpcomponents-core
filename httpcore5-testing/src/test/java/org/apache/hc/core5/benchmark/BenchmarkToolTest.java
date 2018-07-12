@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -69,7 +69,7 @@ public class BenchmarkToolTest {
     @After
     public void shutdown() throws Exception {
         if (server != null) {
-            server.shutdown(ShutdownType.IMMEDIATE);
+            server.close(CloseMode.IMMEDIATE);
         }
     }
 

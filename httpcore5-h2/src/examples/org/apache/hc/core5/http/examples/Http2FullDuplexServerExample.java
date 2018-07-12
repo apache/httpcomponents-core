@@ -53,7 +53,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
@@ -229,7 +229,7 @@ public class Http2FullDuplexServerExample {
             @Override
             public void run() {
                 System.out.println("HTTP server shutting down");
-                server.shutdown(ShutdownType.GRACEFUL);
+                server.close(CloseMode.GRACEFUL);
             }
         });
 

@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.classic.ClassicTestServer;
 import org.apache.hc.core5.testing.classic.EchoHandler;
 import org.junit.After;
@@ -68,7 +68,7 @@ public class TestClassicTestClientTestingAdapter {
     @After
     public void shutDownServer() throws Exception {
         if (this.server != null) {
-            this.server.shutdown(ShutdownType.IMMEDIATE);
+            this.server.shutdown(CloseMode.IMMEDIATE);
         }
     }
 

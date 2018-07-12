@@ -44,8 +44,8 @@ import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.io.GracefullyCloseable;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.LangUtils;
@@ -62,7 +62,7 @@ import org.apache.hc.core5.util.Timeout;
  */
 @Contract(threading = ThreadingBehavior.SAFE)
 @Experimental
-public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedConnPool<T, C> {
+public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool<T, C> {
 
     private final TimeValue timeToLive;
     private final ConnPoolListener<T> connPoolListener;
@@ -99,11 +99,11 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         if (isShutDown.compareAndSet(false, true)) {
             for (final Iterator<PerRoutePool<T, C>> it = routeToPool.values().iterator(); it.hasNext(); ) {
                 final PerRoutePool<T, C> routePool = it.next();
-                routePool.shutdown(shutdownType);
+                routePool.shutdown(closeMode);
             }
             routeToPool.clear();
         }
@@ -111,7 +111,7 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
 
     @Override
     public void close() {
-        shutdown(ShutdownType.GRACEFUL);
+        close(CloseMode.GRACEFUL);
     }
 
     private PerRoutePool<T, C> getPool(final T route) {
@@ -253,7 +253,7 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
             @Override
             public void execute(final PoolEntry<T, C> entry) {
                 if (entry.getUpdated() <= deadline) {
-                    entry.discardConnection(ShutdownType.GRACEFUL);
+                    entry.discardConnection(CloseMode.GRACEFUL);
                 }
             }
 
@@ -268,7 +268,7 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
             @Override
             public void execute(final PoolEntry<T, C> entry) {
                 if (entry.getExpiry() < now) {
-                    entry.discardConnection(ShutdownType.GRACEFUL);
+                    entry.discardConnection(CloseMode.GRACEFUL);
                 }
             }
 
@@ -289,7 +289,7 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
         return buffer.toString();
     }
 
-    static class LeaseRequest<T, C extends GracefullyCloseable> implements Cancellable {
+    static class LeaseRequest<T, C extends ModalCloseable> implements Cancellable {
 
         private final Object state;
         private final long deadline;
@@ -336,7 +336,7 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
 
     }
 
-    static class PerRoutePool<T, C extends GracefullyCloseable> {
+    static class PerRoutePool<T, C extends ModalCloseable> {
 
         private final T route;
         private final TimeValue timeToLive;
@@ -370,14 +370,14 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
             this.max = max;
         }
 
-        public void shutdown(final ShutdownType shutdownType) {
+        public void shutdown(final CloseMode closeMode) {
             if (terminated.compareAndSet(false, true)) {
                 PoolEntry<T, C> availableEntry;
                 while ((availableEntry = available.poll()) != null) {
-                    availableEntry.discardConnection(shutdownType);
+                    availableEntry.discardConnection(closeMode);
                 }
                 for (final PoolEntry<T, C> entry : leased.keySet()) {
-                    entry.discardConnection(shutdownType);
+                    entry.discardConnection(closeMode);
                 }
                 leased.clear();
                 LeaseRequest<T, C> leaseRequest;
@@ -408,10 +408,10 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
             final PoolEntry<T, C> entry = available.poll();
             if (entry != null) {
                 if (entry.getExpiry() < System.currentTimeMillis()) {
-                    entry.discardConnection(ShutdownType.GRACEFUL);
+                    entry.discardConnection(CloseMode.GRACEFUL);
                 }
                 if (!LangUtils.equals(entry.getState(), state)) {
-                    entry.discardConnection(ShutdownType.GRACEFUL);
+                    entry.discardConnection(CloseMode.GRACEFUL);
                 }
             }
             return entry;
@@ -442,7 +442,7 @@ public class LaxConnPool<T, C extends GracefullyCloseable> implements ManagedCon
         public void release(final PoolEntry<T, C> releasedEntry, final boolean reusable) {
             removeLeased(releasedEntry);
             if (!reusable || releasedEntry.getExpiry() < System.currentTimeMillis()) {
-                releasedEntry.discardConnection(ShutdownType.GRACEFUL);
+                releasedEntry.discardConnection(CloseMode.GRACEFUL);
             }
             if (releasedEntry.hasConnection()) {
                 switch (policy) {

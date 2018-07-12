@@ -65,8 +65,8 @@ import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.HttpEntityWrapper;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.io.GracefullyCloseable;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
@@ -79,7 +79,7 @@ import org.apache.hc.core5.util.Timeout;
 /**
  * @since 5.0
  */
-public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyCloseable {
+public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable {
 
     private final HttpRequestExecutor requestExecutor;
     private final HttpProcessor httpProcessor;
@@ -212,7 +212,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
             }
             return result;
         } catch (final HttpException | IOException | RuntimeException ex) {
-            connection.shutdown(ShutdownType.IMMEDIATE);
+            connection.close(CloseMode.IMMEDIATE);
             throw ex;
         }
     }
@@ -390,8 +390,8 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
-        connPool.shutdown(shutdownType);
+    public void close(final CloseMode closeMode) {
+        connPool.close(closeMode);
     }
 
     @Override
@@ -423,7 +423,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, GracefullyClose
         void discardConnection() {
             final PoolEntry<HttpHost, HttpClientConnection> poolEntry = poolEntryRef.getAndSet(null);
             if (poolEntry != null) {
-                poolEntry.discardConnection(ShutdownType.IMMEDIATE);
+                poolEntry.discardConnection(CloseMode.IMMEDIATE);
                 connPool.release(poolEntry, false);
             }
         }

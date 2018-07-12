@@ -47,7 +47,7 @@ import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
@@ -167,7 +167,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void exception(final IOSession session, final Exception cause) {
-        session.shutdown(ShutdownType.IMMEDIATE);
+        session.close(CloseMode.IMMEDIATE);
     }
 
     @Override
@@ -221,8 +221,8 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
-        ioSession.shutdown(shutdownType);
+    public void close(final CloseMode closeMode) {
+        ioSession.close(closeMode);
     }
 
 }

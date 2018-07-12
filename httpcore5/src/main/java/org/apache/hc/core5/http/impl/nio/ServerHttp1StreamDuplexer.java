@@ -61,7 +61,7 @@ import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
@@ -107,7 +107,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
             @Override
             public void close() {
-                shutdown(ShutdownType.IMMEDIATE);
+                ServerHttp1StreamDuplexer.this.close(CloseMode.IMMEDIATE);
             }
 
             @Override

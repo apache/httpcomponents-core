@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.nio.command;
 
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 
 /**
@@ -37,16 +37,16 @@ import org.apache.hc.core5.reactor.Command;
  */
 public final class ShutdownCommand implements Command {
 
-    public static final ShutdownCommand GRACEFUL = new ShutdownCommand(ShutdownType.GRACEFUL);
-    public static final ShutdownCommand IMMEDIATE = new ShutdownCommand(ShutdownType.IMMEDIATE);
+    public static final ShutdownCommand GRACEFUL = new ShutdownCommand(CloseMode.GRACEFUL);
+    public static final ShutdownCommand IMMEDIATE = new ShutdownCommand(CloseMode.IMMEDIATE);
 
-    private final ShutdownType type;
+    private final CloseMode type;
 
-    public ShutdownCommand(final ShutdownType type) {
+    public ShutdownCommand(final CloseMode type) {
         this.type = type;
     }
 
-    public ShutdownType getType() {
+    public CloseMode getType() {
         return type;
     }
 

@@ -52,7 +52,7 @@ import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
@@ -150,7 +150,7 @@ public class AsyncFileServerExample {
             @Override
             public void run() {
                 System.out.println("HTTP server shutting down");
-                server.shutdown(ShutdownType.GRACEFUL);
+                server.close(CloseMode.GRACEFUL);
             }
         });
 

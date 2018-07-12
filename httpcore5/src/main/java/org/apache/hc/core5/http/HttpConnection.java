@@ -32,14 +32,14 @@ import java.net.SocketAddress;
 
 import javax.net.ssl.SSLSession;
 
-import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ModalCloseable;
 
 /**
  * A generic HTTP connection, useful on client and server side.
  *
  * @since 4.0
  */
-public interface HttpConnection extends GracefullyCloseable {
+public interface HttpConnection extends ModalCloseable {
 
     /**
      * Returns connection endpoint details.
@@ -56,7 +56,7 @@ public interface HttpConnection extends GracefullyCloseable {
      * This method will attempt to flush the internal output
      * buffer prior to closing the underlying socket.
      * This method MUST NOT be called from a different thread to force
-     * shutdown of the connection. Use {@link #shutdown shutdown} instead.
+     * shutdown of the connection. Use {@link #close shutdown} instead.
      */
     @Override
     void close() throws IOException;

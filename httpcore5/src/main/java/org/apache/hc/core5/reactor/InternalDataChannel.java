@@ -39,7 +39,7 @@ import java.util.concurrent.locks.Lock;
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLIOSession;
@@ -184,7 +184,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (tlsSession != null) {
             if (tlsSession.isOutboundDone() && !tlsSession.isInboundDone()) {
                 // The session failed to terminate cleanly
-                tlsSession.shutdown(ShutdownType.IMMEDIATE);
+                tlsSession.close(CloseMode.IMMEDIATE);
             }
         }
     }
@@ -277,10 +277,10 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         if (closed.compareAndSet(false, true)) {
             try {
-                getSessionImpl().shutdown(shutdownType);
+                getSessionImpl().close(closeMode);
             } finally {
                 closedSessions.add(this);
             }

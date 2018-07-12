@@ -37,7 +37,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -141,8 +141,8 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
     }
 
     @Override
-    public final void shutdown(final ShutdownType shutdownType) {
-        if (shutdownType == ShutdownType.GRACEFUL) {
+    public final void close(final CloseMode closeMode) {
+        if (closeMode == CloseMode.GRACEFUL) {
             initiateShutdown();
             try {
                 awaitShutdown(TimeValue.ofSeconds(5));
@@ -162,7 +162,7 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
 
     @Override
     public final void close() {
-        shutdown(ShutdownType.GRACEFUL);
+        close(CloseMode.GRACEFUL);
     }
 
 }

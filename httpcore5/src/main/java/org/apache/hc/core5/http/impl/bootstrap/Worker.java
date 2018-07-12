@@ -31,7 +31,7 @@ import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 
 /**
  * @since 4.4
@@ -69,7 +69,7 @@ class Worker implements Runnable {
         } catch (final Exception ex) {
             this.exceptionListener.onError(this.conn, ex);
         } finally {
-            this.conn.shutdown(ShutdownType.IMMEDIATE);
+            this.conn.close(CloseMode.IMMEDIATE);
         }
     }
 

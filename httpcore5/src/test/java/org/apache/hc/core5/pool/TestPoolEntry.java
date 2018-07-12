@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
 import org.junit.Assert;
 import org.junit.Before;
@@ -72,7 +72,7 @@ public class TestPoolEntry {
         Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
         Assert.assertEquals(entry1.getUpdated() + 10L, entry1.getValidityDeadline());
 
-        entry1.discardConnection(ShutdownType.IMMEDIATE);
+        entry1.discardConnection(CloseMode.IMMEDIATE);
         Assert.assertEquals(0, entry1.getUpdated());
         Assert.assertEquals(0, entry1.getExpiry());
     }

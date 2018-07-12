@@ -58,7 +58,7 @@ import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.io.BHttpConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.Args;
 
@@ -218,12 +218,12 @@ class BHttpConnectionBase implements BHttpConnection {
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         final SocketHolder socketHolder = this.socketHolderRef.getAndSet(null);
         if (socketHolder != null) {
             final Socket socket = socketHolder.getSocket();
             try {
-                if (shutdownType == ShutdownType.IMMEDIATE) {
+                if (closeMode == CloseMode.IMMEDIATE) {
                     // force abortive close (RST)
                     socket.setSoLinger(true, 0);
                 }

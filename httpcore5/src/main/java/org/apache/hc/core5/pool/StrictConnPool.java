@@ -45,8 +45,8 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.io.GracefullyCloseable;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.LangUtils;
@@ -62,7 +62,7 @@ import org.apache.hc.core5.util.Timeout;
  * @since 4.2
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-public class StrictConnPool<T, C extends GracefullyCloseable> implements ManagedConnPool<T, C> {
+public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnPool<T, C> {
 
     private final TimeValue timeToLive;
     private final ConnPoolListener<T> connPoolListener;
@@ -115,13 +115,13 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         if (this.isShutDown.compareAndSet(false, true)) {
             fireCallbacks();
             this.lock.lock();
             try {
                 for (final PerRoutePool<T, C> pool: this.routeToPool.values()) {
-                    pool.shutdown(shutdownType);
+                    pool.shutdown(closeMode);
                 }
                 this.routeToPool.clear();
                 this.leased.clear();
@@ -135,7 +135,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
 
     @Override
     public void close() {
-        shutdown(ShutdownType.GRACEFUL);
+        close(CloseMode.GRACEFUL);
     }
 
     private PerRoutePool<T, C> getPool(final T route) {
@@ -186,7 +186,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
             return;
         }
         if (!reusable) {
-            entry.discardConnection(ShutdownType.GRACEFUL);
+            entry.discardConnection(CloseMode.GRACEFUL);
         }
         this.lock.lock();
         try {
@@ -209,7 +209,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
                             throw new IllegalStateException("Unexpected ConnPoolPolicy value: " + policy);
                     }
                 } else {
-                    entry.discardConnection(ShutdownType.GRACEFUL);
+                    entry.discardConnection(CloseMode.GRACEFUL);
                 }
                 processNextPendingRequest();
             } else {
@@ -281,7 +281,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
                 break;
             }
             if (entry.getExpiry() < System.currentTimeMillis()) {
-                entry.discardConnection(ShutdownType.GRACEFUL);
+                entry.discardConnection(CloseMode.GRACEFUL);
                 this.available.remove(entry);
                 pool.free(entry, false);
             } else {
@@ -308,7 +308,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
                 if (lastUsed == null) {
                     break;
                 }
-                lastUsed.discardConnection(ShutdownType.GRACEFUL);
+                lastUsed.discardConnection(CloseMode.GRACEFUL);
                 this.available.remove(lastUsed);
                 pool.remove(lastUsed);
             }
@@ -323,7 +323,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
             if (totalAvailable > freeCapacity - 1) {
                 if (!this.available.isEmpty()) {
                     final PoolEntry<T, C> lastUsed = this.available.removeLast();
-                    lastUsed.discardConnection(ShutdownType.GRACEFUL);
+                    lastUsed.discardConnection(CloseMode.GRACEFUL);
                     final PerRoutePool<T, C> otherpool = getPool(lastUsed.getRoute());
                     otherpool.remove(lastUsed);
                 }
@@ -579,7 +579,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
             @Override
             public void execute(final PoolEntry<T, C> entry) {
                 if (entry.getUpdated() <= deadline) {
-                    entry.discardConnection(ShutdownType.GRACEFUL);
+                    entry.discardConnection(CloseMode.GRACEFUL);
                 }
             }
 
@@ -594,7 +594,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
             @Override
             public void execute(final PoolEntry<T, C> entry) {
                 if (entry.getExpiry() < now) {
-                    entry.discardConnection(ShutdownType.GRACEFUL);
+                    entry.discardConnection(CloseMode.GRACEFUL);
                 }
             }
 
@@ -615,7 +615,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
     }
 
 
-    static class LeaseRequest<T, C extends GracefullyCloseable> {
+    static class LeaseRequest<T, C extends ModalCloseable> {
 
         private final T route;
         private final Object state;
@@ -699,7 +699,7 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
 
     }
 
-    static class PerRoutePool<T, C extends GracefullyCloseable> {
+    static class PerRoutePool<T, C extends ModalCloseable> {
 
         private final T route;
         private final Set<PoolEntry<T, C>> leased;
@@ -776,13 +776,13 @@ public class StrictConnPool<T, C extends GracefullyCloseable> implements Managed
             return entry;
         }
 
-        public void shutdown(final ShutdownType shutdownType) {
+        public void shutdown(final CloseMode closeMode) {
             PoolEntry<T, C> availableEntry;
             while ((availableEntry = available.poll()) != null) {
-                availableEntry.discardConnection(shutdownType);
+                availableEntry.discardConnection(closeMode);
             }
             for (final PoolEntry<T, C> entry: this.leased) {
-                entry.discardConnection(shutdownType);
+                entry.discardConnection(closeMode);
             }
             this.leased.clear();
         }

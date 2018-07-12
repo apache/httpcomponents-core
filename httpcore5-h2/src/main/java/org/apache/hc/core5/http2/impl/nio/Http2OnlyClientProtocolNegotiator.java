@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
@@ -94,7 +94,7 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
             }
             writePreface(session);
         } catch (final Exception ex) {
-            session.shutdown(ShutdownType.IMMEDIATE);
+            session.close(CloseMode.IMMEDIATE);
             exception(session, ex);
         }
     }
@@ -123,10 +123,10 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
             if (preface != null) {
                 writePreface(session);
             } else {
-                session.shutdown(ShutdownType.IMMEDIATE);
+                session.close(CloseMode.IMMEDIATE);
             }
         } catch (final IOException ex) {
-            session.shutdown(ShutdownType.IMMEDIATE);
+            session.close(CloseMode.IMMEDIATE);
             exception(session, ex);
         }
     }
@@ -155,7 +155,7 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
                 }
             }
         } finally {
-            session.shutdown(ShutdownType.IMMEDIATE);
+            session.close(CloseMode.IMMEDIATE);
         }
     }
 
@@ -225,8 +225,8 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
-        ioSession.shutdown(shutdownType);
+    public void close(final CloseMode closeMode) {
+        ioSession.close(closeMode);
     }
 
 }

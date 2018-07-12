@@ -30,7 +30,7 @@ package org.apache.hc.core5.reactor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -103,12 +103,12 @@ class MultiCoreIOReactor implements IOReactor {
     }
 
     @Override
-    public final void shutdown(final ShutdownType shutdownType) {
+    public final void close(final CloseMode closeMode) {
         final IOReactorStatus currentStatus = this.status.get();
         if (currentStatus == IOReactorStatus.INACTIVE || currentStatus == IOReactorStatus.SHUT_DOWN) {
             return;
         }
-        if (shutdownType == ShutdownType.GRACEFUL) {
+        if (closeMode == CloseMode.GRACEFUL) {
             initiateShutdown();
             try {
                 awaitShutdown(TimeValue.ofSeconds(5));
@@ -119,7 +119,7 @@ class MultiCoreIOReactor implements IOReactor {
             this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN);
             for (int i = 0; i < this.ioReactors.length; i++) {
                 final IOReactor ioReactor = this.ioReactors[i];
-                ioReactor.shutdown(ShutdownType.IMMEDIATE);
+                ioReactor.close(CloseMode.IMMEDIATE);
             }
             for (int i = 0; i < this.threads.length; i++) {
                 final Thread thread = this.threads[i];
@@ -131,7 +131,7 @@ class MultiCoreIOReactor implements IOReactor {
 
     @Override
     public final void close() {
-        shutdown(ShutdownType.GRACEFUL);
+        close(CloseMode.GRACEFUL);
     }
 
 }

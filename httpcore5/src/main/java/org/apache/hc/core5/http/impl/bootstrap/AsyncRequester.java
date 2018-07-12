@@ -40,7 +40,7 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Resolver;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
@@ -123,8 +123,8 @@ public class AsyncRequester implements IOReactorService, ConnectionInitiator {
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
-        ioReactor.shutdown(shutdownType);
+    public void close(final CloseMode closeMode) {
+        ioReactor.close(closeMode);
     }
 
     @Override

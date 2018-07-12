@@ -50,15 +50,15 @@ import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpServerConnection;
-import org.apache.hc.core5.io.GracefullyCloseable;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
  * @since 4.4
  */
-public class HttpServer implements GracefullyCloseable {
+public class HttpServer implements ModalCloseable {
 
     enum Status { READY, ACTIVE, STOPPING }
 
@@ -174,9 +174,9 @@ public class HttpServer implements GracefullyCloseable {
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         initiateShutdown();
-        if (shutdownType == ShutdownType.GRACEFUL) {
+        if (closeMode == CloseMode.GRACEFUL) {
             try {
                 awaitTermination(TimeValue.ofSeconds(5));
             } catch (final InterruptedException ex) {
@@ -186,13 +186,13 @@ public class HttpServer implements GracefullyCloseable {
         final Set<Worker> workers = this.workerExecutorService.getWorkers();
         for (final Worker worker: workers) {
             final HttpServerConnection conn = worker.getConnection();
-            conn.shutdown(ShutdownType.GRACEFUL);
+            conn.close(CloseMode.GRACEFUL);
         }
     }
 
     @Override
     public void close() {
-        shutdown(ShutdownType.GRACEFUL);
+        close(CloseMode.GRACEFUL);
     }
 
 }

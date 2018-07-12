@@ -50,7 +50,7 @@ import org.apache.hc.core5.http.io.support.BasicHttpServerExpectationDecorator;
 import org.apache.hc.core5.http.io.support.BasicHttpServerRequestHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 
 public class ClassicTestServer {
 
@@ -134,10 +134,10 @@ public class ClassicTestServer {
         start(null, null);
     }
 
-    public void shutdown(final ShutdownType shutdownType) {
+    public void shutdown(final CloseMode closeMode) {
         final HttpServer server = serverRef.getAndSet(null);
         if (server != null) {
-            server.shutdown(shutdownType);
+            server.close(closeMode);
         }
     }
 

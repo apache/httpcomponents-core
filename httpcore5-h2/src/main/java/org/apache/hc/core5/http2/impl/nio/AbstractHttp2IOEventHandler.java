@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 
@@ -100,8 +100,8 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
-        streamMultiplexer.shutdown(shutdownType);
+    public void close(final CloseMode closeMode) {
+        streamMultiplexer.close(closeMode);
     }
 
     @Override

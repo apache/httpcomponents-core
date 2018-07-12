@@ -63,7 +63,7 @@ import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.nio.pool.H2ConnPool;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -92,7 +92,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
 
             @Override
             public void execute(final IOSession session) {
-                session.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.IMMEDIATE);
+                session.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.IMMEDIATE);
             }
 
         }, DefaultAddressResolver.INSTANCE);

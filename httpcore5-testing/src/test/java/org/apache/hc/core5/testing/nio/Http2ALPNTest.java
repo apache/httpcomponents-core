@@ -53,7 +53,7 @@ import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequester;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequesterBootstrap;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
@@ -120,7 +120,7 @@ public class Http2ALPNTest {
             log.debug("Shutting down test server");
             if (server != null) {
                 try {
-                    server.shutdown(ShutdownType.GRACEFUL);
+                    server.close(CloseMode.GRACEFUL);
                     final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
                     server = null;
                     if (!exceptionLog.isEmpty()) {
@@ -146,7 +146,7 @@ public class Http2ALPNTest {
             log.debug("Shutting down test client");
             if (requester != null) {
                 try {
-                    requester.shutdown(ShutdownType.GRACEFUL);
+                    requester.close(CloseMode.GRACEFUL);
                     final List<ExceptionEvent> exceptionLog = requester.getExceptionLog();
                     requester = null;
                     if (!exceptionLog.isEmpty()) {

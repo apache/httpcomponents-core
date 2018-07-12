@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 
@@ -92,7 +92,7 @@ public class AsyncPipelinedRequestExecutionExample {
             @Override
             public void run() {
                 System.out.println("HTTP requester shutting down");
-                requester.shutdown(ShutdownType.GRACEFUL);
+                requester.close(CloseMode.GRACEFUL);
             }
         });
         requester.start();

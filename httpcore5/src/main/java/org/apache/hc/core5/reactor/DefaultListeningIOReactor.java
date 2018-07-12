@@ -44,7 +44,7 @@ import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
@@ -228,8 +228,8 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
-        ioReactor.shutdown(shutdownType);
+    public void close(final CloseMode closeMode) {
+        ioReactor.close(closeMode);
     }
 
     @Override

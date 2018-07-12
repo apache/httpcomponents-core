@@ -29,8 +29,8 @@ package org.apache.hc.core5.pool;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.io.GracefullyCloseable;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -46,7 +46,7 @@ import org.apache.hc.core5.util.TimeValue;
  * @param <C> the connection type.
  * @since 4.2
  */
-public final class PoolEntry<T, C extends GracefullyCloseable> {
+public final class PoolEntry<T, C extends ModalCloseable> {
 
     private final T route;
     private final TimeValue timeToLive;
@@ -139,7 +139,7 @@ public final class PoolEntry<T, C extends GracefullyCloseable> {
     /**
      * @since 5.0
      */
-    public void discardConnection(final ShutdownType shutdownType) {
+    public void discardConnection(final CloseMode closeMode) {
         final C connection = this.connRef.getAndSet(null);
         if (connection != null) {
             this.state = null;
@@ -147,7 +147,7 @@ public final class PoolEntry<T, C extends GracefullyCloseable> {
             this.updated = 0;
             this.expiry = 0;
             this.validityDeadline = 0;
-            connection.shutdown(shutdownType);
+            connection.close(closeMode);
         }
     }
 

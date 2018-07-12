@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
@@ -94,7 +94,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             newHandler.connected(session);
         } catch (final Exception ex) {
             newHandler.exception(session, ex);
-            session.shutdown(ShutdownType.IMMEDIATE);
+            session.close(CloseMode.IMMEDIATE);
         }
     }
 
@@ -106,7 +106,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             newHandler.connected(session);
         } catch (final Exception ex) {
             newHandler.exception(session, ex);
-            session.shutdown(ShutdownType.IMMEDIATE);
+            session.close(CloseMode.IMMEDIATE);
         }
     }
 
@@ -155,7 +155,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 startHttp2(session);
             }
         } else {
-            session.shutdown(ShutdownType.IMMEDIATE);
+            session.close(CloseMode.IMMEDIATE);
         }
     }
 
@@ -183,7 +183,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 }
             }
         } finally {
-            session.shutdown(ShutdownType.IMMEDIATE);
+            session.close(CloseMode.IMMEDIATE);
         }
     }
 
@@ -253,8 +253,8 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
-        ioSession.shutdown(shutdownType);
+    public void close(final CloseMode closeMode) {
+        ioSession.close(closeMode);
     }
 
 }

@@ -55,7 +55,7 @@ import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncServerAuthFilter;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
@@ -182,7 +182,7 @@ public class AsyncServerFilterExample {
             @Override
             public void run() {
                 System.out.println("HTTP server shutting down");
-                server.shutdown(ShutdownType.GRACEFUL);
+                server.close(CloseMode.GRACEFUL);
             }
         });
 

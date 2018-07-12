@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Identifiable;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -93,11 +93,11 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection i
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.id + ": Shutdown connection");
         }
-        super.shutdown(shutdownType);
+        super.close(closeMode);
     }
 
     @Override

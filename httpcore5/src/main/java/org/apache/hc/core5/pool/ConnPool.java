@@ -29,7 +29,7 @@ package org.apache.hc.core5.pool;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -41,7 +41,7 @@ import org.apache.hc.core5.util.Timeout;
  * @param <C> the type of pooled connections.
  * @since 4.2
  */
-public interface ConnPool<T, C extends GracefullyCloseable> {
+public interface ConnPool<T, C extends ModalCloseable> {
 
     /**
      * Attempts to lease a connection for the given route and with the given

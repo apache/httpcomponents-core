@@ -31,7 +31,7 @@ import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.util.concurrent.locks.Lock;
 
-import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Identifiable;
 
 /**
@@ -50,7 +50,7 @@ import org.apache.hc.core5.util.Identifiable;
  *
  * @since 4.0
  */
-public interface IOSession extends GracefullyCloseable, Identifiable {
+public interface IOSession extends ModalCloseable, Identifiable {
 
     int ACTIVE       = 0;
     int CLOSING      = 1;

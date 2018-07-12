@@ -30,7 +30,7 @@ import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
@@ -194,10 +194,10 @@ public class TestAbstractIOSessionPool {
         entry3.requestQueue.add(callback1);
         entry3.requestQueue.add(callback2);
 
-        impl.shutdown(ShutdownType.GRACEFUL);
+        impl.close(CloseMode.GRACEFUL);
 
-        Mockito.verify(impl).closeSession(ioSession1, ShutdownType.GRACEFUL);
-        Mockito.verify(impl).closeSession(ioSession2, ShutdownType.GRACEFUL);
+        Mockito.verify(impl).closeSession(ioSession1, CloseMode.GRACEFUL);
+        Mockito.verify(impl).closeSession(ioSession2, CloseMode.GRACEFUL);
         Mockito.verify(connectFuture).cancel(Mockito.anyBoolean());
         Mockito.verify(callback1).cancelled();
         Mockito.verify(callback2).cancelled();
@@ -215,8 +215,8 @@ public class TestAbstractIOSessionPool {
 
         impl.closeIdle(TimeValue.ofMillis(0L));
 
-        Mockito.verify(impl).closeSession(ioSession1, ShutdownType.GRACEFUL);
-        Mockito.verify(impl).closeSession(ioSession2, ShutdownType.GRACEFUL);
+        Mockito.verify(impl).closeSession(ioSession1, CloseMode.GRACEFUL);
+        Mockito.verify(impl).closeSession(ioSession2, CloseMode.GRACEFUL);
 
         Assert.assertThat(entry1.session, CoreMatchers.nullValue());
         Assert.assertThat(entry2.session, CoreMatchers.nullValue());
@@ -236,12 +236,12 @@ public class TestAbstractIOSessionPool {
 
             @Override
             public void execute(final IOSession ioSession) {
-                ioSession.shutdown(ShutdownType.GRACEFUL);
+                ioSession.close(CloseMode.GRACEFUL);
             }
 
         });
-        Mockito.verify(ioSession1).shutdown(ShutdownType.GRACEFUL);
-        Mockito.verify(ioSession2).shutdown(ShutdownType.GRACEFUL);
+        Mockito.verify(ioSession1).close(CloseMode.GRACEFUL);
+        Mockito.verify(ioSession2).close(CloseMode.GRACEFUL);
     }
 
     @Test

@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
@@ -172,7 +172,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             try {
                 channel.handleIOEvent(key.readyOps());
             } catch (final CancelledKeyException ex) {
-                channel.shutdown(ShutdownType.GRACEFUL);
+                channel.close(CloseMode.GRACEFUL);
             }
         }
         selectedKeys.clear();

@@ -53,7 +53,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 
 public class TestingFramework {
     /**
@@ -247,7 +247,7 @@ public class TestingFramework {
         final HttpServer local = this.server;
         this.server = null;
         if (local != null) {
-            local.shutdown(ShutdownType.IMMEDIATE);
+            local.close(CloseMode.IMMEDIATE);
         }
     }
 

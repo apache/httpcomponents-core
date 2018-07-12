@@ -62,7 +62,7 @@ import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
@@ -102,7 +102,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
             @Override
             public void close() {
-                shutdownSession(ShutdownType.IMMEDIATE);
+                shutdownSession(CloseMode.IMMEDIATE);
             }
 
             @Override
@@ -152,7 +152,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             public boolean abortGracefully() throws IOException {
                 final MessageDelineation messageDelineation = endOutputStream(null);
                 if (messageDelineation == MessageDelineation.MESSAGE_HEAD) {
-                    requestShutdown(ShutdownType.GRACEFUL);
+                    requestShutdown(CloseMode.GRACEFUL);
                     return false;
                 } else {
                     return true;

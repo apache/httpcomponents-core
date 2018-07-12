@@ -39,7 +39,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
 
 class IOSessionImpl implements IOSession {
@@ -220,7 +220,7 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         // For this type of session, a close() does exactly
         // what we need and nothing more.
         close();

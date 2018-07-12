@@ -46,7 +46,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.AbstractHttpServerAuthFilter;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -152,7 +152,7 @@ public class ClassicServerFilterExample {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                server.shutdown(ShutdownType.GRACEFUL);
+                server.close(CloseMode.GRACEFUL);
             }
         });
         System.out.println("Listening on port " + port);

@@ -31,7 +31,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
@@ -90,9 +90,9 @@ public class TestLaxConnPool {
         pool.release(entry1, true);
         pool.release(entry2, true);
         pool.release(entry3, false);
-        Mockito.verify(conn1, Mockito.never()).shutdown(Mockito.<ShutdownType>any());
-        Mockito.verify(conn2, Mockito.never()).shutdown(Mockito.<ShutdownType>any());
-        Mockito.verify(conn3, Mockito.times(1)).shutdown(ShutdownType.GRACEFUL);
+        Mockito.verify(conn1, Mockito.never()).close(Mockito.<CloseMode>any());
+        Mockito.verify(conn2, Mockito.never()).close(Mockito.<CloseMode>any());
+        Mockito.verify(conn3, Mockito.times(1)).close(CloseMode.GRACEFUL);
 
         final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(2, totals.getAvailable());
@@ -217,7 +217,7 @@ public class TestLaxConnPool {
 
         Assert.assertTrue(future2.isDone());
 
-        Mockito.verify(conn1).shutdown(ShutdownType.GRACEFUL);
+        Mockito.verify(conn1).close(CloseMode.GRACEFUL);
 
         final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -257,8 +257,8 @@ public class TestLaxConnPool {
 
         pool.closeExpired();
 
-        Mockito.verify(conn1).shutdown(ShutdownType.GRACEFUL);
-        Mockito.verify(conn2, Mockito.never()).shutdown(Mockito.<ShutdownType>any());
+        Mockito.verify(conn1).close(CloseMode.GRACEFUL);
+        Mockito.verify(conn2, Mockito.never()).close(Mockito.<CloseMode>any());
 
         final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
@@ -299,8 +299,8 @@ public class TestLaxConnPool {
 
         pool.closeIdle(TimeValue.of(50, TimeUnit.MILLISECONDS));
 
-        Mockito.verify(conn1).shutdown(ShutdownType.GRACEFUL);
-        Mockito.verify(conn2, Mockito.never()).shutdown(Mockito.<ShutdownType>any());
+        Mockito.verify(conn1).close(CloseMode.GRACEFUL);
+        Mockito.verify(conn2, Mockito.never()).close(Mockito.<CloseMode>any());
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
@@ -313,7 +313,7 @@ public class TestLaxConnPool {
 
         pool.closeIdle(TimeValue.of(-1, TimeUnit.MILLISECONDS));
 
-        Mockito.verify(conn2).shutdown(ShutdownType.GRACEFUL);
+        Mockito.verify(conn2).close(CloseMode.GRACEFUL);
 
         totals = pool.getTotalStats();
         Assert.assertEquals(0, totals.getAvailable());
@@ -395,7 +395,7 @@ public class TestLaxConnPool {
     @Test
     public void testShutdown() throws Exception {
         final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
-        pool.shutdown(ShutdownType.GRACEFUL);
+        pool.close(CloseMode.GRACEFUL);
         try {
             pool.lease("somehost", null);
             Assert.fail("IllegalStateException should have been thrown");

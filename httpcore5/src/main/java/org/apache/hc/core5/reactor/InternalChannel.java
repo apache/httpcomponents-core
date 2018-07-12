@@ -30,10 +30,10 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
 
-import org.apache.hc.core5.io.GracefullyCloseable;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.io.CloseMode;
 
-abstract class InternalChannel implements GracefullyCloseable {
+abstract class InternalChannel implements ModalCloseable {
 
     abstract void onIOEvent(final int ops) throws IOException;
 
@@ -49,10 +49,10 @@ abstract class InternalChannel implements GracefullyCloseable {
         try {
             onIOEvent(ops);
         } catch (final CancelledKeyException ex) {
-            shutdown(ShutdownType.GRACEFUL);
+            close(CloseMode.GRACEFUL);
         } catch (final Exception ex) {
             onException(ex);
-            shutdown(ShutdownType.IMMEDIATE);
+            close(CloseMode.IMMEDIATE);
         }
     }
 
@@ -64,10 +64,10 @@ abstract class InternalChannel implements GracefullyCloseable {
                 try {
                     onTimeout();
                 } catch (final CancelledKeyException ex) {
-                    shutdown(ShutdownType.GRACEFUL);
+                    close(CloseMode.GRACEFUL);
                 } catch (final Exception ex) {
                     onException(ex);
-                    shutdown(ShutdownType.IMMEDIATE);
+                    close(CloseMode.IMMEDIATE);
                 }
                 return false;
             }

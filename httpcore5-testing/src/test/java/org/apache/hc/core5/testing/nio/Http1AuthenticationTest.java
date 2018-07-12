@@ -58,7 +58,7 @@ import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncServerAuthFilter;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
@@ -158,7 +158,7 @@ public class Http1AuthenticationTest {
             log.debug("Shutting down test server");
             if (server != null) {
                 try {
-                    server.shutdown(ShutdownType.IMMEDIATE);
+                    server.close(CloseMode.IMMEDIATE);
                 } catch (final Exception ignore) {
                 }
             }
@@ -192,7 +192,7 @@ public class Http1AuthenticationTest {
             log.debug("Shutting down test client");
             if (requester != null) {
                 try {
-                    requester.shutdown(ShutdownType.GRACEFUL);
+                    requester.close(CloseMode.GRACEFUL);
                 } catch (final Exception ignore) {
                 }
             }

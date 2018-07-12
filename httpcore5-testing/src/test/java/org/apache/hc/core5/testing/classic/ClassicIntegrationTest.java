@@ -71,7 +71,7 @@ import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -94,7 +94,7 @@ public class ClassicIntegrationTest {
         protected void after() {
             if (server != null) {
                 try {
-                    server.shutdown(ShutdownType.IMMEDIATE);
+                    server.shutdown(CloseMode.IMMEDIATE);
                     server = null;
                 } catch (final Exception ignore) {
                 }
@@ -118,7 +118,7 @@ public class ClassicIntegrationTest {
         protected void after() {
             if (client != null) {
                 try {
-                    client.shutdown(ShutdownType.IMMEDIATE);
+                    client.shutdown(CloseMode.IMMEDIATE);
                     client = null;
                 } catch (final Exception ignore) {
                 }

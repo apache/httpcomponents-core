@@ -73,7 +73,7 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolStats;
 import org.apache.hc.core5.pool.PoolStats;
@@ -181,8 +181,8 @@ public class AsyncReverseProxyExample {
             @Override
             public void run() {
                 System.out.println("Reverse proxy shutting down");
-                server.shutdown(ShutdownType.GRACEFUL);
-                requester.shutdown(ShutdownType.GRACEFUL);
+                server.close(CloseMode.GRACEFUL);
+                requester.close(CloseMode.GRACEFUL);
             }
         });
 

@@ -30,17 +30,17 @@ package org.apache.hc.core5.io;
 import java.io.Closeable;
 
 /**
- * Process or endpoint that can be gracefully closed.
+ * Process or endpoint that can be closed either immediately or gracefully.
  *
  * @since 5.0
  */
-public interface GracefullyCloseable extends Closeable {
+public interface ModalCloseable extends Closeable {
 
     /**
      * Closes this endpoint and releases any system resources associated
      * with it. If the endpoint is already closed then invoking this
      * method has no effect.
      */
-    void shutdown(ShutdownType shutdownType);
+    void close(CloseMode closeMode);
 
 }

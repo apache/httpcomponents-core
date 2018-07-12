@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
@@ -106,10 +106,10 @@ public class ClassicTestClient {
         }
     }
 
-    public void shutdown(final ShutdownType shutdownType) {
+    public void shutdown(final CloseMode closeMode) {
         final HttpRequester requester = requesterRef.getAndSet(null);
         if (requester != null) {
-            requester.shutdown(shutdownType);
+            requester.close(closeMode);
         }
     }
 

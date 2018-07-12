@@ -36,8 +36,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.io.GracefullyCloseable;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -50,7 +50,7 @@ final class IOSessionRequest implements Future<IOSession> {
     final Object attachment;
     final BasicFuture<IOSession> future;
 
-    private final AtomicReference<GracefullyCloseable> closeableRef;
+    private final AtomicReference<ModalCloseable> closeableRef;
 
     public IOSessionRequest(
             final NamedEndpoint remoteEndpoint,
@@ -81,9 +81,9 @@ final class IOSessionRequest implements Future<IOSession> {
 
     public boolean cancel() {
         final boolean cancelled = future.cancel();
-        final GracefullyCloseable closeable = closeableRef.getAndSet(null);
+        final ModalCloseable closeable = closeableRef.getAndSet(null);
         if (cancelled && closeable != null) {
-            closeable.shutdown(ShutdownType.IMMEDIATE);
+            closeable.close(CloseMode.IMMEDIATE);
         }
         return cancelled;
     }
@@ -98,7 +98,7 @@ final class IOSessionRequest implements Future<IOSession> {
         return future.isCancelled();
     }
 
-    public void assign(final GracefullyCloseable closeable) {
+    public void assign(final ModalCloseable closeable) {
         closeableRef.set(closeable);
     }
 

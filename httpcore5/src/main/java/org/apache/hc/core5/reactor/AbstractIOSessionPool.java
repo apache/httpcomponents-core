@@ -41,8 +41,8 @@ import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.io.GracefullyCloseable;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.TimeValue;
@@ -52,7 +52,7 @@ import org.apache.hc.core5.util.Timeout;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-public abstract class AbstractIOSessionPool<T> implements GracefullyCloseable {
+public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
 
     private final ConcurrentMap<T, PoolEntry> sessionPool;
     private final AtomicBoolean closed;
@@ -74,15 +74,15 @@ public abstract class AbstractIOSessionPool<T> implements GracefullyCloseable {
 
     protected abstract void closeSession(
             IOSession ioSession,
-            ShutdownType shutdownType);
+            CloseMode closeMode);
 
     @Override
-    public final void shutdown(final ShutdownType shutdownType) {
+    public final void close(final CloseMode closeMode) {
         if (closed.compareAndSet(false, true)) {
             for (final PoolEntry poolEntry : sessionPool.values()) {
                 synchronized (poolEntry) {
                     if (poolEntry.session != null) {
-                        closeSession(poolEntry.session, shutdownType);
+                        closeSession(poolEntry.session, closeMode);
                         poolEntry.session = null;
                     }
                     if (poolEntry.sessionFuture != null) {
@@ -105,7 +105,7 @@ public abstract class AbstractIOSessionPool<T> implements GracefullyCloseable {
 
     @Override
     public final void close() {
-        shutdown(ShutdownType.GRACEFUL);
+        close(CloseMode.GRACEFUL);
     }
 
     PoolEntry getPoolEntry(final T endpoint) {
@@ -185,7 +185,7 @@ public abstract class AbstractIOSessionPool<T> implements GracefullyCloseable {
             final FutureCallback<IOSession> callback) {
         synchronized (poolEntry) {
             if (poolEntry.session != null && requestNew) {
-                closeSession(poolEntry.session, ShutdownType.GRACEFUL);
+                closeSession(poolEntry.session, CloseMode.GRACEFUL);
                 poolEntry.session = null;
             }
             if (poolEntry.session != null && poolEntry.session.isClosed()) {
@@ -265,7 +265,7 @@ public abstract class AbstractIOSessionPool<T> implements GracefullyCloseable {
             if (poolEntry.session != null) {
                 synchronized (poolEntry) {
                     if (poolEntry.session != null && poolEntry.session.getLastReadTime() <= deadline) {
-                        closeSession(poolEntry.session, ShutdownType.GRACEFUL);
+                        closeSession(poolEntry.session, CloseMode.GRACEFUL);
                         poolEntry.session = null;
                     }
                 }

@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -80,7 +80,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
 
                     @Override
                     public void execute(final IOSession session) {
-                        session.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.NORMAL);
+                        session.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
                     }
 
                 }))) {
@@ -141,7 +141,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
             } catch (final InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
-            ioReactor.shutdown(ShutdownType.IMMEDIATE);
+            ioReactor.close(CloseMode.IMMEDIATE);
         }
     }
 

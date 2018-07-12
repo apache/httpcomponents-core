@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.AbstractIOSessionPool;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
@@ -84,11 +84,11 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
     @Override
     protected void closeSession(
             final IOSession ioSession,
-            final ShutdownType shutdownType) {
-        if (shutdownType == ShutdownType.GRACEFUL) {
-            ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.NORMAL);
+            final CloseMode closeMode) {
+        if (closeMode == CloseMode.GRACEFUL) {
+            ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
         } else {
-            ioSession.shutdown(shutdownType);
+            ioSession.close(closeMode);
         }
     }
 

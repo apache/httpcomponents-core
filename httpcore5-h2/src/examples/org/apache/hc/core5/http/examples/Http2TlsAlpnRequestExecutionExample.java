@@ -49,7 +49,7 @@ import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
@@ -122,7 +122,7 @@ public class Http2TlsAlpnRequestExecutionExample {
             @Override
             public void run() {
                 System.out.println("HTTP requester shutting down");
-                requester.shutdown(ShutdownType.GRACEFUL);
+                requester.close(CloseMode.GRACEFUL);
             }
         });
         requester.start();

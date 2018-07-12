@@ -28,11 +28,11 @@
 package org.apache.hc.core5.io;
 
 /**
- * Shutdown type.
+ * Close operation mode.
  *
  * @since 5.0
  */
-public enum ShutdownType {
+public enum CloseMode {
 
     IMMEDIATE, GRACEFUL
 

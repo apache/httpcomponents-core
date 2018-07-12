@@ -53,7 +53,7 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
@@ -212,7 +212,7 @@ public class AsyncFullDuplexServerExample {
             @Override
             public void run() {
                 System.out.println("HTTP server shutting down");
-                server.shutdown(ShutdownType.GRACEFUL);
+                server.close(CloseMode.GRACEFUL);
             }
         });
 

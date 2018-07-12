@@ -47,7 +47,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 
@@ -110,7 +110,7 @@ public class Http2MultiStreamExecutionExample {
             @Override
             public void run() {
                 System.out.println("HTTP requester shutting down");
-                requester.shutdown(ShutdownType.GRACEFUL);
+                requester.close(CloseMode.GRACEFUL);
             }
         });
         requester.start();

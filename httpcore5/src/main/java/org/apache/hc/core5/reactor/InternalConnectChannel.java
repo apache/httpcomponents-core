@@ -32,7 +32,7 @@ import java.net.SocketTimeoutException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.TimeValue;
 
 final class InternalConnectChannel extends InternalChannel {
@@ -105,7 +105,7 @@ final class InternalConnectChannel extends InternalChannel {
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         try {
             close();
         } catch (final IOException ignore) {

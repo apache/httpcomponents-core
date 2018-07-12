@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -137,7 +137,7 @@ public class TestBHttpConnectionBase {
 
         Assert.assertTrue(conn.isOpen());
 
-        conn.shutdown(ShutdownType.GRACEFUL);
+        conn.close(CloseMode.GRACEFUL);
 
         Assert.assertFalse(conn.isOpen());
 
@@ -150,7 +150,7 @@ public class TestBHttpConnectionBase {
         conn.close();
         Mockito.verify(socket, Mockito.times(1)).close();
 
-        conn.shutdown(ShutdownType.GRACEFUL);
+        conn.close(CloseMode.GRACEFUL);
         Mockito.verify(socket, Mockito.times(1)).close();
     }
 

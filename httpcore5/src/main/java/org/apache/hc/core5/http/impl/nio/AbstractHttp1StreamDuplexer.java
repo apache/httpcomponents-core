@@ -70,7 +70,7 @@ import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -141,10 +141,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         return ioSession.getId();
     }
 
-    void shutdownSession(final ShutdownType shutdownType) {
-        if (shutdownType == ShutdownType.GRACEFUL) {
+    void shutdownSession(final CloseMode closeMode) {
+        if (closeMode == CloseMode.GRACEFUL) {
             connState = ConnectionState.GRACEFUL_SHUTDOWN;
-            ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.NORMAL);
+            ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
         } else {
             connState = ConnectionState.SHUTDOWN;
             ioSession.close();
@@ -289,7 +289,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
                 if (bytesRead == -1 && !inbuf.hasData()) {
                     if (outputIdle() && inputIdle()) {
-                        requestShutdown(ShutdownType.IMMEDIATE);
+                        requestShutdown(CloseMode.IMMEDIATE);
                     } else {
                         shutdownSession(new ConnectionClosedException("Connection closed by peer"));
                     }
@@ -432,8 +432,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
     }
 
-    void requestShutdown(final ShutdownType shutdownType) {
-        switch (shutdownType) {
+    void requestShutdown(final CloseMode closeMode) {
+        switch (closeMode) {
             case GRACEFUL:
                 if (connState == ConnectionState.ACTIVE) {
                     connState = ConnectionState.GRACEFUL_SHUTDOWN;
@@ -549,12 +549,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     @Override
     public void close() throws IOException {
-        ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.NORMAL);
+        ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
-        ioSession.enqueue(new ShutdownCommand(shutdownType), Command.Priority.IMMEDIATE);
+    public void close(final CloseMode closeMode) {
+        ioSession.enqueue(new ShutdownCommand(closeMode), Command.Priority.IMMEDIATE);
     }
 
     @Override

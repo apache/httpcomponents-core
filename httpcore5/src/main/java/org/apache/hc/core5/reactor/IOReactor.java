@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.reactor;
 
-import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
@@ -47,7 +47,7 @@ import org.apache.hc.core5.util.TimeValue;
  *
  * @since 4.0
  */
-public interface IOReactor extends GracefullyCloseable {
+public interface IOReactor extends ModalCloseable {
 
     /**
      * Returns the current status of the reactor.

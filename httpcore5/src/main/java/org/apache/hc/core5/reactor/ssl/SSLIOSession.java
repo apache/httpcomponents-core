@@ -49,7 +49,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
@@ -664,7 +664,7 @@ public class SSLIOSession implements IOSession {
             try {
                 updateEventMask();
             } catch (final CancelledKeyException ex) {
-                shutdown(ShutdownType.GRACEFUL);
+                close(CloseMode.GRACEFUL);
             }
         } finally {
             this.session.lock().unlock();
@@ -672,7 +672,7 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         this.session.lock().lock();
         try {
             if (this.status == CLOSED) {
@@ -683,7 +683,7 @@ public class SSLIOSession implements IOSession {
             this.inPlain.release();
 
             this.status = CLOSED;
-            this.session.shutdown(shutdownType);
+            this.session.close(closeMode);
         } finally {
             this.session.lock().unlock();
         }

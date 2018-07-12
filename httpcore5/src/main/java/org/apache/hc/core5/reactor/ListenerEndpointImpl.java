@@ -32,7 +32,7 @@ import java.net.SocketAddress;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 
 class ListenerEndpointImpl implements ListenerEndpoint {
 
@@ -71,7 +71,7 @@ class ListenerEndpointImpl implements ListenerEndpoint {
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         try {
             close();
         } catch (final IOException ignore) {

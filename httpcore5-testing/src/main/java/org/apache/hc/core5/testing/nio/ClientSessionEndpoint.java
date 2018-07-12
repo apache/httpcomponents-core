@@ -42,8 +42,8 @@ import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.io.GracefullyCloseable;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Asserts;
@@ -54,7 +54,7 @@ import org.apache.hc.core5.util.Asserts;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
-public final class ClientSessionEndpoint implements GracefullyCloseable {
+public final class ClientSessionEndpoint implements ModalCloseable {
 
     private final IOSession ioSession;
     private final AtomicBoolean closed;
@@ -122,12 +122,12 @@ public final class ClientSessionEndpoint implements GracefullyCloseable {
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         if (closed.compareAndSet(false, true)) {
-            if (shutdownType == ShutdownType.GRACEFUL) {
-                ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.NORMAL);
+            if (closeMode == CloseMode.GRACEFUL) {
+                ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
             } else {
-                ioSession.shutdown(shutdownType);
+                ioSession.close(closeMode);
             }
         }
     }
@@ -135,7 +135,7 @@ public final class ClientSessionEndpoint implements GracefullyCloseable {
     @Override
     public void close() throws IOException {
         if (closed.compareAndSet(false, true)) {
-            ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.IMMEDIATE);
+            ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.IMMEDIATE);
         }
     }
 

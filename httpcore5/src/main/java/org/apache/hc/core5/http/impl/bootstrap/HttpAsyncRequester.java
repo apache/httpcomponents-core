@@ -61,7 +61,7 @@ import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
@@ -96,7 +96,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
             @Override
             public void execute(final IOSession session) {
-                session.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.IMMEDIATE);
+                session.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.IMMEDIATE);
             }
 
         }, DefaultAddressResolver.INSTANCE);
@@ -183,7 +183,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                 final AsyncClientEndpoint endpoint = new InternalAsyncClientEndpoint(poolEntry);
                 final IOSession ioSession = poolEntry.getConnection();
                 if (ioSession != null && ioSession.isClosed()) {
-                    poolEntry.discardConnection(ShutdownType.IMMEDIATE);
+                    poolEntry.discardConnection(CloseMode.IMMEDIATE);
                 }
                 if (poolEntry.hasConnection()) {
                     resultFuture.completed(endpoint);
@@ -437,7 +437,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         public void releaseAndDiscard() {
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.getAndSet(null);
             if (poolEntry != null) {
-                poolEntry.discardConnection(ShutdownType.IMMEDIATE);
+                poolEntry.discardConnection(CloseMode.IMMEDIATE);
                 connPool.release(poolEntry, false);
             }
         }

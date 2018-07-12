@@ -82,7 +82,7 @@ import org.apache.hc.core5.http2.hpack.HPackEncoder;
 import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
@@ -572,7 +572,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             }
             if (command instanceof ShutdownCommand) {
                 final ShutdownCommand shutdownCommand = (ShutdownCommand) command;
-                if (shutdownCommand.getType() == ShutdownType.IMMEDIATE) {
+                if (shutdownCommand.getType() == CloseMode.IMMEDIATE) {
                     for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
                         final Map.Entry<Integer, Http2Stream> entry = it.next();
                         final Http2Stream stream = entry.getValue();
@@ -690,7 +690,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             connState = ConnectionHandshake.SHUTDOWN;
         } catch (final IOException ignore) {
         } finally {
-            ioSession.shutdown(ShutdownType.IMMEDIATE);
+            ioSession.close(CloseMode.IMMEDIATE);
         }
     }
 
@@ -1189,12 +1189,12 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
     @Override
     public void close() throws IOException {
-        ioSession.enqueue(new ShutdownCommand(ShutdownType.GRACEFUL), Command.Priority.IMMEDIATE);
+        ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.IMMEDIATE);
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
-        ioSession.shutdown(shutdownType);
+    public void close(final CloseMode closeMode) {
+        ioSession.close(closeMode);
     }
 
     @Override

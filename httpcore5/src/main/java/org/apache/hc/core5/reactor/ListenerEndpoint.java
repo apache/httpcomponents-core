@@ -29,7 +29,7 @@ package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
 
-import org.apache.hc.core5.io.GracefullyCloseable;
+import org.apache.hc.core5.io.ModalCloseable;
 
 /**
  * ListenerEndpoint interface represents an endpoint used by an I/O reactor
@@ -37,7 +37,7 @@ import org.apache.hc.core5.io.GracefullyCloseable;
  *
  * @since 4.0
  */
-public interface ListenerEndpoint extends GracefullyCloseable  {
+public interface ListenerEndpoint extends ModalCloseable {
 
     /**
      * Returns the socket address of this endpoint.

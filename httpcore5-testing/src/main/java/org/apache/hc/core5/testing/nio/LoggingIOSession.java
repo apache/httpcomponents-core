@@ -34,7 +34,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.locks.Lock;
 
-import org.apache.hc.core5.io.ShutdownType;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.classic.Wire;
@@ -169,11 +169,11 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
-    public void shutdown(final ShutdownType shutdownType) {
+    public void close(final CloseMode closeMode) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Shutdown " + shutdownType);
+            this.log.debug(this.session + " Shutdown " + closeMode);
         }
-        this.session.shutdown(shutdownType);
+        this.session.close(closeMode);
     }
 
     @Override
