@@ -81,7 +81,7 @@ public class BufferedHeader implements FormattedHeader, Cloneable, Serializable 
                 ("Invalid header: " + buffer.toString());
         }
         final String s = buffer.substringTrimmed(0, colon);
-        if (s.length() == 0) {
+        if (s.isEmpty()) {
             throw new ParseException
                 ("Invalid header: " + buffer.toString());
         }

@@ -101,7 +101,7 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
                 // loop while there is data in the buffer
                 while (!this.cursor.atEnd()) {
                     final HeaderElement e = this.parser.parseHeaderElement(this.buffer, this.cursor);
-                    if (!(e.getName().length() == 0 && e.getValue() == null)) {
+                    if (!(e.getName().isEmpty() && e.getValue() == null)) {
                         // Found something
                         this.currentElement = e;
                         return;

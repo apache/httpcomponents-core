@@ -107,7 +107,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         final List<HeaderElement> elements = new ArrayList<HeaderElement>();
         while (!cursor.atEnd()) {
             final HeaderElement element = parseHeaderElement(buffer, cursor);
-            if (!(element.getName().length() == 0 && element.getValue() == null)) {
+            if (!(element.getName().isEmpty() && element.getValue() == null)) {
                 elements.add(element);
             }
         }

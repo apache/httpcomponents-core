@@ -126,7 +126,7 @@ public class HttpBenchmark {
             String path = url.getPath();
             if (url.getQuery() != null && url.getQuery().length() > 0) {
                 path += "?" + url.getQuery();
-            } else if (path.trim().length() == 0) {
+            } else if (path.trim().isEmpty()) {
                 path = "/";
             }
             request = new BasicHttpRequest(config.getMethod(), path, ver);
