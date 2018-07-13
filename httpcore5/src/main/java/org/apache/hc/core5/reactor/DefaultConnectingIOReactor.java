@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -60,9 +59,9 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
 
     private final Deque<ExceptionEvent> auditLog;
     private final int workerCount;
-    private final SingleCoreIOReactor[] dispatchers;
+    private final SingleCoreIOReactor[] workers;
     private final MultiCoreIOReactor ioReactor;
-    private final AtomicInteger currentWorker;
+    private final IOWorkers.Selector workerSelector;
 
     private final static ThreadFactory THREAD_FACTORY = new DefaultThreadFactory("I/O client dispatch", true);
 
@@ -76,9 +75,9 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
         Args.notNull(eventHandlerFactory, "Event handler factory");
         this.auditLog = new ConcurrentLinkedDeque<>();
         this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
-        this.dispatchers = new SingleCoreIOReactor[workerCount];
+        this.workers = new SingleCoreIOReactor[workerCount];
         final Thread[] threads = new Thread[workerCount];
-        for (int i = 0; i < this.dispatchers.length; i++) {
+        for (int i = 0; i < this.workers.length; i++) {
             final SingleCoreIOReactor dispatcher = new SingleCoreIOReactor(
                     auditLog,
                     eventHandlerFactory,
@@ -86,11 +85,11 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
                     ioSessionDecorator,
                     sessionListener,
                     sessionShutdownCallback);
-            this.dispatchers[i] = dispatcher;
+            this.workers[i] = dispatcher;
             threads[i] = (threadFactory != null ? threadFactory : THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
         }
-        this.ioReactor = new MultiCoreIOReactor(this.dispatchers, threads);
-        this.currentWorker = new AtomicInteger(0);
+        this.ioReactor = new MultiCoreIOReactor(this.workers, threads);
+        this.workerSelector =  IOWorkers.newSelector(workers);
     }
 
     public DefaultConnectingIOReactor(
@@ -136,9 +135,8 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
         if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
-        final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
         try {
-            return dispatchers[i].connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
+            return workerSelector.next().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();
             throw ex;

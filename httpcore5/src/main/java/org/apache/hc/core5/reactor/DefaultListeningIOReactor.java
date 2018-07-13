@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -65,10 +64,10 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
 
     private final Deque<ExceptionEvent> auditLog;
     private final int workerCount;
-    private final SingleCoreIOReactor[] dispatchers;
+    private final SingleCoreIOReactor[] workers;
     private final SingleCoreListeningIOReactor listener;
     private final MultiCoreIOReactor ioReactor;
-    private final AtomicInteger currentWorker;
+    private final IOWorkers.Selector workerSelector;
 
     /**
      * Creates an instance of DefaultListeningIOReactor with the given configuration.
@@ -91,9 +90,9 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
         Args.notNull(eventHandlerFactory, "Event handler factory");
         this.auditLog = new ConcurrentLinkedDeque<>();
         this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
-        this.dispatchers = new SingleCoreIOReactor[workerCount];
+        this.workers = new SingleCoreIOReactor[workerCount];
         final Thread[] threads = new Thread[workerCount + 1];
-        for (int i = 0; i < this.dispatchers.length; i++) {
+        for (int i = 0; i < this.workers.length; i++) {
             final SingleCoreIOReactor dispatcher = new SingleCoreIOReactor(
                     auditLog,
                     eventHandlerFactory,
@@ -101,11 +100,11 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
                     ioSessionDecorator,
                     sessionListener,
                     sessionShutdownCallback);
-            this.dispatchers[i] = dispatcher;
+            this.workers[i] = dispatcher;
             threads[i + 1] = (dispatchThreadFactory != null ? dispatchThreadFactory : DISPATCH_THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
         }
         final IOReactor[] ioReactors = new IOReactor[this.workerCount + 1];
-        System.arraycopy(this.dispatchers, 0, ioReactors, 1, this.workerCount);
+        System.arraycopy(this.workers, 0, ioReactors, 1, this.workerCount);
         this.listener = new SingleCoreListeningIOReactor(auditLog, ioReactorConfig, new Callback<SocketChannel>() {
 
             @Override
@@ -118,7 +117,8 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
         threads[0] = (listenerThreadFactory != null ? listenerThreadFactory : LISTENER_THREAD_FACTORY).newThread(new IOReactorWorker(listener));
 
         this.ioReactor = new MultiCoreIOReactor(ioReactors, threads);
-        this.currentWorker = new AtomicInteger(0);
+
+        workerSelector = IOWorkers.newSelector(workers);
     }
 
     /**
@@ -188,9 +188,8 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
     }
 
     private void enqueueChannel(final SocketChannel socketChannel) {
-        final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
         try {
-            dispatchers[i].enqueueChannel(socketChannel);
+            workerSelector.next().enqueueChannel(socketChannel);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();
         }
@@ -208,9 +207,8 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
         if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
-        final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
         try {
-            return dispatchers[i].connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
+            return workerSelector.next().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();
             throw ex;
