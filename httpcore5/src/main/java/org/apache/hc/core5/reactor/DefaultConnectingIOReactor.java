@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -44,6 +43,7 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.reactor.SingleCoreIOReactorChooserFactory.SingleCoreIOReactorChooser;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -62,9 +62,9 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
     private final int workerCount;
     private final SingleCoreIOReactor[] dispatchers;
     private final MultiCoreIOReactor ioReactor;
-    private final AtomicInteger currentWorker;
-
+    private final SingleCoreIOReactorChooser clientIOReactorChooser;
     private final static ThreadFactory THREAD_FACTORY = new DefaultThreadFactory("I/O client dispatch", true);
+    public  final static SingleCoreIOReactorChooserFactory CLIENTREACTOR_CHOOSER_FACTORY = DefaultSingleCoreIOReactorChooserFactory.INSTANCE;
 
     public DefaultConnectingIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
@@ -90,7 +90,7 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
             threads[i] = (threadFactory != null ? threadFactory : THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
         }
         this.ioReactor = new MultiCoreIOReactor(this.dispatchers, threads);
-        this.currentWorker = new AtomicInteger(0);
+        clientIOReactorChooser =  CLIENTREACTOR_CHOOSER_FACTORY.newChooser(dispatchers);
     }
 
     public DefaultConnectingIOReactor(
@@ -136,9 +136,8 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
         if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
-        final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
         try {
-            return dispatchers[i].connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
+            return clientIOReactorChooser.next().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();
             throw ex;

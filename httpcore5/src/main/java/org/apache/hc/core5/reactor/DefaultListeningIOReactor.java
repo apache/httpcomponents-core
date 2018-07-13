@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -46,6 +45,7 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.reactor.SingleCoreIOReactorChooserFactory.SingleCoreIOReactorChooser;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -62,13 +62,14 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
 
     private final static ThreadFactory DISPATCH_THREAD_FACTORY = new DefaultThreadFactory("I/O server dispatch", true);
     private final static ThreadFactory LISTENER_THREAD_FACTORY = new DefaultThreadFactory("I/O listener", true);
+    public  final static SingleCoreIOReactorChooserFactory SERVERREACTOR_CHOOSER_FACTORY = DefaultSingleCoreIOReactorChooserFactory.INSTANCE;
 
     private final Deque<ExceptionEvent> auditLog;
     private final int workerCount;
     private final SingleCoreIOReactor[] dispatchers;
     private final SingleCoreListeningIOReactor listener;
     private final MultiCoreIOReactor ioReactor;
-    private final AtomicInteger currentWorker;
+    private final SingleCoreIOReactorChooser serverIoRactorChooser;
 
     /**
      * Creates an instance of DefaultListeningIOReactor with the given configuration.
@@ -118,7 +119,8 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
         threads[0] = (listenerThreadFactory != null ? listenerThreadFactory : LISTENER_THREAD_FACTORY).newThread(new IOReactorWorker(listener));
 
         this.ioReactor = new MultiCoreIOReactor(ioReactors, threads);
-        this.currentWorker = new AtomicInteger(0);
+
+        serverIoRactorChooser = SERVERREACTOR_CHOOSER_FACTORY.newChooser(dispatchers);
     }
 
     /**
@@ -188,9 +190,8 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
     }
 
     private void enqueueChannel(final SocketChannel socketChannel) {
-        final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
         try {
-            dispatchers[i].enqueueChannel(socketChannel);
+            serverIoRactorChooser.next().enqueueChannel(socketChannel);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();
         }
@@ -208,9 +209,8 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
         if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
-        final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
         try {
-            return dispatchers[i].connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
+            return serverIoRactorChooser.next().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();
             throw ex;
