@@ -98,8 +98,8 @@ public class AsyncRequester implements IOReactorService, ConnectionInitiator {
     }
 
     @Override
-    public void start() {
-        ioReactor.start();
+    public void start(final int i) {
+        ioReactor.start(i);
     }
 
     @Override

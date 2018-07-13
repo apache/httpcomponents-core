@@ -149,8 +149,8 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
     }
 
     @Override
-    public void start() {
-        ioReactor.start();
+    public void start(final int i) {
+        ioReactor.start(i);
     }
 
     @Override
@@ -190,6 +190,7 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
     private void enqueueChannel(final SocketChannel socketChannel) {
         final int i = Math.abs(currentWorker.incrementAndGet() % workerCount);
         try {
+            ioReactor.start(i + 1);
             dispatchers[i].enqueueChannel(socketChannel);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();

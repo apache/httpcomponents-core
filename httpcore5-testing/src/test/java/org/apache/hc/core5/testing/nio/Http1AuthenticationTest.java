@@ -65,8 +65,6 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -74,6 +72,8 @@ import org.junit.Test;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class Http1AuthenticationTest {
@@ -202,11 +202,10 @@ public class Http1AuthenticationTest {
 
     @Test
     public void testGetRequestAuthentication() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort());
 
@@ -236,11 +235,10 @@ public class Http1AuthenticationTest {
 
     @Test
     public void testPostRequestAuthentication() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort());
         final Random rnd = new Random();
@@ -274,11 +272,10 @@ public class Http1AuthenticationTest {
 
     @Test
     public void testPostRequestAuthenticationNoExpectContinue() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort());
         final Random rnd = new Random();

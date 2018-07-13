@@ -73,8 +73,12 @@ public class AsyncServer implements IOReactorService, ConnectionInitiator, Conne
     }
 
     @Override
-    public void start() {
-        ioReactor.start();
+    public void start(final int i) {
+        throw new RuntimeException("can not call start(i) method with AsyncServer class,maybe call serverStart method?");
+    }
+
+    public void serverStart(){
+        ioReactor.start(0);
     }
 
     @Override

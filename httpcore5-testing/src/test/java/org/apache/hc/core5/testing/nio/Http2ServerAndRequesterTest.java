@@ -65,8 +65,6 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.TestingSupport;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -77,6 +75,8 @@ import org.junit.Test;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class Http2ServerAndRequesterTest {
@@ -217,11 +217,10 @@ public class Http2ServerAndRequesterTest {
 
     @Test
     public void testSequentialRequests() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
@@ -260,11 +259,10 @@ public class Http2ServerAndRequesterTest {
 
     @Test
     public void testSequentialRequestsSameEndpoint() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
         final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
@@ -311,11 +309,10 @@ public class Http2ServerAndRequesterTest {
 
     @Test
     public void testPipelinedRequests() throws Exception {
-        server.start();
+        server.serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
         final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));

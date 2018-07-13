@@ -66,6 +66,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     private volatile long lastTimeoutCheck;
 
+
     SingleCoreIOReactor(
             final Queue<ExceptionEvent> auditLog,
             final IOEventHandlerFactory eventHandlerFactory,
