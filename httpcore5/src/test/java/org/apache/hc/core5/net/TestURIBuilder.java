@@ -37,6 +37,7 @@ import java.util.List;
 
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -381,6 +382,35 @@ public class TestURIBuilder {
     public void testRelativePathWithAuthority() throws Exception {
         final URI uri = new URIBuilder("./mypath").setHost("somehost").setScheme("http").build();
         Assert.assertEquals(new URI("http://somehost/./mypath"), uri);
+    }
+
+    @Test
+    public void testTolerateNullInput() throws Exception {
+        Assert.assertThat(new URIBuilder()
+                        .setScheme(null)
+                        .setHost("localhost")
+                        .setUserInfo(null)
+                        .setPort(8443)
+                        .setPath(null)
+                        .setCustomQuery(null)
+                        .setFragment(null)
+                        .build(),
+                CoreMatchers.equalTo(URI.create("//localhost:8443")));
+    }
+
+    @Test
+    public void testTolerateBlankInput() throws Exception {
+        Assert.assertThat(new URIBuilder()
+                        .setScheme("")
+                        .setHost("localhost")
+                        .setUserInfo("")
+                        .setPort(8443)
+                        .setPath("")
+                        .setPath("")
+                        .setCustomQuery("")
+                        .setFragment("")
+                        .build(),
+                CoreMatchers.equalTo(URI.create("//localhost:8443")));
     }
 
 }

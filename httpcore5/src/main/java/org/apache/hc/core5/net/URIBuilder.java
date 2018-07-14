@@ -241,7 +241,7 @@ public class URIBuilder {
      * Sets URI scheme.
      */
     public URIBuilder setScheme(final String scheme) {
-        this.scheme = scheme;
+        this.scheme = !TextUtils.isBlank(scheme) ? scheme : null;
         return this;
     }
 
@@ -250,7 +250,7 @@ public class URIBuilder {
      * characters.
      */
     public URIBuilder setUserInfo(final String userInfo) {
-        this.userInfo = userInfo;
+        this.userInfo = !TextUtils.isBlank(userInfo) ? userInfo : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedAuthority = null;
         this.encodedUserInfo = null;
@@ -271,7 +271,7 @@ public class URIBuilder {
      * @since 4.6
      */
     public URIBuilder setHost(final InetAddress host) {
-        this.host = host.getHostAddress();
+        this.host = host != null ? host.getHostAddress() : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedAuthority = null;
         return this;
@@ -281,6 +281,7 @@ public class URIBuilder {
      * Sets URI host.
      */
     public URIBuilder setHost(final String host) {
+        this.host = !TextUtils.isBlank(host) ? host : null;
         this.host = host;
         this.encodedSchemeSpecificPart = null;
         this.encodedAuthority = null;
@@ -301,7 +302,7 @@ public class URIBuilder {
      * Sets URI path. The value is expected to be unescaped and may contain non ASCII characters.
      */
     public URIBuilder setPath(final String path) {
-        this.path = path;
+        this.path = !TextUtils.isBlank(path) ? path : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedPath = null;
         return this;
@@ -456,7 +457,7 @@ public class URIBuilder {
      * @since 4.3
      */
     public URIBuilder setCustomQuery(final String query) {
-        this.query = query;
+        this.query = !TextUtils.isBlank(query) ? query : null;
         this.encodedQuery = null;
         this.encodedSchemeSpecificPart = null;
         this.queryParams = null;
@@ -468,7 +469,7 @@ public class URIBuilder {
      * characters.
      */
     public URIBuilder setFragment(final String fragment) {
-        this.fragment = fragment;
+        this.fragment = !TextUtils.isBlank(fragment) ? fragment : null;
         this.encodedFragment = null;
         return this;
     }
