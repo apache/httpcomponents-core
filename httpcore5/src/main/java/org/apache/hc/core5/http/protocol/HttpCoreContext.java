@@ -53,7 +53,7 @@ public class HttpCoreContext implements HttpContext {
      * Attribute name of a {@link SSLSession} object that
      * represents the actual connection endpoint details.
      */
-    public static final String SSL_SESSION = HttpContext.RESERVED_PREFIX + "ssl-ession";
+    public static final String SSL_SESSION = HttpContext.RESERVED_PREFIX + "ssl-session";
 
     /**
      * Attribute name of a {@link HttpRequest} object that
