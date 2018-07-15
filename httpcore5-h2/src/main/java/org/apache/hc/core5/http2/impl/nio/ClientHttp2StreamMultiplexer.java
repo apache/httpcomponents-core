@@ -88,9 +88,8 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
         final HttpCoreContext context = HttpCoreContext.create();
         context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
-        if (originalHandler != null && originalHandler instanceof ClientHttp2StreamHandler) {
-            final HttpCoreContext originalContext = ((ClientHttp2StreamHandler) originalHandler).context;
-            context.setAttribute(HttpCoreContext.ORIGINAL_CONTEXT, originalContext);
+        if (originalHandler != null) {
+            context.setAttribute(HttpCoreContext.ORIGINAL_CONTEXT, originalHandler.getContext());
         }
         return new ClientPushHttp2StreamHandler(channel, httpProcessor, connMetrics, pushHandlerFactory, context);
     }

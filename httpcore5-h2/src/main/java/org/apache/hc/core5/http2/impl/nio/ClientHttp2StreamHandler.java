@@ -61,7 +61,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
     private final HttpProcessor httpProcessor;
     private final BasicHttpConnectionMetrics connMetrics;
     private final AsyncClientExchangeHandler exchangeHandler;
-    final HttpCoreContext context;
+    private final HttpCoreContext context;
     private final AtomicBoolean requestCommitted;
     private final AtomicBoolean failed;
     private final AtomicBoolean done;
@@ -249,6 +249,11 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
         } finally {
             releaseResources();
         }
+    }
+
+    @Override
+    public HttpCoreContext getContext() {
+        return context;
     }
 
     @Override

@@ -298,6 +298,11 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
     }
 
     @Override
+    public HttpCoreContext getContext() {
+        return context;
+    }
+
+    @Override
     public void releaseResources() {
         if (done.compareAndSet(false, true)) {
             requestState = MessageState.COMPLETE;
