@@ -61,7 +61,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
     private final HttpProcessor httpProcessor;
     private final BasicHttpConnectionMetrics connMetrics;
     private final AsyncClientExchangeHandler exchangeHandler;
-    private final HttpCoreContext context;
+    final HttpCoreContext context;
     private final AtomicBoolean requestCommitted;
     private final AtomicBoolean failed;
     private final AtomicBoolean done;
@@ -267,6 +267,5 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
                 ", responseState=" + responseState +
                 ']';
     }
-
 }
 

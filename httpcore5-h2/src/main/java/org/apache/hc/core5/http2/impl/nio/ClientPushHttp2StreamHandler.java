@@ -134,7 +134,7 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
             httpProcessor.process(response, entityDetails, context);
             connMetrics.incrementResponseCount();
 
-            exchangeHandler.consumePromise(request, response, entityDetails);
+            exchangeHandler.consumePromise(request, response, entityDetails, context);
             if (endStream) {
                 responseState = MessageState.COMPLETE;
                 exchangeHandler.streamEnd(null);

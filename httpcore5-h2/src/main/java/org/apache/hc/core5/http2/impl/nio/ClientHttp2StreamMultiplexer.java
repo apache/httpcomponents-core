@@ -83,10 +83,15 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     Http2StreamHandler createRemotelyInitiatedStream(
             final Http2StreamChannel channel,
             final HttpProcessor httpProcessor,
-            final BasicHttpConnectionMetrics connMetrics) throws IOException {
+            final BasicHttpConnectionMetrics connMetrics,
+            final Http2StreamHandler originalHandler) throws IOException {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+        if (originalHandler != null && originalHandler instanceof ClientHttp2StreamHandler) {
+            final HttpCoreContext originalContext = ((ClientHttp2StreamHandler) originalHandler).context;
+            context.setAttribute(HttpCoreContext.ORIGINAL_CONTEXT, originalContext);
+        }
         return new ClientPushHttp2StreamHandler(channel, httpProcessor, connMetrics, pushHandlerFactory, context);
     }
 

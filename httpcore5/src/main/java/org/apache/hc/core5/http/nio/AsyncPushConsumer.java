@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Abstract asynchronous push response consumer.
@@ -40,7 +41,7 @@ import org.apache.hc.core5.http.HttpResponse;
  */
 public interface AsyncPushConsumer extends AsyncDataConsumer {
 
-    void consumePromise(HttpRequest promise, HttpResponse response, EntityDetails entityDetails) throws HttpException, IOException;
+    void consumePromise(HttpRequest promise, HttpResponse response, EntityDetails entityDetails, HttpContext context) throws HttpException, IOException;
 
     void failed(Exception cause);
 

@@ -67,6 +67,13 @@ public class HttpCoreContext implements HttpContext {
      */
     public static final String HTTP_RESPONSE    = HttpContext.RESERVED_PREFIX + "response";
 
+    /**
+     * Attribute name of a {@link HttpContext} object that
+     * for server push promises is the context of the original
+     * client-initiated request.
+     */
+    public static final String ORIGINAL_CONTEXT = HttpContext.RESERVED_PREFIX + "original-context";
+
     public static HttpCoreContext create() {
         return new HttpCoreContext();
     }
@@ -155,4 +162,10 @@ public class HttpCoreContext implements HttpContext {
         return getAttribute(HTTP_RESPONSE, HttpResponse.class);
     }
 
+    /**
+     * @since 5.0
+     */
+    public HttpContext getOriginalContext() {
+        return getAttribute(ORIGINAL_CONTEXT, HttpContext.class);
+    }
 }
