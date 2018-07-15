@@ -39,6 +39,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -62,7 +63,8 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
     public void consumePromise(
             final HttpRequest promise,
             final HttpResponse response,
-            final EntityDetails entityDetails) throws HttpException, IOException {
+            final EntityDetails entityDetails,
+            final HttpContext context) throws HttpException, IOException {
         responseConsumer.consumeResponse(response, entityDetails, new FutureCallback<T>() {
 
             @Override
