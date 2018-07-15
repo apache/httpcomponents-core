@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
@@ -89,7 +90,7 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
         context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
         if (originalHandler != null) {
-            context.setAttribute(HttpCoreContext.ORIGINAL_CONTEXT, originalHandler.getContext());
+            context.setAttribute(HttpContext.RESERVED_PREFIX + "original-context", originalHandler.getContext());
         }
         return new ClientPushHttp2StreamHandler(channel, httpProcessor, connMetrics, pushHandlerFactory, context);
     }
