@@ -43,6 +43,7 @@ public final class FixedPortStrategy implements SecurePortStrategy {
         this.securePorts = Args.notNull(securePorts, "Secure ports");
     }
 
+    @Override
     public boolean isSecure(final SocketAddress localAddress) {
         final int port = ((InetSocketAddress) localAddress).getPort();
         for (final int securePort: securePorts) {
