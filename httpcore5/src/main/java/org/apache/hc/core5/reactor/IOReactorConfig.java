@@ -85,6 +85,7 @@ public final class IOReactorConfig {
      * timed out sessions and session requests.
      * <p>
      * Default: {@code 1000} milliseconds.
+     * </p>
      */
     public long getSelectInterval() {
         return this.selectInterval;
@@ -94,6 +95,7 @@ public final class IOReactorConfig {
      * Determines the number of I/O dispatch threads to be used by the I/O reactor.
      * <p>
      * Default: {@code 2}
+     * </p>
      */
     public int getIoThreadCount() {
         return this.ioThreadCount;
@@ -103,6 +105,7 @@ public final class IOReactorConfig {
      * Determines the default socket timeout value for non-blocking I/O operations.
      * <p>
      * Default: {@code 0} (no timeout)
+     * </p>
      *
      * @see java.net.SocketOptions#SO_TIMEOUT
      */
@@ -115,6 +118,7 @@ public final class IOReactorConfig {
      * for newly created sockets.
      * <p>
      * Default: {@code false}
+     * </p>
      *
      * @see java.net.SocketOptions#SO_REUSEADDR
      */
@@ -127,6 +131,7 @@ public final class IOReactorConfig {
      * for newly created sockets.
      * <p>
      * Default: {@code -1}
+     * </p>
      *
      * @see java.net.SocketOptions#SO_LINGER
      */
@@ -139,6 +144,7 @@ public final class IOReactorConfig {
      * for newly created sockets.
      * <p>
      * Default: {@code -1}
+     * </p>
      *
      * @see java.net.SocketOptions#SO_KEEPALIVE
      */
@@ -151,6 +157,7 @@ public final class IOReactorConfig {
      * for newly created sockets.
      * <p>
      * Default: {@code false}
+     * </p>
      *
      * @see java.net.SocketOptions#TCP_NODELAY
      */
@@ -163,6 +170,7 @@ public final class IOReactorConfig {
      * for newly created sockets.
      * <p>
      * Default: {@code 0} (system default)
+     * </p>
      *
      * @see java.net.SocketOptions#SO_SNDBUF
      */
@@ -175,6 +183,7 @@ public final class IOReactorConfig {
      * for newly created sockets.
      * <p>
      * Default: {@code 0} (system default)
+     * </p>
      *
      * @see java.net.SocketOptions#SO_RCVBUF
      */
@@ -186,6 +195,7 @@ public final class IOReactorConfig {
      * Determines the default backlog size value for server sockets binds.
      * <p>
      * Default: {@code 0} (system default)
+     * </p>
      *
      * @since 4.4
      */
