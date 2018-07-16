@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -48,7 +47,6 @@ import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
-import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequester;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequesterBootstrap;
@@ -60,8 +58,6 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.TestingSupport;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -71,6 +67,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.ExternalResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Http2ALPNTest {
 
@@ -93,14 +91,7 @@ public class Http2ALPNTest {
                                     .build())
                     .setTlsStrategy(new BasicServerTlsStrategy(
                             SSLTestContexts.createServerSSLContext(),
-                            new SecurePortStrategy() {
-
-                                @Override
-                                public boolean isSecure(final SocketAddress localAddress) {
-                                    return true;
-                                }
-
-                            }))
+                            SecureAllPortsStrategy.INSTANCE))
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)

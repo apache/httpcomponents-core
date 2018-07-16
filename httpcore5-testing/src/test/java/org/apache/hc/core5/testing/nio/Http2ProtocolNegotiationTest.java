@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -47,7 +46,6 @@ import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
-import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
@@ -63,8 +61,6 @@ import org.apache.hc.core5.testing.TestingSupport;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -73,6 +69,8 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Http2ProtocolNegotiationTest {
 
@@ -89,14 +87,7 @@ public class Http2ProtocolNegotiationTest {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             server = H2ServerBootstrap.bootstrap()
-                    .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(), new SecurePortStrategy() {
-
-                        @Override
-                        public boolean isSecure(final SocketAddress localAddress) {
-                            return true;
-                        }
-
-                    }))
+                    .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(), SecureAllPortsStrategy.INSTANCE))
                     .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
@@ -104,14 +95,7 @@ public class Http2ProtocolNegotiationTest {
                                     .build())
                     .setTlsStrategy(new H2ServerTlsStrategy(
                             SSLTestContexts.createServerSSLContext(),
-                            new SecurePortStrategy() {
-
-                                @Override
-                                public boolean isSecure(final SocketAddress localAddress) {
-                                    return true;
-                                }
-
-                            }))
+                            SecureAllPortsStrategy.INSTANCE))
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
                         @Override

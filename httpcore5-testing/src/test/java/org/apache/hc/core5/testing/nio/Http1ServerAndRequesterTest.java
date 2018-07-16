@@ -29,7 +29,6 @@ package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -67,7 +66,6 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
-import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ExceptionEvent;
@@ -76,8 +74,6 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -85,6 +81,8 @@ import org.junit.Test;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class Http1ServerAndRequesterTest {
@@ -164,16 +162,9 @@ public class Http1ServerAndRequesterTest {
                             });
                         }
                     })
-                    .setTlsStrategy(scheme == URIScheme.HTTPS ? new BasicServerTlsStrategy(
+                    .setTlsStrategy(scheme == URIScheme.HTTPS  ? new BasicServerTlsStrategy(
                             SSLTestContexts.createServerSSLContext(),
-                            new SecurePortStrategy() {
-
-                                @Override
-                                public boolean isSecure(final SocketAddress localAddress) {
-                                    return true;
-                                }
-
-                            }) : null)
+                            SecureAllPortsStrategy.INSTANCE) : null)
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)

@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -52,7 +51,6 @@ import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
-import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
@@ -68,8 +66,6 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.TestingSupport;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -80,6 +76,8 @@ import org.junit.Test;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class Http2ServerAndMultiplexingRequesterTest {
@@ -114,16 +112,9 @@ public class Http2ServerAndMultiplexingRequesterTest {
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
-                    .setTlsStrategy(scheme == URIScheme.HTTPS ? new H2ServerTlsStrategy(
+                    .setTlsStrategy(scheme == URIScheme.HTTPS  ? new H2ServerTlsStrategy(
                             SSLTestContexts.createServerSSLContext(),
-                            new SecurePortStrategy() {
-
-                                @Override
-                                public boolean isSecure(final SocketAddress localAddress) {
-                                    return true;
-                                }
-
-                            }) : null)
+                            SecureAllPortsStrategy.INSTANCE) : null)
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
