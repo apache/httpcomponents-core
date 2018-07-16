@@ -63,6 +63,7 @@ public class LoggingHttp2StreamListener implements Http2StreamListener {
             framePrinter.printFrameInfo(frame, logAppendable);
             logAppendable.flush();
         } catch (final IOException ignore) {
+            // ignore
         }
     }
 
@@ -72,6 +73,7 @@ public class LoggingHttp2StreamListener implements Http2StreamListener {
             framePrinter.printPayload(frame, logAppendable);
             logAppendable.flush();
         } catch (final IOException ignore) {
+            // ignore
         }
     }
 
