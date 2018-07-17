@@ -412,7 +412,7 @@ public class H2ServerBootstrap {
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
-                tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(new int[] {443, 8443}));
+                tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(443, 8443));
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener);
     }
 

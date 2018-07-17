@@ -88,7 +88,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
         this(sslContext, securePortStrategy, null, null, null);
     }
 
-    public H2ServerTlsStrategy(final int[] securePorts) {
+    public H2ServerTlsStrategy(final int... securePorts) {
         this(SSLContexts.createSystemDefault(), new FixedPortStrategy(securePorts));
     }
 

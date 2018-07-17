@@ -39,7 +39,7 @@ public final class FixedPortStrategy implements SecurePortStrategy {
 
     private final int[] securePorts;
 
-    public FixedPortStrategy(final int[] securePorts) {
+    public FixedPortStrategy(final int... securePorts) {
         this.securePorts = Args.notNull(securePorts, "Secure ports");
     }
 
