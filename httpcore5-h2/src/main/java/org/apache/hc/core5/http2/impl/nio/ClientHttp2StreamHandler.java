@@ -252,11 +252,6 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
     }
 
     @Override
-    public HttpCoreContext getContext() {
-        return context;
-    }
-
-    @Override
     public void releaseResources() {
         if (done.compareAndSet(false, true)) {
             responseState = MessageState.COMPLETE;
@@ -272,5 +267,6 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
                 ", responseState=" + responseState +
                 ']';
     }
+
 }
 

@@ -33,7 +33,6 @@ import java.util.List;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.nio.ResourceHolder;
-import org.apache.hc.core5.http.protocol.HttpCoreContext;
 
 interface Http2StreamHandler extends ResourceHolder {
 
@@ -51,5 +50,4 @@ interface Http2StreamHandler extends ResourceHolder {
 
     void failed(Exception cause);
 
-    HttpCoreContext getContext();
 }
