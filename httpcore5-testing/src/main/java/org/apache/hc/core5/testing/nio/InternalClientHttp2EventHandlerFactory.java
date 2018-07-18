@@ -76,7 +76,7 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
     @Override
     public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
         if (sslContext != null) {
-            ioSession.startTls(sslContext, null ,null, null);
+            ioSession.startTls(sslContext, null, null ,null, null);
         }
         final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ClientHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),

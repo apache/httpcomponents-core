@@ -94,7 +94,7 @@ public class BasicClientTlsStrategy implements TlsStrategy {
             final Object attachment) {
         final String scheme = host != null ? host.getSchemeName() : null;
         if (URIScheme.HTTPS.same(scheme)) {
-            tlsSession.startTls(sslContext, sslBufferManagement, initializer, verifier);
+            tlsSession.startTls(sslContext, host, sslBufferManagement, initializer, verifier);
             return true;
         }
         return false;

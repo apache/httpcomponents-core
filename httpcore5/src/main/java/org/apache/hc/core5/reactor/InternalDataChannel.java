@@ -52,7 +52,7 @@ import org.apache.hc.core5.util.Asserts;
 final class InternalDataChannel extends InternalChannel implements ProtocolIOSession {
 
     private final IOSession ioSession;
-    private final NamedEndpoint namedEndpoint;
+    private final NamedEndpoint initialEndpoint;
     private final IOSessionListener sessionListener;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final Queue<InternalDataChannel> closedSessions;
@@ -62,11 +62,11 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     InternalDataChannel(
             final IOSession ioSession,
-            final NamedEndpoint namedEndpoint,
+            final NamedEndpoint initialEndpoint,
             final IOSessionListener sessionListener,
             final Queue<InternalDataChannel> closedSessions) {
         this.ioSession = ioSession;
-        this.namedEndpoint = namedEndpoint;
+        this.initialEndpoint = initialEndpoint;
         this.closedSessions = closedSessions;
         this.sessionListener = sessionListener;
         this.tlsSessionRef = new AtomicReference<>(null);
@@ -209,13 +209,14 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     @Override
     public void startTls(
             final SSLContext sslContext,
+            final NamedEndpoint endpoint,
             final SSLBufferManagement sslBufferManagement,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
         if (!tlsSessionRef.compareAndSet(null, new SSLIOSession(
-                namedEndpoint,
+                endpoint != null ? endpoint : initialEndpoint,
                 ioSession,
-                namedEndpoint != null ? SSLMode.CLIENT : SSLMode.SERVER,
+                initialEndpoint != null ? SSLMode.CLIENT : SSLMode.SERVER,
                 sslContext,
                 sslBufferManagement,
                 initializer,

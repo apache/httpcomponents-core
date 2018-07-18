@@ -95,7 +95,10 @@ public class H2ClientTlsStrategy implements TlsStrategy {
             final Object attachment) {
         final String scheme = host != null ? host.getSchemeName() : null;
         if (URIScheme.HTTPS.same(scheme)) {
-            tlsSession.startTls(sslContext, sslBufferManagement,
+            tlsSession.startTls(
+                    sslContext,
+                    host,
+                    sslBufferManagement,
                     H2TlsSupport.enforceRequirements(attachment, initializer),
                     verifier);
             return true;

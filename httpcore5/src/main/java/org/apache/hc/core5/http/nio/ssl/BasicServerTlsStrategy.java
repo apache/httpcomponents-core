@@ -97,7 +97,7 @@ public class BasicServerTlsStrategy implements TlsStrategy {
             final SocketAddress remoteAddress,
             final Object attachment) {
         if (securePortStrategy != null && securePortStrategy.isSecure(localAddress)) {
-            tlsSession.startTls(sslContext, sslBufferManagement, initializer, verifier);
+            tlsSession.startTls(sslContext, host, sslBufferManagement, initializer, verifier);
             return true;
         }
         return false;

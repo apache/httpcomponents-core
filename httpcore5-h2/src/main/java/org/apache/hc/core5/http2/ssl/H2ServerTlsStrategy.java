@@ -32,14 +32,14 @@ import java.net.SocketAddress;
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.nio.ssl.FixedPortStrategy;
+import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
-import org.apache.hc.core5.http.nio.ssl.FixedPortStrategy;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -100,7 +100,10 @@ public class H2ServerTlsStrategy implements TlsStrategy {
             final SocketAddress remoteAddress,
             final Object attachment) {
         if (securePortStrategy != null && securePortStrategy.isSecure(localAddress)) {
-            tlsSession.startTls(sslContext, sslBufferManagement,
+            tlsSession.startTls(
+                    sslContext,
+                    host,
+                    sslBufferManagement,
                     H2TlsSupport.enforceRequirements(attachment, initializer),
                     verifier);
             return true;
