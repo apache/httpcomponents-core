@@ -177,7 +177,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     }
 
     abstract Http2StreamHandler createRemotelyInitiatedStream(
-            Http2StreamChannel channel, HttpProcessor httpProcessor, BasicHttpConnectionMetrics connMetrics, Http2StreamHandler originalHandler) throws IOException;
+            Http2StreamChannel channel, HttpProcessor httpProcessor, BasicHttpConnectionMetrics connMetrics) throws IOException;
 
     private int updateWindow(final AtomicInteger window, final int delta) throws ArithmeticException {
         for (;;) {
@@ -754,7 +754,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                             localConfig.getInitialWindowSize(),
                             remoteConfig.getInitialWindowSize());
                     final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(
-                            channel, httpProcessor, connMetrics, null);
+                            channel, httpProcessor, connMetrics);
                     stream = new Http2Stream(channel, streamHandler, true);
                     if (stream.isOutputReady()) {
                         stream.produceOutput();
@@ -933,7 +933,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
                 final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(
-                        channel, httpProcessor, connMetrics, stream.handler);
+                        channel, httpProcessor, connMetrics);
                 final Http2Stream promisedStream = new Http2Stream(channel, streamHandler, true);
                 streamMap.put(promisedStreamId, promisedStream);
 
