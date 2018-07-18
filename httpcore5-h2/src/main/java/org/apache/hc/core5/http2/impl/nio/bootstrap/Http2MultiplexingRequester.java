@@ -51,6 +51,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
@@ -115,20 +116,29 @@ public class Http2MultiplexingRequester extends AsyncRequester{
         connPool.setValidateAfterInactivity(timeValue);
     }
 
-    public Cancellable execute(
+    public final Cancellable execute(
             final AsyncClientExchangeHandler exchangeHandler,
+            final AsyncPushConsumer pushConsumer,
             final Timeout timeout,
             final HttpContext context) {
         Args.notNull(exchangeHandler, "Exchange handler");
         Args.notNull(timeout, "Timeout");
         Args.notNull(context, "Context");
         final CancellableExecution cancellableExecution = new CancellableExecution();
-        execute(exchangeHandler, cancellableExecution, timeout, context);
+        execute(exchangeHandler, pushConsumer, cancellableExecution, timeout, context);
         return cancellableExecution;
+    }
+
+    public final Cancellable execute(
+            final AsyncClientExchangeHandler exchangeHandler,
+            final Timeout timeout,
+            final HttpContext context) {
+        return execute(exchangeHandler, null, timeout, context);
     }
 
     private void execute(
             final AsyncClientExchangeHandler exchangeHandler,
+            final AsyncPushConsumer pushConsumer,
             final CancellableDependency cancellableDependency,
             final Timeout timeout,
             final HttpContext context) {
@@ -236,6 +246,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
     public final <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
+            final AsyncPushConsumer pushConsumer,
             final Timeout timeout,
             final HttpContext context,
             final FutureCallback<T> callback) {
@@ -261,7 +272,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
             }
 
         });
-        execute(exchangeHandler, future, timeout, context != null ? context : HttpCoreContext.create());
+        execute(exchangeHandler, pushConsumer, future, timeout, context != null ? context : HttpCoreContext.create());
         return future;
     }
 
@@ -269,8 +280,17 @@ public class Http2MultiplexingRequester extends AsyncRequester{
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final Timeout timeout,
+            final HttpContext context,
             final FutureCallback<T> callback) {
-        return execute(requestProducer, responseConsumer, timeout, null, callback);
+        return execute(requestProducer, responseConsumer, null, timeout, context, callback);
+    }
+
+    public final <T> Future<T> execute(
+            final AsyncRequestProducer requestProducer,
+            final AsyncResponseConsumer<T> responseConsumer,
+            final Timeout timeout,
+            final FutureCallback<T> callback) {
+        return execute(requestProducer, responseConsumer, null, timeout, null, callback);
     }
 
 }
