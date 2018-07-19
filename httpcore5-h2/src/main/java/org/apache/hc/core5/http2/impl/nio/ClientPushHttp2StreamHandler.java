@@ -72,11 +72,13 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final AsyncPushConsumer pushConsumer,
             final HttpCoreContext context) {
         this.internalOutputChannel = outputChannel;
         this.httpProcessor = httpProcessor;
         this.connMetrics = connMetrics;
         this.pushHandlerFactory = pushHandlerFactory;
+        this.exchangeHandler = pushConsumer;
         this.context = context;
         this.failed = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
@@ -99,16 +101,18 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
 
             request = DefaultH2RequestConverter.INSTANCE.convert(headers);
 
-            final AsyncPushConsumer handler;
-            try {
-                handler = pushHandlerFactory != null ? pushHandlerFactory.create(request, context) : null;
-            } catch (final ProtocolException ex) {
-                throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+            if (exchangeHandler == null) {
+                final AsyncPushConsumer handler;
+                try {
+                    handler = pushHandlerFactory != null ? pushHandlerFactory.create(request, context) : null;
+                } catch (final ProtocolException ex) {
+                    throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+                }
+                if (handler == null) {
+                    throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
+                }
+                exchangeHandler = handler;
             }
-            if (handler == null) {
-                throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
-            }
-            exchangeHandler = handler;
 
             context.setProtocolVersion(HttpVersion.HTTP_2);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);

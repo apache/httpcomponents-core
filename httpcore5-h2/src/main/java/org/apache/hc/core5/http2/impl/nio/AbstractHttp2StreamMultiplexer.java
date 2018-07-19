@@ -61,6 +61,7 @@ import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
@@ -177,7 +178,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     }
 
     abstract Http2StreamHandler createRemotelyInitiatedStream(
-            Http2StreamChannel channel, HttpProcessor httpProcessor, BasicHttpConnectionMetrics connMetrics) throws IOException;
+            Http2StreamChannel channel, HttpProcessor httpProcessor, AsyncPushConsumer pushConsumer, BasicHttpConnectionMetrics connMetrics) throws IOException;
 
     private int updateWindow(final AtomicInteger window, final int delta) throws ArithmeticException {
         for (;;) {
@@ -600,6 +601,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
                 final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
+                final AsyncPushConsumer pushConsumer = executionCommand.getPushConsumer();
                 final CancellableDependency cancellableDependency = executionCommand.getCancellableDependency();
                 final HttpCoreContext context = HttpCoreContext.adapt(executionCommand.getContext());
                 context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
@@ -610,7 +612,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                         connMetrics,
                         exchangeHandler,
                         context);
-                final Http2Stream stream = new Http2Stream(channel, streamHandler, false);
+                final Http2Stream stream = new Http2Stream(channel, streamHandler, pushConsumer, false);
                 streamMap.put(streamId, stream);
 
                 if (stream.isOutputReady()) {
@@ -754,7 +756,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                             localConfig.getInitialWindowSize(),
                             remoteConfig.getInitialWindowSize());
                     final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(
-                            channel, httpProcessor, connMetrics);
+                            channel, httpProcessor, null, connMetrics);
                     stream = new Http2Stream(channel, streamHandler, true);
                     if (stream.isOutputReady()) {
                         stream.produceOutput();
@@ -933,7 +935,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
                 final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(
-                        channel, httpProcessor, connMetrics);
+                        channel, httpProcessor, stream.pushConsumer, connMetrics);
                 final Http2Stream promisedStream = new Http2Stream(channel, streamHandler, true);
                 streamMap.put(promisedStreamId, promisedStream);
 
@@ -1476,14 +1478,24 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
         private final Http2StreamChannelImpl channel;
         private final Http2StreamHandler handler;
+        private final AsyncPushConsumer pushConsumer;
         private final boolean remoteInitiated;
 
         private Http2Stream(
                 final Http2StreamChannelImpl channel,
                 final Http2StreamHandler handler,
                 final boolean remoteInitiated) {
+            this(channel, handler, null, remoteInitiated);
+        }
+
+        private Http2Stream(
+                final Http2StreamChannelImpl channel,
+                final Http2StreamHandler handler,
+                final AsyncPushConsumer pushConsumer,
+                final boolean remoteInitiated) {
             this.channel = channel;
             this.handler = handler;
+            this.pushConsumer = pushConsumer;
             this.remoteInitiated = remoteInitiated;
         }
 
