@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.command;
 
 import org.apache.hc.core5.concurrent.CancellableDependency;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.util.Args;
@@ -41,14 +42,17 @@ import org.apache.hc.core5.util.Args;
 public final class ExecutionCommand implements Command {
 
     private final AsyncClientExchangeHandler exchangeHandler;
+    private final AsyncPushConsumer pushConsumer;
     private final CancellableDependency cancellableDependency;
     private final HttpContext context;
 
     public ExecutionCommand(
             final AsyncClientExchangeHandler exchangeHandler,
+            final AsyncPushConsumer pushConsumer,
             final CancellableDependency cancellableDependency,
             final HttpContext context) {
         this.exchangeHandler = Args.notNull(exchangeHandler, "Handler");
+        this.pushConsumer = pushConsumer;
         this.cancellableDependency = cancellableDependency;
         this.context = context;
     }
@@ -56,7 +60,7 @@ public final class ExecutionCommand implements Command {
     public ExecutionCommand(
             final AsyncClientExchangeHandler exchangeHandler,
             final HttpContext context) {
-        this(exchangeHandler, null, context);
+        this(exchangeHandler, null, null, context);
     }
 
     public AsyncClientExchangeHandler getExchangeHandler() {
@@ -69,6 +73,10 @@ public final class ExecutionCommand implements Command {
 
     public HttpContext getContext() {
         return context;
+    }
+
+    public AsyncPushConsumer getPushConsumer() {
+        return pushConsumer;
     }
 
     @Override

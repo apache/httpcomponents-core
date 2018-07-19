@@ -220,7 +220,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
                                     exchangeHandler.failed(cause);
                                 }
 
-                            }, cancellableDependency, context), Command.Priority.NORMAL);
+                            }, pushConsumer, cancellableDependency, context), Command.Priority.NORMAL);
                         }
 
                         @Override
