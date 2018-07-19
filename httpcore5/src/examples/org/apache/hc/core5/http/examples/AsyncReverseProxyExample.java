@@ -215,9 +215,8 @@ public class AsyncReverseProxyExample {
             setOutputMode();
             if (buffer().hasRemaining()) {
                 return channel.write(buffer());
-            } else {
-                return 0;
             }
+            return 0;
         }
 
     }
