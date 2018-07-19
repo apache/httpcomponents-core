@@ -131,10 +131,12 @@ public class AsyncReverseProxyExample {
 
                     @Override
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
+                        // empty
                     }
 
                     @Override
                     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
+                        // empty
                     }
 
                     @Override
@@ -154,10 +156,12 @@ public class AsyncReverseProxyExample {
 
                     @Override
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
+                        // empty
                     }
 
                     @Override
                     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
+                        // empty
                     }
 
                     @Override
@@ -315,6 +319,7 @@ public class AsyncReverseProxyExample {
                     try {
                         responseChannel.sendResponse(outgoingResponse, entityDetails);
                     } catch (HttpException | IOException ignore) {
+                        // ignore
                     }
                 }
 
@@ -533,6 +538,7 @@ public class AsyncReverseProxyExample {
 
         @Override
         public void consumeInformation(final HttpResponse response) throws HttpException, IOException {
+            // ignore
         }
 
         @Override
@@ -654,6 +660,7 @@ public class AsyncReverseProxyExample {
                         EntityDetails entityDetails = new BasicEntityDetails(contentLen, ContentType.TEXT_PLAIN);
                         exchangeState.responseMessageChannel.sendResponse(outgoingResponse, entityDetails);
                     } catch (HttpException | IOException ignore) {
+                        // ignore
                     }
                 } else {
                     exchangeState.outputEnd = true;
