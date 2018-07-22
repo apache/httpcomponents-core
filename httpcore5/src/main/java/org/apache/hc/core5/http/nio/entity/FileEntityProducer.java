@@ -143,11 +143,13 @@ public final class FileEntityProducer implements AsyncEntityProducer {
     @Override
     public void releaseResources() {
         eof = false;
+        @SuppressWarnings("resource")
         final RandomAccessFile accessFile = accessFileRef.getAndSet(null);
         if (accessFile != null) {
             try {
                 accessFile.close();
             } catch (final IOException ignore) {
+                // ignore
             }
         }
     }
