@@ -56,7 +56,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
     public FileEntityProducer(final File file, final int bufferSize, final ContentType contentType) {
         this.file = Args.notNull(file, "File");
         this.length = file.length();
-        this.bytebuf = ByteBuffer.allocate((int)(bufferSize > this.length ? bufferSize : this.length));
+        this.bytebuf = ByteBuffer.allocate(bufferSize);
         this.contentType = contentType;
         this.accessFileRef = new AtomicReference<>(null);
         this.exception = new AtomicReference<>(null);

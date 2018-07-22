@@ -21,6 +21,9 @@ adds several incremental improvements.
   
 * HTTPCORE-537: org.apache.hc.core5.http.message.BasicHttpResponse.toString() prints its code twice and no protocol version.
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* HTTPCORE-539: Constructing a new FileEntityProducer for a file whose length is greater than 2GB throws an IllegalArgumentException.
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 Release 5.0-BETA2
 -------------------
