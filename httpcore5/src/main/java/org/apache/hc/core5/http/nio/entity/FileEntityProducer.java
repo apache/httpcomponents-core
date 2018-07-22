@@ -107,6 +107,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
 
     @Override
     public void produce(final DataStreamChannel channel) throws IOException {
+        @SuppressWarnings("resource")
         RandomAccessFile accessFile = accessFileRef.get();
         if (accessFile == null) {
             accessFile = new RandomAccessFile(file, "r");
