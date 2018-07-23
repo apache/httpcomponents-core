@@ -45,7 +45,7 @@ import org.apache.hc.core5.util.Asserts;
 public final class FileEntityProducer implements AsyncEntityProducer {
 
     private final File file;
-    private final ByteBuffer bytebuf;
+    private final ByteBuffer byteBuffer;
     private final long length;
     private final ContentType contentType;
     private final AtomicReference<Exception> exception;
@@ -56,7 +56,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
     public FileEntityProducer(final File file, final int bufferSize, final ContentType contentType) {
         this.file = Args.notNull(file, "File");
         this.length = file.length();
-        this.bytebuf = ByteBuffer.allocate(bufferSize);
+        this.byteBuffer = ByteBuffer.allocate(bufferSize);
         this.contentType = contentType;
         this.accessFileRef = new AtomicReference<>(null);
         this.exception = new AtomicReference<>(null);
@@ -66,8 +66,8 @@ public final class FileEntityProducer implements AsyncEntityProducer {
         this(file, 8192, contentType);
     }
 
-    public FileEntityProducer(final File content) {
-        this(content, ContentType.APPLICATION_OCTET_STREAM);
+    public FileEntityProducer(final File file) {
+        this(file, ContentType.APPLICATION_OCTET_STREAM);
     }
 
     @Override
@@ -114,17 +114,17 @@ public final class FileEntityProducer implements AsyncEntityProducer {
             Asserts.check(accessFileRef.getAndSet(accessFile) == null, "Illegal producer state");
         }
         if (!eof) {
-            final int bytesRead = accessFile.getChannel().read(bytebuf);
+            final int bytesRead = accessFile.getChannel().read(byteBuffer);
             if (bytesRead < 0) {
                 eof = true;
             }
         }
-        if (bytebuf.position() > 0) {
-            bytebuf.flip();
-            channel.write(bytebuf);
-            bytebuf.compact();
+        if (byteBuffer.position() > 0) {
+            byteBuffer.flip();
+            channel.write(byteBuffer);
+            byteBuffer.compact();
         }
-        if (eof && bytebuf.position() == 0) {
+        if (eof && byteBuffer.position() == 0) {
             channel.endStream();
             releaseResources();
         }
