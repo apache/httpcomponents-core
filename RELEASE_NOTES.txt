@@ -25,6 +25,9 @@ adds several incremental improvements.
 * HTTPCORE-539: Constructing a new FileEntityProducer for a file whose length is greater than 2GB throws an IllegalArgumentException.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-540: EndpointDetails implements HttpConnectionMetrics.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 Release 5.0-BETA2
 -------------------
 

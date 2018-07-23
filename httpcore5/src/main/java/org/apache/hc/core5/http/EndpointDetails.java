@@ -36,7 +36,7 @@ import org.apache.hc.core5.net.InetAddressUtils;
  *
  * @since 5.0
  */
-public abstract class EndpointDetails {
+public abstract class EndpointDetails implements HttpConnectionMetrics {
 
     private final SocketAddress remoteAddress;
     private final SocketAddress localAddress;
@@ -58,24 +58,28 @@ public abstract class EndpointDetails {
      * Returns the number of requests transferred over the connection,
      * 0 if not available.
      */
+    @Override
     public abstract long getRequestCount();
 
     /**
      * Returns the number of responses transferred over the connection,
      * 0 if not available.
      */
+    @Override
     public abstract long getResponseCount();
 
     /**
      * Returns the number of bytes transferred over the connection,
      * 0 if not available.
      */
+    @Override
     public abstract long getSentBytesCount();
 
     /**
      * Returns the number of bytes transferred over the connection,
      * 0 if not available.
      */
+    @Override
     public abstract long getReceivedBytesCount();
 
     @Override
