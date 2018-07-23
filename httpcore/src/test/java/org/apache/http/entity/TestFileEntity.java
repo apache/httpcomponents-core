@@ -30,16 +30,37 @@ package org.apache.http.entity;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 
 import org.junit.Assert;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 /**
  * Unit tests for {@link FileEntity}.
  *
  */
 public class TestFileEntity {
+
+    @ClassRule
+    public static final TemporaryFolder tempFolder = new TemporaryFolder();
+
+    @Test
+    public void testFileLengthMaxIntPlusOne() throws IOException {
+        final File file = tempFolder.newFile("test.bin");
+        final RandomAccessFile raFile = new RandomAccessFile(file, "rw");
+        try {
+            final long expectedLength = 1L + Integer.MAX_VALUE;
+            raFile.setLength(expectedLength);
+            final FileEntity fileEntity = new FileEntity(file);
+            Assert.assertEquals(expectedLength, fileEntity.getContentLength());
+        } finally {
+            raFile.close();
+        }
+    }
 
     @Test
     public void testBasics() throws Exception {
@@ -53,8 +74,8 @@ public class TestFileEntity {
         content.close();
         Assert.assertTrue(httpentity.isRepeatable());
         Assert.assertFalse(httpentity.isStreaming());
-        if (!tmpfile.delete()){
-            Assert.fail("Failed to delete: "+tmpfile);
+        if (!tmpfile.delete()) {
+            Assert.fail("Failed to delete: " + tmpfile);
         }
     }
 
@@ -90,8 +111,8 @@ public class TestFileEntity {
         for (int i = 0; i < 4; i++) {
             Assert.assertEquals(i, bytes[i]);
         }
-        if (!tmpfile.delete()){
-            Assert.fail("Failed to delete: "+tmpfile);
+        if (!tmpfile.delete()) {
+            Assert.fail("Failed to delete: " + tmpfile);
         }
 
         try {
