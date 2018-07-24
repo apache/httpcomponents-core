@@ -40,6 +40,7 @@ import org.apache.hc.core5.function.Supplier;
  * <p>
  * There are three distinct types of entities in HttpCore,
  * depending on where their {@link #getContent content} originates:
+ * </p>
  * <ul>
  * <li><b>streamed</b>: The content is received from a stream, or
  *     generated on the fly. In particular, this category includes
@@ -54,12 +55,14 @@ import org.apache.hc.core5.function.Supplier;
  * <li><b>wrapping</b>: The content is obtained from another entity.
  *     </li>
  * </ul>
+ * <p>
  * This distinction is important for connection management with incoming
  * entities. For entities that are created by an application and only sent
  * using the HTTP components framework, the difference between streamed
  * and self-contained is of little importance. In that case, it is suggested
  * to consider non-repeatable entities as streamed, and those that are
  * repeatable (without a huge effort) as self-contained.
+ * </p>
  *
  * @since 4.0
  */
@@ -85,7 +88,7 @@ public interface HttpEntity extends EntityDetails, Closeable {
      * IMPORTANT: Please note all entity implementations must ensure that
      * all allocated resources are properly deallocated after
      * the {@link InputStream#close()} method is invoked.
-     *
+     * </p>
      * @return content stream of the entity.
      *
      * @throws IOException if the stream could not be created
@@ -102,6 +105,7 @@ public interface HttpEntity extends EntityDetails, Closeable {
      * IMPORTANT: Please note all entity implementations must ensure that
      * all allocated resources are properly deallocated when this method
      * returns.
+     * </p>
      *
      * @param outstream the output stream to write entity content to
      *
