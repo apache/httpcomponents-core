@@ -40,6 +40,8 @@ import org.apache.hc.core5.http.HttpHost;
  */
 public class BasicClassicHttpRequest extends BasicHttpRequest implements ClassicHttpRequest {
 
+    private static final long serialVersionUID = 1L;
+
     private HttpEntity entity;
 
     /**
