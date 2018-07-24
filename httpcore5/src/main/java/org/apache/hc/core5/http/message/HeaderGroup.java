@@ -137,7 +137,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      *
      * @param headers the headers to set
      */
-    public void setHeaders(final Header[] headers) {
+    public void setHeaders(final Header... headers) {
         clear();
         if (headers == null) {
             return;
