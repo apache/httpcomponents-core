@@ -1229,7 +1229,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         try {
             future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assert.fail("ExecutionException expected");
-        } catch (final ExecutionException ignore) {
+        } catch (final CancellationException | ExecutionException ignore) {
         }
 
         final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
@@ -1295,7 +1295,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         try {
             future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assert.fail("ExecutionException expected");
-        } catch (final ExecutionException ignore) {
+        } catch (final CancellationException | ExecutionException ignore) {
         }
     }
 
