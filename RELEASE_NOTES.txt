@@ -27,6 +27,8 @@ adds several incremental improvements.
 
 * HTTPCORE-540: EndpointDetails implements HttpConnectionMetrics.
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* HTTPCORE-541: Add HttpVersion.ALL for all HTTP versions known to HttpCore.  
 
 Release 5.0-BETA2
 -------------------

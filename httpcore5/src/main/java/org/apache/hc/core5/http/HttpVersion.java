@@ -65,6 +65,11 @@ public final class HttpVersion extends ProtocolVersion {
     public static final HttpVersion DEFAULT  = HTTP_1_1;
 
     /**
+     * All HTTP versions known to HttpCore.
+     */
+    public static final HttpVersion[] ALL = {HTTP_0_9, HTTP_1_0, HTTP_1_1, HTTP_2_0};
+
+    /**
      * Create an HTTP protocol version designator.
      *
      * @param major   the major version number of the HTTP protocol
