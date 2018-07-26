@@ -307,8 +307,8 @@ public class AsyncReverseProxyExample {
                     outgoingResponse.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
                     exchangeState.response = outgoingResponse;
                     ByteBuffer msg = StandardCharsets.US_ASCII.encode(CharBuffer.wrap(cause.getMessage()));
-                    EntityDetails entityDetails = new BasicEntityDetails(msg.remaining(), ContentType.TEXT_PLAIN);
-                    exchangeState.responseEntityDetails = entityDetails;
+                    EntityDetails exEntityDetails = new BasicEntityDetails(msg.remaining(), ContentType.TEXT_PLAIN);
+                    exchangeState.responseEntityDetails = exEntityDetails;
                     exchangeState.outBuf = new ProxyBuffer(1024);
                     exchangeState.outBuf.put(msg);
                     exchangeState.outputEnd = true;
@@ -316,7 +316,7 @@ public class AsyncReverseProxyExample {
                     System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
 
                     try {
-                        responseChannel.sendResponse(outgoingResponse, entityDetails);
+                        responseChannel.sendResponse(outgoingResponse, exEntityDetails);
                     } catch (HttpException | IOException ignore) {
                         // ignore
                     }
