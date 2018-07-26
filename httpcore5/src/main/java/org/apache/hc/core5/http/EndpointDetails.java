@@ -97,7 +97,7 @@ public abstract class EndpointDetails implements HttpConnectionMetrics {
     @Override
     public String toString() {
         // Make enough room for two IPv6 addresses to avoid re-allocation in the StringBuilder.
-        final StringBuilder buffer = new StringBuilder(78);
+        final StringBuilder buffer = new StringBuilder(90);
         InetAddressUtils.formatAddress(buffer, localAddress);
         buffer.append("<->");
         InetAddressUtils.formatAddress(buffer, remoteAddress);
