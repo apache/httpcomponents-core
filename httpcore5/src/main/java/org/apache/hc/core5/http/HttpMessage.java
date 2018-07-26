@@ -31,9 +31,11 @@ package org.apache.hc.core5.http;
  * HTTP messages consist of requests from client to server and responses
  * from server to client.
  *
+ * @param <T> The return type for fluent APIs is this class.
+ *
  * @since 4.0
  */
-public interface HttpMessage extends MessageHeaders {
+public interface HttpMessage<T extends HttpMessage<T>> extends MessageHeaders {
 
     /**
      * Sets protocol version.
@@ -41,10 +43,11 @@ public interface HttpMessage extends MessageHeaders {
      * For incoming messages it represents protocol version this message was transmitted with.
      * For outgoing messages it represents a hint what protocol version should be used to transmit
      * the message.
+     * @return this
      *
      * @since 5.0
      */
-    void setVersion(ProtocolVersion version);
+    T setVersion(ProtocolVersion version);
 
     /**
      * Returns protocol version or {@code null} when not available.
@@ -79,8 +82,9 @@ public interface HttpMessage extends MessageHeaders {
      * the end of the list, if no header with the given name can be found.
      *
      * @param header the header to set.
+     * @return this
      */
-    void setHeader(Header header);
+    T setHeader(Header header);
 
     /**
      * Overwrites the first header with the same name. The new header will be appended to
@@ -88,15 +92,17 @@ public interface HttpMessage extends MessageHeaders {
      *
      * @param name the name of the header.
      * @param value the value of the header, taken as the value's {@link Object#toString()}.
+     * @return this
      */
-    void setHeader(String name, Object value);
+    T setHeader(String name, Object value);
 
     /**
      * Overwrites all the headers in the message.
      *
      * @param headers the array of headers to set.
+     * @return this
      */
-    void setHeaders(Header... headers);
+    T setHeaders(Header... headers);
 
     /**
      * Removes a header from this message.
@@ -112,4 +118,8 @@ public interface HttpMessage extends MessageHeaders {
      */
     void removeHeaders(String name);
 
+    @SuppressWarnings("unchecked")
+    default T asThis() {
+        return (T) this;
+    }
 }

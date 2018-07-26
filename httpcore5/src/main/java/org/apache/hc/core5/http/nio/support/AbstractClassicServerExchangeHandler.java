@@ -66,6 +66,60 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
 
     private enum State { IDLE, ACTIVE, COMPLETED }
 
+    /**
+     * A HttpResponseWrapper that checks that the Response is already committed on some of its mutating API calls.
+     */
+    private static final class UncommittedHttpResponseWrapper
+                    extends HttpResponseWrapper<UncommittedHttpResponseWrapper> {
+        private final AtomicBoolean responseCommitted;
+
+        private UncommittedHttpResponseWrapper(final HttpResponse<UncommittedHttpResponseWrapper> message,
+                        final AtomicBoolean responseCommitted) {
+            super(message);
+            this.responseCommitted = responseCommitted;
+        }
+
+        private void checkUncommitted() {
+            Asserts.check(!responseCommitted.get(), "Response already committed");
+        }
+
+        @Override
+        public void addHeader(final String name, final Object value) {
+            checkUncommitted();
+            super.addHeader(name, value);
+        }
+
+        @Override
+        public UncommittedHttpResponseWrapper setHeader(final String name, final Object value) {
+            checkUncommitted();
+            return super.setHeader(name, value);
+        }
+
+        @Override
+        public UncommittedHttpResponseWrapper setVersion(final ProtocolVersion version) {
+            checkUncommitted();
+            return super.setVersion(version);
+        }
+
+        @Override
+        public void setCode(final int code) {
+            checkUncommitted();
+            super.setCode(code);
+        }
+
+        @Override
+        public void setReasonPhrase(final String reason) {
+            checkUncommitted();
+            super.setReasonPhrase(reason);
+        }
+
+        @Override
+        public void setLocale(final Locale locale) {
+            checkUncommitted();
+            super.setLocale(locale);
+        }
+    }
+
     private final int initialBufferSize;
     private final Executor executor;
     private final AtomicReference<State> state;
@@ -99,49 +153,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
         final AtomicBoolean responseCommitted = new AtomicBoolean(false);
 
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
-        final HttpResponse responseWrapper = new HttpResponseWrapper(response){
-
-            private void ensureNotCommitted() {
-                Asserts.check(!responseCommitted.get(), "Response already committed");
-            }
-
-            @Override
-            public void addHeader(final String name, final Object value) {
-                ensureNotCommitted();
-                super.addHeader(name, value);
-            }
-
-            @Override
-            public void setHeader(final String name, final Object value) {
-                ensureNotCommitted();
-                super.setHeader(name, value);
-            }
-
-            @Override
-            public void setVersion(final ProtocolVersion version) {
-                ensureNotCommitted();
-                super.setVersion(version);
-            }
-
-            @Override
-            public void setCode(final int code) {
-                ensureNotCommitted();
-                super.setCode(code);
-            }
-
-            @Override
-            public void setReasonPhrase(final String reason) {
-                ensureNotCommitted();
-                super.setReasonPhrase(reason);
-            }
-
-            @Override
-            public void setLocale(final Locale locale) {
-                ensureNotCommitted();
-                super.setLocale(locale);
-            }
-
-        };
+        final HttpResponse responseWrapper = new UncommittedHttpResponseWrapper(response, responseCommitted);
 
         final InputStream inputStream;
         if (entityDetails != null) {

@@ -36,11 +36,11 @@ import org.apache.hc.core5.net.URIAuthority;
 /**
  * {@link HttpRequest} wrapper.
  */
-public class HttpRequestWrapper extends AbstractMessageWrapper implements HttpRequest {
+public class HttpRequestWrapper<T extends HttpRequestWrapper<T>> extends AbstractMessageWrapper<T> implements HttpRequest<T> {
 
-    private final HttpRequest message;
+    private final HttpRequest<T> message;
 
-    public HttpRequestWrapper(final HttpRequest message) {
+    public HttpRequestWrapper(final HttpRequest<T> message) {
         super(message);
         this.message = message;
     }
@@ -56,8 +56,8 @@ public class HttpRequestWrapper extends AbstractMessageWrapper implements HttpRe
     }
 
     @Override
-    public void setPath(final String path) {
-        message.setPath(path);
+    public T setPath(final String path) {
+        return message.setPath(path);
     }
 
     @Override
@@ -66,8 +66,8 @@ public class HttpRequestWrapper extends AbstractMessageWrapper implements HttpRe
     }
 
     @Override
-    public void setScheme(final String scheme) {
-        message.setScheme(scheme);
+    public T setScheme(final String scheme) {
+        return message.setScheme(scheme);
     }
 
     @Override
@@ -76,8 +76,8 @@ public class HttpRequestWrapper extends AbstractMessageWrapper implements HttpRe
     }
 
     @Override
-    public void setAuthority(final URIAuthority authority) {
-        message.setAuthority(authority);
+    public T setAuthority(final URIAuthority authority) {
+        return message.setAuthority(authority);
     }
 
     @Override

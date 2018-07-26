@@ -48,7 +48,7 @@ import org.apache.hc.core5.util.LangUtils;
  *
  * @since 4.0
  */
-public class HeaderGroup implements MessageHeaders, Serializable {
+public class HeaderGroup<T extends HeaderGroup<T>> implements MessageHeaders, Serializable {
 
 
     // HTTPCORE-361 : we don't use the for-each syntax, when iterating headers
@@ -66,6 +66,10 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     public HeaderGroup() {
         this.headers = new ArrayList<>(16);
+    }
+
+    public T asThis() {
+        return (T) this;
     }
 
     /**
@@ -116,18 +120,19 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      *
      * @since 5.0
      */
-    public void setHeader(final Header header) {
+    public T setHeader(final Header header) {
         if (header == null) {
-            return;
+            return asThis();
         }
         for (int i = 0; i < this.headers.size(); i++) {
             final Header current = this.headers.get(i);
             if (current.getName().equalsIgnoreCase(header.getName())) {
                 this.headers.set(i, header);
-                return;
+                return asThis();
             }
         }
         this.headers.add(header);
+        return asThis();
     }
 
     /**
@@ -137,12 +142,13 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      *
      * @param headers the headers to set
      */
-    public void setHeaders(final Header... headers) {
+    public T setHeaders(final Header... headers) {
         clear();
         if (headers == null) {
-            return;
+            return asThis();
         }
         Collections.addAll(this.headers, headers);
+        return asThis();
     }
 
     /**

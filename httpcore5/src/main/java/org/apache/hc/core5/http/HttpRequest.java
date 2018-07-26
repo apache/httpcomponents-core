@@ -37,9 +37,11 @@ import org.apache.hc.core5.net.URIAuthority;
  * first line of that message, the method to be applied to the resource,
  * the identifier of the resource, and the protocol version in use.
  *
+ * @param <T> The return type for fluent APIs is this class.
+ *
  * @since 4.0
  */
-public interface HttpRequest extends HttpMessage {
+public interface HttpRequest<T extends HttpRequest<T>> extends HttpMessage<T> {
 
     /**
      * Returns method of this request message.
@@ -60,7 +62,7 @@ public interface HttpRequest extends HttpMessage {
      *
      * @since 5.0
      */
-    void setPath(String path);
+    T setPath(String path);
 
     /**
      * Returns scheme of this request message.
@@ -76,7 +78,7 @@ public interface HttpRequest extends HttpMessage {
      *
      * @since 5.0
      */
-    void setScheme(String scheme);
+    T setScheme(String scheme);
 
     /**
      * Returns authority of this request message.
@@ -92,7 +94,7 @@ public interface HttpRequest extends HttpMessage {
      *
      * @since 5.0
      */
-    void setAuthority(URIAuthority authority);
+    T setAuthority(URIAuthority authority);
 
     /**
      * Returns request URI of this request message. It may be an absolute or relative URI.

@@ -39,7 +39,8 @@ import org.junit.Test;
 
 public class TestDefaultContentLengthStrategy {
 
-    static class TestHttpMessage extends HeaderGroup implements HttpMessage {
+    static final class TestHttpMessage extends HeaderGroup<TestHttpMessage>
+                    implements HttpMessage<TestHttpMessage> {
 
         private static final long serialVersionUID = 1L;
 
@@ -54,12 +55,14 @@ public class TestDefaultContentLengthStrategy {
         }
 
         @Override
-        public void setHeader(final String name, final Object value) {
+        public TestHttpMessage setHeader(final String name, final Object value) {
             setHeader(new BasicHeader(name, value));
+            return asThis();
         }
 
         @Override
-        public void setVersion(final ProtocolVersion version) {
+        public TestHttpMessage setVersion(final ProtocolVersion version) {
+            return asThis();
         }
 
     }

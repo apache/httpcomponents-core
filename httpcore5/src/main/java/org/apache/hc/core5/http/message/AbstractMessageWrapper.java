@@ -38,17 +38,17 @@ import org.apache.hc.core5.util.Args;
 /**
  * Abstract {@link HttpMessage} wrapper.
  */
-public abstract class AbstractMessageWrapper implements HttpMessage {
+public abstract class AbstractMessageWrapper<T extends AbstractMessageWrapper<T>> implements HttpMessage<T> {
 
-    private final HttpMessage message;
+    private final HttpMessage<T> message;
 
-    public AbstractMessageWrapper(final HttpMessage message) {
+    public AbstractMessageWrapper(final HttpMessage<T> message) {
         this.message = Args.notNull(message, "Message");
     }
 
     @Override
-    public void setVersion(final ProtocolVersion version) {
-        message.setVersion(version);
+    public T setVersion(final ProtocolVersion version) {
+        return message.setVersion(version);
     }
 
     @Override
@@ -67,18 +67,18 @@ public abstract class AbstractMessageWrapper implements HttpMessage {
     }
 
     @Override
-    public void setHeader(final Header header) {
-        message.setHeader(header);
+    public T setHeader(final Header header) {
+        return message.setHeader(header);
     }
 
     @Override
-    public void setHeader(final String name, final Object value) {
-        message.setHeader(name, value);
+    public T setHeader(final String name, final Object value) {
+        return message.setHeader(name, value);
     }
 
     @Override
-    public void setHeaders(final Header... headers) {
-        message.setHeaders(headers);
+    public T setHeaders(final Header... headers) {
+        return message.setHeaders(headers);
     }
 
     @Override

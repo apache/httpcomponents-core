@@ -31,7 +31,7 @@ adds several incremental improvements.
 * HTTPCORE-541: Add HttpVersion.ALL for all HTTP versions known to HttpCore.  
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* HTTPCORE-542: Add missing org.apache.hc.core5.http.message.BasicClassicHttpRequest.serialVersionUID
+* HTTPCORE-542: Add missing org.apache.hc.core5.http.message.BasicClassicHttpRequest.serialVersionUID.
   Contributed by Gary Gregory <ggregory at apache.org>
 
 Release 5.0-BETA2

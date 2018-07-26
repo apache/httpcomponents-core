@@ -40,7 +40,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
-public class BasicHttpResponse extends HeaderGroup implements HttpResponse {
+public class BasicHttpResponse<T extends BasicHttpResponse<T>> extends HeaderGroup<T> implements HttpResponse<T> {
 
     private static final long serialVersionUID = 1L;
 
@@ -101,14 +101,16 @@ public class BasicHttpResponse extends HeaderGroup implements HttpResponse {
     }
 
     @Override
-    public void setHeader(final String name, final Object value) {
+    public T setHeader(final String name, final Object value) {
         Args.notNull(name, "Header name");
         setHeader(new BasicHeader(name, value));
+        return asThis();
     }
 
     @Override
-    public void setVersion(final ProtocolVersion version) {
+    public T setVersion(final ProtocolVersion version) {
         this.version = version;
+        return asThis();
     }
 
     @Override

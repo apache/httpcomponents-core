@@ -39,7 +39,8 @@ import org.apache.hc.core5.http.ReasonPhraseCatalog;
  *
  * @since 5.0
  */
-public class BasicClassicHttpResponse extends BasicHttpResponse implements ClassicHttpResponse {
+public class BasicClassicHttpResponse<T extends BasicClassicHttpResponse<T>>
+                extends BasicHttpResponse<T> implements ClassicHttpResponse<T> {
 
     private HttpEntity entity;
 

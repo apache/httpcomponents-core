@@ -32,7 +32,7 @@ package org.apache.hc.core5.http;
  *
  * @since 5.0
  */
-public interface ClassicHttpRequest extends HttpRequest {
+public interface ClassicHttpRequest<T extends ClassicHttpRequest<T>> extends HttpRequest<T> {
 
     /**
      * Obtains the message entity, if available.
@@ -49,6 +49,6 @@ public interface ClassicHttpRequest extends HttpRequest {
      *
      * @param entity    the entity to set of this message, or {@code null} to unset
      */
-    void setEntity(HttpEntity entity);
+    T setEntity(HttpEntity entity);
 
 }

@@ -34,11 +34,11 @@ import org.apache.hc.core5.http.HttpResponse;
 /**
  * {@link HttpResponse} wrapper.
  */
-public class HttpResponseWrapper extends AbstractMessageWrapper implements HttpResponse {
+public class HttpResponseWrapper<T extends HttpResponseWrapper<T>> extends AbstractMessageWrapper<T> implements HttpResponse<T> {
 
-    private final HttpResponse message;
+    private final HttpResponse<T> message;
 
-    public HttpResponseWrapper(final HttpResponse message) {
+    public HttpResponseWrapper(final HttpResponse<T> message) {
         super(message);
         this.message = message;
     }

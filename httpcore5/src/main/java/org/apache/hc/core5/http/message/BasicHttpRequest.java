@@ -40,9 +40,11 @@ import org.apache.hc.core5.util.TextUtils;
 /**
  * Basic implementation of {@link HttpRequest}.
  *
+ * @param <T> The return type for fluent APIs is this class.
+ *
  * @since 4.0
  */
-public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
+public class BasicHttpRequest<T extends BasicHttpRequest<T>> extends HeaderGroup<T> implements HttpRequest<T> {
 
     private static final long serialVersionUID = 1L;
 
@@ -109,14 +111,16 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     }
 
     @Override
-    public void setHeader(final String name, final Object value) {
+    public T setHeader(final String name, final Object value) {
         Args.notNull(name, "Header name");
         setHeader(new BasicHeader(name, value));
+        return asThis();
     }
 
     @Override
-    public void setVersion(final ProtocolVersion version) {
+    public T setVersion(final ProtocolVersion version) {
         this.version = version;
+        return asThis();
     }
 
     @Override
@@ -135,9 +139,10 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     }
 
     @Override
-    public void setPath(final String path) {
+    public T setPath(final String path) {
         this.path = path;
         this.requestUri = null;
+        return asThis();
     }
 
     @Override
@@ -146,9 +151,10 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     }
 
     @Override
-    public void setScheme(final String scheme) {
+    public T setScheme(final String scheme) {
         this.scheme = scheme;
         this.requestUri = null;
+        return asThis();
     }
 
     @Override
@@ -157,9 +163,10 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     }
 
     @Override
-    public void setAuthority(final URIAuthority authority) {
+    public T setAuthority(final URIAuthority authority) {
         this.authority = authority;
         this.requestUri = null;
+        return asThis();
     }
 
     @Override

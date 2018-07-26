@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.HttpHost;
  *
  * @since 5.0
  */
-public class BasicClassicHttpRequest extends BasicHttpRequest implements ClassicHttpRequest {
+public class BasicClassicHttpRequest<T extends BasicClassicHttpRequest<T>> extends BasicHttpRequest<T> implements ClassicHttpRequest<T> {
 
     private static final long serialVersionUID = 1L;
 
@@ -85,8 +85,9 @@ public class BasicClassicHttpRequest extends BasicHttpRequest implements Classic
     }
 
     @Override
-    public void setEntity(final HttpEntity entity) {
+    public T setEntity(final HttpEntity entity) {
         this.entity = entity;
+        return asThis();
     }
 
 }
