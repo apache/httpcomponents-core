@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.HttpResponse;
  * Abstract response / response promise channel.
  * <p>
  * Implementations are expected to be thread-safe.
+ * </p>
  *
  * @since 5.0
  */
