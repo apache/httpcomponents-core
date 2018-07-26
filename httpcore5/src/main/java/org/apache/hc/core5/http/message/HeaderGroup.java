@@ -89,22 +89,51 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     }
 
     /**
-     * Removes the given header.
+     * Removes the first given header.
      *
      * @param header the header to remove
+     * @return <code>true</code> if a header was removed as a result of this call.
      */
-    public void removeHeader(final Header header) {
+    public boolean removeHeader(final Header header) {
         if (header == null) {
-            return;
+            return false;
         }
         for (int i = 0; i < this.headers.size(); i++) {
             final Header current = this.headers.get(i);
-            if (current == header || current.getName().equalsIgnoreCase(header.getName())
-                    && LangUtils.equals(header.getValue(), current.getValue())) {
+            if (headerEquals(header, current)) {
                 this.headers.remove(current);
-                return;
+                return true;
             }
         }
+        return false;
+    }
+
+    private boolean headerEquals(final Header header1, final Header header2) {
+        return header2 == header1 || header2.getName().equalsIgnoreCase(header1.getName())
+                && LangUtils.equals(header1.getValue(), header2.getValue());
+    }
+
+    /**
+     * Removes all headers that match the given header.
+     *
+     * @param header the header to remove
+     * @return <code>true</code> if any header was removed as a result of this call.
+     *
+     * @since 5.0
+     */
+    public boolean removeHeaders(final Header header) {
+        if (header == null) {
+            return false;
+        }
+        boolean removed = false;
+        for (final Iterator<Header> iterator = headerIterator(); iterator.hasNext();) {
+            final Header current = iterator.next();
+            if (headerEquals(header, current)) {
+                iterator.remove();
+                removed = true;
+            }
+        }
+        return removed;
     }
 
     /**
@@ -353,19 +382,23 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * Removes all headers with a given name in this group.
      *
      * @param name      the name of the headers to be removed.
+     * @return <code>true</code> if any header was removed as a result of this call.
      *
      * @since 5.0
      */
-    public void removeHeaders(final String name) {
+    public boolean removeHeaders(final String name) {
         if (name == null) {
-            return;
+            return false;
         }
+        boolean removed = false;
         for (final Iterator<Header> iterator = headerIterator(); iterator.hasNext(); ) {
             final Header header = iterator.next();
             if (header.getName().equalsIgnoreCase(name)) {
                 iterator.remove();
+                removed = true;
             }
         }
+        return removed;
     }
 
     @Override

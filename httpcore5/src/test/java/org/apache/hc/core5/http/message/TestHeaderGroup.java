@@ -61,13 +61,26 @@ public class TestHeaderGroup {
 
     @Test
     public void testAddRemoveHeader() {
+        final HeaderGroup headerGroup = new HeaderGroup();
+        final Header header = new BasicHeader("name", "value");
+        headerGroup.addHeader(header);
+        headerGroup.addHeader(null);
+        Assert.assertEquals(1, headerGroup.getAllHeaders().length);
+        Assert.assertTrue(headerGroup.removeHeader(header));
+        Assert.assertFalse(headerGroup.removeHeader(null));
+        Assert.assertEquals(0, headerGroup.getAllHeaders().length);
+    }
+
+    @Test
+    public void testAddRemoveHeaders() {
         final HeaderGroup headergroup = new HeaderGroup();
         final Header header = new BasicHeader("name", "value");
         headergroup.addHeader(header);
-        headergroup.addHeader(null);
-        Assert.assertEquals(1, headergroup.getAllHeaders().length);
-        headergroup.removeHeader(header);
-        headergroup.removeHeader(null);
+        headergroup.addHeader(header);
+        Assert.assertEquals(2, headergroup.getAllHeaders().length);
+        Assert.assertFalse(headergroup.removeHeaders((Header) null));
+        Assert.assertTrue(headergroup.removeHeaders(header));
+        Assert.assertFalse(headergroup.removeHeaders((Header) null));
         Assert.assertEquals(0, headergroup.getAllHeaders().length);
     }
 
@@ -78,7 +91,7 @@ public class TestHeaderGroup {
         final Header header2 = new BasicHeader("name", "value");
         headergroup.addHeader(header);
         Assert.assertEquals(1, headergroup.getAllHeaders().length);
-        headergroup.removeHeader(header2);
+        Assert.assertTrue(headergroup.removeHeader(header2));
         Assert.assertEquals(0, headergroup.getAllHeaders().length);
     }
 

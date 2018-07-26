@@ -82,13 +82,13 @@ public abstract class AbstractMessageWrapper implements HttpMessage {
     }
 
     @Override
-    public void removeHeader(final Header header) {
-        message.removeHeader(header);
+    public boolean removeHeader(final Header header) {
+        return message.removeHeader(header);
     }
 
     @Override
-    public void removeHeaders(final String name) {
-        message.removeHeaders(name);
+    public boolean removeHeaders(final String name) {
+        return message.removeHeaders(name);
     }
 
     @Override

@@ -36,6 +36,15 @@ adds several incremental improvements.
   
 * HTTPCORE-544: Add org.apache.hc.core5.http.EndpointDetails.getSocketTimeout()
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* HTTPCORE-545: Add org.apache.hc.core5.http.message.HeaderGroup.removeHeaders(Header)
+  Contributed by Gary Gregory <ggregory at apache.org>
+  
+* HTTPCORE-546: Update org.apache.hc.core5.http.message.HeaderGroup.removeHeader(Header) to return a boolean  
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-547: Update org.apache.hc.core5.http.message.HeaderGroup.removeHeaders(String) to return a boolean
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 Release 5.0-BETA2
 -------------------
