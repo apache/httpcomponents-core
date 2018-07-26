@@ -336,7 +336,14 @@ class BHttpConnectionBase implements BHttpConnection {
             if (socketHolder != null) {
                 @SuppressWarnings("resource")
                 final Socket socket = socketHolder.getSocket();
-                endpointDetails = new BasicEndpointDetails(socket.getRemoteSocketAddress(), socket.getLocalSocketAddress(), this.connMetrics);
+                int soTimeout;
+                try {
+                    soTimeout = socket.getSoTimeout();
+                } catch (final SocketException e) {
+                    soTimeout = 0;
+                }
+                endpointDetails = new BasicEndpointDetails(socket.getRemoteSocketAddress(),
+                                socket.getLocalSocketAddress(), this.connMetrics, soTimeout);
             }
         }
         return endpointDetails;

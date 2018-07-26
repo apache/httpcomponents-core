@@ -40,10 +40,13 @@ public abstract class EndpointDetails implements HttpConnectionMetrics {
 
     private final SocketAddress remoteAddress;
     private final SocketAddress localAddress;
+    private final int socketTimeout;
 
-    protected EndpointDetails(final SocketAddress remoteAddress, final SocketAddress localAddress) {
+    protected EndpointDetails(final SocketAddress remoteAddress, final SocketAddress localAddress,
+                    final int socketTimeout) {
         this.remoteAddress = remoteAddress;
         this.localAddress = localAddress;
+        this.socketTimeout = socketTimeout;
     }
 
     public SocketAddress getRemoteAddress() {
@@ -55,32 +58,41 @@ public abstract class EndpointDetails implements HttpConnectionMetrics {
     }
 
     /**
-     * Returns the number of requests transferred over the connection,
+     * Gets the number of requests transferred over the connection,
      * 0 if not available.
      */
     @Override
     public abstract long getRequestCount();
 
     /**
-     * Returns the number of responses transferred over the connection,
+     * Gets the number of responses transferred over the connection,
      * 0 if not available.
      */
     @Override
     public abstract long getResponseCount();
 
     /**
-     * Returns the number of bytes transferred over the connection,
+     * Gets the number of bytes transferred over the connection,
      * 0 if not available.
      */
     @Override
     public abstract long getSentBytesCount();
 
     /**
-     * Returns the number of bytes transferred over the connection,
+     * Gets the number of bytes transferred over the connection,
      * 0 if not available.
      */
     @Override
     public abstract long getReceivedBytesCount();
+
+    /**
+     * Gets the socket timeout.
+     *
+     * @return the socket timeout.
+     */
+    public int getSocketTimeout() {
+        return socketTimeout;
+    }
 
     @Override
     public String toString() {

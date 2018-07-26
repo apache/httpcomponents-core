@@ -570,7 +570,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     @Override
     public EndpointDetails getEndpointDetails() {
         if (endpointDetails == null) {
-            endpointDetails = new BasicEndpointDetails(ioSession.getRemoteAddress(), ioSession.getLocalAddress(), connMetrics);
+            endpointDetails = new BasicEndpointDetails(ioSession.getRemoteAddress(),
+                            ioSession.getLocalAddress(), connMetrics, ioSession.getSocketTimeout());
         }
         return endpointDetails;
     }

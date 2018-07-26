@@ -44,8 +44,9 @@ public class BasicEndpointDetails extends EndpointDetails {
     public BasicEndpointDetails(
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
-            final HttpConnectionMetrics metrics) {
-        super(remoteAddress, localAddress);
+            final HttpConnectionMetrics metrics,
+            final int socketTimeout) {
+        super(remoteAddress, localAddress, socketTimeout);
         this.metrics = metrics;
     }
 

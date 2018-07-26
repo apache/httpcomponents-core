@@ -33,6 +33,9 @@ adds several incremental improvements.
 
 * HTTPCORE-542: Add missing org.apache.hc.core5.http.message.BasicClassicHttpRequest.serialVersionUID
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* HTTPCORE-544: Add org.apache.hc.core5.http.EndpointDetails.getSocketTimeout()
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 Release 5.0-BETA2
 -------------------
