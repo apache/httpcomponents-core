@@ -360,10 +360,10 @@ public class HeaderGroup implements MessageHeaders, Serializable {
         if (name == null) {
             return;
         }
-        for (final Iterator<Header> i = headerIterator(); i.hasNext(); ) {
-            final Header header = i.next();
+        for (final Iterator<Header> iterator = headerIterator(); iterator.hasNext(); ) {
+            final Header header = iterator.next();
             if (header.getName().equalsIgnoreCase(name)) {
-                i.remove();
+                iterator.remove();
             }
         }
     }
