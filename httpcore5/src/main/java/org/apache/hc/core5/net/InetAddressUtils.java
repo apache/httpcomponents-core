@@ -132,7 +132,7 @@ public class InetAddressUtils {
     public static void formatAddress(
             final StringBuilder buffer,
             final SocketAddress socketAddress) {
-        Args.notNull(buffer, "Buffer");
+        Args.notNull(buffer, "buffer");
         if (socketAddress instanceof InetSocketAddress) {
             final InetSocketAddress socketaddr = (InetSocketAddress) socketAddress;
             final InetAddress inetaddr = socketaddr.getAddress();
