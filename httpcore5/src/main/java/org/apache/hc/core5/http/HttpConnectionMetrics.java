@@ -35,25 +35,25 @@ package org.apache.hc.core5.http;
 public interface HttpConnectionMetrics {
 
     /**
-     * Returns the number of requests transferred over the connection,
+     * Gets the number of requests transferred over the connection,
      * 0 if not available.
      */
     long getRequestCount();
 
     /**
-     * Returns the number of responses transferred over the connection,
+     * Gets the number of responses transferred over the connection,
      * 0 if not available.
      */
     long getResponseCount();
 
     /**
-     * Returns the number of bytes transferred over the connection,
+     * Gets the number of bytes transferred over the connection,
      * 0 if not available.
      */
     long getSentBytesCount();
 
     /**
-     * Returns the number of bytes transferred over the connection,
+     * Gets the number of bytes transferred over the connection,
      * 0 if not available.
      */
     long getReceivedBytesCount();
