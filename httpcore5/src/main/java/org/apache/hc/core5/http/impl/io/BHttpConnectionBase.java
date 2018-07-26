@@ -325,9 +325,8 @@ class BHttpConnectionBase implements BHttpConnection {
         if (socketHolder != null) {
             final Socket socket = socketHolder.getSocket();
             return socket instanceof SSLSocket ? ((SSLSocket) socket).getSession() : null;
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
