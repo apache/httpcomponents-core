@@ -39,6 +39,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * <p>
  * This interface facilitates intermediate buffering of input data streamed from
  * a source channel and provides methods for reading lines of text.
+ * </p>
  *
  * @since 4.0
  */

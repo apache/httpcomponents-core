@@ -40,6 +40,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * <p>
  * This interface facilitates intermediate buffering of output data streamed out
  * to a destination channel and provides provides methods for writing lines of text.
+ * </p>
  *
  * @since 4.0
  */

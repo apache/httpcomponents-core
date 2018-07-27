@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.HttpRequest;
 /**
  * Abstract asynchronous request consumer.
  *
+ * @param <T> the future result type returned by a callback.
  * @since 5.0
  */
 public interface AsyncRequestConsumer<T> extends AsyncDataConsumer {

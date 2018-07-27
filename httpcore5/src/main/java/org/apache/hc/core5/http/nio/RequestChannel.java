@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.HttpRequest;
  * Abstract request channel.
  * <p>
  * Implementations are expected to be thread-safe.
- *
+ * </p>
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)

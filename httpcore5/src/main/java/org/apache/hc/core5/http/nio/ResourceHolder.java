@@ -30,7 +30,8 @@ package org.apache.hc.core5.http.nio;
  * Abstract resource holder.
  * <p>
  * Implementations are expected to ensure that {@link #releaseResources()} methods is idempotent and is
- * safe to invoke multiple times..
+ * safe to invoke multiple times.
+ * </p>
  *
  * @since 5.0
  */
