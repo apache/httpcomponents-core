@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -160,11 +161,11 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
 
                     @Override
                     public void sendRequest(
-                            final HttpRequest request, final EntityDetails entityDetails) throws HttpException, IOException {
+                            final HttpRequest request, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
                         commitRequest(request, entityDetails);
                     }
 
-                });
+                }, context);
                 break;
             case BODY:
                 exchangeHandler.produce(dataChannel);
@@ -190,7 +191,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
                     throw new ProtocolException("Invalid response: " + new StatusLine(response));
                 }
                 if (status > HttpStatus.SC_CONTINUE && status < HttpStatus.SC_SUCCESS) {
-                    exchangeHandler.consumeInformation(response);
+                    exchangeHandler.consumeInformation(response, context);
                 }
                 if (requestState == MessageState.ACK) {
                     if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
@@ -207,7 +208,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
                 httpProcessor.process(response, entityDetails, context);
                 connMetrics.incrementResponseCount();
 
-                exchangeHandler.consumeResponse(response, entityDetails);
+                exchangeHandler.consumeResponse(response, entityDetails, context);
                 responseState = endStream ? MessageState.COMPLETE : MessageState.BODY;
                 break;
             case BODY:

@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -55,7 +56,7 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
     public void consumeRequest(
             final HttpRequest request,
             final EntityDetails entityDetails,
-            final FutureCallback<Message<HttpRequest, T>> resultCallback) throws HttpException, IOException {
+            final HttpContext httpContext, final FutureCallback<Message<HttpRequest, T>> resultCallback) throws HttpException, IOException {
         Args.notNull(request, "Request");
         if (entityDetails != null) {
             dataConsumer.streamStart(entityDetails, new FutureCallback<T>() {

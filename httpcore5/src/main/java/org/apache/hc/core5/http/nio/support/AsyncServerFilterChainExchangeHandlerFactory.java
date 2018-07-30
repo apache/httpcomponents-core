@@ -78,7 +78,7 @@ public final class AsyncServerFilterChainExchangeHandlerFactory implements Handl
                     @Override
                     public void sendInformation(
                             final HttpResponse response) throws HttpException, IOException {
-                        responseChannel.sendInformation(response);
+                        responseChannel.sendInformation(response, context);
                     }
 
                     @Override
@@ -87,12 +87,12 @@ public final class AsyncServerFilterChainExchangeHandlerFactory implements Handl
                             final AsyncEntityProducer entityProducer) throws HttpException, IOException {
                         final AsyncResponseProducer responseProducer = new BasicResponseProducer(response, entityProducer);
                         responseProducerRef.set(responseProducer);
-                        responseProducer.sendResponse(responseChannel);
+                        responseProducer.sendResponse(responseChannel, context);
                     }
 
                     @Override
                     public void pushPromise(final HttpRequest promise, final AsyncPushProducer responseProducer) throws HttpException, IOException {
-                        responseChannel.pushPromise(promise, responseProducer);
+                        responseChannel.pushPromise(promise, context, responseProducer);
                     }
 
                 }));

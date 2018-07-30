@@ -33,6 +33,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 public class BasicRequestProducer implements AsyncRequestProducer {
 
@@ -61,8 +62,8 @@ public class BasicRequestProducer implements AsyncRequestProducer {
     }
 
     @Override
-    public void sendRequest(final RequestChannel requestChannel) throws HttpException, IOException {
-        requestChannel.sendRequest(request, dataProducer);
+    public void sendRequest(final RequestChannel requestChannel, final HttpContext httpContext) throws HttpException, IOException {
+        requestChannel.sendRequest(request, dataProducer, httpContext);
     }
 
     @Override

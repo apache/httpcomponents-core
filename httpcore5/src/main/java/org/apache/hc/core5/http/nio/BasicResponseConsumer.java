@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -55,7 +56,7 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     public void consumeResponse(
             final HttpResponse response,
             final EntityDetails entityDetails,
-            final FutureCallback<Message<HttpResponse, T>> resultCallback) throws HttpException, IOException {
+            final HttpContext httpContext, final FutureCallback<Message<HttpResponse, T>> resultCallback) throws HttpException, IOException {
         Args.notNull(response, "Response");
 
         if (entityDetails != null) {
@@ -95,7 +96,7 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     }
 
     @Override
-    public void informationResponse(final HttpResponse response) throws HttpException, IOException {
+    public void informationResponse(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
     }
 
     @Override

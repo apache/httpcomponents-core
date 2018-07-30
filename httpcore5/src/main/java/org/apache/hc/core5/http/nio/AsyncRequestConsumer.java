@@ -32,6 +32,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Abstract asynchronous request consumer.
@@ -41,7 +42,7 @@ import org.apache.hc.core5.http.HttpRequest;
  */
 public interface AsyncRequestConsumer<T> extends AsyncDataConsumer {
 
-    void consumeRequest(HttpRequest request, EntityDetails entityDetails, FutureCallback<T> resultCallback) throws HttpException, IOException;
+    void consumeRequest(HttpRequest request, EntityDetails entityDetails, HttpContext httpContext, FutureCallback<T> resultCallback) throws HttpException, IOException;
 
     void failed(Exception cause);
 

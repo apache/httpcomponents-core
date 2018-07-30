@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -56,8 +57,8 @@ public class BasicPushProducer implements AsyncPushProducer {
     }
 
     @Override
-    public void produceResponse(final ResponseChannel channel) throws HttpException, IOException {
-        channel.sendResponse(response, dataProducer);
+    public void produceResponse(final ResponseChannel channel, final HttpContext httpContext) throws HttpException, IOException {
+        channel.sendResponse(response, dataProducer, httpContext);
     }
 
     @Override

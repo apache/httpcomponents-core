@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncResponseConsumer<T> {
@@ -62,7 +63,7 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
     public final void consumeResponse(
             final HttpResponse response,
             final EntityDetails entityDetails,
-            final FutureCallback<T> resultCallback) throws HttpException, IOException {
+            final HttpContext httpContext, final FutureCallback<T> resultCallback) throws HttpException, IOException {
         if (entityDetails != null) {
             entityConsumer.streamStart(entityDetails, new FutureCallback<E>() {
 

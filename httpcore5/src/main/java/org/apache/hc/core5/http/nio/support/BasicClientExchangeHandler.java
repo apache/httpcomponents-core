@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -66,8 +67,8 @@ public class BasicClientExchangeHandler<T> implements AsyncClientExchangeHandler
     }
 
     @Override
-    public void produceRequest(final RequestChannel requestChannel) throws HttpException, IOException {
-        requestProducer.sendRequest(requestChannel);
+    public void produceRequest(final RequestChannel requestChannel, final HttpContext httpContext) throws HttpException, IOException {
+        requestProducer.sendRequest(requestChannel, httpContext);
     }
 
     @Override
@@ -85,17 +86,17 @@ public class BasicClientExchangeHandler<T> implements AsyncClientExchangeHandler
     }
 
     @Override
-    public void consumeInformation(final HttpResponse response) throws HttpException, IOException {
-        responseConsumer.informationResponse(response);
+    public void consumeInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
+        responseConsumer.informationResponse(response, httpContext);
     }
 
     @Override
-    public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails) throws HttpException, IOException {
+    public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
         if (response.getCode() >= HttpStatus.SC_CLIENT_ERROR) {
             outputTerminated.set(true);
             requestProducer.releaseResources();
         }
-        responseConsumer.consumeResponse(response, entityDetails, new FutureCallback<T>() {
+        responseConsumer.consumeResponse(response, entityDetails, httpContext, new FutureCallback<T>() {
 
             @Override
             public void completed(final T result) {

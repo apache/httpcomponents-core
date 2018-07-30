@@ -87,22 +87,22 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
         final AsyncServerRequestHandler.ResponseTrigger responseTrigger = new AsyncServerRequestHandler.ResponseTrigger() {
 
             @Override
-            public void sendInformation(final HttpResponse response) throws HttpException, IOException {
-                responseChannel.sendInformation(response);
+            public void sendInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
+                responseChannel.sendInformation(response, httpContext);
             }
 
             @Override
             public void submitResponse(
-                    final AsyncResponseProducer producer) throws HttpException, IOException {
+                    final AsyncResponseProducer producer, final HttpContext httpContext) throws HttpException, IOException {
                 if (responseProducerRef.compareAndSet(null, producer)) {
-                    producer.sendResponse(responseChannel);
+                    producer.sendResponse(responseChannel, httpContext);
                 }
             }
 
             @Override
             public void pushPromise(
-                    final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
-                responseChannel.pushPromise(promise, pushProducer);
+                    final HttpRequest promise, final HttpContext httpContext, final AsyncPushProducer pushProducer) throws HttpException, IOException {
+                responseChannel.pushPromise(promise, httpContext, pushProducer);
             }
 
             @Override
@@ -111,7 +111,7 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
             }
 
         };
-        requestConsumer.consumeRequest(request, entityDetails, new FutureCallback<T>() {
+        requestConsumer.consumeRequest(request, entityDetails, context, new FutureCallback<T>() {
 
             @Override
             public void completed(final T result) {
@@ -120,7 +120,7 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
                 } catch (final HttpException ex) {
                     try {
                         responseTrigger.submitResponse(
-                                new BasicResponseProducer(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage()));
+                                new BasicResponseProducer(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage()), context);
                     } catch (final HttpException | IOException ex2) {
                         failed(ex2);
                     }

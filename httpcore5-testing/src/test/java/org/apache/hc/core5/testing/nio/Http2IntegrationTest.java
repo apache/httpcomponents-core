@@ -584,10 +584,10 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                             final HttpContext context) throws IOException, HttpException {
                         responseTrigger.pushPromise(
                                 new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/stuff")),
-                                new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)));
+                                context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)));
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,
-                                new BasicAsyncEntityProducer("Hi there")));
+                                new BasicAsyncEntityProducer("Hi there")), context);
                     }
                 };
             }
@@ -665,7 +665,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
 
                         responseTrigger.pushPromise(
                                 new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/stuff")),
-                                new BasicPushProducer(new BasicAsyncEntityProducer("Pushing all sorts of stuff")) {
+                                context, new BasicPushProducer(new BasicAsyncEntityProducer("Pushing all sorts of stuff")) {
 
                             @Override
                             public void failed(final Exception cause) {
@@ -676,7 +676,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                         });
                         responseTrigger.pushPromise(
                                 new BasicHttpRequest("GET", createRequestURI(serverEndpoint, "/more-stuff")),
-                                new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)) {
+                                context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)) {
 
                             @Override
                             public void failed(final Exception cause) {
@@ -687,7 +687,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                         });
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,
-                                new BasicAsyncEntityProducer("Hi there")));
+                                new BasicAsyncEntityProducer("Hi there")), context);
                     }
                 };
             }
@@ -771,7 +771,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                             final Message<HttpRequest, String> request,
                             final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
-                        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"));
+                        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"), context);
 
                     }
                 };
@@ -866,7 +866,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                             producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
                         }
                         responseProducer.set(producer);
-                        producer.sendResponse(responseChannel);
+                        producer.sendResponse(responseChannel, context);
                     }
 
                     @Override
@@ -933,7 +933,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,
                                 new DigestingEntityProducer("MD5",
-                                        new StringAsyncEntityProducer("Hello back with some trailers"))));
+                                        new StringAsyncEntityProducer("Hello back with some trailers"))), context);
                     }
                 };
             }

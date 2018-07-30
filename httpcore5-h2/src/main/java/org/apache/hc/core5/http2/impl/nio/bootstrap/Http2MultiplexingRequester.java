@@ -141,7 +141,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
                 @Override
                 public void sendRequest(
                         final HttpRequest request,
-                        final EntityDetails entityDetails) throws HttpException, IOException {
+                        final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
                     final String scheme = request.getScheme();
                     final URIAuthority authority = request.getAuthority();
                     if (authority == null) {
@@ -160,8 +160,8 @@ public class Http2MultiplexingRequester extends AsyncRequester{
                                 }
 
                                 @Override
-                                public void produceRequest(final RequestChannel channel) throws HttpException, IOException {
-                                    channel.sendRequest(request, entityDetails);
+                                public void produceRequest(final RequestChannel channel, final HttpContext httpContext) throws HttpException, IOException {
+                                    channel.sendRequest(request, entityDetails, httpContext);
                                 }
 
                                 @Override
@@ -175,14 +175,14 @@ public class Http2MultiplexingRequester extends AsyncRequester{
                                 }
 
                                 @Override
-                                public void consumeInformation(final HttpResponse response) throws HttpException, IOException {
-                                    exchangeHandler.consumeInformation(response);
+                                public void consumeInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
+                                    exchangeHandler.consumeInformation(response, httpContext);
                                 }
 
                                 @Override
                                 public void consumeResponse(
-                                        final HttpResponse response, final EntityDetails entityDetails) throws HttpException, IOException {
-                                    exchangeHandler.consumeResponse(response, entityDetails);
+                                        final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
+                                    exchangeHandler.consumeResponse(response, entityDetails, httpContext);
                                 }
 
                                 @Override
@@ -227,7 +227,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
 
                 }
 
-            });
+            }, context);
         } catch (final IOException | HttpException ex) {
             exchangeHandler.failed(ex);
         }

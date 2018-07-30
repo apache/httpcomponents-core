@@ -77,11 +77,10 @@ public class BasicAsyncServerExpectationDecorator implements AsyncServerExchange
                 final AsyncResponseProducer producer = verify(request, context);
                 if (producer != null) {
                     responseProducerRef.set(producer);
-                    producer.sendResponse(responseChannel);
+                    producer.sendResponse(responseChannel, context);
                     return;
-                } else {
-                    responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
                 }
+                responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), context);
             }
         }
         handler.handleRequest(request, entityDetails, responseChannel, context);

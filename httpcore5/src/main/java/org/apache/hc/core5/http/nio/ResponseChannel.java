@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Abstract response / response promise channel.
@@ -47,10 +48,10 @@ import org.apache.hc.core5.http.HttpResponse;
 @Contract(threading = ThreadingBehavior.SAFE)
 public interface ResponseChannel {
 
-    void sendInformation(HttpResponse response) throws HttpException, IOException;
+    void sendInformation(HttpResponse response, HttpContext httpContext) throws HttpException, IOException;
 
-    void sendResponse(HttpResponse response, EntityDetails entityDetails) throws HttpException, IOException;
+    void sendResponse(HttpResponse response, EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException;
 
-    void pushPromise(HttpRequest promise, AsyncPushProducer pushProducer) throws HttpException, IOException;
+    void pushPromise(HttpRequest promise, HttpContext httpContext, AsyncPushProducer pushProducer) throws HttpException, IOException;
 
 }

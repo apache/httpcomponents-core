@@ -50,6 +50,7 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.ResourceHolder;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 
@@ -181,11 +182,11 @@ class ClientHttp1StreamHandler implements ResourceHolder {
 
                     @Override
                     public void sendRequest(
-                            final HttpRequest request, final EntityDetails entityDetails) throws HttpException, IOException {
+                            final HttpRequest request, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
                         commitRequest(request, entityDetails);
                     }
 
-                });
+                }, context);
                 break;
             case ACK:
                 outputChannel.suspendOutput();
@@ -210,7 +211,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             throw new ProtocolException("Invalid response: " + new StatusLine(response));
         }
         if (status > HttpStatus.SC_CONTINUE && status < HttpStatus.SC_SUCCESS) {
-            exchangeHandler.consumeInformation(response);
+            exchangeHandler.consumeInformation(response, context);
         } else {
             if (!connectionReuseStrategy.keepAlive(committedRequest, response, context)) {
                 keepAlive = false;
@@ -240,7 +241,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         httpProcessor.process(response, entityDetails, context);
 
-        exchangeHandler.consumeResponse(response, entityDetails);
+        exchangeHandler.consumeResponse(response, entityDetails, context);
         if (entityDetails == null) {
             if (!keepAlive) {
                 outputChannel.close();
@@ -279,9 +280,8 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             outputChannel.setSocketTimeout(timeout);
             outputChannel.requestOutput();
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     void failed(final Exception cause) {

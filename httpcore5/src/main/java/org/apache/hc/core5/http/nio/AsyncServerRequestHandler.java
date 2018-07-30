@@ -43,11 +43,11 @@ public interface AsyncServerRequestHandler<T> {
 
     interface ResponseTrigger {
 
-        void sendInformation(HttpResponse response) throws HttpException, IOException;
+        void sendInformation(HttpResponse response, HttpContext httpContext) throws HttpException, IOException;
 
-        void submitResponse(AsyncResponseProducer responseProducer) throws HttpException, IOException;
+        void submitResponse(AsyncResponseProducer responseProducer, HttpContext httpContext) throws HttpException, IOException;
 
-        void pushPromise(HttpRequest promise, AsyncPushProducer responseProducer) throws HttpException, IOException;
+        void pushPromise(HttpRequest promise, HttpContext httpContext, AsyncPushProducer responseProducer) throws HttpException, IOException;
 
     }
 

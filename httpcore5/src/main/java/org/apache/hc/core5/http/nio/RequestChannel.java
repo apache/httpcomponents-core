@@ -34,6 +34,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Abstract request channel.
@@ -45,6 +46,6 @@ import org.apache.hc.core5.http.HttpRequest;
 @Contract(threading = ThreadingBehavior.SAFE)
 public interface RequestChannel {
 
-    void sendRequest(HttpRequest request, EntityDetails entityDetails) throws HttpException, IOException;
+    void sendRequest(HttpRequest request, EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException;
 
 }

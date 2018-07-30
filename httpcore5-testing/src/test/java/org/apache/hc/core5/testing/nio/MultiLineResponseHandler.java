@@ -62,7 +62,7 @@ public class MultiLineResponseHandler extends BasicServerExchangeHandler<Message
                       final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
                       responseTrigger.submitResponse(new BasicResponseProducer(
                               response,
-                              new MultiLineEntityProducer(message, count)));
+                              new MultiLineEntityProducer(message, count)), context);
                   }
               }
         );

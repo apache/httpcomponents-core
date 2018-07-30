@@ -59,7 +59,7 @@ public class SingleLineResponseHandler extends BasicServerExchangeHandler<Messag
                           final ResponseTrigger responseTrigger,
                           final HttpContext context) throws HttpException, IOException {
                       responseTrigger.submitResponse(new BasicResponseProducer(
-                              HttpStatus.SC_OK, new BasicAsyncEntityProducer(message)));
+                              HttpStatus.SC_OK, new BasicAsyncEntityProducer(message)), context);
                   }
               }
         );

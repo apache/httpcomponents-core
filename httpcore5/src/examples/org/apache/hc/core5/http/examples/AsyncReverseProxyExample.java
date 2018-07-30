@@ -283,7 +283,7 @@ public class AsyncReverseProxyExample {
                 if (entityDetails != null) {
                     final Header h = incomingRequest.getFirstHeader(HttpHeaders.EXPECT);
                     if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
-                        responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
+                        responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), context);
                     }
                 }
             }
@@ -298,7 +298,7 @@ public class AsyncReverseProxyExample {
                     synchronized (exchangeState) {
                         exchangeState.clientEndpoint = clientEndpoint;
                     }
-                    clientEndpoint.execute(new OutgoingExchangeHandler(targetHost, clientEndpoint, exchangeState), null);
+                    clientEndpoint.execute(new OutgoingExchangeHandler(targetHost, clientEndpoint, exchangeState), context);
                 }
 
                 @Override
@@ -316,7 +316,7 @@ public class AsyncReverseProxyExample {
                     System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
 
                     try {
-                        responseChannel.sendResponse(outgoingResponse, exEntityDetails);
+                        responseChannel.sendResponse(outgoingResponse, exEntityDetails, context);
                     } catch (HttpException | IOException ignore) {
                         // ignore
                     }
@@ -476,7 +476,7 @@ public class AsyncReverseProxyExample {
 
         @Override
         public void produceRequest(
-                final RequestChannel channel) throws HttpException, IOException {
+                final RequestChannel channel, HttpContext httpContext) throws HttpException, IOException {
             synchronized (exchangeState) {
                 HttpRequest incomingRequest = exchangeState.request;
                 EntityDetails entityDetails = exchangeState.requestEntityDetails;
@@ -494,7 +494,7 @@ public class AsyncReverseProxyExample {
                 System.out.println("[proxy->origin] " + exchangeState.id + " " +
                         outgoingRequest.getMethod() + " " + outgoingRequest.getRequestUri());
 
-                channel.sendRequest(outgoingRequest, entityDetails);
+                channel.sendRequest(outgoingRequest, entityDetails, httpContext);
             }
         }
 
@@ -536,14 +536,14 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
-        public void consumeInformation(final HttpResponse response) throws HttpException, IOException {
+        public void consumeInformation(final HttpResponse response, HttpContext httpContext) throws HttpException, IOException {
             // ignore
         }
 
         @Override
         public void consumeResponse(
                 final HttpResponse incomingResponse,
-                final EntityDetails entityDetails) throws HttpException, IOException {
+                final EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException {
             synchronized (exchangeState) {
                 System.out.println("[proxy<-origin] " + exchangeState.id + " status " + incomingResponse.getCode());
                 if (entityDetails == null) {
@@ -563,7 +563,7 @@ public class AsyncReverseProxyExample {
                 exchangeState.outputEnd = entityDetails == null;
 
                 ResponseChannel responseChannel = exchangeState.responseMessageChannel;
-                responseChannel.sendResponse(outgoingResponse, entityDetails);
+                responseChannel.sendResponse(outgoingResponse, entityDetails, httpContext);
 
                 System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
                 if (entityDetails == null) {
@@ -657,7 +657,7 @@ public class AsyncReverseProxyExample {
 
                     try {
                         EntityDetails entityDetails = new BasicEntityDetails(contentLen, ContentType.TEXT_PLAIN);
-                        exchangeState.responseMessageChannel.sendResponse(outgoingResponse, entityDetails);
+                        exchangeState.responseMessageChannel.sendResponse(outgoingResponse, entityDetails, null);
                     } catch (HttpException | IOException ignore) {
                         // ignore
                     }

@@ -52,6 +52,7 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.util.Asserts;
@@ -218,20 +219,20 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         final ResponseChannel responseChannel = new ResponseChannel() {
 
             @Override
-            public void sendInformation(final HttpResponse response) throws HttpException, IOException {
+            public void sendInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
                 commitInformation(response);
             }
 
             @Override
             public void sendResponse(
-                    final HttpResponse response, final EntityDetails responseEntityDetails) throws HttpException, IOException {
+                    final HttpResponse response, final EntityDetails responseEntityDetails, final HttpContext httpContext) throws HttpException, IOException {
                 ServerSupport.validateResponse(response, responseEntityDetails);
                 commitResponse(response, responseEntityDetails);
             }
 
             @Override
             public void pushPromise(
-                    final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
+                    final HttpRequest promise, final HttpContext httpContext, final AsyncPushProducer pushProducer) throws HttpException, IOException {
                 commitPromise();
             }
 

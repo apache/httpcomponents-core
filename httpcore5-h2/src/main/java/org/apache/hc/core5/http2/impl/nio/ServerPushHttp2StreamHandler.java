@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.impl.nio.MessageState;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -195,23 +196,23 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
                 pushProducer.produceResponse(new ResponseChannel() {
 
                     @Override
-                    public void sendInformation(final HttpResponse response) throws HttpException, IOException {
+                    public void sendInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
                         commitInformation(response);
                     }
 
                     @Override
                     public void sendResponse(
-                            final HttpResponse response, final EntityDetails entityDetails) throws HttpException, IOException {
+                            final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
                         commitResponse(response, entityDetails);
                     }
 
                     @Override
                     public void pushPromise(
-                            final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
+                            final HttpRequest promise, final HttpContext httpContext, final AsyncPushProducer pushProducer) throws HttpException, IOException {
                         commitPromise(promise, pushProducer);
                     }
 
-                });
+                }, context);
                 break;
             case BODY:
                 pushProducer.produce(dataChannel);

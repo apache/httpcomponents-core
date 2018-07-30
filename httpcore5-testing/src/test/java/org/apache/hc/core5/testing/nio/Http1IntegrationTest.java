@@ -701,7 +701,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                             final Message<HttpRequest, String> request,
                             final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
-                        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"));
+                        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"), context);
 
                     }
                 };
@@ -817,12 +817,13 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                                         final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
                                         if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
                                             Thread.sleep(random.nextInt(1000));
-                                            responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
+                                            responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), context);
                                         }
                                         final HttpResponse response = new BasicHttpResponse(200);
-                                        responseChannel.sendResponse(response, entityProducer);
+                                        responseChannel.sendResponse(response, entityProducer, context);
                                     }
                                 } catch (final Exception ignore) {
+                                    // ignore
                                 }
                             }
                         });
@@ -918,7 +919,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                             producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
                         }
                         responseProducer.set(producer);
-                        producer.sendResponse(responseChannel);
+                        producer.sendResponse(responseChannel, context);
                     }
 
                     @Override
@@ -1362,7 +1363,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                                     final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                                     final HttpContext context) throws IOException, HttpException {
                                 responseTrigger.submitResponse(
-                                        new BasicResponseProducer(new StringAsyncEntityProducer("useful stuff")));
+                                        new BasicResponseProducer(new StringAsyncEntityProducer("useful stuff")), context);
                             }
 
                         };
@@ -1504,7 +1505,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                             final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
                         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_NO_CONTENT);
-                        responseTrigger.submitResponse(new BasicResponseProducer(response));
+                        responseTrigger.submitResponse(new BasicResponseProducer(response), context);
                     }
                 };
             }
@@ -1593,7 +1594,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,
                                 new DigestingEntityProducer("MD5",
-                                        new StringAsyncEntityProducer("Hello back with some trailers"))));
+                                        new StringAsyncEntityProducer("Hello back with some trailers"))), context);
                     }
                 };
             }
@@ -1655,9 +1656,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                         final String requestUri = request.getRequestUri();
                         if (requestUri.endsWith("boom")) {
                             throw new ProtocolException("Boom!!!");
-                        } else {
-                            responseChannel.sendResponse(new BasicHttpResponse(200), entityProducer);
                         }
+                        responseChannel.sendResponse(new BasicHttpResponse(200), entityProducer, context);
                     }
 
                     @Override
@@ -1672,7 +1672,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
                     @Override
                     public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-
+                        // empty
                     }
 
                     @Override

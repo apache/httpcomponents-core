@@ -70,7 +70,7 @@ public class EchoHandler implements AsyncServerExchangeHandler {
             final ResponseChannel responseChannel,
             final HttpContext context) throws HttpException, IOException {
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
-        responseChannel.sendResponse(response, entityDetails);
+        responseChannel.sendResponse(response, entityDetails, context);
     }
 
     @Override

@@ -29,6 +29,8 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.protocol.HttpContext;
+
 
 /**
  * Abstract asynchronous request producer.
@@ -37,7 +39,7 @@ import org.apache.hc.core5.http.HttpException;
  */
 public interface AsyncRequestProducer extends AsyncDataProducer {
 
-    void sendRequest(RequestChannel requestChannel) throws HttpException, IOException;
+    void sendRequest(RequestChannel requestChannel, HttpContext httpContext) throws HttpException, IOException;
 
     boolean isRepeatable();
 

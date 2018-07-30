@@ -74,12 +74,12 @@ public final class TerminalAsyncServerFilter implements AsyncFilterHandler {
             exchangeHandler.handleRequest(request, entityDetails, new ResponseChannel() {
 
                 @Override
-                public void sendInformation(final HttpResponse response) throws HttpException, IOException {
+                public void sendInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
                     responseTrigger.sendInformation(response);
                 }
 
                 @Override
-                public void sendResponse(final HttpResponse response, final EntityDetails entityDetails) throws HttpException, IOException {
+                public void sendResponse(final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
                     responseTrigger.submitResponse(response, entityDetails != null ? new AsyncEntityProducer() {
 
                         @Override
@@ -136,7 +136,7 @@ public final class TerminalAsyncServerFilter implements AsyncFilterHandler {
                 }
 
                 @Override
-                public void pushPromise(final HttpRequest promise, final AsyncPushProducer pushProducer) throws HttpException, IOException {
+                public void pushPromise(final HttpRequest promise, final HttpContext httpContext, final AsyncPushProducer pushProducer) throws HttpException, IOException {
                     responseTrigger.pushPromise(promise, pushProducer);
                 }
 

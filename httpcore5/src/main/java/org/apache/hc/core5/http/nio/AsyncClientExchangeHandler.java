@@ -31,6 +31,7 @@ import java.io.IOException;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Abstract asynchronous client side message exchange handler that acts as a request producer
@@ -40,11 +41,11 @@ import org.apache.hc.core5.http.HttpResponse;
  */
 public interface AsyncClientExchangeHandler extends AsyncDataExchangeHandler {
 
-    void produceRequest(RequestChannel channel) throws HttpException, IOException;
+    void produceRequest(RequestChannel channel, HttpContext httpContext) throws HttpException, IOException;
 
-    void consumeResponse(HttpResponse response, EntityDetails entityDetails) throws HttpException, IOException;
+    void consumeResponse(HttpResponse response, EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException;
 
-    void consumeInformation(HttpResponse response) throws HttpException, IOException;
+    void consumeInformation(HttpResponse response, HttpContext httpContext) throws HttpException, IOException;
 
     void cancel();
 

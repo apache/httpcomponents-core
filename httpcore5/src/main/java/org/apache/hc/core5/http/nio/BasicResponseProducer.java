@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -79,8 +80,8 @@ public class BasicResponseProducer implements AsyncResponseProducer {
     }
 
     @Override
-    public void sendResponse(final ResponseChannel responseChannel) throws HttpException, IOException {
-        responseChannel.sendResponse(response, dataProducer);
+    public void sendResponse(final ResponseChannel responseChannel, final HttpContext httpContext) throws HttpException, IOException {
+        responseChannel.sendResponse(response, dataProducer, httpContext);
     }
 
     @Override

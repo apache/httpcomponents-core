@@ -45,6 +45,9 @@ adds several incremental improvements.
 
 * HTTPCORE-547: Update org.apache.hc.core5.http.message.HeaderGroup.removeHeaders(String) to return a boolean
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* HTTPCORE-548: Add missing HttpContext parameter to APIs.
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 Release 5.0-BETA2
 -------------------

@@ -186,7 +186,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
                                 return null;
                             }
 
-                        });
+                        }, context);
                     }
                 } catch (final HttpException ex) {
                     throw new IOException(ex.getMessage(), ex);

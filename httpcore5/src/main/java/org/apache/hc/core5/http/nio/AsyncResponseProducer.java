@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * Abstract asynchronous response producer.
@@ -37,7 +38,7 @@ import org.apache.hc.core5.http.HttpException;
  */
 public interface AsyncResponseProducer extends AsyncDataProducer {
 
-    void sendResponse(ResponseChannel channel) throws HttpException, IOException;
+    void sendResponse(ResponseChannel channel, HttpContext httpContext) throws HttpException, IOException;
 
     void failed(Exception cause);
 

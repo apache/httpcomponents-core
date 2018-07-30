@@ -149,7 +149,7 @@ public class Http2FileServerExample {
                                     HttpStatus.SC_NOT_FOUND,
                                     "<html><body><h1>File" + file.getPath() +
                                             " not found</h1></body></html>",
-                                    ContentType.TEXT_HTML));
+                                    ContentType.TEXT_HTML), context);
 
                         } else if (!file.canRead() || file.isDirectory()) {
 
@@ -157,7 +157,7 @@ public class Http2FileServerExample {
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_FORBIDDEN,
                                     "<html><body><h1>Access denied</h1></body></html>",
-                                    ContentType.TEXT_HTML));
+                                    ContentType.TEXT_HTML), context);
 
                         } else {
 
@@ -177,7 +177,7 @@ public class Http2FileServerExample {
                             EndpointDetails endpoint = coreContext.getEndpointDetails();
                             System.out.println(endpoint + ": serving file " + file.getPath());
                             responseTrigger.submitResponse(new BasicResponseProducer(
-                                    HttpStatus.SC_OK, new FileEntityProducer(file, contentType)));
+                                    HttpStatus.SC_OK, new FileEntityProducer(file, contentType)), context);
                         }
                     }
 

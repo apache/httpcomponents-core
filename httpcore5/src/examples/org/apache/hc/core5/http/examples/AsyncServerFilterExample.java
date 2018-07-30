@@ -173,7 +173,7 @@ public class AsyncServerFilterExample {
                         // do something useful
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,
-                                new BasicAsyncEntityProducer("Hello", ContentType.TEXT_PLAIN)));
+                                new BasicAsyncEntityProducer("Hello", ContentType.TEXT_PLAIN)), context);
                     }
                 })
                 .create();

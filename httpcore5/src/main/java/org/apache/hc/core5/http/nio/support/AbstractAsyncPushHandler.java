@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * @param <T> the future result type returned by a callback.
  * @since 5.0
  */
 public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
@@ -57,6 +58,7 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
             final HttpRequest promise, final T responseMessage) throws IOException, HttpException;
 
     protected void handleError(final HttpRequest promise, final Exception cause) {
+        // empty
     }
 
     @Override
@@ -64,8 +66,8 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
             final HttpRequest promise,
             final HttpResponse response,
             final EntityDetails entityDetails,
-            final HttpContext context) throws HttpException, IOException {
-        responseConsumer.consumeResponse(response, entityDetails, new FutureCallback<T>() {
+            final HttpContext httpContext) throws HttpException, IOException {
+        responseConsumer.consumeResponse(response, entityDetails, httpContext, new FutureCallback<T>() {
 
             @Override
             public void completed(final T result) {

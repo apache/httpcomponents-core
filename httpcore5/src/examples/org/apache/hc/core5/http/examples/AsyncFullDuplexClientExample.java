@@ -147,8 +147,8 @@ public class AsyncFullDuplexClientExample {
             }
 
             @Override
-            public void produceRequest(final RequestChannel channel) throws HttpException, IOException {
-                requestProducer.sendRequest(channel);
+            public void produceRequest(final RequestChannel channel, HttpContext httpContext) throws HttpException, IOException {
+                requestProducer.sendRequest(channel, httpContext);
             }
 
             @Override
@@ -162,14 +162,14 @@ public class AsyncFullDuplexClientExample {
             }
 
             @Override
-            public void consumeInformation(final HttpResponse response) throws HttpException, IOException {
+            public void consumeInformation(final HttpResponse response, HttpContext httpContext) throws HttpException, IOException {
                 System.out.println(requestUri + "->" + response.getCode());
             }
 
             @Override
-            public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails) throws HttpException, IOException {
+            public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException {
                 System.out.println(requestUri + "->" + response.getCode());
-                responseConsumer.consumeResponse(response, entityDetails, null);
+                responseConsumer.consumeResponse(response, entityDetails, httpContext, null);
             }
 
             @Override

@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 public abstract class AbstractAsyncRequesterConsumer<T, E> implements AsyncRequestConsumer<T> {
@@ -59,7 +60,7 @@ public abstract class AbstractAsyncRequesterConsumer<T, E> implements AsyncReque
     public final void consumeRequest(
             final HttpRequest request,
             final EntityDetails entityDetails,
-            final FutureCallback<T> resultCallback) throws HttpException, IOException {
+            final HttpContext httpContext, final FutureCallback<T> resultCallback) throws HttpException, IOException {
         if (entityDetails != null) {
             entityConsumer.streamStart(entityDetails, new FutureCallback<E>() {
 

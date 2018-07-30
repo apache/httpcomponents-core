@@ -252,17 +252,17 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
     public void execute(
             final AsyncClientExchangeHandler exchangeHandler,
             final Timeout timeout,
-            final HttpContext context) {
+            final HttpContext executeContext) {
         Args.notNull(exchangeHandler, "Exchange handler");
         Args.notNull(timeout, "Timeout");
-        Args.notNull(context, "Context");
+        Args.notNull(executeContext, "Context");
         try {
             exchangeHandler.produceRequest(new RequestChannel() {
 
                 @Override
                 public void sendRequest(
                         final HttpRequest request,
-                        final EntityDetails entityDetails) throws HttpException, IOException {
+                        final EntityDetails entityDetails, final HttpContext requestContext) throws HttpException, IOException {
                     final String scheme = request.getScheme();
                     final URIAuthority authority = request.getAuthority();
                     if (authority == null) {
@@ -294,8 +294,8 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                                 }
 
                                 @Override
-                                public void produceRequest(final RequestChannel channel) throws HttpException, IOException {
-                                    channel.sendRequest(request, entityDetails);
+                                public void produceRequest(final RequestChannel channel, final HttpContext httpContext) throws HttpException, IOException {
+                                    channel.sendRequest(request, entityDetails, httpContext);
                                 }
 
                                 @Override
@@ -309,17 +309,17 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                                 }
 
                                 @Override
-                                public void consumeInformation(final HttpResponse response) throws HttpException, IOException {
-                                    exchangeHandler.consumeInformation(response);
+                                public void consumeInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
+                                    exchangeHandler.consumeInformation(response, httpContext);
                                 }
 
                                 @Override
                                 public void consumeResponse(
-                                        final HttpResponse response, final EntityDetails entityDetails) throws HttpException, IOException {
+                                        final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
                                     if (entityDetails == null) {
                                         endpoint.releaseAndReuse();
                                     }
-                                    exchangeHandler.consumeResponse(response, entityDetails);
+                                    exchangeHandler.consumeResponse(response, entityDetails, httpContext);
                                 }
 
                                 @Override
@@ -338,7 +338,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                                     exchangeHandler.streamEnd(trailers);
                                 }
 
-                            }, context);
+                            }, executeContext);
 
                         }
 
@@ -356,7 +356,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
                 }
 
-            });
+            }, executeContext);
 
         } catch (final IOException | HttpException ex) {
             exchangeHandler.failed(ex);
