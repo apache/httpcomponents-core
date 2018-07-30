@@ -36,6 +36,7 @@ package org.apache.hc.core5.http;
 public final class HttpHeaders {
 
     private HttpHeaders() {
+        // Don't allow instantiation.
     }
 
     /** RFC 2616 (HTTP/1.1) Section 14.1 */
