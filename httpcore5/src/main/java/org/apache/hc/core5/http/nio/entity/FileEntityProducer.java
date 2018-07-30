@@ -50,7 +50,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
     private final ContentType contentType;
     private final AtomicReference<Exception> exception;
 
-    private AtomicReference<RandomAccessFile> accessFileRef;
+    private final AtomicReference<RandomAccessFile> accessFileRef;
     private boolean eof;
 
     public FileEntityProducer(final File file, final int bufferSize, final ContentType contentType) {

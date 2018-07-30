@@ -69,7 +69,7 @@ public class TestHttpService {
     @Mock
     private ConnectionReuseStrategy connReuseStrategy;
     @Spy
-    private ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK);
+    private final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK);
     @Mock
     private HttpResponseFactory<ClassicHttpResponse> responseFactory;
     @Mock
