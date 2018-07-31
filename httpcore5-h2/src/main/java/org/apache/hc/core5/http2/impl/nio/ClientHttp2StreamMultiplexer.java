@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.command.ExecutableCommand;
-import org.apache.hc.core5.http.nio.command.ExecutionCommand;
+import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -104,8 +104,8 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final Http2StreamChannel channel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics) throws IOException {
-        if (command instanceof ExecutionCommand) {
-            final ExecutionCommand executionCommand = (ExecutionCommand) command;
+        if (command instanceof RequestExecutionCommand) {
+            final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
             final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
             final HttpCoreContext context = HttpCoreContext.adapt(executionCommand.getContext());
             context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());

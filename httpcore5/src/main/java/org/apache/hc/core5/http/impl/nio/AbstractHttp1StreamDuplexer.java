@@ -68,7 +68,7 @@ import org.apache.hc.core5.http.nio.NHttpMessageParser;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
-import org.apache.hc.core5.http.nio.command.ExecutionCommand;
+import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
@@ -196,7 +196,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     abstract void produceOutput() throws HttpException, IOException;
 
-    abstract void execute(ExecutionCommand executionCommand) throws HttpException, IOException;
+    abstract void execute(RequestExecutionCommand executionCommand) throws HttpException, IOException;
 
     abstract void inputEnd() throws HttpException, IOException;
 
@@ -217,11 +217,11 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             if (command instanceof ShutdownCommand) {
                 final ShutdownCommand shutdownCommand = (ShutdownCommand) command;
                 requestShutdown(shutdownCommand.getType());
-            } else if (command instanceof ExecutionCommand) {
+            } else if (command instanceof RequestExecutionCommand) {
                 if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0) {
                     command.cancel();
                 } else {
-                    execute((ExecutionCommand) command);
+                    execute((RequestExecutionCommand) command);
                     return;
                 }
             } else {
@@ -401,8 +401,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         for (;;) {
             final Command command = ioSession.poll();
             if (command != null) {
-                if (command instanceof ExecutionCommand) {
-                    final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
+                if (command instanceof RequestExecutionCommand) {
+                    final AsyncClientExchangeHandler exchangeHandler = ((RequestExecutionCommand) command).getExchangeHandler();
                     exchangeHandler.failed(ex);
                     exchangeHandler.releaseResources();
                 } else {
@@ -419,8 +419,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         for (;;) {
             final Command command = ioSession.poll();
             if (command != null) {
-                if (command instanceof ExecutionCommand) {
-                    final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
+                if (command instanceof RequestExecutionCommand) {
+                    final AsyncClientExchangeHandler exchangeHandler = ((RequestExecutionCommand) command).getExchangeHandler();
                     exchangeHandler.failed(new ConnectionClosedException());
                     exchangeHandler.releaseResources();
                 } else {

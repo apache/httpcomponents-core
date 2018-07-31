@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.command.ExecutionCommand;
+import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
@@ -142,8 +142,8 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
             for (;;) {
                 final Command command = ioSession.poll();
                 if (command != null) {
-                    if (command instanceof ExecutionCommand) {
-                        final ExecutionCommand executionCommand = (ExecutionCommand) command;
+                    if (command instanceof RequestExecutionCommand) {
+                        final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
                         final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
                         exchangeHandler.failed(cause);
                         exchangeHandler.releaseResources();
@@ -164,8 +164,8 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
         for (;;) {
             final Command command = ioSession.poll();
             if (command != null) {
-                if (command instanceof ExecutionCommand) {
-                    final ExecutionCommand executionCommand = (ExecutionCommand) command;
+                if (command instanceof RequestExecutionCommand) {
+                    final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
                     final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
                     exchangeHandler.failed(new ConnectionClosedException());
                     exchangeHandler.releaseResources();

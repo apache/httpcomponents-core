@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexer;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.command.ExecutionCommand;
+import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.CloseMode;
@@ -170,8 +170,8 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             for (;;) {
                 final Command command = ioSession.poll();
                 if (command != null) {
-                    if (command instanceof ExecutionCommand) {
-                        final ExecutionCommand executionCommand = (ExecutionCommand) command;
+                    if (command instanceof RequestExecutionCommand) {
+                        final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
                         final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
                         exchangeHandler.failed(cause);
                         exchangeHandler.releaseResources();
@@ -192,8 +192,8 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         for (;;) {
             final Command command = ioSession.poll();
             if (command != null) {
-                if (command instanceof ExecutionCommand) {
-                    final ExecutionCommand executionCommand = (ExecutionCommand) command;
+                if (command instanceof RequestExecutionCommand) {
+                    final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
                     final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
                     exchangeHandler.failed(new ConnectionClosedException());
                     exchangeHandler.releaseResources();

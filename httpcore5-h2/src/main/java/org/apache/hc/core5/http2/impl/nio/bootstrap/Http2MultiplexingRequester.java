@@ -56,7 +56,7 @@ import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
-import org.apache.hc.core5.http.nio.command.ExecutionCommand;
+import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
@@ -152,7 +152,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
 
                         @Override
                         public void completed(final IOSession ioSession) {
-                            ioSession.enqueue(new ExecutionCommand(new AsyncClientExchangeHandler() {
+                            ioSession.enqueue(new RequestExecutionCommand(new AsyncClientExchangeHandler() {
 
                                 @Override
                                 public void releaseResources() {

@@ -37,13 +37,13 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-public final class ExecutionCommand extends ExecutableCommand {
+public final class RequestExecutionCommand extends ExecutableCommand {
 
     private final AsyncClientExchangeHandler exchangeHandler;
     private final CancellableDependency cancellableDependency;
     private final HttpContext context;
 
-    public ExecutionCommand(
+    public RequestExecutionCommand(
             final AsyncClientExchangeHandler exchangeHandler,
             final CancellableDependency cancellableDependency,
             final HttpContext context) {
@@ -52,7 +52,7 @@ public final class ExecutionCommand extends ExecutableCommand {
         this.context = context;
     }
 
-    public ExecutionCommand(
+    public RequestExecutionCommand(
             final AsyncClientExchangeHandler exchangeHandler,
             final HttpContext context) {
         this(exchangeHandler, null, context);

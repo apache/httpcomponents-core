@@ -58,7 +58,7 @@ import org.apache.hc.core5.http.nio.NHttpMessageParser;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
-import org.apache.hc.core5.http.nio.command.ExecutionCommand;
+import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.CloseMode;
@@ -339,7 +339,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
-    void execute(final ExecutionCommand executionCommand) throws HttpException {
+    void execute(final RequestExecutionCommand executionCommand) throws HttpException {
         throw new HttpException("Illegal command: " + executionCommand.getClass());
     }
 

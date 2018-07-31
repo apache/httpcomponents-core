@@ -55,7 +55,7 @@ import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
-import org.apache.hc.core5.http.nio.command.ExecutionCommand;
+import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
@@ -421,7 +421,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             if (ioSession == null) {
                 throw new IllegalStateException("I/O session is invalid");
             }
-            ioSession.enqueue(new ExecutionCommand(exchangeHandler, context), Command.Priority.NORMAL);
+            ioSession.enqueue(new RequestExecutionCommand(exchangeHandler, context), Command.Priority.NORMAL);
         }
 
         @Override
