@@ -85,6 +85,11 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
     }
 
     @Override
+    public HandlerFactory<AsyncPushConsumer> getPushHandlerFactory() {
+        return pushHandlerFactory;
+    }
+
+    @Override
     public boolean isOutputReady() {
         return false;
     }

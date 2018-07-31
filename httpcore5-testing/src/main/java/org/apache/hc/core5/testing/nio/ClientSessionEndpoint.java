@@ -36,8 +36,10 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
@@ -74,15 +76,23 @@ public final class ClientSessionEndpoint implements ModalCloseable {
 
     public void execute(
             final AsyncClientExchangeHandler exchangeHandler,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final HttpContext context) {
         Asserts.check(!closed.get(), "Connection is already closed");
-        final Command executionCommand = new RequestExecutionCommand(exchangeHandler, context);
+        final Command executionCommand = new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context);
         execute(executionCommand, Command.Priority.NORMAL);
+    }
+
+    public void execute(
+            final AsyncClientExchangeHandler exchangeHandler,
+            final HttpContext context) {
+        execute(exchangeHandler, null, context);
     }
 
     public <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final HttpContext context,
             final FutureCallback<T> callback) {
         Asserts.check(!closed.get(), "Connection is already closed");
@@ -106,15 +116,23 @@ public final class ClientSessionEndpoint implements ModalCloseable {
                     }
 
                 }),
-                context);
+                pushHandlerFactory, context);
         return future;
     }
 
     public <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
+            final HttpContext context,
             final FutureCallback<T> callback) {
-        return execute(requestProducer, responseConsumer, null, callback);
+        return execute(requestProducer, responseConsumer, null, context, callback);
+    }
+
+    public <T> Future<T> execute(
+            final AsyncRequestProducer requestProducer,
+            final AsyncResponseConsumer<T> responseConsumer,
+            final FutureCallback<T> callback) {
+        return execute(requestProducer, responseConsumer, null, null, callback);
     }
 
     public boolean isOpen() {

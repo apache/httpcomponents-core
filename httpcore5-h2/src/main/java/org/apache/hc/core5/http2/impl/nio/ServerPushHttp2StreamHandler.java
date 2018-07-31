@@ -41,8 +41,10 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.nio.MessageState;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -108,6 +110,11 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.COMPLETE;
         this.responseState = MessageState.IDLE;
+    }
+
+    @Override
+    public HandlerFactory<AsyncPushConsumer> getPushHandlerFactory() {
+        return null;
     }
 
     @Override

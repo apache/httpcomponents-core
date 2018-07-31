@@ -91,6 +91,7 @@ import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.entity.AbstractClassicEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.AbstractClassicEntityProducer;
@@ -597,28 +598,6 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
         client.start(H2Config.custom().setPushEnabled(true).build());
 
         final BlockingQueue<Message<HttpResponse, String>> pushMessageQueue = new LinkedBlockingDeque<>();
-        client.register("*", new Supplier<AsyncPushConsumer>() {
-
-            @Override
-            public AsyncPushConsumer get() {
-                return new AbstractAsyncPushHandler<Message<HttpResponse, String>>(new BasicResponseConsumer<>(new StringAsyncEntityConsumer())) {
-
-                    @Override
-                    protected void handleResponse(
-                            final HttpRequest promise,
-                            final Message<HttpResponse, String> responseMessage) throws IOException, HttpException {
-                        try {
-                            pushMessageQueue.put(responseMessage);
-                        } catch (final InterruptedException ex) {
-                            Thread.currentThread().interrupt();
-                            throw new InterruptedIOException(ex.getMessage());
-                        }
-                    }
-
-                };
-            }
-
-        });
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -626,7 +605,31 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello")),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                new HandlerFactory<AsyncPushConsumer>() {
+
+                    @Override
+                    public AsyncPushConsumer create(
+                            final HttpRequest request, final HttpContext context) throws HttpException {
+                        return new AbstractAsyncPushHandler<Message<HttpResponse, String>>(new BasicResponseConsumer<>(new StringAsyncEntityConsumer())) {
+
+                            @Override
+                            protected void handleResponse(
+                                    final HttpRequest promise,
+                                    final Message<HttpResponse, String> responseMessage) throws IOException, HttpException {
+                                try {
+                                    pushMessageQueue.put(responseMessage);
+                                } catch (final InterruptedException ex) {
+                                    Thread.currentThread().interrupt();
+                                    throw new InterruptedIOException(ex.getMessage());
+                                }
+                            }
+
+                        };
+                    }
+                },
+                null,
+                null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();

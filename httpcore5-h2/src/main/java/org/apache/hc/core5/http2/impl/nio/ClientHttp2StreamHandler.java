@@ -45,7 +45,9 @@ import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -62,6 +64,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
     private final HttpProcessor httpProcessor;
     private final BasicHttpConnectionMetrics connMetrics;
     private final AsyncClientExchangeHandler exchangeHandler;
+    private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
     private final HttpCoreContext context;
     private final AtomicBoolean requestCommitted;
     private final AtomicBoolean failed;
@@ -75,6 +78,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics,
             final AsyncClientExchangeHandler exchangeHandler,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final HttpCoreContext context) {
         this.outputChannel = outputChannel;
         this.dataChannel = new DataStreamChannel() {
@@ -105,12 +109,18 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
         this.httpProcessor = httpProcessor;
         this.connMetrics = connMetrics;
         this.exchangeHandler = exchangeHandler;
+        this.pushHandlerFactory = pushHandlerFactory;
         this.context = context;
         this.requestCommitted = new AtomicBoolean(false);
         this.failed = new AtomicBoolean(false);
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.HEADERS;
+    }
+
+    @Override
+    public HandlerFactory<AsyncPushConsumer> getPushHandlerFactory() {
+        return pushHandlerFactory;
     }
 
     @Override

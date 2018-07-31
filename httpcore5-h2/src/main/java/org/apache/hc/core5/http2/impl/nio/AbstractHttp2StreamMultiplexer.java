@@ -60,7 +60,9 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.command.ExecutableCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -180,7 +182,8 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     abstract Http2StreamHandler createRemotelyInitiatedStream(
             Http2StreamChannel channel,
             HttpProcessor httpProcessor,
-            BasicHttpConnectionMetrics connMetrics) throws IOException;
+            BasicHttpConnectionMetrics connMetrics,
+            HandlerFactory<AsyncPushConsumer> pushHandlerFactory) throws IOException;
 
     abstract Http2StreamHandler createLocallyInitiatedStream(
             ExecutableCommand command,
@@ -747,7 +750,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                             localConfig.getInitialWindowSize(),
                             remoteConfig.getInitialWindowSize());
                     final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(
-                            channel, httpProcessor, connMetrics);
+                            channel, httpProcessor, connMetrics, null);
                     stream = new Http2Stream(channel, streamHandler, true);
                     if (stream.isOutputReady()) {
                         stream.produceOutput();
@@ -925,7 +928,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
                 final Http2StreamHandler streamHandler = createRemotelyInitiatedStream(
-                        channel, httpProcessor, connMetrics);
+                        channel, httpProcessor, connMetrics, stream.getPushHandlerFactory());
                 final Http2Stream promisedStream = new Http2Stream(channel, streamHandler, true);
                 streamMap.put(promisedStreamId, promisedStream);
 
@@ -1574,6 +1577,10 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
         void localReset(final H2StreamResetException ex) throws IOException {
             localReset(ex, ex.getCode());
+        }
+
+        HandlerFactory<AsyncPushConsumer> getPushHandlerFactory() {
+            return handler.getPushHandlerFactory();
         }
 
         void cancel() {

@@ -107,10 +107,13 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
         if (command instanceof RequestExecutionCommand) {
             final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
             final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory = executionCommand.getPushHandlerFactory();
             final HttpCoreContext context = HttpCoreContext.adapt(executionCommand.getContext());
             context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
             context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
-            return new ClientHttp2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandler, context);
+            return new ClientHttp2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandler,
+                    pushHandlerFactory != null ? pushHandlerFactory : this.pushHandlerFactory,
+                    context);
         } else {
             throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Unexpected executable command");
         }
@@ -120,11 +123,14 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     Http2StreamHandler createRemotelyInitiatedStream(
             final Http2StreamChannel channel,
             final HttpProcessor httpProcessor,
-            final BasicHttpConnectionMetrics connMetrics) throws IOException {
+            final BasicHttpConnectionMetrics connMetrics,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) throws IOException {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
-        return new ClientPushHttp2StreamHandler(channel, httpProcessor, connMetrics, pushHandlerFactory, context);
+        return new ClientPushHttp2StreamHandler(channel, httpProcessor, connMetrics,
+                pushHandlerFactory != null ? pushHandlerFactory : this.pushHandlerFactory,
+                context);
     }
 
     @Override

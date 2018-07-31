@@ -32,6 +32,8 @@ import java.util.List;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResourceHolder;
 
 interface Http2StreamHandler extends ResourceHolder {
@@ -47,6 +49,8 @@ interface Http2StreamHandler extends ResourceHolder {
     void updateInputCapacity() throws IOException;
 
     void consumeData(ByteBuffer src, boolean endStream) throws HttpException, IOException;
+
+    HandlerFactory<AsyncPushConsumer> getPushHandlerFactory();
 
     void failed(Exception cause);
 

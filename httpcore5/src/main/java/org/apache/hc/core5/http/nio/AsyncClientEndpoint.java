@@ -54,7 +54,22 @@ public abstract class AsyncClientEndpoint {
      * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
      * or {@link #releaseAndDiscard()}.
      */
-    public abstract void execute(AsyncClientExchangeHandler exchangeHandler, HttpContext context);
+    public abstract void execute(
+            AsyncClientExchangeHandler exchangeHandler,
+            HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            HttpContext context);
+
+    /**
+     * Initiates a message exchange using the given handler.
+     * <p>
+     * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
+     * or {@link #releaseAndDiscard()}.
+     */
+    public void execute(
+            final AsyncClientExchangeHandler exchangeHandler,
+            final HttpContext context) {
+        execute(exchangeHandler, null, context);
+    }
 
     /**
      * Releases the underlying connection back to the connection pool as re-usable.
@@ -75,6 +90,7 @@ public abstract class AsyncClientEndpoint {
     public final <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final HttpContext context,
             final FutureCallback<T> callback) {
         final BasicFuture<T> future = new BasicFuture<>(callback);
@@ -97,8 +113,22 @@ public abstract class AsyncClientEndpoint {
                             }
 
                         }),
-                context != null ? context : HttpCoreContext.create());
+                pushHandlerFactory, context != null ? context : HttpCoreContext.create());
         return future;
+    }
+
+    /**
+     * Initiates message exchange using the given request producer and response consumer.
+     * <p>
+     * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}
+     * or {@link #releaseAndDiscard()}.
+     */
+    public final <T> Future<T> execute(
+            final AsyncRequestProducer requestProducer,
+            final AsyncResponseConsumer<T> responseConsumer,
+            final HttpContext context,
+            final FutureCallback<T> callback) {
+        return execute(requestProducer, responseConsumer, null, context, callback);
     }
 
     /**
@@ -111,7 +141,7 @@ public abstract class AsyncClientEndpoint {
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final FutureCallback<T> callback) {
-        return execute(requestProducer, responseConsumer, null, callback);
+        return execute(requestProducer, responseConsumer, null, null, callback);
     }
 
 }

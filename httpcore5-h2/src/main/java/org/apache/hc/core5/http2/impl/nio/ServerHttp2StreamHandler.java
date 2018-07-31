@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingEntityDetails;
 import org.apache.hc.core5.http.impl.nio.MessageState;
 import org.apache.hc.core5.http.impl.nio.ServerSupport;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -118,6 +119,11 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
         this.done = new AtomicBoolean(false);
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.IDLE;
+    }
+
+    @Override
+    public HandlerFactory<AsyncPushConsumer> getPushHandlerFactory() {
+        return null;
     }
 
     private void commitInformation(final HttpResponse response) throws IOException, HttpException {

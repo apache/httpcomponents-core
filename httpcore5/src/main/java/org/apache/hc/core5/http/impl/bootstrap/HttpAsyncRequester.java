@@ -50,10 +50,12 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
@@ -251,6 +253,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
     public void execute(
             final AsyncClientExchangeHandler exchangeHandler,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Timeout timeout,
             final HttpContext executeContext) {
         Args.notNull(exchangeHandler, "Exchange handler");
@@ -338,7 +341,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                                     exchangeHandler.streamEnd(trailers);
                                 }
 
-                            }, executeContext);
+                            }, pushHandlerFactory, executeContext);
 
                         }
 
@@ -363,9 +366,17 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         }
     }
 
+    public void execute(
+            final AsyncClientExchangeHandler exchangeHandler,
+            final Timeout timeout,
+            final HttpContext executeContext) {
+        execute(exchangeHandler, null, timeout, executeContext);
+    }
+
     public final <T> Future<T> execute(
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Timeout timeout,
             final HttpContext context,
             final FutureCallback<T> callback) {
@@ -391,7 +402,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             }
 
         });
-        execute(exchangeHandler, timeout, context != null ? context : HttpCoreContext.create());
+        execute(exchangeHandler, pushHandlerFactory, timeout, context != null ? context : HttpCoreContext.create());
         return future;
     }
 
@@ -399,8 +410,17 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final Timeout timeout,
+            final HttpContext context,
             final FutureCallback<T> callback) {
-        return execute(requestProducer, responseConsumer, timeout, null, callback);
+        return execute(requestProducer, responseConsumer, null, timeout, context, callback);
+    }
+
+    public final <T> Future<T> execute(
+            final AsyncRequestProducer requestProducer,
+            final AsyncResponseConsumer<T> responseConsumer,
+            final Timeout timeout,
+            final FutureCallback<T> callback) {
+        return execute(requestProducer, responseConsumer, null, timeout, null, callback);
     }
 
     private class InternalAsyncClientEndpoint extends AsyncClientEndpoint {
@@ -412,7 +432,10 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         }
 
         @Override
-        public void execute(final AsyncClientExchangeHandler exchangeHandler, final HttpContext context) {
+        public void execute(
+                final AsyncClientExchangeHandler exchangeHandler,
+                final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+                final HttpContext context) {
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.get();
             if (poolEntry == null) {
                 throw new IllegalStateException("Endpoint has already been released");
@@ -421,7 +444,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             if (ioSession == null) {
                 throw new IllegalStateException("I/O session is invalid");
             }
-            ioSession.enqueue(new RequestExecutionCommand(exchangeHandler, context), Command.Priority.NORMAL);
+            ioSession.enqueue(new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context), Command.Priority.NORMAL);
         }
 
         @Override
