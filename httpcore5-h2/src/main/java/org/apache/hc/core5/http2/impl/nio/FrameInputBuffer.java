@@ -143,7 +143,7 @@ public final class FrameInputBuffer {
                 if (state != State.HEAD_EXPECTED || buffer.hasRemaining()) {
                     throw new H2CorruptFrameException("Corrupt or incomplete HTTP2 frame");
                 } else {
-                    throw new ConnectionClosedException("Connection closed");
+                    throw new ConnectionClosedException();
                 }
             }
         }

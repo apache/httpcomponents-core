@@ -171,7 +171,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         Args.notNull(request, "HTTP request");
         Args.notNull(context, "HTTP context");
         if (!connection.isOpen()) {
-            throw new ConnectionClosedException("Connection is closed");
+            throw new ConnectionClosedException();
         }
         requestExecutor.preProcess(request, httpProcessor, context);
         final ClassicHttpResponse response = requestExecutor.execute(request, connection, informationCallback, context);

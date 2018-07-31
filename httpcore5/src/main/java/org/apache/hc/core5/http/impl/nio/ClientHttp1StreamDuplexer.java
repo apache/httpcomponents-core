@@ -193,14 +193,14 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     void disconnected() {
         if (incoming != null) {
             if (!incoming.isCompleted()) {
-                incoming.failed(new ConnectionClosedException("Connection closed"));
+                incoming.failed(new ConnectionClosedException());
             }
             incoming.releaseResources();
             incoming = null;
         }
         if (outgoing != null) {
             if (!outgoing.isCompleted()) {
-                outgoing.failed(new ConnectionClosedException("Connection closed"));
+                outgoing.failed(new ConnectionClosedException());
             }
             outgoing.releaseResources();
             outgoing = null;
@@ -208,7 +208,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         for (;;) {
             final ClientHttp1StreamHandler handler = pipeline.poll();
             if (handler != null) {
-                handler.failed(new ConnectionClosedException("Connection closed"));
+                handler.failed(new ConnectionClosedException());
                 handler.releaseResources();
             } else {
                 break;

@@ -85,9 +85,9 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
         if (bytesRead == -1) {
             this.completed = true;
             if (this.len < this.contentLength) {
-                throw new ConnectionClosedException(
-                        "Premature end of Content-Length delimited message body (expected: "
-                        + this.contentLength + "; received: " + this.len);
+                throw new ConnectionClosedException(String.format(
+                                "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
+                                this.contentLength, this.len));
             }
         }
         this.len += bytesRead;
@@ -123,8 +123,8 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
         } else {
             if (this.channel.isOpen()) {
                 if (position > dst.size()) {
-                    throw new IOException("Position past end of file [" + position +
-                            " > " + dst.size() + "]");
+                    throw new IOException(String.format("Position past end of file [%,d > %,d]",
+                                    position, dst.size()));
                 }
                 bytesRead = dst.transferFrom(this.channel, position, count < chunk ? count : chunk);
             } else {
@@ -137,9 +137,9 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
         if (bytesRead == -1) {
             this.completed = true;
             if (this.len < this.contentLength) {
-                throw new ConnectionClosedException(
-                        "Premature end of Content-Length delimited message body (expected: "
-                        + this.contentLength + "; received: " + this.len);
+                throw new ConnectionClosedException(String.format(
+                                "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
+                                this.contentLength, this.len));
             }
         }
         this.len += bytesRead;

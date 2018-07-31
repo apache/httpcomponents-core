@@ -167,7 +167,7 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
                 if (command instanceof ExecutionCommand) {
                     final ExecutionCommand executionCommand = (ExecutionCommand) command;
                     final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                    exchangeHandler.failed(new ConnectionClosedException("Connection closed"));
+                    exchangeHandler.failed(new ConnectionClosedException());
                     exchangeHandler.releaseResources();
                 } else {
                     command.cancel();

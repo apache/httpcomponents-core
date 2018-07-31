@@ -87,13 +87,11 @@ public final class FrameInputBuffer {
             if (bytesRead == -1) {
                 if (dataLen > 0) {
                     throw new H2CorruptFrameException("Corrupt or incomplete HTTP2 frame");
-                } else {
-                    throw new ConnectionClosedException("Connection closed");
                 }
-            } else {
-                dataLen += bytesRead;
-                this.metrics.incrementBytesTransferred(bytesRead);
+                throw new ConnectionClosedException();
             }
+            dataLen += bytesRead;
+            this.metrics.incrementBytesTransferred(bytesRead);
         }
     }
 

@@ -148,7 +148,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 }
             } else {
                 if (endOfStream) {
-                    throw new ConnectionClosedException("Connection closed");
+                    throw new ConnectionClosedException();
                 }
             }
         } catch (final Exception ex) {

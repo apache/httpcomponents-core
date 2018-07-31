@@ -40,6 +40,13 @@ public class ConnectionClosedException extends IOException {
 
     /**
      * Creates a new ConnectionClosedException with the specified detail message.
+     */
+    public ConnectionClosedException() {
+        super("Connection is closed");
+    }
+
+    /**
+     * Creates a new ConnectionClosedException with the specified detail message.
      *
      * @param message The exception detail message
      */

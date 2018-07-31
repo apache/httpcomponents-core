@@ -553,7 +553,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             if (command != null) {
                 if (command instanceof ExecutionCommand) {
                     final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
-                    exchangeHandler.failed(new ConnectionClosedException("Connection closed"));
+                    exchangeHandler.failed(new ConnectionClosedException());
                     exchangeHandler.releaseResources();
                 } else {
                     command.cancel();

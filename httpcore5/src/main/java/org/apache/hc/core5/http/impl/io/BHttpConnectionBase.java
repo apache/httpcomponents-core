@@ -93,7 +93,7 @@ class BHttpConnectionBase implements BHttpConnection {
     protected SocketHolder ensureOpen() throws IOException {
         final SocketHolder socketHolder = this.socketHolderRef.get();
         if (socketHolder == null) {
-            throw new ConnectionClosedException("Connection is closed");
+            throw new ConnectionClosedException();
         }
         return socketHolder;
     }

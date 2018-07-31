@@ -195,7 +195,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 if (command instanceof ExecutionCommand) {
                     final ExecutionCommand executionCommand = (ExecutionCommand) command;
                     final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                    exchangeHandler.failed(new ConnectionClosedException("Connection closed"));
+                    exchangeHandler.failed(new ConnectionClosedException());
                     exchangeHandler.releaseResources();
                 } else {
                     command.cancel();

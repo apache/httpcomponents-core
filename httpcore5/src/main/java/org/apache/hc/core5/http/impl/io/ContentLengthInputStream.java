@@ -134,9 +134,9 @@ public class ContentLengthInputStream extends InputStream {
         final int b = this.buffer.read(this.inputStream);
         if (b == -1) {
             if (pos < contentLength) {
-                throw new ConnectionClosedException(
-                        "Premature end of Content-Length delimited message body (expected: "
-                        + contentLength + "; received: " + pos);
+                throw new ConnectionClosedException(String.format(
+                                "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
+                                contentLength, pos));
             }
         } else {
             pos++;
@@ -172,9 +172,9 @@ public class ContentLengthInputStream extends InputStream {
         }
         final int count = this.buffer.read(b, off, chunk, this.inputStream);
         if (count == -1 && pos < contentLength) {
-            throw new ConnectionClosedException(
-                    "Premature end of Content-Length delimited message body (expected: "
-                    + contentLength + "; received: " + pos);
+            throw new ConnectionClosedException(String.format(
+                            "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
+                            contentLength, pos));
         }
         if (count > 0) {
             pos += count;
