@@ -30,10 +30,15 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
+import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http.nio.command.ExecutableCommand;
+import org.apache.hc.core5.http.nio.command.ExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http2.H2ConnectionException;
+import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
@@ -58,7 +63,7 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig,
             final Http2StreamListener streamListener) {
-        super(Mode.CLIENT, ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig, h2Config, streamListener);
+        super(ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig, h2Config, streamListener);
         this.pushHandlerFactory = pushHandlerFactory;
     }
 
@@ -77,6 +82,38 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig) {
         this(ioSession, httpProcessor, null, h2Config, charCodingConfig);
+    }
+
+    @Override
+    void acceptHeaderFrame() throws H2ConnectionException {
+        throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal HEADERS frame");
+    }
+
+    @Override
+    void acceptPushFrame() throws H2ConnectionException {
+    }
+
+    @Override
+    void acceptPushRequest() throws H2ConnectionException {
+        throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to push a response");
+    }
+
+    @Override
+    Http2StreamHandler createLocallyInitiatedStream(
+            final ExecutableCommand command,
+            final Http2StreamChannel channel,
+            final HttpProcessor httpProcessor,
+            final BasicHttpConnectionMetrics connMetrics) throws IOException {
+        if (command instanceof ExecutionCommand) {
+            final ExecutionCommand executionCommand = (ExecutionCommand) command;
+            final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
+            final HttpCoreContext context = HttpCoreContext.adapt(executionCommand.getContext());
+            context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
+            context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+            return new ClientHttp2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandler, context);
+        } else {
+            throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Unexpected executable command");
+        }
     }
 
     @Override

@@ -32,8 +32,11 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
+import org.apache.hc.core5.http.nio.command.ExecutableCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http2.H2ConnectionException;
+import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
@@ -59,7 +62,7 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final Http2StreamListener streamListener) {
-        super(Mode.SERVER, ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charCodingConfig, h2Config, streamListener);
+        super(ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charCodingConfig, h2Config, streamListener);
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Handler factory");
     }
 
@@ -73,6 +76,19 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     }
 
     @Override
+    void acceptHeaderFrame() throws H2ConnectionException {
+    }
+
+    @Override
+    void acceptPushRequest() throws H2ConnectionException {
+    }
+
+    @Override
+    void acceptPushFrame() throws H2ConnectionException {
+        throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Push not supported");
+    }
+
+    @Override
     Http2StreamHandler createRemotelyInitiatedStream(
             final Http2StreamChannel channel,
             final HttpProcessor httpProcessor,
@@ -81,6 +97,15 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
         context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
         return new ServerHttp2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandlerFactory, context);
+    }
+
+    @Override
+    Http2StreamHandler createLocallyInitiatedStream(
+            final ExecutableCommand command,
+            final Http2StreamChannel channel,
+            final HttpProcessor httpProcessor,
+            final BasicHttpConnectionMetrics connMetrics) throws IOException {
+        throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to execute a request");
     }
 
     @Override

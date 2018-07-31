@@ -60,9 +60,8 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
-import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
-import org.apache.hc.core5.http.nio.command.ExecutionCommand;
+import org.apache.hc.core5.http.nio.command.ExecutableCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -94,11 +93,9 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
     private static final long LINGER_TIME = 1000; // 1 second
 
-    enum Mode { CLIENT, SERVER}
     enum ConnectionHandshake { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
     enum SettingsHandshake { READY, TRANSMITTED, ACKED }
 
-    private final Mode mode;
     private final ProtocolIOSession ioSession;
     private final FrameFactory frameFactory;
     private final StreamIdGenerator idGenerator;
@@ -133,7 +130,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     private EndpointDetails endpointDetails;
 
     AbstractHttp2StreamMultiplexer(
-            final Mode mode,
             final ProtocolIOSession ioSession,
             final FrameFactory frameFactory,
             final StreamIdGenerator idGenerator,
@@ -141,7 +137,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final Http2StreamListener streamListener) {
-        this.mode = Args.notNull(mode, "Mode");
         this.ioSession = Args.notNull(ioSession, "IO session");
         this.frameFactory = Args.notNull(frameFactory, "Frame factory");
         this.idGenerator = Args.notNull(idGenerator, "Stream id generator");
@@ -176,8 +171,22 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         return ioSession.getId();
     }
 
+    abstract void acceptHeaderFrame() throws H2ConnectionException;
+
+    abstract void acceptPushRequest() throws H2ConnectionException;
+
+    abstract void acceptPushFrame() throws H2ConnectionException;
+
     abstract Http2StreamHandler createRemotelyInitiatedStream(
-            Http2StreamChannel channel, HttpProcessor httpProcessor, BasicHttpConnectionMetrics connMetrics) throws IOException;
+            Http2StreamChannel channel,
+            HttpProcessor httpProcessor,
+            BasicHttpConnectionMetrics connMetrics) throws IOException;
+
+    abstract Http2StreamHandler createLocallyInitiatedStream(
+            ExecutableCommand command,
+            Http2StreamChannel channel,
+            HttpProcessor httpProcessor,
+            BasicHttpConnectionMetrics connMetrics) throws IOException;
 
     private int updateWindow(final AtomicInteger window, final int delta) throws ArithmeticException {
         for (;;) {
@@ -551,10 +560,8 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         for (;;) {
             final Command command = ioSession.poll();
             if (command != null) {
-                if (command instanceof ExecutionCommand) {
-                    final AsyncClientExchangeHandler exchangeHandler = ((ExecutionCommand) command).getExchangeHandler();
-                    exchangeHandler.failed(new ConnectionClosedException());
-                    exchangeHandler.releaseResources();
+                if (command instanceof ExecutableCommand) {
+                    ((ExecutableCommand) command).failed(new ConnectionClosedException());
                 } else {
                     command.cancel();
                 }
@@ -588,34 +595,31 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     }
                 }
                 break;
-            } else if (command instanceof ExecutionCommand) {
-                if (mode == Mode.SERVER) {
-                    throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to execute a request");
-                }
-                final ExecutionCommand executionCommand = (ExecutionCommand) command;
+            } else if (command instanceof PingCommand) {
+                final PingCommand pingCommand = (PingCommand) command;
+                final AsyncPingHandler handler = pingCommand.getHandler();
+                pingHandlers.add(handler);
+                final RawFrame ping = frameFactory.createPing(handler.getData());
+                commitFrame(ping);
+            } else if (command instanceof ExecutableCommand) {
                 final int streamId = generateStreamId();
                 final Http2StreamChannelImpl channel = new Http2StreamChannelImpl(
                         streamId,
                         true,
                         localConfig.getInitialWindowSize(),
                         remoteConfig.getInitialWindowSize());
-                final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                final CancellableDependency cancellableDependency = executionCommand.getCancellableDependency();
-                final HttpCoreContext context = HttpCoreContext.adapt(executionCommand.getContext());
-                context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
-                context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
-                final ClientHttp2StreamHandler streamHandler = new ClientHttp2StreamHandler(
-                        channel,
-                        httpProcessor,
-                        connMetrics,
-                        exchangeHandler,
-                        context);
+
+                final ExecutableCommand executableCommand = (ExecutableCommand) command;
+                final Http2StreamHandler streamHandler = createLocallyInitiatedStream(
+                        executableCommand, channel, httpProcessor, connMetrics);
+
                 final Http2Stream stream = new Http2Stream(channel, streamHandler, false);
                 streamMap.put(streamId, stream);
 
                 if (stream.isOutputReady()) {
                     stream.produceOutput();
                 }
+                final CancellableDependency cancellableDependency = executableCommand.getCancellableDependency();
                 if (cancellableDependency != null) {
                     cancellableDependency.setDependency(new Cancellable() {
 
@@ -629,12 +633,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 if (!outputQueue.isEmpty()) {
                     return;
                 }
-            } else if (command instanceof PingCommand) {
-                final PingCommand pingCommand = (PingCommand) command;
-                final AsyncPingHandler handler = pingCommand.getHandler();
-                pingHandlers.add(handler);
-                final RawFrame ping = frameFactory.createPing(handler.getData());
-                commitFrame(ping);
             }
         }
     }
@@ -652,11 +650,8 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             for (;;) {
                 final Command command = ioSession.poll();
                 if (command != null) {
-                    if (command instanceof ExecutionCommand) {
-                        final ExecutionCommand executionCommand = (ExecutionCommand) command;
-                        final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                        exchangeHandler.failed(cause);
-                        exchangeHandler.releaseResources();
+                    if (command instanceof ExecutableCommand) {
+                        ((ExecutableCommand) command).failed(new ConnectionClosedException());
                     } else {
                         command.cancel();
                     }
@@ -742,9 +737,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 }
                 Http2Stream stream = streamMap.get(streamId);
                 if (stream == null) {
-                    if (mode != Mode.SERVER) {
-                        throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal HEADERS frame");
-                    }
+                    acceptHeaderFrame();
 
                     updateLastStreamId(streamId);
 
@@ -900,9 +893,8 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 // Stream priority not supported
                 break;
             case PUSH_PROMISE: {
-                if (mode == Mode.SERVER) {
-                    throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Push not supported");
-                }
+                acceptPushFrame();
+
                 if (!localConfig.isPushEnabled()) {
                     throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Push is disabled");
                 }
@@ -1323,9 +1315,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
         @Override
         public void push(final List<Header> headers, final AsyncPushProducer pushProducer) throws HttpException, IOException {
-            if (mode == Mode.CLIENT) {
-                throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to push a response");
-            }
+            acceptPushRequest();
             final int promisedStreamId = generateStreamId();
             final Http2StreamChannelImpl channel = new Http2StreamChannelImpl(
                     promisedStreamId,
