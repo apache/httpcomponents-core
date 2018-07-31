@@ -48,10 +48,10 @@ public class DefaultHttpResponseParserFactory implements HttpMessageParserFactor
     public static final DefaultHttpResponseParserFactory INSTANCE = new DefaultHttpResponseParserFactory();
 
     private final LineParser lineParser;
-    private final HttpResponseFactory responseFactory;
+    private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
 
     public DefaultHttpResponseParserFactory(final LineParser lineParser,
-            final HttpResponseFactory responseFactory) {
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory) {
         super();
         this.lineParser = lineParser != null ? lineParser : LazyLaxLineParser.INSTANCE;
         this.responseFactory = responseFactory != null ? responseFactory : DefaultClassicHttpResponseFactory.INSTANCE;
