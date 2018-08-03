@@ -236,6 +236,11 @@ class ServerHttp1StreamHandler implements ResourceHolder {
                 commitPromise();
             }
 
+            @Override
+            public String toString() {
+                return super.toString() + " " + ServerHttp1StreamHandler.this.toString();
+            }
+
         };
         try {
             httpProcessor.process(request, requestEntityDetails, context);
@@ -311,6 +316,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         return "[" +
                 "requestState=" + requestState +
                 ", responseState=" + responseState +
+                ", outputChannel=" + outputChannel +
                 ']';
     }
 

@@ -164,6 +164,11 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                 // empty
             }
 
+            @Override
+            public String toString() {
+                return "Http1StreamChannel[" + ServerHttp1StreamDuplexer.this.toString() + "]";
+            }
+
         };
     }
 
