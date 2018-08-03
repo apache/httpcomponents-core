@@ -134,4 +134,9 @@ class MultiCoreIOReactor implements IOReactor {
         close(CloseMode.GRACEFUL);
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + " [status=" + status + "]";
+    }
+
 }

@@ -48,6 +48,9 @@ adds several incremental improvements.
   
 * HTTPCORE-548: Add missing HttpContext parameter to APIs.
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* Refactor duplicate messages into a new 0-arg constructor for org.apache.hc.core5.http.StreamClosedException.
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 Release 5.0-BETA2
 -------------------

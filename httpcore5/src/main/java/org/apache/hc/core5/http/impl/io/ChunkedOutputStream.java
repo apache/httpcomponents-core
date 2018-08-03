@@ -173,7 +173,7 @@ public class ChunkedOutputStream extends OutputStream {
     @Override
     public void write(final int b) throws IOException {
         if (this.closed) {
-            throw new StreamClosedException("Stream already closed");
+            throw new StreamClosedException();
         }
         this.cache[this.cachePosition] = (byte) b;
         this.cachePosition++;
@@ -198,7 +198,7 @@ public class ChunkedOutputStream extends OutputStream {
     @Override
     public void write(final byte[] src, final int off, final int len) throws IOException {
         if (this.closed) {
-            throw new StreamClosedException("Stream already closed");
+            throw new StreamClosedException();
         }
         if (len >= this.cache.length - this.cachePosition) {
             flushCacheWithAppend(src, off, len);

@@ -36,6 +36,10 @@ import java.io.IOException;
  */
 public class StreamClosedException extends IOException {
 
+    public StreamClosedException() {
+        super("Stream already closed");
+    }
+
     public StreamClosedException(final String message) {
         super(message);
     }

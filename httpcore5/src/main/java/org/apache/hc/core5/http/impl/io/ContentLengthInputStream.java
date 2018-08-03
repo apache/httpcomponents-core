@@ -125,7 +125,7 @@ public class ContentLengthInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         if (closed) {
-            throw new StreamClosedException("Stream already closed");
+            throw new StreamClosedException();
         }
 
         if (pos >= contentLength) {
@@ -159,7 +159,7 @@ public class ContentLengthInputStream extends InputStream {
     @Override
     public int read(final byte[] b, final int off, final int len) throws java.io.IOException {
         if (closed) {
-            throw new StreamClosedException("Stream already closed");
+            throw new StreamClosedException();
         }
 
         if (pos >= contentLength) {

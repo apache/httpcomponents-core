@@ -102,7 +102,7 @@ public class ContentLengthOutputStream extends OutputStream {
     @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
         if (this.closed) {
-            throw new StreamClosedException("Stream already closed");
+            throw new StreamClosedException();
         }
         if (this.total < this.contentLength) {
             final long max = this.contentLength - this.total;
@@ -123,7 +123,7 @@ public class ContentLengthOutputStream extends OutputStream {
     @Override
     public void write(final int b) throws IOException {
         if (this.closed) {
-            throw new StreamClosedException("Stream already closed");
+            throw new StreamClosedException();
         }
         if (this.total < this.contentLength) {
             this.buffer.write(b, this.outputStream);

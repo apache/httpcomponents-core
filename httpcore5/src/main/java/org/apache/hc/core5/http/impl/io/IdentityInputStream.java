@@ -82,7 +82,7 @@ public class IdentityInputStream extends InputStream {
     @Override
     public int read() throws IOException {
         if (this.closed) {
-            throw new StreamClosedException("Stream already closed");
+            throw new StreamClosedException();
         }
         return this.buffer.read(this.inputStream);
     }
@@ -90,7 +90,7 @@ public class IdentityInputStream extends InputStream {
     @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
         if (this.closed) {
-            throw new StreamClosedException("Stream already closed");
+            throw new StreamClosedException();
         }
         return this.buffer.read(b, off, len, this.inputStream);
     }

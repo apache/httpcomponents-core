@@ -87,7 +87,7 @@ public class IdentityOutputStream extends OutputStream {
     @Override
     public void write(final byte[] b, final int off, final int len) throws IOException {
         if (this.closed) {
-            throw new StreamClosedException("Stream already closed");
+            throw new StreamClosedException();
         }
         this.buffer.write(b, off, len, this.outputStream);
     }
@@ -100,7 +100,7 @@ public class IdentityOutputStream extends OutputStream {
     @Override
     public void write(final int b) throws IOException {
         if (this.closed) {
-            throw new StreamClosedException("Stream already closed");
+            throw new StreamClosedException();
         }
         this.buffer.write(b, this.outputStream);
     }
