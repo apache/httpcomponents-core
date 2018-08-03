@@ -1,3 +1,14 @@
+Release 4.4.11
+-------------------
+
+This is a maintenance release.
+
+Changelog
+-------------------
+
+* Refactor duplicate messages into a new 0-arg constructor for org.apache.http.ConnectionClosedException.
+
+
 Release 4.4.10
 -------------------
 

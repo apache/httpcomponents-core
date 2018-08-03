@@ -128,7 +128,7 @@ public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
     protected void ensureOpen() throws IOException {
         final Socket socket = this.socketHolder.get();
         if (socket == null) {
-            throw new ConnectionClosedException("Connection is closed");
+            throw new ConnectionClosedException();
         }
         if (!this.inbuffer.isBound()) {
             this.inbuffer.bind(getSocketInputStream(socket));

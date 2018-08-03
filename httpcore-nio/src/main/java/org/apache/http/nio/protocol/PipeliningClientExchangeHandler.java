@@ -265,7 +265,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     @Override
     public void inputTerminated() {
-        failed(new ConnectionClosedException("Connection closed"));
+        failed(new ConnectionClosedException());
     }
 
     @Override

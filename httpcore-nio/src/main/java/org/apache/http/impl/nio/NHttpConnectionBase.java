@@ -495,7 +495,7 @@ public class NHttpConnectionBase
      */
     protected void assertNotClosed() throws ConnectionClosedException {
         if (this.status != ACTIVE) {
-            throw new ConnectionClosedException("Connection is closed");
+            throw new ConnectionClosedException();
         }
     }
 

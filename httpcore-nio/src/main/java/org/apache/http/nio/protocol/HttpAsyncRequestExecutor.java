@@ -347,7 +347,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                     if (state.isValid()) {
                         handler.inputTerminated();
                     } else {
-                        handler.failed(new ConnectionClosedException("Connection closed"));
+                        handler.failed(new ConnectionClosedException());
                     }
                 }
             }

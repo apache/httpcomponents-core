@@ -156,7 +156,7 @@ public class HttpAsyncRequester {
         synchronized (context) {
             context.setAttribute(HttpAsyncRequestExecutor.HTTP_HANDLER, handler);
             if (!conn.isOpen()) {
-                handler.failed(new ConnectionClosedException("Connection closed"));
+                handler.failed(new ConnectionClosedException());
             } else {
                 conn.requestOutput();
             }
