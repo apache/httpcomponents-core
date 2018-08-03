@@ -225,9 +225,9 @@ public final class EntityUtils {
             return null;
         }
         try {
-            int i = (int) Args.checkContentLength(entity);
-            if (i < 0) {
-                i = 4096;
+            int contentLength = (int) Args.checkContentLength(entity);
+            if (contentLength < 0) {
+                contentLength = 4096;
             }
             Charset charset = null;
             if (contentType != null) {
@@ -241,11 +241,11 @@ public final class EntityUtils {
                 charset = StandardCharsets.ISO_8859_1;
             }
             final Reader reader = new InputStreamReader(instream, charset);
-            final CharArrayBuffer buffer = new CharArrayBuffer(i);
+            final CharArrayBuffer buffer = new CharArrayBuffer(contentLength);
             final char[] tmp = new char[1024];
-            int l;
-            while((l = reader.read(tmp)) != -1) {
-                buffer.append(tmp, 0, l);
+            int chReadCount;
+            while((chReadCount = reader.read(tmp)) != -1) {
+                buffer.append(tmp, 0, chReadCount);
             }
             return buffer.toString();
         } finally {
