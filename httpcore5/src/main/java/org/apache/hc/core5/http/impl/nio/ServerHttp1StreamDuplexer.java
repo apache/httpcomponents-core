@@ -161,6 +161,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
             @Override
             public void activate() throws HttpException, IOException {
+                // empty
             }
 
         };
@@ -443,11 +444,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         @Override
         public int write(final ByteBuffer src) throws IOException {
             synchronized (this) {
-                if (direct) {
-                    return channel.write(src);
-                } else {
-                    return 0;
-                }
+                return direct ? channel.write(src) : 0;
             }
         }
 
@@ -467,21 +464,16 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             synchronized (this) {
                 if (direct) {
                     return channel.abortGracefully();
-                } else {
-                    completed = true;
-                    return true;
                 }
+                completed = true;
+                return true;
             }
         }
 
         @Override
         public boolean isCompleted() {
             synchronized (this) {
-                if (direct) {
-                    return channel.isCompleted();
-                } else {
-                    return completed;
-                }
+                return direct ? channel.isCompleted() : completed;
             }
         }
 
