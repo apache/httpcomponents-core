@@ -161,7 +161,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         if( (currentTime - this.lastTimeoutCheck) >= this.reactorConfig.getSelectInterval()) {
             this.lastTimeoutCheck = currentTime;
             for (final SelectionKey key : this.selector.keys()) {
-                timeoutCheck(key, currentTime);
+                checkTimeout(key, currentTime);
             }
         }
     }
@@ -225,7 +225,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         }
     }
 
-    private void timeoutCheck(final SelectionKey key, final long now) {
+    private void checkTimeout(final SelectionKey key, final long now) {
         final InternalChannel channel = (InternalChannel) key.attachment();
         if (channel != null) {
             channel.checkTimeout(now);
