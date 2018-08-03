@@ -139,7 +139,7 @@ public class ContentLengthInputStream extends InputStream {
             if (pos < contentLength) {
                 throw new ConnectionClosedException(
                         "Premature end of Content-Length delimited message body (expected: "
-                        + contentLength + "; received: " + pos);
+                        + contentLength + "; received: " + pos + ")");
             }
         } else {
             pos++;
@@ -160,7 +160,7 @@ public class ContentLengthInputStream extends InputStream {
      * @throws java.io.IOException Should an error occur on the wrapped stream.
      */
     @Override
-    public int read (final byte[] b, final int off, final int len) throws java.io.IOException {
+    public int read(final byte[] b, final int off, final int len) throws java.io.IOException {
         if (closed) {
             throw new IOException("Attempted read from closed stream.");
         }
@@ -177,7 +177,7 @@ public class ContentLengthInputStream extends InputStream {
         if (count == -1 && pos < contentLength) {
             throw new ConnectionClosedException(
                     "Premature end of Content-Length delimited message body (expected: "
-                    + contentLength + "; received: " + pos);
+                    + contentLength + "; received: " + pos + ")");
         }
         if (count > 0) {
             pos += count;

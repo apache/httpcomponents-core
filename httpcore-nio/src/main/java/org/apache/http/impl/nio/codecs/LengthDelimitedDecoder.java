@@ -88,7 +88,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             if (this.len < this.contentLength) {
                 throw new ConnectionClosedException(
                         "Premature end of Content-Length delimited message body (expected: "
-                        + this.contentLength + "; received: " + this.len);
+                        + this.contentLength + "; received: " + this.len + ")");
             }
         }
         this.len += bytesRead;
@@ -141,7 +141,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             if (this.len < this.contentLength) {
                 throw new ConnectionClosedException(
                         "Premature end of Content-Length delimited message body (expected: "
-                        + this.contentLength + "; received: " + this.len);
+                        + this.contentLength + "; received: " + this.len + ")");
             }
         }
         this.len += bytesRead;

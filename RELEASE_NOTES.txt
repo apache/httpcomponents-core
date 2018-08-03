@@ -7,6 +7,10 @@ Changelog
 -------------------
 
 * Refactor duplicate messages into a new 0-arg constructor for org.apache.http.ConnectionClosedException.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* Fix typos in exception messages.
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 
 Release 4.4.10
