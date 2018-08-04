@@ -1239,9 +1239,10 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         try {
             future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.fail("CancellationException expected");
+            Assert.fail("CancellationException or ExecutionException expected");
         } catch (final CancellationException ignore) {
             Assert.assertTrue(future4.isCancelled());
+        } catch (final ExecutionException ignore) {
         }
     }
 
