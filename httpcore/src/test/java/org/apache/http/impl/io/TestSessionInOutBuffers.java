@@ -42,6 +42,7 @@ import org.apache.http.io.HttpTransportMetrics;
 import org.apache.http.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 public class TestSessionInOutBuffers {
@@ -339,8 +340,8 @@ public class TestSessionInOutBuffers {
         outbuffer.write(new byte[]{3, 4});
         outbuffer.flush();
         Mockito.verify(outstream, Mockito.times(1)).write(
-                Mockito.<byte[]>any(), Mockito.anyInt(), Mockito.anyInt());
-        Mockito.verify(outstream, Mockito.never()).write(Mockito.anyInt());
+                Matchers.<byte[]>any(), Matchers.anyInt(), Matchers.anyInt());
+        Mockito.verify(outstream, Mockito.never()).write(Matchers.anyInt());
     }
 
     @Test
@@ -352,8 +353,8 @@ public class TestSessionInOutBuffers {
         outbuffer.write(new byte[] {1, 2});
         outbuffer.write(new byte[]{3, 4});
         Mockito.verify(outstream, Mockito.times(2)).write(
-                Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt());
-        Mockito.verify(outstream, Mockito.times(2)).write(Mockito.anyInt());
+                Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt());
+        Mockito.verify(outstream, Mockito.times(2)).write(Matchers.anyInt());
     }
 
     @Test

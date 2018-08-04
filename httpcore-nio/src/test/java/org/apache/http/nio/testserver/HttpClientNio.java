@@ -73,7 +73,6 @@ import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
 
-@SuppressWarnings("deprecation")
 public class HttpClientNio {
 
     public static final HttpProcessor DEFAULT_HTTP_PROC = new ImmutableHttpProcessor(

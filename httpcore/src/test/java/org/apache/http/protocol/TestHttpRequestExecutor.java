@@ -41,6 +41,7 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 public class TestHttpRequestExecutor {
@@ -307,7 +308,7 @@ public class TestHttpRequestExecutor {
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 100, "Continue"),
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"));
-        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
+        Mockito.when(conn.isResponseAvailable(Matchers.anyInt())).thenReturn(Boolean.TRUE);
 
         final HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -340,7 +341,7 @@ public class TestHttpRequestExecutor {
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 402, "OK"));
-        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
+        Mockito.when(conn.isResponseAvailable(Matchers.anyInt())).thenReturn(Boolean.TRUE);
 
         final HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -371,7 +372,7 @@ public class TestHttpRequestExecutor {
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 101, "OK"));
-        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
+        Mockito.when(conn.isResponseAvailable(Matchers.anyInt())).thenReturn(Boolean.TRUE);
 
         try {
             executor.execute(request, conn, context);
@@ -399,7 +400,7 @@ public class TestHttpRequestExecutor {
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK"));
-        Mockito.when(conn.isResponseAvailable(Mockito.anyInt())).thenReturn(Boolean.FALSE);
+        Mockito.when(conn.isResponseAvailable(Matchers.anyInt())).thenReturn(Boolean.FALSE);
 
         final HttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);

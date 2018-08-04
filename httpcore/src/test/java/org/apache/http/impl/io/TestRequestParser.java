@@ -111,9 +111,7 @@ public class TestRequestParser {
         Assert.assertNotNull(httprequest);
         Assert.assertEquals(5, timeoutCount);
 
-        @SuppressWarnings("null") // httprequest cannot be null here
-        final
-        RequestLine reqline = httprequest.getRequestLine();
+        final RequestLine reqline = httprequest.getRequestLine();
         Assert.assertNotNull(reqline);
         Assert.assertEquals("GET", reqline.getMethod());
         Assert.assertEquals("/", reqline.getUri());

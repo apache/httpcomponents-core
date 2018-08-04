@@ -46,6 +46,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 public class TestBasicAsyncClientExchangeHandler {
@@ -60,7 +61,6 @@ public class TestBasicAsyncClientExchangeHandler {
     private ContentEncoder encoder;
     private ContentDecoder decoder;
 
-    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         this.requestProducer = Mockito.mock(HttpAsyncRequestProducer.class);
@@ -343,7 +343,7 @@ public class TestBasicAsyncClientExchangeHandler {
     @Test
     public void testInputTerminated() throws Exception {
         this.exchangeHandler.inputTerminated();
-        Mockito.verify(this.responseConsumer).failed(Mockito.<ConnectionClosedException>any());
+        Mockito.verify(this.responseConsumer).failed(Matchers.<ConnectionClosedException>any());
         try {
             this.exchangeHandler.getFuture().get();
             Assert.fail("ExecutionException expected");

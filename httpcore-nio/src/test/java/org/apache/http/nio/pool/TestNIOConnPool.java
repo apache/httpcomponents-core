@@ -320,7 +320,6 @@ public class TestNIOConnPool {
         Mockito.when(sessionRequest.getAttachment()).thenReturn("somehost");
         Mockito.when(sessionRequest.getException()).thenReturn(new IOException());
         final ConnectingIOReactor ioreactor = Mockito.mock(ConnectingIOReactor.class);
-        @SuppressWarnings("unchecked")
         final SocketAddressResolver<String> addressResolver = Mockito.mock(SocketAddressResolver.class);
         Mockito.when(addressResolver.resolveRemoteAddress("somehost")).thenThrow(new UnknownHostException());
         final LocalSessionPool pool = new LocalSessionPool(ioreactor, addressResolver, 2, 10);

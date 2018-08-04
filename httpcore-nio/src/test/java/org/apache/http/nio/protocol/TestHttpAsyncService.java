@@ -84,7 +84,6 @@ public class TestHttpAsyncService {
     private ContentDecoder decoder;
     private Cancellable cancellable;
 
-    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         this.requestHandler = Mockito.mock(HttpAsyncRequestHandler.class);

@@ -63,7 +63,6 @@ public class TestHttpAsyncRequester {
     private FutureCallback<Object> callback;
     private ConnPool<HttpHost, PoolEntry<HttpHost, NHttpClientConnection>> connPool;
 
-    @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
         this.httpProcessor = Mockito.mock(HttpProcessor.class);
@@ -191,7 +190,7 @@ public class TestHttpAsyncRequester {
 
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({ "rawtypes" })
     @Test
     public void testPooledConnectionRequestFailed() throws Exception {
         final HttpHost host = new HttpHost("somehost");
@@ -215,7 +214,7 @@ public class TestHttpAsyncRequester {
         Mockito.verify(this.requestProducer).close();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({ "rawtypes" })
     @Test
     public void testPooledConnectionRequestCancelled() throws Exception {
         final HttpHost host = new HttpHost("somehost");

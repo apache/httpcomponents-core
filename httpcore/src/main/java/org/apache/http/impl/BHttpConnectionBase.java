@@ -41,7 +41,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.Header;
-import org.apache.http.HttpConnection;
 import org.apache.http.HttpConnectionMetrics;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
@@ -74,7 +73,7 @@ import org.apache.http.util.NetUtils;
  *
  * @since 4.0
  */
-public class BHttpConnectionBase implements HttpConnection, HttpInetConnection {
+public class BHttpConnectionBase implements HttpInetConnection {
 
     private final SessionInputBufferImpl inbuffer;
     private final SessionOutputBufferImpl outbuffer;

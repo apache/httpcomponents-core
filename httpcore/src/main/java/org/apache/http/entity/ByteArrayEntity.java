@@ -52,7 +52,6 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
     /**
      * @since 4.2
      */
-    @SuppressWarnings("deprecation")
     public ByteArrayEntity(final byte[] b, final ContentType contentType) {
         super();
         Args.notNull(b, "Source byte array");
@@ -68,7 +67,6 @@ public class ByteArrayEntity extends AbstractHttpEntity implements Cloneable {
     /**
      * @since 4.2
      */
-    @SuppressWarnings("deprecation")
     public ByteArrayEntity(final byte[] b, final int off, final int len, final ContentType contentType) {
         super();
         Args.notNull(b, "Source byte array");

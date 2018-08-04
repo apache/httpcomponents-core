@@ -688,7 +688,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     private void completeRequest(
             final Incoming incoming,
             final NHttpServerConnection conn,
-            final State state) throws IOException, HttpException {
+            final State state) throws IOException {
         state.setRequestState(MessageState.READY);
         state.setIncoming(null);
 
@@ -743,7 +743,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     private void completeResponse(
             final Outgoing outgoing,
             final NHttpServerConnection conn,
-            final State state) throws IOException, HttpException {
+            final State state) throws IOException {
         final HttpContext context = outgoing.getContext();
         final HttpResponse response = outgoing.getResponse();
         final HttpAsyncResponseProducer responseProducer = outgoing.getProducer();

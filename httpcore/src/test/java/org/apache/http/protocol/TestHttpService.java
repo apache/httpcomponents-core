@@ -47,6 +47,7 @@ import org.apache.http.message.BasicHttpRequest;
 import org.apache.http.message.BasicHttpResponse;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 public class TestHttpService {
@@ -542,7 +543,7 @@ public class TestHttpService {
         Mockito.verify(requestHandler).handle(request, response, context);
 
         Mockito.verify(conn).sendResponseHeader(response);
-        Mockito.verify(conn, Mockito.never()).sendResponseEntity(Mockito.<HttpResponse>any());
+        Mockito.verify(conn, Mockito.never()).sendResponseEntity(Matchers.<HttpResponse>any());
         Mockito.verify(conn).flush();
         Mockito.verify(conn, Mockito.never()).close();
     }
@@ -579,7 +580,7 @@ public class TestHttpService {
         Mockito.verify(requestHandler).handle(request, response, context);
 
         Mockito.verify(conn).sendResponseHeader(response);
-        Mockito.verify(conn, Mockito.never()).sendResponseEntity(Mockito.<HttpResponse>any());
+        Mockito.verify(conn, Mockito.never()).sendResponseEntity(Matchers.<HttpResponse>any());
         Mockito.verify(conn).flush();
         Mockito.verify(conn, Mockito.never()).close();
     }

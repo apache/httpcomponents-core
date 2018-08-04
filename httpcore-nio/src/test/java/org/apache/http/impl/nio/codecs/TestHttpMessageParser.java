@@ -29,7 +29,6 @@ package org.apache.http.impl.nio.codecs;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
@@ -51,13 +50,11 @@ import org.junit.Test;
  */
 public class TestHttpMessageParser {
 
-    private static ReadableByteChannel newChannel(final String s, final Charset charset)
-            throws UnsupportedEncodingException {
+    private static ReadableByteChannel newChannel(final String s, final Charset charset) {
         return Channels.newChannel(new ByteArrayInputStream(s.getBytes(charset)));
     }
 
-    private static ReadableByteChannel newChannel(final String s)
-            throws UnsupportedEncodingException {
+    private static ReadableByteChannel newChannel(final String s) {
         return newChannel(s, Consts.ASCII);
     }
 

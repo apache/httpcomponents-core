@@ -278,9 +278,7 @@ public class TestRouteSpecificPool {
     @Test
     public void testWaitingThreadQueuing() throws Exception {
         final LocalRoutePool pool = new LocalRoutePool();
-        @SuppressWarnings("unchecked")
         final Future<LocalPoolEntry> future1 = Mockito.mock(Future.class);
-        @SuppressWarnings("unchecked")
         final Future<LocalPoolEntry> future2 = Mockito.mock(Future.class);
 
         Assert.assertEquals(0, pool.getPendingCount());
@@ -308,7 +306,6 @@ public class TestRouteSpecificPool {
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
         final LocalPoolEntry entry2 = pool.add(conn2);
 
-        @SuppressWarnings("unchecked")
         final Future<LocalPoolEntry> future1 = Mockito.mock(Future.class);
         pool.queue(future1);
 

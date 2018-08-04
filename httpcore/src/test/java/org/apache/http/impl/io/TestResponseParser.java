@@ -112,9 +112,7 @@ public class TestResponseParser {
         Assert.assertNotNull(httpresponse);
         Assert.assertEquals(5, timeoutCount);
 
-        @SuppressWarnings("null") // httpresponse cannot be null here
-        final
-        StatusLine statusline = httpresponse.getStatusLine();
+        final StatusLine statusline = httpresponse.getStatusLine();
         Assert.assertNotNull(statusline);
         Assert.assertEquals(200, statusline.getStatusCode());
         Assert.assertEquals("OK", statusline.getReasonPhrase());
