@@ -38,7 +38,7 @@ import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
- * Represents authority component of request URI.
+ * Represents authority component of request {@link java.net.URI}.
  *
  * @since 5.0
  */

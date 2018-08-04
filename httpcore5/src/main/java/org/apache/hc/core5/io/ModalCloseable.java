@@ -37,8 +37,8 @@ import java.io.Closeable;
 public interface ModalCloseable extends Closeable {
 
     /**
-     * Closes this endpoint and releases any system resources associated
-     * with it. If the endpoint is already closed then invoking this
+     * Closes this process or endpoint and releases any system resources associated
+     * with it. If the endpoint or the process is already closed then invoking this
      * method has no effect.
      */
     void close(CloseMode closeMode);

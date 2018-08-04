@@ -32,9 +32,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Future whose result depends on another {@link Cancellable} processes or
- * {@link Future}. Dependent process will get cancelled if the future
- * itself is cancelled.
+ * {@link Future} whose result depends on another {@link Cancellable} process
+ * or operation or another {@link Future}. Dependent process will get cancelled
+ * if the future itself is cancelled.
  *
  * @param <T> the future result type of an asynchronous operation.
  * @since 5.0

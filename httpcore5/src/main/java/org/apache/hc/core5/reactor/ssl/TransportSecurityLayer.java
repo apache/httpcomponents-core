@@ -38,6 +38,17 @@ import org.apache.hc.core5.net.NamedEndpoint;
  */
 public interface TransportSecurityLayer {
 
+    /**
+     * Starts TLS session over an existing network connection with the given SSL context.
+     * {@link NamedEndpoint} details are applicable for client side connections and
+     * are used for host name verification, when supported by the SSL engine.
+     *
+     * @param sslContext SSL context to be used for this session.
+     * @param endpoint optional endpoint details for outgoing client side connections.
+     * @param sslBufferMode SSL buffer management mode.
+     * @param initializer SSL session initialization callback.
+     * @param verifier SSL session verification callback.
+     */
     void startTls(
             SSLContext sslContext,
             NamedEndpoint endpoint,
@@ -45,6 +56,11 @@ public interface TransportSecurityLayer {
             SSLSessionInitializer initializer,
             SSLSessionVerifier verifier) throws UnsupportedOperationException;
 
+    /**
+     * Returns details of a fully established TLS session.
+     *
+     * @return TLS session details.
+     */
     TlsDetails getTlsDetails();
 
 }

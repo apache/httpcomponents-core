@@ -36,6 +36,12 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
 
+/**
+ * Component that holds all details needed to describe a network connection
+ * to a host. This includes remote host name and port.
+ *
+ * @since 5.0
+ */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public final class Host implements NamedEndpoint, Serializable {
 

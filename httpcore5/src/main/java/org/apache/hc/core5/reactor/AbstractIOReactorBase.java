@@ -35,7 +35,7 @@ import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
-abstract class AbstractIOReactorBase implements ConnectionInitiator {
+abstract class AbstractIOReactorBase implements ConnectionInitiator, IOReactorService {
 
     @Override
     public final Future<IOSession> connect(
@@ -57,9 +57,6 @@ abstract class AbstractIOReactorBase implements ConnectionInitiator {
         }
     }
 
-    public abstract void initiateShutdown();
-
-    public abstract IOReactorStatus getStatus();
-
     abstract IOWorkers.Selector getWorkerSelector();
+
 }

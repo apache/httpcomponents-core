@@ -56,6 +56,7 @@ public interface EntityDetails {
      * <p>
      * The behavior of wrapping entities is implementation dependent,
      * but should respect the primary purpose.
+     * </p>
      */
     boolean isChunked();
 

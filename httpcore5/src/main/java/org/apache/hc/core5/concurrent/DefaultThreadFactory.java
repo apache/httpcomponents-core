@@ -30,6 +30,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
+ * Default {@link ThreadFactory} implementation.
+ *
  * @since 5.0
  */
 public class DefaultThreadFactory implements ThreadFactory {

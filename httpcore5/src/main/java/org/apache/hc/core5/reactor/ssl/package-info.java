@@ -26,6 +26,6 @@
  */
 
 /**
- * TLS/SSL support for asynchronous, event driven communication.
+ * TLS/SSL support for I/O reactors.
  */
 package org.apache.hc.core5.reactor.ssl;

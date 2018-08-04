@@ -51,7 +51,7 @@ import org.apache.hc.core5.util.TimeValue;
  *
  * @since 4.0
  */
-public class DefaultConnectingIOReactor extends AbstractIOReactorBase implements IOReactorService {
+public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
 
     private final Deque<ExceptionEvent> auditLog;
     private final int workerCount;

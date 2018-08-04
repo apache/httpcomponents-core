@@ -36,8 +36,16 @@ import java.util.List;
  */
 public interface IOReactorService extends IOReactor {
 
+    /**
+     * Starts I/O reactor.
+     */
     void start();
 
+    /**
+     * Returns the list of internal exceptions occurred during
+     * I/O reactor shutdown process.
+     * @return list of internal exceptions.
+     */
     List<ExceptionEvent> getExceptionLog();
 
 }

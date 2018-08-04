@@ -26,12 +26,8 @@
  */
 
 /**
- * Event driven network communication APIs loosely based on
+ * Event driven network communication APIs and components loosely based on
  <a href="http://gee.cs.oswego.edu/dl/">Doug Lea</a>'s
  <a href="http://gee.cs.oswego.edu/dl/cpjslides/nio.pdf">reactor pattern</a>.
- <p>
- This API is not specific to HTTP communication. However, it is minimal
- in the sense that it defines only what is required within the scope
- of HTTP protocol.
  */
 package org.apache.hc.core5.reactor;

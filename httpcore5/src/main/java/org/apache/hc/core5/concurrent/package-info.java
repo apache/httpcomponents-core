@@ -26,6 +26,6 @@
  */
 
 /**
- * Core concurrency APIs.
+ * Core concurrency component APIs.
  */
 package org.apache.hc.core5.concurrent;

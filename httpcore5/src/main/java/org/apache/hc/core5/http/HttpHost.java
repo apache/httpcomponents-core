@@ -42,8 +42,10 @@ import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
- * Holds all of the variables needed to describe an HTTP connection to a host.
- * This includes remote host name, port and scheme.
+ * Component that holds all details needed to describe an HTTP connection
+ * to a host. This includes remote host name, port and protocol scheme.
+ *
+ * @see org.apache.hc.core5.net.Host
  *
  * @since 4.0
  */

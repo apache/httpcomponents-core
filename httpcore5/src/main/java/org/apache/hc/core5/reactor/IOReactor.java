@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.reactor;
 
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -48,6 +49,15 @@ import org.apache.hc.core5.util.TimeValue;
  * @since 4.0
  */
 public interface IOReactor extends ModalCloseable {
+
+    /**
+     * Shuts down the I/O reactor either gracefully or immediately.
+     * During graceful shutdown individual I/O sessions should be
+     * informed about imminent termination and be given a grace period
+     * to complete the ongoing I/O sessions. During immediate shutdown
+     * all ongoing I/O sessions get aborted immediately.
+     */
+    void close(CloseMode closeMode);
 
     /**
      * Returns the current status of the reactor.

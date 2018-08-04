@@ -29,6 +29,11 @@ package org.apache.hc.core5.http;
 
 import org.apache.hc.core5.util.Args;
 
+/**
+ * Supported URI schemes
+ *
+ * @since 5.0
+ */
 public enum URIScheme {
 
     HTTP("http"), HTTPS("https");

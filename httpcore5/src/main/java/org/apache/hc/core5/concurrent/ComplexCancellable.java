@@ -32,8 +32,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Cancellable that represents a sequence of other {@link Cancellable} processes.
- * Dependent process will get cancelled if the future itself is cancelled.
+ * {@link Cancellable} that has a dependency on another {@link Cancellable}
+ * process or operation. Dependent process or operation will get cancelled
+ * if this {@link Cancellable} itself is cancelled.
  *
  * @since 5.0
  */

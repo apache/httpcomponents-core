@@ -56,7 +56,7 @@ import org.apache.hc.core5.util.TimeValue;
  *
  * @since 4.0
  */
-public class DefaultListeningIOReactor extends AbstractIOReactorBase implements IOReactorService, ConnectionAcceptor {
+public class DefaultListeningIOReactor extends AbstractIOReactorBase implements ConnectionAcceptor {
 
     private final static ThreadFactory DISPATCH_THREAD_FACTORY = new DefaultThreadFactory("I/O server dispatch", true);
     private final static ThreadFactory LISTENER_THREAD_FACTORY = new DefaultThreadFactory("I/O listener", true);
