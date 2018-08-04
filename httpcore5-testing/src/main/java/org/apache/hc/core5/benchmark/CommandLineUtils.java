@@ -187,7 +187,7 @@ public class CommandLineUtils {
         if (cmd.hasOption('t')) {
             final String t = cmd.getOptionValue('t');
             try {
-                config.setSocketTimeout(Integer.parseInt(t));
+                config.setSocketTimeoutMillis(Integer.parseInt(t));
             } catch (final NumberFormatException ex) {
                 printError("Invalid socket timeout: " + t);
             }

@@ -73,7 +73,7 @@ public class TestDefaultListeningIOReactor {
                 }
 
                 @Override
-                public void timeout(final IOSession session) {
+                public void timeout(final IOSession session, final int timeoutMillis) {
                 }
 
                 @Override

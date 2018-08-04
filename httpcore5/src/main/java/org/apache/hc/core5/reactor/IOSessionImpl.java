@@ -165,12 +165,12 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public int getSocketTimeout() {
+    public int getSocketTimeoutMillis() {
         return this.socketTimeout;
     }
 
     @Override
-    public void setSocketTimeout(final int timeout) {
+    public void setSocketTimeoutMillis(final int timeout) {
         this.socketTimeout = timeout;
     }
 

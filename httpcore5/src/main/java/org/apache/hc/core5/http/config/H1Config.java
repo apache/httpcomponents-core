@@ -45,7 +45,7 @@ public class H1Config {
 
     private final int bufferSize;
     private final int chunkSizeHint;
-    private final int waitForContinueTimeout;
+    private final int waitForContinueTimeoutMillis;
     private final int maxLineLength;
     private final int maxHeaderCount;
     private final int maxEmptyLineCount;
@@ -55,7 +55,7 @@ public class H1Config {
         super();
         this.bufferSize = bufferSize;
         this.chunkSizeHint = chunkSizeHint;
-        this.waitForContinueTimeout = waitForContinueTimeout;
+        this.waitForContinueTimeoutMillis = waitForContinueTimeout;
         this.maxLineLength = maxLineLength;
         this.maxHeaderCount = maxHeaderCount;
         this.maxEmptyLineCount = maxEmptyLineCount;
@@ -69,8 +69,8 @@ public class H1Config {
         return chunkSizeHint;
     }
 
-    public int getWaitForContinueTimeout() {
-        return waitForContinueTimeout;
+    public int getWaitForContinueTimeoutMillis() {
+        return waitForContinueTimeoutMillis;
     }
 
     public int getMaxLineLength() {
@@ -90,7 +90,7 @@ public class H1Config {
         final StringBuilder builder = new StringBuilder();
         builder.append("[bufferSize=").append(bufferSize)
                 .append(", chunkSizeHint=").append(chunkSizeHint)
-                .append(", waitForContinueTimeout=").append(waitForContinueTimeout)
+                .append(", waitForContinueTimeout=").append(waitForContinueTimeoutMillis)
                 .append(", maxLineLength=").append(maxLineLength)
                 .append(", maxHeaderCount=").append(maxHeaderCount)
                 .append(", maxEmptyLineCount=").append(maxEmptyLineCount)
@@ -107,7 +107,7 @@ public class H1Config {
         return new Builder()
                 .setBufferSize(config.getBufferSize())
                 .setChunkSizeHint(config.getChunkSizeHint())
-                .setWaitForContinueTimeout(config.getWaitForContinueTimeout())
+                .setWaitForContinueTimeoutMillis(config.getWaitForContinueTimeoutMillis())
                 .setMaxHeaderCount(config.getMaxHeaderCount())
                 .setMaxLineLength(config.getMaxLineLength())
                 .setMaxEmptyLineCount(config.maxEmptyLineCount);
@@ -141,7 +141,7 @@ public class H1Config {
             return this;
         }
 
-        public Builder setWaitForContinueTimeout(final int waitForContinueTimeout) {
+        public Builder setWaitForContinueTimeoutMillis(final int waitForContinueTimeout) {
             this.waitForContinueTimeout = waitForContinueTimeout;
             return this;
         }

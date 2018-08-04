@@ -658,8 +658,8 @@ public class SSLIOSession implements IOSession {
                 return;
             }
             this.status = CLOSING;
-            if (this.session.getSocketTimeout() == 0) {
-                this.session.setSocketTimeout(1000);
+            if (this.session.getSocketTimeoutMillis() == 0) {
+                this.session.setSocketTimeoutMillis(1000);
             }
             try {
                 updateEventMask();
@@ -779,13 +779,13 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public int getSocketTimeout() {
-        return this.session.getSocketTimeout();
+    public int getSocketTimeoutMillis() {
+        return this.session.getSocketTimeoutMillis();
     }
 
     @Override
-    public void setSocketTimeout(final int timeout) {
-        this.session.setSocketTimeout(timeout);
+    public void setSocketTimeoutMillis(final int timeout) {
+        this.session.setSocketTimeoutMillis(timeout);
     }
 
     @Override

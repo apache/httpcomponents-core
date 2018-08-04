@@ -172,7 +172,7 @@ public interface IOSession extends ModalCloseable, Identifiable {
      *
      * @return socket timeout.
      */
-    int getSocketTimeout();
+    int getSocketTimeoutMillis();
 
     /**
      * Sets value of the socket timeout in milliseconds. The value of
@@ -180,7 +180,7 @@ public interface IOSession extends ModalCloseable, Identifiable {
      *
      * @param timeout socket timeout.
      */
-    void setSocketTimeout(int timeout);
+    void setSocketTimeoutMillis(int timeout);
 
     /**
      * Returns timestamp of the last read event.

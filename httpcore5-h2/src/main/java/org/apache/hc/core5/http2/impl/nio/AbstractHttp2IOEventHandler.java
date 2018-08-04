@@ -76,9 +76,9 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void timeout(final IOSession session) throws IOException {
+    public void timeout(final IOSession session, final int timeoutMillis) throws IOException {
         try {
-            streamMultiplexer.onTimeout();
+            streamMultiplexer.onTimeout(timeoutMillis);
         } catch (final HttpException ex) {
             streamMultiplexer.onException(ex);
         }
@@ -110,8 +110,8 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void setSocketTimeout(final int timeout) {
-        streamMultiplexer.setSocketTimeout(timeout);
+    public void setSocketTimeoutMillis(final int timeout) {
+        streamMultiplexer.setSocketTimeoutMillis(timeout);
     }
 
     @Override
@@ -125,8 +125,8 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public int getSocketTimeout() {
-        return streamMultiplexer.getSocketTimeout();
+    public int getSocketTimeoutMillis() {
+        return streamMultiplexer.getSocketTimeoutMillis();
     }
 
     @Override

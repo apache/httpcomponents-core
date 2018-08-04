@@ -52,6 +52,12 @@ adds several incremental improvements.
 * Refactor duplicate messages into a new 0-arg constructor for org.apache.hc.core5.http.StreamClosedException.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* Refactor timeout APIs to include the actual timeout value.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* Refactor timeout APIs to include the scale in the method name; for example 'int getSocketTimeout()' vs. int 'getSocketTimeoutMillis()'.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 Release 5.0-BETA2
 -------------------
 

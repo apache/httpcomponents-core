@@ -872,7 +872,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H1Config.custom().setWaitForContinueTimeout(100).build());
+        client.start(H1Config.custom().setWaitForContinueTimeoutMillis(100).build());
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();

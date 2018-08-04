@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.nio;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
@@ -77,6 +76,7 @@ import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Identifiable;
+import org.apache.hc.core5.util.SocketTimeoutExceptionFactory;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
         implements Identifiable, HttpConnection {
@@ -390,9 +390,9 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
     }
 
-    public final void onTimeout() throws IOException, HttpException {
+    public final void onTimeout(final int timeoutMillis) throws IOException, HttpException {
         if (!handleTimeout()) {
-            onException(new SocketTimeoutException());
+            onException(SocketTimeoutExceptionFactory.create(timeoutMillis));
         }
     }
 
@@ -483,12 +483,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         ioSession.setEvent(SelectionKey.OP_WRITE);
     }
 
-    int getSessionTimeout() {
-        return ioSession.getSocketTimeout();
+    int getSessionTimeoutMillis() {
+        return ioSession.getSocketTimeoutMillis();
     }
 
-    void setSessionTimeout(final int timeout) {
-        ioSession.setSocketTimeout(timeout);
+    void setSessionTimeoutMillis(final int timeout) {
+        ioSession.setSocketTimeoutMillis(timeout);
     }
 
     void suspendSessionOutput() {
@@ -563,22 +563,22 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     @Override
-    public void setSocketTimeout(final int timeout) {
-        ioSession.setSocketTimeout(timeout);
+    public void setSocketTimeoutMillis(final int timeout) {
+        ioSession.setSocketTimeoutMillis(timeout);
     }
 
     @Override
     public EndpointDetails getEndpointDetails() {
         if (endpointDetails == null) {
             endpointDetails = new BasicEndpointDetails(ioSession.getRemoteAddress(),
-                            ioSession.getLocalAddress(), connMetrics, ioSession.getSocketTimeout());
+                            ioSession.getLocalAddress(), connMetrics, ioSession.getSocketTimeoutMillis());
         }
         return endpointDetails;
     }
 
     @Override
-    public int getSocketTimeout() {
-        return ioSession.getSocketTimeout();
+    public int getSocketTimeoutMillis() {
+        return ioSession.getSocketTimeoutMillis();
     }
 
     @Override

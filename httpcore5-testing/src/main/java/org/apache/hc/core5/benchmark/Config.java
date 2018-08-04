@@ -153,11 +153,11 @@ public class Config {
         this.headers = headers;
     }
 
-    public int getSocketTimeout() {
+    public int getSocketTimeoutMillis() {
         return socketTimeout;
     }
 
-    public void setSocketTimeout(final int socketTimeout) {
+    public void setSocketTimeoutMillis(final int socketTimeout) {
         this.socketTimeout = socketTimeout;
     }
 

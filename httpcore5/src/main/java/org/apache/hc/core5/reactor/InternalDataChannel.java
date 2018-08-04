@@ -172,14 +172,14 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    int getTimeout() {
-        return ioSession.getSocketTimeout();
+    int getTimeoutMillis() {
+        return ioSession.getSocketTimeoutMillis();
     }
 
     @Override
-    void onTimeout() throws IOException {
+    void onTimeout(final int timeoutMillis) throws IOException {
         final IOEventHandler handler = ensureHandler();
-        handler.timeout(this);
+        handler.timeout(this, timeoutMillis);
         final SSLIOSession tlsSession = tlsSessionRef.get();
         if (tlsSession != null) {
             if (tlsSession.isOutboundDone() && !tlsSession.isInboundDone()) {
@@ -349,13 +349,13 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    public int getSocketTimeout() {
-        return ioSession.getSocketTimeout();
+    public int getSocketTimeoutMillis() {
+        return ioSession.getSocketTimeoutMillis();
     }
 
     @Override
-    public void setSocketTimeout(final int timeout) {
-        ioSession.setSocketTimeout(timeout);
+    public void setSocketTimeoutMillis(final int timeout) {
+        ioSession.setSocketTimeoutMillis(timeout);
     }
 
     @Override

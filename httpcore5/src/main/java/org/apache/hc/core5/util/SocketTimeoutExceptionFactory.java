@@ -24,30 +24,35 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio;
 
-import java.io.IOException;
+package org.apache.hc.core5.util;
 
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.nio.ContentEncoder;
+import java.net.SocketTimeoutException;
 
-interface Http1StreamChannel<OutgoingMessage extends HttpMessage> extends ContentEncoder {
+/**
+ * Creates SocketTimeoutException instances.
+ */
+public class SocketTimeoutExceptionFactory {
 
-    void close();
+    /**
+     * Creates a new SocketTimeoutException with a message for the given timeout.
+     *
+     * @param timeoutMillis
+     *            a timeout in milliseconds.
+     * @return a new SocketTimeoutException with a message for the given timeout.
+     */
+    static public SocketTimeoutException create(final int timeoutMillis) {
+        return new SocketTimeoutException(toMessage(timeoutMillis));
+    }
 
-    void activate() throws HttpException, IOException;
-
-    void submit(OutgoingMessage messageHead, boolean endStream) throws HttpException, IOException;
-
-    void requestOutput();
-
-    void suspendOutput();
-
-    boolean abortGracefully() throws IOException;
-
-    int getSocketTimeoutMillis();
-
-    void setSocketTimeoutMillis(int timeout);
-
+    /**
+     * Creates a message for the given timeout.
+     *
+     * @param timeoutMillis
+     *            a timeout in milliseconds.
+     * @return a message for the given timeout.
+     */
+    public static String toMessage(final int timeoutMillis) {
+        return String.format("%,d millisecond", timeoutMillis);
+    }
 }

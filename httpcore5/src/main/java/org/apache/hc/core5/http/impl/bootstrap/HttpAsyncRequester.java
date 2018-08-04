@@ -204,7 +204,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                                         session.getRemoteAddress(),
                                         attachment);
                             }
-                            session.setSocketTimeout(timeout.toMillisIntBound());
+                            session.setSocketTimeoutMillis(timeout.toMillisIntBound());
                             poolEntry.assignConnection(session);
                             resultFuture.completed(endpoint);
                         }

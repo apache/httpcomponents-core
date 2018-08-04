@@ -111,7 +111,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
                             ioSession.getLocalAddress(),
                             ioSession.getRemoteAddress(),
                             null);
-                    ioSession.setSocketTimeout(requestTimeout.toMillisIntBound());
+                    ioSession.setSocketTimeoutMillis(requestTimeout.toMillisIntBound());
                 }
                 callback.completed(ioSession);
             }
@@ -138,12 +138,12 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final long lastAccessTime = Math.min(ioSession.getLastReadTime(), ioSession.getLastWriteTime());
             final long deadline = lastAccessTime + timeValue.toMillis();
             if (deadline <= System.currentTimeMillis()) {
-                final int socketTimeout = ioSession.getSocketTimeout();
+                final int socketTimeoutMillis = ioSession.getSocketTimeoutMillis();
                 ioSession.enqueue(new PingCommand(new BasicPingHandler(new Callback<Boolean>() {
 
                     @Override
                     public void execute(final Boolean result) {
-                        ioSession.setSocketTimeout(socketTimeout);
+                        ioSession.setSocketTimeoutMillis(socketTimeoutMillis);
                         callback.execute(result);
                     }
 

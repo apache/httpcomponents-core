@@ -124,13 +124,13 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
-            public int getSocketTimeout() {
-                return getSessionTimeout();
+            public int getSocketTimeoutMillis() {
+                return getSessionTimeoutMillis();
             }
 
             @Override
-            public void setSocketTimeout(final int timeout) {
-                setSessionTimeout(timeout);
+            public void setSocketTimeoutMillis(final int timeout) {
+                setSessionTimeoutMillis(timeout);
             }
 
             @Override

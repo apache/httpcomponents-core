@@ -142,9 +142,9 @@ class BenchmarkWorker implements Runnable {
                         socket = new Socket();
                     }
 
-                    final int timeout = config.getSocketTimeout();
-                    socket.setSoTimeout(timeout);
-                    socket.connect(new InetSocketAddress(hostname, port), timeout);
+                    final int timeoutMillis = config.getSocketTimeoutMillis();
+                    socket.setSoTimeout(timeoutMillis);
+                    socket.connect(new InetSocketAddress(hostname, port), timeoutMillis);
 
                     conn.bind(socket);
                 }

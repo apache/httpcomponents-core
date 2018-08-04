@@ -28,11 +28,11 @@
 package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.util.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.util.TimeValue;
 
 final class InternalConnectChannel extends InternalChannel {
@@ -78,7 +78,7 @@ final class InternalConnectChannel extends InternalChannel {
     }
 
     @Override
-    int getTimeout() {
+    int getTimeoutMillis() {
         return TimeValue.defaultsToZeroMillis(sessionRequest.timeout).toMillisIntBound();
     }
 
@@ -88,8 +88,8 @@ final class InternalConnectChannel extends InternalChannel {
     }
 
     @Override
-    void onTimeout() throws IOException {
-        sessionRequest.failed(new SocketTimeoutException());
+    void onTimeout(final int timeoutMillis) throws IOException {
+        sessionRequest.failed(SocketTimeoutExceptionFactory.create(timeoutMillis));
         close();
     }
 

@@ -205,7 +205,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             }
             final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, null, sessionListener, closedSessions);
             dataChannel.upgrade(this.eventHandlerFactory.createHandler(dataChannel, null));
-            dataChannel.setSocketTimeout(this.reactorConfig.getSoTimeout().toMillisIntBound());
+            dataChannel.setSocketTimeoutMillis(this.reactorConfig.getSoTimeout().toMillisIntBound());
             key.attach(dataChannel);
             dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
         }
@@ -332,7 +332,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 }
                 final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, namedEndpoint, sessionListener, closedSessions);
                 dataChannel.upgrade(eventHandlerFactory.createHandler(dataChannel, attachment));
-                dataChannel.setSocketTimeout(reactorConfig.getSoTimeout().toMillisIntBound());
+                dataChannel.setSocketTimeoutMillis(reactorConfig.getSoTimeout().toMillisIntBound());
                 return dataChannel;
             }
 

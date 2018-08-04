@@ -191,7 +191,7 @@ class BHttpConnectionBase implements BHttpConnection {
     }
 
     @Override
-    public void setSocketTimeout(final int timeout) {
+    public void setSocketTimeoutMillis(final int timeout) {
         final SocketHolder socketHolder = this.socketHolderRef.get();
         if (socketHolder != null) {
             try {
@@ -205,7 +205,7 @@ class BHttpConnectionBase implements BHttpConnection {
     }
 
     @Override
-    public int getSocketTimeout() {
+    public int getSocketTimeoutMillis() {
         final SocketHolder socketHolder = this.socketHolderRef.get();
         if (socketHolder != null) {
             try {

@@ -72,7 +72,7 @@ public interface HttpConnection extends ModalCloseable {
      *
      * @param timeout timeout value in milliseconds
      */
-    void setSocketTimeout(int timeout);
+    void setSocketTimeoutMillis(int timeout);
 
     /**
      * Returns the socket timeout value.
@@ -81,7 +81,7 @@ public interface HttpConnection extends ModalCloseable {
      * {@code 0} if timeout is disabled or {@code -1} if
      * timeout is undefined.
      */
-    int getSocketTimeout();
+    int getSocketTimeoutMillis();
 
     /**
      * Returns protocol version used by this connection or {@code null} if unknown.

@@ -129,13 +129,13 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
-            public int getSocketTimeout() {
-                return getSessionTimeout();
+            public int getSocketTimeoutMillis() {
+                return getSessionTimeoutMillis();
             }
 
             @Override
-            public void setSocketTimeout(final int timeout) {
-                setSessionTimeout(timeout);
+            public void setSocketTimeoutMillis(final int timeout) {
+                setSessionTimeoutMillis(timeout);
             }
 
             @Override
@@ -437,13 +437,13 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         }
 
         @Override
-        public int getSocketTimeout() {
-            return channel.getSocketTimeout();
+        public int getSocketTimeoutMillis() {
+            return channel.getSocketTimeoutMillis();
         }
 
         @Override
-        public void setSocketTimeout(final int timeout) {
-            channel.setSocketTimeout(timeout);
+        public void setSocketTimeoutMillis(final int timeout) {
+            channel.setSocketTimeoutMillis(timeout);
         }
 
         @Override

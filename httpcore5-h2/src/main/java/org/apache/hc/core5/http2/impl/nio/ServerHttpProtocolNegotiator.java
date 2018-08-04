@@ -29,7 +29,6 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
 
 import javax.net.ssl.SSLSession;
@@ -52,6 +51,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.SocketTimeoutExceptionFactory;
 
 /**
  * @since 5.0
@@ -161,8 +161,8 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void timeout(final IOSession session) {
-        exception(session, new SocketTimeoutException());
+    public void timeout(final IOSession session, final int timeoutMillis) {
+        exception(session, SocketTimeoutExceptionFactory.create(timeoutMillis));
     }
 
     @Override
@@ -186,13 +186,13 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void setSocketTimeout(final int timeout) {
-        ioSession.setSocketTimeout(timeout);
+    public void setSocketTimeoutMillis(final int timeout) {
+        ioSession.setSocketTimeoutMillis(timeout);
     }
 
     @Override
-    public int getSocketTimeout() {
-        return ioSession.getSocketTimeout();
+    public int getSocketTimeoutMillis() {
+        return ioSession.getSocketTimeoutMillis();
     }
 
     @Override

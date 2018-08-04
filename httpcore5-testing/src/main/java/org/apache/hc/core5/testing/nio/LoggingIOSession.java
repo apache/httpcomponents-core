@@ -177,16 +177,16 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
-    public int getSocketTimeout() {
-        return this.session.getSocketTimeout();
+    public int getSocketTimeoutMillis() {
+        return this.session.getSocketTimeoutMillis();
     }
 
     @Override
-    public void setSocketTimeout(final int timeout) {
+    public void setSocketTimeoutMillis(final int timeout) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.session + " Set timeout " + timeout);
         }
-        this.session.setSocketTimeout(timeout);
+        this.session.setSocketTimeoutMillis(timeout);
     }
 
     @Override

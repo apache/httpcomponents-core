@@ -162,8 +162,8 @@ class ClientHttp1StreamHandler implements ResourceHolder {
                 final boolean expectContinue = h != null && "100-continue".equalsIgnoreCase(h.getValue());
                 if (expectContinue) {
                     requestState = MessageState.ACK;
-                    timeout = outputChannel.getSocketTimeout();
-                    outputChannel.setSocketTimeout(h1Config.getWaitForContinueTimeout());
+                    timeout = outputChannel.getSocketTimeoutMillis();
+                    outputChannel.setSocketTimeoutMillis(h1Config.getWaitForContinueTimeoutMillis());
                 } else {
                     requestState = MessageState.BODY;
                     exchangeHandler.produce(internalDataChannel);
@@ -219,7 +219,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         }
         if (requestState == MessageState.ACK) {
             if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
-                outputChannel.setSocketTimeout(timeout);
+                outputChannel.setSocketTimeoutMillis(timeout);
                 requestState = MessageState.BODY;
                 if (status < HttpStatus.SC_CLIENT_ERROR) {
                     exchangeHandler.produce(internalDataChannel);
@@ -277,7 +277,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     boolean handleTimeout() {
         if (requestState == MessageState.ACK) {
             requestState = MessageState.BODY;
-            outputChannel.setSocketTimeout(timeout);
+            outputChannel.setSocketTimeoutMillis(timeout);
             outputChannel.requestOutput();
             return true;
         }

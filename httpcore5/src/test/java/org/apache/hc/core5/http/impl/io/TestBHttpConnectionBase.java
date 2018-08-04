@@ -202,7 +202,7 @@ public class TestBHttpConnectionBase {
     public void testSetSocketTimeout() throws Exception {
         conn.bind(socket);
 
-        conn.setSocketTimeout(123);
+        conn.setSocketTimeoutMillis(123);
 
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(123);
     }
@@ -213,29 +213,29 @@ public class TestBHttpConnectionBase {
 
         Mockito.doThrow(new SocketException()).when(socket).setSoTimeout(Mockito.anyInt());
 
-        conn.setSocketTimeout(123);
+        conn.setSocketTimeoutMillis(123);
 
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(123);
     }
 
     @Test
     public void testGetSocketTimeout() throws Exception {
-        Assert.assertEquals(-1, conn.getSocketTimeout());
+        Assert.assertEquals(-1, conn.getSocketTimeoutMillis());
 
         Mockito.when(socket.getSoTimeout()).thenReturn(345);
         conn.bind(socket);
 
-        Assert.assertEquals(345, conn.getSocketTimeout());
+        Assert.assertEquals(345, conn.getSocketTimeoutMillis());
     }
 
     @Test
     public void testGetSocketTimeoutException() throws Exception {
-        Assert.assertEquals(-1, conn.getSocketTimeout());
+        Assert.assertEquals(-1, conn.getSocketTimeoutMillis());
 
         Mockito.when(socket.getSoTimeout()).thenThrow(new SocketException());
         conn.bind(socket);
 
-        Assert.assertEquals(-1, conn.getSocketTimeout());
+        Assert.assertEquals(-1, conn.getSocketTimeoutMillis());
     }
 
     @Test
