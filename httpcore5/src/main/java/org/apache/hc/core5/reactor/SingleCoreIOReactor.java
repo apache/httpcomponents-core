@@ -48,6 +48,7 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Closer;
 import org.apache.hc.core5.util.TimeValue;
 
 class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
@@ -293,11 +294,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 try {
                     processConnectionRequest(socketChannel, sessionRequest);
                 } catch (final IOException | SecurityException ex) {
-                    try {
-                        socketChannel.close();
-                    } catch (final IOException ignore) {
-                        // Ignore
-                    }
+                    Closer.closeQuietly(socketChannel);
                     sessionRequest.failed(ex);
                 }
             }

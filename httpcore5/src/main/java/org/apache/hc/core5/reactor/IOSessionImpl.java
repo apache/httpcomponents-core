@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.reactor;
 
-import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
@@ -41,6 +40,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Closer;
 
 class IOSessionImpl implements IOSession {
 
@@ -199,10 +199,7 @@ class IOSessionImpl implements IOSession {
         if (this.status.compareAndSet(ACTIVE, CLOSED)) {
             this.key.cancel();
             this.key.attach(null);
-            try {
-                this.key.channel().close();
-            } catch (final IOException ignore) {
-            }
+            Closer.closeQuietly(this.key.channel());
             if (this.key.selector().isOpen()) {
                 this.key.selector().wakeup();
             }

@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.util.Closer;
 
 class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implements ConnectionAcceptor {
 
@@ -167,10 +168,7 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
                 this.endpoints.put(endpoint, Boolean.TRUE);
                 request.completed(endpoint);
             } catch (final IOException ex) {
-                try {
-                    serverChannel.close();
-                } catch (final IOException ignore) {
-                }
+                Closer.closeQuietly(serverChannel);
                 request.failed(ex);
             }
         }

@@ -53,6 +53,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Closer;
 
 /**
  * {@code HttpRequestExecutor} is a client side HTTP protocol handler based
@@ -198,7 +199,7 @@ public class HttpRequestExecutor {
             return response;
 
         } catch (final HttpException | IOException | RuntimeException ex) {
-            closeConnection(conn);
+            Closer.closeQuietly(conn);
             throw ex;
         }
     }
@@ -220,13 +221,6 @@ public class HttpRequestExecutor {
             final HttpClientConnection conn,
             final HttpContext context) throws IOException, HttpException {
         return execute(request, conn, null, context);
-    }
-
-    private static void closeConnection(final HttpClientConnection conn) {
-        try {
-            conn.close();
-        } catch (final IOException ignore) {
-        }
     }
 
     /**

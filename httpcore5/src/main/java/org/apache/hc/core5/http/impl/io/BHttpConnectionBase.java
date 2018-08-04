@@ -61,6 +61,7 @@ import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Closer;
 
 class BHttpConnectionBase implements BHttpConnection {
 
@@ -229,10 +230,7 @@ class BHttpConnectionBase implements BHttpConnection {
                 }
             } catch (final IOException ignore) {
             } finally {
-                try {
-                    socket.close();
-                } catch (final IOException ignore) {
-                }
+                Closer.closeQuietly(socket);
             }
         }
     }
