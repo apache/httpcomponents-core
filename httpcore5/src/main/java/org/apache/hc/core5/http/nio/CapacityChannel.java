@@ -35,12 +35,21 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
  * Abstract capacity update channel.
  * <p>
  * Implementations are expected to be thread-safe.
+ * </p>
  *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
 public interface CapacityChannel {
 
+    /**
+     * Updates data capacity information. The total number of
+     * bytes the consumer is capable of accepting is incremented
+     * by the given increment number.
+     *
+     * @param increment non-negative number of extra bytes the consumer
+     * can accept.
+     */
     void update(int increment) throws IOException;
 
 }

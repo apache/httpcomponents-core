@@ -35,8 +35,22 @@ import java.io.IOException;
  */
 public interface AsyncDataProducer extends ResourceHolder {
 
+    /**
+     * Returns the number of bytes immediately available for output.
+     * This method can be used as a hint to control output events
+     * of the underlying I/O session.
+     *
+     * @return the number of bytes immediately available for output
+     */
     int available();
 
+    /**
+     * Triggered to signal the ability of the underlying data channel
+     * to accept more data. The data producer can choose to write data
+     * immediately inside the call or asynchronously at some later point.
+     *
+     * @param channel the data channel capable to accepting more data.
+     */
     void produce(DataStreamChannel channel) throws IOException;
 
 }

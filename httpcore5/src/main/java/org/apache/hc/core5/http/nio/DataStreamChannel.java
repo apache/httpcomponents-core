@@ -36,17 +36,44 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 
 /**
- * Abstract data stream channel
+ * Abstract byte stream channel
  * <p>
  * Implementations are expected to be thread-safe.
+ * </p>
  *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
 public interface DataStreamChannel extends StreamChannel<ByteBuffer> {
 
+    /**
+     * Signals intent by the data producer to produce more data.
+     * Once the channel is able to accept data its handler is expected
+     * to trigger an event to notify the data producer.
+     */
     void requestOutput();
 
+    /**
+     * Writes data from the buffer into the underlying byte stream.
+     * If the underlying byte stream is temporarily unable to accept more data
+     * it can return zero to indicate that no data could be written to the data
+     * stream. The data producer can choose to call {@link #requestOutput()}
+     * to signal its intent to produce more data.
+     *
+     * @param src source of data
+     *
+     * @return The number of bytes written, possibly zero
+     */
+    int write(ByteBuffer src) throws IOException;
+
+    /**
+     * Terminates the underlying data stream and optionally writes
+     * a closing sequence with the given trailers.
+     * <p>
+     * Please note that some data streams may not support trailers
+     * and may silently ignore the trailers parameter.
+     * </p>
+     */
     void endStream(List<? extends Header> trailers) throws IOException;
 
 }

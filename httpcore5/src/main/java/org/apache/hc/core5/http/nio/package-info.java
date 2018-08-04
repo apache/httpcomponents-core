@@ -28,5 +28,17 @@
 /**
  * Core HTTP component APIs and primitives for asynchronous, event
  * driven communication.
+ * <p>
+ * The application programming interface is based on the concept
+ * of channels and event handlers. The channels act as conduits
+ * for asynchronous data output. They are generally expected to
+ * be thread-safe and could be used by multiple threads concurrently.
+ * The event handlers react to as asynchronous signal or event and
+ * handle them. Event handlers can be specialized as data producers,
+ * data consumers or can be both. Generally event handlers can only
+ * be used by a signle thread at a time and do not require synchronization
+ * as long as they do not interact with event handlers run by separate
+ * threads.
+ * <p/>
  */
 package org.apache.hc.core5.http.nio;

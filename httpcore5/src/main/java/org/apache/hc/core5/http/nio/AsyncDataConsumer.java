@@ -40,10 +40,34 @@ import org.apache.hc.core5.http.HttpException;
  */
 public interface AsyncDataConsumer extends ResourceHolder {
 
+    /**
+     * Triggered to signal ability of the underlying data stream to receive
+     * data capacity update. The data consumer can choose to write data
+     * immediately inside the call or asynchronously at some later point.
+     *
+     * @param capacityChannel the channel for capacity updates.
+     */
     void updateCapacity(CapacityChannel capacityChannel) throws IOException;
 
+    /**
+     * Triggered to pass incoming data to the data consumer. The consumer must
+     * consume the entire content of the data buffer. The consumer must stop
+     * incrementing its capacity on the capacity channel and must return zero
+     * capacity from this method if it is unable to accept more data.
+     * Once the data consumer has handled accumulated data or allocated more
+     * intermediate storage it can update its capacity information on the capacity
+     * channel.
+     *
+     * @param src data source.
+     * @return current capacity of the data consumer
+     */
     int consume(ByteBuffer src) throws IOException;
 
+    /**
+     * Triggered to signal termination of the data stream.
+     *
+     * @param trailers data stream trailers.
+     */
     void streamEnd(List<? extends Header> trailers) throws HttpException, IOException;
 
 }

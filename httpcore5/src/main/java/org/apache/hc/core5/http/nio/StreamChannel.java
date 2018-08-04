@@ -30,14 +30,33 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 import java.nio.Buffer;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+
 /**
- * Abstract stream channel.
+ * Abstract data stream channel.
+ * <p>
+ * Implementations are expected to be thread-safe.
+ * </p>
+ *
+ * @param <T> data container accepted by the channel.
  *
  * @since 5.0
  */
+@Contract(threading = ThreadingBehavior.SAFE)
 public interface StreamChannel<T extends Buffer> {
 
+    /**
+     * Writes data from the data container into the underlying data stream.
+     *
+     * @param src source of data
+     * @return The number of elements written, possibly zero
+     */
     int write(T src) throws IOException;
 
+    /**
+     * Terminates the underlying data stream and optionally writes
+     * a closing sequence.
+     */
     void endStream() throws IOException;
 }
