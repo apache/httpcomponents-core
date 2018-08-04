@@ -37,11 +37,9 @@ final class IOWorkers {
     }
 
     static Selector newSelector(final SingleCoreIOReactor[] dispatchers) {
-        if (isPowerOfTwo(dispatchers.length)) {
-            return new PowerOfTwoSelector(dispatchers);
-        } else {
-            return new GenericSelector(dispatchers);
-        }
+        return isPowerOfTwo(dispatchers.length)
+                        ? new PowerOfTwoSelector(dispatchers)
+                        : new GenericSelector(dispatchers);
     }
 
     private static boolean isPowerOfTwo(final int val) {

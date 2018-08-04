@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 public class TestSessionInOutBuffers {
@@ -376,8 +377,8 @@ public class TestSessionInOutBuffers {
         outbuffer.write(new byte[] {1, 2}, outputStream);
         outbuffer.write(new byte[]{3, 4}, outputStream);
         outbuffer.flush(outputStream);
-        Mockito.verify(outputStream, Mockito.times(1)).write(Mockito.<byte[]>any(), Mockito.anyInt(), Mockito.anyInt());
-        Mockito.verify(outputStream, Mockito.never()).write(Mockito.anyInt());
+        Mockito.verify(outputStream, Mockito.times(1)).write(ArgumentMatchers.<byte[]>any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
+        Mockito.verify(outputStream, Mockito.never()).write(ArgumentMatchers.anyInt());
     }
 
     @Test
@@ -388,8 +389,8 @@ public class TestSessionInOutBuffers {
         outbuffer.write(2, outputStream);
         outbuffer.write(new byte[] {1, 2}, outputStream);
         outbuffer.write(new byte[]{3, 4}, outputStream);
-        Mockito.verify(outputStream, Mockito.times(2)).write(Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt());
-        Mockito.verify(outputStream, Mockito.times(2)).write(Mockito.anyInt());
+        Mockito.verify(outputStream, Mockito.times(2)).write(ArgumentMatchers.<byte []>any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
+        Mockito.verify(outputStream, Mockito.times(2)).write(ArgumentMatchers.anyInt());
     }
 
     @Test

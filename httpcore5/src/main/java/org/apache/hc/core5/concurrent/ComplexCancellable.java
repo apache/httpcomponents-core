@@ -37,7 +37,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-public final class ComplexCancellable implements Cancellable, CancellableDependency {
+public final class ComplexCancellable implements CancellableDependency {
 
     private final AtomicReference<Cancellable> dependencyRef;
     private final AtomicBoolean cancelled;
@@ -70,9 +70,8 @@ public final class ComplexCancellable implements Cancellable, CancellableDepende
                 dependency.cancel();
             }
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
 }

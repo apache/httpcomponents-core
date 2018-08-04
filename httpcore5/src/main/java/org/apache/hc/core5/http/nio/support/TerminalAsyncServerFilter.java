@@ -142,10 +142,9 @@ public final class TerminalAsyncServerFilter implements AsyncFilterHandler {
 
             }, context);
             return exchangeHandler;
-        } else {
-            responseTrigger.submitResponse(new BasicHttpResponse(HttpStatus.SC_NOT_FOUND), new BasicAsyncEntityProducer("Not found"));
-            return null;
         }
+        responseTrigger.submitResponse(new BasicHttpResponse(HttpStatus.SC_NOT_FOUND), new BasicAsyncEntityProducer("Not found"));
+        return null;
     }
 
 }

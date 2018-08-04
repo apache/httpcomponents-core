@@ -101,10 +101,9 @@ final class FifoLinkedList {
             last.seqNum = 0;
             length--;
             return last;
-        } else {
-            master.seqNum = 0;
-            return null;
         }
+        master.seqNum = 0;
+        return null;
     }
 
     public void clear() {

@@ -562,12 +562,9 @@ public class TestSSLContextBuilder {
 
         final PrivateKeyStrategy privateKeyStrategy = new PrivateKeyStrategy() {
             @Override
-            public String chooseAlias(final Map<String, PrivateKeyDetails> aliases, final SSLParameters sslParameters) {
-                if (aliases.keySet().contains("client2")) {
-                    return "client2";
-                } else {
-                    return null;
-                }
+            public String chooseAlias(final Map<String, PrivateKeyDetails> aliases,
+                            final SSLParameters sslParameters) {
+                return aliases.keySet().contains("client2") ? "client2" : null;
             }
         };
 

@@ -75,7 +75,7 @@ public class TestAbstractCharAsyncEntityConsumer {
             buffer.setLength(0);
         }
 
-    };
+    }
 
     @Test
     public void testConsumeData() throws Exception {

@@ -163,29 +163,28 @@ public final class HPackEncoder {
                 dst.ensureCapacity(len + 8);
                 encodeInt(dst, 7, len, 0x0);
                 for (int i = 0; i < len; i++) {
-                    dst.append((int) charSequence.charAt(off + i));
+                    dst.append(charSequence.charAt(off + i));
                 }
             }
             return len;
-        } else {
-            final CharBuffer in = CharBuffer.wrap(charSequence, off, len);
-            while (in.hasRemaining()) {
-                ensureCapacity((int) (in.remaining() * this.charsetEncoder.averageBytesPerChar()) + 8);
-                final CoderResult result = this.charsetEncoder.encode(in, this.tmpBuf, true);
-                if (result.isError()) {
-                    result.throwException();
-                }
-            }
-            ensureCapacity(8);
-            final CoderResult result = this.charsetEncoder.flush(this.tmpBuf);
+        }
+        final CharBuffer in = CharBuffer.wrap(charSequence, off, len);
+        while (in.hasRemaining()) {
+            ensureCapacity((int) (in.remaining() * this.charsetEncoder.averageBytesPerChar()) + 8);
+            final CoderResult result = this.charsetEncoder.encode(in, this.tmpBuf, true);
             if (result.isError()) {
                 result.throwException();
             }
-            this.tmpBuf.flip();
-            final int binaryLen = this.tmpBuf.remaining();
-            encodeString(dst, this.tmpBuf, huffman);
-            return binaryLen;
         }
+        ensureCapacity(8);
+        final CoderResult result = this.charsetEncoder.flush(this.tmpBuf);
+        if (result.isError()) {
+            result.throwException();
+        }
+        this.tmpBuf.flip();
+        final int binaryLen = this.tmpBuf.remaining();
+        encodeString(dst, this.tmpBuf, huffman);
+        return binaryLen;
     }
 
     int encodeString(final ByteArrayBuffer dst, final String s, final boolean huffman) throws CharacterCodingException {

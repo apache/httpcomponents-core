@@ -153,4 +153,4 @@ public enum H2Error {
         return MAP_BY_CODE.get(code);
     }
 
-};
+}

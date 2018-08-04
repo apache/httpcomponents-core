@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.nio;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
@@ -61,13 +60,11 @@ public class TestSessionInOutBuffers {
         return Channels.newChannel(new ByteArrayInputStream(bytes));
     }
 
-    private static ReadableByteChannel newChannel(final String s, final Charset charset)
-            throws UnsupportedEncodingException {
+    private static ReadableByteChannel newChannel(final String s, final Charset charset) {
         return Channels.newChannel(new ByteArrayInputStream(s.getBytes(charset)));
     }
 
-    private static ReadableByteChannel newChannel(final String s)
-            throws UnsupportedEncodingException {
+    private static ReadableByteChannel newChannel(final String s) {
         return newChannel(s, StandardCharsets.US_ASCII);
     }
 

@@ -53,4 +53,4 @@ public final class H2Setting {
         final StringBuilder sb = new StringBuilder().append(param).append(": ").append(value);
         return sb.toString();
     }
-};
+}

@@ -34,4 +34,4 @@ public class H2CorruptFrameException extends IOException {
         super(message);
     }
 
-};
+}

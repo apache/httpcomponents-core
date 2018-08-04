@@ -36,6 +36,7 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 public class TestLaxConnPool {
@@ -90,8 +91,8 @@ public class TestLaxConnPool {
         pool.release(entry1, true);
         pool.release(entry2, true);
         pool.release(entry3, false);
-        Mockito.verify(conn1, Mockito.never()).close(Mockito.<CloseMode>any());
-        Mockito.verify(conn2, Mockito.never()).close(Mockito.<CloseMode>any());
+        Mockito.verify(conn1, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
+        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
         Mockito.verify(conn3, Mockito.times(1)).close(CloseMode.GRACEFUL);
 
         final PoolStats totals = pool.getTotalStats();
@@ -258,7 +259,7 @@ public class TestLaxConnPool {
         pool.closeExpired();
 
         Mockito.verify(conn1).close(CloseMode.GRACEFUL);
-        Mockito.verify(conn2, Mockito.never()).close(Mockito.<CloseMode>any());
+        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
 
         final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
@@ -300,7 +301,7 @@ public class TestLaxConnPool {
         pool.closeIdle(TimeValue.of(50, TimeUnit.MILLISECONDS));
 
         Mockito.verify(conn1).close(CloseMode.GRACEFUL);
-        Mockito.verify(conn2, Mockito.never()).close(Mockito.<CloseMode>any());
+        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());

@@ -87,12 +87,12 @@ public class FrameworkTest {
      */
     public Map<String, Object> initRequest() throws TestingFrameworkException {
         // initialize to some helpful defaults
-        final Map<String, Object> ret = new HashMap<String, Object>();
+        final Map<String, Object> ret = new HashMap<>();
         ret.put(PATH, TestingFramework.DEFAULT_REQUEST_PATH);
         ret.put(BODY, TestingFramework.DEFAULT_REQUEST_BODY);
         ret.put(CONTENT_TYPE, TestingFramework.DEFAULT_REQUEST_CONTENT_TYPE);
-        ret.put(QUERY, new HashMap<String, String>(TestingFramework.DEFAULT_REQUEST_QUERY));
-        ret.put(HEADERS, new HashMap<String, String>(TestingFramework.DEFAULT_REQUEST_HEADERS));
+        ret.put(QUERY, new HashMap<>(TestingFramework.DEFAULT_REQUEST_QUERY));
+        ret.put(HEADERS, new HashMap<>(TestingFramework.DEFAULT_REQUEST_HEADERS));
         ret.put(PROTOCOL_VERSION, TestingFramework.DEFAULT_REQUEST_PROTOCOL_VERSION);
 
         // GET is the default method.
@@ -138,11 +138,11 @@ public class FrameworkTest {
             response.put(STATUS, 200);
         }
 
-        final Map<String, Object> responseExpectations = new HashMap<String, Object>();
+        final Map<String, Object> responseExpectations = new HashMap<>();
         // initialize to some helpful defaults
         responseExpectations.put(BODY, TestingFramework.DEFAULT_RESPONSE_BODY);
         responseExpectations.put(CONTENT_TYPE, TestingFramework.DEFAULT_RESPONSE_CONTENT_TYPE);
-        responseExpectations.put(HEADERS, new HashMap<String, String>(TestingFramework.DEFAULT_RESPONSE_HEADERS));
+        responseExpectations.put(HEADERS, new HashMap<>(TestingFramework.DEFAULT_RESPONSE_HEADERS));
 
         // Now override any defaults with what is requested.
         responseExpectations.putAll(response);

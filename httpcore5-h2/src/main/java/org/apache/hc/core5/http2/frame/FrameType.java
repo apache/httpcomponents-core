@@ -70,4 +70,4 @@ public enum FrameType {
         return LOOKUP_TABLE[value].name();
     }
 
-};
+}

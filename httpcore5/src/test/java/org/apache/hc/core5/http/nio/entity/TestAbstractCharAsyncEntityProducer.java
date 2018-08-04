@@ -86,7 +86,7 @@ public class TestAbstractCharAsyncEntityProducer {
         public void failed(final Exception cause) {
         }
 
-    };
+    }
 
     @Test
     public void testProduceDataNoBuffering() throws Exception {

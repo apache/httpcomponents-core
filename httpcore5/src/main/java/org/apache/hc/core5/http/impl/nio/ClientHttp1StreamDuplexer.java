@@ -154,9 +154,8 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                 if (messageDelineation == MessageDelineation.MESSAGE_HEAD) {
                     requestShutdown(CloseMode.GRACEFUL);
                     return false;
-                } else {
-                    return true;
                 }
+                return true;
             }
 
             @Override

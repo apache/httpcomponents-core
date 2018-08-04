@@ -94,41 +94,39 @@ public abstract class AbstractAsyncServerAuthFilter<T> implements AsyncFilterHan
                 responseTrigger.sendInformation(new BasicClassicHttpResponse(HttpStatus.SC_CONTINUE));
             }
             return chain.proceed(request, entityDetails, context, responseTrigger);
-        } else {
-            final HttpResponse unauthorized = new BasicHttpResponse(HttpStatus.SC_UNAUTHORIZED);
-            unauthorized.addHeader(HttpHeaders.WWW_AUTHENTICATE, generateChallenge(challengeResponse, authority, requestUri, context));
-            final AsyncEntityProducer responseContentProducer = generateResponseContent(unauthorized);
-            if (respondImmediately || expectContinue || entityDetails == null) {
-                responseTrigger.submitResponse(unauthorized, responseContentProducer);
-                return null;
-            } else {
-                return new AsyncDataConsumer() {
-
-                    @Override
-                    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                        capacityChannel.update(Integer.MAX_VALUE);
-                    }
-
-                    @Override
-                    public int consume(final ByteBuffer src) throws IOException {
-                        return Integer.MAX_VALUE;
-                    }
-
-                    @Override
-                    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-                        responseTrigger.submitResponse(unauthorized, responseContentProducer);
-                    }
-
-                    @Override
-                    public void releaseResources() {
-                        if (responseContentProducer != null) {
-                            responseContentProducer.releaseResources();
-                        }
-                    }
-
-                };
-            }
         }
+        final HttpResponse unauthorized = new BasicHttpResponse(HttpStatus.SC_UNAUTHORIZED);
+        unauthorized.addHeader(HttpHeaders.WWW_AUTHENTICATE, generateChallenge(challengeResponse, authority, requestUri, context));
+        final AsyncEntityProducer responseContentProducer = generateResponseContent(unauthorized);
+        if (respondImmediately || expectContinue || entityDetails == null) {
+            responseTrigger.submitResponse(unauthorized, responseContentProducer);
+            return null;
+        }
+        return new AsyncDataConsumer() {
+
+            @Override
+            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                capacityChannel.update(Integer.MAX_VALUE);
+            }
+
+            @Override
+            public int consume(final ByteBuffer src) throws IOException {
+                return Integer.MAX_VALUE;
+            }
+
+            @Override
+            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+                responseTrigger.submitResponse(unauthorized, responseContentProducer);
+            }
+
+            @Override
+            public void releaseResources() {
+                if (responseContentProducer != null) {
+                    responseContentProducer.releaseResources();
+                }
+            }
+
+        };
     }
 
 }

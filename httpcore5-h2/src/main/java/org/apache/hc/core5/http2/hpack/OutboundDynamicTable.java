@@ -89,11 +89,9 @@ final class OutboundDynamicTable {
         if (index < 1 || index > length()) {
             throw new IndexOutOfBoundsException();
         }
-        if (index <= staticTable.length()) {
-            return staticTable.get(index);
-        } else {
-            return headers.get(index - staticTable.length() - 1);
-        }
+        return index <= staticTable.length()
+                        ? staticTable.get(index)
+                        : headers.get(index - staticTable.length() - 1);
     }
 
     public void add(final HPackHeader header) {

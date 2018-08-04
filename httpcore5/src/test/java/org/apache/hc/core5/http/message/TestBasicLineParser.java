@@ -45,7 +45,7 @@ public class TestBasicLineParser {
 
     @Before
     public void setup() {
-        this.parser = this.parser.INSTANCE;
+        this.parser = BasicLineParser.INSTANCE;
     }
 
     @Test

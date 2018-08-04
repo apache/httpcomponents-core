@@ -40,7 +40,6 @@ public final class ReflectionSupport {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T callGetter(final Object object, final String getterName, final Class<T> resultType) {
         try {
             final Class<?> clazz = object.getClass();

@@ -276,13 +276,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                         if (contentDecoder != null) {
                             incomingMessage = new Message<>(messageHead, contentDecoder);
                             break;
+                        }
+                        inputEnd();
+                        if (connState.compareTo(ConnectionState.ACTIVE) == 0) {
+                            ioSession.setEvent(SelectionKey.OP_READ);
                         } else {
-                            inputEnd();
-                            if (connState.compareTo(ConnectionState.ACTIVE) == 0) {
-                                ioSession.setEvent(SelectionKey.OP_READ);
-                            } else {
-                                break;
-                            }
+                            break;
                         }
                     }
                 } while (bytesRead > 0);
@@ -524,11 +523,9 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             contentEncoder.complete(trailers);
             ioSession.setEvent(SelectionKey.OP_WRITE);
             outgoingMessage = null;
-            if (contentEncoder instanceof ChunkEncoder) {
-                return MessageDelineation.CHUNK_CODED;
-            } else {
-                return MessageDelineation.MESSAGE_HEAD;
-            }
+            return contentEncoder instanceof ChunkEncoder
+                            ? MessageDelineation.CHUNK_CODED
+                            : MessageDelineation.MESSAGE_HEAD;
         } finally {
             outputLock.unlock();
         }

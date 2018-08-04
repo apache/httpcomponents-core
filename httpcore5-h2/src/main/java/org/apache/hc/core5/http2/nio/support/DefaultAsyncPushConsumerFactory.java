@@ -51,11 +51,7 @@ public final class DefaultAsyncPushConsumerFactory implements HandlerFactory<Asy
     public AsyncPushConsumer create(final HttpRequest request, final HttpContext context) throws HttpException {
         try {
             final Supplier<AsyncPushConsumer> supplier = mapper.resolve(request, context);
-            if (supplier != null) {
-                return supplier.get();
-            } else {
-                return null;
-            }
+            return supplier != null ? supplier.get() : null;
         } catch (final MisdirectedRequestException ex) {
             return null;
         }

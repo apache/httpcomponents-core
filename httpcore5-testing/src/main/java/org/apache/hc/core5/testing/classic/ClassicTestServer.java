@@ -88,18 +88,16 @@ public class ClassicTestServer {
         final HttpServer server = this.serverRef.get();
         if (server != null) {
             return server.getLocalPort();
-        } else {
-            throw new IllegalStateException("Server not running");
         }
+        throw new IllegalStateException("Server not running");
     }
 
     public InetAddress getInetAddress() {
         final HttpServer server = this.serverRef.get();
         if (server != null) {
             return server.getInetAddress();
-        } else {
-            throw new IllegalStateException("Server not running");
         }
+        throw new IllegalStateException("Server not running");
     }
 
     public void start(final HttpProcessor httpProcessor, final Decorator<HttpServerRequestHandler> handlerDecorator) throws IOException {

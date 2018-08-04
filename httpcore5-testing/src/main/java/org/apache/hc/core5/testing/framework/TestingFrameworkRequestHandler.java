@@ -138,7 +138,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             if (expectedQuery != null) {
                 final URI uri = request.getUri();
                 final List<NameValuePair> actualParams = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
-                final Map<String, String> actualParamsMap = new HashMap<String, String>();
+                final Map<String, String> actualParamsMap = new HashMap<>();
                 for (final NameValuePair actualParam : actualParams) {
                     actualParamsMap.put(actualParam.getName(), actualParam.getValue());
                 }
@@ -162,7 +162,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             @SuppressWarnings("unchecked")
             final Map<String, String> expectedHeaders = (Map<String, String>) requestExpectations.get(HEADERS);
             if (expectedHeaders != null) {
-                final Map<String, String> actualHeadersMap = new HashMap<String, String>();
+                final Map<String, String> actualHeadersMap = new HashMap<>();
                 final Header[] actualHeaders = request.getAllHeaders();
                 for (final Header header : actualHeaders) {
                     actualHeadersMap.put(header.getName(), header.getValue());

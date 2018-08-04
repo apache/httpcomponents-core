@@ -30,4 +30,4 @@ public enum HttpVersionPolicy {
 
     FORCE_HTTP_1, FORCE_HTTP_2, NEGOTIATE
 
-};
+}

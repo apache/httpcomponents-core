@@ -81,11 +81,7 @@ final class FifoBuffer {
     }
 
     public HPackHeader getFirst() {
-        if (head > 0) {
-            return array[head - 1];
-        } else {
-            return array[array.length - 1];
-        }
+        return array[head > 0 ? head - 1 : array.length - 1];
     }
 
     public HPackHeader getLast() {

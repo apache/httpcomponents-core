@@ -38,4 +38,4 @@ public class HPackException extends HttpException {
         super(message, cause);
     }
 
-};
+}

@@ -126,30 +126,29 @@ public class AsyncServerFilterExample {
                                     new BasicHttpResponse(HttpStatus.SC_OK),
                                     new BasicAsyncEntityProducer("Welcome", ContentType.TEXT_PLAIN));
                             return null;
-                        } else {
-                            return chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
-
-                                @Override
-                                public void sendInformation(
-                                        final HttpResponse response) throws HttpException, IOException {
-                                    responseTrigger.sendInformation(response);
-                                }
-
-                                @Override
-                                public void submitResponse(
-                                        final HttpResponse response, final AsyncEntityProducer entityProducer) throws HttpException, IOException {
-                                    response.addHeader("X-Filter", "My-Filter");
-                                    responseTrigger.submitResponse(response, entityProducer);
-                                }
-
-                                @Override
-                                public void pushPromise(
-                                        final HttpRequest promise, final AsyncPushProducer responseProducer) throws HttpException, IOException {
-                                    responseTrigger.pushPromise(promise, responseProducer);
-                                }
-
-                            });
                         }
+                        return chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
+
+                            @Override
+                            public void sendInformation(
+                                    final HttpResponse response) throws HttpException, IOException {
+                                responseTrigger.sendInformation(response);
+                            }
+
+                            @Override
+                            public void submitResponse(
+                                    final HttpResponse response, final AsyncEntityProducer entityProducer) throws HttpException, IOException {
+                                response.addHeader("X-Filter", "My-Filter");
+                                responseTrigger.submitResponse(response, entityProducer);
+                            }
+
+                            @Override
+                            public void pushPromise(
+                                    final HttpRequest promise, final AsyncPushProducer responseProducer) throws HttpException, IOException {
+                                responseTrigger.pushPromise(promise, responseProducer);
+                            }
+
+                        });
                     }
 
                 })

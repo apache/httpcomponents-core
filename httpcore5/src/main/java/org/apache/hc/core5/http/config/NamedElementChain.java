@@ -49,19 +49,11 @@ public class NamedElementChain<E> {
     }
 
     public Node getFirst() {
-        if (master.next != master) {
-            return master.next;
-        } else {
-            return null;
-        }
+        return master.next != master ? master.next : null;
     }
 
     public Node getLast() {
-        if (master.previous != master) {
-            return master.previous;
-        } else {
-            return null;
-        }
+        return master.previous != master ? master.previous : null;
     }
 
     public Node addFirst(final E value, final String name) {
@@ -187,19 +179,11 @@ public class NamedElementChain<E> {
         }
 
         public Node getPrevious() {
-            if (previous != master) {
-                return previous;
-            } else {
-                return null;
-            }
+            return previous != master ? previous : null;
         }
 
         public Node getNext() {
-            if (next != master) {
-                return next;
-            } else {
-                return null;
-            }
+            return next != master ? next: null;
         }
 
         @Override

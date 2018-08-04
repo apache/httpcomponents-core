@@ -96,23 +96,22 @@ public final class HPackDecoder {
         int value = readByte(src) & nbits;
         if (value < nbits) {
             return value;
-        } else {
-            int m = 0;
-            while (m < 32) {
-                final int b = readByte(src);
-                if ((b & 0x80) != 0) {
-                    value += (b & 0x7f) << m;
-                    m += 7;
-                } else {
-                    if (m == 28 && (b & 0xf8) != 0) {
-                        break;
-                    }
-                    value += b << m;
-                    return value;
-                }
-            }
-            throw new HPackException(MAX_LIMIT_EXCEEDED);
         }
+        int m = 0;
+        while (m < 32) {
+            final int b = readByte(src);
+            if ((b & 0x80) != 0) {
+                value += (b & 0x7f) << m;
+                m += 7;
+            } else {
+                if (m == 28 && (b & 0xf8) != 0) {
+                    break;
+                }
+                value += b << m;
+                return value;
+            }
+        }
+        throw new HPackException(MAX_LIMIT_EXCEEDED);
     }
 
     static void decodePlainString(final ByteArrayBuffer buffer, final ByteBuffer src) throws HPackException {
@@ -287,9 +286,8 @@ public final class HPackDecoder {
             final Header header = decodeHeader(src);
             if (header == null) {
                 break;
-            } else {
-                list.add(header);
             }
+            list.add(header);
         }
         return list;
     }

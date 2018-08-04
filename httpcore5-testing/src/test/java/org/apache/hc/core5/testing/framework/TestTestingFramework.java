@@ -52,6 +52,7 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 public class TestTestingFramework {
@@ -123,13 +124,12 @@ public class TestTestingFramework {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void goodAdapterWithConstructor() throws Exception {
         final ClientTestingAdapter adapter = Mockito.mock(ClientTestingAdapter.class);
 
         // Have isRequestSupported() return false so no test will run.
-        Mockito.when(adapter.isRequestSupported(Mockito.<String, Object>anyMap()))
+        Mockito.when(adapter.isRequestSupported(ArgumentMatchers.<String, Object>anyMap()))
                      .thenReturn(false);
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
@@ -140,10 +140,9 @@ public class TestTestingFramework {
         verifyCallMethodNeverCalled(adapter);
     }
 
-    @SuppressWarnings("unchecked")
     private void verifyCallMethodNeverCalled(final ClientTestingAdapter adapter) throws Exception {
-        Mockito.verify(adapter, Mockito.never()).execute(Mockito.anyString(), Mockito.<String, Object>anyMap(),
-                       Mockito.any(TestingFrameworkRequestHandler.class), Mockito.<String, Object>anyMap());
+        Mockito.verify(adapter, Mockito.never()).execute(ArgumentMatchers.anyString(), ArgumentMatchers.<String, Object>anyMap(),
+                       ArgumentMatchers.any(TestingFrameworkRequestHandler.class), ArgumentMatchers.<String, Object>anyMap());
     }
 
     private TestingFramework newFrameworkAndSetAdapter(final ClientTestingAdapter adapter)
@@ -196,7 +195,7 @@ public class TestTestingFramework {
                 Assert.assertEquals("The responseExpectations do not match the defaults",
                                     defaultResponseExpectations, responseExpectations);
 
-                final Map<String, Object> response = new HashMap<String, Object>();
+                final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, responseExpectations.get(STATUS));
                 response.put(BODY, responseExpectations.get(BODY));
                 response.put(CONTENT_TYPE, responseExpectations.get(CONTENT_TYPE));
@@ -247,7 +246,7 @@ public class TestTestingFramework {
                 Assert.assertEquals(200, responseExpectations.get(STATUS));
 
                 // return a different status than expected.
-                final Map<String, Object> response = new HashMap<String, Object>();
+                final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, 201);
                 return response;
             }
@@ -267,7 +266,7 @@ public class TestTestingFramework {
 
     private Map<String, Object> alreadyCheckedResponse() {
         // return an indication that the response has already been checked.
-        final Map<String, Object> response = new HashMap<String, Object>();
+        final Map<String, Object> response = new HashMap<>();
         response.put(STATUS, TestingFramework.ALREADY_CHECKED);
         response.put(BODY, TestingFramework.ALREADY_CHECKED);
         response.put(CONTENT_TYPE, TestingFramework.ALREADY_CHECKED);
@@ -308,7 +307,7 @@ public class TestTestingFramework {
 
                 Assert.assertEquals(TestingFramework.DEFAULT_RESPONSE_BODY, responseExpectations.get(BODY));
 
-                final Map<String, Object> response = new HashMap<String, Object>();
+                final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, TestingFramework.ALREADY_CHECKED);
 
                 // return a different body than expected.
@@ -341,7 +340,7 @@ public class TestTestingFramework {
 
                 Assert.assertEquals(TestingFramework.DEFAULT_RESPONSE_CONTENT_TYPE, responseExpectations.get(CONTENT_TYPE));
 
-                final Map<String, Object> response = new HashMap<String, Object>();
+                final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, TestingFramework.ALREADY_CHECKED);
                 response.put(HEADERS, TestingFramework.ALREADY_CHECKED);
 
@@ -372,7 +371,7 @@ public class TestTestingFramework {
         final Map<String, String> headersCopy = (Map<String, String>) TestingFramework.deepcopy(TestingFramework.DEFAULT_RESPONSE_HEADERS);
         Assert.assertEquals(TestingFramework.DEFAULT_RESPONSE_HEADERS, headersCopy);
 
-        final Map<String, Object> deepMap = new HashMap<String, Object>();
+        final Map<String, Object> deepMap = new HashMap<>();
         deepMap.put(HEADERS, TestingFramework.DEFAULT_RESPONSE_HEADERS);
 
         @SuppressWarnings("unchecked")
@@ -406,7 +405,7 @@ public class TestTestingFramework {
                 final String headerName = (String) headersCopy.keySet().toArray()[0];
                 headersCopy.remove(headerName);
 
-                final Map<String, Object> response = new HashMap<String, Object>();
+                final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, TestingFramework.ALREADY_CHECKED);
                 response.put(BODY, TestingFramework.ALREADY_CHECKED);
 
@@ -447,7 +446,7 @@ public class TestTestingFramework {
                 final String headerName = (String) headersCopy.keySet().toArray()[0];
                 headersCopy.put(headerName, headersCopy.get(headerName) + "junk");
 
-                final Map<String, Object> response = new HashMap<String, Object>();
+                final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, TestingFramework.ALREADY_CHECKED);
                 response.put(BODY, TestingFramework.ALREADY_CHECKED);
 
@@ -496,8 +495,8 @@ public class TestTestingFramework {
 
         final TestingFramework framework = newFrameworkAndSetAdapter(adapter);
 
-        final Map<String, Object> test = new HashMap<String, Object>();
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> test = new HashMap<>();
+        final Map<String, Object> request = new HashMap<>();
         test.put(REQUEST, request);
         request.put(NAME, "MyName");
 
@@ -531,8 +530,8 @@ public class TestTestingFramework {
 
         final TestingFramework framework = newFrameworkAndSetAdapter(adapter);
 
-        final Map<String, Object> test = new HashMap<String, Object>();
-        final Map<String, Object> response = new HashMap<String, Object>();
+        final Map<String, Object> test = new HashMap<>();
+        final Map<String, Object> response = new HashMap<>();
         test.put(RESPONSE, response);
         response.put(STATUS, 201);
 
@@ -559,8 +558,8 @@ public class TestTestingFramework {
 
         final TestingFramework framework = newFrameworkAndSetAdapter(adapter);
 
-        final Map<String, Object> test = new HashMap<String, Object>();
-        final Map<String, Object> response = new HashMap<String, Object>();
+        final Map<String, Object> test = new HashMap<>();
+        final Map<String, Object> response = new HashMap<>();
         test.put(RESPONSE, response);
         response.put(STATUS, 201);
 
@@ -828,7 +827,7 @@ public class TestTestingFramework {
 
                 // The next line is needed because we have to make a copy of the responseExpectations.
                 // It is an unmodifiable map.
-                final Map<String, Object> tempResponseExpectations = new HashMap<String, Object>(responseExpectations);
+                final Map<String, Object> tempResponseExpectations = new HashMap<>(responseExpectations);
                 tempResponseExpectations.put(STATUS, 201);
                 final Map<String, Object> response = super.execute(defaultURI, request, requestHandler, tempResponseExpectations);
                 Assert.assertEquals(200,  response.get(STATUS));
@@ -859,7 +858,7 @@ public class TestTestingFramework {
                 // make sure the modifyRequest method was called by seeing if the request was modified.
                 Assert.assertTrue("modifyRequest should have been called.", request.containsKey(UNLIKELY_ITEM));
 
-                final Map<String, Object> response = new HashMap<String, Object>();
+                final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, responseExpectations.get(STATUS));
                 response.put(BODY, responseExpectations.get(BODY));
                 response.put(CONTENT_TYPE, responseExpectations.get(CONTENT_TYPE));
@@ -901,7 +900,7 @@ public class TestTestingFramework {
                 // make sure the modifyRequest method was called by seeing if the request was modified.
                 Assert.assertTrue("modifyResponseExpectations should have been called.", responseExpectations.containsKey(UNLIKELY_ITEM));
 
-                final Map<String, Object> response = new HashMap<String, Object>();
+                final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, responseExpectations.get(STATUS));
                 response.put(BODY, responseExpectations.get(BODY));
                 response.put(CONTENT_TYPE, responseExpectations.get(CONTENT_TYPE));
@@ -960,7 +959,7 @@ public class TestTestingFramework {
 
     @Test
     public void defaultTestsWithMockedAdapter() throws Exception {
-        final Set<String> calledMethodSet = new HashSet<String>();
+        final Set<String> calledMethodSet = new HashSet<>();
 
         final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
@@ -1023,20 +1022,20 @@ public class TestTestingFramework {
 //                              ],
 //          )
 
-        final Map<String, Object> test = new HashMap<String, Object>();
+        final Map<String, Object> test = new HashMap<>();
 
         // Add request.
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         test.put(REQUEST, request);
 
         request.put(PATH, "/stuff");
 
-        final Map<String, Object> queryMap = new HashMap<String, Object>();
+        final Map<String, Object> queryMap = new HashMap<>();
         request.put(QUERY, queryMap);
 
         queryMap.put("param", "something");
 
-        final Map<String, Object> requestHeadersMap = new HashMap<String, Object>();
+        final Map<String, Object> requestHeadersMap = new HashMap<>();
         request.put(HEADERS, requestHeadersMap);
 
         requestHeadersMap.put("header1", "stuff");
@@ -1046,12 +1045,12 @@ public class TestTestingFramework {
         request.put(BODY, "What is the meaning of life?");
 
         // Response
-        final Map<String, Object> response = new HashMap<String, Object>();
+        final Map<String, Object> response = new HashMap<>();
         test.put(RESPONSE, response);
 
         response.put(STATUS, 201);
 
-        final Map<String, Object> responseHeadersMap = new HashMap<String, Object>();
+        final Map<String, Object> responseHeadersMap = new HashMap<>();
         response.put(HEADERS, responseHeadersMap);
 
         responseHeadersMap.put("header3", "header_stuff");
@@ -1092,10 +1091,10 @@ public class TestTestingFramework {
 //                              ],
 //          )
 
-        final Map<String, Object> test = new HashMap<String, Object>();
+        final Map<String, Object> test = new HashMap<>();
 
         // Add request.
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         test.put(REQUEST, request);
 
         request.put(PATH, null);
@@ -1109,7 +1108,7 @@ public class TestTestingFramework {
         request.put(BODY, null);
 
         // Response
-        final Map<String, Object> response = new HashMap<String, Object>();
+        final Map<String, Object> response = new HashMap<>();
         test.put(RESPONSE, response);
 
         response.put(STATUS, null);
@@ -1150,10 +1149,10 @@ public class TestTestingFramework {
 
         final TestingFramework framework = newFrameworkAndSetAdapter(adapter);
 
-        final Map<String, Object> test = new HashMap<String, Object>();
+        final Map<String, Object> test = new HashMap<>();
 
         // Add request.
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         test.put(REQUEST, request);
 
         request.put(PATH, "/stuff?stuffParm=stuff&stuffParm2=stuff2");

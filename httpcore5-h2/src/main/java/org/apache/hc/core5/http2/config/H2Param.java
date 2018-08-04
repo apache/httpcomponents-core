@@ -66,4 +66,4 @@ public enum H2Param {
         return LOOKUP_TABLE[code - 1].name();
     }
 
-};
+}

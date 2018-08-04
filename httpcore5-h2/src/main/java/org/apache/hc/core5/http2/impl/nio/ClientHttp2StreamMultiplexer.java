@@ -114,9 +114,8 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             return new ClientHttp2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandler,
                     pushHandlerFactory != null ? pushHandlerFactory : this.pushHandlerFactory,
                     context);
-        } else {
-            throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Unexpected executable command");
         }
+        throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Unexpected executable command");
     }
 
     @Override

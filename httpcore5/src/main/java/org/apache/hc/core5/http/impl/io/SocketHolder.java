@@ -61,14 +61,12 @@ public class SocketHolder {
         InputStream local = inputStreamRef.get();
         if (local != null) {
             return local;
-        } else {
-            local = getInputStream(socket);
-            if (inputStreamRef.compareAndSet(null, local)) {
-                return local;
-            } else {
-                return inputStreamRef.get();
-            }
         }
+        local = getInputStream(socket);
+        if (inputStreamRef.compareAndSet(null, local)) {
+            return local;
+        }
+        return inputStreamRef.get();
     }
 
     protected InputStream getInputStream(final Socket socket) throws IOException {
@@ -83,14 +81,12 @@ public class SocketHolder {
         OutputStream local = outputStreamRef.get();
         if (local != null) {
             return local;
-        } else {
-            local = getOutputStream(socket);
-            if (outputStreamRef.compareAndSet(null, local)) {
-                return local;
-            } else {
-                return outputStreamRef.get();
-            }
         }
+        local = getOutputStream(socket);
+        if (outputStreamRef.compareAndSet(null, local)) {
+            return local;
+        }
+        return outputStreamRef.get();
     }
 
     @Override

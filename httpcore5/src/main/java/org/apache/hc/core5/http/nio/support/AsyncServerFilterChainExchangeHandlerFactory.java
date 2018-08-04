@@ -119,11 +119,7 @@ public final class AsyncServerFilterChainExchangeHandlerFactory implements Handl
             @Override
             public int consume(final ByteBuffer src) throws IOException {
                 final AsyncDataConsumer dataConsumer = dataConsumerRef.get();
-                if (dataConsumer != null) {
-                    return dataConsumer.consume(src);
-                } else {
-                    return Integer.MAX_VALUE;
-                }
+                return dataConsumer != null ? dataConsumer.consume(src) : Integer.MAX_VALUE;
             }
 
             @Override

@@ -125,7 +125,7 @@ public final class ContentType implements Serializable {
             TEXT_HTML,
             TEXT_PLAIN,
             TEXT_XML };
-        final HashMap<String, ContentType> map = new HashMap<String, ContentType>();
+        final HashMap<String, ContentType> map = new HashMap<>();
         for (final ContentType contentType: contentTypes) {
             map.put(contentType.getMimeType(), contentType);
         }

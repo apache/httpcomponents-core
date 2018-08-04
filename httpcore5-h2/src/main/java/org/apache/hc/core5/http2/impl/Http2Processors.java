@@ -78,7 +78,7 @@ public final class Http2Processors {
                         new RequestUserAgent(!TextUtils.isBlank(agentInfo) ? agentInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", HttpProcessors.class)),
                         new RequestExpectContinue());
-    };
+    }
 
     public static HttpProcessor client(final String agentInfo) {
         return customClient(agentInfo).build();

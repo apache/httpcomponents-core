@@ -90,7 +90,7 @@ public class TestAbstractBinAsyncEntityProducer {
         public void releaseResources() {
         }
 
-    };
+    }
 
     @Test
     public void testProduceDataNoBuffering() throws Exception {

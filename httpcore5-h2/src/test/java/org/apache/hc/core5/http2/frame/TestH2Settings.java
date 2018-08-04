@@ -55,4 +55,4 @@ public class TestH2Settings {
         Assert.assertEquals("INITIAL_WINDOW_SIZE: 1024", setting2.toString());
     }
 
-};
+}

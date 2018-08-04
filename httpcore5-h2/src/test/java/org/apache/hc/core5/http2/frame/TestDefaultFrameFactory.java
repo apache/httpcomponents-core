@@ -99,4 +99,4 @@ public class TestDefaultFrameFactory {
         Assert.assertEquals("Oopsie", new String(tmp, StandardCharsets.US_ASCII));
     }
 
-};
+}

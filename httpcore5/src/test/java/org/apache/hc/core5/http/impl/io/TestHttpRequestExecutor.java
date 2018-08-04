@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 public class TestHttpRequestExecutor {
@@ -169,7 +170,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn, Mockito.times(1)).receiveResponseEntity(response);
 
         final ArgumentCaptor<HttpResponse> responseCaptor = ArgumentCaptor.forClass(HttpResponse.class);
-        Mockito.verify(callback, Mockito.times(2)).execute(responseCaptor.capture(), Mockito.eq(conn), Mockito.eq(context));
+        Mockito.verify(callback, Mockito.times(2)).execute(responseCaptor.capture(), ArgumentMatchers.eq(conn), ArgumentMatchers.eq(context));
         final List<HttpResponse> infos = responseCaptor.getAllValues();
         Assert.assertNotNull(infos);
         Assert.assertEquals(2, infos.size());
@@ -283,7 +284,7 @@ public class TestHttpRequestExecutor {
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(100, "Continue"),
                 new BasicClassicHttpResponse(200, "OK"));
-        Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
+        Mockito.when(conn.isDataAvailable(ArgumentMatchers.anyInt())).thenReturn(Boolean.TRUE);
 
         final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -314,7 +315,7 @@ public class TestHttpRequestExecutor {
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(402, "OK"));
-        Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
+        Mockito.when(conn.isDataAvailable(ArgumentMatchers.anyInt())).thenReturn(Boolean.TRUE);
 
         final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
@@ -349,7 +350,7 @@ public class TestHttpRequestExecutor {
                 new BasicClassicHttpResponse(100, "Continue"),
                 new BasicClassicHttpResponse(111, "Huh?"),
                 new BasicClassicHttpResponse(200, "OK"));
-        Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.TRUE);
+        Mockito.when(conn.isDataAvailable(ArgumentMatchers.anyInt())).thenReturn(Boolean.TRUE);
 
         final HttpResponseInformationCallback callback = Mockito.mock(HttpResponseInformationCallback.class);
 
@@ -362,7 +363,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn).receiveResponseEntity(response);
 
         final ArgumentCaptor<HttpResponse> responseCaptor = ArgumentCaptor.forClass(HttpResponse.class);
-        Mockito.verify(callback, Mockito.times(2)).execute(responseCaptor.capture(), Mockito.eq(conn), Mockito.eq(context));
+        Mockito.verify(callback, Mockito.times(2)).execute(responseCaptor.capture(), ArgumentMatchers.eq(conn), ArgumentMatchers.eq(context));
         final List<HttpResponse> infos = responseCaptor.getAllValues();
         Assert.assertNotNull(infos);
         Assert.assertEquals(2, infos.size());
@@ -394,7 +395,7 @@ public class TestHttpRequestExecutor {
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(200, "OK"));
-        Mockito.when(conn.isDataAvailable(Mockito.anyInt())).thenReturn(Boolean.FALSE);
+        Mockito.when(conn.isDataAvailable(ArgumentMatchers.anyInt())).thenReturn(Boolean.FALSE);
 
         final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);

@@ -65,12 +65,10 @@ public final class RawFrame extends Frame<ByteBuffer> {
                 }
                 dup.limit(dup.limit() - padding);
                 return dup;
-            } else {
-                return payload.duplicate();
             }
-        } else {
-            return null;
+            return payload.duplicate();
         }
+        return null;
     }
 
     @Override

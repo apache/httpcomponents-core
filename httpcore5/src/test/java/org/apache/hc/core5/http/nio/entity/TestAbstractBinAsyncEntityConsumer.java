@@ -83,7 +83,7 @@ public class TestAbstractBinAsyncEntityConsumer {
         public void releaseResources() {
         }
 
-    };
+    }
 
     @Test
     public void testConsumeData() throws Exception {

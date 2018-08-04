@@ -65,9 +65,8 @@ public final class Host implements NamedEndpoint, Serializable {
                 throw new URISyntaxException(s, "hostname contains blanks");
             }
             return new Host(hostname, port);
-        } else {
-            throw new URISyntaxException(s, "port not found");
         }
+        throw new URISyntaxException(s, "port not found");
     }
 
     @Override
@@ -88,9 +87,8 @@ public final class Host implements NamedEndpoint, Serializable {
         if (o instanceof Host) {
             final Host that = (Host) o;
             return this.lcName.equals(that.lcName) && this.port == that.port;
-        } else {
-            return false;
         }
+        return false;
     }
 
     @Override

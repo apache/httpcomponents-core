@@ -127,11 +127,10 @@ public class MessageSupport {
             final ParserCursor cursor = new ParserCursor(0, buf.length());
             cursor.updatePos(((FormattedHeader) header).getValuePos());
             return parseTokens(buf, cursor);
-        } else {
-            final String value = header.getValue();
-            final ParserCursor cursor = new ParserCursor(0, value.length());
-            return parseTokens(value, cursor);
         }
+        final String value = header.getValue();
+        final ParserCursor cursor = new ParserCursor(0, value.length());
+        return parseTokens(value, cursor);
     }
 
     public static void addContentTypeHeader(final HttpMessage message, final EntityDetails entity) {

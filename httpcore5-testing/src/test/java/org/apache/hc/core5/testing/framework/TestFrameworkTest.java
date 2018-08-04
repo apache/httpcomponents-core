@@ -89,8 +89,8 @@ public class TestFrameworkTest {
 
     @Test
     public void changeStatus() throws Exception {
-        final Map<String, Object> testMap = new HashMap<String, Object>();
-        final Map<String, Object> response = new HashMap<String, Object>();
+        final Map<String, Object> testMap = new HashMap<>();
+        final Map<String, Object> response = new HashMap<>();
         testMap.put(RESPONSE, response);
         response.put(STATUS, 201);
 
@@ -102,8 +102,8 @@ public class TestFrameworkTest {
 
     @Test
     public void changeMethod() throws Exception {
-        final Map<String, Object> testMap = new HashMap<String, Object>();
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> testMap = new HashMap<>();
+        final Map<String, Object> request = new HashMap<>();
         testMap.put(REQUEST, request);
         request.put(METHOD, "POST");
 

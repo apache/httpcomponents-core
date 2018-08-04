@@ -77,9 +77,9 @@ public class TestClassicTestClientTestingAdapter {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = null;
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
-        final Map<String, Object> responseExpectations = new HashMap<String, Object>();
+        final Map<String, Object> responseExpectations = new HashMap<>();
 
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
@@ -96,7 +96,7 @@ public class TestClassicTestClientTestingAdapter {
         final String defaultURI = "";
         final Map<String, Object> request = null;
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
-        final Map<String, Object> responseExpectations = new HashMap<String, Object>();
+        final Map<String, Object> responseExpectations = new HashMap<>();
 
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
@@ -111,9 +111,9 @@ public class TestClassicTestClientTestingAdapter {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = "";
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         final TestingFrameworkRequestHandler requestHandler = null;
-        final Map<String, Object> responseExpectations = new HashMap<String, Object>();
+        final Map<String, Object> responseExpectations = new HashMap<>();
 
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
@@ -128,7 +128,7 @@ public class TestClassicTestClientTestingAdapter {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = "";
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = null;
 
@@ -145,9 +145,9 @@ public class TestClassicTestClientTestingAdapter {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = "";
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
-        final Map<String, Object> responseExpectations = new HashMap<String, Object>();
+        final Map<String, Object> responseExpectations = new HashMap<>();
 
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
@@ -163,11 +163,11 @@ public class TestClassicTestClientTestingAdapter {
 
         final String defaultURI = "";
 
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         request.put(PATH, ECHO_PATH);
 
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
-        final Map<String, Object> responseExpectations = new HashMap<String, Object>();
+        final Map<String, Object> responseExpectations = new HashMap<>();
 
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
@@ -183,12 +183,12 @@ public class TestClassicTestClientTestingAdapter {
 
         final String defaultURI = "";
 
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         request.put(PATH, ECHO_PATH);
         request.put(METHOD, "JUNK");
 
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
-        final Map<String, Object> responseExpectations = new HashMap<String, Object>();
+        final Map<String, Object> responseExpectations = new HashMap<>();
 
         try {
             adapter.execute(defaultURI, request, requestHandler, responseExpectations);
@@ -210,13 +210,13 @@ public class TestClassicTestClientTestingAdapter {
         final HttpHost target = new HttpHost("localhost", this.server.getPort());
 
         final String defaultURI = target.toString();
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         request.put(PATH, ECHO_PATH);
         request.put(METHOD, "POST");
         final String body = "mybody";
         request.put(BODY, body);
 
-        final Map<String, Object> responseExpectations = new HashMap<String, Object>();
+        final Map<String, Object> responseExpectations = new HashMap<>();
 
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> response = adapter.execute(defaultURI, request, requestHandler, responseExpectations);
@@ -255,9 +255,9 @@ public class TestClassicTestClientTestingAdapter {
         this.server.start();
         final HttpHost target = new HttpHost("localhost", this.server.getPort());
         final String defaultURI = target.toString();
-        final Map<String, Object> responseExpectations = new HashMap<String, Object>();
+        final Map<String, Object> responseExpectations = new HashMap<>();
 
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         request.put(PATH, CUSTOM_PATH);
 
         for (final String method : TestingFramework.ALL_METHODS) {
@@ -271,7 +271,7 @@ public class TestClassicTestClientTestingAdapter {
     public void modifyRequest() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         final Map<String, Object> returnedRequest = adapter.modifyRequest(request);
 
         Assert.assertSame("Same request was not returned as expected.", request, returnedRequest);
@@ -281,7 +281,7 @@ public class TestClassicTestClientTestingAdapter {
     public void modifyResponseExpectations() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
-        final Map<String, Object> responseExpectations = new HashMap<String, Object>();
+        final Map<String, Object> responseExpectations = new HashMap<>();
         final Map<String, Object> returnedResponseExpectations = adapter.modifyResponseExpectations(null, responseExpectations);
 
         Assert.assertSame("Same response expectations were not returned as expected.", responseExpectations, returnedResponseExpectations);

@@ -56,6 +56,7 @@ import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 
 public class TestingFramework {
+
     /**
      * Use the ALL_METHODS list to conveniently cycle through all HTTP methods.
      */
@@ -120,17 +121,17 @@ public class TestingFramework {
     public static final Map<String, String> DEFAULT_RESPONSE_HEADERS;
 
     static {
-        final Map<String, String> request = new HashMap<String, String>();
+        final Map<String, String> request = new HashMap<>();
         request.put("p1", "this");
         request.put("p2", "that");
         DEFAULT_REQUEST_QUERY = Collections.unmodifiableMap(request);
 
-        Map<String, String> headers = new HashMap<String, String>();
+        Map<String, String> headers = new HashMap<>();
         headers.put("header1", "stuff");
         headers.put("header2", "more stuff");
         DEFAULT_REQUEST_HEADERS = Collections.unmodifiableMap(headers);
 
-        headers = new HashMap<String, String>();
+        headers = new HashMap<>();
         headers.put("header3", "header_three");
         headers.put("header4", "header_four");
         DEFAULT_RESPONSE_HEADERS = Collections.unmodifiableMap(headers);
@@ -138,7 +139,7 @@ public class TestingFramework {
 
     private ClientTestingAdapter adapter;
     private TestingFrameworkRequestHandler requestHandler = new TestingFrameworkRequestHandler();
-    private List<FrameworkTest> tests = new ArrayList<FrameworkTest>();
+    private List<FrameworkTest> tests = new ArrayList<>();
 
     private HttpServer server;
     private int port;
@@ -156,13 +157,13 @@ public class TestingFramework {
         for (final String method : ALL_METHODS) {
             final List<Integer> statusList = Arrays.asList(200, 201);
             for (final Integer status : statusList) {
-                final Map<String, Object> request = new HashMap<String, Object>();
+                final Map<String, Object> request = new HashMap<>();
                 request.put(METHOD, method);
 
-                final Map<String, Object> response = new HashMap<String, Object>();
+                final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, status);
 
-                final Map<String, Object> test = new HashMap<String, Object>();
+                final Map<String, Object> test = new HashMap<>();
                 test.put(REQUEST, request);
                 test.put(RESPONSE, response);
 
@@ -372,7 +373,7 @@ public class TestingFramework {
         if (expectedHeaders == null) {
             return;
         }
-        for (final Map.Entry<String, String> expectedHeader : ((Map<String, String>) expectedHeaders).entrySet()) {
+        for (final Map.Entry<String, String> expectedHeader : expectedHeaders.entrySet()) {
             final String expectedHeaderName = expectedHeader.getKey();
             if (! actualHeaders.containsKey(expectedHeaderName)) {
                 throw new TestingFrameworkException("Expected header not found: name=" + expectedHeaderName);
@@ -402,7 +403,7 @@ public class TestingFramework {
      * Deletes all tests.
      */
     public void deleteTests() {
-        tests = new ArrayList<FrameworkTest>();
+        tests = new ArrayList<>();
     }
 
     /**

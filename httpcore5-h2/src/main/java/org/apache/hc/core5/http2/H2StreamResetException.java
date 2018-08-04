@@ -51,4 +51,4 @@ public class H2StreamResetException extends IOException {
         return code;
     }
 
-};
+}

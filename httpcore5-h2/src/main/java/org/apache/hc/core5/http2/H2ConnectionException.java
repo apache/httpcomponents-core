@@ -51,4 +51,4 @@ public class H2ConnectionException extends IOException {
         return code;
     }
 
-};
+}

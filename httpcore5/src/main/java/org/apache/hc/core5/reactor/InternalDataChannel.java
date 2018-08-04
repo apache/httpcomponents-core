@@ -259,11 +259,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     private IOSession getSessionImpl() {
         final SSLIOSession tlsSession = tlsSessionRef.get();
-        if (tlsSession != null) {
-            return tlsSession;
-        } else {
-            return ioSession;
-        }
+        return tlsSession != null ? tlsSession : ioSession;
     }
 
     @Override

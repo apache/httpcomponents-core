@@ -509,11 +509,8 @@ public class URIBuilder {
     }
 
     public List<NameValuePair> getQueryParams() {
-        if (this.queryParams != null) {
-            return new ArrayList<>(this.queryParams);
-        } else {
-            return new ArrayList<>();
-        }
+        return this.queryParams != null ? new ArrayList<>(this.queryParams)
+                        : new ArrayList<NameValuePair>();
     }
 
     public String getFragment() {

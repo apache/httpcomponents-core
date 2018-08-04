@@ -36,7 +36,7 @@ public class TestClientPOJOAdapter {
     @Test
     public void modifyRequest() throws Exception {
         final ClientPOJOAdapter adapter = new ClassicTestClientAdapter();
-        final Map<String, Object> request = new HashMap<String, Object>();
+        final Map<String, Object> request = new HashMap<>();
         final Map<String, Object> request2 = adapter.modifyRequest(request);
 
         Assert.assertSame("request should have been returned", request, request2);
@@ -69,7 +69,7 @@ public class TestClientPOJOAdapter {
             @Override
             public String getClientName() {
                 return null;
-            };
+            }
         };
 
         try {

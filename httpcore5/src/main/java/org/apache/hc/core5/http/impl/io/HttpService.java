@@ -241,20 +241,19 @@ public class HttpService {
         } catch (final HttpException ex) {
             if (responseSubmitted.get()) {
                 throw ex;
-            } else {
-                try (final ClassicHttpResponse errorResponse = new BasicClassicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR)) {
-                    handleException(ex, errorResponse);
-                    errorResponse.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-                    context.setAttribute(HttpCoreContext.HTTP_RESPONSE, errorResponse);
-                    this.processor.process(errorResponse, errorResponse.getEntity(), context);
+            }
+            try (final ClassicHttpResponse errorResponse = new BasicClassicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR)) {
+                handleException(ex, errorResponse);
+                errorResponse.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                context.setAttribute(HttpCoreContext.HTTP_RESPONSE, errorResponse);
+                this.processor.process(errorResponse, errorResponse.getEntity(), context);
 
-                    conn.sendResponseHeader(errorResponse);
-                    if (streamListener != null) {
-                        streamListener.onResponseHead(conn, errorResponse);
-                    }
-                    conn.sendResponseEntity(errorResponse);
-                    conn.close();
+                conn.sendResponseHeader(errorResponse);
+                if (streamListener != null) {
+                    streamListener.onResponseHead(conn, errorResponse);
                 }
+                conn.sendResponseEntity(errorResponse);
+                conn.close();
             }
         }
     }

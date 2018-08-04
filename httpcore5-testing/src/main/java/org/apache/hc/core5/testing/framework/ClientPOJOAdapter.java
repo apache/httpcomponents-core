@@ -151,5 +151,5 @@ public abstract class ClientPOJOAdapter {
      */
     public Map<String, Object> modifyRequest(final Map<String, Object> request) {
         return request;
-    };
+    }
 }

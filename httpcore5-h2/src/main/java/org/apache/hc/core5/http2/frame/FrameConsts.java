@@ -37,4 +37,4 @@ public final class FrameConsts {
     public final static int MIN_FRAME_SIZE = 16384;    // 2 ^ 14
     public final static int MAX_FRAME_SIZE = 16777215; // 2 ^ 24 - 1;
 
-};
+}

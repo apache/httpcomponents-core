@@ -57,6 +57,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -138,14 +139,14 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(Mockito.eq(request), Mockito.argThat(new ArgumentMatcher<HttpResponse>() {
+        Mockito.when(connReuseStrategy.keepAlive(ArgumentMatchers.eq(request), ArgumentMatchers.argThat(new ArgumentMatcher<HttpResponse>() {
 
             @Override
             public boolean matches(final HttpResponse errorResponse) {
                 return errorResponse.getCode() == HttpStatus.SC_NOT_IMPLEMENTED;
             }
 
-        }), Mockito.eq(context))).thenReturn(Boolean.TRUE);
+        }), ArgumentMatchers.eq(context))).thenReturn(Boolean.TRUE);
 
         httpservice.handleRequest(conn, context);
         final ArgumentCaptor<ClassicHttpResponse> responseCaptor = ArgumentCaptor.forClass(ClassicHttpResponse.class);
@@ -178,14 +179,14 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(Mockito.eq(request), Mockito.argThat(new ArgumentMatcher<HttpResponse>() {
+        Mockito.when(connReuseStrategy.keepAlive(ArgumentMatchers.eq(request), ArgumentMatchers.argThat(new ArgumentMatcher<HttpResponse>() {
 
             @Override
             public boolean matches(final HttpResponse errorResponse) {
                 return errorResponse.getCode() == HttpStatus.SC_NOT_IMPLEMENTED;
             }
 
-        }), Mockito.eq(context))).thenReturn(Boolean.TRUE);
+        }), ArgumentMatchers.eq(context))).thenReturn(Boolean.TRUE);
 
         httpservice.handleRequest(conn, context);
         final ArgumentCaptor<ClassicHttpResponse> responseCaptor = ArgumentCaptor.forClass(ClassicHttpResponse.class);
@@ -343,7 +344,7 @@ public class TestHttpService {
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
 
         Mockito.verify(conn).sendResponseHeader(response);
-        Mockito.verify(conn, Mockito.never()).sendResponseEntity(Mockito.<ClassicHttpResponse>any());
+        Mockito.verify(conn, Mockito.never()).sendResponseEntity(ArgumentMatchers.<ClassicHttpResponse>any());
         Mockito.verify(conn).flush();
         Mockito.verify(conn, Mockito.never()).close();
         Mockito.verify(response).close();
@@ -367,7 +368,7 @@ public class TestHttpService {
         Mockito.verify(requestHandler).handle(request, response, context);
 
         Mockito.verify(conn).sendResponseHeader(response);
-        Mockito.verify(conn, Mockito.never()).sendResponseEntity(Mockito.<ClassicHttpResponse>any());
+        Mockito.verify(conn, Mockito.never()).sendResponseEntity(ArgumentMatchers.<ClassicHttpResponse>any());
         Mockito.verify(conn).flush();
         Mockito.verify(conn, Mockito.never()).close();
         Mockito.verify(response).close();

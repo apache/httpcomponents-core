@@ -52,4 +52,4 @@ public enum FrameFlag {
         return value;
     }
 
-};
+}

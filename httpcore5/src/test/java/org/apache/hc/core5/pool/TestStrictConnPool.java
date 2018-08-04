@@ -36,6 +36,7 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 public class TestStrictConnPool {
@@ -95,8 +96,8 @@ public class TestStrictConnPool {
         pool.release(entry1, true);
         pool.release(entry2, true);
         pool.release(entry3, false);
-        Mockito.verify(conn1, Mockito.never()).close(Mockito.<CloseMode>any());
-        Mockito.verify(conn2, Mockito.never()).close(Mockito.<CloseMode>any());
+        Mockito.verify(conn1, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
+        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
         Mockito.verify(conn3, Mockito.times(1)).close(CloseMode.GRACEFUL);
 
         final PoolStats totals = pool.getTotalStats();
@@ -349,7 +350,7 @@ public class TestStrictConnPool {
         Assert.assertTrue(future5.isDone());
 
         Mockito.verify(conn2).close(CloseMode.GRACEFUL);
-        Mockito.verify(conn1, Mockito.never()).close(Mockito.<CloseMode>any());
+        Mockito.verify(conn1, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
 
         totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
@@ -419,7 +420,7 @@ public class TestStrictConnPool {
         pool.closeExpired();
 
         Mockito.verify(conn1).close(CloseMode.GRACEFUL);
-        Mockito.verify(conn2, Mockito.never()).close(Mockito.<CloseMode>any());
+        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
 
         final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
@@ -461,7 +462,7 @@ public class TestStrictConnPool {
         pool.closeIdle(TimeValue.of(50, TimeUnit.MILLISECONDS));
 
         Mockito.verify(conn1).close(CloseMode.GRACEFUL);
-        Mockito.verify(conn2, Mockito.never()).close(Mockito.<CloseMode>any());
+        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());

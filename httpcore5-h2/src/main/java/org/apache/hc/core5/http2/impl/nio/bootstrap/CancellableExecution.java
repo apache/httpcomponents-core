@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.concurrent.CancellableDependency;
 
-final class CancellableExecution implements CancellableDependency, Cancellable {
+final class CancellableExecution implements CancellableDependency {
 
     private final AtomicBoolean cancelled;
     private final AtomicReference<Cancellable> dependencyRef;
@@ -66,9 +66,8 @@ final class CancellableExecution implements CancellableDependency, Cancellable {
                 dependency.cancel();
             }
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
 }

@@ -57,16 +57,16 @@ public final class DefaultAsyncResponseExchangeHandlerFactory implements Handler
         this(mapper, null);
     }
 
-    private AsyncServerExchangeHandler createHandler(final HttpRequest request, final HttpContext context) throws HttpException {
+    private AsyncServerExchangeHandler createHandler(final HttpRequest request,
+                    final HttpContext context) throws HttpException {
         try {
             final Supplier<AsyncServerExchangeHandler> supplier = mapper.resolve(request, context);
-            if (supplier != null) {
-                return supplier.get();
-            } else {
-                return new ImmediateResponseExchangeHandler(HttpStatus.SC_NOT_FOUND, "Resource not found");
-            }
+            return supplier != null
+                            ? supplier.get()
+                            : new ImmediateResponseExchangeHandler(HttpStatus.SC_NOT_FOUND, "Resource not found");
         } catch (final MisdirectedRequestException ex) {
-            return new ImmediateResponseExchangeHandler(HttpStatus.SC_MISDIRECTED_REQUEST, "Not authoritative");
+            return new ImmediateResponseExchangeHandler(HttpStatus.SC_MISDIRECTED_REQUEST,
+                            "Not authoritative");
         }
     }
 
@@ -75,9 +75,8 @@ public final class DefaultAsyncResponseExchangeHandlerFactory implements Handler
         final AsyncServerExchangeHandler handler = createHandler(request, context);
         if (handler != null) {
             return decorator != null ? decorator.decorate(handler) : handler;
-        } else {
-            return null;
         }
+        return null;
     }
 
 }

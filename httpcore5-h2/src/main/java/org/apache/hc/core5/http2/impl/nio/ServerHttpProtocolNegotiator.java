@@ -126,9 +126,8 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     if (bytebuf.get() != PREFACE[i]) {
                         if (expectValidH2Preface) {
                             throw new HttpException("Unexpected HTTP/2 preface");
-                        } else {
-                            validH2Preface = false;
                         }
+                        validH2Preface = false;
                     }
                 }
                 if (validH2Preface) {

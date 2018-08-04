@@ -238,9 +238,8 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         sock.connect(targetAddress, socketConfig.getSoTimeout().toMillisIntBound());
         if (URIScheme.HTTPS.same(targetHost.getSchemeName())) {
             return sslSocketFactory.createSocket(sock, targetHost.getHostName(), targetAddress.getPort(), true);
-        } else {
-            return sock;
         }
+        return sock;
     }
 
     public ClassicHttpResponse execute(

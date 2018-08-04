@@ -38,4 +38,4 @@ public class TestFrameFlag {
         Assert.assertEquals(0x01 | 0x08 | 0x20, flags);
     }
 
-};
+}

@@ -363,9 +363,8 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             payload.position(payload.position() + chunk);
             ioSession.setEvent(SelectionKey.OP_WRITE);
             return chunk;
-        } else {
-            return 0;
         }
+        return 0;
     }
 
     private void updateInputCapacity(

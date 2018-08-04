@@ -147,11 +147,11 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             final String contentType = entity == null ? null : entity.getContentType();
 
             // prepare the returned information
-            final Map<String, Object> ret = new HashMap<String, Object>();
+            final Map<String, Object> ret = new HashMap<>();
             ret.put(STATUS, response.getCode());
 
             // convert the headers to a Map
-            final Map<String, Object> headerMap = new HashMap<String, Object>();
+            final Map<String, Object> headerMap = new HashMap<>();
             for (final Header header : response.getAllHeaders()) {
                 headerMap.put(header.getName(), header.getValue());
             }

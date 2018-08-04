@@ -81,13 +81,11 @@ public class WritableByteChannelMock implements WritableByteChannel {
                 src.limit(limit);
                 this.capacityUsed += chunk;
                 return chunk;
-            } else {
-                return 0;
             }
-        } else {
-            this.buf.put(src);
-            return len;
+            return 0;
         }
+        this.buf.put(src);
+        return len;
     }
 
     @Override
