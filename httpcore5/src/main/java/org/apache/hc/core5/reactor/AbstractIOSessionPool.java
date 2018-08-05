@@ -264,7 +264,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
         for (final PoolEntry poolEntry: sessionPool.values()) {
             if (poolEntry.session != null) {
                 synchronized (poolEntry) {
-                    if (poolEntry.session != null && poolEntry.session.getLastReadTime() <= deadline) {
+                    if (poolEntry.session != null && poolEntry.session.getLastReadTimeMillis() <= deadline) {
                         closeSession(poolEntry.session, CloseMode.GRACEFUL);
                         poolEntry.session = null;
                     }

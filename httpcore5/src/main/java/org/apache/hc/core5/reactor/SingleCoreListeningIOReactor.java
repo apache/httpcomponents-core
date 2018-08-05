@@ -80,13 +80,13 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
 
     @Override
     protected final void doExecute() throws IOException {
-        final long selectTimeout = this.reactorConfig.getSelectInterval();
+        final long selectTimeoutMillis = this.reactorConfig.getSelectIntervalMillis();
         while (!Thread.currentThread().isInterrupted()) {
             if (getStatus().compareTo(IOReactorStatus.ACTIVE) != 0) {
                 break;
             }
 
-            final int readyCount = this.selector.select(selectTimeout);
+            final int readyCount = this.selector.select(selectTimeoutMillis);
 
             if (getStatus().compareTo(IOReactorStatus.ACTIVE) != 0) {
                 break;

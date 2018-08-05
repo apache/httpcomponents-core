@@ -65,7 +65,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private final Queue<IOSessionRequest> requestQueue;
     private final AtomicBoolean shutdownInitiated;
 
-    private volatile long lastTimeoutCheck;
+    private volatile long lastTimeoutCheckMillis;
 
     SingleCoreIOReactor(
             final Queue<ExceptionEvent> auditLog,
@@ -104,10 +104,10 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     @Override
     void doExecute() throws IOException {
-        final long selectTimeout = this.reactorConfig.getSelectInterval();
+        final long selectTimeoutMillis = this.reactorConfig.getSelectIntervalMillis();
         while (!Thread.currentThread().isInterrupted()) {
 
-            final int readyCount = this.selector.select(selectTimeout);
+            final int readyCount = this.selector.select(selectTimeoutMillis);
 
             if (getStatus().compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0) {
                 if (this.shutdownInitiated.compareAndSet(false, true)) {
@@ -158,11 +158,11 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     }
 
     private void validateActiveChannels() {
-        final long currentTime = System.currentTimeMillis();
-        if( (currentTime - this.lastTimeoutCheck) >= this.reactorConfig.getSelectInterval()) {
-            this.lastTimeoutCheck = currentTime;
+        final long currentTimeMillis = System.currentTimeMillis();
+        if( (currentTimeMillis - this.lastTimeoutCheckMillis) >= this.reactorConfig.getSelectIntervalMillis()) {
+            this.lastTimeoutCheckMillis = currentTimeMillis;
             for (final SelectionKey key : this.selector.keys()) {
-                checkTimeout(key, currentTime);
+                checkTimeout(key, currentTimeMillis);
             }
         }
     }
@@ -226,10 +226,10 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         }
     }
 
-    private void checkTimeout(final SelectionKey key, final long now) {
+    private void checkTimeout(final SelectionKey key, final long nowMillis) {
         final InternalChannel channel = (InternalChannel) key.attachment();
         if (channel != null) {
-            channel.checkTimeout(now);
+            channel.checkTimeout(nowMillis);
         }
     }
 

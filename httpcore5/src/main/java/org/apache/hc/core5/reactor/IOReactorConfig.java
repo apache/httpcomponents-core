@@ -45,7 +45,7 @@ public final class IOReactorConfig {
 
     public static final IOReactorConfig DEFAULT = new Builder().build();
 
-    private final long selectInterval;
+    private final long selectIntervalMillis;
     private final int ioThreadCount;
     private final Timeout  soTimeout;
     private final boolean soReuseAddress;
@@ -57,7 +57,7 @@ public final class IOReactorConfig {
     private final int backlogSize;
 
     IOReactorConfig(
-            final long selectInterval,
+            final long selectIntervalMillis,
             final int ioThreadCount,
             final Timeout soTimeout,
             final boolean soReuseAddress,
@@ -68,7 +68,7 @@ public final class IOReactorConfig {
             final int rcvBufSize,
             final int backlogSize) {
         super();
-        this.selectInterval = selectInterval;
+        this.selectIntervalMillis = selectIntervalMillis;
         this.ioThreadCount = Args.positive(ioThreadCount, "ioThreadCount");
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
@@ -87,8 +87,8 @@ public final class IOReactorConfig {
      * Default: {@code 1000} milliseconds.
      * </p>
      */
-    public long getSelectInterval() {
-        return this.selectInterval;
+    public long getSelectIntervalMillis() {
+        return this.selectIntervalMillis;
     }
 
     /**
@@ -210,7 +210,7 @@ public final class IOReactorConfig {
     public static Builder copy(final IOReactorConfig config) {
         Args.notNull(config, "I/O reactor config");
         return new Builder()
-            .setSelectInterval(config.getSelectInterval())
+            .setSelectIntervalMillis(config.getSelectIntervalMillis())
             .setIoThreadCount(config.getIoThreadCount())
             .setSoTimeout(config.getSoTimeout())
             .setSoReuseAddress(config.isSoReuseAddress())
@@ -251,7 +251,7 @@ public final class IOReactorConfig {
             DefaultMaxIoThreadCount = defaultMaxIoThreadCount;
         }
 
-        private long selectInterval;
+        private long selectIntervalMillis;
         private int ioThreadCount;
         private Timeout  soTimeout;
         private boolean soReuseAddress;
@@ -263,7 +263,7 @@ public final class IOReactorConfig {
         private int backlogSize;
 
         Builder() {
-            this.selectInterval = 1000;
+            this.selectIntervalMillis = 1000;
             this.ioThreadCount = Builder.getDefaultMaxIoThreadCount();
             this.soTimeout = Timeout.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
@@ -275,8 +275,8 @@ public final class IOReactorConfig {
             this.backlogSize = 0;
         }
 
-        public Builder setSelectInterval(final long selectInterval) {
-            this.selectInterval = selectInterval;
+        public Builder setSelectIntervalMillis(final long selectIntervalMillis) {
+            this.selectIntervalMillis = selectIntervalMillis;
             return this;
         }
 
@@ -337,7 +337,7 @@ public final class IOReactorConfig {
 
         public IOReactorConfig build() {
             return new IOReactorConfig(
-                    selectInterval, ioThreadCount,
+                    selectIntervalMillis, ioThreadCount,
                     Timeout.defaultsToDisabled(soTimeout),
                     soReuseAddress,
                     TimeValue.defaultsToNegativeOneMillisecond(soLinger),
@@ -351,7 +351,7 @@ public final class IOReactorConfig {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("[selectInterval=").append(this.selectInterval)
+        builder.append("[selectIntervalMillis=").append(this.selectIntervalMillis)
                 .append(", ioThreadCount=").append(this.ioThreadCount)
                 .append(", soTimeout=").append(this.soTimeout)
                 .append(", soReuseAddress=").append(this.soReuseAddress)

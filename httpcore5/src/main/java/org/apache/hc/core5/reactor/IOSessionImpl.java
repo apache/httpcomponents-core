@@ -185,7 +185,7 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public long getLastReadTime() {
+    public long getLastReadTimeMillis() {
         return lastReadTime;
     }
 

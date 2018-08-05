@@ -365,8 +365,8 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    public long getLastReadTime() {
-        return ioSession.getLastReadTime();
+    public long getLastReadTimeMillis() {
+        return ioSession.getLastReadTimeMillis();
     }
 
     @Override

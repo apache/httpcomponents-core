@@ -187,7 +187,7 @@ public interface IOSession extends ModalCloseable, Identifiable {
      *
      * @return timestamp.
      */
-    long getLastReadTime();
+    long getLastReadTimeMillis();
 
     /**
      * Returns timestamp of the last write event.

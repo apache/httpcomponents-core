@@ -135,7 +135,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final Callback<Boolean> callback) {
         final TimeValue timeValue = validateAfterInactivity;
         if (TimeValue.isPositive(timeValue)) {
-            final long lastAccessTime = Math.min(ioSession.getLastReadTime(), ioSession.getLastWriteTime());
+            final long lastAccessTime = Math.min(ioSession.getLastReadTimeMillis(), ioSession.getLastWriteTime());
             final long deadline = lastAccessTime + timeValue.toMillis();
             if (deadline <= System.currentTimeMillis()) {
                 final int socketTimeoutMillis = ioSession.getSocketTimeoutMillis();

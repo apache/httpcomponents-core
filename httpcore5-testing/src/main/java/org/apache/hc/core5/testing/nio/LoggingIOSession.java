@@ -200,8 +200,8 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
-    public long getLastReadTime() {
-        return this.session.getLastReadTime();
+    public long getLastReadTimeMillis() {
+        return this.session.getLastReadTimeMillis();
     }
 
     @Override

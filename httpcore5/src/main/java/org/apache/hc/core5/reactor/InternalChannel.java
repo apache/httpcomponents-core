@@ -43,7 +43,7 @@ abstract class InternalChannel implements ModalCloseable {
 
     abstract int getTimeoutMillis();
 
-    abstract long getLastReadTime();
+    abstract long getLastReadTimeMillis();
 
     final void handleIOEvent(final int ops) {
         try {
@@ -56,11 +56,11 @@ abstract class InternalChannel implements ModalCloseable {
         }
     }
 
-    final boolean checkTimeout(final long currentTime) {
+    final boolean checkTimeout(final long currentTimeMillis) {
         final int timeoutMillis = getTimeoutMillis();
         if (timeoutMillis > 0) {
-            final long deadline = getLastReadTime() + timeoutMillis;
-            if (currentTime > deadline) {
+            final long deadlineMillils = getLastReadTimeMillis() + timeoutMillis;
+            if (currentTimeMillis > deadlineMillils) {
                 try {
                     onTimeout(timeoutMillis);
                 } catch (final CancelledKeyException ex) {
