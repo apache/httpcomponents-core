@@ -32,7 +32,7 @@ import java.net.SocketAddress;
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
+import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
@@ -49,19 +49,19 @@ public class BasicServerTlsStrategy implements TlsStrategy {
 
     private final SSLContext sslContext;
     private final SecurePortStrategy securePortStrategy;
-    private final SSLBufferManagement sslBufferManagement;
+    private final SSLBufferMode sslBufferMode;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
 
     public BasicServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
-            final SSLBufferManagement sslBufferManagement,
+            final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
         this.sslContext = Args.notNull(sslContext, "SSL context");
         this.securePortStrategy = securePortStrategy;
-        this.sslBufferManagement = sslBufferManagement;
+        this.sslBufferMode = sslBufferMode;
         this.initializer = initializer;
         this.verifier = verifier;
     }
@@ -97,7 +97,7 @@ public class BasicServerTlsStrategy implements TlsStrategy {
             final SocketAddress remoteAddress,
             final Object attachment) {
         if (securePortStrategy != null && securePortStrategy.isSecure(localAddress)) {
-            tlsSession.startTls(sslContext, host, sslBufferManagement, initializer, verifier);
+            tlsSession.startTls(sslContext, host, sslBufferMode, initializer, verifier);
             return true;
         }
         return false;

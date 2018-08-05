@@ -24,38 +24,112 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.hc.core5.reactor.ssl;
 
 import java.nio.ByteBuffer;
 
-import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.util.Args;
 
-/**
- * Managed internal SSL buffer.
- */
-@Internal
-interface SSLBuffer {
+abstract class SSLManagedBuffer {
+
     /**
      * Allocates the resources required for this buffer, or returns the resources already allocated for this buffer.
      * Unless {@link #release() } is called, multiple invokations to this method must return the same
      * {@link java.nio.ByteBuffer}.
      * @return buffer
      */
-    ByteBuffer acquire();
+    abstract ByteBuffer acquire();
     /**
      * Releases the resources for this buffer. If the buffer has already been released, this method does nothing.
      */
-    void release();
+    abstract void release();
     /**
      * Tests to see if this buffer has been acquired.
      * @return {@code true} if the buffer is acquired, otherwise {@code false}
      */
-    boolean isAcquired();
+    abstract boolean isAcquired();
     /**
      * Tests to make sure that the buffer has been acquired and the underlying buffer has a position larger than
      * {@code 0}. Essentially the same as {@code isAquired() && acquire().position > 0}.
      * @return {@code true} if the buffer has been acquired and the underlying buffer's position is {@code &gt; 0},
      * otherwise {@code false}
      */
-    boolean hasData();
+    abstract boolean hasData();
+
+    static SSLManagedBuffer create(final SSLBufferMode mode, final int size) {
+        if (mode == SSLBufferMode.DYNAMIC) {
+            return new DynamicBuffer(size);
+        } else {
+            return new StaticBuffer(size);
+        }
+    }
+
+    static final class StaticBuffer extends SSLManagedBuffer {
+
+        private final ByteBuffer buffer;
+
+        public StaticBuffer(final int size) {
+            Args.positive(size, "size");
+            buffer = ByteBuffer.allocate(size);
+        }
+
+        @Override
+        public ByteBuffer acquire() {
+            return buffer;
+        }
+
+        @Override
+        public void release() {
+            // do nothing
+        }
+
+        @Override
+        public boolean isAcquired() {
+            return true;
+        }
+
+        @Override
+        public boolean hasData() {
+            return buffer.position() > 0;
+        }
+
+    }
+
+    static final class DynamicBuffer extends SSLManagedBuffer {
+
+        private ByteBuffer wrapped;
+        private final int length;
+
+        public DynamicBuffer(final int size) {
+            Args.positive(size, "size");
+            this.length = size;
+        }
+
+        @Override
+        public ByteBuffer acquire() {
+            if (wrapped != null) {
+                return wrapped;
+            }
+            wrapped = ByteBuffer.allocate(length);
+            return wrapped;
+        }
+
+        @Override
+        public void release() {
+            wrapped = null;
+        }
+
+        @Override
+        public boolean isAcquired() {
+            return wrapped != null;
+        }
+
+        @Override
+        public boolean hasData() {
+            return wrapped != null && wrapped.position() > 0;
+        }
+
+    }
+
 }

@@ -41,7 +41,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
+import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
 import org.apache.hc.core5.reactor.ssl.SSLIOSession;
 import org.apache.hc.core5.reactor.ssl.SSLMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
@@ -210,7 +210,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     public void startTls(
             final SSLContext sslContext,
             final NamedEndpoint endpoint,
-            final SSLBufferManagement sslBufferManagement,
+            final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
         if (!tlsSessionRef.compareAndSet(null, new SSLIOSession(
@@ -218,7 +218,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                 ioSession,
                 initialEndpoint != null ? SSLMode.CLIENT : SSLMode.SERVER,
                 sslContext,
-                sslBufferManagement,
+                sslBufferMode,
                 initializer,
                 verifier,
                 new Callback<SSLIOSession>() {

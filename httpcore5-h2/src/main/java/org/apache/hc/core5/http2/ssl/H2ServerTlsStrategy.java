@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.ssl.FixedPortStrategy;
 import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
-import org.apache.hc.core5.reactor.ssl.SSLBufferManagement;
+import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
@@ -52,19 +52,19 @@ public class H2ServerTlsStrategy implements TlsStrategy {
 
     private final SSLContext sslContext;
     private final SecurePortStrategy securePortStrategy;
-    private final SSLBufferManagement sslBufferManagement;
+    private final SSLBufferMode sslBufferMode;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
 
     public H2ServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
-            final SSLBufferManagement sslBufferManagement,
+            final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
         this.sslContext = Args.notNull(sslContext, "SSL context");
         this.securePortStrategy = securePortStrategy;
-        this.sslBufferManagement = sslBufferManagement;
+        this.sslBufferMode = sslBufferMode;
         this.initializer = initializer;
         this.verifier = verifier;
     }
@@ -103,7 +103,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
             tlsSession.startTls(
                     sslContext,
                     host,
-                    sslBufferManagement,
+                    sslBufferMode,
                     H2TlsSupport.enforceRequirements(attachment, initializer),
                     verifier);
             return true;

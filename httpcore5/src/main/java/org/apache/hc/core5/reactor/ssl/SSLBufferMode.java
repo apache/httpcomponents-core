@@ -27,24 +27,12 @@
 
 package org.apache.hc.core5.reactor.ssl;
 
-import javax.net.ssl.SSLContext;
-
-import org.apache.hc.core5.net.NamedEndpoint;
-
 /**
- * Represents a TLS capable session layer.
- *
  * @since 5.0
  */
-public interface TransportSecurityLayer {
+public enum SSLBufferMode {
 
-    void startTls(
-            SSLContext sslContext,
-            NamedEndpoint endpoint,
-            SSLBufferMode sslBufferMode,
-            SSLSessionInitializer initializer,
-            SSLSessionVerifier verifier) throws UnsupportedOperationException;
-
-    TlsDetails getTlsDetails();
+    STATIC,
+    DYNAMIC
 
 }

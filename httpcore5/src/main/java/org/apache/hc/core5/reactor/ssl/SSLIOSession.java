@@ -74,9 +74,9 @@ public class SSLIOSession implements IOSession {
     private final NamedEndpoint targetEndpoint;
     private final IOSession session;
     private final SSLEngine sslEngine;
-    private final SSLBuffer inEncrypted;
-    private final SSLBuffer outEncrypted;
-    private final SSLBuffer inPlain;
+    private final SSLManagedBuffer inEncrypted;
+    private final SSLManagedBuffer outEncrypted;
+    private final SSLManagedBuffer inPlain;
     private final ByteChannel channel;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
@@ -111,7 +111,7 @@ public class SSLIOSession implements IOSession {
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier,
             final Callback<SSLIOSession> callback) {
-        this(targetEndpoint, session, sslMode, sslContext, SSLBufferManagement.STATIC, initializer, verifier, callback);
+        this(targetEndpoint, session, sslMode, sslContext, SSLBufferMode.STATIC, initializer, verifier, callback);
     }
 
     /**
@@ -121,7 +121,7 @@ public class SSLIOSession implements IOSession {
      * @param sslMode SSL mode (client or server)
      * @param targetEndpoint target endpoint (applicable in client mode only). May be {@code null}.
      * @param sslContext SSL context to use for this I/O session.
-     * @param sslBufferManagement buffer management mode
+     * @param sslBufferMode buffer management mode
      * @param initializer optional SSL session initializer. May be {@code null}.
      * @param verifier optional SSL session verifier. May be {@code null}.
      *
@@ -132,7 +132,7 @@ public class SSLIOSession implements IOSession {
             final IOSession session,
             final SSLMode sslMode,
             final SSLContext sslContext,
-            final SSLBufferManagement sslBufferManagement,
+            final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier,
             final Callback<SSLIOSession> callback) {
@@ -156,12 +156,12 @@ public class SSLIOSession implements IOSession {
         final SSLSession sslSession = this.sslEngine.getSession();
         // Allocate buffers for network (encrypted) data
         final int netBufferSize = sslSession.getPacketBufferSize();
-        this.inEncrypted = SSLBufferManagement.create(sslBufferManagement, netBufferSize);
-        this.outEncrypted = SSLBufferManagement.create(sslBufferManagement, netBufferSize);
+        this.inEncrypted = SSLManagedBuffer.create(sslBufferMode, netBufferSize);
+        this.outEncrypted = SSLManagedBuffer.create(sslBufferMode, netBufferSize);
 
         // Allocate buffers for application (unencrypted) data
         final int appBufferSize = sslSession.getApplicationBufferSize();
-        this.inPlain = SSLBufferManagement.create(sslBufferManagement, appBufferSize);
+        this.inPlain = SSLManagedBuffer.create(sslBufferMode, appBufferSize);
         this.channel = new ByteChannel() {
 
             @Override
