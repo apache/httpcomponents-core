@@ -117,4 +117,9 @@ public class HttpEntityWrapper implements HttpEntity {
         wrappedEntity.close();
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + "[" + wrappedEntity + "]";
+    }
+
 }
