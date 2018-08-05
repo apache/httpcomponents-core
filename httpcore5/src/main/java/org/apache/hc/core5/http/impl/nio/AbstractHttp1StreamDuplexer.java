@@ -76,7 +76,7 @@ import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Identifiable;
-import org.apache.hc.core5.util.SocketTimeoutExceptionFactory;
+import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
         implements Identifiable, HttpConnection {

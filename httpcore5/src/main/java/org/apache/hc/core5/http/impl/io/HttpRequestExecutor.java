@@ -53,7 +53,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Closer;
+import org.apache.hc.core5.io.Closer;
 
 /**
  * {@code HttpRequestExecutor} is a client side HTTP protocol handler based

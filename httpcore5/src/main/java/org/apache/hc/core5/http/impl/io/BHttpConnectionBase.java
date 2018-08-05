@@ -61,7 +61,7 @@ import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Closer;
+import org.apache.hc.core5.io.Closer;
 
 class BHttpConnectionBase implements BHttpConnection {
 

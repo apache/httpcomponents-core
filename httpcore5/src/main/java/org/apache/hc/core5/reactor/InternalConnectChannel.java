@@ -32,7 +32,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.util.SocketTimeoutExceptionFactory;
+import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.util.TimeValue;
 
 final class InternalConnectChannel extends InternalChannel {

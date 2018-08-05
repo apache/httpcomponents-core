@@ -25,14 +25,16 @@
  *
  */
 
-package org.apache.hc.core5.util;
+package org.apache.hc.core5.io;
 
 import java.net.SocketTimeoutException;
 
 /**
  * Creates SocketTimeoutException instances.
+ *
+ * @since 5.0
  */
-public class SocketTimeoutExceptionFactory {
+public final class SocketTimeoutExceptionFactory {
 
     /**
      * Creates a new SocketTimeoutException with a message for the given timeout.

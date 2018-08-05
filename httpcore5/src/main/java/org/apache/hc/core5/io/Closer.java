@@ -25,15 +25,17 @@
  *
  */
 
-package org.apache.hc.core5.util;
+package org.apache.hc.core5.io;
 
 import java.io.Closeable;
 import java.io.IOException;
 
 /**
  * Closes resources.
+ *
+ * @since 5.0
  */
-public class Closer {
+public final class Closer {
 
     /**
      * Closes the given closeable quietly even in the event of an exception.
