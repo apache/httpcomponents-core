@@ -39,7 +39,7 @@ public class ConnectionClosedException extends IOException {
     private static final long serialVersionUID = 617550366255636674L;
 
     /**
-     * Creates a new ConnectionClosedException with the specified detail message.
+     * Creates a new ConnectionClosedException with a default message.
      */
     public ConnectionClosedException() {
         super("Connection is closed");
