@@ -28,21 +28,17 @@
 package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
-import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -55,7 +51,7 @@ import org.apache.hc.core5.util.TimeValue;
  *
  * @since 4.0
  */
-public class DefaultConnectingIOReactor implements IOReactorService, ConnectionInitiator {
+public class DefaultConnectingIOReactor extends AbstractDefaultIOReactor implements IOReactorService {
 
     private final Deque<ExceptionEvent> auditLog;
     private final int workerCount;
@@ -119,28 +115,13 @@ public class DefaultConnectingIOReactor implements IOReactorService, ConnectionI
     }
 
     @Override
-    public List<ExceptionEvent> getExceptionLog() {
-        return auditLog.isEmpty() ? Collections.<ExceptionEvent>emptyList() : new ArrayList<>(auditLog);
+    IOWorkers.Selector getWorkerSelector() {
+        return workerSelector;
     }
 
     @Override
-    public Future<IOSession> connect(
-            final NamedEndpoint remoteEndpoint,
-            final SocketAddress remoteAddress,
-            final SocketAddress localAddress,
-            final TimeValue timeout,
-            final Object attachment,
-            final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
-        Args.notNull(remoteEndpoint, "Remote endpoint");
-        if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
-            throw new IOReactorShutdownException("I/O reactor has been shut down");
-        }
-        try {
-            return workerSelector.next().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
-        } catch (final IOReactorShutdownException ex) {
-            initiateShutdown();
-            throw ex;
-        }
+    public List<ExceptionEvent> getExceptionLog() {
+        return auditLog.isEmpty() ? Collections.<ExceptionEvent>emptyList() : new ArrayList<>(auditLog);
     }
 
     @Override

@@ -52,7 +52,7 @@ import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
 
-public class AsyncServer implements IOReactorService, ConnectionInitiator, ConnectionAcceptor {
+public class AsyncServer extends AbstractAsyncServerAndRequester implements IOReactorService, ConnectionAcceptor {
 
     private final DefaultListeningIOReactor ioReactor;
 
@@ -86,6 +86,11 @@ public class AsyncServer implements IOReactorService, ConnectionInitiator, Conne
             final Object attachment,
             final FutureCallback<IOSession> callback) {
         return ioReactor.connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
+    }
+
+    @Override
+    ConnectionInitiator getIOReactor() {
+        return ioReactor;
     }
 
     @Override

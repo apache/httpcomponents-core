@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -41,7 +40,6 @@ import org.apache.hc.core5.function.Resolver;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
 import org.apache.hc.core5.reactor.ExceptionEvent;
@@ -54,7 +52,7 @@ import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
-public class AsyncRequester implements IOReactorService, ConnectionInitiator {
+public class AsyncRequester extends AbstractAsyncServerAndRequester implements IOReactorService {
 
     private final DefaultConnectingIOReactor ioReactor;
     private final Resolver<HttpHost, InetSocketAddress> addressResolver;
@@ -74,17 +72,6 @@ public class AsyncRequester implements IOReactorService, ConnectionInitiator {
                 sessionListener,
                 sessionShutdownCallback);
         this.addressResolver = addressResolver != null ? addressResolver : DefaultAddressResolver.INSTANCE;
-    }
-
-    @Override
-    public Future<IOSession> connect(
-            final NamedEndpoint remoteEndpoint,
-            final SocketAddress remoteAddress,
-            final SocketAddress localAddress,
-            final TimeValue timeout,
-            final Object attachment,
-            final FutureCallback<IOSession> callback) {
-        return ioReactor.connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
     }
 
     public Future<IOSession> requestSession(
@@ -132,4 +119,8 @@ public class AsyncRequester implements IOReactorService, ConnectionInitiator {
         ioReactor.close();
     }
 
+    @Override
+    ConnectionInitiator getIOReactor() {
+        return ioReactor;
+    }
 }
