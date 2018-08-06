@@ -27,6 +27,14 @@
 
 package org.apache.hc.core5.reactor;
 
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
+import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
+
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
@@ -39,15 +47,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
-import org.apache.hc.core5.concurrent.DefaultThreadFactory;
-import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.TimeValue;
-
 /**
  * Multi-core I/O reactor that can ask as both {@link ConnectionInitiator}
  * and {@link ConnectionAcceptor}. Internally this I/O reactor distributes newly created
@@ -57,7 +56,7 @@ import org.apache.hc.core5.util.TimeValue;
  *
  * @since 4.0
  */
-public class DefaultListeningIOReactor implements IOReactorService, ConnectionInitiator, ConnectionAcceptor {
+public class DefaultListeningIOReactor extends AbstractDefaultIOReactor implements IOReactorService, ConnectionAcceptor {
 
     private final static ThreadFactory DISPATCH_THREAD_FACTORY = new DefaultThreadFactory("I/O server dispatch", true);
     private final static ThreadFactory LISTENER_THREAD_FACTORY = new DefaultThreadFactory("I/O listener", true);
@@ -183,6 +182,11 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
     }
 
     @Override
+    public IOWorkers.Selector getWorkerSelector() {
+        return workerSelector;
+    }
+
+    @Override
     public List<ExceptionEvent> getExceptionLog() {
         return auditLog.isEmpty() ? Collections.<ExceptionEvent>emptyList() : new ArrayList<>(auditLog);
     }
@@ -195,25 +199,6 @@ public class DefaultListeningIOReactor implements IOReactorService, ConnectionIn
         }
     }
 
-    @Override
-    public Future<IOSession> connect(
-            final NamedEndpoint remoteEndpoint,
-            final SocketAddress remoteAddress,
-            final SocketAddress localAddress,
-            final TimeValue timeout,
-            final Object attachment,
-            final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
-        Args.notNull(remoteEndpoint, "Remote endpoint");
-        if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
-            throw new IOReactorShutdownException("I/O reactor has been shut down");
-        }
-        try {
-            return workerSelector.next().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
-        } catch (final IOReactorShutdownException ex) {
-            initiateShutdown();
-            throw ex;
-        }
-    }
 
     @Override
     public void initiateShutdown() {
