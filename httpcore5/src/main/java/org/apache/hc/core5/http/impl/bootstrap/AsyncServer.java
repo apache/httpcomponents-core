@@ -27,6 +27,12 @@
 
 package org.apache.hc.core5.http.impl.bootstrap;
 
+import java.io.IOException;
+import java.net.SocketAddress;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Future;
+
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
@@ -45,12 +51,6 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
-
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Future;
 
 public class AsyncServer extends AbstractAsyncServerAndRequester implements IOReactorService, ConnectionAcceptor {
 
@@ -89,7 +89,7 @@ public class AsyncServer extends AbstractAsyncServerAndRequester implements IORe
     }
 
     @Override
-    public ConnectionInitiator getIOReactor() {
+    ConnectionInitiator getIOReactor() {
         return ioReactor;
     }
 

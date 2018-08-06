@@ -64,5 +64,5 @@ public abstract class AbstractDefaultIOReactor implements ConnectionInitiator {
 
     public abstract IOReactorStatus getStatus();
 
-    public abstract IOWorkers.Selector getWorkerSelector();
+    abstract IOWorkers.Selector getWorkerSelector();
 }

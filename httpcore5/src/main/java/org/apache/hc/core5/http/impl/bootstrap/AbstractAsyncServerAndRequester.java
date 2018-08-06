@@ -51,5 +51,5 @@ public abstract class AbstractAsyncServerAndRequester implements ConnectionIniti
         return getIOReactor().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
     }
 
-    public abstract ConnectionInitiator getIOReactor();
+    abstract ConnectionInitiator getIOReactor();
 }

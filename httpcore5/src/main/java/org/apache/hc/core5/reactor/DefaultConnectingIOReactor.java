@@ -27,13 +27,6 @@
 
 package org.apache.hc.core5.reactor;
 
-import org.apache.hc.core5.concurrent.DefaultThreadFactory;
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.TimeValue;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,6 +34,13 @@ import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadFactory;
+
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
+import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
+import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Multi-core I/O reactor that can act as {@link ConnectionInitiator} Internally
@@ -115,7 +115,7 @@ public class DefaultConnectingIOReactor extends AbstractDefaultIOReactor impleme
     }
 
     @Override
-    public IOWorkers.Selector getWorkerSelector() {
+    IOWorkers.Selector getWorkerSelector() {
         return workerSelector;
     }
 

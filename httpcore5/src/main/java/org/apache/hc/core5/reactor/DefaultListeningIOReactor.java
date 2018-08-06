@@ -27,14 +27,6 @@
 
 package org.apache.hc.core5.reactor;
 
-import org.apache.hc.core5.concurrent.DefaultThreadFactory;
-import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.TimeValue;
-
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
@@ -46,6 +38,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+
+import org.apache.hc.core5.concurrent.DefaultThreadFactory;
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
+import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Multi-core I/O reactor that can ask as both {@link ConnectionInitiator}
@@ -182,7 +182,7 @@ public class DefaultListeningIOReactor extends AbstractDefaultIOReactor implemen
     }
 
     @Override
-    public IOWorkers.Selector getWorkerSelector() {
+    IOWorkers.Selector getWorkerSelector() {
         return workerSelector;
     }
 
