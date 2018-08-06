@@ -38,7 +38,6 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionAcceptor;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
@@ -52,7 +51,7 @@ import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
 
-public class AsyncServer implements IOReactorService, ConnectionInitiator, ConnectionAcceptor {
+public class AsyncServer extends AbstractConnectionInitiatorBase implements IOReactorService, ConnectionAcceptor {
 
     private final DefaultListeningIOReactor ioReactor;
 
@@ -78,14 +77,8 @@ public class AsyncServer implements IOReactorService, ConnectionInitiator, Conne
     }
 
     @Override
-    public Future<IOSession> connect(
-            final NamedEndpoint remoteEndpoint,
-            final SocketAddress remoteAddress,
-            final SocketAddress localAddress,
-            final TimeValue timeout,
-            final Object attachment,
-            final FutureCallback<IOSession> callback) {
-        return ioReactor.connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);
+    ConnectionInitiator getIOReactor() {
+        return ioReactor;
     }
 
     @Override
