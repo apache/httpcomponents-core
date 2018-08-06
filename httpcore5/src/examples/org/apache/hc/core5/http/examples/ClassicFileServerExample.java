@@ -49,7 +49,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
-import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.io.HttpRequestHandler;

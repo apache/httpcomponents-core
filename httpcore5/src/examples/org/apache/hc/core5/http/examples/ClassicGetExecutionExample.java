@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
@@ -76,15 +76,14 @@ public class ClassicGetExecutionExample {
                     }
 
                 })
+                .setSocketConfig(SocketConfig.custom()
+                        .setSoTimeout(5, TimeUnit.SECONDS)
+                        .build())
                 .create();
 
         HttpCoreContext coreContext = HttpCoreContext.create();
         HttpHost target = new HttpHost("httpbin.org");
         String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
-
-        SocketConfig socketConfig = SocketConfig.custom()
-                .setSoTimeout(5, TimeUnit.SECONDS)
-                .build();
 
         for (int i = 0; i < requestUris.length; i++) {
             String requestUri = requestUris[i];

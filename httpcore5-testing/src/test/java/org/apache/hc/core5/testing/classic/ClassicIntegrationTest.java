@@ -53,7 +53,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;

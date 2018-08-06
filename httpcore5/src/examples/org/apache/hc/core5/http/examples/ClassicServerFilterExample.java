@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;

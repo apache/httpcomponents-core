@@ -34,9 +34,9 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.HttpEntityWithTrailers;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -50,7 +50,11 @@ import org.apache.hc.core5.util.Timeout;
  */
 public class ClassicPostWithTrailersExecutionExample {
     public static void main(String[] args) throws Exception {
-        HttpRequester httpRequester = RequesterBootstrap.bootstrap().create();
+        HttpRequester httpRequester = RequesterBootstrap.bootstrap()
+                .setSocketConfig(SocketConfig.custom()
+                        .setSoTimeout(5, TimeUnit.SECONDS)
+                        .build())
+                .create();
 
         HttpCoreContext coreContext = HttpCoreContext.create();
         HttpHost target = new HttpHost("httpbin.org");
@@ -61,10 +65,6 @@ public class ClassicPostWithTrailersExecutionExample {
                 new StringEntity("Chunked message with trailers", ContentType.TEXT_PLAIN),
                 new BasicHeader("t1","Hello world"));
         request.setEntity(requestBody);
-
-        SocketConfig socketConfig = SocketConfig.custom()
-                .setSoTimeout(5, TimeUnit.SECONDS)
-                .build();
 
         System.out.println(">> Request URI: " + request.getUri());
         try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {

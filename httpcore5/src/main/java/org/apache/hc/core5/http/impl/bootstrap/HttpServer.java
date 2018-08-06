@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.config.SocketConfig;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpService;

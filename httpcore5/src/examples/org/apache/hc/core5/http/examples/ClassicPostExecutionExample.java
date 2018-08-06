@@ -39,10 +39,10 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.config.SocketConfig;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
@@ -83,6 +83,9 @@ public class ClassicPostExecutionExample {
                     }
 
                 })
+                .setSocketConfig(SocketConfig.custom()
+                        .setSoTimeout(5, TimeUnit.SECONDS)
+                        .build())
                 .create();
         HttpCoreContext coreContext = HttpCoreContext.create();
         HttpHost target = new HttpHost("httpbin.org");
@@ -100,10 +103,6 @@ public class ClassicPostExecutionExample {
                                         .getBytes(StandardCharsets.UTF_8)),
                         ContentType.APPLICATION_OCTET_STREAM)
         };
-
-        SocketConfig socketConfig = SocketConfig.custom()
-                .setSoTimeout(5, TimeUnit.SECONDS)
-                .build();
 
         String requestUri = "/post";
         for (int i = 0; i < requestBodies.length; i++) {

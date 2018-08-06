@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.config;
+package org.apache.hc.core5.http.io;
 
 import java.util.concurrent.TimeUnit;
 
