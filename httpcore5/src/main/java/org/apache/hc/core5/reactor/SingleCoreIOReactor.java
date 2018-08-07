@@ -159,7 +159,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     private void validateActiveChannels() {
         final long currentTimeMillis = System.currentTimeMillis();
-        if( (currentTimeMillis - this.lastTimeoutCheckMillis) >= this.reactorConfig.getSelectIntervalMillis()) {
+        if ((currentTimeMillis - this.lastTimeoutCheckMillis) >= this.reactorConfig.getSelectIntervalMillis()) {
             this.lastTimeoutCheckMillis = currentTimeMillis;
             for (final SelectionKey key : this.selector.keys()) {
                 checkTimeout(key, currentTimeMillis);
