@@ -106,7 +106,7 @@ public class EofSensorInputStream extends InputStream {
         if (selfClosed) {
             throw new IOException("Attempted read on closed stream.");
         }
-        return (wrappedStream != null);
+        return wrappedStream != null;
     }
 
     @Override
@@ -272,6 +272,9 @@ public class EofSensorInputStream extends InputStream {
      * re-use of the underlying connection, if any. Calling this method
      * indicates that there should be no attempt to read until the end of
      * the stream.
+     *
+     * @throws IOException
+     *          in case of an IO problem on closing the underlying stream
      */
     public void abort() throws IOException {
         // tolerate multiple calls
