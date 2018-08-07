@@ -39,19 +39,32 @@ public class ConnectionClosedException extends IOException {
     private static final long serialVersionUID = 617550366255636674L;
 
     /**
-     * Creates a new ConnectionClosedException with a default message.
+     * Constructs a new ConnectionClosedException with a default message.
      */
     public ConnectionClosedException() {
         super("Connection is closed");
     }
 
     /**
-     * Creates a new ConnectionClosedException with the specified detail message.
+     * Constructs a new ConnectionClosedException with the specified detail message.
      *
      * @param message The exception detail message
      */
     public ConnectionClosedException(final String message) {
         super(HttpException.clean(message));
+    }
+
+    /**
+     * Constructs a {@code ConnectionClosedException} with the specified detail message
+     * and cause.
+     *
+     * @param message The exception detail message
+     * @param cause The cause.
+     *
+     * @since 5.0
+     */
+    public ConnectionClosedException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 
 }
