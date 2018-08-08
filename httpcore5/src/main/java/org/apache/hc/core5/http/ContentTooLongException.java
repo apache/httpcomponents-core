@@ -44,7 +44,7 @@ public class ContentTooLongException extends IOException {
      * @param message exception message
      */
     public ContentTooLongException(final String message) {
-        super(message);
+        super(HttpException.clean(message));
     }
 
 }

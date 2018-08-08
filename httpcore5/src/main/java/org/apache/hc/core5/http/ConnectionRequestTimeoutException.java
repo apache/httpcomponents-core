@@ -49,7 +49,7 @@ public class ConnectionRequestTimeoutException extends InterruptedIOException {
      * @param message the exception detail message, or {@code null}
      */
     public ConnectionRequestTimeoutException(final String message) {
-        super(message);
+        super(HttpException.clean(message));
     }
 
 }

@@ -42,7 +42,7 @@ public class TruncatedChunkException extends MalformedChunkCodingException {
      * @param message The exception detail message
      */
     public TruncatedChunkException(final String message) {
-        super(message);
+        super(HttpException.clean(message));
     }
 
 }

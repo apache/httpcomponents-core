@@ -47,4 +47,18 @@ public class NoHttpResponseException extends IOException {
         super(HttpException.clean(message));
     }
 
+    /**
+     * Constructs a {@code NoHttpResponseException} with the specified detail message
+     * and cause.
+     *
+     * @param message The exception detail message
+     * @param cause The cause.
+     *
+     * @since 5.0
+     */
+    public NoHttpResponseException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+
 }
