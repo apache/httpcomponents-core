@@ -37,6 +37,8 @@ import org.apache.hc.core5.http.nio.StreamChannel;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Abstract binary entity content producer.
+ *
  * @since 5.0
  */
 public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProducer {
@@ -57,6 +59,13 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
         this.contentType = contentType;
     }
 
+    /**
+     * Triggered to signal the ability of the underlying byte channel
+     * to accept more data. The data producer can choose to write data
+     * immediately inside the call or asynchronously at some later point.
+     *
+     * @param channel the data channel capable to accepting more data.
+     */
     protected abstract void produceData(StreamChannel<ByteBuffer> channel) throws IOException;
 
     @Override

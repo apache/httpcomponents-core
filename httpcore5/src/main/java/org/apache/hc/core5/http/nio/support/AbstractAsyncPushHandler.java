@@ -43,8 +43,11 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
- * @param <T> the future result type returned by a callback.
+ * Abstract push response handler.
+ *
  * @since 5.0
+ *
+ * @param <T> response message representation.
  */
 public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
 
@@ -54,15 +57,26 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
         this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
     }
 
+    /**
+     * Triggered to handle the push message with the given promised request.
+     *
+     * @param promise the promised request message.
+     * @param responseMessage the pushed response message.
+     */
     protected abstract void handleResponse(
             final HttpRequest promise, final T responseMessage) throws IOException, HttpException;
 
+    /**
+     * Triggered to handle the exception thrown while processing a push response.
+     *
+     * @param promise the promised request message.
+     * @param cause the cause of error.
+     */
     protected void handleError(final HttpRequest promise, final Exception cause) {
-        // empty
     }
 
     @Override
-    public void consumePromise(
+    public final void consumePromise(
             final HttpRequest promise,
             final HttpResponse response,
             final EntityDetails entityDetails,

@@ -26,6 +26,7 @@
  */
 
 /**
- * HTTP/1.1 requester and server bootstrap.
+ * Default implementation of HTTP/1.1 transport based on
+ * the asynchronous (non-blocking) I/O model.
  */
-package org.apache.hc.core5.http.impl.bootstrap;
+package org.apache.hc.core5.http.impl.nio;

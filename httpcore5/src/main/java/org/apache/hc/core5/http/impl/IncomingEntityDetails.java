@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -42,6 +43,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
+@Internal
 public class IncomingEntityDetails implements EntityDetails {
 
     private final MessageHeaders message;

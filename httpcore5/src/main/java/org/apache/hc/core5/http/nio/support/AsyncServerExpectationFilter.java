@@ -59,7 +59,7 @@ public class AsyncServerExpectationFilter implements AsyncFilterHandler {
     }
 
     @Override
-    public AsyncDataConsumer handle(
+    public final AsyncDataConsumer handle(
             final HttpRequest request,
             final EntityDetails entityDetails,
             final HttpContext context,

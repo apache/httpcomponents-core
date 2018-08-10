@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -80,6 +81,8 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 /**
+ * HTTP/1.1 client side message exchange initiator.
+ *
  * @since 5.0
  */
 public class HttpAsyncRequester extends AsyncRequester implements ConnPoolControl<HttpHost> {
@@ -87,6 +90,10 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
     private final ManagedConnPool<HttpHost, IOSession> connPool;
     private final TlsStrategy tlsStrategy;
 
+    /**
+     * Use {@link AsyncRequesterBootstrap} to create instances of this class.
+     */
+    @Internal
     public HttpAsyncRequester(
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,

@@ -38,6 +38,9 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link HttpServerRequestHandler} implementation that delegates request processing
+ * to a {@link HttpServerFilterChainElement}.
+ *
  * @since 5.0
  */
 public class HttpServerFilterChainRequestHandler implements HttpServerRequestHandler {

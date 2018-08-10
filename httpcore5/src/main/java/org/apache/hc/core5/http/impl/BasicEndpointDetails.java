@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.HttpConnectionMetrics;
  *
  * @since 5.0
  */
-public class BasicEndpointDetails extends EndpointDetails {
+public final class BasicEndpointDetails extends EndpointDetails {
 
     private final HttpConnectionMetrics metrics;
 

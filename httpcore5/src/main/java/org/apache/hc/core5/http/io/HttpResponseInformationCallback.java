@@ -33,7 +33,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
- * Information message callback.
+ * Informational (1xx) HTTP response callback.
  *
  * @since 5.0
  */

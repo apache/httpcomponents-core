@@ -30,7 +30,8 @@ package org.apache.hc.core5.reactor;
 import org.apache.hc.core5.concurrent.Cancellable;
 
 /**
- * Abstract command {@link IOSession} can act upon.
+ * Abstract command {@link IOSession} can act upon. Pending commands
+ * can be cancelled with {@link Cancellable#cancel()}.
  *
  * @since 5.0
  */

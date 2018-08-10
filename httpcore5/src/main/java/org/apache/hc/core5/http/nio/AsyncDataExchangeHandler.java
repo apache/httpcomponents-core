@@ -34,6 +34,11 @@ package org.apache.hc.core5.http.nio;
  */
 public interface AsyncDataExchangeHandler extends AsyncDataConsumer, AsyncDataProducer {
 
+    /**
+     * Triggered to signal a failure in data processing.
+     *
+     * @param cause the cause of the failure.
+     */
     void failed(Exception cause);
 
 }

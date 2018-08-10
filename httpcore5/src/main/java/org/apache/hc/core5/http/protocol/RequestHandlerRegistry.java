@@ -40,6 +40,13 @@ import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 
+/**
+ * Generic registry of request handlers that can be resolved by properties of request messages.
+ *
+ * @param <T> request handler type.
+ *
+ * @since 5.0
+ */
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
 
@@ -63,8 +70,6 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
         this.primary = this.registrySupplier.get();
         this.virtualMap = new ConcurrentHashMap<>();
     }
-
-
 
     public RequestHandlerRegistry(final String canonicalHostName, final UriPatternType patternType) {
         this(canonicalHostName, new Supplier<LookupRegistry<T>>() {

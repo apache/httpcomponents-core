@@ -47,9 +47,13 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Basic {@link AsyncClientExchangeHandler} implementation that makes use
+ * of {@link AsyncRequestProducer} to generate request message
+ * and {@link AsyncResponseConsumer} to process the response message returned by the server.
+ *
  * @since 5.0
  */
-public class BasicClientExchangeHandler<T> implements AsyncClientExchangeHandler {
+public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeHandler {
 
     private final AsyncRequestProducer requestProducer;
     private final AsyncResponseConsumer<T> responseConsumer;

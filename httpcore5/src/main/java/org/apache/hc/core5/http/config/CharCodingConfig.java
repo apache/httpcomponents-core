@@ -36,7 +36,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 
 /**
- * HTTP/1.1 connection configuration.
+ * HTTP/1.1 char coding configuration.
  *
  * @since 4.3
  */

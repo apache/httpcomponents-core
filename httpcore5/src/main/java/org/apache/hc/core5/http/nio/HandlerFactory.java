@@ -33,12 +33,20 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 /**
  * Abstract handler factory.
  *
- * @param <T> resource holder
+ * @param <T> handler type
  *
  * @since 5.0
  */
 public interface HandlerFactory<T extends ResourceHolder> {
 
+    /**
+     * Creates a new handler instance based on properties of
+     * an incoming request message..
+     *
+     * @param request the incoming reqquest head.
+     * @param context the actual execution context.
+     * @return handler
+     */
     T create(HttpRequest request, HttpContext context) throws HttpException;
 
 }

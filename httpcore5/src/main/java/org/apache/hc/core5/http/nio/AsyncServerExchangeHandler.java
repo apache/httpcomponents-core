@@ -41,6 +41,17 @@ import org.apache.hc.core5.http.protocol.HttpContext;
  */
 public interface AsyncServerExchangeHandler extends AsyncDataExchangeHandler {
 
+    /**
+     * Processes the actual HTTP request. The handler can choose to send
+     * response messages immediately inside the call or asynchronously
+     * at some later point.
+     *
+     * @param request the actual request.
+     * @param entityDetails the request entity details or {@code null} if the request
+     *                      does not enclose an entity.
+     * @param responseChannel the response channel.
+     * @param context the actual execution context.
+     */
     void handleRequest(
             HttpRequest request,
             EntityDetails entityDetails,

@@ -44,6 +44,10 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link HttpFilterHandler} implementation represents a terminal handler
+ * in a request processing pipeline that makes use of {@link HttpRequestMapper}
+ * to dispatch the request to a particular {@link HttpRequestHandler}.
+ *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
@@ -52,7 +56,9 @@ public final class TerminalServerFilter implements HttpFilterHandler {
     private final HttpRequestMapper<HttpRequestHandler> handlerMapper;
     private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
 
-    public TerminalServerFilter(final HttpRequestMapper<HttpRequestHandler> handlerMapper, final HttpResponseFactory<ClassicHttpResponse> responseFactory) {
+    public TerminalServerFilter(
+            final HttpRequestMapper<HttpRequestHandler> handlerMapper,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory) {
         this.handlerMapper = Args.notNull(handlerMapper, "Handler mapper");
         this.responseFactory = responseFactory != null ? responseFactory : DefaultClassicHttpResponseFactory.INSTANCE;
     }

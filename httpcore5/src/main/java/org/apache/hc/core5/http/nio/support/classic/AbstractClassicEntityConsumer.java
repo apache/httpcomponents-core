@@ -45,6 +45,12 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link AsyncEntityConsumer} implementation that acts as a compatibility
+ * layer for classic {@link InputStream} based interfaces. Blocking input
+ * processing is executed through an {@link Executor}.
+ *
+ * @param <T> entity representation.
+ *
  * @since 5.0
  */
 public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityConsumer<T> {
@@ -65,6 +71,13 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
         this.exceptionRef = new AtomicReference<>(null);
     }
 
+    /**
+     * Processes entity data from the given stream.
+     *
+     * @param contentType the entity content type
+     * @param inputStream the input stream
+     * @return the result of entity processing.
+     */
     protected abstract T consumeData(ContentType contentType, InputStream inputStream) throws IOException;
 
     @Override

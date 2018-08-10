@@ -56,6 +56,10 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
+ * {@link AsyncServerExchangeHandler} implementation that acts as a compatibility
+ * layer for classic {@link InputStream} / {@link OutputStream} based interfaces.
+ * Blocking input / output processing is executed through an {@link Executor}.
+ *
  * @since 5.0
  */
 public abstract class AbstractClassicServerExchangeHandler implements AsyncServerExchangeHandler {
@@ -77,14 +81,25 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
         this.state = new AtomicReference<>(State.IDLE);
     }
 
-    public Exception getException() {
-        return exception.get();
-    }
-
+    /**
+     * Handles an incoming request optionally reading its entity content form the given input stream
+     * and generates a response optionally writing out its entity content into the given output stream.
+     *
+     * @param request the incoming request
+     * @param requestStream the request stream if the request encloses an entity,
+     *                      {@code null} otherwise.
+     * @param response the outgoing response.
+     * @param responseStream the response entity output stream.
+     * @param context the actual execution context.
+     */
     protected abstract void handle(
             HttpRequest request, InputStream requestStream,
             HttpResponse response, OutputStream responseStream,
             HttpContext context) throws IOException, HttpException;
+
+    public Exception getException() {
+        return exception.get();
+    }
 
     @Override
     public final void handleRequest(

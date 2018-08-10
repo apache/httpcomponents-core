@@ -47,7 +47,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
- * Message support functions.
+ * Support methods for HTTP message processing.
  *
  * @since 5.0
  */

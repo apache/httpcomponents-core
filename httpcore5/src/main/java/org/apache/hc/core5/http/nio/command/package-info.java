@@ -26,6 +26,6 @@
  */
 
 /**
- * HTTP/1.1 requester and server bootstrap.
+ * Commands for HTTP transports based on asynchronous, event driven I/O model.
  */
-package org.apache.hc.core5.http.impl.bootstrap;
+package org.apache.hc.core5.http.nio.command;

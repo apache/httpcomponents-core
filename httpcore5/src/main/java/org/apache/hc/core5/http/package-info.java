@@ -26,7 +26,7 @@
  */
 
 /**
- * Core HTTP component APIs and primitives.
+ * Core HTTP transport component APIs.
  * <p>
  * These deal with the fundamental things required for using the
  * HTTP protocol, such as representing a

@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http.impl.bootstrap;
 
-class FilterEntry<T> {
+final class FilterEntry<T> {
 
     enum Postion {BEFORE, AFTER, REPLACE, FIRST, LAST}
 

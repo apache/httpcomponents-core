@@ -34,8 +34,13 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 
+/**
+ * Basic {@link org.apache.hc.core5.http.nio.AsyncEntityConsumer} implementation
+ * that processes the data stream content into a byte array.
+ *
+ * @since 5.0
+ */
 public class BasicAsyncEntityConsumer extends AbstractBinAsyncEntityConsumer<byte[]> {
-
 
     private final ByteArrayBuffer buffer;
 

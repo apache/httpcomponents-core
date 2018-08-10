@@ -36,6 +36,12 @@ import java.net.SocketAddress;
  */
 public interface SecurePortStrategy {
 
+    /**
+     * Determines if the given address should be secured or considered secure.
+     * @param localAddress the given address.
+     *
+     * @return secure flag.
+     */
     boolean isSecure(SocketAddress localAddress);
 
 }

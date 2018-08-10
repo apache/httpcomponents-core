@@ -31,7 +31,6 @@ import java.io.IOException;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
-
 /**
  * Abstract asynchronous request producer.
  *
@@ -39,10 +38,28 @@ import org.apache.hc.core5.http.protocol.HttpContext;
  */
 public interface AsyncRequestProducer extends AsyncDataProducer {
 
-    void sendRequest(RequestChannel requestChannel, HttpContext httpContext) throws HttpException, IOException;
+    /**
+     * Triggered to signal the ability of the underlying request channel
+     * to accept a request messages. The data producer can choose to send
+     * a request message immediately inside the call or asynchronously
+     * at some later point.
+     *
+     * @param channel the request channel capable to accepting a request message.
+     * @param context the actual execution context.
+     */
+    void sendRequest(RequestChannel channel, HttpContext context) throws HttpException, IOException;
 
+    /**
+     * Determines whether the producer can consistently produce the same content
+     * after invocation of {@link ResourceHolder#releaseResources()}.
+     */
     boolean isRepeatable();
 
+    /**
+     * Triggered to signal a failure in data generation.
+     *
+     * @param cause the cause of the failure.
+     */
     void failed(Exception cause);
 
 }

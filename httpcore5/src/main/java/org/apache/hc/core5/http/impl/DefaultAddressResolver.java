@@ -33,6 +33,11 @@ import org.apache.hc.core5.function.Resolver;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
 
+/**
+ * Default {@link HttpHost} to {@link InetSocketAddress} resolver.
+ *
+ * @since 5.0
+ */
 public final class DefaultAddressResolver implements Resolver<HttpHost, InetSocketAddress> {
 
     public static final DefaultAddressResolver INSTANCE = new DefaultAddressResolver();

@@ -26,7 +26,7 @@
  */
 
 /**
- * Default implementations of message parses and writers
- * for synchronous, blocking communication.
+ * Default implementation of HTTP/1.1 transport based on the classic
+ * (blocking) I/O model.
  */
 package org.apache.hc.core5.http.impl.io;

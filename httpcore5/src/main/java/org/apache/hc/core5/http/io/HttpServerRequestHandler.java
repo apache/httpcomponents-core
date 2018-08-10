@@ -36,19 +36,47 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
+ * HttpServerRequestHandler represents a routine for processing of a specific group
+ * of HTTP requests. Request execution filters are designed to take care of protocol
+ * specific aspects, whereas individual request handlers are expected to take
+ * care of application specific HTTP processing. The main purpose of a request
+ * handler is to generate a response object with a content entity to be sent
+ * back to the client in response to the given request.
+ *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
 public interface HttpServerRequestHandler {
 
+    /**
+     * Response trigger that can be used to submit a final HTTP response
+     * and terminate HTTP request processing.
+     */
     interface ResponseTrigger {
 
+        /**
+         * Sends an intermediate informational HTTP response to the client.
+         *
+         * @param response the intermediate (1xx) HTTP response
+         */
         void sendInformation(ClassicHttpResponse response) throws HttpException, IOException;
 
+        /**
+         * Sends a final HTTP response to the client.
+         *
+         * @param response the final (non 1xx) HTTP response
+         */
         void submitResponse(ClassicHttpResponse response) throws HttpException, IOException;
 
     }
 
+    /**
+     * Handles the request and submits a final response to be sent back to the client.
+     *
+     * @param request the actual request.
+     * @param responseTrigger the response trigger.
+     * @param context the actual execution context.
+     */
     void handle(
             ClassicHttpRequest request,
             ResponseTrigger responseTrigger,

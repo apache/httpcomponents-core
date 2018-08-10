@@ -37,17 +37,46 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 /**
  * Abstract asynchronous response consumer.
  *
- * @param <T> the future result type returned by a callback.
+ * @param <T> response representation.
+ *
  * @since 5.0
  */
 public interface AsyncResponseConsumer<T> extends AsyncDataConsumer {
 
-    void consumeResponse(HttpResponse response, EntityDetails entityDetails, HttpContext httpContext, FutureCallback<T> resultCallback) throws HttpException, IOException;
+    /**
+     * Triggered to signal receipt of a response message head.
+     *
+     * @param response the response message head.
+     * @param entityDetails the response entity details or {@code null} if the response
+     *                      does not enclose an entity.
+     * @param context the actual execution context.
+     * @param resultCallback the result callback called when response processing
+     *                       has been completed successfully or unsuccessfully.
+     */
+    void consumeResponse(HttpResponse response, EntityDetails entityDetails, HttpContext context,
+                         FutureCallback<T> resultCallback) throws HttpException, IOException;
 
-    void informationResponse(HttpResponse response, HttpContext httpContext) throws HttpException, IOException;
+    /**
+     * Triggered to signal receipt of an intermediate (1xx) HTTP response.
+     *
+     * @param response the intermediate (1xx) HTTP response.
+     * @param context the actual execution context.
+     */
+    void informationResponse(HttpResponse response, HttpContext context) throws HttpException, IOException;
 
+    /**
+     * Triggered to signal a failure in data processing.
+     *
+     * @param cause the cause of the failure.
+     */
     void failed(Exception cause);
 
+    /**
+     * Returns the result of response processing when it becomes available or {@code null}
+     * if the response is still being received.
+     *
+     * @return the response processing result.
+     */
     T getResult();
 
 }

@@ -35,6 +35,12 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
+/**
+ * Basic implementation of {@link AsyncRequestProducer} that produces one fixed request
+ * and relies on a {@link AsyncEntityProducer} to generate request entity stream.
+ *
+ * @since 5.0
+ */
 public class BasicRequestProducer implements AsyncRequestProducer {
 
     private final HttpRequest request;

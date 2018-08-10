@@ -33,14 +33,24 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 
 /**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} connections.
+ * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} sessions.
  *
  * @since 5.0
  */
 public interface TlsStrategy {
 
+    /**
+     * Secures current session layer with LTS security.
+     *
+     * @param sessionLayer the session layer
+     * @param host the name of the opposite endpoint when givem or {@code null} otherwise.
+     * @param localAddress the address of the local endpoint.
+     * @param remoteAddress the address of the remote endpoint.
+     * @param attachment arbitrary object passes to the TLS session initialization code.
+     * @return {@code true} if the session has been upgraded, {@code false} otherwise.
+     */
     boolean upgrade(
-            TransportSecurityLayer tlsSession,
+            TransportSecurityLayer sessionLayer,
             HttpHost host,
             SocketAddress localAddress,
             SocketAddress remoteAddress,

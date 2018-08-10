@@ -40,15 +40,29 @@ import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Abstract text entity content consumer.
+ *
  * @since 5.0
+ *
+ * @param <T> entity representation.
  */
 public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDataConsumer implements AsyncEntityConsumer<T> {
 
     private volatile FutureCallback<T> resultCallback;
     private volatile T content;
 
+    /**
+     * Triggered to signal beginning of entity content stream.
+     *
+     * @param contentType the entity content type
+     */
     protected abstract void streamStart(ContentType contentType) throws HttpException, IOException;
 
+    /**
+     * Triggered to generate entity representation.
+     *
+     * @return the entity content
+     */
     protected abstract T generateContent() throws IOException;
 
     @Override

@@ -39,7 +39,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-public abstract class AbstractImmutableHttpEntity implements HttpEntity, HttpContentProducer {
+public abstract class AbstractImmutableHttpEntity implements HttpEntity {
 
     static final int OUTPUT_BUFFER_SIZE = 4096;
 

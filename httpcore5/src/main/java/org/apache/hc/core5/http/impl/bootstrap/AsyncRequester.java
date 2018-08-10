@@ -32,6 +32,7 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
@@ -52,11 +53,17 @@ import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
+/**
+ * Protocol agnostic client side I/O session initiator.
+ *
+ * @since 5.0
+ */
 public class AsyncRequester extends AbstractConnectionInitiatorBase implements IOReactorService {
 
     private final DefaultConnectingIOReactor ioReactor;
     private final Resolver<HttpHost, InetSocketAddress> addressResolver;
 
+    @Internal
     public AsyncRequester(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,

@@ -31,7 +31,9 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 
 /**
- * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements server side HTTP/1.1 messaging protocol.
+ * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements
+ * server side HTTP/1.1 messaging protocol with full support for
+ * duplexed message transmission and message pipelining.
  *
  * @since 5.0
  */

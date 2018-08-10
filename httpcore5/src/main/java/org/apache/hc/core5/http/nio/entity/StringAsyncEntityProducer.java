@@ -35,6 +35,12 @@ import org.apache.hc.core5.http.nio.StreamChannel;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
+/**
+ * Basic {@link org.apache.hc.core5.http.nio.AsyncDataProducer} implementation that
+ * generates data stream from content of a string.
+ *
+ * @since 5.0
+ */
 public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
 
     private final CharBuffer content;

@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLSocketFactory;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.function.Resolver;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -77,6 +78,8 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 /**
+ * HTTP/1.1 client side message exchange initiator.
+ *
  * @since 5.0
  */
 public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable {
@@ -89,6 +92,10 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
     private final SSLSocketFactory sslSocketFactory;
     private final Resolver<HttpHost, InetSocketAddress> addressResolver;
 
+    /**
+     * Use {@link RequesterBootstrap} to create instances of this class.
+     */
+    @Internal
     public HttpRequester(
             final HttpRequestExecutor requestExecutor,
             final HttpProcessor httpProcessor,

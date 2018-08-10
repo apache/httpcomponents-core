@@ -33,14 +33,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpServerConnection;
+import org.apache.hc.core5.http.io.SocketConfig;
 
-/**
- * @since 4.4
- */
 class RequestListener implements Runnable {
 
     private final SocketConfig socketConfig;

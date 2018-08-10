@@ -38,6 +38,10 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link AsyncEntityProducer} implementation that acts as a compatibility
+ * layer for classic {@link OutputStream} based interfaces. Blocking output
+ * processing is executed through an {@link Executor}.
+ *
  * @since 5.0
  */
 public abstract class AbstractClassicEntityProducer implements AsyncEntityProducer {
@@ -58,12 +62,18 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
         this.exception = new AtomicReference<>(null);
     }
 
+    /**
+     * Writes out entity data into the given stream.
+     *
+     * @param contentType the entity content type
+     * @param outputStream the output stream
+     */
+    protected abstract void produceData(ContentType contentType, OutputStream outputStream) throws IOException;
+
     @Override
     public final boolean isRepeatable() {
         return false;
     }
-
-    protected abstract void produceData(ContentType contentType, OutputStream outputStream) throws IOException;
 
     @Override
     public final int available() {

@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.io.HttpTransportMetrics;
  *
  * @since 4.0
  */
-public class BasicHttpConnectionMetrics implements HttpConnectionMetrics {
+public final class BasicHttpConnectionMetrics implements HttpConnectionMetrics {
 
     private final HttpTransportMetrics inTransportMetric;
     private final HttpTransportMetrics outTransportMetric;

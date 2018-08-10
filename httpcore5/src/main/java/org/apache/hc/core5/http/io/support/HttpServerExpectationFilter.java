@@ -44,15 +44,34 @@ import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
+ * HttpServerExpectationFilter add support for the Expect-Continue handshake
+ * to the request processing pipeline.
+ *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
 public class HttpServerExpectationFilter implements HttpFilterHandler {
 
+    /**
+     * Verifies the HTTP request and decides whether it meets server expectations and the request
+     * processing can continue.
+     *
+     * @param request the incoming HTTP request.
+     * @param context the actual execution context.
+     * @return {@code true} if the request meets expectations or {@code false} otherwise.
+     */
     protected boolean verify(final ClassicHttpRequest request, final HttpContext context) throws HttpException {
         return true;
     }
 
+    /**
+     * Generates response content entity for the final HTTP response with an error status
+     * representing the cause of expectation failure.
+     *
+     * @param expectationFailed the final HTTP response.
+     * @return the content entity for the final HTTP response with an error status
+     *  representing the cause of expectation failure.
+     */
     protected HttpEntity generateResponseContent(final HttpResponse expectationFailed) throws HttpException {
         return null;
     }

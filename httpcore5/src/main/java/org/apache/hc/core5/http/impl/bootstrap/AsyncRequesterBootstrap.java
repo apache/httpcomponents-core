@@ -52,6 +52,8 @@ import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Timeout;
 
 /**
+ * {@link HttpAsyncRequester} bootstrap.
+ *
  * @since 5.0
  */
 public class AsyncRequesterBootstrap {

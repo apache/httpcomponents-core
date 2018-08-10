@@ -39,6 +39,10 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Factory for {@link AsyncServerExchangeHandler} instances that make use
+ * of {@link HttpRequestMapper} to dispatch
+ * the request to a particular {@link AsyncServerExchangeHandler} for processing.
+ *
  * @since 5.0
  */
 public final class DefaultAsyncResponseExchangeHandlerFactory implements HandlerFactory<AsyncServerExchangeHandler> {

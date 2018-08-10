@@ -31,7 +31,9 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 
 /**
- * Shutdown command.
+ * Shutdown command. Two shutdown modes are supported: {@link CloseMode#GRACEFUL}
+ * and {@link CloseMode#IMMEDIATE}. The exact implementation of both modes is protocol
+ * or handler specific.
  *
  * @since 5.0
  */

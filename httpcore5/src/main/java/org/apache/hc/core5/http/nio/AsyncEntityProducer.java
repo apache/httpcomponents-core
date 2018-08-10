@@ -41,6 +41,11 @@ public interface AsyncEntityProducer extends AsyncDataProducer, EntityDetails {
      */
     boolean isRepeatable();
 
+    /**
+     * Triggered to signal a failure in data generation.
+     *
+     * @param cause the cause of the failure.
+     */
     void failed(Exception cause);
 
 }

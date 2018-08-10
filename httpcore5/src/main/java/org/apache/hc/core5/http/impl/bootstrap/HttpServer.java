@@ -39,6 +39,7 @@ import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.URIScheme;
@@ -56,6 +57,8 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
+ * HTTP/1.1 server side message exchange handler.
+ *
  * @since 4.4
  */
 public class HttpServer implements ModalCloseable {
@@ -78,6 +81,7 @@ public class HttpServer implements ModalCloseable {
     private volatile ServerSocket serverSocket;
     private volatile RequestListener requestListener;
 
+    @Internal
     public HttpServer(
             final int port,
             final HttpService httpService,

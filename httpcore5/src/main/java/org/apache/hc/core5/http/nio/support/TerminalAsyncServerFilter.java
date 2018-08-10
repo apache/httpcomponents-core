@@ -51,6 +51,10 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link AsyncFilterHandler} implementation represents a terminal handler
+ * in an asynchronous request processing pipeline that makes use of {@link HandlerFactory}
+ * to dispatch the request to a particular {@link AsyncServerExchangeHandler}.
+ *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)

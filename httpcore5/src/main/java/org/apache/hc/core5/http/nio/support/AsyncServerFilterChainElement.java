@@ -37,6 +37,11 @@ import org.apache.hc.core5.http.nio.AsyncFilterChain;
 import org.apache.hc.core5.http.nio.AsyncFilterHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
+/**
+ * An element in an asynchronous request processing chain.
+ *
+ * @since 5.0
+ */
 public final class AsyncServerFilterChainElement {
 
     private final AsyncFilterHandler handler;

@@ -41,8 +41,24 @@ import org.apache.hc.core5.http.protocol.HttpContext;
  */
 public interface AsyncPushConsumer extends AsyncDataConsumer {
 
-    void consumePromise(HttpRequest promise, HttpResponse response, EntityDetails entityDetails, HttpContext context) throws HttpException, IOException;
+    /**
+     * Triggered to signal receipt of a request message head used as a promise
+     * and the corresponding pushed response.
+     *
+     * @param promise the request message head used as a promise.
+     * @param response the pushed response message.
+     * @param entityDetails the response entity details or {@code null} if the response
+     *                      does not enclose an entity.
+     * @param context the actual execution context.
+     */
+    void consumePromise(HttpRequest promise, HttpResponse response, EntityDetails entityDetails,
+                        HttpContext context) throws HttpException, IOException;
 
+    /**
+     * Triggered to signal a failure in data processing.
+     *
+     * @param cause the cause of the failure.
+     */
     void failed(Exception cause);
 
 }

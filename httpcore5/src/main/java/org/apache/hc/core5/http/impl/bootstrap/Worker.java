@@ -33,9 +33,6 @@ import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 
-/**
- * @since 4.4
- */
 class Worker implements Runnable {
 
     private final HttpService httpservice;

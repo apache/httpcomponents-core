@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.ContentType;
  *
  * @since 5.0
  */
-public class BasicEntityDetails implements EntityDetails {
+public final class BasicEntityDetails implements EntityDetails {
 
     private final long len;
     private final ContentType contentType;

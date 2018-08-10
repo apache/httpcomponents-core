@@ -26,6 +26,6 @@
  */
 
 /**
- * HTTP/1.1 requester and server bootstrap.
+ * Support classes for the asynchronous I/O model.
  */
-package org.apache.hc.core5.http.impl.bootstrap;
+package org.apache.hc.core5.http.nio.support;

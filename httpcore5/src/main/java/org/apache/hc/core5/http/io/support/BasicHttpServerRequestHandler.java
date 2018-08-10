@@ -42,6 +42,10 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Basic {@link HttpServerRequestHandler} implementation that makes use of
+ * {@link HttpRequestMapper} to dispatch the request to a particular
+ * {@link HttpRequestHandler} for processing.
+ *
  * @since 5.0
  */
 public class BasicHttpServerRequestHandler implements HttpServerRequestHandler {

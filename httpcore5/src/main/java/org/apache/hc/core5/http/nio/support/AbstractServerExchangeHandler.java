@@ -51,6 +51,8 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Asserts;
 
 /**
+ * Abstract server side message exchange handler.
+ *
  * @since 5.0
  */
 public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExchangeHandler {
@@ -63,11 +65,28 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
         this.responseProducerRef = new AtomicReference<>(null);
     }
 
+    /**
+     * Triggered to supply a request consumer to process the incoming request.
+     * @param request the request message.
+     * @param entityDetails the request entity details.
+     * @param context the actual execution context.
+     * @return the request consumer.
+     */
     protected abstract AsyncRequestConsumer<T> supplyConsumer(
             HttpRequest request,
             EntityDetails entityDetails,
             HttpContext context) throws HttpException;
 
+    /**
+     * Triggered to handles the request object produced by the {@link AsyncRequestConsumer} returned
+     * from the {@link #supplyConsumer(HttpRequest, EntityDetails, HttpContext)} method. The handler
+     * can choose to send response messages immediately inside the call or asynchronously
+     * at some later point.
+     *
+     * @param requestMessage the request message.
+     * @param responseTrigger the response trigger.
+     * @param context the actual execution context.
+     */
     protected abstract void handle(
             T requestMessage,
             AsyncServerRequestHandler.ResponseTrigger responseTrigger,

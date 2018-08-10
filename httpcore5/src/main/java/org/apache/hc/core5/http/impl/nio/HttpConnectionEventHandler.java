@@ -26,8 +26,15 @@
  */
 package org.apache.hc.core5.http.impl.nio;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.reactor.IOEventHandler;
 
+/**
+ * {@link IOEventHandler} that also exposes {@link HttpConnection} properties.
+ *
+ * @since 5.0
+ */
+@Internal
 public interface HttpConnectionEventHandler extends IOEventHandler, HttpConnection {
 }

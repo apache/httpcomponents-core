@@ -37,21 +37,52 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
+ * AsyncFilterChain represents a single element in the server side request processing chain.
+ *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
 public interface AsyncFilterChain {
 
+    /**
+     * Response trigger that can be used to generate the final HTTP response
+     * and terminate HTTP request processing.
+     */
     interface ResponseTrigger {
 
+        /**
+         * Sends an intermediate informational HTTP response to the client.
+         *
+         * @param response the intermediate (1xx) HTTP response.
+         */
         void sendInformation(HttpResponse response) throws HttpException, IOException;
 
+        /**
+         * Sends a final HTTP response to the client.
+         *
+         * @param response the final (non 1xx) HTTP response.
+         */
         void submitResponse(HttpResponse response, AsyncEntityProducer entityProducer) throws HttpException, IOException;
 
+        /**
+         * Pushes a request message head as a promise to deliver a response message.
+         *
+         * @param promise the request message header used as a promise.
+         * @param responseProducer the push response message producer.
+         */
         void pushPromise(HttpRequest promise, AsyncPushProducer responseProducer) throws HttpException, IOException;
 
     }
 
+    /**
+     * Proceeds to the next element in the request processing chain.
+     *
+     * @param request the actual request.
+     * @param entityDetails the request entity details or {@code null} if the request
+     *                      does not enclose an entity.
+     * @param responseTrigger the response trigger.
+     * @param context the actual execution context.
+     */
     AsyncDataConsumer proceed(
             HttpRequest request,
             EntityDetails entityDetails,

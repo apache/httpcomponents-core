@@ -49,7 +49,7 @@ import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
- * Static helpers for dealing with {@link HttpEntity}s.
+ * Support methods for {@link HttpEntity}.
  *
  * @since 4.0
  */

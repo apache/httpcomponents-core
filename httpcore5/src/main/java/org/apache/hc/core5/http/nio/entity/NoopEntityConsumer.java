@@ -38,6 +38,8 @@ import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 
 /**
+ * No-op {@link AsyncEntityConsumer} that discards all data from the data stream.
+ *
  * @since 5.0
  */
 public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {

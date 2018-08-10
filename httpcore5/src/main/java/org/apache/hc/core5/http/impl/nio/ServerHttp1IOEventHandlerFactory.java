@@ -37,9 +37,11 @@ import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link ServerHttp1IOEventHandler} factory.
+ *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.IMMUTABLE)
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     private final ServerHttp1StreamDuplexerFactory streamDuplexerFactory;

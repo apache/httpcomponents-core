@@ -36,19 +36,42 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
+ * HttpFilterChain represents a single element in the server side request processing chain.
+ *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
 public interface HttpFilterChain {
 
+    /**
+     * Response trigger that can be used to generate the final HTTP response
+     * and terminate HTTP request processing.
+     */
     interface ResponseTrigger {
 
+        /**
+         * Sends an intermediate informational HTTP response to the client.
+         *
+         * @param response an intermediate (1xx) HTTP response.
+         */
         void sendInformation(ClassicHttpResponse response) throws HttpException, IOException;
 
+        /**
+         * Sends a final HTTP response to the client.
+         *
+         * @param response a final (non 1xx) HTTP response.
+         */
         void submitResponse(ClassicHttpResponse response) throws HttpException, IOException;
 
     }
 
+    /**
+     * Proceeds to the next element in the request processing chain.
+     *
+     * @param request the actual request.
+     * @param responseTrigger the response trigger.
+     * @param context the actual execution context.
+     */
     void proceed(
             ClassicHttpRequest request,
             ResponseTrigger responseTrigger,

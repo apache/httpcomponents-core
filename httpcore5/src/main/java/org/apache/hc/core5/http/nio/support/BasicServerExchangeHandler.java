@@ -37,6 +37,9 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Basic {@link AbstractServerExchangeHandler} implementation that delegates
+ * request processing and response generation to a {@link AsyncServerRequestHandler}.
+ *
  * @since 5.0
  */
 public class BasicServerExchangeHandler<T> extends AbstractServerExchangeHandler<T> {

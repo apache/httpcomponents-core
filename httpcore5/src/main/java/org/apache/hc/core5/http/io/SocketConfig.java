@@ -36,7 +36,7 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Socket configuration.
+ * Classic I/O network socket configuration.
  *
  * @since 4.3
  */

@@ -26,7 +26,6 @@
  */
 
 /**
- * Core HTTP protocol execution framework and HTTP protocol handlers
- * for synchronous, blocking communication.
+ * Core HTTP protocol interceptors.
  */
 package org.apache.hc.core5.http.protocol;

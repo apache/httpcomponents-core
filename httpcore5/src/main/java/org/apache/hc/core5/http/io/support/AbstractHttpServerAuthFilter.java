@@ -47,6 +47,10 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.net.URIAuthority;
 
 /**
+ * Abstract HTTP request filter that implements standard HTTP authentication handshake.
+ *
+ * @param <T> authorization token representation.
+ *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
@@ -58,12 +62,48 @@ public abstract class AbstractHttpServerAuthFilter<T> implements HttpFilterHandl
         this.respondImmediately = respondImmediately;
     }
 
+    /**
+     * Parses authorization header value into an authentication token sent by the client
+     * as a response to an authentication challenge.
+     *
+     * @param authorizationValue the authorization header value.
+     * @param context the actual execution context.
+     * @return authorization token
+     */
     protected abstract T parseChallengeResponse(String authorizationValue, HttpContext context) throws HttpException;
 
+    /**
+     * Authenticates the client using the authentication token sent by the client
+     * as a response to an authentication challenge.
+     *
+     * @param challengeResponse the authentication token sent by the client
+     *                          as a response to an authentication challenge.
+     * @param authority the URI authority.
+     * @param requestUri the request URI.
+     * @param context the actual execution context.
+     * @return {@code true} if the client could be successfully authenticated {@code false} otherwise.
+     */
     protected abstract boolean authenticate(T challengeResponse, URIAuthority authority, String requestUri, HttpContext context);
 
+    /**
+     * Generates an authentication challenge in case of unsuccessful authentication.
+     *
+     * @param challengeResponse the authentication token sent by the client
+     *                          as a response to an authentication challenge
+     *                          or {@code null} if the client has not sent any.
+     * @param authority the URI authority.
+     * @param requestUri the request URI.
+     * @param context the actual execution context.
+     * @return an authorization challenge value.
+     */
     protected abstract String generateChallenge(T challengeResponse, URIAuthority authority, String requestUri, HttpContext context);
 
+    /**
+     * Generates response body for UNAUTHORIZED response.
+     *
+     * @param unauthorized the response to return as a result of authentication failure.
+     * @return the response content entity.
+     */
     protected HttpEntity generateResponseContent(final HttpResponse unauthorized) {
         return new StringEntity("Unauthorized");
     }

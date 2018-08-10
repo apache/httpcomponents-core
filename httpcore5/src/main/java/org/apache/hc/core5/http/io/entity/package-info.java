@@ -26,6 +26,6 @@
  */
 
 /**
- * Core HTTP entity implementations.
+ * HTTP message entity APIs based on the classic (blocking) I/O model.
  */
 package org.apache.hc.core5.http.io.entity;

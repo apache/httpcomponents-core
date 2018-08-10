@@ -41,6 +41,10 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link HttpServerRequestHandler} implementation that adds support
+ * for the Expect-Continue handshake to an existing
+ * {@link HttpServerRequestHandler}.
+ *
  * @since 5.0
  */
 public class BasicHttpServerExpectationDecorator implements HttpServerRequestHandler {
@@ -51,6 +55,15 @@ public class BasicHttpServerExpectationDecorator implements HttpServerRequestHan
         this.requestHandler = Args.notNull(requestHandler, "Request handler");
     }
 
+    /**
+     * Verifies the HTTP request and decides whether it meets server expectations and the request
+     * processing can continue.
+     *
+     * @param request the incoming HTTP request.
+     * @param context the actual execution context.
+     * @return {@code null} if the request meets expectations or a final HTTP response
+     *  with an error status representing the cause of expectation failure.
+     */
     protected ClassicHttpResponse verify(final ClassicHttpRequest request, final HttpContext context) {
         return null;
     }

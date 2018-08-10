@@ -35,14 +35,33 @@ import org.apache.hc.core5.http.HttpException;
 /**
  * Abstract asynchronous message entity consumer.
  *
+ * @param <T> entity representation.
+ *
  * @since 5.0
  */
 public interface AsyncEntityConsumer<T> extends AsyncDataConsumer {
 
+    /**
+     * Signals beginning of an incoming request entity stream.
+     *
+     * @param entityDetails the details of the incoming message entity.
+     * @param resultCallback the result callback.
+     */
     void streamStart(EntityDetails entityDetails, FutureCallback<T> resultCallback) throws HttpException, IOException;
 
+    /**
+     * Triggered to signal a failure in data processing.
+     *
+     * @param cause the cause of the failure.
+     */
     void failed(Exception cause);
 
+    /**
+     * Returns the result of entity processing when it becomes available or {@code null}
+     * if the entity is still being received.
+     *
+     * @return the response processing result.
+     */
     T getContent();
 
 }

@@ -40,6 +40,10 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Basic implementation of {@link AsyncResponseConsumer} that represents response message as
+ * a {@link Message} and relies on a {@link AsyncEntityConsumer} to process response entity
+ * stream.
+ *
  * @since 5.0
  */
 public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<HttpResponse, T>> {

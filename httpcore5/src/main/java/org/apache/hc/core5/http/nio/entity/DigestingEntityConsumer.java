@@ -42,6 +42,10 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link AsyncEntityConsumer} decorator that calculates a digest hash from
+ * the data stream content and keeps the list of trailers received with
+ * the data stream.
+ *
  * @since 5.0
  */
 public class DigestingEntityConsumer<T> implements AsyncEntityConsumer<T> {
@@ -104,10 +108,20 @@ public class DigestingEntityConsumer<T> implements AsyncEntityConsumer<T> {
         wrapped.releaseResources();
     }
 
+    /**
+     * List of trailers sent with the data stream.
+     *
+     * @return the list of trailers sent with the data stream
+     */
     public List<Header> getTrailers() {
         return trailers != null ? new ArrayList<>(trailers) : null;
     }
 
+    /**
+     * Returns digest hash.
+     *
+     * @return the digest hash value.
+     */
     public byte[] getDigest() {
         return digest;
     }

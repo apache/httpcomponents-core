@@ -26,7 +26,6 @@
  */
 
 /**
- * Default implementations of HTTP connections for synchronous,
- * blocking communication.
+ * Default implementations of core HTTP APIs.
  */
 package org.apache.hc.core5.http.impl;

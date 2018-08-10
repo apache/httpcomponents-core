@@ -38,6 +38,11 @@ import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
 
+/**
+ * HTTP Server support methods.
+ *
+ * @since 5.0
+ */
 @Internal
 public class ServerSupport {
 

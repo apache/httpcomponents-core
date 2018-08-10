@@ -26,8 +26,7 @@
  */
 
 /**
- * Core HTTP component APIs and primitives for asynchronous, event
- * driven communication.
+ * Core HTTP transport APIs based on the asynchronous, event driven I/O model.
  * <p>
  * The application programming interface is based on the concept
  * of channels and event handlers. The channels act as conduits

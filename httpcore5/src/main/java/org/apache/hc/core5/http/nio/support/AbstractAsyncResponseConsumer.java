@@ -44,6 +44,15 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
+/**
+ * Abstract asynchronous response consumer that makes use of {@link AsyncEntityConsumer}
+ * to process response message content.
+ *
+ * @param <T> response processing result representation.
+ * @param <E> response entity representation.
+ *
+ * @since 5.0
+ */
 public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncResponseConsumer<T> {
 
     private final AsyncEntityConsumer<E> entityConsumer;
@@ -57,6 +66,13 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
         this.exceptionRef = new AtomicReference<>(null);
     }
 
+    /**
+     * Triggered to generate object that represents a result of response message processing.
+     * @param response the response message.
+     * @param entity the response entity.
+     * @param contentType the response content type.
+     * @return the result of response processing.
+     */
     protected abstract T buildResult(HttpResponse response, E entity, ContentType contentType);
 
     @Override

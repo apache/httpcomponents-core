@@ -34,6 +34,12 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
+/**
+ * Basic {@link org.apache.hc.core5.http.nio.AsyncEntityConsumer} implementation
+ * that processes the data stream content into a string.
+ *
+ * @since 5.0
+ */
 public class StringAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<String> {
 
     private final int capacityIncrement;

@@ -38,8 +38,22 @@ import org.apache.hc.core5.http.protocol.HttpContext;
  */
 public interface AsyncResponseProducer extends AsyncDataProducer {
 
-    void sendResponse(ResponseChannel channel, HttpContext httpContext) throws HttpException, IOException;
+    /**
+     * Triggered to signal the ability of the underlying response channel
+     * to accept response messagess. The data producer can choose to send
+     * response messages immediately inside the call or asynchronously
+     * at some later point.
+     *
+     * @param channel the response channel capable to accepting response messages.
+     * @param context the actual execution context.
+     */
+    void sendResponse(ResponseChannel channel, HttpContext context) throws HttpException, IOException;
 
+    /**
+     * Triggered to signal a failure in data generation.
+     *
+     * @param cause the cause of the failure.
+     */
     void failed(Exception cause);
 
 }

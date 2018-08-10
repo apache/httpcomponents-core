@@ -43,7 +43,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 public interface CapacityChannel {
 
     /**
-     * Updates data capacity information. The total number of
+     * Updates data capacity information through this channel. The total number of
      * bytes the consumer is capable of accepting is incremented
      * by the given increment number.
      *

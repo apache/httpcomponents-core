@@ -40,6 +40,9 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
+ * {@link AsyncEntityProducer} implementation that generates data stream
+ * from content of a {@link File}.
+ *
  * @since 5.0
  */
 public final class FileEntityProducer implements AsyncEntityProducer {

@@ -42,6 +42,8 @@ import org.apache.hc.core5.http.nio.StreamChannel;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Abstract text entity content producer.
+ *
  * @since 5.0
  */
 public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProducer {
@@ -93,6 +95,13 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
         this.state = State.ACTIVE;
     }
 
+    /**
+     * Triggered to signal the ability of the underlying char channel
+     * to accept more data. The data producer can choose to write data
+     * immediately inside the call or asynchronously at some later point.
+     *
+     * @param channel the data channel capable to accepting more data.
+     */
     protected abstract void produceData(StreamChannel<CharBuffer> channel) throws IOException;
 
     @Override

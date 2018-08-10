@@ -47,6 +47,10 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link AsyncServerExchangeHandler} implementation that adds support
+ * for the Expect-Continue handshake to an existing
+ * {@link AsyncServerExchangeHandler}.
+ *
  * @since 5.0
  */
 public class BasicAsyncServerExpectationDecorator implements AsyncServerExchangeHandler {

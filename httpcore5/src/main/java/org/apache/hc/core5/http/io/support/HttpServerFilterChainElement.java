@@ -35,6 +35,11 @@ import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpFilterHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
+/**
+ * An element in a request processing chain.
+ *
+ * @since 5.0
+ */
 public final class HttpServerFilterChainElement {
 
     private final HttpFilterHandler handler;

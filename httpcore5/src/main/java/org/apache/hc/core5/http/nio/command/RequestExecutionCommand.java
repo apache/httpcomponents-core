@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.nio.command;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.CancellableDependency;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -39,6 +40,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
+@Internal
 public final class RequestExecutionCommand extends ExecutableCommand {
 
     private final AsyncClientExchangeHandler exchangeHandler;

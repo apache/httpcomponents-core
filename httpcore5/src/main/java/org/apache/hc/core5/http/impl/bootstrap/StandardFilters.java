@@ -27,6 +27,12 @@
 
 package org.apache.hc.core5.http.impl.bootstrap;
 
+/**
+ * Filters supported by async and classic server implementations
+ *
+ * @see AsyncServerBootstrap
+ * @see ServerBootstrap
+ */
 public enum StandardFilters {
 
     EXPECT_CONTINUE, MAIN_HANDLER

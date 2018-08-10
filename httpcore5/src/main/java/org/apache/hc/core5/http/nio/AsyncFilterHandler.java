@@ -36,11 +36,32 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
+ * AsyncFilterHandler represents a routine for handling all incoming requests
+ * in the server side request processing chain.
+ *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
 public interface AsyncFilterHandler {
 
+    /**
+     * Processes the incoming HTTP request and if processing has been completed
+     * submits a final response to the client. The handler can choose to send
+     * response messages immediately inside the call or asynchronously at some later point.
+     * The handler must not use the response trigger after passing control to the next filter
+     * with the
+     * {@link AsyncFilterChain#proceed(HttpRequest, EntityDetails, HttpContext, AsyncFilterChain.ResponseTrigger)}
+     * method.
+     *
+     * @param request the actual request head.
+     * @param entityDetails the request entity details or {@code null} if the request
+     *                      does not enclose an entity.
+     * @param context the actual execution context.
+     * @param responseTrigger the response trigger.
+     * @param chain the next element in the request processing chain.
+     * @return the data consumer to be used to process incoming request data. It is
+     *  expected to be {@code null} if entityDetails parameter is {@code null}.
+     */
     AsyncDataConsumer handle(
             HttpRequest request,
             EntityDetails entityDetails,

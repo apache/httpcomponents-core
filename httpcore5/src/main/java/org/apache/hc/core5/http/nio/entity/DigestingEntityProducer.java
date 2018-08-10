@@ -43,6 +43,9 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
+ * {@link AsyncEntityProducer} decorator that calculates a digest hash from
+ * the data stream content and appends its value to the list of trailers.
+ *
  * @since 5.0
  */
 public class DigestingEntityProducer implements AsyncEntityProducer {
@@ -155,6 +158,11 @@ public class DigestingEntityProducer implements AsyncEntityProducer {
         wrapped.releaseResources();
     }
 
+    /**
+     * Returns digest hash.
+     *
+     * @return the digest hash value.
+     */
     public byte[] getDigest() {
         return digest;
     }

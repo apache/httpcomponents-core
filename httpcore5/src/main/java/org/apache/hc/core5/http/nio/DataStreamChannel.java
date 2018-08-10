@@ -54,7 +54,7 @@ public interface DataStreamChannel extends StreamChannel<ByteBuffer> {
     void requestOutput();
 
     /**
-     * Writes data from the buffer into the underlying byte stream.
+     * Writes data from the buffer through this channel into the underlying byte stream.
      * If the underlying byte stream is temporarily unable to accept more data
      * it can return zero to indicate that no data could be written to the data
      * stream. The data producer can choose to call {@link #requestOutput()}

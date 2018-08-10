@@ -46,6 +46,13 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 @Contract(threading = ThreadingBehavior.SAFE)
 public interface RequestChannel {
 
-    void sendRequest(HttpRequest request, EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException;
+    /**
+     * Sends a request through this channel.
+     *
+     * @param request the outgoing request.
+     * @param entityDetails the details of the entity enclosed in the request
+     * @param context the actual execution context.
+     */
+    void sendRequest(HttpRequest request, EntityDetails entityDetails, HttpContext context) throws HttpException, IOException;
 
 }

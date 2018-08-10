@@ -41,6 +41,9 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
+ * Basic implementation of {@link AsyncRequestConsumer} that represents the request message as
+ * a {@link Message} and relies on a {@link AsyncEntityConsumer} to process request entity stream.
+ *
  * @since 5.0
  */
 public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<HttpRequest, T>> {

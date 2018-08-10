@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http.impl.bootstrap;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
@@ -37,10 +38,16 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 
 /**
+ * HTTP/1.1 server side message exchange handler.
+ *
  * @since 5.0
  */
 public class HttpAsyncServer extends AsyncServer {
 
+    /**
+     * Use {@link AsyncServerBootstrap} to create instances of this class.
+     */
+    @Internal
     public HttpAsyncServer(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,

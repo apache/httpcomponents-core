@@ -35,11 +35,26 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
+ * HttpFilterHandler represents a routine for handling all incoming requests
+ * in the server side request processing chain.
+ *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)
 public interface HttpFilterHandler {
 
+    /**
+     * Processes the incoming HTTP request and if processing has been completed
+     * submits a final response to the client. The handler must not use
+     * the response trigger after passing control to the next filter with the
+     * {@link HttpFilterChain#proceed(ClassicHttpRequest, HttpFilterChain.ResponseTrigger, HttpContext)}
+     * method.
+     *
+     * @param request the actual request.
+     * @param responseTrigger the response trigger.
+     * @param context the actual execution context.
+     * @param chain the next element in the request processing chain.
+     */
     void handle(
             ClassicHttpRequest request,
             HttpFilterChain.ResponseTrigger responseTrigger,

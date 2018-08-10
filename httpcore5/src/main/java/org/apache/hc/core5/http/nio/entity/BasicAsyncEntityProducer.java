@@ -40,6 +40,9 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Basic {@link AsyncEntityProducer} implementation that generates data stream
+ * from content of a byte array.
+ *
  * @since 5.0
  */
 public class BasicAsyncEntityProducer implements AsyncEntityProducer {

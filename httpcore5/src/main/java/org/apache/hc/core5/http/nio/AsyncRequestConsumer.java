@@ -37,15 +37,38 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 /**
  * Abstract asynchronous request consumer.
  *
- * @param <T> the future result type returned by a callback.
+ * @param <T> request representation.
+ *
  * @since 5.0
  */
 public interface AsyncRequestConsumer<T> extends AsyncDataConsumer {
 
-    void consumeRequest(HttpRequest request, EntityDetails entityDetails, HttpContext httpContext, FutureCallback<T> resultCallback) throws HttpException, IOException;
+    /**
+     * Triggered to signal receipt of a request message head.
+     *
+     * @param request the request message head.
+     * @param entityDetails the request entity details or {@code null} if the request
+     *                      does not enclose an entity.
+     * @param context the actual execution context.
+     * @param resultCallback the result callback called when request processing
+     *                       has been completed successfully or unsuccessfully.
+     */
+    void consumeRequest(HttpRequest request, EntityDetails entityDetails, HttpContext context,
+                        FutureCallback<T> resultCallback) throws HttpException, IOException;
 
+    /**
+     * Triggered to signal a failure in data processing.
+     *
+     * @param cause the cause of the failure.
+     */
     void failed(Exception cause);
 
+    /**
+     * Returns the result of request processing when it becomes available or {@code null}
+     * if the request is still being received.
+     *
+     * @return the request processing result.
+     */
     T getResult();
 
 }

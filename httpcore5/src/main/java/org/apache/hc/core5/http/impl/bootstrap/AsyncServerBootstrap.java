@@ -66,6 +66,8 @@ import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link HttpAsyncServer} bootstrap.
+ *
  * @since 5.0
  */
 public class AsyncServerBootstrap {

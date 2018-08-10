@@ -38,6 +38,9 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Basic implementation of {@link AsyncResponseProducer} that produces one fixed response
+ * and relies on a {@link AsyncEntityProducer} to generate response entity stream.
+ *
  * @since 5.0
  */
 public class BasicResponseProducer implements AsyncResponseProducer {

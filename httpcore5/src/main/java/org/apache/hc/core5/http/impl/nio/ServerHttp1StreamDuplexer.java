@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -67,6 +68,14 @@ import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
+/**
+ * I/O event handler for events fired by {@link ProtocolIOSession} that implements
+ * server side HTTP/1.1 messaging protocol with full support for
+ * duplexed message transmission and message pipelining.
+ *
+ * @since 5.0
+ */
+@Internal
 public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpRequest, HttpResponse> {
 
     private final String scheme;

@@ -52,6 +52,12 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
+/**
+ * Factory for {@link AsyncServerExchangeHandler} instances that delegate request processing
+ * to a {@link AsyncServerFilterChainElement}.
+ *
+ * @since 5.0
+ */
 public final class AsyncServerFilterChainExchangeHandlerFactory implements HandlerFactory<AsyncServerExchangeHandler> {
 
     private final AsyncServerFilterChainElement filterChain;

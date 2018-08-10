@@ -35,14 +35,34 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.nio.AsyncDataConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 
+/**
+ * Abstract binary data consumer.
+ *
+ * @since 5.0
+ */
 public abstract class AbstractBinDataConsumer implements AsyncDataConsumer {
 
     private static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[0]);
 
+    /**
+     * Triggered to obtain the current capacity of the consumer.
+     *
+     * @return the number of bytes this consumer is prepared to process.
+     */
     protected abstract int capacity();
 
-    protected abstract void data(ByteBuffer data, boolean endOfStream) throws IOException;
+    /**
+     * Triggered to pass incoming data packet to the data consumer.
+     *
+     * @param src the data packet.
+     * @param endOfStream flag indicating whether this data packet is the last in the data stream.
+     *
+     */
+    protected abstract void data(ByteBuffer src, boolean endOfStream) throws IOException;
 
+    /**
+     * Triggered to signal completion of data processing.
+     */
     protected abstract void completed() throws IOException;
 
     @Override

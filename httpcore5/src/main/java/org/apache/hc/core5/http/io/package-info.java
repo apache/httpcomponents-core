@@ -26,7 +26,6 @@
  */
 
 /**
- * HTTP message parser and writer APIs for synchronous, blocking
- * communication.
+ * Core HTTP transport APIs based on the classic (blocking) I/O model.
  */
 package org.apache.hc.core5.http.io;

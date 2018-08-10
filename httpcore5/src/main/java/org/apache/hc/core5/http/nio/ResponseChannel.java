@@ -48,10 +48,32 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 @Contract(threading = ThreadingBehavior.SAFE)
 public interface ResponseChannel {
 
-    void sendInformation(HttpResponse response, HttpContext httpContext) throws HttpException, IOException;
+    /**
+     * Sends an intermediate informational HTTP response through this channel.
+     *
+     * @param response an intermediate (1xx) HTTP response.
+     * @param context the actual execution context.
+     */
+    void sendInformation(HttpResponse response, HttpContext context) throws HttpException, IOException;
 
-    void sendResponse(HttpResponse response, EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException;
+    /**
+     * Sends a final HTTP response through this channel.
+     *
+     * @param response a final (non 1xx) HTTP response
+     * @param entityDetails the response entity details or {@code null} if the response
+     *                      does not enclose an entity.
+     * @param context the actual execution context.
+     */
+    void sendResponse(HttpResponse response, EntityDetails entityDetails, HttpContext context) throws HttpException, IOException;
 
-    void pushPromise(HttpRequest promise, HttpContext httpContext, AsyncPushProducer pushProducer) throws HttpException, IOException;
+    /**
+     * Pushes a request message head through this channel as a promise to deliver
+     * a response message.
+     *
+     * @param promise the request message header used as a promise.
+     * @param context the actual execution context.
+     * @param responseProducer the push response message producer.
+     */
+    void pushPromise(HttpRequest promise, HttpContext context, AsyncPushProducer responseProducer) throws HttpException, IOException;
 
 }

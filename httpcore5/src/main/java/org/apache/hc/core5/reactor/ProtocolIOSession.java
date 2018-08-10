@@ -30,7 +30,7 @@ package org.apache.hc.core5.reactor;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 
 /**
- * TLS capable {@link IOSession}.
+ * TLS capable, protocol upgradable {@link IOSession}.
  *
  * @since 5.0
  */
