@@ -38,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
@@ -124,8 +125,9 @@ public class Http2FileServerExample {
                     @Override
                     public AsyncRequestConsumer<Message<HttpRequest, Void>> prepare(
                             final HttpRequest request,
+                            final EntityDetails entityDetails,
                             final HttpContext context) throws HttpException {
-                        return new BasicRequestConsumer<>(new NoopEntityConsumer());
+                        return new BasicRequestConsumer<>(entityDetails != null ? new NoopEntityConsumer() : null);
                     }
 
                     @Override

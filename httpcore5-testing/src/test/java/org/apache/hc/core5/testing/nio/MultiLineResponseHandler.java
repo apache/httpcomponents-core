@@ -28,6 +28,7 @@ package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -50,8 +51,9 @@ public class MultiLineResponseHandler extends BasicServerExchangeHandler<Message
                   @Override
                   public AsyncRequestConsumer<Message<HttpRequest, String>> prepare(
                           final HttpRequest request,
+                          final EntityDetails entityDetails,
                           final HttpContext context) throws HttpException {
-                      return new BasicRequestConsumer<>(new StringAsyncEntityConsumer());
+                      return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
                   }
 
                   @Override

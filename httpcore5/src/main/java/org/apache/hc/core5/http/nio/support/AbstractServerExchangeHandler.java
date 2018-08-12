@@ -65,6 +65,7 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
 
     protected abstract AsyncRequestConsumer<T> supplyConsumer(
             HttpRequest request,
+            EntityDetails entityDetails,
             HttpContext context) throws HttpException;
 
     protected abstract void handle(
@@ -79,7 +80,7 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
             final ResponseChannel responseChannel,
             final HttpContext context) throws HttpException, IOException {
 
-        final AsyncRequestConsumer<T> requestConsumer = supplyConsumer(request, context);
+        final AsyncRequestConsumer<T> requestConsumer = supplyConsumer(request, entityDetails, context);
         if (requestConsumer == null) {
             throw new HttpException("Unable to handle request");
         }

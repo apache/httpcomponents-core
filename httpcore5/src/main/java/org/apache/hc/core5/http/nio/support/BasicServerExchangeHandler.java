@@ -28,6 +28,7 @@ package org.apache.hc.core5.http.nio.support;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
@@ -50,8 +51,9 @@ public class BasicServerExchangeHandler<T> extends AbstractServerExchangeHandler
     @Override
     protected AsyncRequestConsumer<T> supplyConsumer(
             final HttpRequest request,
+            final EntityDetails entityDetails,
             final HttpContext context) throws HttpException {
-        return requestHandler.prepare(request, context);
+        return requestHandler.prepare(request, entityDetails, context);
     }
 
     @Override

@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.testing.nio;
 
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Message;
@@ -54,6 +55,7 @@ public abstract class MessageExchangeHandler<T> extends AbstractServerExchangeHa
     @Override
     protected AsyncRequestConsumer<Message<HttpRequest, T>> supplyConsumer(
             final HttpRequest request,
+            final EntityDetails entityDetails,
             final HttpContext context) throws HttpException {
         return requestConsumer;
     }

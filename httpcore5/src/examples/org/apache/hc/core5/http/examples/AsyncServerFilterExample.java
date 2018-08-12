@@ -160,8 +160,9 @@ public class AsyncServerFilterExample {
                     @Override
                     public AsyncRequestConsumer<Message<HttpRequest, String>> prepare(
                             final HttpRequest request,
+                            final EntityDetails entityDetails,
                             final HttpContext context) throws HttpException {
-                        return new BasicRequestConsumer<>(new StringAsyncEntityConsumer());
+                        return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
                     }
 
                     @Override

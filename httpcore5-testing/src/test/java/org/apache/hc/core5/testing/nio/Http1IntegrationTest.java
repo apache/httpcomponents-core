@@ -1583,8 +1583,10 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
                     @Override
                     protected AsyncRequestConsumer<Message<HttpRequest, String>> supplyConsumer(
-                            final HttpRequest request, final HttpContext context) throws HttpException {
-                        return new BasicRequestConsumer<>(new StringAsyncEntityConsumer());
+                            final HttpRequest request,
+                            final EntityDetails entityDetails,
+                            final HttpContext context) throws HttpException {
+                        return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
                     }
 
                     @Override

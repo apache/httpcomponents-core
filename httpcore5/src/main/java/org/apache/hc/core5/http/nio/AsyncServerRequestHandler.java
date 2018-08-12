@@ -30,6 +30,7 @@ import java.io.IOException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -51,7 +52,7 @@ public interface AsyncServerRequestHandler<T> {
 
     }
 
-    AsyncRequestConsumer<T> prepare(HttpRequest request, HttpContext context) throws HttpException;
+    AsyncRequestConsumer<T> prepare(HttpRequest request, EntityDetails entityDetails, HttpContext context) throws HttpException;
 
     void handle(T requestMessage, ResponseTrigger responseTrigger, HttpContext context) throws HttpException, IOException;
 

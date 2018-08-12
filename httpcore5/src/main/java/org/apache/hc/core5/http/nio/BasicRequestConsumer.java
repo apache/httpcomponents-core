@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 
 /**
  * @since 5.0
@@ -49,16 +50,18 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
     private volatile Message<HttpRequest, T> result;
 
     public BasicRequestConsumer(final AsyncEntityConsumer<T> dataConsumer) {
-        this.dataConsumer = Args.notNull(dataConsumer, "Data consumer");
+        this.dataConsumer = dataConsumer;
     }
 
     @Override
     public void consumeRequest(
             final HttpRequest request,
             final EntityDetails entityDetails,
-            final HttpContext httpContext, final FutureCallback<Message<HttpRequest, T>> resultCallback) throws HttpException, IOException {
+            final HttpContext httpContext,
+            final FutureCallback<Message<HttpRequest, T>> resultCallback) throws HttpException, IOException {
         Args.notNull(request, "Request");
         if (entityDetails != null) {
+            Asserts.notNull(dataConsumer, "Data consumer");
             dataConsumer.streamStart(entityDetails, new FutureCallback<T>() {
 
                 @Override
@@ -92,22 +95,25 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
             if (resultCallback != null) {
                 resultCallback.completed(result);
             }
-            dataConsumer.releaseResources();
+            releaseResources();
         }
     }
 
     @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+        Asserts.notNull(dataConsumer, "Data consumer");
         dataConsumer.updateCapacity(capacityChannel);
     }
 
     @Override
     public int consume(final ByteBuffer src) throws IOException {
+        Asserts.notNull(dataConsumer, "Data consumer");
         return dataConsumer.consume(src);
     }
 
     @Override
     public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+        Asserts.notNull(dataConsumer, "Data consumer");
         dataConsumer.streamEnd(trailers);
     }
 
@@ -123,7 +129,9 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
 
     @Override
     public void releaseResources() {
-        dataConsumer.releaseResources();
+        if (dataConsumer != null) {
+            dataConsumer.releaseResources();
+        }
     }
 
 }

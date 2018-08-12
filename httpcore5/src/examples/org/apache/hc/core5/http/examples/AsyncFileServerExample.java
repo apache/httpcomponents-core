@@ -37,6 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
@@ -86,8 +87,9 @@ public class AsyncFileServerExample {
                     @Override
                     public AsyncRequestConsumer<Message<HttpRequest, Void>> prepare(
                             final HttpRequest request,
+                            final EntityDetails entityDetails,
                             final HttpContext context) throws HttpException {
-                        return new BasicRequestConsumer<>(new NoopEntityConsumer());
+                        return new BasicRequestConsumer<>(entityDetails != null ? new NoopEntityConsumer() : null);
                     }
 
                     @Override
