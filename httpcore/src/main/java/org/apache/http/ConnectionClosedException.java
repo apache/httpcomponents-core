@@ -56,4 +56,16 @@ public class ConnectionClosedException extends IOException {
         super(HttpException.clean(message));
     }
 
+    /**
+     * Constructs a new ConnectionClosedException with the specified detail message.
+     *
+     * @param format The exception detail message format; see {@link String#format(String, Object...)}.
+     * @param args The exception detail message arguments; see {@link String#format(String, Object...)}.
+     *
+     * @since 4.4.11
+     */
+    public ConnectionClosedException(final String format, final Object... args) {
+        super(HttpException.clean(String.format(format, args)));
+    }
+
 }

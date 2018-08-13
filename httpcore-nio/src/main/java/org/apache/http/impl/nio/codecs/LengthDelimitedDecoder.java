@@ -87,19 +87,15 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             this.completed = true;
             if (this.len < this.contentLength) {
                 throw new ConnectionClosedException(
-                        "Premature end of Content-Length delimited message body (expected: "
-                        + this.contentLength + "; received: " + this.len + ")");
+                                "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
+                                contentLength, len);
             }
         }
         this.len += bytesRead;
         if (this.len >= this.contentLength) {
             this.completed = true;
         }
-        if (this.completed && bytesRead == 0) {
-            return -1;
-        } else {
-            return bytesRead;
-        }
+        return this.completed && bytesRead == 0 ? -1 : bytesRead;
     }
 
     @Override
@@ -140,8 +136,8 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             this.completed = true;
             if (this.len < this.contentLength) {
                 throw new ConnectionClosedException(
-                        "Premature end of Content-Length delimited message body (expected: "
-                        + this.contentLength + "; received: " + this.len + ")");
+                                "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
+                                contentLength, len);
             }
         }
         this.len += bytesRead;

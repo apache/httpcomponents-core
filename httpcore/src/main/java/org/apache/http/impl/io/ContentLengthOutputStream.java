@@ -60,10 +60,10 @@ public class ContentLengthOutputStream extends OutputStream {
     private final long contentLength;
 
     /** Total bytes written */
-    private long total = 0;
+    private long total;
 
     /** True if the stream is closed. */
-    private boolean closed = false;
+    private boolean closed;
 
     /**
      * Wraps a session output buffer and cuts off output after a defined number

@@ -195,9 +195,8 @@ public class ChunkedInputStream extends InputStream {
             return readLen;
         }
         eof = true;
-        throw new TruncatedChunkException("Truncated chunk "
-                + "( expected size: " + chunkSize
-                + "; actual size: " + pos + ")");
+        throw new TruncatedChunkException("Truncated chunk (expected size: %,d; actual size: %,d)",
+                        chunkSize, pos);
     }
 
     /**
@@ -262,8 +261,8 @@ public class ChunkedInputStream extends InputStream {
             this.buffer.clear();
             final int bytesRead2 = this.in.readLine(this.buffer);
             if (bytesRead2 == -1) {
-                throw new ConnectionClosedException("Premature end of chunk coded message body: " +
-                        "closing chunk expected");
+                throw new ConnectionClosedException(
+                                "Premature end of chunk coded message body: closing chunk expected");
             }
             int separator = this.buffer.indexOf(';');
             if (separator < 0) {
