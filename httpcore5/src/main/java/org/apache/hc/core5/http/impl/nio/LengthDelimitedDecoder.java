@@ -85,9 +85,9 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
         if (bytesRead == -1) {
             this.completed = true;
             if (this.len < this.contentLength) {
-                throw new ConnectionClosedException(String.format(
+                throw new ConnectionClosedException(
                                 "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
-                                this.contentLength, this.len));
+                                this.contentLength, this.len);
             }
         }
         this.len += bytesRead;
@@ -137,9 +137,9 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
         if (bytesRead == -1) {
             this.completed = true;
             if (this.len < this.contentLength) {
-                throw new ConnectionClosedException(String.format(
+                throw new ConnectionClosedException(
                                 "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
-                                this.contentLength, this.len));
+                                this.contentLength, this.len);
             }
         }
         this.len += bytesRead;

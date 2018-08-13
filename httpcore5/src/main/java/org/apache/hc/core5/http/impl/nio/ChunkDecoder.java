@@ -135,8 +135,8 @@ public class ChunkDecoder extends AbstractContentDecoder {
             }
             this.pos = 0L;
         } else if (this.endOfStream) {
-            throw new ConnectionClosedException("Premature end of chunk coded message body: " +
-                    "closing chunk expected");
+            throw new ConnectionClosedException(
+                            "Premature end of chunk coded message body: closing chunk expected");
         }
     }
 
@@ -223,9 +223,9 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     if (!this.buffer.hasData() && this.endOfStream) {
                         this.state = COMPLETED;
                         this.completed = true;
-                        throw new TruncatedChunkException("Truncated chunk "
-                                + "( expected size: " + this.chunkSize
-                                + "; actual size: " + this.pos + ")");
+                        throw new TruncatedChunkException(
+                                        "Truncated chunk (expected size: %,d; actual size: %,d)",
+                                        chunkSize, pos);
                     }
                 }
 

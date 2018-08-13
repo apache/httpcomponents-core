@@ -45,4 +45,16 @@ public class TruncatedChunkException extends MalformedChunkCodingException {
         super(HttpException.clean(message));
     }
 
+    /**
+     * Constructs a new TruncatedChunkException with the specified detail message.
+     *
+     * @param format The exception detail message format; see {@link String#format(String, Object...)}.
+     * @param args The exception detail message arguments; see {@link String#format(String, Object...)}.
+     *
+     * @since 5.0
+     */
+    public TruncatedChunkException(final String format, final Object... args) {
+        super(HttpException.clean(String.format(format, args)));
+    }
+
 }
