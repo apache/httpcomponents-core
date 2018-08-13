@@ -43,7 +43,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 public interface SessionInputBuffer {
 
     /**
-     * Return length data stored in the buffer
+     * Returns length data stored in the buffer
      *
      * @return data length
      */
@@ -130,9 +130,11 @@ public interface SessionInputBuffer {
      * The choice of a char encoding and line delimiter sequence is up to the
      * specific implementations of this interface.
      *
-     * @param      buffer   the line buffer.
+     * @param      buffer   the line buffer, one line of characters upon return
      * @param      inputStream Input stream
-     * @return     one line of characters
+     * @return     the total number of bytes read into the buffer, or
+     *             {@code -1} is there is no more data because the end of
+     *             the stream has been reached.
      * @throws  IOException  if an I/O error occurs.
      */
     int readLine(CharArrayBuffer buffer, InputStream inputStream) throws IOException;
