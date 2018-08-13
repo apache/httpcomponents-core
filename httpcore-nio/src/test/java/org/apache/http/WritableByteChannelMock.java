@@ -43,8 +43,8 @@ public class WritableByteChannelMock implements WritableByteChannel {
         private final int capacityLimit;
         private int curCapacity;
 
-        public InternalBuffer(final int buffersize, final int capacityLimit) {
-            super(buffersize, HeapByteBufferAllocator.INSTANCE);
+        public InternalBuffer(final int bufferSize, final int capacityLimit) {
+            super(bufferSize, HeapByteBufferAllocator.INSTANCE);
             this.capacityLimit = capacityLimit;
             this.curCapacity = capacityLimit;
         }

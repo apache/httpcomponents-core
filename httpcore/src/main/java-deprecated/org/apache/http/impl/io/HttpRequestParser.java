@@ -88,8 +88,8 @@ public class HttpRequestParser extends AbstractMessageParser<HttpMessage> {
         throws IOException, HttpException, ParseException {
 
         this.lineBuf.clear();
-        final int i = sessionBuffer.readLine(this.lineBuf);
-        if (i == -1) {
+        final int readLen = sessionBuffer.readLine(this.lineBuf);
+        if (readLen == -1) {
             throw new ConnectionClosedException("Client closed connection");
         }
         final ParserCursor cursor = new ParserCursor(0, this.lineBuf.length());

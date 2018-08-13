@@ -88,8 +88,8 @@ public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
             local.close();
         }
         if (this.entity.isStreaming()) {
-            final InputStream instream = this.entity.getContent();
-            instream.close();
+            final InputStream inStream = this.entity.getContent();
+            inStream.close();
         }
     }
 

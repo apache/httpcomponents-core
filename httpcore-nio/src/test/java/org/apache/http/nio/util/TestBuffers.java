@@ -86,8 +86,8 @@ public class TestBuffers {
 
     @Test
     public void testOutputBufferOperations() throws IOException {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        final WritableByteChannel channel = Channels.newChannel(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final WritableByteChannel channel = Channels.newChannel(outStream);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128, Consts.ASCII);
         final HttpTransportMetricsImpl metrics = new HttpTransportMetricsImpl();
 
@@ -103,7 +103,7 @@ public class TestBuffers {
         buffer.write(EncodingUtils.getAsciiBytes("stuff"));
         buffer.produceContent(encoder);
 
-        final byte[] content = outstream.toByteArray();
+        final byte[] content = outStream.toByteArray();
         Assert.assertEquals("stuff;more stuff", EncodingUtils.getAsciiString(content));
     }
 

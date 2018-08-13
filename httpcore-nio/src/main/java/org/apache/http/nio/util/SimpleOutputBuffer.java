@@ -41,16 +41,16 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
 
     private boolean endOfStream;
 
-    public SimpleOutputBuffer(final int buffersize, final ByteBufferAllocator allocator) {
-        super(buffersize, allocator);
+    public SimpleOutputBuffer(final int bufferSize, final ByteBufferAllocator allocator) {
+        super(bufferSize, allocator);
         this.endOfStream = false;
     }
 
     /**
      * @since 4.3
      */
-    public SimpleOutputBuffer(final int buffersize) {
-        this(buffersize, HeapByteBufferAllocator.INSTANCE);
+    public SimpleOutputBuffer(final int bufferSize) {
+        this(bufferSize, HeapByteBufferAllocator.INSTANCE);
     }
 
     @Override
@@ -104,6 +104,7 @@ public class SimpleOutputBuffer extends ExpandableBuffer implements ContentOutpu
 
     @Override
     public void flush() {
+        // do nothing.
     }
 
     @Override

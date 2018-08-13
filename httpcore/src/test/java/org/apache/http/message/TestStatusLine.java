@@ -85,13 +85,13 @@ public class TestStatusLine {
     public void testSerialization() throws Exception {
         final BasicStatusLine orig = new BasicStatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
-        outstream.writeObject(orig);
-        outstream.close();
+        final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
+        outStream.writeObject(orig);
+        outStream.close();
         final byte[] raw = outbuffer.toByteArray();
-        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        final BasicStatusLine clone = (BasicStatusLine) instream.readObject();
+        final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
+        final BasicStatusLine clone = (BasicStatusLine) inStream.readObject();
         Assert.assertEquals(orig.getReasonPhrase(), clone.getReasonPhrase());
         Assert.assertEquals(orig.getStatusCode(), clone.getStatusCode());
         Assert.assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());

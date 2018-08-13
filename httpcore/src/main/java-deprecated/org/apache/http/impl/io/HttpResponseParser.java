@@ -88,8 +88,8 @@ public class HttpResponseParser extends AbstractMessageParser<HttpMessage> {
         throws IOException, HttpException, ParseException {
 
         this.lineBuf.clear();
-        final int i = sessionBuffer.readLine(this.lineBuf);
-        if (i == -1) {
+        final int readLen = sessionBuffer.readLine(this.lineBuf);
+        if (readLen == -1) {
             throw new NoHttpResponseException("The target server failed to respond");
         }
         //create the status line from the status string

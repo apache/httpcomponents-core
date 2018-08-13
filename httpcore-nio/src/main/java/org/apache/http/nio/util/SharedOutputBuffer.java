@@ -68,8 +68,8 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
      * @deprecated (4.3) use {@link SharedOutputBuffer#SharedOutputBuffer(int, ByteBufferAllocator)}
      */
     @Deprecated
-    public SharedOutputBuffer(final int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
-        super(buffersize, allocator);
+    public SharedOutputBuffer(final int bufferSize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
+        super(bufferSize, allocator);
         Args.notNull(ioctrl, "I/O content control");
         this.ioctrl = ioctrl;
         this.lock = new ReentrantLock();
@@ -79,8 +79,8 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     /**
      * @since 4.3
      */
-    public SharedOutputBuffer(final int buffersize, final ByteBufferAllocator allocator) {
-        super(buffersize, allocator);
+    public SharedOutputBuffer(final int bufferSize, final ByteBufferAllocator allocator) {
+        super(bufferSize, allocator);
         this.lock = new ReentrantLock();
         this.condition = this.lock.newCondition();
     }
@@ -88,8 +88,8 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     /**
      * @since 4.3
      */
-    public SharedOutputBuffer(final int buffersize) {
-        this(buffersize, HeapByteBufferAllocator.INSTANCE);
+    public SharedOutputBuffer(final int bufferSize) {
+        this(bufferSize, HeapByteBufferAllocator.INSTANCE);
     }
 
     @Override
@@ -263,6 +263,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
 
     @Override
     public void flush() throws IOException {
+        // do nothing.
     }
 
     private void flushContent() throws IOException {

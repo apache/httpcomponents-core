@@ -46,18 +46,18 @@ public class SessionOutputBufferMock extends SessionOutputBufferImpl {
 
     public SessionOutputBufferMock(
             final ByteArrayOutputStream buffer,
-            final int buffersize,
+            final int bufferSize,
             final int fragementSizeHint,
             final CharsetEncoder encoder) {
-        super(new HttpTransportMetricsImpl(), buffersize, fragementSizeHint, encoder);
+        super(new HttpTransportMetricsImpl(), bufferSize, fragementSizeHint, encoder);
         bind(buffer);
         this.buffer = buffer;
     }
 
     public SessionOutputBufferMock(
             final ByteArrayOutputStream buffer,
-            final int buffersize) {
-        this(buffer, buffersize, buffersize, null);
+            final int bufferSize) {
+        this(buffer, bufferSize, bufferSize, null);
     }
 
     public SessionOutputBufferMock(

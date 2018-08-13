@@ -94,12 +94,12 @@ public class TestFileEntity {
         final File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
 
-        final FileOutputStream outstream = new FileOutputStream(tmpfile);
-        outstream.write(0);
-        outstream.write(1);
-        outstream.write(2);
-        outstream.write(3);
-        outstream.close();
+        final FileOutputStream outStream = new FileOutputStream(tmpfile);
+        outStream.write(0);
+        outStream.write(1);
+        outStream.write(2);
+        outStream.write(3);
+        outStream.close();
 
         final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN);
 

@@ -138,13 +138,13 @@ public class NHttpConnectionBase
         Args.notNull(session, "I/O session");
         Args.notNull(params, "HTTP params");
 
-        int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
-        if (buffersize <= 0) {
-            buffersize = 4096;
+        int bufferSize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
+        if (bufferSize <= 0) {
+            bufferSize = 4096;
         }
-        int linebuffersize = buffersize;
-        if (linebuffersize > 512) {
-            linebuffersize = 512;
+        int lineBufferSize = bufferSize;
+        if (lineBufferSize > 512) {
+            lineBufferSize = 512;
         }
 
         CharsetDecoder decoder = null;
@@ -162,9 +162,9 @@ public class NHttpConnectionBase
             decoder.onMalformedInput(malformedCharAction).onUnmappableCharacter(unmappableCharAction);
             encoder.onMalformedInput(malformedCharAction).onUnmappableCharacter(unmappableCharAction);
         }
-        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, decoder, allocator);
-        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, encoder, allocator);
-        this.fragmentSizeHint = buffersize;
+        this.inbuf = new SessionInputBufferImpl(bufferSize, lineBufferSize, decoder, allocator);
+        this.outbuf = new SessionOutputBufferImpl(bufferSize, lineBufferSize, encoder, allocator);
+        this.fragmentSizeHint = bufferSize;
         this.constraints = MessageConstraints.DEFAULT;
 
         this.incomingContentStrategy = createIncomingContentStrategy();
@@ -184,7 +184,7 @@ public class NHttpConnectionBase
      * Creates new instance NHttpConnectionBase given the underlying I/O session.
      *
      * @param session the underlying I/O session.
-     * @param buffersize buffer size. Must be a positive number.
+     * @param bufferSize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param allocator memory allocator.
      *   If {@code null} {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
@@ -204,7 +204,7 @@ public class NHttpConnectionBase
      */
     protected NHttpConnectionBase(
             final IOSession session,
-            final int buffersize,
+            final int bufferSize,
             final int fragmentSizeHint,
             final ByteBufferAllocator allocator,
             final CharsetDecoder chardecoder,
@@ -213,14 +213,14 @@ public class NHttpConnectionBase
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
         Args.notNull(session, "I/O session");
-        Args.positive(buffersize, "Buffer size");
-        int linebuffersize = buffersize;
-        if (linebuffersize > 512) {
-            linebuffersize = 512;
+        Args.positive(bufferSize, "Buffer size");
+        int lineBufferSize = bufferSize;
+        if (lineBufferSize > 512) {
+            lineBufferSize = 512;
         }
-        this.inbuf = new SessionInputBufferImpl(buffersize, linebuffersize, chardecoder, allocator);
-        this.outbuf = new SessionOutputBufferImpl(buffersize, linebuffersize, charencoder, allocator);
-        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : buffersize;
+        this.inbuf = new SessionInputBufferImpl(bufferSize, lineBufferSize, chardecoder, allocator);
+        this.outbuf = new SessionOutputBufferImpl(bufferSize, lineBufferSize, charencoder, allocator);
+        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : bufferSize;
 
         this.inTransportMetrics = new HttpTransportMetricsImpl();
         this.outTransportMetrics = new HttpTransportMetricsImpl();
@@ -239,7 +239,7 @@ public class NHttpConnectionBase
      * Creates new instance NHttpConnectionBase given the underlying I/O session.
      *
      * @param session the underlying I/O session.
-     * @param buffersize buffer size. Must be a positive number.
+     * @param bufferSize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param allocator memory allocator.
      *   If {@code null} {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
@@ -257,14 +257,14 @@ public class NHttpConnectionBase
      */
     protected NHttpConnectionBase(
             final IOSession session,
-            final int buffersize,
+            final int bufferSize,
             final int fragmentSizeHint,
             final ByteBufferAllocator allocator,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
-        this(session, buffersize, fragmentSizeHint, allocator, chardecoder, charencoder,
+        this(session, bufferSize, fragmentSizeHint, allocator, chardecoder, charencoder,
                 null, incomingContentStrategy, outgoingContentStrategy);
     }
 

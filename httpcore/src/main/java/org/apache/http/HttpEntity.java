@@ -151,11 +151,11 @@ public interface HttpEntity {
      * all allocated resources are properly deallocated when this method
      * returns.
      *
-     * @param outstream the output stream to write entity content to
+     * @param outStream the output stream to write entity content to
      *
      * @throws IOException if an I/O error occurs
      */
-    void writeTo(OutputStream outstream) throws IOException;
+    void writeTo(OutputStream outStream) throws IOException;
 
     /**
      * Tells whether this entity depends on an underlying stream.

@@ -99,25 +99,25 @@ public class BasicHttpEntity extends AbstractHttpEntity {
     /**
      * Specifies the content.
      *
-     * @param instream          the stream to return with the next call to
+     * @param inStream          the stream to return with the next call to
      *                          {@link #getContent getContent}
      */
-    public void setContent(final InputStream instream) {
-        this.content = instream;
+    public void setContent(final InputStream inStream) {
+        this.content = inStream;
     }
 
     @Override
-    public void writeTo(final OutputStream outstream) throws IOException {
-        Args.notNull(outstream, "Output stream");
-        final InputStream instream = getContent();
+    public void writeTo(final OutputStream outStream) throws IOException {
+        Args.notNull(outStream, "Output stream");
+        final InputStream inStream = getContent();
         try {
             int l;
             final byte[] tmp = new byte[OUTPUT_BUFFER_SIZE];
-            while ((l = instream.read(tmp)) != -1) {
-                outstream.write(tmp, 0, l);
+            while ((l = inStream.read(tmp)) != -1) {
+                outStream.write(tmp, 0, l);
             }
         } finally {
-            instream.close();
+            inStream.close();
         }
     }
 

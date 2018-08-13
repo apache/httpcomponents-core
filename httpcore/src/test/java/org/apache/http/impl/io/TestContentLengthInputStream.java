@@ -116,8 +116,8 @@ public class TestContentLengthInputStream {
     @Test
     public void testClose() throws IOException {
         final String correct = "1234567890123456-";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(correct, Consts.ISO_8859_1);
-        final InputStream in = new ContentLengthInputStream(inbuffer, 16L);
+        final SessionInputBuffer inBuffer = new SessionInputBufferMock(correct, Consts.ISO_8859_1);
+        final InputStream in = new ContentLengthInputStream(inBuffer, 16L);
         in.close();
         in.close();
         try {
@@ -139,14 +139,14 @@ public class TestContentLengthInputStream {
         } catch (final IOException ex) {
             // expected
         }
-        Assert.assertEquals('-', inbuffer.read());
+        Assert.assertEquals('-', inBuffer.read());
     }
 
     @Test
     public void testTruncatedContent() throws IOException {
         final String correct = "1234567890123456";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(correct, Consts.ISO_8859_1);
-        final InputStream in = new ContentLengthInputStream(inbuffer, 32L);
+        final SessionInputBuffer inBuffer = new SessionInputBufferMock(correct, Consts.ISO_8859_1);
+        final InputStream in = new ContentLengthInputStream(inBuffer, 32L);
         final byte[] tmp = new byte[32];
         final int byteRead = in.read(tmp);
         Assert.assertEquals(16, byteRead);

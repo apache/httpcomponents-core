@@ -82,14 +82,14 @@ public class EntityDeserializer {
      * This method is called by the public
      * {@link #deserialize(SessionInputBuffer, HttpMessage)}.
      *
-     * @param inbuffer the session input buffer.
+     * @param inBuffer the session input buffer.
      * @param message the message.
      * @return HTTP entity.
      * @throws HttpException in case of HTTP protocol violation.
      * @throws IOException in case of an I/O error.
      */
     protected BasicHttpEntity doDeserialize(
-            final SessionInputBuffer inbuffer,
+            final SessionInputBuffer inBuffer,
             final HttpMessage message) throws HttpException, IOException {
         final BasicHttpEntity entity = new BasicHttpEntity();
 
@@ -97,15 +97,15 @@ public class EntityDeserializer {
         if (len == ContentLengthStrategy.CHUNKED) {
             entity.setChunked(true);
             entity.setContentLength(-1);
-            entity.setContent(new ChunkedInputStream(inbuffer));
+            entity.setContent(new ChunkedInputStream(inBuffer));
         } else if (len == ContentLengthStrategy.IDENTITY) {
             entity.setChunked(false);
             entity.setContentLength(-1);
-            entity.setContent(new IdentityInputStream(inbuffer));
+            entity.setContent(new IdentityInputStream(inBuffer));
         } else {
             entity.setChunked(false);
             entity.setContentLength(len);
-            entity.setContent(new ContentLengthInputStream(inbuffer, len));
+            entity.setContent(new ContentLengthInputStream(inBuffer, len));
         }
 
         final Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
@@ -127,18 +127,18 @@ public class EntityDeserializer {
      * <p>
      * The content of the entity is NOT retrieved by this method.
      *
-     * @param inbuffer the session input buffer.
+     * @param inBuffer the session input buffer.
      * @param message the message.
      * @return HTTP entity.
      * @throws HttpException in case of HTTP protocol violation.
      * @throws IOException in case of an I/O error.
      */
     public HttpEntity deserialize(
-            final SessionInputBuffer inbuffer,
+            final SessionInputBuffer inBuffer,
             final HttpMessage message) throws HttpException, IOException {
-        Args.notNull(inbuffer, "Session input buffer");
+        Args.notNull(inBuffer, "Session input buffer");
         Args.notNull(message, "HTTP message");
-        return doDeserialize(inbuffer, message);
+        return doDeserialize(inBuffer, message);
     }
 
 }

@@ -114,9 +114,9 @@ public class EntitySerializer {
         Args.notNull(outbuffer, "Session output buffer");
         Args.notNull(message, "HTTP message");
         Args.notNull(entity, "HTTP entity");
-        final OutputStream outstream = doSerialize(outbuffer, message);
-        entity.writeTo(outstream);
-        outstream.close();
+        final OutputStream outStream = doSerialize(outbuffer, message);
+        entity.writeTo(outStream);
+        outStream.close();
     }
 
 }

@@ -106,13 +106,13 @@ public class TestHeader {
     public void testSerialization() throws Exception {
         final BasicHeader orig = new BasicHeader("name1", "value1");
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
-        outstream.writeObject(orig);
-        outstream.close();
+        final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
+        outStream.writeObject(orig);
+        outStream.close();
         final byte[] raw = outbuffer.toByteArray();
-        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        final BasicHeader clone = (BasicHeader) instream.readObject();
+        final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
+        final BasicHeader clone = (BasicHeader) inStream.readObject();
         Assert.assertEquals(orig.getName(), clone.getName());
         Assert.assertEquals(orig.getValue(), clone.getValue());
     }

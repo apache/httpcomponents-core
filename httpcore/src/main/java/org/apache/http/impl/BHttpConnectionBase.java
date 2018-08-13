@@ -75,7 +75,7 @@ import org.apache.http.util.NetUtils;
  */
 public class BHttpConnectionBase implements HttpInetConnection {
 
-    private final SessionInputBufferImpl inbuffer;
+    private final SessionInputBufferImpl inBuffer;
     private final SessionOutputBufferImpl outbuffer;
     private final MessageConstraints messageConstraints;
     private final HttpConnectionMetricsImpl connMetrics;
@@ -86,7 +86,7 @@ public class BHttpConnectionBase implements HttpInetConnection {
     /**
      * Creates new instance of BHttpConnectionBase.
      *
-     * @param buffersize buffer size. Must be a positive number.
+     * @param bufferSize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
@@ -100,7 +100,7 @@ public class BHttpConnectionBase implements HttpInetConnection {
      *   {@link StrictContentLengthStrategy#INSTANCE} will be used.
      */
     protected BHttpConnectionBase(
-            final int buffersize,
+            final int bufferSize,
             final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
@@ -108,12 +108,12 @@ public class BHttpConnectionBase implements HttpInetConnection {
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
         super();
-        Args.positive(buffersize, "Buffer size");
+        Args.positive(bufferSize, "Buffer size");
         final HttpTransportMetricsImpl inTransportMetrics = new HttpTransportMetricsImpl();
         final HttpTransportMetricsImpl outTransportMetrics = new HttpTransportMetricsImpl();
-        this.inbuffer = new SessionInputBufferImpl(inTransportMetrics, buffersize, -1,
+        this.inBuffer = new SessionInputBufferImpl(inTransportMetrics, bufferSize, -1,
                 messageConstraints != null ? messageConstraints : MessageConstraints.DEFAULT, chardecoder);
-        this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, buffersize, fragmentSizeHint,
+        this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, bufferSize, fragmentSizeHint,
                 charencoder);
         this.messageConstraints = messageConstraints;
         this.connMetrics = new HttpConnectionMetricsImpl(inTransportMetrics, outTransportMetrics);
@@ -129,8 +129,8 @@ public class BHttpConnectionBase implements HttpInetConnection {
         if (socket == null) {
             throw new ConnectionClosedException();
         }
-        if (!this.inbuffer.isBound()) {
-            this.inbuffer.bind(getSocketInputStream(socket));
+        if (!this.inBuffer.isBound()) {
+            this.inBuffer.bind(getSocketInputStream(socket));
         }
         if (!this.outbuffer.isBound()) {
             this.outbuffer.bind(getSocketOutputStream(socket));
@@ -158,12 +158,12 @@ public class BHttpConnectionBase implements HttpInetConnection {
     protected void bind(final Socket socket) throws IOException {
         Args.notNull(socket, "Socket");
         this.socketHolder.set(socket);
-        this.inbuffer.bind(null);
+        this.inBuffer.bind(null);
         this.outbuffer.bind(null);
     }
 
     protected SessionInputBuffer getSessionInputBuffer() {
-        return this.inbuffer;
+        return this.inBuffer;
     }
 
     protected SessionOutputBuffer getSessionOutputBuffer() {
@@ -202,15 +202,15 @@ public class BHttpConnectionBase implements HttpInetConnection {
 
     protected InputStream createInputStream(
             final long len,
-            final SessionInputBuffer inbuffer) {
+            final SessionInputBuffer inBuffer) {
         if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedInputStream(inbuffer, this.messageConstraints);
+            return new ChunkedInputStream(inBuffer, this.messageConstraints);
         } else if (len == ContentLengthStrategy.IDENTITY) {
-            return new IdentityInputStream(inbuffer);
+            return new IdentityInputStream(inBuffer);
         } else if (len == 0L) {
             return EmptyInputStream.INSTANCE;
         } else {
-            return new ContentLengthInputStream(inbuffer, len);
+            return new ContentLengthInputStream(inBuffer, len);
         }
     }
 
@@ -218,19 +218,19 @@ public class BHttpConnectionBase implements HttpInetConnection {
         final BasicHttpEntity entity = new BasicHttpEntity();
 
         final long len = this.incomingContentStrategy.determineLength(message);
-        final InputStream instream = createInputStream(len, this.inbuffer);
+        final InputStream inStream = createInputStream(len, this.inBuffer);
         if (len == ContentLengthStrategy.CHUNKED) {
             entity.setChunked(true);
             entity.setContentLength(-1);
-            entity.setContent(instream);
+            entity.setContent(inStream);
         } else if (len == ContentLengthStrategy.IDENTITY) {
             entity.setChunked(false);
             entity.setContentLength(-1);
-            entity.setContent(instream);
+            entity.setContent(inStream);
         } else {
             entity.setChunked(false);
             entity.setContentLength(len);
-            entity.setContent(instream);
+            entity.setContent(inStream);
         }
 
         final Header contentTypeHeader = message.getFirstHeader(HTTP.CONTENT_TYPE);
@@ -315,7 +315,7 @@ public class BHttpConnectionBase implements HttpInetConnection {
         final Socket socket = this.socketHolder.getAndSet(null);
         if (socket != null) {
             try {
-                this.inbuffer.clear();
+                this.inBuffer.clear();
                 this.outbuffer.flush();
                 try {
                     try {
@@ -340,18 +340,18 @@ public class BHttpConnectionBase implements HttpInetConnection {
         final int oldtimeout = socket.getSoTimeout();
         try {
             socket.setSoTimeout(timeout);
-            return this.inbuffer.fillBuffer();
+            return this.inBuffer.fillBuffer();
         } finally {
             socket.setSoTimeout(oldtimeout);
         }
     }
 
     protected boolean awaitInput(final int timeout) throws IOException {
-        if (this.inbuffer.hasBufferedData()) {
+        if (this.inBuffer.hasBufferedData()) {
             return true;
         }
         fillInputBuffer(timeout);
-        return this.inbuffer.hasBufferedData();
+        return this.inBuffer.hasBufferedData();
     }
 
     @Override

@@ -62,14 +62,14 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
     private final int fragementSizeHint;
     private final CharsetEncoder encoder;
 
-    private OutputStream outstream;
+    private OutputStream outStream;
     private ByteBuffer bbuf;
 
     /**
      * Creates new instance of SessionOutputBufferImpl.
      *
      * @param metrics HTTP transport metrics.
-     * @param buffersize buffer size. Must be a positive number.
+     * @param bufferSize buffer size. Must be a positive number.
      * @param fragementSizeHint fragment size hint defining a minimal size of a fragment
      *   that should be written out directly to the socket bypassing the session buffer.
      *   Value {@code 0} disables fragment buffering.
@@ -78,30 +78,30 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
      */
     public SessionOutputBufferImpl(
             final HttpTransportMetricsImpl metrics,
-            final int buffersize,
+            final int bufferSize,
             final int fragementSizeHint,
             final CharsetEncoder charencoder) {
         super();
-        Args.positive(buffersize, "Buffer size");
+        Args.positive(bufferSize, "Buffer size");
         Args.notNull(metrics, "HTTP transport metrcis");
         this.metrics = metrics;
-        this.buffer = new ByteArrayBuffer(buffersize);
+        this.buffer = new ByteArrayBuffer(bufferSize);
         this.fragementSizeHint = fragementSizeHint >= 0 ? fragementSizeHint : 0;
         this.encoder = charencoder;
     }
 
     public SessionOutputBufferImpl(
             final HttpTransportMetricsImpl metrics,
-            final int buffersize) {
-        this(metrics, buffersize, buffersize, null);
+            final int bufferSize) {
+        this(metrics, bufferSize, bufferSize, null);
     }
 
-    public void bind(final OutputStream outstream) {
-        this.outstream = outstream;
+    public void bind(final OutputStream outStream) {
+        this.outStream = outStream;
     }
 
     public boolean isBound() {
-        return this.outstream != null;
+        return this.outStream != null;
     }
 
     @Override
@@ -120,13 +120,13 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
     }
 
     private void streamWrite(final byte[] b, final int off, final int len) throws IOException {
-        Asserts.notNull(outstream, "Output stream");
-        this.outstream.write(b, off, len);
+        Asserts.notNull(outStream, "Output stream");
+        this.outStream.write(b, off, len);
     }
 
     private void flushStream() throws IOException {
-        if (this.outstream != null) {
-            this.outstream.flush();
+        if (this.outStream != null) {
+            this.outStream.flush();
         }
     }
 
@@ -188,7 +188,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
             this.buffer.append(b);
         } else {
             flushBuffer();
-            this.outstream.write(b);
+            this.outStream.write(b);
         }
     }
 

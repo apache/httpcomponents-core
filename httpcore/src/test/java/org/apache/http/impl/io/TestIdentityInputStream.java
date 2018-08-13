@@ -55,44 +55,44 @@ public class TestIdentityInputStream {
     public void testBasicRead() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final SessionInputBufferMock receiver = new SessionInputBufferMock(input);
-        final IdentityInputStream instream = new IdentityInputStream(receiver);
+        final IdentityInputStream inStream = new IdentityInputStream(receiver);
         final byte[] tmp = new byte[2];
-        Assert.assertEquals(2, instream.read(tmp, 0, tmp.length));
+        Assert.assertEquals(2, inStream.read(tmp, 0, tmp.length));
         Assert.assertEquals('a', tmp[0]);
         Assert.assertEquals('b', tmp[1]);
-        Assert.assertEquals('c', instream.read());
-        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, instream.read());
-        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, instream.read());
-        instream.close();
+        Assert.assertEquals('c', inStream.read());
+        Assert.assertEquals(-1, inStream.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, inStream.read());
+        Assert.assertEquals(-1, inStream.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, inStream.read());
+        inStream.close();
     }
 
     @Test
     public void testClosedCondition() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final SessionInputBufferMock receiver = new SessionInputBufferMock(input);
-        final IdentityInputStream instream = new IdentityInputStream(receiver);
+        final IdentityInputStream inStream = new IdentityInputStream(receiver);
 
-        instream.close();
-        instream.close();
+        inStream.close();
+        inStream.close();
 
-        Assert.assertEquals(0, instream.available());
+        Assert.assertEquals(0, inStream.available());
         final byte[] tmp = new byte[2];
-        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, instream.read());
-        Assert.assertEquals(-1, instream.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, instream.read());
+        Assert.assertEquals(-1, inStream.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, inStream.read());
+        Assert.assertEquals(-1, inStream.read(tmp, 0, tmp.length));
+        Assert.assertEquals(-1, inStream.read());
     }
 
     @Test
     public void testAvailable() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final SessionInputBufferMock receiver = new SessionInputBufferMock(input);
-        final IdentityInputStream instream = new IdentityInputStream(receiver);
-        instream.read();
-        Assert.assertEquals(2, instream.available());
-        instream.close();
+        final IdentityInputStream inStream = new IdentityInputStream(receiver);
+        inStream.read();
+        Assert.assertEquals(2, inStream.available());
+        inStream.close();
     }
 
 }

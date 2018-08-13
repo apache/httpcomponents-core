@@ -60,18 +60,18 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
 
-    private final CharsetEncoder charencoder;
-    private final int lineBuffersize;
+    private final CharsetEncoder charEncoder;
+    private final int lineBufferSize;
 
-    private CharBuffer charbuffer;
+    private CharBuffer charBuffer;
 
     /**
      *  Creates SessionOutputBufferImpl instance.
      *
-     * @param buffersize input buffer size
-     * @param lineBuffersize buffer size for line operations. Has effect only if
-     *   {@code charencoder} is not {@code null}.
-     * @param charencoder charencoder to be used for encoding HTTP protocol elements.
+     * @param bufferSize input buffer size.
+     * @param lineBufferSize buffer size for line operations. Has effect only if
+     *   {@code charEncoder} is not {@code null}.
+     * @param charEncoder CharEncoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
      * @param allocator memory allocator.
      *   If {@code null} {@link HeapByteBufferAllocator#INSTANCE} will be used.
@@ -79,13 +79,13 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      * @since 4.3
      */
     public SessionOutputBufferImpl(
-            final int buffersize,
-            final int lineBuffersize,
-            final CharsetEncoder charencoder,
+            final int bufferSize,
+            final int lineBufferSize,
+            final CharsetEncoder charEncoder,
             final ByteBufferAllocator allocator) {
-        super(buffersize, allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE);
-        this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
-        this.charencoder = charencoder;
+        super(bufferSize, allocator != null ? allocator : HeapByteBufferAllocator.INSTANCE);
+        this.lineBufferSize = Args.positive(lineBufferSize, "Line buffer size");
+        this.charEncoder = charEncoder;
     }
 
     /**
@@ -95,24 +95,24 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      */
     @Deprecated
     public SessionOutputBufferImpl(
-            final int buffersize,
-            final int lineBuffersize,
+            final int bufferSize,
+            final int lineBufferSize,
             final ByteBufferAllocator allocator,
             final HttpParams params) {
-        super(buffersize, allocator);
-        this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
+        super(bufferSize, allocator);
+        this.lineBufferSize = Args.positive(lineBufferSize, "Line buffer size");
         final String charsetName = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         final Charset charset = CharsetUtils.lookup(charsetName);
         if (charset != null) {
-            this.charencoder = charset.newEncoder();
+            this.charEncoder = charset.newEncoder();
             final CodingErrorAction a1 = (CodingErrorAction) params.getParameter(
                     CoreProtocolPNames.HTTP_MALFORMED_INPUT_ACTION);
-            this.charencoder.onMalformedInput(a1 != null ? a1 : CodingErrorAction.REPORT);
+            this.charEncoder.onMalformedInput(a1 != null ? a1 : CodingErrorAction.REPORT);
             final CodingErrorAction a2 = (CodingErrorAction) params.getParameter(
                     CoreProtocolPNames.HTTP_UNMAPPABLE_INPUT_ACTION);
-            this.charencoder.onUnmappableCharacter(a2 != null? a2 : CodingErrorAction.REPORT);
+            this.charEncoder.onUnmappableCharacter(a2 != null? a2 : CodingErrorAction.REPORT);
         } else {
-            this.charencoder = null;
+            this.charEncoder = null;
         }
     }
 
@@ -122,37 +122,53 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      */
     @Deprecated
     public SessionOutputBufferImpl(
-            final int buffersize,
-            final int linebuffersize,
+            final int bufferSize,
+            final int lineBufferSize,
             final HttpParams params) {
-        this(buffersize, linebuffersize, HeapByteBufferAllocator.INSTANCE, params);
+        this(bufferSize, lineBufferSize, HeapByteBufferAllocator.INSTANCE, params);
     }
 
     /**
+     *  Creates SessionOutputBufferImpl instance.
+     *
+     * @param bufferSize input buffer size.
      * @since 4.3
      */
-    public SessionOutputBufferImpl(final int buffersize) {
-        this(buffersize, 256, null, HeapByteBufferAllocator.INSTANCE);
+    public SessionOutputBufferImpl(final int bufferSize) {
+        this(bufferSize, 256, null, HeapByteBufferAllocator.INSTANCE);
     }
 
     /**
+     *  Creates SessionOutputBufferImpl instance.
+     *
+     * @param bufferSize input buffer size.
+     * @param lineBufferSize buffer size for line operations. Has effect only if
+     *   {@code charset} is not {@code null}.
+     * @param charset Charset to be used for encoding HTTP protocol elements.
+     *   If {@code null} simple type cast will be used for char to byte conversion.
+     *
      * @since 4.3
      */
     public SessionOutputBufferImpl(
-            final int buffersize,
-            final int linebuffersize,
+            final int bufferSize,
+            final int lineBufferSize,
             final Charset charset) {
-        this(buffersize, linebuffersize,
+        this(bufferSize, lineBufferSize,
                 charset != null ? charset.newEncoder() : null, HeapByteBufferAllocator.INSTANCE);
     }
 
     /**
+     *  Creates SessionOutputBufferImpl instance.
+     *
+     * @param bufferSize input buffer size.
+     * @param lineBufferSize buffer size for line operations.
+     *
      * @since 4.3
      */
     public SessionOutputBufferImpl(
-            final int buffersize,
-            final int linebuffersize) {
-        this(buffersize, linebuffersize, null, HeapByteBufferAllocator.INSTANCE);
+            final int bufferSize,
+            final int lineBufferSize) {
+        this(bufferSize, lineBufferSize, null, HeapByteBufferAllocator.INSTANCE);
     }
 
     public void reset(final HttpParams params) {
@@ -203,51 +219,51 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     }
 
     @Override
-    public void writeLine(final CharArrayBuffer linebuffer) throws CharacterCodingException {
-        if (linebuffer == null) {
+    public void writeLine(final CharArrayBuffer lineBuffer) throws CharacterCodingException {
+        if (lineBuffer == null) {
             return;
         }
         setInputMode();
         // Do not bother if the buffer is empty
-        if (linebuffer.length() > 0 ) {
-            if (this.charencoder == null) {
-                final int requiredCapacity = this.buffer.position() + linebuffer.length();
+        if (lineBuffer.length() > 0 ) {
+            if (this.charEncoder == null) {
+                final int requiredCapacity = this.buffer.position() + lineBuffer.length();
                 ensureCapacity(requiredCapacity);
                 if (this.buffer.hasArray()) {
                     final byte[] b = this.buffer.array();
-                    final int len = linebuffer.length();
+                    final int len = lineBuffer.length();
                     final int off = this.buffer.position();
                     for (int i = 0; i < len; i++) {
-                        b[off + i]  = (byte) linebuffer.charAt(i);
+                        b[off + i]  = (byte) lineBuffer.charAt(i);
                     }
                     this.buffer.position(off + len);
                 } else {
-                    for (int i = 0; i < linebuffer.length(); i++) {
-                        this.buffer.put((byte) linebuffer.charAt(i));
+                    for (int i = 0; i < lineBuffer.length(); i++) {
+                        this.buffer.put((byte) lineBuffer.charAt(i));
                     }
                 }
             } else {
-                if (this.charbuffer == null) {
-                    this.charbuffer = CharBuffer.allocate(this.lineBuffersize);
+                if (this.charBuffer == null) {
+                    this.charBuffer = CharBuffer.allocate(this.lineBufferSize);
                 }
-                this.charencoder.reset();
+                this.charEncoder.reset();
                 // transfer the string in small chunks
-                int remaining = linebuffer.length();
+                int remaining = lineBuffer.length();
                 int offset = 0;
                 while (remaining > 0) {
-                    int l = this.charbuffer.remaining();
+                    int l = this.charBuffer.remaining();
                     boolean eol = false;
                     if (remaining <= l) {
                         l = remaining;
                         // terminate the encoding process
                         eol = true;
                     }
-                    this.charbuffer.put(linebuffer.buffer(), offset, l);
-                    this.charbuffer.flip();
+                    this.charBuffer.put(lineBuffer.buffer(), offset, l);
+                    this.charBuffer.flip();
 
                     boolean retry = true;
                     while (retry) {
-                        final CoderResult result = this.charencoder.encode(this.charbuffer, this.buffer, eol);
+                        final CoderResult result = this.charEncoder.encode(this.charBuffer, this.buffer, eol);
                         if (result.isError()) {
                             result.throwException();
                         }
@@ -256,14 +272,14 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
                         }
                         retry = !result.isUnderflow();
                     }
-                    this.charbuffer.compact();
+                    this.charBuffer.compact();
                     offset += l;
                     remaining -= l;
                 }
                 // flush the encoder
                 boolean retry = true;
                 while (retry) {
-                    final CoderResult result = this.charencoder.flush(this.buffer);
+                    final CoderResult result = this.charEncoder.flush(this.buffer);
                     if (result.isError()) {
                         result.throwException();
                     }

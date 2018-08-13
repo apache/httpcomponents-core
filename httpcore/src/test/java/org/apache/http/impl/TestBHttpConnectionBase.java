@@ -110,11 +110,11 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testConnectionClose() throws Exception {
-        final InputStream instream = Mockito.mock(InputStream.class);
-        final OutputStream outstream = Mockito.mock(OutputStream.class);
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        final OutputStream outStream = Mockito.mock(OutputStream.class);
 
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
         conn.ensureOpen();
@@ -126,7 +126,7 @@ public class TestBHttpConnectionBase {
 
         Assert.assertFalse(conn.isOpen());
 
-        Mockito.verify(outstream, Mockito.times(1)).write(
+        Mockito.verify(outStream, Mockito.times(1)).write(
                 Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt());
         Mockito.verify(socket, Mockito.times(1)).shutdownInput();
         Mockito.verify(socket, Mockito.times(1)).shutdownOutput();
@@ -134,16 +134,16 @@ public class TestBHttpConnectionBase {
 
         conn.close();
         Mockito.verify(socket, Mockito.times(1)).close();
-        Mockito.verify(outstream, Mockito.times(1)).write(
+        Mockito.verify(outStream, Mockito.times(1)).write(
                 Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt());
     }
 
     @Test
     public void testConnectionShutdown() throws Exception {
-        final InputStream instream = Mockito.mock(InputStream.class);
-        final OutputStream outstream = Mockito.mock(OutputStream.class);
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        final OutputStream outStream = Mockito.mock(OutputStream.class);
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
         conn.ensureOpen();
@@ -155,7 +155,7 @@ public class TestBHttpConnectionBase {
 
         Assert.assertFalse(conn.isOpen());
 
-        Mockito.verify(outstream, Mockito.never()).write(
+        Mockito.verify(outStream, Mockito.never()).write(
                 Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt());
         Mockito.verify(socket, Mockito.never()).shutdownInput();
         Mockito.verify(socket, Mockito.never()).shutdownOutput();
@@ -184,9 +184,9 @@ public class TestBHttpConnectionBase {
         final Header ce = entity.getContentEncoding();
         Assert.assertNotNull(ce);
         Assert.assertEquals("identity", ce.getValue());
-        final InputStream instream = entity.getContent();
-        Assert.assertNotNull(instream);
-        Assert.assertTrue((instream instanceof ContentLengthInputStream));
+        final InputStream inStream = entity.getContent();
+        Assert.assertNotNull(inStream);
+        Assert.assertTrue((inStream instanceof ContentLengthInputStream));
     }
 
     @Test
@@ -197,9 +197,9 @@ public class TestBHttpConnectionBase {
         Assert.assertNotNull(entity);
         Assert.assertTrue(entity.isChunked());
         Assert.assertEquals(-1, entity.getContentLength());
-        final InputStream instream = entity.getContent();
-        Assert.assertNotNull(instream);
-        Assert.assertTrue((instream instanceof ChunkedInputStream));
+        final InputStream inStream = entity.getContent();
+        Assert.assertNotNull(inStream);
+        Assert.assertTrue((inStream instanceof ChunkedInputStream));
     }
 
     @Test
@@ -209,35 +209,35 @@ public class TestBHttpConnectionBase {
         Assert.assertNotNull(entity);
         Assert.assertFalse(entity.isChunked());
         Assert.assertEquals(-1, entity.getContentLength());
-        final InputStream instream = entity.getContent();
-        Assert.assertNotNull(instream);
-        Assert.assertTrue((instream instanceof IdentityInputStream));
+        final InputStream inStream = entity.getContent();
+        Assert.assertNotNull(inStream);
+        Assert.assertTrue((inStream instanceof IdentityInputStream));
     }
 
     @Test
     public void testPrepareOutputLengthDelimited() throws Exception {
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         message.addHeader("Content-Length", "10");
-        final OutputStream outstream = conn.prepareOutput(message);
-        Assert.assertNotNull(outstream);
-        Assert.assertTrue((outstream instanceof ContentLengthOutputStream));
+        final OutputStream outStream = conn.prepareOutput(message);
+        Assert.assertNotNull(outStream);
+        Assert.assertTrue((outStream instanceof ContentLengthOutputStream));
     }
 
     @Test
     public void testPrepareOutputChunked() throws Exception {
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
         message.addHeader("Transfer-Encoding", "chunked");
-        final OutputStream outstream = conn.prepareOutput(message);
-        Assert.assertNotNull(outstream);
-        Assert.assertTrue((outstream instanceof ChunkedOutputStream));
+        final OutputStream outStream = conn.prepareOutput(message);
+        Assert.assertNotNull(outStream);
+        Assert.assertTrue((outStream instanceof ChunkedOutputStream));
     }
 
     @Test
     public void testPrepareOutputIdentity() throws Exception {
         final HttpResponse message = new BasicHttpResponse(HttpVersion.HTTP_1_1, 200, "OK");
-        final OutputStream outstream = conn.prepareOutput(message);
-        Assert.assertNotNull(outstream);
-        Assert.assertTrue((outstream instanceof IdentityOutputStream));
+        final OutputStream outStream = conn.prepareOutput(message);
+        Assert.assertNotNull(outStream);
+        Assert.assertTrue((outStream instanceof IdentityOutputStream));
     }
 
     @Test
@@ -282,9 +282,9 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testAwaitInputInBuffer() throws Exception {
-        final ByteArrayInputStream instream = Mockito.spy(new ByteArrayInputStream(
+        final ByteArrayInputStream inStream = Mockito.spy(new ByteArrayInputStream(
                 new byte[] {1, 2, 3, 4, 5}));
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
 
         conn.bind(socket);
         conn.ensureOpen();
@@ -293,15 +293,15 @@ public class TestBHttpConnectionBase {
         Assert.assertTrue(conn.awaitInput(432));
 
         Mockito.verify(socket, Mockito.never()).setSoTimeout(Matchers.anyInt());
-        Mockito.verify(instream, Mockito.times(1)).read(
+        Mockito.verify(inStream, Mockito.times(1)).read(
                 Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt());
     }
 
     @Test
     public void testAwaitInputInSocket() throws Exception {
-        final ByteArrayInputStream instream = Mockito.spy(new ByteArrayInputStream(
+        final ByteArrayInputStream inStream = Mockito.spy(new ByteArrayInputStream(
                 new byte[] {1, 2, 3, 4, 5}));
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
         Mockito.when(socket.getSoTimeout()).thenReturn(345);
 
         conn.bind(socket);
@@ -311,15 +311,15 @@ public class TestBHttpConnectionBase {
 
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(432);
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(345);
-        Mockito.verify(instream, Mockito.times(1)).read(
+        Mockito.verify(inStream, Mockito.times(1)).read(
                 Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt());
     }
 
     @Test
     public void testAwaitInputNoData() throws Exception {
-        final InputStream instream = Mockito.mock(InputStream.class);
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
-        Mockito.when(instream.read(Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt()))
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
+        Mockito.when(inStream.read(Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt()))
             .thenReturn(-1);
 
         conn.bind(socket);
@@ -338,9 +338,9 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testNotStaleWhenHasData() throws Exception {
-        final ByteArrayInputStream instream = Mockito.spy(new ByteArrayInputStream(
+        final ByteArrayInputStream inStream = Mockito.spy(new ByteArrayInputStream(
                 new byte[] {1, 2, 3, 4, 5}));
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
 
         conn.bind(socket);
         conn.ensureOpen();
@@ -350,9 +350,9 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testStaleWhenEndOfStream() throws Exception {
-        final InputStream instream = Mockito.mock(InputStream.class);
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
-        Mockito.when(instream.read(Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt()))
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
+        Mockito.when(inStream.read(Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt()))
             .thenReturn(-1);
 
         conn.bind(socket);
@@ -363,9 +363,9 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testNotStaleWhenTimeout() throws Exception {
-        final InputStream instream = Mockito.mock(InputStream.class);
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
-        Mockito.when(instream.read(Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt()))
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
+        Mockito.when(inStream.read(Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt()))
             .thenThrow(new SocketTimeoutException());
 
         conn.bind(socket);
@@ -376,9 +376,9 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testStaleWhenIOError() throws Exception {
-        final InputStream instream = Mockito.mock(InputStream.class);
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
-        Mockito.when(instream.read(Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt()))
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
+        Mockito.when(inStream.read(Matchers.<byte []>any(), Matchers.anyInt(), Matchers.anyInt()))
             .thenThrow(new SocketException());
 
         conn.bind(socket);

@@ -136,8 +136,8 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         final Socket socket = new Socket("localhost", address.getPort());
         try {
-            final OutputStream outstream = socket.getOutputStream();
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            final OutputStream outStream = socket.getOutputStream();
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream, "US-ASCII"));
             writer.write("GET /long HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");
@@ -194,8 +194,8 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         final Socket socket = new Socket("localhost", address.getPort());
         try {
-            final OutputStream outstream = socket.getOutputStream();
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            final OutputStream outStream = socket.getOutputStream();
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream, "US-ASCII"));
             writer.write("GET /long HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");

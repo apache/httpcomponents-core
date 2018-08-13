@@ -81,8 +81,8 @@ public class TestDefaultBHttpClientConnection {
     @Test
     public void testReadRequestHead() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nUser-Agent: test\r\n\r\n";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
 
         conn.bind(socket);
 
@@ -99,8 +99,8 @@ public class TestDefaultBHttpClientConnection {
     @Test
     public void testReadRequestEntity() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nUser-Agent: test\r\nContent-Length: 3\r\n\r\n123";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(Consts.ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
 
         conn.bind(socket);
 
@@ -124,8 +124,8 @@ public class TestDefaultBHttpClientConnection {
 
     @Test
     public void testWriteResponseHead() throws Exception {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
 
@@ -138,14 +138,14 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
-        final String s = new String(outstream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), "ASCII");
         Assert.assertEquals("GET /stuff HTTP/1.1\r\nUser-Agent: test\r\n\r\n", s);
     }
 
     @Test
     public void testWriteResponseEntity() throws Exception {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
 
@@ -162,7 +162,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getMetrics().getRequestCount());
-        final String s = new String(outstream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), "ASCII");
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: 3\r\n\r\n123", s);
     }
 

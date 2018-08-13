@@ -173,16 +173,16 @@ public class ContentLengthInputStream extends InputStream {
         if (pos + len > contentLength) {
             chunk = (int) (contentLength - pos);
         }
-        final int count = this.in.read(b, off, chunk);
-        if (count == -1 && pos < contentLength) {
+        final int readLen = this.in.read(b, off, chunk);
+        if (readLen == -1 && pos < contentLength) {
             throw new ConnectionClosedException(
                     "Premature end of Content-Length delimited message body (expected: "
                     + contentLength + "; received: " + pos + ")");
         }
-        if (count > 0) {
-            pos += count;
+        if (readLen > 0) {
+            pos += readLen;
         }
-        return count;
+        return readLen;
     }
 
 
@@ -218,12 +218,12 @@ public class ContentLengthInputStream extends InputStream {
         // skip and keep track of the bytes actually skipped
         long count = 0;
         while (remaining > 0) {
-            final int l = read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
-            if (l == -1) {
+            final int readLen = read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
+            if (readLen == -1) {
                 break;
             }
-            count += l;
-            remaining -= l;
+            count += readLen;
+            remaining -= readLen;
         }
         return count;
     }

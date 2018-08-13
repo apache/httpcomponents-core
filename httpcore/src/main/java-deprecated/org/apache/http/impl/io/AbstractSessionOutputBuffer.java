@@ -65,7 +65,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
 
     private static final byte[] CRLF = new byte[] {HTTP.CR, HTTP.LF};
 
-    private OutputStream outstream;
+    private OutputStream outStream;
     private ByteArrayBuffer buffer;
     private Charset charset;
     private boolean ascii;
@@ -78,17 +78,17 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     private ByteBuffer bbuf;
 
     protected AbstractSessionOutputBuffer(
-            final OutputStream outstream,
-            final int buffersize,
+            final OutputStream outStream,
+            final int bufferSize,
             final Charset charset,
             final int minChunkLimit,
             final CodingErrorAction malformedCharAction,
             final CodingErrorAction unmappableCharAction) {
         super();
-        Args.notNull(outstream, "Input stream");
-        Args.notNegative(buffersize, "Buffer size");
-        this.outstream = outstream;
-        this.buffer = new ByteArrayBuffer(buffersize);
+        Args.notNull(outStream, "Input stream");
+        Args.notNegative(bufferSize, "Buffer size");
+        this.outStream = outStream;
+        this.buffer = new ByteArrayBuffer(bufferSize);
         this.charset = charset != null ? charset : Consts.ASCII;
         this.ascii = this.charset.equals(Consts.ASCII);
         this.encoder = null;
@@ -103,12 +103,12 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     public AbstractSessionOutputBuffer() {
     }
 
-    protected void init(final OutputStream outstream, final int buffersize, final HttpParams params) {
-        Args.notNull(outstream, "Input stream");
-        Args.notNegative(buffersize, "Buffer size");
+    protected void init(final OutputStream outStream, final int bufferSize, final HttpParams params) {
+        Args.notNull(outStream, "Input stream");
+        Args.notNegative(bufferSize, "Buffer size");
         Args.notNull(params, "HTTP parameters");
-        this.outstream = outstream;
-        this.buffer = new ByteArrayBuffer(buffersize);
+        this.outStream = outStream;
+        this.buffer = new ByteArrayBuffer(bufferSize);
         final String charset = (String) params.getParameter(CoreProtocolPNames.HTTP_ELEMENT_CHARSET);
         this.charset = charset != null ? Charset.forName(charset) : Consts.ASCII;
         this.ascii = this.charset.equals(Consts.ASCII);
@@ -157,7 +157,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     protected void flushBuffer() throws IOException {
         final int len = this.buffer.length();
         if (len > 0) {
-            this.outstream.write(this.buffer.buffer(), 0, len);
+            this.outStream.write(this.buffer.buffer(), 0, len);
             this.buffer.clear();
             this.metrics.incrementBytesTransferred(len);
         }
@@ -166,7 +166,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
     @Override
     public void flush() throws IOException {
         flushBuffer();
-        this.outstream.flush();
+        this.outStream.flush();
     }
 
     @Override
@@ -181,7 +181,7 @@ public abstract class AbstractSessionOutputBuffer implements SessionOutputBuffer
             // flush the buffer
             flushBuffer();
             // write directly to the out stream
-            this.outstream.write(b, off, len);
+            this.outStream.write(b, off, len);
             this.metrics.incrementBytesTransferred(len);
         } else {
             // Do not let the buffer grow unnecessarily

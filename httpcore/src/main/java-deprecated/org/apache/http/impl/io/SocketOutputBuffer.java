@@ -48,7 +48,7 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
      * Creates an instance of this class.
      *
      * @param socket the socket to write data to.
-     * @param buffersize the size of the internal buffer. If this number is less
+     * @param bufferSize the size of the internal buffer. If this number is less
      *   than {@code 0} it is set to the value of
      *   {@link Socket#getSendBufferSize()}. If resultant number is less
      *   than {@code 1024} it is set to {@code 1024}.
@@ -56,11 +56,11 @@ public class SocketOutputBuffer extends AbstractSessionOutputBuffer {
      */
     public SocketOutputBuffer(
             final Socket socket,
-            final int buffersize,
+            final int bufferSize,
             final HttpParams params) throws IOException {
         super();
         Args.notNull(socket, "Socket");
-        int n = buffersize;
+        int n = bufferSize;
         if (n < 0) {
             n = socket.getSendBufferSize();
         }

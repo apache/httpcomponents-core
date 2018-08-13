@@ -587,12 +587,12 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
 
         if (response.getEntity() != null) {
             final ContentOutputBuffer buffer = connState.getOutbuffer();
-            final OutputStream outstream = new ContentOutputStream(buffer);
+            final OutputStream outStream = new ContentOutputStream(buffer);
 
             final HttpEntity entity = response.getEntity();
-            entity.writeTo(outstream);
-            outstream.flush();
-            outstream.close();
+            entity.writeTo(outStream);
+            outStream.flush();
+            outStream.close();
         }
 
         synchronized (connState) {
@@ -642,7 +642,7 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         public static final int RESPONSE_BODY_DONE         = 32;
         public static final int RESPONSE_DONE              = 32;
 
-        private final SharedInputBuffer inbuffer;
+        private final SharedInputBuffer inBuffer;
         private final SharedOutputBuffer outbuffer;
 
         private volatile int inputState;
@@ -658,14 +658,14 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
                 final IOControl ioControl,
                 final ByteBufferAllocator allocator) {
             super();
-            this.inbuffer = new SharedInputBuffer(bufsize, ioControl, allocator);
+            this.inBuffer = new SharedInputBuffer(bufsize, ioControl, allocator);
             this.outbuffer = new SharedOutputBuffer(bufsize, ioControl, allocator);
             this.inputState = READY;
             this.outputState = READY;
         }
 
         public ContentInputBuffer getInbuffer() {
-            return this.inbuffer;
+            return this.inBuffer;
         }
 
         public ContentOutputBuffer getOutbuffer() {
@@ -713,21 +713,21 @@ public class ThrottlingHttpServiceHandler extends NHttpHandlerBase
         }
 
         public void close() {
-            this.inbuffer.close();
+            this.inBuffer.close();
             this.outbuffer.close();
             this.inputState = SHUTDOWN;
             this.outputState = SHUTDOWN;
         }
 
         public void shutdown() {
-            this.inbuffer.shutdown();
+            this.inBuffer.shutdown();
             this.outbuffer.shutdown();
             this.inputState = SHUTDOWN;
             this.outputState = SHUTDOWN;
         }
 
         public void resetInput() {
-            this.inbuffer.reset();
+            this.inBuffer.reset();
             this.request = null;
             this.inputState = READY;
         }

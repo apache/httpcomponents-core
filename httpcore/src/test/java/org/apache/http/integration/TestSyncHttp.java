@@ -638,13 +638,13 @@ public class TestSyncHttp {
         }
 
         @Override
-        public void writeTo(final OutputStream outstream) throws IOException {
+        public void writeTo(final OutputStream outStream) throws IOException {
             for (int i = 0; i < this.n; i++) {
-                outstream.write(this.raw);
-                outstream.write('\r');
-                outstream.write('\n');
+                outStream.write(this.raw);
+                outStream.write('\r');
+                outStream.write('\n');
             }
-            outstream.flush();
+            outStream.flush();
         }
 
     }
@@ -735,14 +735,14 @@ public class TestSyncHttp {
                     final HttpResponse response = this.client.execute(post, host, conn);
                     final HttpEntity incoming = response.getEntity();
                     Assert.assertNotNull(incoming);
-                    final InputStream instream = incoming.getContent();
+                    final InputStream inStream = incoming.getContent();
                     final ContentType contentType = ContentType.getOrDefault(incoming);
                     Charset charset = contentType.getCharset();
                     if (charset == null) {
                         charset = HTTP.DEF_CONTENT_CHARSET;
                     }
-                    Assert.assertNotNull(instream);
-                    final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, charset));
+                    Assert.assertNotNull(inStream);
+                    final BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, charset));
 
                     String line;
                     int count = 0;

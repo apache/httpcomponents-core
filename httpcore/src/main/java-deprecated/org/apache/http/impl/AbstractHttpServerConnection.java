@@ -76,7 +76,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
     private final EntitySerializer entityserializer;
     private final EntityDeserializer entitydeserializer;
 
-    private SessionInputBuffer inbuffer = null;
+    private SessionInputBuffer inBuffer = null;
     private SessionOutputBuffer outbuffer = null;
     private EofSensor eofSensor = null;
     private HttpMessageParser<HttpRequest> requestParser = null;
@@ -212,27 +212,27 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
      * methods to initialize HTTP request parser and response writer for this
      * connection.
      *
-     * @param inbuffer the session input buffer.
+     * @param inBuffer the session input buffer.
      * @param outbuffer the session output buffer.
      * @param params HTTP parameters.
      */
     protected void init(
-            final SessionInputBuffer inbuffer,
+            final SessionInputBuffer inBuffer,
             final SessionOutputBuffer outbuffer,
             final HttpParams params) {
-        this.inbuffer = Args.notNull(inbuffer, "Input session buffer");
+        this.inBuffer = Args.notNull(inBuffer, "Input session buffer");
         this.outbuffer = Args.notNull(outbuffer, "Output session buffer");
-        if (inbuffer instanceof EofSensor) {
-            this.eofSensor = (EofSensor) inbuffer;
+        if (inBuffer instanceof EofSensor) {
+            this.eofSensor = (EofSensor) inBuffer;
         }
         this.requestParser = createRequestParser(
-                inbuffer,
+                inBuffer,
                 createHttpRequestFactory(),
                 params);
         this.responseWriter = createResponseWriter(
                 outbuffer, params);
         this.metrics = createConnectionMetrics(
-                inbuffer.getMetrics(),
+                inBuffer.getMetrics(),
                 outbuffer.getMetrics());
     }
 
@@ -250,7 +250,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         assertOpen();
-        final HttpEntity entity = this.entitydeserializer.deserialize(this.inbuffer, request);
+        final HttpEntity entity = this.entitydeserializer.deserialize(this.inBuffer, request);
         request.setEntity(entity);
     }
 
@@ -300,7 +300,7 @@ public abstract class AbstractHttpServerConnection implements HttpServerConnecti
             return true;
         }
         try {
-            this.inbuffer.isDataAvailable(1);
+            this.inBuffer.isDataAvailable(1);
             return isEof();
         } catch (final IOException ex) {
             return true;

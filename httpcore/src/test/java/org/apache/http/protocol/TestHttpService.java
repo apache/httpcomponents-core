@@ -169,8 +169,8 @@ public class TestHttpService {
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
-        final InputStream instream = Mockito.mock(InputStream.class);
-        final InputStreamEntity entity = new InputStreamEntity(instream, -1);
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        final InputStreamEntity entity = new InputStreamEntity(inStream, -1);
         request.setEntity(entity);
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -188,7 +188,7 @@ public class TestHttpService {
 
         Mockito.verify(conn).receiveRequestEntity(request);
         Mockito.verify(httprocessor).process(request, context);
-        Mockito.verify(instream).close();
+        Mockito.verify(inStream).close();
         Mockito.verify(httprocessor).process(response, context);
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(conn).sendResponseEntity(response);
@@ -212,8 +212,8 @@ public class TestHttpService {
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
-        final InputStream instream = Mockito.mock(InputStream.class);
-        final InputStreamEntity entity = new InputStreamEntity(instream, -1);
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        final InputStreamEntity entity = new InputStreamEntity(inStream, -1);
         request.setEntity(entity);
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -234,7 +234,7 @@ public class TestHttpService {
         Mockito.verify(conn).sendResponseHeader(resp100);
         Mockito.verify(conn).receiveRequestEntity(request);
         Mockito.verify(httprocessor).process(request, context);
-        Mockito.verify(instream).close();
+        Mockito.verify(inStream).close();
         Mockito.verify(httprocessor).process(response, context);
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(conn).sendResponseEntity(response);
@@ -271,8 +271,8 @@ public class TestHttpService {
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
-        final InputStream instream = Mockito.mock(InputStream.class);
-        final InputStreamEntity entity = new InputStreamEntity(instream, -1);
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        final InputStreamEntity entity = new InputStreamEntity(inStream, -1);
         request.setEntity(entity);
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -315,8 +315,8 @@ public class TestHttpService {
         final HttpServerConnection conn = Mockito.mock(HttpServerConnection.class);
         final HttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest("POST", "/");
         request.addHeader(HTTP.EXPECT_DIRECTIVE, HTTP.EXPECT_CONTINUE);
-        final InputStream instream = Mockito.mock(InputStream.class);
-        final InputStreamEntity entity = new InputStreamEntity(instream, -1);
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        final InputStreamEntity entity = new InputStreamEntity(inStream, -1);
         request.setEntity(entity);
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);

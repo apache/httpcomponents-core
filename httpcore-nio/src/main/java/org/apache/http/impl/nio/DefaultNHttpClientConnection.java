@@ -105,7 +105,7 @@ public class DefaultNHttpClientConnection
      * Creates new instance DefaultNHttpClientConnection given the underlying I/O session.
      *
      * @param session the underlying I/O session.
-     * @param buffersize buffer size. Must be a positive number.
+     * @param bufferSize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param allocator memory allocator.
      *   If {@code null} {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
@@ -125,7 +125,7 @@ public class DefaultNHttpClientConnection
      */
     public DefaultNHttpClientConnection(
             final IOSession session,
-            final int buffersize,
+            final int bufferSize,
             final int fragmentSizeHint,
             final ByteBufferAllocator allocator,
             final CharsetDecoder chardecoder,
@@ -135,7 +135,7 @@ public class DefaultNHttpClientConnection
             final ContentLengthStrategy outgoingContentStrategy,
             final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final NHttpMessageParserFactory<HttpResponse> responseParserFactory) {
-        super(session, buffersize, fragmentSizeHint, allocator, chardecoder, charencoder,
+        super(session, bufferSize, fragmentSizeHint, allocator, chardecoder, charencoder,
                 constraints, incomingContentStrategy, outgoingContentStrategy);
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
             DefaultHttpRequestWriterFactory.INSTANCE).create(this.outbuf);
@@ -148,19 +148,19 @@ public class DefaultNHttpClientConnection
      */
     public DefaultNHttpClientConnection(
             final IOSession session,
-            final int buffersize,
+            final int bufferSize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints) {
-        this(session, buffersize, buffersize, null, chardecoder, charencoder, constraints,
+        this(session, bufferSize, bufferSize, null, chardecoder, charencoder, constraints,
                 null, null, null, null);
     }
 
     /**
      * @since 4.3
      */
-    public DefaultNHttpClientConnection(final IOSession session, final int buffersize) {
-        this(session, buffersize, buffersize, null, null, null, null, null, null, null, null);
+    public DefaultNHttpClientConnection(final IOSession session, final int bufferSize) {
+        this(session, bufferSize, bufferSize, null, null, null, null, null, null, null, null);
     }
 
     /**

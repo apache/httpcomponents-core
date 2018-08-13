@@ -79,13 +79,13 @@ public class TestRequestLine {
     public void testSerialization() throws Exception {
         final BasicRequestLine orig = new BasicRequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
-        outstream.writeObject(orig);
-        outstream.close();
+        final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
+        outStream.writeObject(orig);
+        outStream.close();
         final byte[] raw = outbuffer.toByteArray();
-        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        final BasicRequestLine clone = (BasicRequestLine) instream.readObject();
+        final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
+        final BasicRequestLine clone = (BasicRequestLine) inStream.readObject();
         Assert.assertEquals(orig.getMethod(), clone.getMethod());
         Assert.assertEquals(orig.getUri(), clone.getUri());
         Assert.assertEquals(orig.getProtocolVersion(), clone.getProtocolVersion());

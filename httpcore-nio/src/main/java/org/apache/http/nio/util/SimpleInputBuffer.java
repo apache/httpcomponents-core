@@ -41,15 +41,15 @@ public class SimpleInputBuffer extends ExpandableBuffer implements ContentInputB
 
     private boolean endOfStream = false;
 
-    public SimpleInputBuffer(final int buffersize, final ByteBufferAllocator allocator) {
-        super(buffersize, allocator);
+    public SimpleInputBuffer(final int bufferSize, final ByteBufferAllocator allocator) {
+        super(bufferSize, allocator);
     }
 
     /**
      * @since 4.3
      */
-    public SimpleInputBuffer(final int buffersize) {
-        this(buffersize, HeapByteBufferAllocator.INSTANCE);
+    public SimpleInputBuffer(final int bufferSize) {
+        this(bufferSize, HeapByteBufferAllocator.INSTANCE);
     }
 
     @Override

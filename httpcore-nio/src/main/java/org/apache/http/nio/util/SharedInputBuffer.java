@@ -66,8 +66,8 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
      * @deprecated (4.3) use {@link SharedInputBuffer#SharedInputBuffer(int, ByteBufferAllocator)}
      */
     @Deprecated
-    public SharedInputBuffer(final int buffersize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
-        super(buffersize, allocator);
+    public SharedInputBuffer(final int bufferSize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
+        super(bufferSize, allocator);
         this.ioctrl = ioctrl;
         this.lock = new ReentrantLock();
         this.condition = this.lock.newCondition();
@@ -76,8 +76,8 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
     /**
      * @since 4.3
      */
-    public SharedInputBuffer(final int buffersize, final ByteBufferAllocator allocator) {
-        super(buffersize, allocator);
+    public SharedInputBuffer(final int bufferSize, final ByteBufferAllocator allocator) {
+        super(bufferSize, allocator);
         this.lock = new ReentrantLock();
         this.condition = this.lock.newCondition();
     }
@@ -85,8 +85,8 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
     /**
      * @since 4.3
      */
-    public SharedInputBuffer(final int buffersize) {
-        this(buffersize, HeapByteBufferAllocator.INSTANCE);
+    public SharedInputBuffer(final int bufferSize) {
+        this(bufferSize, HeapByteBufferAllocator.INSTANCE);
     }
 
     @Override
@@ -142,13 +142,8 @@ public class SharedInputBuffer extends ExpandableBuffer implements ContentInputB
 
             if (totalRead > 0) {
                 return totalRead;
-            } else {
-                if (this.endOfStream) {
-                    return -1;
-                } else {
-                    return 0;
-                }
             }
+            return this.endOfStream ? -1 : 0;
         } finally {
             this.lock.unlock();
         }

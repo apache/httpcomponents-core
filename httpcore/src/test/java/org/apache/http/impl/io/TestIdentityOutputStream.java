@@ -101,10 +101,10 @@ public class TestIdentityOutputStream {
     @Test
     public void testBasicWrite() throws Exception {
         final SessionOutputBufferMock transmitter = new SessionOutputBufferMock();
-        final IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
-        outstream.write(new byte[] {'a', 'b'}, 0, 2);
-        outstream.write('c');
-        outstream.flush();
+        final IdentityOutputStream outStream = new IdentityOutputStream(transmitter);
+        outStream.write(new byte[] {'a', 'b'}, 0, 2);
+        outStream.write('c');
+        outStream.flush();
 
         final byte[] input = transmitter.getData();
 
@@ -114,25 +114,25 @@ public class TestIdentityOutputStream {
         for (int i = 0; i < expected.length; i++) {
             Assert.assertEquals(expected[i], input[i]);
         }
-        outstream.close();
+        outStream.close();
     }
 
     @Test
     public void testClosedCondition() throws Exception {
         final SessionOutputBufferMock transmitter = new SessionOutputBufferMock();
-        final IdentityOutputStream outstream = new IdentityOutputStream(transmitter);
-        outstream.close();
-        outstream.close();
+        final IdentityOutputStream outStream = new IdentityOutputStream(transmitter);
+        outStream.close();
+        outStream.close();
 
         try {
             final byte[] tmp = new byte[2];
-            outstream.write(tmp, 0, tmp.length);
+            outStream.write(tmp, 0, tmp.length);
             Assert.fail("IOException should have been thrown");
         } catch (final IOException e) {
             //expected
         }
         try {
-            outstream.write('a');
+            outStream.write('a');
             Assert.fail("IOException should have been thrown");
         } catch (final IOException e) {
             //expected

@@ -114,15 +114,15 @@ public class SerializableEntity extends AbstractHttpEntity {
     }
 
     @Override
-    public void writeTo(final OutputStream outstream) throws IOException {
-        Args.notNull(outstream, "Output stream");
+    public void writeTo(final OutputStream outStream) throws IOException {
+        Args.notNull(outStream, "Output stream");
         if (this.objSer == null) {
-            final ObjectOutputStream out = new ObjectOutputStream(outstream);
+            final ObjectOutputStream out = new ObjectOutputStream(outStream);
             out.writeObject(this.objRef);
             out.flush();
         } else {
-            outstream.write(this.objSer);
-            outstream.flush();
+            outStream.write(this.objSer);
+            outStream.flush();
         }
     }
 

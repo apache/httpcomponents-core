@@ -109,14 +109,14 @@ public class BufferingNHttpEntity extends HttpEntityWrapper implements
     }
 
     @Override
-    public void writeTo(final OutputStream outstream) throws IOException {
-        Args.notNull(outstream, "Output stream");
-        final InputStream instream = getContent();
+    public void writeTo(final OutputStream outStream) throws IOException {
+        Args.notNull(outStream, "Output stream");
+        final InputStream inStream = getContent();
         final byte[] buff = new byte[BUFFER_SIZE];
         int l;
         // consume until EOF
-        while ((l = instream.read(buff)) != -1) {
-            outstream.write(buff, 0, l);
+        while ((l = inStream.read(buff)) != -1) {
+            outStream.write(buff, 0, l);
         }
     }
 

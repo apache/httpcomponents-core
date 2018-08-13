@@ -85,9 +85,9 @@ public final class EntityUtils {
             return;
         }
         if (entity.isStreaming()) {
-            final InputStream instream = entity.getContent();
-            if (instream != null) {
-                instream.close();
+            final InputStream inStream = entity.getContent();
+            if (inStream != null) {
+                inStream.close();
             }
         }
     }
@@ -121,8 +121,8 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "Entity");
-        final InputStream instream = entity.getContent();
-        if (instream == null) {
+        final InputStream inStream = entity.getContent();
+        if (inStream == null) {
             return null;
         }
         try {
@@ -135,12 +135,12 @@ public final class EntityUtils {
             final ByteArrayBuffer buffer = new ByteArrayBuffer(capacity);
             final byte[] tmp = new byte[DEFAULT_BUFFER_SIZE];
             int l;
-            while((l = instream.read(tmp)) != -1) {
+            while((l = inStream.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
             }
             return buffer.toByteArray();
         } finally {
-            instream.close();
+            inStream.close();
         }
     }
 
@@ -198,8 +198,8 @@ public final class EntityUtils {
     private static String toString(
             final HttpEntity entity,
             final ContentType contentType) throws IOException {
-        final InputStream instream = entity.getContent();
-        if (instream == null) {
+        final InputStream inStream = entity.getContent();
+        if (inStream == null) {
             return null;
         }
         try {
@@ -220,7 +220,7 @@ public final class EntityUtils {
             if (charset == null) {
                 charset = HTTP.DEF_CONTENT_CHARSET;
             }
-            final Reader reader = new InputStreamReader(instream, charset);
+            final Reader reader = new InputStreamReader(inStream, charset);
             final CharArrayBuffer buffer = new CharArrayBuffer(capacity);
             final char[] tmp = new char[1024];
             int l;
@@ -229,7 +229,7 @@ public final class EntityUtils {
             }
             return buffer.toString();
         } finally {
-            instream.close();
+            inStream.close();
         }
     }
 

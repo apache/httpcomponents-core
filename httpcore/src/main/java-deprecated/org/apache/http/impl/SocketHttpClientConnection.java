@@ -83,16 +83,16 @@ public class SocketHttpClientConnection
      * @see SocketInputBuffer#SocketInputBuffer(Socket, int, HttpParams)
      *
      * @param socket the socket.
-     * @param buffersize the buffer size.
+     * @param bufferSize the buffer size.
      * @param params HTTP parameters.
      * @return session input buffer.
      * @throws IOException in case of an I/O error.
      */
     protected SessionInputBuffer createSessionInputBuffer(
             final Socket socket,
-            final int buffersize,
+            final int bufferSize,
             final HttpParams params) throws IOException {
-        return new SocketInputBuffer(socket, buffersize, params);
+        return new SocketInputBuffer(socket, bufferSize, params);
     }
 
     /**
@@ -105,16 +105,16 @@ public class SocketHttpClientConnection
      * @see SocketOutputBuffer#SocketOutputBuffer(Socket, int, HttpParams)
      *
      * @param socket the socket.
-     * @param buffersize the buffer size.
+     * @param bufferSize the buffer size.
      * @param params HTTP parameters.
      * @return session output buffer.
      * @throws IOException in case of an I/O error.
      */
     protected SessionOutputBuffer createSessionOutputBuffer(
             final Socket socket,
-            final int buffersize,
+            final int bufferSize,
             final HttpParams params) throws IOException {
-        return new SocketOutputBuffer(socket, buffersize, params);
+        return new SocketOutputBuffer(socket, bufferSize, params);
     }
 
     /**
@@ -142,10 +142,10 @@ public class SocketHttpClientConnection
         Args.notNull(params, "HTTP parameters");
         this.socket = socket;
 
-        final int buffersize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
+        final int bufferSize = params.getIntParameter(CoreConnectionPNames.SOCKET_BUFFER_SIZE, -1);
         init(
-                createSessionInputBuffer(socket, buffersize, params),
-                createSessionOutputBuffer(socket, buffersize, params),
+                createSessionInputBuffer(socket, bufferSize, params),
+                createSessionOutputBuffer(socket, bufferSize, params),
                 params);
 
         this.open = true;

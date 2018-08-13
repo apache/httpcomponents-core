@@ -63,7 +63,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     /**
      * Creates new instance of DefaultBHttpServerConnection.
      *
-     * @param buffersize buffer size. Must be a positive number.
+     * @param bufferSize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
      * @param chardecoder decoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
@@ -81,7 +81,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
      *   {@link DefaultHttpResponseWriterFactory#INSTANCE} will be used.
      */
     public DefaultBHttpServerConnection(
-            final int buffersize,
+            final int bufferSize,
             final int fragmentSizeHint,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
@@ -90,7 +90,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageParserFactory<HttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
-        super(buffersize, fragmentSizeHint, chardecoder, charencoder, constraints,
+        super(bufferSize, fragmentSizeHint, chardecoder, charencoder, constraints,
                 incomingContentStrategy != null ? incomingContentStrategy :
                     DisallowIdentityContentLengthStrategy.INSTANCE, outgoingContentStrategy);
         this.requestParser = (requestParserFactory != null ? requestParserFactory :
@@ -100,15 +100,15 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     }
 
     public DefaultBHttpServerConnection(
-            final int buffersize,
+            final int bufferSize,
             final CharsetDecoder chardecoder,
             final CharsetEncoder charencoder,
             final MessageConstraints constraints) {
-        this(buffersize, buffersize, chardecoder, charencoder, constraints, null, null, null, null);
+        this(bufferSize, bufferSize, chardecoder, charencoder, constraints, null, null, null, null);
     }
 
-    public DefaultBHttpServerConnection(final int buffersize) {
-        this(buffersize, buffersize, null, null, null, null, null, null, null);
+    public DefaultBHttpServerConnection(final int bufferSize) {
+        this(bufferSize, bufferSize, null, null, null, null, null, null, null);
     }
 
     protected void onRequestReceived(final HttpRequest request) {
@@ -162,9 +162,9 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
         if (entity == null) {
             return;
         }
-        final OutputStream outstream = prepareOutput(response);
-        entity.writeTo(outstream);
-        outstream.close();
+        final OutputStream outStream = prepareOutput(response);
+        entity.writeTo(outStream);
+        outStream.close();
     }
 
     @Override

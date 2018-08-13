@@ -189,10 +189,10 @@ public class NStringEntity extends AbstractHttpEntity
     }
 
     @Override
-    public void writeTo(final OutputStream outstream) throws IOException {
-        Args.notNull(outstream, "Output stream");
-        outstream.write(this.b);
-        outstream.flush();
+    public void writeTo(final OutputStream outStream) throws IOException {
+        Args.notNull(outStream, "Output stream");
+        outStream.write(this.b);
+        outStream.flush();
     }
 
 }

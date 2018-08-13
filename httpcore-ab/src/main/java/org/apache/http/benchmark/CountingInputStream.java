@@ -34,8 +34,8 @@ class CountingInputStream extends FilterInputStream {
 
     private final Stats stats;
 
-    CountingInputStream(final InputStream instream, final Stats stats) {
-        super(instream);
+    CountingInputStream(final InputStream inStream, final Stats stats) {
+        super(inStream);
         this.stats = stats;
     }
 

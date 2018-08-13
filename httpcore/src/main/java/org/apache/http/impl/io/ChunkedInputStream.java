@@ -186,19 +186,18 @@ public class ChunkedInputStream extends InputStream {
                 return -1;
             }
         }
-        final int bytesRead = in.read(b, off, (int) Math.min(len, chunkSize - pos));
-        if (bytesRead != -1) {
-            pos += bytesRead;
+        final int readLen = in.read(b, off, (int) Math.min(len, chunkSize - pos));
+        if (readLen != -1) {
+            pos += readLen;
             if (pos >= chunkSize) {
                 state = CHUNK_CRLF;
             }
-            return bytesRead;
-        } else {
-            eof = true;
-            throw new TruncatedChunkException("Truncated chunk "
-                    + "( expected size: " + chunkSize
-                    + "; actual size: " + pos + ")");
+            return readLen;
         }
+        eof = true;
+        throw new TruncatedChunkException("Truncated chunk "
+                + "( expected size: " + chunkSize
+                + "; actual size: " + pos + ")");
     }
 
     /**

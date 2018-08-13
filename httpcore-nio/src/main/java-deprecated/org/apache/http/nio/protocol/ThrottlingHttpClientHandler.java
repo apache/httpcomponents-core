@@ -470,11 +470,11 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                             connState.setWorkerRunning(true);
                         }
 
-                        final OutputStream outstream = new ContentOutputStream(
+                        final OutputStream outStream = new ContentOutputStream(
                                 connState.getOutbuffer());
-                        request.getEntity().writeTo(outstream);
-                        outstream.flush();
-                        outstream.close();
+                        request.getEntity().writeTo(outStream);
+                        outStream.flush();
+                        outStream.close();
 
                         synchronized (connState) {
                             connState.setWorkerRunning(false);
@@ -580,7 +580,7 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         public static final int RESPONSE_BODY_DONE         = 64;
         public static final int RESPONSE_DONE              = 64;
 
-        private final SharedInputBuffer inbuffer;
+        private final SharedInputBuffer inBuffer;
         private final SharedOutputBuffer outbuffer;
 
         private volatile int inputState;
@@ -598,14 +598,14 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
                 final IOControl ioControl,
                 final ByteBufferAllocator allocator) {
             super();
-            this.inbuffer = new SharedInputBuffer(bufsize, ioControl, allocator);
+            this.inBuffer = new SharedInputBuffer(bufsize, ioControl, allocator);
             this.outbuffer = new SharedOutputBuffer(bufsize, ioControl, allocator);
             this.inputState = READY;
             this.outputState = READY;
         }
 
         public ContentInputBuffer getInbuffer() {
-            return this.inbuffer;
+            return this.inBuffer;
         }
 
         public ContentOutputBuffer getOutbuffer() {
@@ -661,21 +661,21 @@ public class ThrottlingHttpClientHandler extends NHttpHandlerBase
         }
 
         public void close() {
-            this.inbuffer.close();
+            this.inBuffer.close();
             this.outbuffer.close();
             this.inputState = SHUTDOWN;
             this.outputState = SHUTDOWN;
         }
 
         public void shutdown() {
-            this.inbuffer.shutdown();
+            this.inBuffer.shutdown();
             this.outbuffer.shutdown();
             this.inputState = SHUTDOWN;
             this.outputState = SHUTDOWN;
         }
 
         public void resetInput() {
-            this.inbuffer.reset();
+            this.inBuffer.reset();
             this.request = null;
             this.inputState = READY;
         }

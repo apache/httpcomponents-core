@@ -57,9 +57,9 @@ public class TestRequestParser {
             "User-Agent: whatever\r\n" +
             "Cookie: c1=stuff\r\n" +
             "\r\n";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(s, Consts.ASCII);
+        final SessionInputBuffer inBuffer = new SessionInputBufferMock(s, Consts.ASCII);
 
-        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inBuffer);
         final HttpRequest httprequest = parser.parse();
 
         final RequestLine reqline = httprequest.getRequestLine();
@@ -73,9 +73,9 @@ public class TestRequestParser {
 
     @Test
     public void testConnectionClosedException() throws Exception {
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(new byte[] {});
+        final SessionInputBuffer inBuffer = new SessionInputBufferMock(new byte[] {});
 
-        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inBuffer);
         try {
             parser.parse();
             Assert.fail("ConnectionClosedException should have been thrown");
@@ -91,10 +91,10 @@ public class TestRequestParser {
             "User-Agent: whatever\r\n" +
             "Coo\000kie: c1=stuff\r\n" +
             "\000\r\n";
-        final SessionInputBuffer inbuffer = new SessionInputBufferMock(
+        final SessionInputBuffer inBuffer = new SessionInputBufferMock(
                 new TimeoutByteArrayInputStream(s.getBytes(Consts.ASCII)), 16);
 
-        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inbuffer);
+        final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(inBuffer);
 
         int timeoutCount = 0;
 

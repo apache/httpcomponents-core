@@ -48,8 +48,8 @@ public class TestEntityTemplate {
         final HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
             @Override
-            public void writeTo(final OutputStream outstream) throws IOException {
-                outstream.write('a');
+            public void writeTo(final OutputStream outStream) throws IOException {
+                outStream.write('a');
             }
 
         });
@@ -74,8 +74,8 @@ public class TestEntityTemplate {
         final HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
             @Override
-            public void writeTo(final OutputStream outstream) throws IOException {
-                outstream.write('a');
+            public void writeTo(final OutputStream outStream) throws IOException {
+                outStream.write('a');
             }
 
         });
@@ -99,13 +99,13 @@ public class TestEntityTemplate {
         final HttpEntity httpentity = new EntityTemplate(new ContentProducer() {
 
             @Override
-            public void writeTo(final OutputStream outstream) throws IOException {
-                outstream.write('a');
+            public void writeTo(final OutputStream outStream) throws IOException {
+                outStream.write('a');
             }
 
         });
-        final InputStream instream = httpentity.getContent();
-        Assert.assertNotNull(instream);
+        final InputStream inStream = httpentity.getContent();
+        Assert.assertNotNull(inStream);
         final String s = EntityUtils.toString(httpentity);
         Assert.assertEquals("a", s);
     }

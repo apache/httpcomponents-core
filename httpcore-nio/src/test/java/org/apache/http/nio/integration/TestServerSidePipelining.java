@@ -137,8 +137,8 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         final Socket socket = new Socket("localhost", address.getPort());
         try {
-            final OutputStream outstream = socket.getOutputStream();
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            final OutputStream outStream = socket.getOutputStream();
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream, "US-ASCII"));
             writer.write("GET / HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");
@@ -153,8 +153,8 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
             writer.write("Connection: close\r\n");
             writer.write("\r\n");
             writer.flush();
-            final InputStream instream = socket.getInputStream();
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, "US-ASCII"));
+            final InputStream inStream = socket.getInputStream();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, "US-ASCII"));
             final StringBuilder buf = new StringBuilder();
             final char[] tmp = new char[1024];
             int l;
@@ -207,8 +207,8 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         final Socket socket = new Socket("localhost", address.getPort());
         try {
-            final OutputStream outstream = socket.getOutputStream();
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            final OutputStream outStream = socket.getOutputStream();
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream, "US-ASCII"));
             writer.write("POST /echo HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("Content-Length: 16\r\n");
@@ -232,8 +232,8 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
             writer.write("Host: localhost\r\n");
             writer.write("\r\n");
             writer.flush();
-            final InputStream instream = socket.getInputStream();
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, "US-ASCII"));
+            final InputStream inStream = socket.getInputStream();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, "US-ASCII"));
             final StringBuilder buf = new StringBuilder();
             final char[] tmp = new char[1024];
             int l;
@@ -286,8 +286,8 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
         final InetSocketAddress address = (InetSocketAddress) endpoint.getAddress();
         final Socket socket = new Socket("localhost", address.getPort());
         try {
-            final OutputStream outstream = socket.getOutputStream();
-            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outstream, "US-ASCII"));
+            final OutputStream outStream = socket.getOutputStream();
+            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outStream, "US-ASCII"));
             writer.write("POST /echo HTTP/1.1\r\n");
             writer.write("Host: localhost\r\n");
             writer.write("Expect: 100-Continue\r\n");
@@ -311,8 +311,8 @@ public class TestServerSidePipelining extends HttpCoreNIOTestBase {
             writer.write("\r\n");
             writer.write("booo booo booo\r\n");
             writer.flush();
-            final InputStream instream = socket.getInputStream();
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, "US-ASCII"));
+            final InputStream inStream = socket.getInputStream();
+            final BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, "US-ASCII"));
             final StringBuilder buf = new StringBuilder();
             final char[] tmp = new char[1024];
             int l;

@@ -56,14 +56,14 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
     /**
      * Allocates buffer of the given size using the given allocator.
      *
-     * @param buffersize the buffer size.
+     * @param bufferSize the buffer size.
      * @param allocator allocator to be used to allocate {@link ByteBuffer}s.
      */
-    public ExpandableBuffer(final int buffersize, final ByteBufferAllocator allocator) {
+    public ExpandableBuffer(final int bufferSize, final ByteBufferAllocator allocator) {
         super();
         Args.notNull(allocator, "ByteBuffer allocator");
         this.allocator = allocator;
-        this.buffer = allocator.allocate(buffersize);
+        this.buffer = allocator.allocate(bufferSize);
         this.mode = INPUT_MODE;
     }
 
@@ -117,8 +117,8 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
      * @throws BufferOverflowException in case we get over the maximum allowed value
      */
     protected void expand() throws BufferOverflowException {
-        int newcapacity = (this.buffer.capacity() + 1) << 1;
-        if (newcapacity < 0) {
+        int newCapacity = (this.buffer.capacity() + 1) << 1;
+        if (newCapacity < 0) {
             final int vmBytes = Long.SIZE >> 3;
             final int javaBytes = 8; // this is to be checked when the JVM version changes
             @SuppressWarnings("unused") // we really need the 8 if we're going to make this foolproof
@@ -131,13 +131,13 @@ public class ExpandableBuffer implements BufferInfo, org.apache.http.nio.util.Bu
             //
             // WARNING: This code assumes you are providing enough heap room with -Xmx.
             // source of inspiration: https://bugs.openjdk.java.net/browse/JDK-8059914
-            newcapacity = Integer.MAX_VALUE - headRoom;
+            newCapacity = Integer.MAX_VALUE - headRoom;
 
-            if (newcapacity <= this.buffer.capacity()) {
+            if (newCapacity <= this.buffer.capacity()) {
                 throw new BufferOverflowException();
             }
         }
-        expandCapacity(newcapacity);
+        expandCapacity(newCapacity);
     }
 
     /**
