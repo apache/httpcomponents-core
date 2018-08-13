@@ -59,17 +59,6 @@ public class IdentityDecoder extends AbstractContentDecoder
         super(channel, buffer, metrics);
     }
 
-    /**
-     * Sets the completed status of this decoder. Normally this is not necessary
-     * (the decoder will automatically complete when the underlying channel
-     * returns EOF). It is useful to mark the decoder as completed if you have
-     * some other means to know all the necessary data has been read and want to
-     * reuse the underlying connection for more messages.
-     */
-    public void setCompleted(final boolean completed) {
-        this.completed = completed;
-    }
-
     @Override
     public int read(final ByteBuffer dst) throws IOException {
         Args.notNull(dst, "Byte buffer");
