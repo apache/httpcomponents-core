@@ -132,7 +132,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     @Override
     public ClassicHttpRequest receiveRequestHeader() throws HttpException, IOException {
         final SocketHolder socketHolder = ensureOpen();
-        final ClassicHttpRequest request = this.requestParser.parse(this.inbuffer, socketHolder.getInputStream());
+        final ClassicHttpRequest request = this.requestParser.parse(this.inBuffer, socketHolder.getInputStream());
         final ProtocolVersion transportVersion = request.getVersion();
         if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
             throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
@@ -154,7 +154,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
         if (len == ContentLengthStrategy.UNDEFINED) {
             return;
         }
-        final HttpEntity entity = createIncomingEntity(request, this.inbuffer, socketHolder.getInputStream(), len);
+        final HttpEntity entity = createIncomingEntity(request, this.inBuffer, socketHolder.getInputStream(), len);
         request.setEntity(entity);
     }
 
@@ -180,8 +180,8 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(response);
-        try (final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
-            entity.writeTo(outstream);
+        try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
+            entity.writeTo(outStream);
         }
     }
 }

@@ -91,9 +91,9 @@ public class HttpEntityWithTrailers implements HttpEntity {
     }
 
     @Override
-    public void writeTo(final OutputStream outstream)
+    public void writeTo(final OutputStream outStream)
         throws IOException {
-        wrappedEntity.writeTo(outstream);
+        wrappedEntity.writeTo(outStream);
     }
 
     @Override

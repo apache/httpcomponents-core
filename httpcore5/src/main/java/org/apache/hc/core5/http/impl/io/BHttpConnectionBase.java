@@ -66,7 +66,7 @@ import org.apache.hc.core5.io.Closer;
 class BHttpConnectionBase implements BHttpConnection {
 
     final H1Config h1Config;
-    final SessionInputBufferImpl inbuffer;
+    final SessionInputBufferImpl inBuffer;
     final SessionOutputBufferImpl outbuffer;
     final BasicHttpConnectionMetrics connMetrics;
     final AtomicReference<SocketHolder> socketHolderRef;
@@ -81,7 +81,7 @@ class BHttpConnectionBase implements BHttpConnection {
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         final BasicHttpTransportMetrics inTransportMetrics = new BasicHttpTransportMetrics();
         final BasicHttpTransportMetrics outTransportMetrics = new BasicHttpTransportMetrics();
-        this.inbuffer = new SessionInputBufferImpl(inTransportMetrics,
+        this.inBuffer = new SessionInputBufferImpl(inTransportMetrics,
                 this.h1Config.getBufferSize(), -1,
                 this.h1Config.getMaxLineLength(), chardecoder);
         this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics,
@@ -169,11 +169,11 @@ class BHttpConnectionBase implements BHttpConnection {
 
     HttpEntity createIncomingEntity(
             final HttpMessage message,
-            final SessionInputBuffer inbuffer,
+            final SessionInputBuffer inBuffer,
             final InputStream inputStream,
             final long len) {
         return new IncomingHttpEntity(
-                createContentInputStream(len, inbuffer, inputStream),
+                createContentInputStream(len, inBuffer, inputStream),
                 len >= 0 ? len : -1, len == ContentLengthStrategy.CHUNKED,
                 message.getFirstHeader(HttpHeaders.CONTENT_TYPE),
                 message.getFirstHeader(HttpHeaders.CONTENT_ENCODING));
@@ -240,7 +240,7 @@ class BHttpConnectionBase implements BHttpConnection {
         final SocketHolder socketHolder = this.socketHolderRef.getAndSet(null);
         if (socketHolder != null) {
             try (final Socket socket = socketHolder.getSocket()) {
-                this.inbuffer.clear();
+                this.inBuffer.clear();
                 this.outbuffer.flush(socketHolder.getOutputStream());
                 try {
                     try {
@@ -264,18 +264,18 @@ class BHttpConnectionBase implements BHttpConnection {
         final int oldtimeout = socket.getSoTimeout();
         try {
             socket.setSoTimeout(timeout);
-            return this.inbuffer.fillBuffer(socketHolder.getInputStream());
+            return this.inBuffer.fillBuffer(socketHolder.getInputStream());
         } finally {
             socket.setSoTimeout(oldtimeout);
         }
     }
 
     protected boolean awaitInput(final int timeout) throws IOException {
-        if (this.inbuffer.hasBufferedData()) {
+        if (this.inBuffer.hasBufferedData()) {
             return true;
         }
         fillInputBuffer(timeout);
-        return this.inbuffer.hasBufferedData();
+        return this.inBuffer.hasBufferedData();
     }
 
     @Override

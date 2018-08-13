@@ -97,11 +97,11 @@ public class BasicHttpEntity extends AbstractHttpEntity {
     /**
      * Specifies the content.
      *
-     * @param instream          the stream to return with the next call to
+     * @param inStream          the stream to return with the next call to
      *                          {@link #getContent getContent}
      */
-    public void setContent(final InputStream instream) {
-        this.content = instream;
+    public void setContent(final InputStream inStream) {
+        this.content = inStream;
     }
 
     @Override

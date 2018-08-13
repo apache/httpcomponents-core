@@ -332,10 +332,10 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
                     }
 
                     @Override
-                    public void writeTo(final OutputStream outstream) throws IOException {
+                    public void writeTo(final OutputStream outStream) throws IOException {
                         try {
-                            if (outstream != null) {
-                                super.writeTo(outstream);
+                            if (outStream != null) {
+                                super.writeTo(outStream);
                             }
                             close();
                         } catch (final IOException | RuntimeException ex) {

@@ -53,7 +53,7 @@ public class TestFrameInOutBuffers {
                 ByteBuffer.wrap(new byte[]{1,2,3,4,5}));
         outbuffer.write(frame, outputStream);
 
-        final FrameInputBuffer inbuffer = new FrameInputBuffer(16 * 1024);
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final byte[] bytes = outputStream.toByteArray();
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
         Assert.assertEquals(FrameConsts.HEAD_LEN + 5, bytes.length);
@@ -61,7 +61,7 @@ public class TestFrameInOutBuffers {
         Assert.assertEquals(1, outbuffer.getMetrics().getFramesTransferred());
         Assert.assertEquals(bytes.length, outbuffer.getMetrics().getBytesTransferred());
 
-        final RawFrame frame2 = inbuffer.read(inputStream);
+        final RawFrame frame2 = inBuffer.read(inputStream);
         Assert.assertEquals(FrameType.DATA.getValue(), frame2.getType());
         Assert.assertEquals(0, frame2.getFlags());
         Assert.assertEquals(1L, frame2.getStreamId());
@@ -75,20 +75,20 @@ public class TestFrameInOutBuffers {
         Assert.assertEquals(5, payload2.get());
         Assert.assertEquals(-1, inputStream.read());
 
-        Assert.assertEquals(1, inbuffer.getMetrics().getFramesTransferred());
-        Assert.assertEquals(bytes.length, inbuffer.getMetrics().getBytesTransferred());
+        Assert.assertEquals(1, inBuffer.getMetrics().getFramesTransferred());
+        Assert.assertEquals(bytes.length, inBuffer.getMetrics().getBytesTransferred());
     }
 
     @Test
     public void testReadFrameMultiple() throws Exception {
-        final FrameInputBuffer inbuffer = new FrameInputBuffer(16 * 1024);
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(
                 new byte[] {
                         0,0,10,0,8,0,0,0,8,4,0,1,2,3,4,0,0,0,0,
                         0,0,10,0,9,0,0,0,8,4,5,6,7,8,9,0,0,0,0
                 });
 
-        final RawFrame frame1 = inbuffer.read(inputStream);
+        final RawFrame frame1 = inBuffer.read(inputStream);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame1.getType()));
         Assert.assertEquals(8, frame1.getFlags());
         Assert.assertEquals(8, frame1.getStreamId());
@@ -101,7 +101,7 @@ public class TestFrameInOutBuffers {
         Assert.assertEquals(3, payload1.get());
         Assert.assertEquals(4, payload1.get());
 
-        final RawFrame frame2 = inbuffer.read(inputStream);
+        final RawFrame frame2 = inBuffer.read(inputStream);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame2.getType()));
         Assert.assertEquals(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED), frame2.getFlags());
         Assert.assertEquals(8, frame2.getStreamId());
@@ -119,7 +119,7 @@ public class TestFrameInOutBuffers {
 
     @Test
     public void testReadFrameMultipleSmallBuffer() throws Exception {
-        final FrameInputBuffer inbuffer = new FrameInputBuffer(new BasicH2TransportMetrics(), 20, 10);
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(new BasicH2TransportMetrics(), 20, 10);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(
                 new byte[] {
                         0,0,10,0,8,0,0,0,8,4,1,1,1,1,1,0,0,0,0,
@@ -127,7 +127,7 @@ public class TestFrameInOutBuffers {
                         0,0,10,0,9,0,0,0,8,4,3,3,3,3,3,0,0,0,0
                 });
 
-        final RawFrame frame1 = inbuffer.read(inputStream);
+        final RawFrame frame1 = inBuffer.read(inputStream);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame1.getType()));
         Assert.assertEquals(8, frame1.getFlags());
         Assert.assertEquals(8, frame1.getStreamId());
@@ -140,7 +140,7 @@ public class TestFrameInOutBuffers {
         Assert.assertEquals(1, payload1.get());
         Assert.assertEquals(1, payload1.get());
 
-        final RawFrame frame2 = inbuffer.read(inputStream);
+        final RawFrame frame2 = inBuffer.read(inputStream);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame2.getType()));
         Assert.assertEquals(0, frame2.getFlags());
         Assert.assertEquals(8, frame2.getStreamId());
@@ -153,7 +153,7 @@ public class TestFrameInOutBuffers {
         Assert.assertEquals(2, payload2.get());
         Assert.assertEquals(2, payload2.get());
 
-        final RawFrame frame3 = inbuffer.read(inputStream);
+        final RawFrame frame3 = inBuffer.read(inputStream);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame3.getType()));
         Assert.assertEquals(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED), frame3.getFlags());
         Assert.assertEquals(8, frame3.getStreamId());
@@ -171,7 +171,7 @@ public class TestFrameInOutBuffers {
 
     @Test
     public void testReadFramePartialReads() throws Exception {
-        final FrameInputBuffer inbuffer = new FrameInputBuffer(16 * 1024);
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final MultiByteArrayInputStream inputStream = new MultiByteArrayInputStream(
                 new byte[] {0,0},
                 new byte[] {10,0,9,0},
@@ -181,7 +181,7 @@ public class TestFrameInOutBuffers {
                 new byte[] {5,0},
                 new byte[] {0,0,0});
 
-        final RawFrame frame = inbuffer.read(inputStream);
+        final RawFrame frame = inBuffer.read(inputStream);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame.getType()));
         Assert.assertEquals(FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED), frame.getFlags());
         Assert.assertEquals(8, frame.getStreamId());
@@ -198,10 +198,10 @@ public class TestFrameInOutBuffers {
 
     @Test
     public void testReadEmptyFrame() throws Exception {
-        final FrameInputBuffer inbuffer = new FrameInputBuffer(16 * 1024);
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {0,0,0,0,0,0,0,0,0});
 
-        final RawFrame frame = inbuffer.read(inputStream);
+        final RawFrame frame = inBuffer.read(inputStream);
         Assert.assertEquals(FrameType.DATA, FrameType.valueOf(frame.getType()));
         Assert.assertEquals(0, frame.getFlags());
         Assert.assertEquals(0, frame.getStreamId());
@@ -211,18 +211,18 @@ public class TestFrameInOutBuffers {
 
     @Test(expected = ConnectionClosedException.class)
     public void testReadFrameConnectionClosed() throws Exception {
-        final FrameInputBuffer inbuffer = new FrameInputBuffer(16 * 1024);
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {});
 
-        inbuffer.read(inputStream);
+        inBuffer.read(inputStream);
     }
 
     @Test(expected = H2CorruptFrameException.class)
     public void testReadFrameCorruptFrame() throws Exception {
-        final FrameInputBuffer inbuffer = new FrameInputBuffer(16 * 1024);
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {0,0});
 
-        inbuffer.read(inputStream);
+        inBuffer.read(inputStream);
     }
 
     @Test(expected = H2ConnectionException.class)
@@ -237,11 +237,11 @@ public class TestFrameInOutBuffers {
 
     @Test(expected = H2ConnectionException.class)
     public void testReadFrameExceedingLimit() throws Exception {
-        final FrameInputBuffer inbuffer = new FrameInputBuffer(16 * 1024);
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(
                 new byte[] {0,-128,-128,0,0,0,0,0,1});
 
-        inbuffer.read(inputStream);
+        inBuffer.read(inputStream);
     }
 
 }

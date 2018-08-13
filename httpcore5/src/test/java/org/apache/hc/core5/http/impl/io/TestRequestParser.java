@@ -53,10 +53,10 @@ public class TestRequestParser {
             "Cookie: c1=stuff\r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
-        final ClassicHttpRequest httprequest = parser.parse(inbuffer, inputStream);
+        final ClassicHttpRequest httprequest = parser.parse(inBuffer, inputStream);
 
         Assert.assertEquals("GET", httprequest.getMethod());
         Assert.assertEquals("/", httprequest.getPath());
@@ -67,10 +67,10 @@ public class TestRequestParser {
     @Test(expected = ConnectionClosedException.class)
     public void testConnectionClosedException() throws Exception {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {});
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
-        parser.parse(inbuffer, inputStream);
+        parser.parse(inBuffer, inputStream);
     }
 
     @Test
@@ -82,11 +82,11 @@ public class TestRequestParser {
                 "Host: localhost\r\n" +
                 "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 H1Config.custom().setMaxEmptyLineCount(3).build());
-        final ClassicHttpRequest httprequest = parser.parse(inbuffer, inputStream);
+        final ClassicHttpRequest httprequest = parser.parse(inBuffer, inputStream);
 
         Assert.assertEquals("GET", httprequest.getMethod());
         Assert.assertEquals("/", httprequest.getPath());
@@ -104,11 +104,11 @@ public class TestRequestParser {
                 "Host: localhost\r\n" +
                 "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 H1Config.custom().setMaxEmptyLineCount(3).build());
-        parser.parse(inbuffer, inputStream);
+        parser.parse(inBuffer, inputStream);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class TestRequestParser {
             "Coo\000kie: c1=stuff\r\n" +
             "\000\r\n";
         final TimeoutByteArrayInputStream inputStream = new TimeoutByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
 
@@ -129,7 +129,7 @@ public class TestRequestParser {
         ClassicHttpRequest httprequest = null;
         for (int i = 0; i < 10; i++) {
             try {
-                httprequest = parser.parse(inbuffer, inputStream);
+                httprequest = parser.parse(inBuffer, inputStream);
                 break;
             } catch (final InterruptedIOException ex) {
                 timeoutCount++;

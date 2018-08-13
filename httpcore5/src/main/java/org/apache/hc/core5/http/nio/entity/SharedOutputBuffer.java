@@ -49,8 +49,8 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
         this.hasCapacity = false;
     }
 
-    public SharedOutputBuffer(final int buffersize) {
-        this(new ReentrantLock(), buffersize);
+    public SharedOutputBuffer(final int bufferSize) {
+        this(new ReentrantLock(), bufferSize);
     }
 
     public void flush(final DataStreamChannel channel) throws IOException {

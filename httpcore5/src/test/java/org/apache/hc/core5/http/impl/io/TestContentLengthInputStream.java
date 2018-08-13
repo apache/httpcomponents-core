@@ -45,8 +45,8 @@ public class TestContentLengthInputStream {
     public void testBasics() throws IOException {
         final String s = "1234567890123456";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
-        final InputStream in = new ContentLengthInputStream(inbuffer, inputStream, 10L);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 10L);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         final byte[] buffer = new byte[50];
@@ -63,23 +63,23 @@ public class TestContentLengthInputStream {
     @Test
     public void testSkip() throws IOException {
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(new byte[20]);
-        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(16);
-        final InputStream in1 = new ContentLengthInputStream(inbuffer1, inputStream1, 10L);
+        final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(16);
+        final InputStream in1 = new ContentLengthInputStream(inBuffer1, inputStream1, 10L);
         Assert.assertEquals(10, in1.skip(10));
         Assert.assertTrue(in1.read() == -1);
         in1.close();
 
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(new byte[20]);
-        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(16);
-        final InputStream in2 = new ContentLengthInputStream(inbuffer2, inputStream2, 10L);
+        final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16);
+        final InputStream in2 = new ContentLengthInputStream(inBuffer2, inputStream2, 10L);
         in2.read();
         Assert.assertEquals(9, in2.skip(10));
         Assert.assertTrue(in2.read() == -1);
         in2.close();
 
         final ByteArrayInputStream inputStream3 = new ByteArrayInputStream(new byte[20]);
-        final SessionInputBuffer inbuffer3 = new SessionInputBufferImpl(16);
-        final InputStream in3 = new ContentLengthInputStream(inbuffer3, inputStream3, 2L);
+        final SessionInputBuffer inBuffer3 = new SessionInputBufferImpl(16);
+        final InputStream in3 = new ContentLengthInputStream(inBuffer3, inputStream3, 2L);
         in3.read();
         in3.read();
         Assert.assertTrue(in3.skip(10) <= 0);
@@ -88,8 +88,8 @@ public class TestContentLengthInputStream {
         in3.close();
 
         final ByteArrayInputStream inputStream4 = new ByteArrayInputStream(new byte[20]);
-        final SessionInputBuffer inbuffer4 = new SessionInputBufferImpl(16);
-        final InputStream in4 = new ContentLengthInputStream(inbuffer4, inputStream4, 10L);
+        final SessionInputBuffer inBuffer4 = new SessionInputBufferImpl(16);
+        final InputStream in4 = new ContentLengthInputStream(inBuffer4, inputStream4, 10L);
         Assert.assertEquals(5,in4.skip(5));
         Assert.assertEquals(5, in4.read(new byte[20]));
         in4.close();
@@ -98,8 +98,8 @@ public class TestContentLengthInputStream {
     @Test
     public void testAvailable() throws IOException {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {1, 2, 3});
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
-        final InputStream in = new ContentLengthInputStream(inbuffer, inputStream, 3L);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 3L);
         Assert.assertEquals(0, in.available());
         in.read();
         Assert.assertEquals(2, in.available());
@@ -110,8 +110,8 @@ public class TestContentLengthInputStream {
     public void testClose() throws IOException {
         final String s = "1234567890123456-";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
-        final InputStream in = new ContentLengthInputStream(inbuffer, inputStream, 16L);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 16L);
 
         in.close();
         in.close();
@@ -131,15 +131,15 @@ public class TestContentLengthInputStream {
             Assert.fail("StreamClosedException expected");
         } catch (final StreamClosedException expected) {
         }
-        Assert.assertEquals('-', inbuffer.read(inputStream));
+        Assert.assertEquals('-', inBuffer.read(inputStream));
     }
 
     @Test
     public void testTruncatedContent() throws IOException {
         final String s = "1234567890123456";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
-        final InputStream in = new ContentLengthInputStream(inbuffer, inputStream, 32L);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 32L);
 
         final byte[] tmp = new byte[32];
         final int byteRead = in.read(tmp);

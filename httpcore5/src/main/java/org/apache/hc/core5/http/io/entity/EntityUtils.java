@@ -88,9 +88,9 @@ public final class EntityUtils {
             return;
         }
         if (entity.isStreaming()) {
-            final InputStream instream = entity.getContent();
-            if (instream != null) {
-                instream.close();
+            final InputStream inStream = entity.getContent();
+            if (inStream != null) {
+                inStream.close();
             }
         }
     }
@@ -196,8 +196,8 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "Entity");
-        final InputStream instream = entity.getContent();
-        if (instream == null) {
+        final InputStream inStream = entity.getContent();
+        if (inStream == null) {
             return null;
         }
         try {
@@ -208,20 +208,20 @@ public final class EntityUtils {
             final ByteArrayBuffer buffer = new ByteArrayBuffer(i);
             final byte[] tmp = new byte[4096];
             int l;
-            while((l = instream.read(tmp)) != -1) {
+            while((l = inStream.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
             }
             return buffer.toByteArray();
         } finally {
-            instream.close();
+            inStream.close();
         }
     }
 
     private static String toString(
             final HttpEntity entity,
             final ContentType contentType) throws IOException {
-        final InputStream instream = entity.getContent();
-        if (instream == null) {
+        final InputStream inStream = entity.getContent();
+        if (inStream == null) {
             return null;
         }
         try {
@@ -240,7 +240,7 @@ public final class EntityUtils {
             if (charset == null) {
                 charset = StandardCharsets.ISO_8859_1;
             }
-            final Reader reader = new InputStreamReader(instream, charset);
+            final Reader reader = new InputStreamReader(inStream, charset);
             final CharArrayBuffer buffer = new CharArrayBuffer(contentLength);
             final char[] tmp = new char[1024];
             int chReadCount;
@@ -249,7 +249,7 @@ public final class EntityUtils {
             }
             return buffer.toString();
         } finally {
-            instream.close();
+            inStream.close();
         }
     }
 
@@ -349,14 +349,14 @@ public final class EntityUtils {
         final long len = entity.getContentLength();
         Args.checkRange(len, 0, Integer.MAX_VALUE, "HTTP entity is too large");
         final Charset charset = contentType.getCharset() != null ? contentType.getCharset() : StandardCharsets.ISO_8859_1;
-        final InputStream instream = entity.getContent();
-        if (instream == null) {
+        final InputStream inStream = entity.getContent();
+        if (inStream == null) {
             return Collections.emptyList();
         }
         final CharArrayBuffer buf;
         try {
             buf = new CharArrayBuffer(len > 0 ? (int) len : 1024);
-            final Reader reader = new InputStreamReader(instream, charset);
+            final Reader reader = new InputStreamReader(inStream, charset);
             final char[] tmp = new char[1024];
             int l;
             while((l = reader.read(tmp)) != -1) {
@@ -364,7 +364,7 @@ public final class EntityUtils {
             }
 
         } finally {
-            instream.close();
+            inStream.close();
         }
         if (buf.isEmpty()) {
             return Collections.emptyList();

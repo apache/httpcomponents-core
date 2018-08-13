@@ -98,13 +98,13 @@ public class TestHost {
     public void testSerialization() throws Exception {
         final Host orig = new Host("somehost", 8080);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
-        outstream.writeObject(orig);
-        outstream.close();
+        final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
+        outStream.writeObject(orig);
+        outStream.close();
         final byte[] raw = outbuffer.toByteArray();
-        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        final Host clone = (Host) instream.readObject();
+        final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
+        final Host clone = (Host) inStream.readObject();
         Assert.assertEquals(orig, clone);
     }
 

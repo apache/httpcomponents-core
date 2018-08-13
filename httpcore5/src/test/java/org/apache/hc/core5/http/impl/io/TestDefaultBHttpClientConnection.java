@@ -77,8 +77,8 @@ public class TestDefaultBHttpClientConnection {
     @Test
     public void testReadResponseHead() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nUser-Agent: test\r\n\r\n";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
 
         conn.bind(socket);
 
@@ -94,8 +94,8 @@ public class TestDefaultBHttpClientConnection {
     @Test
     public void testReadResponseEntityWithContentLength() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\nContent-Length: 3\r\n\r\n123";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
 
         conn.bind(socket);
 
@@ -123,8 +123,8 @@ public class TestDefaultBHttpClientConnection {
     public void testReadResponseEntityChunkCoded() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: " +
                 "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
 
         conn.bind(socket);
 
@@ -152,8 +152,8 @@ public class TestDefaultBHttpClientConnection {
     @Test(expected = NotImplementedException.class)
     public void testReadResponseEntityIdentity() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: identity\r\n\r\n123";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
 
         conn.bind(socket);
 
@@ -172,8 +172,8 @@ public class TestDefaultBHttpClientConnection {
     @Test
     public void testReadResponseNoEntity() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\n\r\n";
-        final ByteArrayInputStream instream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        Mockito.when(socket.getInputStream()).thenReturn(instream);
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
 
         conn.bind(socket);
 
@@ -194,8 +194,8 @@ public class TestDefaultBHttpClientConnection {
 
     @Test
     public void testWriteRequestHead() throws Exception {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
 
@@ -208,14 +208,14 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outstream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), "ASCII");
         Assert.assertEquals("GET /stuff HTTP/1.1\r\nUser-Agent: test\r\n\r\n", s);
     }
 
     @Test
     public void testWriteRequestEntityWithContentLength() throws Exception {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
 
@@ -231,14 +231,14 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outstream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), "ASCII");
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: 3\r\n\r\n123", s);
     }
 
     @Test
     public void testWriteRequestEntityChunkCoded() throws Exception {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
 
@@ -254,15 +254,15 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outstream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), "ASCII");
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nTransfer-Encoding: " +
                 "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n", s);
     }
 
     @Test(expected = LengthRequiredException.class)
     public void testWriteRequestEntityNoContentLength() throws Exception {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
 
@@ -278,8 +278,8 @@ public class TestDefaultBHttpClientConnection {
 
     @Test
     public void testWriteRequestNoEntity() throws Exception {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
 
@@ -293,14 +293,14 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outstream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), "ASCII");
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\n\r\n", s);
     }
 
     @Test
     public void testTerminateRequestChunkedEntity() throws Exception {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
 
@@ -318,7 +318,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outstream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), "ASCII");
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nTransfer-Encoding: " +
                 "chunked\r\n\r\n0\r\n\r\n", s);
         Assert.assertTrue(conn.isConsistent());
@@ -326,8 +326,8 @@ public class TestDefaultBHttpClientConnection {
 
     @Test
     public void testTerminateRequestContentLengthShort() throws Exception {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
 
@@ -345,7 +345,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outstream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), "ASCII");
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: " +
                 "3\r\n\r\n123", s);
         Assert.assertTrue(conn.isConsistent());
@@ -353,8 +353,8 @@ public class TestDefaultBHttpClientConnection {
 
     @Test
     public void testTerminateRequestContentLengthLong() throws Exception {
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        Mockito.when(socket.getOutputStream()).thenReturn(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
 
@@ -372,7 +372,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outstream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), "ASCII");
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: " +
                 "3000\r\n\r\n", s);
         Assert.assertFalse(conn.isConsistent());

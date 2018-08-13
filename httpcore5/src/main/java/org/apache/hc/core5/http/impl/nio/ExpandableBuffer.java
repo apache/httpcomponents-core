@@ -49,11 +49,11 @@ public class ExpandableBuffer {
     /**
      * Allocates buffer of the given size using the given allocator.
      *
-     * @param buffersize the buffer size.
+     * @param bufferSize the buffer size.
      */
-    protected ExpandableBuffer(final int buffersize) {
+    protected ExpandableBuffer(final int bufferSize) {
         super();
-        this.buffer = ByteBuffer.allocate(buffersize);
+        this.buffer = ByteBuffer.allocate(bufferSize);
         this.mode = INPUT_MODE;
     }
 

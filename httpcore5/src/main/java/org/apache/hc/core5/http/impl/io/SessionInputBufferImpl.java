@@ -71,7 +71,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
      * Creates new instance of SessionInputBufferImpl.
      *
      * @param metrics HTTP transport metrics.
-     * @param buffersize buffer size. Must be a positive number.
+     * @param bufferSize buffer size. Must be a positive number.
      * @param minChunkLimit size limit below which data chunks should be buffered in memory
      *   in order to minimize native method invocations on the underlying network socket.
      *   The optimal value of this parameter can be platform specific and defines a trade-off
@@ -83,26 +83,26 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
      */
     public SessionInputBufferImpl(
             final BasicHttpTransportMetrics metrics,
-            final int buffersize,
+            final int bufferSize,
             final int minChunkLimit,
             final int maxLineLen,
             final CharsetDecoder chardecoder) {
         Args.notNull(metrics, "HTTP transport metrcis");
-        Args.positive(buffersize, "Buffer size");
+        Args.positive(bufferSize, "Buffer size");
         this.metrics = metrics;
-        this.buffer = new byte[buffersize];
+        this.buffer = new byte[bufferSize];
         this.bufferPos = 0;
         this.bufferLen = 0;
         this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
         this.maxLineLen = maxLineLen > 0 ? maxLineLen : 0;
-        this.lineBuffer = new ByteArrayBuffer(buffersize);
+        this.lineBuffer = new ByteArrayBuffer(bufferSize);
         this.decoder = chardecoder;
     }
 
     public SessionInputBufferImpl(
             final BasicHttpTransportMetrics metrics,
-            final int buffersize) {
-        this(metrics, buffersize, buffersize, 0, null);
+            final int bufferSize) {
+        this(metrics, bufferSize, bufferSize, 0, null);
     }
 
     public SessionInputBufferImpl(final int bufferSize, final int maxLineLen) {

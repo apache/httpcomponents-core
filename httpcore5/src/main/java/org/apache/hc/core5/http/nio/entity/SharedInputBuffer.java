@@ -47,8 +47,8 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
         super(lock, initialBufferSize);
     }
 
-    public SharedInputBuffer(final int buffersize) {
-        super(new ReentrantLock(), buffersize);
+    public SharedInputBuffer(final int bufferSize) {
+        super(new ReentrantLock(), bufferSize);
     }
 
     public int fill(final ByteBuffer src) throws IOException {

@@ -32,7 +32,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestClientPOJOAdapter {
+public class TestClientPojoAdapter {
     @Test
     public void modifyRequest() throws Exception {
         final ClientPOJOAdapter adapter = new ClassicTestClientAdapter();

@@ -215,12 +215,12 @@ public class ContentLengthInputStream extends InputStream {
         // skip and keep track of the bytes actually skipped
         long count = 0;
         while (remaining > 0) {
-            final int l = read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
-            if (l == -1) {
+            final int readLen = read(buffer, 0, (int)Math.min(BUFFER_SIZE, remaining));
+            if (readLen == -1) {
                 break;
             }
-            count += l;
-            remaining -= l;
+            count += readLen;
+            remaining -= readLen;
         }
         return count;
     }

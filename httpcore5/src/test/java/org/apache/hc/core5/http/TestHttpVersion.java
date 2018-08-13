@@ -108,13 +108,13 @@ public class TestHttpVersion {
     public void testSerialization() throws Exception {
         final HttpVersion orig = HttpVersion.HTTP_1_1;
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer);
-        outstream.writeObject(orig);
-        outstream.close();
+        final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
+        outStream.writeObject(orig);
+        outStream.close();
         final byte[] raw = outbuffer.toByteArray();
-        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        final HttpVersion clone = (HttpVersion) instream.readObject();
+        final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
+        final HttpVersion clone = (HttpVersion) inStream.readObject();
         Assert.assertEquals(orig, clone);
     }
 

@@ -105,12 +105,12 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
 
 
     @Override
-    public void writeTo(final OutputStream outstream) throws IOException {
-        Args.notNull(outstream, "Output stream");
+    public void writeTo(final OutputStream outStream) throws IOException {
+        Args.notNull(outStream, "Output stream");
         if (this.buffer != null) {
-            outstream.write(this.buffer);
+            outStream.write(this.buffer);
         } else {
-            super.writeTo(outstream);
+            super.writeTo(outStream);
         }
     }
 

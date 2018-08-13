@@ -44,11 +44,11 @@ public class TestInputStreamEntity {
     @Test
     public void testBasics() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
-        final InputStream instream = new ByteArrayInputStream(bytes);
-        final InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
+        final InputStream inStream = new ByteArrayInputStream(bytes);
+        final InputStreamEntity httpentity = new InputStreamEntity(inStream, bytes.length);
 
         Assert.assertEquals(bytes.length, httpentity.getContentLength());
-        Assert.assertEquals(instream, httpentity.getContent());
+        Assert.assertEquals(inStream, httpentity.getContent());
         Assert.assertNotNull(httpentity.getContent());
         Assert.assertFalse(httpentity.isRepeatable());
         Assert.assertTrue(httpentity.isStreaming());
@@ -61,8 +61,8 @@ public class TestInputStreamEntity {
 
     @Test
     public void testUnknownLengthConstructor() throws Exception {
-        final InputStream instream = new ByteArrayInputStream(new byte[0]);
-        final InputStreamEntity httpentity = new InputStreamEntity(instream);
+        final InputStream inStream = new ByteArrayInputStream(new byte[0]);
+        final InputStreamEntity httpentity = new InputStreamEntity(inStream);
         Assert.assertEquals(-1, httpentity.getContentLength());
     }
 
@@ -70,8 +70,8 @@ public class TestInputStreamEntity {
     public void testWriteTo() throws Exception {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
-        final InputStream instream = new ByteArrayInputStream(bytes);
-        final InputStreamEntity httpentity = new InputStreamEntity(instream, bytes.length);
+        final InputStream inStream = new ByteArrayInputStream(bytes);
+        final InputStreamEntity httpentity = new InputStreamEntity(inStream, bytes.length);
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
@@ -87,9 +87,9 @@ public class TestInputStreamEntity {
     public void testWriteToPartialContent() throws Exception {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
-        final InputStream instream = new ByteArrayInputStream(bytes);
+        final InputStream inStream = new ByteArrayInputStream(bytes);
         final int contentLength = 7;
-        final InputStreamEntity httpentity = new InputStreamEntity(instream, contentLength);
+        final InputStreamEntity httpentity = new InputStreamEntity(inStream, contentLength);
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
@@ -105,8 +105,8 @@ public class TestInputStreamEntity {
     public void testWriteToUnknownLength() throws Exception {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
-        final InputStream instream = new ByteArrayInputStream(bytes);
-        final InputStreamEntity httpentity = new InputStreamEntity(instream);
+        final InputStream inStream = new ByteArrayInputStream(bytes);
+        final InputStreamEntity httpentity = new InputStreamEntity(inStream);
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
@@ -120,8 +120,8 @@ public class TestInputStreamEntity {
 
     @Test(expected = IllegalArgumentException.class)
     public void testWriteToNull() throws Exception {
-        final InputStream instream = new ByteArrayInputStream(new byte[0]);
-        final InputStreamEntity httpentity = new InputStreamEntity(instream, 0);
+        final InputStream inStream = new ByteArrayInputStream(new byte[0]);
+        final InputStreamEntity httpentity = new InputStreamEntity(inStream, 0);
         httpentity.writeTo(null);
     }
 }

@@ -200,8 +200,8 @@ public class AsyncReverseProxyExample {
 
     private static class ProxyBuffer extends ExpandableBuffer {
 
-        ProxyBuffer(int buffersize) {
-            super(buffersize);
+        ProxyBuffer(int bufferSize) {
+            super(bufferSize);
         }
 
         void put(final ByteBuffer src) {

@@ -90,7 +90,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * Parses HTTP headers from the data receiver stream according to the generic
      * format as given in Section 3.1 of RFC 822, RFC-2616 Section 4 and 19.3.
      *
-     * @param inbuffer Session input buffer
+     * @param inBuffer Session input buffer
      * @param inputStream Input stream
      * @param maxHeaderCount maximum number of headers allowed. If the number
      *  of headers received from the data stream exceeds maxCount value, an
@@ -107,13 +107,13 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * @throws HttpException in case of HTTP protocol violation
      */
     public static Header[] parseHeaders(
-            final SessionInputBuffer inbuffer,
+            final SessionInputBuffer inBuffer,
             final InputStream inputStream,
             final int maxHeaderCount,
             final int maxLineLen,
             final LineParser lineParser) throws HttpException, IOException {
         final List<CharArrayBuffer> headerLines = new ArrayList<>();
-        return parseHeaders(inbuffer, inputStream, maxHeaderCount, maxLineLen,
+        return parseHeaders(inBuffer, inputStream, maxHeaderCount, maxLineLen,
                 lineParser != null ? lineParser : LazyLineParser.INSTANCE, headerLines);
     }
 
@@ -121,7 +121,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * Parses HTTP headers from the data receiver stream according to the generic
      * format as given in Section 3.1 of RFC 822, RFC-2616 Section 4 and 19.3.
      *
-     * @param inbuffer Session input buffer
+     * @param inBuffer Session input buffer
      * @param inputStream Input stream
      * @param maxHeaderCount maximum number of headers allowed. If the number
      *  of headers received from the data stream exceeds maxCount value, an
@@ -143,13 +143,13 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * @since 4.1
      */
     public static Header[] parseHeaders(
-            final SessionInputBuffer inbuffer,
+            final SessionInputBuffer inBuffer,
             final InputStream inputStream,
             final int maxHeaderCount,
             final int maxLineLen,
             final LineParser parser,
             final List<CharArrayBuffer> headerLines) throws HttpException, IOException {
-        Args.notNull(inbuffer, "Session input buffer");
+        Args.notNull(inBuffer, "Session input buffer");
         Args.notNull(inputStream, "Input stream");
         Args.notNull(parser, "Line parser");
         Args.notNull(headerLines, "Header line list");
@@ -162,8 +162,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             } else {
                 current.clear();
             }
-            final int l = inbuffer.readLine(current, inputStream);
-            if (l == -1 || current.length() < 1) {
+            final int readLen = inBuffer.readLine(current, inputStream);
+            if (readLen == -1 || current.length() < 1) {
                 break;
             }
             // Parse the header name and value

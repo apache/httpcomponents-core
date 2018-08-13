@@ -67,7 +67,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
      * Creates new instance of SessionOutputBufferImpl.
      *
      * @param metrics HTTP transport metrics.
-     * @param buffersize buffer size. Must be a positive number.
+     * @param bufferSize buffer size. Must be a positive number.
      * @param fragementSizeHint fragment size hint defining a minimal size of a fragment
      *   that should be written out directly to the socket bypassing the session buffer.
      *   Value {@code 0} disables fragment buffering.
@@ -76,24 +76,24 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
      */
     public SessionOutputBufferImpl(
             final BasicHttpTransportMetrics metrics,
-            final int buffersize,
+            final int bufferSize,
             final int fragementSizeHint,
             final CharsetEncoder charencoder) {
         super();
-        Args.positive(buffersize, "Buffer size");
+        Args.positive(bufferSize, "Buffer size");
         Args.notNull(metrics, "HTTP transport metrcis");
         this.metrics = metrics;
-        this.buffer = new ByteArrayBuffer(buffersize);
-        this.fragementSizeHint = fragementSizeHint >= 0 ? fragementSizeHint : buffersize;
+        this.buffer = new ByteArrayBuffer(bufferSize);
+        this.fragementSizeHint = fragementSizeHint >= 0 ? fragementSizeHint : bufferSize;
         this.encoder = charencoder;
     }
 
-    public SessionOutputBufferImpl(final int buffersize) {
-        this(new BasicHttpTransportMetrics(), buffersize, buffersize, null);
+    public SessionOutputBufferImpl(final int bufferSize) {
+        this(new BasicHttpTransportMetrics(), bufferSize, bufferSize, null);
     }
 
-    public SessionOutputBufferImpl(final int buffersize, final CharsetEncoder encoder) {
-        this(new BasicHttpTransportMetrics(), buffersize, buffersize, encoder);
+    public SessionOutputBufferImpl(final int bufferSize, final CharsetEncoder encoder) {
+        this(new BasicHttpTransportMetrics(), bufferSize, bufferSize, encoder);
     }
 
     @Override

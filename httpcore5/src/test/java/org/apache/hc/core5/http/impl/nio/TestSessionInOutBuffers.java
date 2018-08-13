@@ -52,8 +52,8 @@ import org.junit.Test;
  */
 public class TestSessionInOutBuffers {
 
-    private static WritableByteChannel newChannel(final ByteArrayOutputStream outstream) {
-        return Channels.newChannel(outstream);
+    private static WritableByteChannel newChannel(final ByteArrayOutputStream outStream) {
+        return Channels.newChannel(outStream);
     }
 
     private static ReadableByteChannel newChannel(final byte[] bytes) {
@@ -194,11 +194,11 @@ public class TestSessionInOutBuffers {
         line.clear();
         Assert.assertFalse(inbuf.readLine(line, true));
 
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        final WritableByteChannel outChannel = newChannel(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final WritableByteChannel outChannel = newChannel(outStream);
         outbuf.flush(outChannel);
 
-        final String s = new String(outstream.toByteArray(), "US-ASCII");
+        final String s = new String(outStream.toByteArray(), "US-ASCII");
         Assert.assertEquals("One\r\nTwo\r\nThree\r\nFour\r\n", s);
     }
 
@@ -228,11 +228,11 @@ public class TestSessionInOutBuffers {
         //this write operation should have no effect
         outbuf.writeLine(null);
 
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        final WritableByteChannel outChannel = newChannel(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final WritableByteChannel outChannel = newChannel(outStream);
         outbuf.flush(outChannel);
 
-        final ReadableByteChannel channel = newChannel(outstream.toByteArray());
+        final ReadableByteChannel channel = newChannel(outStream.toByteArray());
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, 0);
         inbuf.fill(channel);
@@ -282,11 +282,11 @@ public class TestSessionInOutBuffers {
 
         outbuf.write(ByteBuffer.wrap(new byte[] {'a'}));
 
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        final WritableByteChannel outChannel = newChannel(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final WritableByteChannel outChannel = newChannel(outStream);
         outbuf.flush(outChannel);
 
-        final ReadableByteChannel channel = newChannel(outstream.toByteArray());
+        final ReadableByteChannel channel = newChannel(outStream.toByteArray());
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, 0);
         inbuf.fill(channel);
@@ -390,11 +390,11 @@ public class TestSessionInOutBuffers {
         while (inbuf.fill(channel) > 0) {
         }
 
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        final WritableByteChannel dst = newChannel(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final WritableByteChannel dst = newChannel(outStream);
 
         Assert.assertEquals(16, inbuf.read(dst));
-        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
     }
 
     @Test
@@ -405,13 +405,13 @@ public class TestSessionInOutBuffers {
         while (inbuf.fill(channel) > 0) {
         }
 
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        final WritableByteChannel dst = newChannel(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final WritableByteChannel dst = newChannel(outStream);
 
         Assert.assertEquals(10, inbuf.read(dst, 10));
         Assert.assertEquals(3, inbuf.read(dst, 3));
         Assert.assertEquals(3, inbuf.read(dst, 10));
-        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
     }
 
     @Test
@@ -422,11 +422,11 @@ public class TestSessionInOutBuffers {
         final ReadableByteChannel src = newChannel(pattern);
         outbuf.write(src);
 
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        final WritableByteChannel channel = newChannel(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(outStream);
         while (outbuf.flush(channel) > 0) {
         }
-        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
     }
 
     @Test
@@ -438,11 +438,11 @@ public class TestSessionInOutBuffers {
         outbuf.write(ByteBuffer.wrap(pattern, 16, 10));
         outbuf.write(ByteBuffer.wrap(pattern, 26, 6));
 
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        final WritableByteChannel channel = newChannel(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final WritableByteChannel channel = newChannel(outStream);
         while (outbuf.flush(channel) > 0) {
         }
-        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outstream.toByteArray()));
+        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
     }
 
     static final int SWISS_GERMAN_HELLO [] = {
@@ -486,11 +486,11 @@ public class TestSessionInOutBuffers {
             outbuf.writeLine(chbuffer);
         }
 
-        final ByteArrayOutputStream outstream = new ByteArrayOutputStream();
-        final WritableByteChannel outChannel = newChannel(outstream);
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final WritableByteChannel outChannel = newChannel(outStream);
         outbuf.flush(outChannel);
 
-        final byte[] tmp = outstream.toByteArray();
+        final byte[] tmp = outStream.toByteArray();
 
         final ReadableByteChannel channel = newChannel(tmp);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, 0,

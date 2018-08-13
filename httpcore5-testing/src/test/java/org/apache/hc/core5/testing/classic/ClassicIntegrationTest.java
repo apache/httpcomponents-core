@@ -574,13 +574,13 @@ public class ClassicIntegrationTest {
         }
 
         @Override
-        public void writeTo(final OutputStream outstream) throws IOException {
+        public void writeTo(final OutputStream outStream) throws IOException {
             for (int i = 0; i < this.n; i++) {
-                outstream.write(this.raw);
-                outstream.write('\r');
-                outstream.write('\n');
+                outStream.write(this.raw);
+                outStream.write('\r');
+                outStream.write('\n');
             }
-            outstream.flush();
+            outStream.flush();
         }
 
         @Override
@@ -670,14 +670,14 @@ public class ClassicIntegrationTest {
                 try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
                     final HttpEntity incoming = response.getEntity();
                     Assert.assertNotNull(incoming);
-                    final InputStream instream = incoming.getContent();
+                    final InputStream inStream = incoming.getContent();
                     final ContentType contentType = EntityUtils.getContentTypeOrDefault(incoming);
                     Charset charset = contentType.getCharset();
                     if (charset == null) {
                         charset = StandardCharsets.ISO_8859_1;
                     }
-                    Assert.assertNotNull(instream);
-                    final BufferedReader reader = new BufferedReader(new InputStreamReader(instream, charset));
+                    Assert.assertNotNull(inStream);
+                    final BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, charset));
 
                     String line;
                     int count = 0;

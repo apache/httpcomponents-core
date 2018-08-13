@@ -149,8 +149,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (len == ContentLengthStrategy.UNDEFINED) {
             throw new LengthRequiredException("Length required");
         }
-        try (final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
-            entity.writeTo(outstream);
+        try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
+            entity.writeTo(outStream);
         }
     }
 
@@ -169,11 +169,11 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         }
         final long len = this.outgoingContentStrategy.determineLength(request);
         if (len == ContentLengthStrategy.CHUNKED) {
-            final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers());
-            outstream.close();
+            final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers());
+            outStream.close();
         } else if (len >= 0 && len <= 1024) {
-            try (final OutputStream outstream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), null)) {
-                entity.writeTo(outstream);
+            try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), null)) {
+                entity.writeTo(outStream);
             }
         } else {
             this.consistent = false;
@@ -183,7 +183,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     @Override
     public ClassicHttpResponse receiveResponseHeader() throws HttpException, IOException {
         final SocketHolder socketHolder = ensureOpen();
-        final ClassicHttpResponse response = this.responseParser.parse(this.inbuffer, socketHolder.getInputStream());
+        final ClassicHttpResponse response = this.responseParser.parse(this.inBuffer, socketHolder.getInputStream());
         final ProtocolVersion transportVersion = response.getVersion();
         if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
             throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
@@ -208,6 +208,6 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (len == ContentLengthStrategy.UNDEFINED) {
             return;
         }
-        response.setEntity(createIncomingEntity(response, this.inbuffer, socketHolder.getInputStream(), len));
+        response.setEntity(createIncomingEntity(response, this.inBuffer, socketHolder.getInputStream(), len));
     }
 }

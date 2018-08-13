@@ -99,11 +99,11 @@ public class ByteBufferEntity extends AbstractHttpEntity {
     }
 
     @Override
-    public void writeTo(final OutputStream outstream) throws IOException {
-        Args.notNull(outstream, "Output stream");
-        final WritableByteChannel channel = Channels.newChannel(outstream);
+    public void writeTo(final OutputStream outStream) throws IOException {
+        Args.notNull(outStream, "Output stream");
+        final WritableByteChannel channel = Channels.newChannel(outStream);
         channel.write(buffer);
-        outstream.flush();
+        outStream.flush();
     }
 
     @Override

@@ -53,8 +53,8 @@ public class TestMessageParser {
             "     \r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        final Header[] headers = AbstractMessageParser.parseHeaders(inbuffer, inputStream, -1, -1, null);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
         Assert.assertNotNull(headers);
         Assert.assertEquals(3, headers.length);
         Assert.assertEquals("header1", headers[0].getName());
@@ -70,8 +70,8 @@ public class TestMessageParser {
         final String s = "header1: stuff; param1 = value1; param2 = \"value 2\" \r\n" +
                 "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        final Header[] headers = AbstractMessageParser.parseHeaders(inbuffer, inputStream, -1, -1, null);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
         Assert.assertNotNull(headers);
         Assert.assertEquals(1, headers.length);
         Assert.assertEquals("header1: stuff; param1 = value1; param2 = \"value 2\" ", headers[0].toString());
@@ -83,9 +83,9 @@ public class TestMessageParser {
             "header1: stuff\r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(s1.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer1 = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
         try {
-            AbstractMessageParser.parseHeaders(inbuffer1, inputStream1, -1, -1, null);
+            AbstractMessageParser.parseHeaders(inBuffer1, inputStream1, -1, -1, null);
             Assert.fail("ProtocolException should have been thrown");
         } catch (final ProtocolException ex) {
             // expected
@@ -94,9 +94,9 @@ public class TestMessageParser {
             "header1: stuff\r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s2.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer2 = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
         try {
-            AbstractMessageParser.parseHeaders(inbuffer2, inputStream2, -1, -1, null);
+            AbstractMessageParser.parseHeaders(inBuffer2, inputStream2, -1, -1, null);
             Assert.fail("ProtocolException should have been thrown");
         } catch (final ProtocolException ex) {
             // expected
@@ -109,8 +109,8 @@ public class TestMessageParser {
             "    header1: stuff\r\n" +
             "header2: stuff \r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        final Header[] headers = AbstractMessageParser.parseHeaders(inbuffer, inputStream, -1, -1, null);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
         Assert.assertNotNull(headers);
         Assert.assertEquals(2, headers.length);
         Assert.assertEquals("header1", headers[0].getName());
@@ -123,8 +123,8 @@ public class TestMessageParser {
     public void testEmptyDataStream() throws Exception {
         final String s = "";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        final Header[] headers = AbstractMessageParser.parseHeaders(inbuffer, inputStream, -1, -1, null);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final Header[] headers = AbstractMessageParser.parseHeaders(inBuffer, inputStream, -1, -1, null);
         Assert.assertNotNull(headers);
         Assert.assertEquals(0, headers.length);
     }
@@ -137,9 +137,9 @@ public class TestMessageParser {
             "header3: stuff\r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
         try {
-            AbstractMessageParser.parseHeaders(inbuffer, inputStream, 2, -1, null);
+            AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, -1, null);
             Assert.fail("IOException should have been thrown");
         } catch (final IOException ex) {
             // expected
@@ -154,9 +154,9 @@ public class TestMessageParser {
             " stuff\r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
         try {
-            AbstractMessageParser.parseHeaders(inbuffer, inputStream, 2, 15, null);
+            AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, 15, null);
             Assert.fail("IOException should have been thrown");
         } catch (final IOException ex) {
             // expected

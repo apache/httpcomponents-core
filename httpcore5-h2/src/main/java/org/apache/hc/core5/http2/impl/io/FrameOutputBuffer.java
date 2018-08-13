@@ -64,7 +64,7 @@ public final class FrameOutputBuffer {
         this(new BasicH2TransportMetrics(), maxFramePayloadSize);
     }
 
-    public void write(final RawFrame frame, final OutputStream outstream) throws IOException {
+    public void write(final RawFrame frame, final OutputStream outStream) throws IOException {
         if (frame == null) {
             return;
         }
@@ -102,7 +102,7 @@ public final class FrameOutputBuffer {
         for (int i = 0; i < padding; i++) {
             buffer[frameLen++] = 0;
         }
-        outstream.write(buffer, 0, frameLen);
+        outStream.write(buffer, 0, frameLen);
 
         metrics.incrementFramesTransferred();
         metrics.incrementBytesTransferred(frameLen);

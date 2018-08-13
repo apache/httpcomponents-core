@@ -295,13 +295,13 @@ public class TestByteArrayBuffer {
         orig.append(2);
         orig.append(3);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        try (final ObjectOutputStream outstream = new ObjectOutputStream(outbuffer)) {
-            outstream.writeObject(orig);
+        try (final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer)) {
+            outStream.writeObject(orig);
         }
         final byte[] raw = outbuffer.toByteArray();
-        final ByteArrayInputStream inbuffer = new ByteArrayInputStream(raw);
-        final ObjectInputStream instream = new ObjectInputStream(inbuffer);
-        final ByteArrayBuffer clone = (ByteArrayBuffer) instream.readObject();
+        final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
+        final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
+        final ByteArrayBuffer clone = (ByteArrayBuffer) inStream.readObject();
         Assert.assertEquals(orig.capacity(), clone.capacity());
         Assert.assertEquals(orig.length(), clone.length());
         final byte[] data = clone.toByteArray();

@@ -111,36 +111,36 @@ public class EofSensorInputStream extends InputStream {
 
     @Override
     public int read() throws IOException {
-        int l = -1;
+        int b = -1;
 
         if (isReadAllowed()) {
             try {
-                l = wrappedStream.read();
-                checkEOF(l);
+                b = wrappedStream.read();
+                checkEOF(b);
             } catch (final IOException ex) {
                 checkAbort();
                 throw ex;
             }
         }
 
-        return l;
+        return b;
     }
 
     @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
-        int l = -1;
+        int readLen = -1;
 
         if (isReadAllowed()) {
             try {
-                l = wrappedStream.read(b,  off,  len);
-                checkEOF(l);
+                readLen = wrappedStream.read(b,  off,  len);
+                checkEOF(readLen);
             } catch (final IOException ex) {
                 checkAbort();
                 throw ex;
             }
         }
 
-        return l;
+        return readLen;
     }
 
     @Override

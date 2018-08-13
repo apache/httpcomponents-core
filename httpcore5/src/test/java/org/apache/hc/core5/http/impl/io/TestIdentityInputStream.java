@@ -44,8 +44,8 @@ public class TestIdentityInputStream {
     public void testBasicRead() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
-        final IdentityInputStream in = new IdentityInputStream(inbuffer, inputStream);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);
         final byte[] tmp = new byte[2];
         Assert.assertEquals(2, in.read(tmp, 0, tmp.length));
         Assert.assertEquals('a', tmp[0]);
@@ -62,8 +62,8 @@ public class TestIdentityInputStream {
     public void testClosedCondition() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
-        final IdentityInputStream in = new IdentityInputStream(inbuffer, inputStream);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
+        final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);
 
         in.close();
         in.close();
@@ -86,8 +86,8 @@ public class TestIdentityInputStream {
     public void testAvailable() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 16, 1024, null);
-        final IdentityInputStream in = new IdentityInputStream(inbuffer, inputStream);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 16, 1024, null);
+        final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);
         in.read();
         Assert.assertEquals(2, in.available());
         in.close();
@@ -97,8 +97,8 @@ public class TestIdentityInputStream {
     public void testAvailableInStream() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c', 'd', 'e', 'f'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 0, 1024, null);
-        final IdentityInputStream in = new IdentityInputStream(inbuffer, inputStream);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 0, 1024, null);
+        final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);
         final byte[] tmp = new byte[3];
         Assert.assertEquals(3, in.read(tmp));
         Assert.assertEquals(3, in.available());

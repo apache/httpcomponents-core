@@ -47,50 +47,50 @@ public class InputStreamEntity extends AbstractHttpEntity {
 
     /**
      * Creates an entity with an unknown length.
-     * Equivalent to {@code new InputStreamEntity(instream, -1)}.
+     * Equivalent to {@code new InputStreamEntity(inStream, -1)}.
      *
-     * @param instream input stream
-     * @throws IllegalArgumentException if {@code instream} is {@code null}
+     * @param inStream input stream
+     * @throws IllegalArgumentException if {@code inStream} is {@code null}
      * @since 4.3
      */
-    public InputStreamEntity(final InputStream instream) {
-        this(instream, -1);
+    public InputStreamEntity(final InputStream inStream) {
+        this(inStream, -1);
     }
 
     /**
      * Creates an entity with a specified content length.
      *
-     * @param instream input stream
+     * @param inStream input stream
      * @param length of the input stream, {@code -1} if unknown
-     * @throws IllegalArgumentException if {@code instream} is {@code null}
+     * @throws IllegalArgumentException if {@code inStream} is {@code null}
      */
-    public InputStreamEntity(final InputStream instream, final long length) {
-        this(instream, length, null);
+    public InputStreamEntity(final InputStream inStream, final long length) {
+        this(inStream, length, null);
     }
 
     /**
      * Creates an entity with a content type and unknown length.
-     * Equivalent to {@code new InputStreamEntity(instream, -1, contentType)}.
+     * Equivalent to {@code new InputStreamEntity(inStream, -1, contentType)}.
      *
-     * @param instream input stream
+     * @param inStream input stream
      * @param contentType content type
-     * @throws IllegalArgumentException if {@code instream} is {@code null}
+     * @throws IllegalArgumentException if {@code inStream} is {@code null}
      * @since 4.3
      */
-    public InputStreamEntity(final InputStream instream, final ContentType contentType) {
-        this(instream, -1, contentType);
+    public InputStreamEntity(final InputStream inStream, final ContentType contentType) {
+        this(inStream, -1, contentType);
     }
 
     /**
-     * @param instream input stream
+     * @param inStream input stream
      * @param length of the input stream, {@code -1} if unknown
      * @param contentType for specifying the {@code Content-Type} header, may be {@code null}
-     * @throws IllegalArgumentException if {@code instream} is {@code null}
+     * @throws IllegalArgumentException if {@code inStream} is {@code null}
      * @since 4.2
      */
-    public InputStreamEntity(final InputStream instream, final long length, final ContentType contentType) {
+    public InputStreamEntity(final InputStream inStream, final long length, final ContentType contentType) {
         super();
-        this.content = Args.notNull(instream, "Source input stream");
+        this.content = Args.notNull(inStream, "Source input stream");
         this.length = length;
         if (contentType != null) {
             setContentType(contentType.toString());
@@ -123,31 +123,31 @@ public class InputStreamEntity extends AbstractHttpEntity {
      *
      */
     @Override
-    public void writeTo(final OutputStream outstream) throws IOException {
-        Args.notNull(outstream, "Output stream");
-        final InputStream instream = this.content;
+    public void writeTo(final OutputStream outStream) throws IOException {
+        Args.notNull(outStream, "Output stream");
+        final InputStream inStream = this.content;
         try {
             final byte[] buffer = new byte[OUTPUT_BUFFER_SIZE];
-            int l;
+            int readLen;
             if (this.length < 0) {
                 // consume until EOF
-                while ((l = instream.read(buffer)) != -1) {
-                    outstream.write(buffer, 0, l);
+                while ((readLen = inStream.read(buffer)) != -1) {
+                    outStream.write(buffer, 0, readLen);
                 }
             } else {
                 // consume no more than length
                 long remaining = this.length;
                 while (remaining > 0) {
-                    l = instream.read(buffer, 0, (int)Math.min(OUTPUT_BUFFER_SIZE, remaining));
-                    if (l == -1) {
+                    readLen = inStream.read(buffer, 0, (int)Math.min(OUTPUT_BUFFER_SIZE, remaining));
+                    if (readLen == -1) {
                         break;
                     }
-                    outstream.write(buffer, 0, l);
-                    remaining -= l;
+                    outStream.write(buffer, 0, readLen);
+                    remaining -= readLen;
                 }
             }
         } finally {
-            instream.close();
+            inStream.close();
         }
     }
 

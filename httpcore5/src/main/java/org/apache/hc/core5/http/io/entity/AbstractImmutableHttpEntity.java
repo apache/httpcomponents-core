@@ -44,18 +44,18 @@ public abstract class AbstractImmutableHttpEntity implements HttpEntity, HttpCon
     static final int OUTPUT_BUFFER_SIZE = 4096;
 
     @Override
-    public void writeTo(final OutputStream outstream) throws IOException {
-        Args.notNull(outstream, "Output stream");
-        final InputStream instream = getContent();
-        if (instream != null) {
+    public void writeTo(final OutputStream outStream) throws IOException {
+        Args.notNull(outStream, "Output stream");
+        final InputStream inStream = getContent();
+        if (inStream != null) {
             try {
                 int l;
                 final byte[] tmp = new byte[OUTPUT_BUFFER_SIZE];
-                while ((l = instream.read(tmp)) != -1) {
-                    outstream.write(tmp, 0, l);
+                while ((l = inStream.read(tmp)) != -1) {
+                    outStream.write(tmp, 0, l);
                 }
             } finally {
-                instream.close();
+                inStream.close();
             }
         }
     }

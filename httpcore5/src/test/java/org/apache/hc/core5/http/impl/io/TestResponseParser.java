@@ -54,10 +54,10 @@ public class TestResponseParser {
             "Set-Cookie: c1=stuff\r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
-        final ClassicHttpResponse httpresponse = parser.parse(inbuffer, inputStream);
+        final ClassicHttpResponse httpresponse = parser.parse(inBuffer, inputStream);
 
         Assert.assertEquals(200, httpresponse.getCode());
         Assert.assertEquals("OK", httpresponse.getReasonPhrase());
@@ -68,10 +68,10 @@ public class TestResponseParser {
     @Test(expected = NoHttpResponseException.class)
     public void testConnectionClosedException() throws Exception {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {});
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
-        parser.parse(inbuffer, inputStream);
+        parser.parse(inBuffer, inputStream);
     }
 
     @Test
@@ -83,11 +83,11 @@ public class TestResponseParser {
                 "Server: whatever\r\n" +
                 "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
                 H1Config.custom().setMaxEmptyLineCount(3).build());
-        final ClassicHttpResponse httpresponse = parser.parse(inbuffer, inputStream);
+        final ClassicHttpResponse httpresponse = parser.parse(inBuffer, inputStream);
 
         Assert.assertEquals(200, httpresponse.getCode());
         Assert.assertEquals("OK", httpresponse.getReasonPhrase());
@@ -105,11 +105,11 @@ public class TestResponseParser {
                 "Server: whatever\r\n" +
                 "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
                 H1Config.custom().setMaxEmptyLineCount(3).build());
-        parser.parse(inbuffer, inputStream);
+        parser.parse(inBuffer, inputStream);
     }
 
     @Test
@@ -121,7 +121,7 @@ public class TestResponseParser {
             "Set-Coo\000kie: c1=stuff\r\n" +
             "\000\r\n";
         final TimeoutByteArrayInputStream inputStream = new TimeoutByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
-        final SessionInputBuffer inbuffer = new SessionInputBufferImpl(16);
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
 
@@ -130,7 +130,7 @@ public class TestResponseParser {
         ClassicHttpResponse httpresponse = null;
         for (int i = 0; i < 10; i++) {
             try {
-                httpresponse = parser.parse(inbuffer, inputStream);
+                httpresponse = parser.parse(inBuffer, inputStream);
                 break;
             } catch (final InterruptedIOException ex) {
                 timeoutCount++;

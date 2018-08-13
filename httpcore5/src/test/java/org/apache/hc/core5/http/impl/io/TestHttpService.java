@@ -133,8 +133,8 @@ public class TestHttpService {
     public void testExecutionEntityEnclosingRequest() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
-        final InputStream instream = Mockito.mock(InputStream.class);
-        final InputStreamEntity entity = new InputStreamEntity(instream, -1);
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        final InputStreamEntity entity = new InputStreamEntity(inStream, -1);
         request.setEntity(entity);
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -159,7 +159,7 @@ public class TestHttpService {
         Assert.assertSame(request, context.getRequest());
 
         Mockito.verify(httprocessor).process(request, request.getEntity(), context);
-        Mockito.verify(instream).close();
+        Mockito.verify(inStream).close();
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(conn).sendResponseEntity(response);
@@ -173,8 +173,8 @@ public class TestHttpService {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
-        final InputStream instream = Mockito.mock(InputStream.class);
-        final InputStreamEntity entity = new InputStreamEntity(instream, -1);
+        final InputStream inStream = Mockito.mock(InputStream.class);
+        final InputStreamEntity entity = new InputStreamEntity(inStream, -1);
         request.setEntity(entity);
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -203,7 +203,7 @@ public class TestHttpService {
         Assert.assertSame(request, context.getRequest());
 
         Mockito.verify(httprocessor).process(request, request.getEntity(), context);
-        Mockito.verify(instream).close();
+        Mockito.verify(inStream).close();
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
         Mockito.verify(conn).sendResponseHeader(response);
         Mockito.verify(conn).sendResponseEntity(response);

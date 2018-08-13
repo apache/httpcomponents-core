@@ -39,6 +39,6 @@ import java.io.OutputStream;
  */
 public interface HttpContentProducer {
 
-    void writeTo(OutputStream outstream) throws IOException;
+    void writeTo(OutputStream outStream) throws IOException;
 
 }

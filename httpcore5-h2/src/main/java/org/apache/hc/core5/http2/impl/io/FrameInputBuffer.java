@@ -77,13 +77,13 @@ public final class FrameInputBuffer {
         return this.dataLen > 0;
     }
 
-    void fillBuffer(final InputStream instream, final int requiredLen) throws IOException {
+    void fillBuffer(final InputStream inStream, final int requiredLen) throws IOException {
         while (dataLen < requiredLen) {
             if (off > 0) {
                 System.arraycopy(buffer, off, buffer, 0, dataLen);
                 off = 0;
             }
-            final int bytesRead = instream.read(buffer, off + dataLen, buffer.length - dataLen);
+            final int bytesRead = inStream.read(buffer, off + dataLen, buffer.length - dataLen);
             if (bytesRead == -1) {
                 if (dataLen > 0) {
                     throw new H2CorruptFrameException("Corrupt or incomplete HTTP2 frame");
@@ -95,9 +95,9 @@ public final class FrameInputBuffer {
         }
     }
 
-    public RawFrame read(final InputStream instream) throws IOException {
+    public RawFrame read(final InputStream inStream) throws IOException {
 
-        fillBuffer(instream, FrameConsts.HEAD_LEN);
+        fillBuffer(inStream, FrameConsts.HEAD_LEN);
         final int payloadOff = FrameConsts.HEAD_LEN;
 
         final int payloadLen = (buffer[off] & 0xff) << 16 | (buffer[off + 1] & 0xff) << 8 | (buffer[off + 2] & 0xff);
@@ -109,7 +109,7 @@ public final class FrameInputBuffer {
         }
 
         final int frameLen = payloadOff + payloadLen;
-        fillBuffer(instream, frameLen);
+        fillBuffer(inStream, frameLen);
 
         if ((flags & FrameFlag.PADDED.getValue()) > 0) {
             if (payloadLen == 0) {

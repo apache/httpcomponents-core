@@ -59,7 +59,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
     /**
      *  Creates SessionInputBufferImpl instance.
      *
-     * @param buffersize input buffer size
+     * @param bufferSize input buffer size
      * @param lineBuffersize buffer size for line operations. Has effect only if
      *   {@code chardecoder} is not {@code null}.
      * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
@@ -69,11 +69,11 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      * @since 4.4
      */
     public SessionInputBufferImpl(
-            final int buffersize,
+            final int bufferSize,
             final int lineBuffersize,
             final int maxLineLen,
             final CharsetDecoder chardecoder) {
-        super(buffersize);
+        super(bufferSize);
         this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
         this.maxLineLen = maxLineLen > 0 ? maxLineLen : 0;
         this.chardecoder = chardecoder;
@@ -83,37 +83,37 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      * @since 4.3
      */
     public SessionInputBufferImpl(
-            final int buffersize,
+            final int bufferSize,
             final int lineBuffersize,
             final int maxLineLen,
             final Charset charset) {
-        this(buffersize, lineBuffersize, maxLineLen, charset != null ? charset.newDecoder() : null);
+        this(bufferSize, lineBuffersize, maxLineLen, charset != null ? charset.newDecoder() : null);
     }
 
     /**
      * @since 4.3
      */
     public SessionInputBufferImpl(
-            final int buffersize,
+            final int bufferSize,
             final int lineBuffersize,
             final int maxLineLen) {
-        this(buffersize, lineBuffersize, maxLineLen, (CharsetDecoder) null);
+        this(bufferSize, lineBuffersize, maxLineLen, (CharsetDecoder) null);
     }
 
     /**
      * @since 4.3
      */
     public SessionInputBufferImpl(
-            final int buffersize,
+            final int bufferSize,
             final int lineBuffersize) {
-        this(buffersize, lineBuffersize, 0, (CharsetDecoder) null);
+        this(bufferSize, lineBuffersize, 0, (CharsetDecoder) null);
     }
 
     /**
      * @since 4.3
      */
-    public SessionInputBufferImpl(final int buffersize) {
-        this(buffersize, 256);
+    public SessionInputBufferImpl(final int bufferSize) {
+        this(bufferSize, 256);
     }
 
     public void put(final ByteBuffer src) {
@@ -198,7 +198,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
 
     @Override
     public boolean readLine(
-            final CharArrayBuffer linebuffer,
+            final CharArrayBuffer lineBuffer,
             final boolean endOfStream) throws IOException {
 
         setOutputMode();
@@ -234,18 +234,18 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
 
         final int requiredCapacity = buffer().limit() - buffer().position();
         // Ensure capacity of len assuming ASCII as the most likely charset
-        linebuffer.ensureCapacity(requiredCapacity);
+        lineBuffer.ensureCapacity(requiredCapacity);
 
         if (this.chardecoder == null) {
             if (buffer().hasArray()) {
                 final byte[] b = buffer().array();
                 final int off = buffer().position();
                 final int len = buffer().remaining();
-                linebuffer.append(b, off, len);
+                lineBuffer.append(b, off, len);
                 buffer().position(off + len);
             } else {
                 while (buffer().hasRemaining()) {
-                    linebuffer.append((char) (buffer().get() & 0xff));
+                    lineBuffer.append((char) (buffer().get() & 0xff));
                 }
             }
         } else {
@@ -264,7 +264,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
                 }
                 if (result.isOverflow()) {
                     this.charbuffer.flip();
-                    linebuffer.append(
+                    lineBuffer.append(
                             this.charbuffer.array(),
                             this.charbuffer.position(),
                             this.charbuffer.remaining());
@@ -280,7 +280,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             this.charbuffer.flip();
             // append the decoded content to the line buffer
             if (this.charbuffer.hasRemaining()) {
-                linebuffer.append(
+                lineBuffer.append(
                         this.charbuffer.array(),
                         this.charbuffer.position(),
                         this.charbuffer.remaining());
@@ -290,16 +290,16 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         buffer().limit(origLimit);
 
         // discard LF if found
-        int l = linebuffer.length();
+        int l = lineBuffer.length();
         if (l > 0) {
-            if (linebuffer.charAt(l - 1) == Chars.LF) {
+            if (lineBuffer.charAt(l - 1) == Chars.LF) {
                 l--;
-                linebuffer.setLength(l);
+                lineBuffer.setLength(l);
             }
             // discard CR if found
-            if (l > 0 && linebuffer.charAt(l - 1) == Chars.CR) {
+            if (l > 0 && lineBuffer.charAt(l - 1) == Chars.CR) {
                 l--;
-                linebuffer.setLength(l);
+                lineBuffer.setLength(l);
             }
         }
         return true;
