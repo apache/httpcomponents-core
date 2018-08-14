@@ -50,7 +50,7 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
     final SessionInputBuffer buffer;
     final BasicHttpTransportMetrics metrics;
 
-    boolean completed;
+    protected boolean completed;
 
     /**
      * Creates an instance of this class.
@@ -88,6 +88,33 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
     @Override
     public boolean isCompleted() {
         return this.completed;
+    }
+
+    /**
+     * Sets the completed status of this decoder. Normally this is not necessary
+     * (the decoder will automatically complete when the underlying channel
+     * returns EOF). It is useful to mark the decoder as completed if you have
+     * some other means to know all the necessary data has been read and want to
+     * reuse the underlying connection for more messages.
+     *
+     * @param completed the completed status of this decoder.
+     * @since 4.4.11
+     */
+    public void setCompleted(final boolean completed) {
+        this.completed = completed;
+    }
+
+    /**
+     * Sets the completed status of this decoder to true. Normally this is not necessary
+     * (the decoder will automatically complete when the underlying channel
+     * returns EOF). It is useful to mark the decoder as completed if you have
+     * some other means to know all the necessary data has been read and want to
+     * reuse the underlying connection for more messages.
+     *
+     * @since 4.4.11
+     */
+    protected void setCompleted() {
+        this.completed = true;
     }
 
     /**

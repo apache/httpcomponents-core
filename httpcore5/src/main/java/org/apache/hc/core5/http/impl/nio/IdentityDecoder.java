@@ -58,21 +58,10 @@ public class IdentityDecoder extends AbstractContentDecoder implements FileConte
         super(channel, buffer, metrics);
     }
 
-    /**
-     * Sets the completed status of this decoder. Normally this is not necessary
-     * (the decoder will automatically complete when the underlying channel
-     * returns EOF). It is useful to mark the decoder as completed if you have
-     * some other means to know all the necessary data has been read and want to
-     * reuse the underlying connection for more messages.
-     */
-    public void setCompleted(final boolean completed) {
-        this.completed = completed;
-    }
-
     @Override
     public int read(final ByteBuffer dst) throws IOException {
         Args.notNull(dst, "Byte buffer");
-        if (this.completed) {
+        if (isCompleted()) {
             return -1;
         }
 
@@ -83,7 +72,7 @@ public class IdentityDecoder extends AbstractContentDecoder implements FileConte
             bytesRead = readFromChannel(dst);
         }
         if (bytesRead == -1) {
-            this.completed = true;
+            setCompleted();
         }
         return bytesRead;
     }
@@ -97,7 +86,7 @@ public class IdentityDecoder extends AbstractContentDecoder implements FileConte
         if (dst == null) {
             return 0;
         }
-        if (this.completed) {
+        if (isCompleted()) {
             return 0;
         }
 
@@ -123,7 +112,7 @@ public class IdentityDecoder extends AbstractContentDecoder implements FileConte
             }
         }
         if (bytesRead == -1) {
-            this.completed = true;
+            setCompleted();
         }
         return bytesRead;
     }

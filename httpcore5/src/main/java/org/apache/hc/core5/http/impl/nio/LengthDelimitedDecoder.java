@@ -70,7 +70,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
     @Override
     public int read(final ByteBuffer dst) throws IOException {
         Args.notNull(dst, "Byte buffer");
-        if (this.completed) {
+        if (isCompleted()) {
             return -1;
         }
         final int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
@@ -83,7 +83,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
             bytesRead = readFromChannel(dst, chunk);
         }
         if (bytesRead == -1) {
-            this.completed = true;
+            setCompleted();
             if (this.len < this.contentLength) {
                 throw new ConnectionClosedException(
                                 "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
@@ -109,7 +109,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
         if (dst == null) {
             return 0;
         }
-        if (this.completed) {
+        if (isCompleted()) {
             return -1;
         }
 
@@ -135,7 +135,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
             }
         }
         if (bytesRead == -1) {
-            this.completed = true;
+            setCompleted();
             if (this.len < this.contentLength) {
                 throw new ConnectionClosedException(
                                 "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
