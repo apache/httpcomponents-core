@@ -54,11 +54,13 @@ public class HttpEntityWrapper implements HttpEntity {
 
     /**
      * Creates a new entity wrapper.
+     *
+     * @param wrappedEntity the entity to wrap.
      */
     public HttpEntityWrapper(final HttpEntity wrappedEntity) {
         super();
         this.wrappedEntity = Args.notNull(wrappedEntity, "Wrapped entity");
-    } // constructor
+    }
 
     @Override
     public boolean isRepeatable() {

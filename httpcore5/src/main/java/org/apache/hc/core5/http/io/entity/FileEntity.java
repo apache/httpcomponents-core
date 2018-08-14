@@ -45,6 +45,11 @@ public class FileEntity extends AbstractHttpEntity {
     private final File file;
 
     /**
+     * Creates a new instance.
+     *
+     * @param file The file to serve.
+     * @param contentType  The content type for the given {@code file}.
+     *
      * @since 4.2
      */
     public FileEntity(final File file, final ContentType contentType) {
@@ -56,6 +61,10 @@ public class FileEntity extends AbstractHttpEntity {
     }
 
     /**
+     * Creates a new instance.
+     *
+     * @param file The file to serve.
+     *
      * @since 4.2
      */
     public FileEntity(final File file) {
@@ -90,6 +99,7 @@ public class FileEntity extends AbstractHttpEntity {
 
     @Override
     public void close() throws IOException {
+        // do nothing
     }
 
 }

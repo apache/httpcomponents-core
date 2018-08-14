@@ -39,11 +39,12 @@ public interface FileContentDecoder extends ContentDecoder {
 
     /**
      * Transfers a portion of entity content from the underlying network channel
-     * into the given file channel.<br>
-     *
+     * into the given file channel.
+     * <p>
      * <b>Warning</b>: Many implementations cannot write beyond the length of the file.
      *             If the position exceeds the channel's size, some implementations
      *             may throw an IOException.
+     * </p>
      *
      * @param  dst the target FileChannel to transfer data into.
      * @param  position
