@@ -98,8 +98,8 @@ public class IdentityDecoder extends AbstractContentDecoder
         } else {
             if (this.channel.isOpen()) {
                 if (position > dst.size()) {
-                    throw new IOException("Position past end of file [" + position +
-                            " > " + dst.size() + "]");
+                    throw new IOException(String.format("Position past end of file [%,d > %,d]",
+                                    position, dst.size()));
                 }
                 bytesRead = dst.transferFrom(this.channel, position, count);
                 if (count > 0 && bytesRead == 0) {
