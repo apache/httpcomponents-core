@@ -70,7 +70,7 @@ import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Http2ALPNTest {
+public class Http2AlpnTest {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -234,11 +234,7 @@ public class Http2ALPNTest {
             resultFuture1.get();
             Assert.fail("ExecutionException expected");
         } catch (final ExecutionException ex) {
-            if (ex.getCause() instanceof HttpException) {
-                throw (Exception) ex.getCause();
-            } else {
-                throw ex;
-            }
+            throw ex.getCause() instanceof HttpException ? (Exception) ex.getCause() : ex;
         }
     }
 

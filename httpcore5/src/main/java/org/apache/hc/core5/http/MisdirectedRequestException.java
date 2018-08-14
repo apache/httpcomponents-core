@@ -34,6 +34,8 @@ package org.apache.hc.core5.http;
  */
 public class MisdirectedRequestException extends ProtocolException {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Creates an exception without a detail message.
      */

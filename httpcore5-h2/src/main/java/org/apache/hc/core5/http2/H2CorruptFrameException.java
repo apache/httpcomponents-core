@@ -30,6 +30,8 @@ import java.io.IOException;
 
 public class H2CorruptFrameException extends IOException {
 
+    private static final long serialVersionUID = 1L;
+
     public H2CorruptFrameException(final String message) {
         super(message);
     }

@@ -58,11 +58,7 @@ abstract class SSLManagedBuffer {
     abstract boolean hasData();
 
     static SSLManagedBuffer create(final SSLBufferMode mode, final int size) {
-        if (mode == SSLBufferMode.DYNAMIC) {
-            return new DynamicBuffer(size);
-        } else {
-            return new StaticBuffer(size);
-        }
+        return mode == SSLBufferMode.DYNAMIC ? new DynamicBuffer(size) : new StaticBuffer(size);
     }
 
     static final class StaticBuffer extends SSLManagedBuffer {

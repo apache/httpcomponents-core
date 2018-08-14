@@ -43,16 +43,16 @@ import org.slf4j.Logger;
 public class LoggingIOSession implements IOSession {
 
     private final Logger log;
-    private final Wire wirelog;
+    private final Wire wireLog;
     private final IOSession session;
     private final ByteChannel channel;
 
-    public LoggingIOSession(final IOSession session, final Logger log, final Logger wirelog) {
+    public LoggingIOSession(final IOSession session, final Logger log, final Logger wireLog) {
         super();
         this.session = session;
         this.log = log;
-        this.wirelog = wirelog != null ? new Wire(wirelog, session.getId()) : null;
-        this.channel = wirelog != null ? new LoggingByteChannel() : session.channel();
+        this.wireLog = wireLog != null ? new Wire(wireLog, session.getId()) : null;
+        this.channel = wireLog != null ? new LoggingByteChannel() : session.channel();
     }
 
     public LoggingIOSession(final IOSession session, final Logger log) {
@@ -222,12 +222,12 @@ public class LoggingIOSession implements IOSession {
             if (log.isDebugEnabled()) {
                 log.debug(session + " " + bytesRead + " bytes read");
             }
-            if (bytesRead > 0 && wirelog.isEnabled()) {
+            if (bytesRead > 0 && wireLog.isEnabled()) {
                 final ByteBuffer b = dst.duplicate();
                 final int p = b.position();
                 b.limit(p);
                 b.position(p - bytesRead);
-                wirelog.input(b);
+                wireLog.input(b);
             }
             return bytesRead;
         }
@@ -238,12 +238,12 @@ public class LoggingIOSession implements IOSession {
             if (log.isDebugEnabled()) {
                 log.debug(session + " " + byteWritten + " bytes written");
             }
-            if (byteWritten > 0 && wirelog.isEnabled()) {
+            if (byteWritten > 0 && wireLog.isEnabled()) {
                 final ByteBuffer b = src.duplicate();
                 final int p = b.position();
                 b.limit(p);
                 b.position(p - byteWritten);
-                wirelog.output(b);
+                wireLog.output(b);
             }
             return byteWritten;
         }

@@ -76,17 +76,17 @@ class BHttpConnectionBase implements BHttpConnection {
 
     BHttpConnectionBase(
             final H1Config h1Config,
-            final CharsetDecoder chardecoder,
-            final CharsetEncoder charencoder) {
+            final CharsetDecoder charDecoder,
+            final CharsetEncoder charEncoder) {
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         final BasicHttpTransportMetrics inTransportMetrics = new BasicHttpTransportMetrics();
         final BasicHttpTransportMetrics outTransportMetrics = new BasicHttpTransportMetrics();
         this.inBuffer = new SessionInputBufferImpl(inTransportMetrics,
                 this.h1Config.getBufferSize(), -1,
-                this.h1Config.getMaxLineLength(), chardecoder);
+                this.h1Config.getMaxLineLength(), charDecoder);
         this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics,
                 this.h1Config.getBufferSize(),
-                this.h1Config.getChunkSizeHint(), charencoder);
+                this.h1Config.getChunkSizeHint(), charEncoder);
         this.connMetrics = new BasicHttpConnectionMetrics(inTransportMetrics, outTransportMetrics);
         this.socketHolderRef = new AtomicReference<>();
     }

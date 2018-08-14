@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.ReasonPhraseCatalog;
  */
 public class BasicClassicHttpResponse extends BasicHttpResponse implements ClassicHttpResponse {
 
+    private static final long serialVersionUID = 1L;
     private HttpEntity entity;
 
     /**

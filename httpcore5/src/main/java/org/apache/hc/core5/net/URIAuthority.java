@@ -45,6 +45,7 @@ import org.apache.hc.core5.util.TextUtils;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public final class URIAuthority implements NamedEndpoint, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private final String userInfo;
     private final String hostname;
     private final int port;

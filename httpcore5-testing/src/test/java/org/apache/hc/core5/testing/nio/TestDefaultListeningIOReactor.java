@@ -52,7 +52,7 @@ import org.junit.Test;
  */
 public class TestDefaultListeningIOReactor {
 
-    private DefaultListeningIOReactor ioreactor;
+    private DefaultListeningIOReactor ioReactor;
 
     private static class NoopIOEventHandlerFactory implements IOEventHandlerFactory {
 
@@ -92,38 +92,38 @@ public class TestDefaultListeningIOReactor {
         final IOReactorConfig reactorConfig = IOReactorConfig.custom()
                 .setIoThreadCount(1)
                 .build();
-        this.ioreactor = new DefaultListeningIOReactor(new NoopIOEventHandlerFactory(), reactorConfig, null);
+        this.ioReactor = new DefaultListeningIOReactor(new NoopIOEventHandlerFactory(), reactorConfig, null);
     }
 
     @After
     public void cleanup() throws Exception {
-        if (this.ioreactor != null) {
-            this.ioreactor.close(CloseMode.IMMEDIATE);
+        if (this.ioReactor != null) {
+            this.ioReactor.close(CloseMode.IMMEDIATE);
         }
     }
 
     @Test
     public void testEndpointUpAndDown() throws Exception {
-        ioreactor.start();
+        ioReactor.start();
 
-        Set<ListenerEndpoint> endpoints = ioreactor.getEndpoints();
+        Set<ListenerEndpoint> endpoints = ioReactor.getEndpoints();
         Assert.assertNotNull(endpoints);
         Assert.assertEquals(0, endpoints.size());
 
-        final Future<ListenerEndpoint> future1 = ioreactor.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future1 = ioReactor.listen(new InetSocketAddress(0));
         final ListenerEndpoint endpoint1 = future1.get();
 
-        final Future<ListenerEndpoint> future2 = ioreactor.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future2 = ioReactor.listen(new InetSocketAddress(0));
         final ListenerEndpoint endpoint2 = future2.get();
         final int port = ((InetSocketAddress) endpoint2.getAddress()).getPort();
 
-        endpoints = ioreactor.getEndpoints();
+        endpoints = ioReactor.getEndpoints();
         Assert.assertNotNull(endpoints);
         Assert.assertEquals(2, endpoints.size());
 
         endpoint1.close();
 
-        endpoints = ioreactor.getEndpoints();
+        endpoints = ioReactor.getEndpoints();
         Assert.assertNotNull(endpoints);
         Assert.assertEquals(1, endpoints.size());
 
@@ -131,29 +131,29 @@ public class TestDefaultListeningIOReactor {
 
         Assert.assertEquals(port, ((InetSocketAddress) endpoint.getAddress()).getPort());
 
-        ioreactor.close(CloseMode.GRACEFUL);
-        ioreactor.awaitShutdown(TimeValue.ofSeconds(5));
-        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
+        ioReactor.close(CloseMode.GRACEFUL);
+        ioReactor.awaitShutdown(TimeValue.ofSeconds(5));
+        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioReactor.getStatus());
     }
 
     @Test
     public void testEndpointAlreadyBound() throws Exception {
-        ioreactor.start();
+        ioReactor.start();
 
-        final Future<ListenerEndpoint> future1 = ioreactor.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future1 = ioReactor.listen(new InetSocketAddress(0));
         final ListenerEndpoint endpoint1 = future1.get();
         final int port = ((InetSocketAddress) endpoint1.getAddress()).getPort();
 
-        final Future<ListenerEndpoint> future2 = ioreactor.listen(new InetSocketAddress(port));
+        final Future<ListenerEndpoint> future2 = ioReactor.listen(new InetSocketAddress(port));
         try {
             future2.get();
             Assert.fail("ExecutionException expected");
         } catch (final ExecutionException expected) {
         }
-        ioreactor.close(CloseMode.GRACEFUL);
-        ioreactor.awaitShutdown(TimeValue.ofSeconds(5));
+        ioReactor.close(CloseMode.GRACEFUL);
+        ioReactor.awaitShutdown(TimeValue.ofSeconds(5));
 
-        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioreactor.getStatus());
+        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioReactor.getStatus());
     }
 
 }

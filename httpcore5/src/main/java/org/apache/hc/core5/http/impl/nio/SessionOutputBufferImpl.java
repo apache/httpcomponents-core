@@ -52,7 +52,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
 
     private static final byte[] CRLF = new byte[] {Chars.CR, Chars.LF};
 
-    private final CharsetEncoder charencoder;
+    private final CharsetEncoder charEncoder;
     private final int lineBuffersize;
 
     private CharBuffer charbuffer;
@@ -62,8 +62,8 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      *
      * @param bufferSize input buffer size
      * @param lineBuffersize buffer size for line operations. Has effect only if
-     *   {@code charencoder} is not {@code null}.
-     * @param charencoder charencoder to be used for encoding HTTP protocol elements.
+     *   {@code charEncoder} is not {@code null}.
+     * @param charEncoder charEncoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
      *
      * @since 4.3
@@ -71,10 +71,10 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
     public SessionOutputBufferImpl(
             final int bufferSize,
             final int lineBuffersize,
-            final CharsetEncoder charencoder) {
+            final CharsetEncoder charEncoder) {
         super(bufferSize);
         this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
-        this.charencoder = charencoder;
+        this.charEncoder = charEncoder;
     }
 
     /**
@@ -154,7 +154,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         setInputMode();
         // Do not bother if the buffer is empty
         if (lineBuffer.length() > 0 ) {
-            if (this.charencoder == null) {
+            if (this.charEncoder == null) {
                 final int requiredCapacity = buffer().position() + lineBuffer.length();
                 ensureCapacity(requiredCapacity);
                 if (buffer().hasArray()) {
@@ -174,7 +174,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
                 if (this.charbuffer == null) {
                     this.charbuffer = CharBuffer.allocate(this.lineBuffersize);
                 }
-                this.charencoder.reset();
+                this.charEncoder.reset();
                 // transfer the string in small chunks
                 int remaining = lineBuffer.length();
                 int offset = 0;
@@ -191,7 +191,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
 
                     boolean retry = true;
                     while (retry) {
-                        final CoderResult result = this.charencoder.encode(this.charbuffer, buffer(), eol);
+                        final CoderResult result = this.charEncoder.encode(this.charbuffer, buffer(), eol);
                         if (result.isError()) {
                             result.throwException();
                         }
@@ -207,7 +207,7 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
                 // flush the encoder
                 boolean retry = true;
                 while (retry) {
-                    final CoderResult result = this.charencoder.flush(buffer());
+                    final CoderResult result = this.charEncoder.flush(buffer());
                     if (result.isError()) {
                         result.throwException();
                     }

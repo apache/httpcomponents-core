@@ -50,7 +50,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
 
-    private final CharsetDecoder chardecoder;
+    private final CharsetDecoder charDecoder;
     private final int lineBuffersize;
     private final int maxLineLen;
 
@@ -61,8 +61,8 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      *
      * @param bufferSize input buffer size
      * @param lineBuffersize buffer size for line operations. Has effect only if
-     *   {@code chardecoder} is not {@code null}.
-     * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
+     *   {@code charDecoder} is not {@code null}.
+     * @param charDecoder charDecoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
      * @param maxLineLen maximum line length.
      *
@@ -72,11 +72,11 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             final int bufferSize,
             final int lineBuffersize,
             final int maxLineLen,
-            final CharsetDecoder chardecoder) {
+            final CharsetDecoder charDecoder) {
         super(bufferSize);
         this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
         this.maxLineLen = maxLineLen > 0 ? maxLineLen : 0;
-        this.chardecoder = chardecoder;
+        this.charDecoder = charDecoder;
     }
 
     /**
@@ -236,7 +236,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         // Ensure capacity of len assuming ASCII as the most likely charset
         lineBuffer.ensureCapacity(requiredCapacity);
 
-        if (this.chardecoder == null) {
+        if (this.charDecoder == null) {
             if (buffer().hasArray()) {
                 final byte[] b = buffer().array();
                 final int off = buffer().position();
@@ -252,10 +252,10 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             if (this.charbuffer == null) {
                 this.charbuffer = CharBuffer.allocate(this.lineBuffersize);
             }
-            this.chardecoder.reset();
+            this.charDecoder.reset();
 
             for (;;) {
-                final CoderResult result = this.chardecoder.decode(
+                final CoderResult result = this.charDecoder.decode(
                         buffer(),
                         this.charbuffer,
                         true);
@@ -276,7 +276,7 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
             }
 
             // flush the decoder
-            this.chardecoder.flush(this.charbuffer);
+            this.charDecoder.flush(this.charbuffer);
             this.charbuffer.flip();
             // append the decoded content to the line buffer
             if (this.charbuffer.hasRemaining()) {

@@ -36,6 +36,8 @@ import java.io.InterruptedIOException;
  */
 public class ConnectionRequestTimeoutException extends InterruptedIOException {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Creates a {@link ConnectionRequestTimeoutException} without details.
      */

@@ -34,6 +34,8 @@ package org.apache.hc.core5.http;
  */
 public class MethodNotSupportedException extends ProtocolException {
 
+    private static final long serialVersionUID = 1L;
+
     /**
      * Creates a new MethodNotSupportedException with the specified detail message.
      *

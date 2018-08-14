@@ -78,7 +78,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
      *   between performance of memory copy operations and that of native method invocation.
      *   If negative default chunk limited will be used.
      * @param maxLineLen maximum line length.
-     * @param chardecoder chardecoder to be used for decoding HTTP protocol elements.
+     * @param charDecoder charDecoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
      */
     public SessionInputBufferImpl(
@@ -86,7 +86,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
             final int bufferSize,
             final int minChunkLimit,
             final int maxLineLen,
-            final CharsetDecoder chardecoder) {
+            final CharsetDecoder charDecoder) {
         Args.notNull(metrics, "HTTP transport metrcis");
         Args.positive(bufferSize, "Buffer size");
         this.metrics = metrics;
@@ -96,7 +96,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
         this.maxLineLen = maxLineLen > 0 ? maxLineLen : 0;
         this.lineBuffer = new ByteArrayBuffer(bufferSize);
-        this.decoder = chardecoder;
+        this.decoder = charDecoder;
     }
 
     public SessionInputBufferImpl(

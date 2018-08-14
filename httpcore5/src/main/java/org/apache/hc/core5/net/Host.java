@@ -39,6 +39,7 @@ import org.apache.hc.core5.util.TextUtils;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public final class Host implements NamedEndpoint, Serializable {
 
+    private static final long serialVersionUID = 1L;
     private final String name;
     private final String lcName;
     private final int port;
