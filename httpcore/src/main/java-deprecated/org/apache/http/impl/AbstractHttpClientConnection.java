@@ -61,6 +61,7 @@ import org.apache.http.util.Args;
  * <p>
  * The following parameters can be used to customize the behavior of this
  * class:
+ * </p>
  * <ul>
  *  <li>{@link org.apache.http.params.CoreProtocolPNames#STRICT_TRANSFER_ENCODING}</li>
  *  <li>{@link org.apache.http.params.CoreConnectionPNames#MAX_HEADER_COUNT}</li>
@@ -91,6 +92,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * and {@link #createEntitySerializer()} methods in order to initialize
      * HTTP entity serializer and deserializer implementations for this
      * connection.
+     * </p>
      */
     public AbstractHttpClientConnection() {
         super();
@@ -113,6 +115,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * This method can be overridden in a super class in order to create
      * instances of {@link EntityDeserializer} using a custom
      * {@link org.apache.http.entity.ContentLengthStrategy}.
+     * </p>
      *
      * @return HTTP entity deserializer
      */
@@ -128,6 +131,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * This method can be overridden in a super class in order to create
      * instances of {@link EntitySerializer} using a custom
      * {@link org.apache.http.entity.ContentLengthStrategy}.
+     * </p>
      *
      * @return HTTP entity serialzier.
      */
@@ -142,6 +146,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * <p>
      * This method can be overridden in a super class in order to provide
      * a different implementation of the {@link HttpResponseFactory} interface.
+     * </p>
      *
      * @return HTTP response factory.
      */
@@ -158,6 +163,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * to pass a different implementation of the
      * {@link org.apache.http.message.LineParser} to the the
      * {@link DefaultHttpResponseParser} constructor.
+     * </p>
      *
      * @param buffer the session input buffer.
      * @param responseFactory the HTTP response factory.
@@ -180,6 +186,7 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * to pass a different implementation of
      * {@link org.apache.http.message.LineFormatter} to the the default implementation
      * {@link HttpRequestWriter}.
+     * </p>
      *
      * @param buffer the session output buffer
      * @param params HTTP parameters
@@ -211,29 +218,30 @@ public abstract class AbstractHttpClientConnection implements HttpClientConnecti
      * and {@link #createResponseParser(SessionInputBuffer, HttpResponseFactory, HttpParams)}
      * methods to initialize HTTP request writer and response parser for this
      * connection.
+     * </p>
      *
-     * @param inBuffer the session input buffer.
-     * @param outbuffer the session output buffer.
+     * @param sessionInputBuffer the session input buffer.
+     * @param sessionOutputBuffer the session output buffer.
      * @param params HTTP parameters.
      */
     protected void init(
-            final SessionInputBuffer inBuffer,
-            final SessionOutputBuffer outbuffer,
+            final SessionInputBuffer sessionInputBuffer,
+            final SessionOutputBuffer sessionOutputBuffer,
             final HttpParams params) {
-        this.inBuffer = Args.notNull(inBuffer, "Input session buffer");
-        this.outbuffer = Args.notNull(outbuffer, "Output session buffer");
-        if (inBuffer instanceof EofSensor) {
-            this.eofSensor = (EofSensor) inBuffer;
+        this.inBuffer = Args.notNull(sessionInputBuffer, "Input session buffer");
+        this.outbuffer = Args.notNull(sessionOutputBuffer, "Output session buffer");
+        if (sessionInputBuffer instanceof EofSensor) {
+            this.eofSensor = (EofSensor) sessionInputBuffer;
         }
         this.responseParser = createResponseParser(
-                inBuffer,
+                sessionInputBuffer,
                 createHttpResponseFactory(),
                 params);
         this.requestWriter = createRequestWriter(
-                outbuffer, params);
+                sessionOutputBuffer, params);
         this.metrics = createConnectionMetrics(
-                inBuffer.getMetrics(),
-                outbuffer.getMetrics());
+                sessionInputBuffer.getMetrics(),
+                sessionOutputBuffer.getMetrics());
     }
 
     @Override

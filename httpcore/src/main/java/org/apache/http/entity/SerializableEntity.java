@@ -70,12 +70,16 @@ public class SerializableEntity extends AbstractHttpEntity {
     }
 
     /**
+     * Creates new instance of this class.
+     *
+     * @param serializable The object to serialize.
+     *
      * @since 4.3
      */
-    public SerializableEntity(final Serializable ser) {
+    public SerializableEntity(final Serializable serializable) {
         super();
-        Args.notNull(ser, "Source object");
-        this.objRef = ser;
+        Args.notNull(serializable, "Source object");
+        this.objRef = serializable;
     }
 
     private void createBytes(final Serializable ser) throws IOException {
@@ -96,11 +100,7 @@ public class SerializableEntity extends AbstractHttpEntity {
 
     @Override
     public long getContentLength() {
-        if (this.objSer ==  null) {
-            return -1;
-        } else {
-            return this.objSer.length;
-        }
+        return this.objSer ==  null ? -1 : this.objSer.length;
     }
 
     @Override
