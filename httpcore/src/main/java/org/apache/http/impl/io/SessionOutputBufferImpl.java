@@ -73,21 +73,21 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer, BufferInfo 
      * @param fragementSizeHint fragment size hint defining a minimal size of a fragment
      *   that should be written out directly to the socket bypassing the session buffer.
      *   Value {@code 0} disables fragment buffering.
-     * @param charencoder charencoder to be used for encoding HTTP protocol elements.
+     * @param charEncoder charEncoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
      */
     public SessionOutputBufferImpl(
             final HttpTransportMetricsImpl metrics,
             final int bufferSize,
             final int fragementSizeHint,
-            final CharsetEncoder charencoder) {
+            final CharsetEncoder charEncoder) {
         super();
         Args.positive(bufferSize, "Buffer size");
         Args.notNull(metrics, "HTTP transport metrcis");
         this.metrics = metrics;
         this.buffer = new ByteArrayBuffer(bufferSize);
         this.fragementSizeHint = fragementSizeHint >= 0 ? fragementSizeHint : 0;
-        this.encoder = charencoder;
+        this.encoder = charEncoder;
     }
 
     public SessionOutputBufferImpl(

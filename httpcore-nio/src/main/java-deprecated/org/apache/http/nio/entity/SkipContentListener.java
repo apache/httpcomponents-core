@@ -56,7 +56,7 @@ public class SkipContentListener implements ContentListener {
     @Override
     public void contentAvailable(
             final ContentDecoder decoder,
-            final IOControl ioctrl) throws IOException {
+            final IOControl ioControl) throws IOException {
         int lastRead;
         do {
             buffer.clear();

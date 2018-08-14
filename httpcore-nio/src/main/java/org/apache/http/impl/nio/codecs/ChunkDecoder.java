@@ -270,11 +270,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
     }
 
     public Header[] getFooters() {
-        if (this.footers != null) {
-            return this.footers.clone();
-        } else {
-            return new Header[] {};
-        }
+        return this.footers != null ? this.footers.clone() : new Header[] {};
     }
 
     @Override

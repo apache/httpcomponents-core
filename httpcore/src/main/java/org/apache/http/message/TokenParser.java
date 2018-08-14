@@ -158,9 +158,8 @@ public class TokenParser {
             final char current = buf.charAt(i);
             if (!isWhitespace(current)) {
                 break;
-            } else {
-                pos++;
             }
+            pos++;
         }
         cursor.updatePos(pos);
     }
@@ -184,10 +183,9 @@ public class TokenParser {
             final char current = buf.charAt(i);
             if ((delimiters != null && delimiters.get(current)) || isWhitespace(current)) {
                 break;
-            } else {
-                pos++;
-                dst.append(current);
             }
+            pos++;
+            dst.append(current);
         }
         cursor.updatePos(pos);
     }
@@ -212,10 +210,9 @@ public class TokenParser {
             if ((delimiters != null && delimiters.get(current))
                     || isWhitespace(current) || current == DQUOTE) {
                 break;
-            } else {
-                pos++;
-                dst.append(current);
             }
+            pos++;
+            dst.append(current);
         }
         cursor.updatePos(pos);
     }

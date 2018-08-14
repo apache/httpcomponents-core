@@ -78,8 +78,8 @@ public class ErrorResponseProducer implements HttpAsyncResponseProducer {
 
     @Override
     public void produceContent(
-            final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
-        this.contentProducer.produceContent(encoder, ioctrl);
+            final ContentEncoder encoder, final IOControl ioControl) throws IOException {
+        this.contentProducer.produceContent(encoder, ioControl);
     }
 
     @Override

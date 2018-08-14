@@ -56,9 +56,9 @@ public interface ProducingNHttpEntity extends HttpEntity {
      * Failure to do so could result in the entity never being written.
      *
      * @param encoder content encoder.
-     * @param ioctrl I/O control of the underlying connection.
+     * @param ioControl I/O control of the underlying connection.
      */
-    void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
+    void produceContent(ContentEncoder encoder, IOControl ioControl) throws IOException;
 
     /**
      * Notification that any resources allocated for writing can be released.

@@ -98,9 +98,9 @@ public class TestHttpAsyncHandlerCancellable extends HttpCoreNIOTestBase {
 
             @Override
             public void produceContent(
-                    final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+                    final ContentEncoder encoder, final IOControl ioControl) throws IOException {
                 // suspend output
-                ioctrl.suspendOutput();
+                ioControl.suspendOutput();
             }
 
             @Override

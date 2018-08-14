@@ -65,8 +65,8 @@ import org.apache.http.util.Asserts;
  *  SSLContext sslContext = SSLContext.getInstance("SSL");
  *  sslContext.init(null, null, null);
  *  SSLIOSession sslsession = new SSLIOSession(
- *      iosession, SSLMode.CLIENT, sslContext, null);
- *  iosession.setAttribute(SSLIOSession.SESSION_KEY, sslsession);
+ *      ioSession, SSLMode.CLIENT, sslContext, null);
+ *  ioSession.setAttribute(SSLIOSession.SESSION_KEY, sslsession);
  * </pre>
  *
  * @since 4.2
@@ -591,13 +591,8 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
                 this.inPlain.release();
             }
             return n;
-        } else {
-            if (this.endOfStream) {
-                return -1;
-            } else {
-                return 0;
-            }
         }
+        return this.endOfStream ? -1 : 0;
     }
 
     @Override
@@ -772,11 +767,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
 
     @Override
     public Socket getSocket(){
-        if (this.session instanceof SocketAccessor){
-            return ((SocketAccessor) this.session).getSocket();
-        } else {
-            return null;
-        }
+        return this.session instanceof SocketAccessor ? ((SocketAccessor) this.session).getSocket() : null;
     }
 
     private class InternalByteChannel implements ByteChannel {

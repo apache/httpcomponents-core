@@ -32,26 +32,26 @@ import org.apache.http.protocol.HttpContext;
 
 class SessionHttpContext implements HttpContext {
 
-    private final IOSession iosession;
+    private final IOSession ioSession;
 
-    public SessionHttpContext(final IOSession iosession) {
+    public SessionHttpContext(final IOSession ioSession) {
         super();
-        this.iosession = iosession;
+        this.ioSession = ioSession;
     }
 
     @Override
     public Object getAttribute(final String id) {
-        return this.iosession.getAttribute(id);
+        return this.ioSession.getAttribute(id);
     }
 
     @Override
     public Object removeAttribute(final String id) {
-        return this.iosession.removeAttribute(id);
+        return this.ioSession.removeAttribute(id);
     }
 
     @Override
     public void setAttribute(final String id, final Object obj) {
-        this.iosession.setAttribute(id, obj);
+        this.ioSession.setAttribute(id, obj);
     }
 
     /**
@@ -60,8 +60,8 @@ class SessionHttpContext implements HttpContext {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("[iosession=");
-        sb.append(iosession);
+        sb.append("[ioSession=");
+        sb.append(ioSession);
         sb.append("]");
         return sb.toString();
     }

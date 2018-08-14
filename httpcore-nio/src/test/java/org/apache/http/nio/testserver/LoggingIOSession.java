@@ -45,18 +45,18 @@ import org.apache.http.nio.reactor.SessionBufferStatus;
 public class LoggingIOSession implements IOSession {
 
     private final Log log;
-    private final Wire wirelog;
+    private final Wire wireLog;
     private final String id;
     private final IOSession session;
     private final ByteChannel channel;
 
-    public LoggingIOSession(final IOSession session, final String id, final Log log, final Log wirelog) {
+    public LoggingIOSession(final IOSession session, final String id, final Log log, final Log wireLog) {
         super();
         this.session = session;
         this.channel = new LoggingByteChannel();
         this.id = id;
         this.log = log;
-        this.wirelog = new Wire(wirelog, this.id);
+        this.wireLog = new Wire(wireLog, this.id);
     }
 
     @Override
@@ -210,12 +210,12 @@ public class LoggingIOSession implements IOSession {
             if (log.isDebugEnabled()) {
                 log.debug(id + " " + session + ": " + bytesRead + " bytes read");
             }
-            if (bytesRead > 0 && wirelog.isEnabled()) {
+            if (bytesRead > 0 && wireLog.isEnabled()) {
                 final ByteBuffer b = dst.duplicate();
                 final int p = b.position();
                 b.limit(p);
                 b.position(p - bytesRead);
-                wirelog.input(b);
+                wireLog.input(b);
             }
             return bytesRead;
         }
@@ -226,12 +226,12 @@ public class LoggingIOSession implements IOSession {
             if (log.isDebugEnabled()) {
                 log.debug(id + " " + session + ": " + byteWritten + " bytes written");
             }
-            if (byteWritten > 0 && wirelog.isEnabled()) {
+            if (byteWritten > 0 && wireLog.isEnabled()) {
                 final ByteBuffer b = src.duplicate();
                 final int p = b.position();
                 b.limit(p);
                 b.position(p - byteWritten);
-                wirelog.output(b);
+                wireLog.output(b);
             }
             return byteWritten;
         }

@@ -56,9 +56,9 @@ public interface HttpAsyncContentProducer extends Closeable {
      * to resume output event notifications when more content is made available.
      *
      * @param encoder content encoder.
-     * @param ioctrl I/O control of the underlying connection.
+     * @param ioControl I/O control of the underlying connection.
      */
-    void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
+    void produceContent(ContentEncoder encoder, IOControl ioControl) throws IOException;
 
     /**
      * Determines whether or not this producer is capable of producing

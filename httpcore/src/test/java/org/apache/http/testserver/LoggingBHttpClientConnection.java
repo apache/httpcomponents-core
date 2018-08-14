@@ -52,25 +52,25 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
 
     private final String id;
     private final Log log;
-    private final Log headerlog;
+    private final Log headerLog;
     private final Wire wire;
 
     public LoggingBHttpClientConnection(
             final int bufferSize,
             final int fragmentSizeHint,
-            final CharsetDecoder chardecoder,
-            final CharsetEncoder charencoder,
+            final CharsetDecoder charDecoder,
+            final CharsetEncoder charEncoder,
             final MessageConstraints constraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<HttpResponse> responseParserFactory) {
-        super(bufferSize, fragmentSizeHint, chardecoder, charencoder,
+        super(bufferSize, fragmentSizeHint, charDecoder, charEncoder,
                 constraints, incomingContentStrategy, outgoingContentStrategy,
                 requestWriterFactory, responseParserFactory);
         this.id = "http-outgoing-" + COUNT.incrementAndGet();
         this.log = LogFactory.getLog(getClass());
-        this.headerlog = LogFactory.getLog("org.apache.http.headers");
+        this.headerLog = LogFactory.getLog("org.apache.http.headers");
         this.wire = new Wire(LogFactory.getLog("org.apache.http.wire"), this.id);
     }
 
@@ -114,22 +114,22 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection {
 
     @Override
     protected void onResponseReceived(final HttpResponse response) {
-        if (response != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(this.id + " << " + response.getStatusLine().toString());
+        if (response != null && this.headerLog.isDebugEnabled()) {
+            this.headerLog.debug(this.id + " << " + response.getStatusLine().toString());
             final Header[] headers = response.getAllHeaders();
             for (final Header header : headers) {
-                this.headerlog.debug(this.id + " << " + header.toString());
+                this.headerLog.debug(this.id + " << " + header.toString());
             }
         }
     }
 
     @Override
     protected void onRequestSubmitted(final HttpRequest request) {
-        if (request != null && this.headerlog.isDebugEnabled()) {
-            this.headerlog.debug(id + " >> " + request.getRequestLine().toString());
+        if (request != null && this.headerLog.isDebugEnabled()) {
+            this.headerLog.debug(id + " >> " + request.getRequestLine().toString());
             final Header[] headers = request.getAllHeaders();
             for (final Header header : headers) {
-                this.headerlog.debug(this.id + " >> " + header.toString());
+                this.headerLog.debug(this.id + " >> " + header.toString());
             }
         }
     }

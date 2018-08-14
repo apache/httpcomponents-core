@@ -71,21 +71,21 @@ public abstract class PoolEntry<T, C> {
      * @param conn the connection.
      * @param timeToLive maximum time to live. May be zero if the connection
      *   does not have an expiry deadline.
-     * @param tunit time unit.
+     * @param timeUnit time unit.
      */
     public PoolEntry(final String id, final T route, final C conn,
-            final long timeToLive, final TimeUnit tunit) {
+            final long timeToLive, final TimeUnit timeUnit) {
         super();
         Args.notNull(route, "Route");
         Args.notNull(conn, "Connection");
-        Args.notNull(tunit, "Time unit");
+        Args.notNull(timeUnit, "Time unit");
         this.id = id;
         this.route = route;
         this.conn = conn;
         this.created = System.currentTimeMillis();
         this.updated = this.created;
         if (timeToLive > 0) {
-            final long deadline = this.created + tunit.toMillis(timeToLive);
+            final long deadline = this.created + timeUnit.toMillis(timeToLive);
             // If the above overflows then default to Long.MAX_VALUE
             this.validityDeadline = deadline > 0 ? deadline : Long.MAX_VALUE;
         } else {
@@ -152,12 +152,12 @@ public abstract class PoolEntry<T, C> {
         return this.expiry;
     }
 
-    public synchronized void updateExpiry(final long time, final TimeUnit tunit) {
-        Args.notNull(tunit, "Time unit");
+    public synchronized void updateExpiry(final long time, final TimeUnit timeUnit) {
+        Args.notNull(timeUnit, "Time unit");
         this.updated = System.currentTimeMillis();
         final long newExpiry;
         if (time > 0) {
-            newExpiry = this.updated + tunit.toMillis(time);
+            newExpiry = this.updated + timeUnit.toMillis(time);
         } else {
             newExpiry = Long.MAX_VALUE;
         }

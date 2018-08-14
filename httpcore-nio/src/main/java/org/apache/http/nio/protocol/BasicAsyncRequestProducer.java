@@ -120,9 +120,9 @@ public class BasicAsyncRequestProducer implements HttpAsyncRequestProducer {
 
     @Override
     public void produceContent(
-            final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+            final ContentEncoder encoder, final IOControl ioControl) throws IOException {
         if (this.producer != null) {
-            this.producer.produceContent(encoder, ioctrl);
+            this.producer.produceContent(encoder, ioControl);
             if (encoder.isCompleted()) {
                 this.producer.close();
             }

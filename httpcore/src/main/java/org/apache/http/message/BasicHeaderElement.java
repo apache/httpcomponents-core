@@ -124,9 +124,8 @@ public class BasicHeaderElement implements HeaderElement, Cloneable {
             return this.name.equals(that.name)
                 && LangUtils.equals(this.value, that.value)
                 && LangUtils.equals(this.parameters, that.parameters);
-        } else {
-            return false;
         }
+        return false;
     }
 
     @Override

@@ -77,14 +77,13 @@ public class BasicHeaderElementIterator implements HeaderElementIterator {
                 this.cursor = new ParserCursor(0, this.buffer.length());
                 this.cursor.updatePos(((FormattedHeader) h).getValuePos());
                 break;
-            } else {
-                final String value = h.getValue();
-                if (value != null) {
-                    this.buffer = new CharArrayBuffer(value.length());
-                    this.buffer.append(value);
-                    this.cursor = new ParserCursor(0, this.buffer.length());
-                    break;
-                }
+            }
+            final String value = h.getValue();
+            if (value != null) {
+                this.buffer = new CharArrayBuffer(value.length());
+                this.buffer.append(value);
+                this.cursor = new ParserCursor(0, this.buffer.length());
+                break;
             }
         }
     }

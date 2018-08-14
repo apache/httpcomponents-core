@@ -171,7 +171,7 @@ public class NStringEntity extends AbstractHttpEntity
 
     @Override
     public void produceContent(
-            final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+            final ContentEncoder encoder, final IOControl ioControl) throws IOException {
         encoder.write(this.buf);
         if (!this.buf.hasRemaining()) {
             encoder.complete();

@@ -287,9 +287,8 @@ public final class HttpHost implements Cloneable, Serializable {
             buffer.append(":");
             buffer.append(Integer.toString(this.port));
             return buffer.toString();
-        } else {
-            return this.hostname;
         }
+        return this.hostname;
     }
 
 
@@ -310,9 +309,8 @@ public final class HttpHost implements Cloneable, Serializable {
                 && this.port == that.port
                 && this.schemeName.equals(that.schemeName)
                 && (this.address==null ? that.address== null : this.address.equals(that.address));
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

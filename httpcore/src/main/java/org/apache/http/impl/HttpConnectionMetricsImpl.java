@@ -67,20 +67,12 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
 
     @Override
     public long getReceivedBytesCount() {
-        if (this.inTransportMetric != null) {
-            return this.inTransportMetric.getBytesTransferred();
-        } else {
-            return -1;
-        }
+        return this.inTransportMetric != null ? this.inTransportMetric.getBytesTransferred() : -1;
     }
 
     @Override
     public long getSentBytesCount() {
-        if (this.outTransportMetric != null) {
-            return this.outTransportMetric.getBytesTransferred();
-        } else {
-            return -1;
-        }
+        return this.outTransportMetric != null ? this.outTransportMetric.getBytesTransferred() : -1;
     }
 
     @Override
@@ -113,17 +105,13 @@ public class HttpConnectionMetricsImpl implements HttpConnectionMetrics {
             } else if (RESPONSE_COUNT.equals(metricName)) {
                 value = Long.valueOf(responseCount);
             } else if (RECEIVED_BYTES_COUNT.equals(metricName)) {
-                if (this.inTransportMetric != null) {
-                    return Long.valueOf(this.inTransportMetric.getBytesTransferred());
-                } else {
-                    return null;
-                }
+                return this.inTransportMetric != null
+                                ? Long.valueOf(this.inTransportMetric.getBytesTransferred())
+                                : null;
             } else if (SENT_BYTES_COUNT.equals(metricName)) {
-                if (this.outTransportMetric != null) {
-                    return Long.valueOf(this.outTransportMetric.getBytesTransferred());
-                } else {
-                    return null;
-                }
+                return this.outTransportMetric != null
+                                ? Long.valueOf(this.outTransportMetric.getBytesTransferred())
+                                : null;
             }
         }
         return value;

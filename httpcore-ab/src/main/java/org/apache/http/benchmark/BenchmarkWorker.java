@@ -170,18 +170,18 @@ class BenchmarkWorker implements Runnable {
                     if (charset == null) {
                         charset = HTTP.DEF_CONTENT_CHARSET;
                     }
-                    long contentlen = 0;
+                    long contentLen = 0;
                     final InputStream inStream = entity.getContent();
                     int l;
                     while ((l = inStream.read(this.buffer)) != -1) {
-                        contentlen += l;
+                        contentLen += l;
                         if (config.getVerbosity() >= 4) {
                             final String s = new String(this.buffer, 0, l, charset);
                             System.out.print(s);
                         }
                     }
                     inStream.close();
-                    stats.setContentLength(contentlen);
+                    stats.setContentLength(contentLen);
                 }
 
                 if (config.getVerbosity() >= 4) {

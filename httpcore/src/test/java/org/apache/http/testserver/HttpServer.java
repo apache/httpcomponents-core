@@ -53,7 +53,7 @@ public class HttpServer {
 
     private volatile org.apache.http.impl.bootstrap.HttpServer server;
 
-    public HttpServer() throws IOException {
+    public HttpServer() {
         super();
         this.reqistry = new UriHttpRequestHandlerMapper();
     }
@@ -80,18 +80,16 @@ public class HttpServer {
         final org.apache.http.impl.bootstrap.HttpServer local = this.server;
         if (local != null) {
             return this.server.getLocalPort();
-        } else {
-            throw new IllegalStateException("Server not running");
         }
+        throw new IllegalStateException("Server not running");
     }
 
     public InetAddress getInetAddress() {
         final org.apache.http.impl.bootstrap.HttpServer local = this.server;
         if (local != null) {
             return local.getInetAddress();
-        } else {
-            throw new IllegalStateException("Server not running");
         }
+        throw new IllegalStateException("Server not running");
     }
 
     public void start() throws IOException {

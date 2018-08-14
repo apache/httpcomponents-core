@@ -52,16 +52,16 @@ public class TestBasicNIOConnPool {
     static class LocalPool extends BasicNIOConnPool {
 
         public LocalPool(
-                final ConnectingIOReactor ioreactor,
+                final ConnectingIOReactor ioReactor,
                 final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
                 final int connectTimeout) {
-            super(ioreactor, connFactory, connectTimeout);
+            super(ioReactor, connFactory, connectTimeout);
         }
 
         public LocalPool(
-                final ConnectingIOReactor ioreactor,
+                final ConnectingIOReactor ioReactor,
                 final ConnectionConfig config) {
-            super(ioreactor, config);
+            super(ioReactor, config);
         }
 
         @Override

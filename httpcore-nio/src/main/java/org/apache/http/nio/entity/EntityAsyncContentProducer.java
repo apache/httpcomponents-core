@@ -60,7 +60,7 @@ public class EntityAsyncContentProducer implements HttpAsyncContentProducer {
 
     @Override
     public void produceContent(
-            final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+            final ContentEncoder encoder, final IOControl ioControl) throws IOException {
         if (this.channel == null) {
             this.channel = Channels.newChannel(this.entity.getContent());
         }

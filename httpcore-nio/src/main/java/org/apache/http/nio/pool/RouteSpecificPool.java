@@ -104,11 +104,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     }
 
     public E getLastUsed() {
-        if (!this.available.isEmpty()) {
-            return this.available.getLast();
-        } else {
-            return null;
-        }
+        return this.available.isEmpty() ? null : this.available.getLast();
     }
 
     public boolean remove(final E entry) {
@@ -148,10 +144,9 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         final BasicFuture<E> future = removeRequest(request);
         if (future != null) {
             return future.completed(entry);
-        } else {
-            request.cancel();
-            return false;
         }
+        request.cancel();
+        return false;
     }
 
     public void cancelled(final SessionRequest request) {

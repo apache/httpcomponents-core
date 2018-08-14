@@ -81,8 +81,8 @@ public class ConsumingNHttpEntityTemplate
     @Override
     public void consumeContent(
             final ContentDecoder decoder,
-            final IOControl ioctrl) throws IOException {
-        this.contentListener.contentAvailable(decoder, ioctrl);
+            final IOControl ioControl) throws IOException {
+        this.contentListener.contentAvailable(decoder, ioControl);
     }
 
     @Override

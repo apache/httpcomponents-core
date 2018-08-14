@@ -80,11 +80,7 @@ public class SessionOutputBufferMock extends SessionOutputBufferImpl {
     }
 
     public byte[] getData() {
-        if (this.buffer != null) {
-            return this.buffer.toByteArray();
-        } else {
-            return new byte[] {};
-        }
+        return this.buffer != null ? this.buffer.toByteArray() : new byte[] {};
     }
 
 }

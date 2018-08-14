@@ -215,21 +215,21 @@ public class SSLNHttpClientConnectionFactory
      * @since 4.3
      */
     protected SSLIOSession createSSLIOSession(
-            final IOSession iosession,
+            final IOSession ioSession,
             final SSLContext sslContext,
             final SSLSetupHandler sslHandler) {
-        final Object attachment = iosession.getAttribute(IOSession.ATTACHMENT_KEY);
-        return new SSLIOSession(iosession, SSLMode.CLIENT,
+        final Object attachment = ioSession.getAttribute(IOSession.ATTACHMENT_KEY);
+        return new SSLIOSession(ioSession, SSLMode.CLIENT,
                 attachment instanceof HttpHost ? (HttpHost) attachment : null,
                 sslContext, sslHandler);
     }
 
     @Override
-    public DefaultNHttpClientConnection createConnection(final IOSession iosession) {
-        final SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslContext, this.sslHandler);
-        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
+    public DefaultNHttpClientConnection createConnection(final IOSession ioSession) {
+        final SSLIOSession sslioSession = createSSLIOSession(ioSession, this.sslContext, this.sslHandler);
+        ioSession.setAttribute(SSLIOSession.SESSION_KEY, sslioSession);
         return new DefaultNHttpClientConnection(
-                ssliosession,
+                sslioSession,
                 this.cconfig.getBufferSize(),
                 this.cconfig.getFragmentSizeHint(),
                 this.allocator,

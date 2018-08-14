@@ -159,9 +159,9 @@ public class TestDefaultNHttpServerConnection {
         @Override
         public Void answer(final InvocationOnMock invocation) throws Throwable {
             final Object[] args = invocation.getArguments();
-            final IOControl ioctrl = (IOControl) args[0];
+            final IOControl ioControl = (IOControl) args[0];
             final ContentEncoder encoder = (ContentEncoder) args[1];
-            contentProducer.produceContent(encoder, ioctrl);
+            contentProducer.produceContent(encoder, ioControl);
             return null;
         }
     }

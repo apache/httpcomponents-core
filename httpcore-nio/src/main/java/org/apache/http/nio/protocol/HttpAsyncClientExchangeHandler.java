@@ -84,10 +84,10 @@ public interface HttpAsyncClientExchangeHandler extends Closeable, Cancellable {
      * to resume output event notifications when more content is made available.
      *
      * @param encoder content encoder.
-     * @param ioctrl I/O control of the underlying connection.
+     * @param ioControl I/O control of the underlying connection.
      * @throws IOException in case of an I/O error
      */
-    void produceContent(ContentEncoder encoder, IOControl ioctrl) throws IOException;
+    void produceContent(ContentEncoder encoder, IOControl ioControl) throws IOException;
 
     /**
      * Invoked to signal that the request has been fully written out.
@@ -121,10 +121,10 @@ public interface HttpAsyncClientExchangeHandler extends Closeable, Cancellable {
      * processing more content.
      *
      * @param decoder content decoder.
-     * @param ioctrl I/O control of the underlying connection.
+     * @param ioControl I/O control of the underlying connection.
      * @throws IOException in case of an I/O error
      */
-    void consumeContent(ContentDecoder decoder, IOControl ioctrl) throws IOException;
+    void consumeContent(ContentDecoder decoder, IOControl ioControl) throws IOException;
 
     /**
      * Invoked to signal that the response has been fully processed.

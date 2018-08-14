@@ -60,7 +60,7 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     private final ReentrantLock lock;
     private final Condition condition;
 
-    private volatile IOControl ioctrl;
+    private volatile IOControl ioControl;
     private volatile boolean shutdown = false;
     private volatile boolean endOfStream = false;
 
@@ -68,10 +68,10 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
      * @deprecated (4.3) use {@link SharedOutputBuffer#SharedOutputBuffer(int, ByteBufferAllocator)}
      */
     @Deprecated
-    public SharedOutputBuffer(final int bufferSize, final IOControl ioctrl, final ByteBufferAllocator allocator) {
+    public SharedOutputBuffer(final int bufferSize, final IOControl ioControl, final ByteBufferAllocator allocator) {
         super(bufferSize, allocator);
-        Args.notNull(ioctrl, "I/O content control");
-        this.ioctrl = ioctrl;
+        Args.notNull(ioControl, "I/O content control");
+        this.ioControl = ioControl;
         this.lock = new ReentrantLock();
         this.condition = this.lock.newCondition();
     }
@@ -158,14 +158,14 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
     /**
      * @since 4.3
      */
-    public int produceContent(final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+    public int produceContent(final ContentEncoder encoder, final IOControl ioControl) throws IOException {
         if (this.shutdown) {
             return -1;
         }
         this.lock.lock();
         try {
-            if (ioctrl != null) {
-                this.ioctrl = ioctrl;
+            if (ioControl != null) {
+                this.ioControl = ioControl;
             }
             setOutputMode();
             int bytesWritten = 0;
@@ -183,8 +183,8 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                 }
                 if (!this.endOfStream) {
                     // suspend output events
-                    if (this.ioctrl != null) {
-                        this.ioctrl.suspendOutput();
+                    if (this.ioControl != null) {
+                        this.ioControl.suspendOutput();
                     }
                 }
             }
@@ -274,8 +274,8 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                     if (this.shutdown) {
                         throw new InterruptedIOException("Output operation aborted");
                     }
-                    if (this.ioctrl != null) {
-                        this.ioctrl.requestOutput();
+                    if (this.ioControl != null) {
+                        this.ioControl.requestOutput();
                     }
                     this.condition.await();
                 }
@@ -295,8 +295,8 @@ public class SharedOutputBuffer extends ExpandableBuffer implements ContentOutpu
                 return;
             }
             this.endOfStream = true;
-            if (this.ioctrl != null) {
-                this.ioctrl.requestOutput();
+            if (this.ioControl != null) {
+                this.ioControl.requestOutput();
             }
         } finally {
             this.lock.unlock();

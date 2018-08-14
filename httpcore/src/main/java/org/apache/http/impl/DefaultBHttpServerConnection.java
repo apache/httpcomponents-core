@@ -65,9 +65,9 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
      *
      * @param bufferSize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
-     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     * @param charDecoder decoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
-     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     * @param charEncoder encoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
      * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
@@ -83,14 +83,14 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     public DefaultBHttpServerConnection(
             final int bufferSize,
             final int fragmentSizeHint,
-            final CharsetDecoder chardecoder,
-            final CharsetEncoder charencoder,
+            final CharsetDecoder charDecoder,
+            final CharsetEncoder charEncoder,
             final MessageConstraints constraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageParserFactory<HttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<HttpResponse> responseWriterFactory) {
-        super(bufferSize, fragmentSizeHint, chardecoder, charencoder, constraints,
+        super(bufferSize, fragmentSizeHint, charDecoder, charEncoder, constraints,
                 incomingContentStrategy != null ? incomingContentStrategy :
                     DisallowIdentityContentLengthStrategy.INSTANCE, outgoingContentStrategy);
         this.requestParser = (requestParserFactory != null ? requestParserFactory :
@@ -101,10 +101,10 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
 
     public DefaultBHttpServerConnection(
             final int bufferSize,
-            final CharsetDecoder chardecoder,
-            final CharsetEncoder charencoder,
+            final CharsetDecoder charDecoder,
+            final CharsetEncoder charEncoder,
             final MessageConstraints constraints) {
-        this(bufferSize, bufferSize, chardecoder, charencoder, constraints, null, null, null, null);
+        this(bufferSize, bufferSize, charDecoder, charEncoder, constraints, null, null, null, null);
     }
 
     public DefaultBHttpServerConnection(final int bufferSize) {

@@ -84,7 +84,7 @@ public class NHttpEntityWrapper
     @Override
     public void produceContent(
             final ContentEncoder encoder,
-            final IOControl ioctrl) throws IOException {
+            final IOControl ioControl) throws IOException {
         final int i = this.channel.read(this.buffer);
         this.buffer.flip();
         encoder.write(this.buffer);

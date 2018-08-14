@@ -100,11 +100,10 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
                 wait(waitTime);
                 if (this.completed) {
                     return getResult();
-                } else {
-                    waitTime = msecs - (System.currentTimeMillis() - startTime);
-                    if (waitTime <= 0) {
-                        throw new TimeoutException();
-                    }
+                }
+                waitTime = msecs - (System.currentTimeMillis() - startTime);
+                if (waitTime <= 0) {
+                    throw new TimeoutException();
                 }
             }
         }

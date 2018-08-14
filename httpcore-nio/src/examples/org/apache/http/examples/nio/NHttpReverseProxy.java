@@ -458,9 +458,9 @@ public class NHttpReverseProxy {
         }
 
         public void consumeContent(
-                final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
+                final ContentDecoder decoder, final IOControl ioControl) throws IOException {
             synchronized (this.httpExchange) {
-                this.httpExchange.setClientIOControl(ioctrl);
+                this.httpExchange.setClientIOControl(ioControl);
                 // Receive data from the client
                 final ByteBuffer buf = this.httpExchange.getInBuffer();
                 final int n = decoder.read(buf);
@@ -471,7 +471,7 @@ public class NHttpReverseProxy {
                 // If the buffer is full, suspend client input until there is free
                 // space in the buffer
                 if (!buf.hasRemaining()) {
-                    ioctrl.suspendInput();
+                    ioControl.suspendInput();
                     System.out.println("[client->proxy] " + this.httpExchange.getId() + " suspend client input");
                 }
                 // If there is some content in the input buffer make sure origin
@@ -550,9 +550,9 @@ public class NHttpReverseProxy {
         }
 
         public void produceContent(
-                final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+                final ContentEncoder encoder, final IOControl ioControl) throws IOException {
             synchronized (this.httpExchange) {
-                this.httpExchange.setOriginIOControl(ioctrl);
+                this.httpExchange.setOriginIOControl(ioControl);
                 // Send data to the origin server
                 final ByteBuffer buf = this.httpExchange.getInBuffer();
                 buf.flip();
@@ -574,7 +574,7 @@ public class NHttpReverseProxy {
                     } else {
                         // Input buffer is empty. Wait until the client fills up
                         // the buffer
-                        ioctrl.suspendOutput();
+                        ioControl.suspendOutput();
                         System.out.println("[proxy->origin] " + this.httpExchange.getId() + " suspend origin output");
                     }
                 }
@@ -627,9 +627,9 @@ public class NHttpReverseProxy {
         }
 
         public void consumeContent(
-                final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
+                final ContentDecoder decoder, final IOControl ioControl) throws IOException {
             synchronized (this.httpExchange) {
-                this.httpExchange.setOriginIOControl(ioctrl);
+                this.httpExchange.setOriginIOControl(ioControl);
                 // Receive data from the origin
                 final ByteBuffer buf = this.httpExchange.getOutBuffer();
                 final int n = decoder.read(buf);
@@ -640,7 +640,7 @@ public class NHttpReverseProxy {
                 // If the buffer is full, suspend origin input until there is free
                 // space in the buffer
                 if (!buf.hasRemaining()) {
-                    ioctrl.suspendInput();
+                    ioControl.suspendInput();
                     System.out.println("[proxy<-origin] " + this.httpExchange.getId() + " suspend origin input");
                 }
                 // If there is some content in the input buffer make sure client
@@ -741,9 +741,9 @@ public class NHttpReverseProxy {
         }
 
         public void produceContent(
-                final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+                final ContentEncoder encoder, final IOControl ioControl) throws IOException {
             synchronized (this.httpExchange) {
-                this.httpExchange.setClientIOControl(ioctrl);
+                this.httpExchange.setClientIOControl(ioControl);
                 // Send data to the client
                 final ByteBuffer buf = this.httpExchange.getOutBuffer();
                 buf.flip();
@@ -765,7 +765,7 @@ public class NHttpReverseProxy {
                     } else {
                         // Input buffer is empty. Wait until the origin fills up
                         // the buffer
-                        ioctrl.suspendOutput();
+                        ioControl.suspendOutput();
                         System.out.println("[client<-proxy] " + this.httpExchange.getId() + " suspend client output");
                     }
                 }
@@ -871,10 +871,10 @@ public class NHttpReverseProxy {
     static class ProxyConnPool extends BasicNIOConnPool {
 
         public ProxyConnPool(
-                final ConnectingIOReactor ioreactor,
+                final ConnectingIOReactor ioReactor,
                 final NIOConnFactory<HttpHost, NHttpClientConnection> connFactory,
                 final int connectTimeout) {
-            super(ioreactor, connFactory, connectTimeout);
+            super(ioReactor, connFactory, connectTimeout);
         }
 
         @Override

@@ -61,9 +61,8 @@ class TimeoutByteArrayInputStream extends InputStream {
         final int v = this.buf[this.pos++] & 0xff;
         if (v != 0) {
             return v;
-        } else {
-            throw new InterruptedIOException("Timeout");
         }
+        throw new InterruptedIOException("Timeout");
     }
 
     @Override
@@ -92,10 +91,9 @@ class TimeoutByteArrayInputStream extends InputStream {
             final int v = this.buf[this.pos] & 0xff;
             if (v == 0) {
                 return i;
-            } else {
-                b[off + i] = (byte) v;
-                this.pos++;
             }
+            b[off + i] = (byte) v;
+            this.pos++;
         }
         return chunk;
     }

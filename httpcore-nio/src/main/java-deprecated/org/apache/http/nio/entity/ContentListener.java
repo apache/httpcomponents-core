@@ -46,9 +46,9 @@ public interface ContentListener {
      * Notification that content is available to be read from the decoder.
      *
      * @param decoder content decoder.
-     * @param ioctrl I/O control of the underlying connection.
+     * @param ioControl I/O control of the underlying connection.
      */
-    void contentAvailable(ContentDecoder decoder, IOControl ioctrl)
+    void contentAvailable(ContentDecoder decoder, IOControl ioControl)
         throws IOException;
 
     /**

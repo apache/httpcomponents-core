@@ -72,7 +72,7 @@ public class BufferingNHttpEntity extends HttpEntityWrapper implements
     @Override
     public void consumeContent(
             final ContentDecoder decoder,
-            final IOControl ioctrl) throws IOException {
+            final IOControl ioControl) throws IOException {
         this.buffer.consumeContent(decoder);
         if (decoder.isCompleted()) {
             this.finished = true;

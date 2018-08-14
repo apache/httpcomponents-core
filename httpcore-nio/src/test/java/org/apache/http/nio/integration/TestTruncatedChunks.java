@@ -211,7 +211,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
 
         @Override
         protected void onContentReceived(
-                final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
+                final ContentDecoder decoder, final IOControl ioControl) throws IOException {
             boolean finished = false;
             try {
                 this.buffer.consumeContent(decoder);

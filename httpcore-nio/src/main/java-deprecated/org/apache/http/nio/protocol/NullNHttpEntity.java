@@ -69,7 +69,7 @@ class NullNHttpEntity extends HttpEntityWrapper implements ConsumingNHttpEntity 
     @Override
     public void consumeContent(
             final ContentDecoder decoder,
-            final IOControl ioctrl) throws IOException {
+            final IOControl ioControl) throws IOException {
         int lastRead;
         do {
             buffer.clear();

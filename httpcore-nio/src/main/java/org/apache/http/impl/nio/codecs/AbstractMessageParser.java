@@ -236,9 +236,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 }
             }
             return this.message;
-        } else {
-            return null;
         }
+        return null;
     }
 
 }

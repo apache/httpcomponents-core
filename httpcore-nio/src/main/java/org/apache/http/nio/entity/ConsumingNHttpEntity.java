@@ -53,9 +53,9 @@ public interface ConsumingNHttpEntity extends HttpEntity {
      * allocate more storage to accommodate all incoming content.
      *
      * @param decoder content decoder.
-     * @param ioctrl I/O control of the underlying connection.
+     * @param ioControl I/O control of the underlying connection.
      */
-    void consumeContent(ContentDecoder decoder, IOControl ioctrl) throws IOException;
+    void consumeContent(ContentDecoder decoder, IOControl ioControl) throws IOException;
 
     /**
      * Notification that any resources allocated for reading can be released.

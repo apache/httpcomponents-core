@@ -64,11 +64,11 @@ public interface SSLSetupHandler {
      * For instance this would be the right place to enforce SSL cipher
      * strength, validate certificate chain and do hostname checks.
      *
-     * @param iosession the underlying IOSession for the SSL connection.
+     * @param ioSession the underlying IOSession for the SSL connection.
      * @param sslsession newly created SSL session.
      * @throws SSLException if case of SSL protocol error.
      */
-    void verify(IOSession iosession, SSLSession sslsession)
+    void verify(IOSession ioSession, SSLSession sslsession)
         throws SSLException;
 
 }

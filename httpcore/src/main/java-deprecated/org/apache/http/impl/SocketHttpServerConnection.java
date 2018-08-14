@@ -207,9 +207,8 @@ public class SocketHttpServerConnection extends
             } catch (final SocketException ignore) {
                 return -1;
             }
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     @Override
@@ -272,9 +271,8 @@ public class SocketHttpServerConnection extends
                 formatAddress(buffer, remoteAddress);
             }
             return buffer.toString();
-        } else {
-            return super.toString();
         }
+        return super.toString();
     }
 
 }

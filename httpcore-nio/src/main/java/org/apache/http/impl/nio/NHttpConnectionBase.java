@@ -189,9 +189,9 @@ public class NHttpConnectionBase
      * @param allocator memory allocator.
      *   If {@code null} {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
      *   will be used.
-     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     * @param charDecoder decoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
-     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     * @param charEncoder encoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
      * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
@@ -207,8 +207,8 @@ public class NHttpConnectionBase
             final int bufferSize,
             final int fragmentSizeHint,
             final ByteBufferAllocator allocator,
-            final CharsetDecoder chardecoder,
-            final CharsetEncoder charencoder,
+            final CharsetDecoder charDecoder,
+            final CharsetEncoder charEncoder,
             final MessageConstraints constraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
@@ -218,8 +218,8 @@ public class NHttpConnectionBase
         if (lineBufferSize > 512) {
             lineBufferSize = 512;
         }
-        this.inbuf = new SessionInputBufferImpl(bufferSize, lineBufferSize, chardecoder, allocator);
-        this.outbuf = new SessionOutputBufferImpl(bufferSize, lineBufferSize, charencoder, allocator);
+        this.inbuf = new SessionInputBufferImpl(bufferSize, lineBufferSize, charDecoder, allocator);
+        this.outbuf = new SessionOutputBufferImpl(bufferSize, lineBufferSize, charEncoder, allocator);
         this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : bufferSize;
 
         this.inTransportMetrics = new HttpTransportMetricsImpl();
@@ -244,9 +244,9 @@ public class NHttpConnectionBase
      * @param allocator memory allocator.
      *   If {@code null} {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
      *   will be used.
-     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     * @param charDecoder decoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
-     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     * @param charEncoder encoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
      * @param incomingContentStrategy incoming content length strategy. If {@code null}
      *   {@link LaxContentLengthStrategy#INSTANCE} will be used.
@@ -260,11 +260,11 @@ public class NHttpConnectionBase
             final int bufferSize,
             final int fragmentSizeHint,
             final ByteBufferAllocator allocator,
-            final CharsetDecoder chardecoder,
-            final CharsetEncoder charencoder,
+            final CharsetDecoder charDecoder,
+            final CharsetEncoder charEncoder,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
-        this(session, bufferSize, fragmentSizeHint, allocator, chardecoder, charencoder,
+        this(session, bufferSize, fragmentSizeHint, allocator, charDecoder, charEncoder,
                 null, incomingContentStrategy, outgoingContentStrategy);
     }
 
@@ -526,41 +526,25 @@ public class NHttpConnectionBase
     @Override
     public InetAddress getLocalAddress() {
         final SocketAddress address = this.session.getLocalAddress();
-        if (address instanceof InetSocketAddress) {
-            return ((InetSocketAddress) address).getAddress();
-        } else {
-            return null;
-        }
+        return address instanceof InetSocketAddress ? ((InetSocketAddress) address).getAddress() : null;
     }
 
     @Override
     public int getLocalPort() {
         final SocketAddress address = this.session.getLocalAddress();
-        if (address instanceof InetSocketAddress) {
-            return ((InetSocketAddress) address).getPort();
-        } else {
-            return -1;
-        }
+        return address instanceof InetSocketAddress ? ((InetSocketAddress) address).getPort() : -1;
     }
 
     @Override
     public InetAddress getRemoteAddress() {
         final SocketAddress address = this.session.getRemoteAddress();
-        if (address instanceof InetSocketAddress) {
-            return ((InetSocketAddress) address).getAddress();
-        } else {
-            return null;
-        }
+        return address instanceof InetSocketAddress ? ((InetSocketAddress) address).getAddress() : null;
     }
 
     @Override
     public int getRemotePort() {
         final SocketAddress address = this.session.getRemoteAddress();
-        if (address instanceof InetSocketAddress) {
-            return ((InetSocketAddress) address).getPort();
-        } else {
-            return -1;
-        }
+        return address instanceof InetSocketAddress ? ((InetSocketAddress) address).getPort() : -1;
     }
 
     @Override
@@ -594,18 +578,13 @@ public class NHttpConnectionBase
             buffer.append("<->");
             NetUtils.formatAddress(buffer, remoteAddress);
             return buffer.toString();
-        } else {
-            return "[Not bound]";
         }
+        return "[Not bound]";
     }
 
     @Override
     public Socket getSocket() {
-        if (this.session instanceof SocketAccessor) {
-            return ((SocketAccessor) this.session).getSocket();
-        } else {
-            return null;
-        }
+        return this.session instanceof SocketAccessor ? ((SocketAccessor) this.session).getSocket() : null;
     }
 
 }

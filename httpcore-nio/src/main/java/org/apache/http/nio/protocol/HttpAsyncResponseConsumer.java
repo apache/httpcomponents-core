@@ -73,10 +73,10 @@ public interface HttpAsyncResponseConsumer<T> extends Closeable, Cancellable {
      * processing more content.
      *
      * @param decoder content decoder.
-     * @param ioctrl I/O control of the underlying connection.
+     * @param ioControl I/O control of the underlying connection.
      * @throws IOException in case of an I/O error
      */
-    void consumeContent(ContentDecoder decoder, IOControl ioctrl) throws IOException;
+    void consumeContent(ContentDecoder decoder, IOControl ioControl) throws IOException;
 
     /**
      * Invoked to signal that the response has been fully processed.

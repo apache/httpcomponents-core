@@ -131,7 +131,7 @@ public class NByteArrayEntity extends AbstractHttpEntity
     }
 
     @Override
-    public void produceContent(final ContentEncoder encoder, final IOControl ioctrl)
+    public void produceContent(final ContentEncoder encoder, final IOControl ioControl)
             throws IOException {
         encoder.write(this.buf);
         if(!this.buf.hasRemaining()) {

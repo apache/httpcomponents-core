@@ -78,11 +78,11 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
      * to find out whether or not the message content has been fully consumed.
      *
      * @param decoder content decoder.
-     * @param ioctrl I/O control of the underlying connection.
+     * @param ioControl I/O control of the underlying connection.
      * @throws IOException in case of an I/O error
      */
     protected abstract void onContentReceived(
-            ContentDecoder decoder, IOControl ioctrl) throws IOException;
+            ContentDecoder decoder, IOControl ioControl) throws IOException;
 
     /**
      * Invoked if the response message encloses a content entity.
@@ -143,8 +143,8 @@ public abstract class AbstractAsyncResponseConsumer<T> implements HttpAsyncRespo
      */
     @Override
     public final void consumeContent(
-            final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
-        onContentReceived(decoder, ioctrl);
+            final ContentDecoder decoder, final IOControl ioControl) throws IOException {
+        onContentReceived(decoder, ioControl);
     }
 
     /**

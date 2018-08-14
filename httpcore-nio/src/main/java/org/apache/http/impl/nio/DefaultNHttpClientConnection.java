@@ -110,9 +110,9 @@ public class DefaultNHttpClientConnection
      * @param allocator memory allocator.
      *   If {@code null} {@link org.apache.http.nio.util.HeapByteBufferAllocator#INSTANCE}
      *   will be used.
-     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     * @param charDecoder decoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
-     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     * @param charEncoder encoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
      * @param constraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
@@ -128,14 +128,14 @@ public class DefaultNHttpClientConnection
             final int bufferSize,
             final int fragmentSizeHint,
             final ByteBufferAllocator allocator,
-            final CharsetDecoder chardecoder,
-            final CharsetEncoder charencoder,
+            final CharsetDecoder charDecoder,
+            final CharsetEncoder charEncoder,
             final MessageConstraints constraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final NHttpMessageParserFactory<HttpResponse> responseParserFactory) {
-        super(session, bufferSize, fragmentSizeHint, allocator, chardecoder, charencoder,
+        super(session, bufferSize, fragmentSizeHint, allocator, charDecoder, charEncoder,
                 constraints, incomingContentStrategy, outgoingContentStrategy);
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
             DefaultHttpRequestWriterFactory.INSTANCE).create(this.outbuf);
@@ -149,10 +149,10 @@ public class DefaultNHttpClientConnection
     public DefaultNHttpClientConnection(
             final IOSession session,
             final int bufferSize,
-            final CharsetDecoder chardecoder,
-            final CharsetEncoder charencoder,
+            final CharsetDecoder charDecoder,
+            final CharsetEncoder charEncoder,
             final MessageConstraints constraints) {
-        this(session, bufferSize, bufferSize, null, chardecoder, charencoder, constraints,
+        this(session, bufferSize, bufferSize, null, charDecoder, charEncoder, constraints,
                 null, null, null, null);
     }
 

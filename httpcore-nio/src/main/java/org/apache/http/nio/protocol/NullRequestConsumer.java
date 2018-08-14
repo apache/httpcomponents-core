@@ -51,7 +51,7 @@ class NullRequestConsumer implements HttpAsyncRequestConsumer<Object> {
 
     @Override
     public void consumeContent(
-            final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
+            final ContentDecoder decoder, final IOControl ioControl) throws IOException {
         int lastRead;
         do {
             this.buffer.clear();

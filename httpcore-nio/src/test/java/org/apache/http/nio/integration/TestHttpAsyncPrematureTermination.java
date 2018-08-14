@@ -230,8 +230,8 @@ public class TestHttpAsyncPrematureTermination extends HttpCoreNIOTestBase {
                     @Override
                     public synchronized void produceContent(
                             final ContentEncoder encoder,
-                            final IOControl ioctrl) throws IOException {
-                        ioctrl.shutdown();
+                            final IOControl ioControl) throws IOException {
+                        ioControl.shutdown();
                     }
 
                 });

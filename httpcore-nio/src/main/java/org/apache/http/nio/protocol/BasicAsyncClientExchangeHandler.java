@@ -62,7 +62,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     private final BasicFuture<T> future;
     private final HttpContext localContext;
     private final NHttpClientConnection conn;
-    private final HttpProcessor httppocessor;
+    private final HttpProcessor httpPocessor;
     private final ConnectionReuseStrategy connReuseStrategy;
     private final AtomicBoolean requestSent;
     private final AtomicBoolean keepAlive;
@@ -76,7 +76,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
      * @param callback the future callback invoked when the operation is completed.
      * @param localContext the local execution context.
      * @param conn the actual connection.
-     * @param httppocessor the HTTP protocol processor.
+     * @param httpPocessor the HTTP protocol processor.
      * @param connReuseStrategy the connection re-use strategy.
      */
     public BasicAsyncClientExchangeHandler(
@@ -85,7 +85,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
             final FutureCallback<T> callback,
             final HttpContext localContext,
             final NHttpClientConnection conn,
-            final HttpProcessor httppocessor,
+            final HttpProcessor httpPocessor,
             final ConnectionReuseStrategy connReuseStrategy) {
         super();
         this.requestProducer = Args.notNull(requestProducer, "Request producer");
@@ -93,7 +93,7 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.future = new BasicFuture<T>(callback);
         this.localContext = Args.notNull(localContext, "HTTP context");
         this.conn = Args.notNull(conn, "HTTP connection");
-        this.httppocessor = Args.notNull(httppocessor, "HTTP processor");
+        this.httpPocessor = Args.notNull(httpPocessor, "HTTP processor");
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
             DefaultConnectionReuseStrategy.INSTANCE;
         this.requestSent = new AtomicBoolean(false);
@@ -108,15 +108,15 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
      * @param responseConsumer the response consumer.
      * @param localContext the local execution context.
      * @param conn the actual connection.
-     * @param httppocessor the HTTP protocol processor.
+     * @param httpPocessor the HTTP protocol processor.
      */
     public BasicAsyncClientExchangeHandler(
             final HttpAsyncRequestProducer requestProducer,
             final HttpAsyncResponseConsumer<T> responseConsumer,
             final HttpContext localContext,
             final NHttpClientConnection conn,
-            final HttpProcessor httppocessor) {
-        this(requestProducer, responseConsumer, null, localContext, conn, httppocessor, null);
+            final HttpProcessor httpPocessor) {
+        this(requestProducer, responseConsumer, null, localContext, conn, httpPocessor, null);
     }
 
     public Future<T> getFuture() {
@@ -152,14 +152,14 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
         final HttpRequest request = this.requestProducer.generateRequest();
         this.localContext.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         this.localContext.setAttribute(HttpCoreContext.HTTP_CONNECTION, this.conn);
-        this.httppocessor.process(request, this.localContext);
+        this.httpPocessor.process(request, this.localContext);
         return request;
     }
 
     @Override
     public void produceContent(
-            final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
-        this.requestProducer.produceContent(encoder, ioctrl);
+            final ContentEncoder encoder, final IOControl ioControl) throws IOException {
+        this.requestProducer.produceContent(encoder, ioControl);
     }
 
     @Override
@@ -171,15 +171,15 @@ public class BasicAsyncClientExchangeHandler<T> implements HttpAsyncClientExchan
     @Override
     public void responseReceived(final HttpResponse response) throws IOException, HttpException {
         this.localContext.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-        this.httppocessor.process(response, this.localContext);
+        this.httpPocessor.process(response, this.localContext);
         this.responseConsumer.responseReceived(response);
         this.keepAlive.set(this.connReuseStrategy.keepAlive(response, this.localContext));
     }
 
     @Override
     public void consumeContent(
-            final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
-        this.responseConsumer.consumeContent(decoder, ioctrl);
+            final ContentDecoder decoder, final IOControl ioControl) throws IOException {
+        this.responseConsumer.consumeContent(decoder, ioControl);
     }
 
     @Override

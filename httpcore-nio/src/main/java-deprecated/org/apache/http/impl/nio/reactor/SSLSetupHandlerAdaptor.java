@@ -56,8 +56,8 @@ class SSLSetupHandlerAdaptor implements org.apache.http.nio.reactor.ssl.SSLSetup
     }
 
     @Override
-    public void verify(final IOSession iosession, final SSLSession sslsession) throws SSLException {
-        this.handler.verify(iosession, sslsession);
+    public void verify(final IOSession ioSession, final SSLSession sslsession) throws SSLException {
+        this.handler.verify(ioSession, sslsession);
     }
 
     public void setParams(final HttpParams params) {

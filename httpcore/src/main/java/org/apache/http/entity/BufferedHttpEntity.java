@@ -69,20 +69,12 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
 
     @Override
     public long getContentLength() {
-        if (this.buffer != null) {
-            return this.buffer.length;
-        } else {
-            return super.getContentLength();
-        }
+        return this.buffer != null ? this.buffer.length : super.getContentLength();
     }
 
     @Override
     public InputStream getContent() throws IOException {
-        if (this.buffer != null) {
-            return new ByteArrayInputStream(this.buffer);
-        } else {
-            return super.getContent();
-        }
+        return this.buffer != null ? new ByteArrayInputStream(this.buffer) : super.getContent();
     }
 
     /**

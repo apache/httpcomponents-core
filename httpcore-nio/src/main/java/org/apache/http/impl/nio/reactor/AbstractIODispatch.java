@@ -71,18 +71,18 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
                 session.setAttribute(IOEventDispatch.CONNECTION_KEY, conn);
             }
             onConnected(conn);
-            final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+            final SSLIOSession sslioSession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
-            if (ssliosession != null) {
+            if (sslioSession != null) {
                 try {
-                    synchronized (ssliosession) {
-                        if (!ssliosession.isInitialized()) {
-                            ssliosession.initialize();
+                    synchronized (sslioSession) {
+                        if (!sslioSession.isInitialized()) {
+                            sslioSession.initialize();
                         }
                     }
                 } catch (final IOException ex) {
                     onException(conn, ex);
-                    ssliosession.shutdown();
+                    sslioSession.shutdown();
                 }
             }
         } catch (final RuntimeException ex) {
@@ -108,22 +108,22 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
         T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         try {
             ensureNotNull(conn);
-            final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+            final SSLIOSession sslioSession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
-            if (ssliosession == null) {
+            if (sslioSession == null) {
                 onInputReady(conn);
             } else {
                 try {
-                    if (!ssliosession.isInitialized()) {
-                        ssliosession.initialize();
+                    if (!sslioSession.isInitialized()) {
+                        sslioSession.initialize();
                     }
-                    if (ssliosession.isAppInputReady()) {
+                    if (sslioSession.isAppInputReady()) {
                         onInputReady(conn);
                     }
-                    ssliosession.inboundTransport();
+                    sslioSession.inboundTransport();
                 } catch (final IOException ex) {
                     onException(conn, ex);
-                    ssliosession.shutdown();
+                    sslioSession.shutdown();
                 }
             }
         } catch (final RuntimeException ex) {
@@ -139,22 +139,22 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
         T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         try {
             ensureNotNull(conn);
-            final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+            final SSLIOSession sslioSession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
-            if (ssliosession == null) {
+            if (sslioSession == null) {
                 onOutputReady(conn);
             } else {
                 try {
-                    if (!ssliosession.isInitialized()) {
-                        ssliosession.initialize();
+                    if (!sslioSession.isInitialized()) {
+                        sslioSession.initialize();
                     }
-                    if (ssliosession.isAppOutputReady()) {
+                    if (sslioSession.isAppOutputReady()) {
                         onOutputReady(conn);
                     }
-                    ssliosession.outboundTransport();
+                    sslioSession.outboundTransport();
                 } catch (final IOException ex) {
                     onException(conn, ex);
-                    ssliosession.shutdown();
+                    sslioSession.shutdown();
                 }
             }
         } catch (final RuntimeException ex) {
@@ -169,15 +169,15 @@ public abstract class AbstractIODispatch<T> implements IOEventDispatch {
         final
         T conn = (T) session.getAttribute(IOEventDispatch.CONNECTION_KEY);
         try {
-            final SSLIOSession ssliosession = (SSLIOSession) session.getAttribute(
+            final SSLIOSession sslioSession = (SSLIOSession) session.getAttribute(
                     SSLIOSession.SESSION_KEY);
             ensureNotNull(conn);
             onTimeout(conn);
-            if (ssliosession != null) {
-                synchronized (ssliosession) {
-                    if (ssliosession.isOutboundDone() && !ssliosession.isInboundDone()) {
+            if (sslioSession != null) {
+                synchronized (sslioSession) {
+                    if (sslioSession.isOutboundDone() && !sslioSession.isInboundDone()) {
                         // The session failed to terminate cleanly
-                        ssliosession.shutdown();
+                        sslioSession.shutdown();
                     }
                 }
             }

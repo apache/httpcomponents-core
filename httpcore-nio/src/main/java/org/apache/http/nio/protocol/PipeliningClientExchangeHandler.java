@@ -72,7 +72,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
     private final BasicFuture<List<T>> future;
     private final HttpContext localContext;
     private final NHttpClientConnection conn;
-    private final HttpProcessor httppocessor;
+    private final HttpProcessor httpPocessor;
     private final ConnectionReuseStrategy connReuseStrategy;
 
     private final AtomicReference<HttpAsyncRequestProducer> requestProducerRef;
@@ -88,7 +88,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
      * @param callback the future callback invoked when the operation is completed.
      * @param localContext the local execution context.
      * @param conn the actual connection.
-     * @param httppocessor the HTTP protocol processor.
+     * @param httpPocessor the HTTP protocol processor.
      * @param connReuseStrategy the connection re-use strategy.
      */
     public PipeliningClientExchangeHandler(
@@ -97,7 +97,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
             final FutureCallback<List<T>> callback,
             final HttpContext localContext,
             final NHttpClientConnection conn,
-            final HttpProcessor httppocessor,
+            final HttpProcessor httpPocessor,
             final ConnectionReuseStrategy connReuseStrategy) {
         super();
         Args.notEmpty(requestProducers, "Request producer list");
@@ -111,7 +111,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
         this.future = new BasicFuture<List<T>>(callback);
         this.localContext = Args.notNull(localContext, "HTTP context");
         this.conn = Args.notNull(conn, "HTTP connection");
-        this.httppocessor = Args.notNull(httppocessor, "HTTP processor");
+        this.httpPocessor = Args.notNull(httpPocessor, "HTTP processor");
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy :
             DefaultConnectionReuseStrategy.INSTANCE;
         this.localContext.setAttribute(HttpCoreContext.HTTP_CONNECTION, this.conn);
@@ -128,15 +128,15 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
      * @param responseConsumers the response consumers.
      * @param localContext the local execution context.
      * @param conn the actual connection.
-     * @param httppocessor the HTTP protocol processor.
+     * @param httpPocessor the HTTP protocol processor.
      */
     public PipeliningClientExchangeHandler(
             final List<? extends HttpAsyncRequestProducer> requestProducers,
             final List<? extends HttpAsyncResponseConsumer<T>> responseConsumers,
             final HttpContext localContext,
             final NHttpClientConnection conn,
-            final HttpProcessor httppocessor) {
-        this(requestProducers, responseConsumers, null, localContext, conn, httppocessor, null);
+            final HttpProcessor httpPocessor) {
+        this(requestProducers, responseConsumers, null, localContext, conn, httpPocessor, null);
     }
 
     public Future<List<T>> getFuture() {
@@ -184,17 +184,17 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
         }
         this.requestProducerRef.set(requestProducer);
         final HttpRequest request = requestProducer.generateRequest();
-        this.httppocessor.process(request, this.localContext);
+        this.httpPocessor.process(request, this.localContext);
         this.requestQueue.add(request);
         return request;
     }
 
     @Override
     public void produceContent(
-            final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
+            final ContentEncoder encoder, final IOControl ioControl) throws IOException {
         final HttpAsyncRequestProducer requestProducer = this.requestProducerRef.get();
         Asserts.check(requestProducer != null, "Inconsistent state: request producer is null");
-        requestProducer.produceContent(encoder, ioctrl);
+        requestProducer.produceContent(encoder, ioControl);
     }
 
     @Override
@@ -217,7 +217,7 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
 
         this.localContext.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         this.localContext.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
-        this.httppocessor.process(response, this.localContext);
+        this.httpPocessor.process(response, this.localContext);
 
         responseConsumer.responseReceived(response);
         this.keepAlive.set(this.connReuseStrategy.keepAlive(response, this.localContext));
@@ -225,10 +225,10 @@ public class PipeliningClientExchangeHandler<T> implements HttpAsyncClientExchan
 
     @Override
     public void consumeContent(
-            final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
+            final ContentDecoder decoder, final IOControl ioControl) throws IOException {
         final HttpAsyncResponseConsumer<T> responseConsumer = this.responseConsumerRef.get();
         Asserts.check(responseConsumer != null, "Inconsistent state: response consumer is null");
-        responseConsumer.consumeContent(decoder, ioctrl);
+        responseConsumer.consumeContent(decoder, ioControl);
     }
 
     @Override

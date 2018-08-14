@@ -89,9 +89,8 @@ class NHttpClientEventHandlerAdaptor implements NHttpClientEventHandler {
         } else {
             if (ex instanceof RuntimeException) {
                 throw (RuntimeException) ex;
-            } else {
-                throw new Error("Unexpected exception: ", ex);
             }
+            throw new Error("Unexpected exception: ", ex);
         }
     }
 

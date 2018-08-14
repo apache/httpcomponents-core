@@ -56,14 +56,14 @@ public class ClientConnectionFactory implements NHttpConnectionFactory<DefaultNH
     }
 
     @Override
-    public DefaultNHttpClientConnection createConnection(final IOSession iosession) {
+    public DefaultNHttpClientConnection createConnection(final IOSession ioSession) {
         if (this.sslContext != null) {
-            final SSLIOSession ssliosession = new SSLIOSession(
-                    iosession, SSLMode.CLIENT, this.sslContext, this.setupHandler);
-            iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
-            return new LoggingNHttpClientConnection(ssliosession);
+            final SSLIOSession sslioSession = new SSLIOSession(
+                    ioSession, SSLMode.CLIENT, this.sslContext, this.setupHandler);
+            ioSession.setAttribute(SSLIOSession.SESSION_KEY, sslioSession);
+            return new LoggingNHttpClientConnection(sslioSession);
         } else {
-            return new LoggingNHttpClientConnection(iosession);
+            return new LoggingNHttpClientConnection(ioSession);
         }
     }
 

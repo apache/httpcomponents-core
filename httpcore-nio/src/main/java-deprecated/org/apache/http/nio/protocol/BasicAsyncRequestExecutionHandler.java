@@ -61,7 +61,7 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
     private final HttpAsyncResponseConsumer<T> responseConsumer;
     private final BasicFuture<T> future;
     private final HttpContext localContext;
-    private final HttpProcessor httppocessor;
+    private final HttpProcessor httpPocessor;
     private final ConnectionReuseStrategy reuseStrategy;
 
     private volatile boolean requestSent;
@@ -71,21 +71,21 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
             final HttpAsyncResponseConsumer<T> responseConsumer,
             final FutureCallback<T> callback,
             final HttpContext localContext,
-            final HttpProcessor httppocessor,
+            final HttpProcessor httpPocessor,
             final ConnectionReuseStrategy reuseStrategy,
             final HttpParams params) {
         super();
         Args.notNull(requestProducer, "Request producer");
         Args.notNull(responseConsumer, "Response consumer");
         Args.notNull(localContext, "HTTP context");
-        Args.notNull(httppocessor, "HTTP processor");
+        Args.notNull(httpPocessor, "HTTP processor");
         Args.notNull(reuseStrategy, "Connection reuse strategy");
         Args.notNull(params, "HTTP parameters");
         this.requestProducer = requestProducer;
         this.responseConsumer = responseConsumer;
         this.future = new BasicFuture<T>(callback);
         this.localContext = localContext;
-        this.httppocessor = httppocessor;
+        this.httpPocessor = httpPocessor;
         this.reuseStrategy = reuseStrategy;
     }
 
@@ -93,10 +93,10 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
             final HttpAsyncRequestProducer requestProducer,
             final HttpAsyncResponseConsumer<T> responseConsumer,
             final HttpContext localContext,
-            final HttpProcessor httppocessor,
+            final HttpProcessor httpPocessor,
             final ConnectionReuseStrategy reuseStrategy,
             final HttpParams params) {
-        this(requestProducer, responseConsumer, null, localContext, httppocessor, reuseStrategy, params);
+        this(requestProducer, responseConsumer, null, localContext, httpPocessor, reuseStrategy, params);
     }
 
     public Future<T> getFuture() {
@@ -134,8 +134,8 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
 
     @Override
     public void produceContent(
-            final ContentEncoder encoder, final IOControl ioctrl) throws IOException {
-        this.requestProducer.produceContent(encoder, ioctrl);
+            final ContentEncoder encoder, final IOControl ioControl) throws IOException {
+        this.requestProducer.produceContent(encoder, ioControl);
     }
 
     @Override
@@ -160,8 +160,8 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
 
     @Override
     public void consumeContent(
-            final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
-        this.responseConsumer.consumeContent(decoder, ioctrl);
+            final ContentDecoder decoder, final IOControl ioControl) throws IOException {
+        this.responseConsumer.consumeContent(decoder, ioControl);
     }
 
     @Override
@@ -228,7 +228,7 @@ public class BasicAsyncRequestExecutionHandler<T> implements HttpAsyncRequestExe
 
     @Override
     public HttpProcessor getHttpProcessor() {
-        return this.httppocessor;
+        return this.httpPocessor;
     }
 
     @Override

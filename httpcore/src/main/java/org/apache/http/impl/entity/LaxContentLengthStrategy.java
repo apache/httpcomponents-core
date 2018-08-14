@@ -105,22 +105,18 @@ public class LaxContentLengthStrategy implements ContentLengthStrategy {
         }
         final Header contentLengthHeader = message.getFirstHeader(HTTP.CONTENT_LEN);
         if (contentLengthHeader != null) {
-            long contentlen = -1;
+            long contentLen = -1;
             final Header[] headers = message.getHeaders(HTTP.CONTENT_LEN);
             for (int i = headers.length - 1; i >= 0; i--) {
                 final Header header = headers[i];
                 try {
-                    contentlen = Long.parseLong(header.getValue());
+                    contentLen = Long.parseLong(header.getValue());
                     break;
                 } catch (final NumberFormatException ignore) {
                 }
                 // See if we can have better luck with another header, if present
             }
-            if (contentlen >= 0) {
-                return contentlen;
-            } else {
-                return IDENTITY;
-            }
+            return contentLen >= 0 ? contentLen : IDENTITY;
         }
         return this.implicitLen;
     }

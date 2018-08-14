@@ -51,11 +51,7 @@ public class ContentInputStream extends InputStream {
 
     @Override
     public int available() throws IOException {
-        if (this.buffer instanceof BufferInfo) {
-            return ((BufferInfo) this.buffer).length();
-        } else {
-            return super.available();
-        }
+        return this.buffer instanceof BufferInfo ? ((BufferInfo) this.buffer).length() : super.available();
     }
 
     @Override

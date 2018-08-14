@@ -187,16 +187,16 @@ public class TestConnPool {
 
         private final Future<LocalPoolEntry> future;
         private final long time;
-        private final TimeUnit tunit;
+        private final TimeUnit timeUnit;
 
         private volatile LocalPoolEntry entry;
         private volatile Exception ex;
 
-        GetPoolEntryThread(final Future<LocalPoolEntry> future, final long time, final TimeUnit tunit) {
+        GetPoolEntryThread(final Future<LocalPoolEntry> future, final long time, final TimeUnit timeUnit) {
             super();
             this.future = future;
             this.time = time;
-            this.tunit = tunit;
+            this.timeUnit = timeUnit;
             setDaemon(true);
         }
 
@@ -207,7 +207,7 @@ public class TestConnPool {
         @Override
         public void run() {
             try {
-                this.entry = this.future.get(this.time, this.tunit);
+                this.entry = this.future.get(this.time, this.timeUnit);
             } catch (final Exception ex) {
                 this.ex = ex;
             }

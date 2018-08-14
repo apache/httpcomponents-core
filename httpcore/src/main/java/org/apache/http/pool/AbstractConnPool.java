@@ -210,9 +210,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                         callback.cancelled();
                     }
                     return true;
-                } else {
-                    return false;
                 }
+                return false;
             }
 
             @Override
@@ -235,7 +234,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             }
 
             @Override
-            public E get(final long timeout, final TimeUnit tunit) throws InterruptedException, ExecutionException, TimeoutException {
+            public E get(final long timeout, final TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
                 final E entry = entryRef.get();
                 if (entry != null) {
                     return entry;
@@ -243,7 +242,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                 synchronized (this) {
                     try {
                         for (;;) {
-                            final E leasedEntry = getPoolEntryBlocking(route, state, timeout, tunit, this);
+                            final E leasedEntry = getPoolEntryBlocking(route, state, timeout, timeUnit, this);
                             if (validateAfterInactivity > 0)  {
                                 if (leasedEntry.getUpdated() + validateAfterInactivity <= System.currentTimeMillis()) {
                                     if (!validate(leasedEntry)) {
@@ -296,12 +295,12 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
     private E getPoolEntryBlocking(
             final T route, final Object state,
-            final long timeout, final TimeUnit tunit,
+            final long timeout, final TimeUnit timeUnit,
             final Future<E> future) throws IOException, InterruptedException, TimeoutException {
 
         Date deadline = null;
         if (timeout > 0) {
-            deadline = new Date (System.currentTimeMillis() + tunit.toMillis(timeout));
+            deadline = new Date (System.currentTimeMillis() + timeUnit.toMillis(timeout));
         }
         this.lock.lock();
         try {
@@ -432,11 +431,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
     private int getMax(final T route) {
         final Integer v = this.maxPerRoute.get(route);
-        if (v != null) {
-            return v.intValue();
-        } else {
-            return this.defaultMaxPerRoute;
-        }
+        return v != null ? v.intValue() : this.defaultMaxPerRoute;
     }
 
     @Override
@@ -610,11 +605,11 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
      * of time and evicts them from the pool.
      *
      * @param idletime maximum idle time.
-     * @param tunit time unit.
+     * @param timeUnit time unit.
      */
-    public void closeIdle(final long idletime, final TimeUnit tunit) {
-        Args.notNull(tunit, "Time unit");
-        long time = tunit.toMillis(idletime);
+    public void closeIdle(final long idletime, final TimeUnit timeUnit) {
+        Args.notNull(timeUnit, "Time unit");
+        long time = timeUnit.toMillis(idletime);
         if (time < 0) {
             time = 0;
         }

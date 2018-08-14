@@ -78,11 +78,9 @@ public class HttpCoreContext implements HttpContext {
 
     public static HttpCoreContext adapt(final HttpContext context) {
         Args.notNull(context, "HTTP context");
-        if (context instanceof HttpCoreContext) {
-            return (HttpCoreContext) context;
-        } else {
-            return new HttpCoreContext(context);
-        }
+        return context instanceof HttpCoreContext
+                        ? (HttpCoreContext) context
+                        : new HttpCoreContext(context);
     }
 
     private final HttpContext context;

@@ -80,7 +80,7 @@ public class BasicAsyncResponseConsumer extends AbstractAsyncResponseConsumer<Ht
 
     @Override
     protected void onContentReceived(
-            final ContentDecoder decoder, final IOControl ioctrl) throws IOException {
+            final ContentDecoder decoder, final IOControl ioControl) throws IOException {
         Asserts.notNull(this.buf, "Content buffer");
         this.buf.consumeContent(decoder);
     }

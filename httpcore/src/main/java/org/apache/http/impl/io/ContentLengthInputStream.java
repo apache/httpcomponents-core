@@ -114,9 +114,8 @@ public class ContentLengthInputStream extends InputStream {
         if (this.in instanceof BufferInfo) {
             final int len = ((BufferInfo) this.in).length();
             return Math.min(len, (int) (this.contentLength - this.pos));
-        } else {
-            return 0;
         }
+        return 0;
     }
 
     /**

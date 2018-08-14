@@ -99,20 +99,12 @@ public class HttpServer {
 
     public InetAddress getInetAddress() {
         final ServerSocket localSocket = this.serverSocket;
-        if (localSocket != null) {
-            return localSocket.getInetAddress();
-        } else {
-            return null;
-        }
+        return localSocket != null ? localSocket.getInetAddress() : null;
     }
 
     public int getLocalPort() {
         final ServerSocket localSocket = this.serverSocket;
-        if (localSocket != null) {
-            return localSocket.getLocalPort();
-        } else {
-            return -1;
-        }
+        return localSocket != null ? localSocket.getLocalPort() : -1;
     }
 
     public void start() throws IOException {

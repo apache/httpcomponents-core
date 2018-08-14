@@ -312,9 +312,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 closeHandlers(state);
                 if (ex instanceof RuntimeException) {
                     throw (RuntimeException) ex;
-                } else {
-                    log(ex);
                 }
+                log(ex);
             }
         }
     }

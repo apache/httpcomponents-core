@@ -85,11 +85,7 @@ public class ChannelEntry {
      *  {@code null} otherwise.
      */
     public Object getAttachment() {
-        if (this.sessionRequest != null) {
-            return this.sessionRequest.getAttachment();
-        } else {
-            return null;
-        }
+        return this.sessionRequest != null ? this.sessionRequest.getAttachment() : null;
     }
 
     /**

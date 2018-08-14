@@ -247,9 +247,8 @@ public class DefaultListeningIOReactor extends AbstractMultiworkerIOReactor
                 if (this.exceptionHandler == null || !this.exceptionHandler.handle(ex)) {
                     throw new IOReactorException("Failure binding socket to address "
                             + address, ex);
-                } else {
-                    return;
                 }
+                return;
             }
             try {
                 final SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);

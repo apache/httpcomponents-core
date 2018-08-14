@@ -119,9 +119,8 @@ public class ChunkedInputStream extends InputStream {
         if (this.in instanceof BufferInfo) {
             final int len = ((BufferInfo) this.in).length();
             return (int) Math.min(len, this.chunkSize - this.pos);
-        } else {
-            return 0;
         }
+        return 0;
     }
 
     /**

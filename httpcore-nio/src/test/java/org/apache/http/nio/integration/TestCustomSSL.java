@@ -93,9 +93,9 @@ public class TestCustomSSL {
 
             @Override
             public void verify(
-                    final IOSession iosession, final SSLSession sslsession) throws SSLException {
+                    final IOSession ioSession, final SSLSession sslsession) throws SSLException {
                 final BigInteger sslid = new BigInteger(sslsession.getId());
-                iosession.setAttribute("ssl-id", sslid);
+                ioSession.setAttribute("ssl-id", sslid);
             }
 
         };

@@ -39,13 +39,13 @@ public class TestPoolEntry {
     static class MockPoolEntry extends PoolEntry<String, HttpConnection> {
 
         public MockPoolEntry(final String route,
-                final long timeToLive, final TimeUnit tunit) {
-            super(null, route, Mockito.mock(HttpConnection.class), timeToLive, tunit);
+                final long timeToLive, final TimeUnit timeUnit) {
+            super(null, route, Mockito.mock(HttpConnection.class), timeToLive, timeUnit);
         }
 
         public MockPoolEntry(final String route, final HttpConnection conn,
-                final long timeToLive, final TimeUnit tunit) {
-            super(null, route, conn, timeToLive, tunit);
+                final long timeToLive, final TimeUnit timeUnit) {
+            super(null, route, conn, timeToLive, timeUnit);
         }
 
         @Override

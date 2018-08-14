@@ -84,9 +84,8 @@ public class BasicHttpParams extends AbstractHttpParams implements Serializable,
         if (this.parameters.containsKey(name)) {
             this.parameters.remove(name);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

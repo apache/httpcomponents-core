@@ -88,9 +88,9 @@ public class BHttpConnectionBase implements HttpInetConnection {
      *
      * @param bufferSize buffer size. Must be a positive number.
      * @param fragmentSizeHint fragment size hint.
-     * @param chardecoder decoder to be used for decoding HTTP protocol elements.
+     * @param charDecoder decoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
-     * @param charencoder encoder to be used for encoding HTTP protocol elements.
+     * @param charEncoder encoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
      * @param messageConstraints Message constraints. If {@code null}
      *   {@link MessageConstraints#DEFAULT} will be used.
@@ -102,8 +102,8 @@ public class BHttpConnectionBase implements HttpInetConnection {
     protected BHttpConnectionBase(
             final int bufferSize,
             final int fragmentSizeHint,
-            final CharsetDecoder chardecoder,
-            final CharsetEncoder charencoder,
+            final CharsetDecoder charDecoder,
+            final CharsetEncoder charEncoder,
             final MessageConstraints messageConstraints,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
@@ -112,9 +112,9 @@ public class BHttpConnectionBase implements HttpInetConnection {
         final HttpTransportMetricsImpl inTransportMetrics = new HttpTransportMetricsImpl();
         final HttpTransportMetricsImpl outTransportMetrics = new HttpTransportMetricsImpl();
         this.inBuffer = new SessionInputBufferImpl(inTransportMetrics, bufferSize, -1,
-                messageConstraints != null ? messageConstraints : MessageConstraints.DEFAULT, chardecoder);
+                messageConstraints != null ? messageConstraints : MessageConstraints.DEFAULT, charDecoder);
         this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics, bufferSize, fragmentSizeHint,
-                charencoder);
+                charEncoder);
         this.messageConstraints = messageConstraints;
         this.connMetrics = new HttpConnectionMetricsImpl(inTransportMetrics, outTransportMetrics);
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
@@ -291,9 +291,8 @@ public class BHttpConnectionBase implements HttpInetConnection {
             } catch (final SocketException ignore) {
                 return -1;
             }
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     @Override
@@ -395,9 +394,8 @@ public class BHttpConnectionBase implements HttpInetConnection {
                 NetUtils.formatAddress(buffer, remoteAddress);
             }
             return buffer.toString();
-        } else {
-            return "[Not bound]";
         }
+        return "[Not bound]";
     }
 
 }

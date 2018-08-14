@@ -50,7 +50,7 @@ public class TestBasicAsyncResponseConsumer {
     @Mock private HttpResponse response;
     @Mock private HttpContext context;
     @Mock private ContentDecoder decoder;
-    @Mock private IOControl ioctrl;
+    @Mock private IOControl ioControl;
 
     @Before
     public void setUp() throws Exception {
@@ -68,7 +68,7 @@ public class TestBasicAsyncResponseConsumer {
         when(response.getEntity()).thenReturn(new StringEntity("stuff"));
 
         consumer.responseReceived(response);
-        consumer.consumeContent(decoder, ioctrl);
+        consumer.consumeContent(decoder, ioControl);
         consumer.responseCompleted(context);
 
         verify(consumer).releaseResources();
@@ -88,7 +88,7 @@ public class TestBasicAsyncResponseConsumer {
         when(consumer.buildResult(context)).thenThrow(ooopsie);
 
         consumer.responseReceived(response);
-        consumer.consumeContent(decoder, ioctrl);
+        consumer.consumeContent(decoder, ioControl);
         consumer.responseCompleted(context);
 
         verify(consumer).releaseResources();

@@ -119,20 +119,16 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
 
     @Override
     public SocketAddress getLocalAddress() {
-        if (this.channel instanceof SocketChannel) {
-            return ((SocketChannel)this.channel).socket().getLocalSocketAddress();
-        } else {
-            return null;
-        }
+        return this.channel instanceof SocketChannel
+                        ? ((SocketChannel) this.channel).socket().getLocalSocketAddress()
+                        : null;
     }
 
     @Override
     public SocketAddress getRemoteAddress() {
-        if (this.channel instanceof SocketChannel) {
-            return ((SocketChannel)this.channel).socket().getRemoteSocketAddress();
-        } else {
-            return null;
-        }
+        return this.channel instanceof SocketChannel
+                        ? ((SocketChannel) this.channel).socket().getRemoteSocketAddress()
+                        : null;
     }
 
     @Override
@@ -379,11 +375,7 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
 
     @Override
     public Socket getSocket() {
-        if (this.channel instanceof SocketChannel) {
-            return ((SocketChannel) this.channel).socket();
-        } else {
-            return null;
-        }
+        return this.channel instanceof SocketChannel ? ((SocketChannel) this.channel).socket() : null;
     }
 
 }

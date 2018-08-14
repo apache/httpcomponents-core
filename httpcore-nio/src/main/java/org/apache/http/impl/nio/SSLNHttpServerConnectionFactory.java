@@ -212,19 +212,19 @@ public class SSLNHttpServerConnectionFactory
      * @since 4.3
      */
     protected SSLIOSession createSSLIOSession(
-            final IOSession iosession,
+            final IOSession ioSession,
             final SSLContext sslContext,
             final SSLSetupHandler sslHandler) {
-        final SSLIOSession ssliosession = new SSLIOSession(iosession, SSLMode.SERVER,
+        final SSLIOSession sslioSession = new SSLIOSession(ioSession, SSLMode.SERVER,
                 sslContext, sslHandler);
-        return ssliosession;
+        return sslioSession;
     }
 
     @Override
-    public DefaultNHttpServerConnection createConnection(final IOSession iosession) {
-        final SSLIOSession ssliosession = createSSLIOSession(iosession, this.sslContext, this.sslHandler);
-        iosession.setAttribute(SSLIOSession.SESSION_KEY, ssliosession);
-        return new DefaultNHttpServerConnection(ssliosession,
+    public DefaultNHttpServerConnection createConnection(final IOSession ioSession) {
+        final SSLIOSession sslioSession = createSSLIOSession(ioSession, this.sslContext, this.sslHandler);
+        ioSession.setAttribute(SSLIOSession.SESSION_KEY, sslioSession);
+        return new DefaultNHttpServerConnection(sslioSession,
                 this.cconfig.getBufferSize(),
                 this.cconfig.getFragmentSizeHint(),
                 this.allocator,
