@@ -128,7 +128,7 @@ public class HttpRequestExecutor {
             final ProtocolVersion transportVersion = request.getVersion();
             if (transportVersion != null) {
                 if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
-                    throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
+                    throw new UnsupportedHttpVersionException(transportVersion);
                 }
                 context.setProtocolVersion(transportVersion);
             }

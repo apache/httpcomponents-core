@@ -37,10 +37,10 @@ public class LengthRequiredException extends ProtocolException {
     private static final long serialVersionUID = 1049109801075840707L;
 
     /**
-     * Creates an exception without a detail message.
+     * Creates an exception without a default detail message.
      */
     public LengthRequiredException() {
-        super();
+        super("Length required");
     }
 
     /**

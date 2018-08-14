@@ -44,6 +44,15 @@ public class UnsupportedHttpVersionException extends ProtocolException {
     }
 
     /**
+     * Creates an exception with a detail message for the given ProtocolVersion.
+     *
+     * @param protocolVersion The unsupported ProtocolVersion.
+     */
+    public UnsupportedHttpVersionException(final ProtocolVersion protocolVersion) {
+        super("Unsupported version: " + protocolVersion);
+    }
+
+    /**
      * Creates an exception with the specified detail message.
      *
      * @param message The exception detail message

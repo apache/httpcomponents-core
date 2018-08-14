@@ -272,7 +272,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final int chunkSizeHint = h1Config.getChunkSizeHint() >= 0 ? h1Config.getChunkSizeHint() : 2048;
             return new ChunkEncoder(channel, buffer, metrics, chunkSizeHint);
         } else {
-            throw new LengthRequiredException("Length required");
+            throw new LengthRequiredException();
         }
     }
 

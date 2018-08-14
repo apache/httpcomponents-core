@@ -135,7 +135,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
         final ClassicHttpRequest request = this.requestParser.parse(this.inBuffer, socketHolder.getInputStream());
         final ProtocolVersion transportVersion = request.getVersion();
         if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
-            throw new UnsupportedHttpVersionException("Unsupported version: " + transportVersion);
+            throw new UnsupportedHttpVersionException(transportVersion);
         }
         request.setScheme(this.scheme);
         this.version = transportVersion;
