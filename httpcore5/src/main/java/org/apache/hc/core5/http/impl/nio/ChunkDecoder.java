@@ -174,7 +174,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 try {
                     this.trailers.add(new BufferedHeader(this.trailerBufs.get(i)));
                 } catch (final ParseException ex) {
-                    throw new IOException(ex.getMessage());
+                    throw new IOException(ex);
                 }
             }
         }

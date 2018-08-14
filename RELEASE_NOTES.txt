@@ -58,6 +58,9 @@ adds several incremental improvements.
 * Refactor timeout APIs to include the scale in the method name; for example 'int getSocketTimeout()' vs. int 'getSocketTimeoutMillis()'.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-550: When a ParseException is caught and rethrown as an IOException in org.apache.http.impl.nio.codecs.ChunkDecoder.processFooters(), the IOException does not chain the original ParseException.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 Release 5.0-BETA2
 -------------------
 
