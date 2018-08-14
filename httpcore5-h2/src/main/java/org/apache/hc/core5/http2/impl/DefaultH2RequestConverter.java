@@ -71,7 +71,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             for (int n = 0; n < name.length(); n++) {
                 final char ch = name.charAt(n);
                 if (Character.isAlphabetic(ch) && !Character.isLowerCase(ch)) {
-                    throw new ProtocolException("Header name '" + name + "' is invalid (header name contains uppercase characters)");
+                    throw new ProtocolException("Header name '%s' is invalid (header name contains uppercase characters)", name);
                 }
             }
 
@@ -82,27 +82,27 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
 
                 if (name.equals(H2PseudoRequestHeaders.METHOD)) {
                     if (method != null) {
-                        throw new ProtocolException("Multiple '" + name + "' request headers are illegal");
+                        throw new ProtocolException("Multiple '%s' request headers are illegal", name);
                     }
                     method = value;
                 } else if (name.equals(H2PseudoRequestHeaders.SCHEME)) {
                     if (scheme != null) {
-                        throw new ProtocolException("Multiple '" + name + "' request headers are illegal");
+                        throw new ProtocolException("Multiple '%s' request headers are illegal", name);
                     }
                     scheme = value;
                 } else if (name.equals(H2PseudoRequestHeaders.PATH)) {
                     if (path != null) {
-                        throw new ProtocolException("Multiple '" + name + "' request headers are illegal");
+                        throw new ProtocolException("Multiple '%s' request headers are illegal", name);
                     }
                     path = value;
                 } else if (name.equals(H2PseudoRequestHeaders.AUTHORITY)) {
                     authority = value;
                 } else {
-                    throw new ProtocolException("Unsupported request header '" + name + "'");
+                    throw new ProtocolException("Unsupported request header '%s'", name);
                 }
             } else {
                 if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {
-                    throw new ProtocolException("Header '" + header.getName() + ": " + header.getValue() + "' is illegal for HTTP/2 messages");
+                    throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", header.getName(), header.getValue());
                 }
                 messageHeaders.add(header);
             }
@@ -182,10 +182,10 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             final String name = header.getName();
             final String value = header.getValue();
             if (name.startsWith(":")) {
-                throw new ProtocolException("Header name '" + name + "' is invalid");
+                throw new ProtocolException("Header name '%s' is invalid", name);
             }
             if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {
-                throw new ProtocolException("Header '" + name + ": " + value + "' is illegal for HTTP/2 messages");
+                throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", name, value);
             }
             headers.add(new BasicHeader(name.toLowerCase(Locale.ROOT), value));
         }

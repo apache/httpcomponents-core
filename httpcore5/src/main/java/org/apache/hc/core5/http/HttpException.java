@@ -91,6 +91,18 @@ public class HttpException extends Exception {
     }
 
     /**
+     * Constructs a new HttpException with the specified detail message.
+     *
+     * @param format The exception detail message format; see {@link String#format(String, Object...)}.
+     * @param args The exception detail message arguments; see {@link String#format(String, Object...)}.
+     *
+     * @since 5.0
+     */
+    public HttpException(final String format, final Object... args) {
+        super(HttpException.clean(String.format(format, args)));
+    }
+
+    /**
      * Creates a new HttpException with the specified detail message and cause.
      *
      * @param message the exception detail message

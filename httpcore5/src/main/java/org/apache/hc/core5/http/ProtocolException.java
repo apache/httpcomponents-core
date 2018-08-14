@@ -54,6 +54,18 @@ public class ProtocolException extends HttpException {
     }
 
     /**
+     * Constructs a new ProtocolException with the specified detail message.
+     *
+     * @param format The exception detail message format; see {@link String#format(String, Object...)}.
+     * @param args The exception detail message arguments; see {@link String#format(String, Object...)}.
+     *
+     * @since 5.0
+     */
+    public ProtocolException(final String format, final Object... args) {
+        super(format, args);
+    }
+
+    /**
      * Creates a new ProtocolException with the specified detail message and cause.
      *
      * @param message the exception detail message

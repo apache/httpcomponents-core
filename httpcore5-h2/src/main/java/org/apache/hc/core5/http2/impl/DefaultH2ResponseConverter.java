@@ -65,7 +65,7 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
             for (int n = 0; n < name.length(); n++) {
                 final char ch = name.charAt(n);
                 if (Character.isAlphabetic(ch) && !Character.isLowerCase(ch)) {
-                    throw new ProtocolException("Header name '" + name + "' is invalid (header name contains uppercase characters)");
+                    throw new ProtocolException("Header name '%s' is invalid (header name contains uppercase characters)", name);
                 }
             }
 
@@ -75,15 +75,15 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
                 }
                 if (name.equals(H2PseudoResponseHeaders.STATUS)) {
                     if (statusText != null) {
-                        throw new ProtocolException("Multiple '" + name + "' response headers are illegal");
+                        throw new ProtocolException("Multiple '%s' response headers are illegal", name);
                     }
                     statusText = value;
                 } else {
-                    throw new ProtocolException("Unsupported response header '" + name + "'");
+                    throw new ProtocolException("Unsupported response header '%s'", name);
                 }
             } else {
                 if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {
-                    throw new ProtocolException("Header '" + header.getName() + ": " + header.getValue() + "' is illegal for HTTP/2 messages");
+                    throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", header.getName(), header.getValue());
                 }
                 messageHeaders.add(header);
             }
@@ -111,7 +111,7 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
     public List<Header> convert(final HttpResponse message) throws HttpException {
         final int code = message.getCode();
         if (code < 100 || code >= 600) {
-            throw new ProtocolException("Response status " + code + " is invalid");
+            throw new ProtocolException("Response status %s is invalid", code);
         }
         final List<Header> headers = new ArrayList<>();
         headers.add(new BasicHeader(H2PseudoResponseHeaders.STATUS, Integer.toString(code), false));
@@ -121,10 +121,10 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
             final String name = header.getName();
             final String value = header.getValue();
             if (name.startsWith(":")) {
-                throw new ProtocolException("Header name '" + name + "' is invalid");
+                throw new ProtocolException("Header name '%s' is invalid", name);
             }
             if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {
-                throw new ProtocolException("Header '" + name + ": " + value + "' is illegal for HTTP/2 messages");
+                throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", name, value);
             }
             headers.add(new BasicHeader(name.toLowerCase(Locale.ROOT), value));
         }

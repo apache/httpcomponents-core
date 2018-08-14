@@ -54,7 +54,7 @@ public class TruncatedChunkException extends MalformedChunkCodingException {
      * @since 5.0
      */
     public TruncatedChunkException(final String format, final Object... args) {
-        super(HttpException.clean(String.format(format, args)));
+        super(format, args);
     }
 
 }
