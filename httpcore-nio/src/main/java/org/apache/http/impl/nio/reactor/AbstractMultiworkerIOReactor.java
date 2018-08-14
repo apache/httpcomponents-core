@@ -56,9 +56,9 @@ import org.apache.http.util.Asserts;
 
 /**
  * Generic implementation of {@link IOReactor} that can run multiple
- * {@link BaseIOReactor} instance in separate worker threads and distribute
- * newly created I/O session equally across those I/O reactors for a more
- * optimal resource utilization and a better I/O performance. Usually it is
+ * {@link BaseIOReactor} instances in separate worker threads and distribute
+ * newly created I/O sessions equally across those I/O reactors for more
+ * optimal resource utilization and better I/O performance. Usually it is
  * recommended to have one worker I/O reactor per physical CPU core.
  * <p>
  * <strong>Important note about exception handling</strong>
