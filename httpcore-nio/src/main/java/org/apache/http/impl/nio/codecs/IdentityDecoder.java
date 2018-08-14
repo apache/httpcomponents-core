@@ -62,7 +62,7 @@ public class IdentityDecoder extends AbstractContentDecoder
     @Override
     public int read(final ByteBuffer dst) throws IOException {
         Args.notNull(dst, "Byte buffer");
-        if (this.completed) {
+        if (isCompleted()) {
             return -1;
         }
 
@@ -73,7 +73,7 @@ public class IdentityDecoder extends AbstractContentDecoder
             bytesRead = readFromChannel(dst);
         }
         if (bytesRead == -1) {
-            this.completed = true;
+            setCompleted();
         }
         return bytesRead;
     }
@@ -87,7 +87,7 @@ public class IdentityDecoder extends AbstractContentDecoder
         if (dst == null) {
             return 0;
         }
-        if (this.completed) {
+        if (isCompleted()) {
             return 0;
         }
 
@@ -113,7 +113,7 @@ public class IdentityDecoder extends AbstractContentDecoder
             }
         }
         if (bytesRead == -1) {
-            this.completed = true;
+            setCompleted();
         }
         return bytesRead;
     }

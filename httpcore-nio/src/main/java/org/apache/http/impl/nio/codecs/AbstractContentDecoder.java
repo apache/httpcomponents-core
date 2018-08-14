@@ -91,6 +91,19 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
     }
 
     /**
+     * Sets the completed status of this decoder to true. Normally this is not necessary
+     * (the decoder will automatically complete when the underlying channel
+     * returns EOF). It is useful to mark the decoder as completed if you have
+     * some other means to know all the necessary data has been read and want to
+     * reuse the underlying connection for more messages.
+     *
+     * @since 4.4.11
+     */
+    protected void setCompleted() {
+        this.completed = true;
+    }
+
+    /**
      * Reads from the channel to the destination.
      *
      * @param dst destination.

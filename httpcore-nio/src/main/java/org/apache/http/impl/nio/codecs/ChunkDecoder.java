@@ -222,7 +222,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 } else {
                     if (!this.buffer.hasData() && this.endOfStream) {
                         this.state = COMPLETED;
-                        this.completed = true;
+                        setCompleted();
                         throw new TruncatedChunkException(
                                         "Truncated chunk (expected size: %,d; actual size: %,d)",
                                         chunkSize, pos);
@@ -247,7 +247,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     // Unable to read a footer
                     if (this.endOfStream) {
                         this.state = COMPLETED;
-                        this.completed = true;
+                        setCompleted();
                     }
                     return totalRead;
                 }
@@ -259,7 +259,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     parseHeader();
                 } else {
                     this.state = COMPLETED;
-                    this.completed = true;
+                    setCompleted();
                     processFooters();
                 }
                 break;

@@ -71,7 +71,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
     @Override
     public int read(final ByteBuffer dst) throws IOException {
         Args.notNull(dst, "Byte buffer");
-        if (this.completed) {
+        if (isCompleted()) {
             return -1;
         }
         final int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
@@ -84,7 +84,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             bytesRead = readFromChannel(dst, chunk);
         }
         if (bytesRead == -1) {
-            this.completed = true;
+            setCompleted();
             if (this.len < this.contentLength) {
                 throw new ConnectionClosedException(
                                 "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
@@ -93,9 +93,9 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         }
         this.len += bytesRead;
         if (this.len >= this.contentLength) {
-            this.completed = true;
+            setCompleted();
         }
-        return this.completed && bytesRead == 0 ? -1 : bytesRead;
+        return isCompleted() && bytesRead == 0 ? -1 : bytesRead;
     }
 
     @Override
@@ -107,7 +107,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         if (dst == null) {
             return 0;
         }
-        if (this.completed) {
+        if (isCompleted()) {
             return -1;
         }
 
@@ -133,7 +133,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
             }
         }
         if (bytesRead == -1) {
-            this.completed = true;
+            setCompleted();
             if (this.len < this.contentLength) {
                 throw new ConnectionClosedException(
                                 "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
@@ -142,7 +142,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder
         }
         this.len += bytesRead;
         if (this.len >= this.contentLength) {
-            this.completed = true;
+            setCompleted();
         }
         return bytesRead;
     }
