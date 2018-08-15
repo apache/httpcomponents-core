@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.nio.support;
+package org.apache.hc.core5.http.nio.support.classic;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,10 +51,6 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
-import org.apache.hc.core5.http.nio.entity.ContentInputStream;
-import org.apache.hc.core5.http.nio.entity.ContentOutputStream;
-import org.apache.hc.core5.http.nio.entity.SharedInputBuffer;
-import org.apache.hc.core5.http.nio.entity.SharedOutputBuffer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;

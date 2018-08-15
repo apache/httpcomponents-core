@@ -25,16 +25,16 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.entity;
+package org.apache.hc.core5.http.nio.support.classic;
 
 import java.io.IOException;
 
 /**
- * Generic content output buffer.
+ * Generic content input buffer.
  *
  * @since 4.0
  */
-public interface ContentOutputBuffer {
+public interface ContentInputBuffer {
 
     /**
      * Return length data stored in the buffer
@@ -49,33 +49,36 @@ public interface ContentOutputBuffer {
     void reset();
 
     /**
-     * Writes {@code len} bytes from the specified byte array
-     * starting at offset {@code off} to this buffer.
-     * <p>
-     * If {@code off} is negative, or {@code len} is negative, or
+     * Reads up to {@code len} bytes of data from this buffer into
+     * an array of bytes. The exact number of bytes read depends how many bytes
+     * are stored in the buffer.
+     *
+     * <p> If {@code off} is negative, or {@code len} is negative, or
      * {@code off+len} is greater than the length of the array
      * {@code b}, this method can throw a runtime exception. The exact type
      * of runtime exception thrown by this method depends on implementation.
+     * This method returns {@code -1} if the end of content stream has been
+     * reached.
      *
-     * @param      b     the data.
-     * @param      off   the start offset in the data.
-     * @param      len   the number of bytes to write.
+     * @param      b     the buffer into which the data is read.
+     * @param      off   the start offset in array {@code b}
+     *                   at which the data is written.
+     * @param      len   the maximum number of bytes to read.
+     * @return     the total number of bytes read into the buffer, or
+     *             {@code -1} if there is no more data because the end of
+     *             the stream has been reached.
      * @throws  IOException  if an I/O error occurs.
      */
-    void write(byte[] b, int off, int len) throws IOException;
+    int read(byte[] b, int off, int len) throws IOException;
 
     /**
-     * Writes the specified byte to this buffer.
+     * Reads one byte from this buffer. If the buffer is empty this method can
+     * throw a runtime exception. The exact type of runtime exception thrown
+     * by this method depends on implementation. This method returns
+     * {@code -1} if the end of content stream has been reached.
      *
-     * @param      b   the {@code byte}.
-     * @throws  IOException  if an I/O error occurs.
+     * @return one byte
      */
-    void write(int b) throws IOException;
-
-    /**
-     * Indicates the content has been fully written.
-     * @throws  IOException  if an I/O error occurs.
-     */
-    void writeCompleted() throws IOException;
+    int read() throws IOException;
 
 }

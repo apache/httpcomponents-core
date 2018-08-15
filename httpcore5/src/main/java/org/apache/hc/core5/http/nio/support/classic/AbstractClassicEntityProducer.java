@@ -24,74 +24,64 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.nio.entity;
+package org.apache.hc.core5.http.nio.support.classic;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-import java.nio.charset.UnsupportedCharsetException;
-import java.util.List;
+import java.io.OutputStream;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.nio.AsyncEntityProducer;
+import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.util.Args;
 
 /**
  * @since 5.0
  */
-public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityConsumer<T> {
+public abstract class AbstractClassicEntityProducer implements AsyncEntityProducer {
 
     private enum State { IDLE, ACTIVE, COMPLETED }
 
+    private final SharedOutputBuffer buffer;
+    private final ContentType contentType;
     private final Executor executor;
-    private final SharedInputBuffer buffer;
     private final AtomicReference<State> state;
-    private final AtomicReference<T> resultRef;
-    private final AtomicReference<Exception> exceptionRef;
+    private final AtomicReference<Exception> exception;
 
-    public AbstractClassicEntityConsumer(final int initialBufferSize, final Executor executor) {
+    public AbstractClassicEntityProducer(final int initialBufferSize, final ContentType contentType, final Executor executor) {
+        this.buffer = new SharedOutputBuffer(initialBufferSize);
+        this.contentType = contentType;
         this.executor = Args.notNull(executor, "Executor");
-        this.buffer = new SharedInputBuffer(initialBufferSize);
         this.state = new AtomicReference<>(State.IDLE);
-        this.resultRef = new AtomicReference<>(null);
-        this.exceptionRef = new AtomicReference<>(null);
-    }
-
-    protected abstract T consumeData(ContentType contentType, InputStream inputStream) throws IOException;
-
-    @Override
-    public final void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-        buffer.updateCapacity(capacityChannel);
+        this.exception = new AtomicReference<>(null);
     }
 
     @Override
-    public final void streamStart(final EntityDetails entityDetails, final FutureCallback<T> resultCallback) throws HttpException, IOException {
-        final ContentType contentType;
-        try {
-            contentType = ContentType.parse(entityDetails.getContentType());
-        } catch (final UnsupportedCharsetException ex) {
-            throw new UnsupportedEncodingException(ex.getMessage());
-        }
+    public final boolean isRepeatable() {
+        return false;
+    }
+
+    protected abstract void produceData(ContentType contentType, OutputStream outputStream) throws IOException;
+
+    @Override
+    public final int available() {
+        return buffer.length();
+    }
+
+    @Override
+    public final void produce(final DataStreamChannel channel) throws IOException {
         if (state.compareAndSet(State.IDLE, State.ACTIVE)) {
             executor.execute(new Runnable() {
 
                 @Override
                 public void run() {
                     try {
-                        final T result = consumeData(contentType, new ContentInputStream(buffer));
-                        resultRef.set(result);
-                        resultCallback.completed(result);
+                        produceData(contentType, new ContentOutputStream(buffer));
+                        buffer.writeCompleted();
                     } catch (final Exception ex) {
                         buffer.abort();
-                        resultCallback.failed(ex);
                     } finally {
                         state.set(State.COMPLETED);
                     }
@@ -99,32 +89,43 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
 
             });
         }
+        buffer.flush(channel);
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
-        return buffer.fill(src);
+    public final long getContentLength() {
+        return -1;
     }
 
     @Override
-    public final void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-        buffer.markEndStream();
+    public final String getContentType() {
+        return contentType != null ? contentType.toString() : null;
+    }
+
+    @Override
+    public String getContentEncoding() {
+        return null;
+    }
+
+    @Override
+    public final boolean isChunked() {
+        return false;
+    }
+
+    @Override
+    public final Set<String> getTrailerNames() {
+        return null;
     }
 
     @Override
     public final void failed(final Exception cause) {
-        if (exceptionRef.compareAndSet(null, cause)) {
+        if (exception.compareAndSet(null, cause)) {
             releaseResources();
         }
     }
 
     public final Exception getException() {
-        return exceptionRef.get();
-    }
-
-    @Override
-    public final T getContent() {
-        return resultRef.get();
+        return exception.get();
     }
 
     @Override

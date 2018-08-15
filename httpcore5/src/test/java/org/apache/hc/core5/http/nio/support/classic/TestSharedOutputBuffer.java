@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http2.impl.nio.entity;
+package org.apache.hc.core5.http.nio.support.classic;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -41,9 +41,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.nio.entity.SharedOutputBuffer;
+import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http2.WritableByteChannelMock;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;

@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http2.impl.nio.entity;
+package org.apache.hc.core5.http.nio.support.classic;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -37,7 +37,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.http.nio.entity.SharedInputBuffer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.junit.Assert;
 import org.junit.Test;

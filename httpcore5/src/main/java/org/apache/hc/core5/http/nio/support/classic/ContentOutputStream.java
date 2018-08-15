@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.entity;
+package org.apache.hc.core5.http.nio.support.classic;
 
 import java.io.IOException;
 import java.io.OutputStream;

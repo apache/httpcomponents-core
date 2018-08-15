@@ -107,6 +107,14 @@ public class WritableByteChannelMock implements WritableByteChannel {
         this.buf.clear();
     }
 
+    public byte[] toByteArray() {
+        final ByteBuffer dup = this.buf.duplicate();
+        dup.flip();
+        final byte[] bytes = new byte[dup.remaining()];
+        dup.get(bytes);
+        return bytes;
+    }
+
     public String dump(final Charset charset) throws CharacterCodingException {
         this.buf.flip();
         final CharBuffer charBuffer = charset.newDecoder().decode(this.buf);
