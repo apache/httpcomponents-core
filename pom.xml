@@ -68,6 +68,7 @@
   <modules>
     <module>httpcore5</module>
     <module>httpcore5-h2</module>
+    <module>httpcore5-reactive</module>
     <module>httpcore5-osgi</module>
     <module>httpcore5-testing</module>
   </modules>
@@ -258,7 +259,7 @@
             <exclude>**/.checkstyle</exclude>
             <exclude>**/.pmd</exclude>
             <exclude>**/*.iml</exclude>
-            <exclude>**/.externalToolBuilders/**</exclude>         
+            <exclude>**/.externalToolBuilders/**</exclude>
             <exclude>maven-eclipse.xml</exclude>
             <exclude>src/docbkx/resources/**</exclude>
             <exclude>src/test/resources/*.truststore</exclude>
