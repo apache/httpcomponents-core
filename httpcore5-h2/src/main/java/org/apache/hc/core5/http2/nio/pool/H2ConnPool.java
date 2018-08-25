@@ -52,6 +52,8 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 /**
+ * Pool of HTTP/2 message multiplexing capable connections.
+ *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)

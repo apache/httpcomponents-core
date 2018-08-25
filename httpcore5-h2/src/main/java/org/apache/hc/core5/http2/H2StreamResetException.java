@@ -30,6 +30,12 @@ import java.io.IOException;
 
 import org.apache.hc.core5.util.Args;
 
+/**
+ * Signals HTTP/2 protocol error that renders the actual HTTP/2 data stream
+ * unreliable.
+ *
+ * @since 5.0
+ */
 public class H2StreamResetException extends IOException {
 
     private static final long serialVersionUID = 6321637486572232180L;

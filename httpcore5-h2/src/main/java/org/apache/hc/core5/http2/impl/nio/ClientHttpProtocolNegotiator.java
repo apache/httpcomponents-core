@@ -34,8 +34,7 @@ import java.nio.channels.ByteChannel;
 
 import javax.net.ssl.SSLSession;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -48,18 +47,22 @@ import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 
 /**
+ * I/O event handler for events fired by {@link ProtocolIOSession} that implements
+ * client side of the HTTP/2 protocol negotiation handshake
+ * based on {@link HttpVersionPolicy} configuration.
+ *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
+@Internal
 public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler {
 
     // PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n

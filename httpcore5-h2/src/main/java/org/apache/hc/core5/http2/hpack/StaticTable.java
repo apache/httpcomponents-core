@@ -32,10 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-
-@Contract(threading = ThreadingBehavior.IMMUTABLE)
 final class StaticTable {
 
     static final HPackHeader[] STANDARD_HEADERS = {

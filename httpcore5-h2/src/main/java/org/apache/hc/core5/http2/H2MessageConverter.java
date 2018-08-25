@@ -38,8 +38,7 @@ import org.apache.hc.core5.http.HttpMessage;
  * representing an HTTP message and from an object representing an HTTP message to a list
  * of HTTP/2 headers.
  *
- * @param <T>
- *            {@link HttpMessage} or a subclass
+ * @param <T> represents {@link HttpMessage}
  *
  * @since 5.0
  */

@@ -26,6 +26,11 @@
  */
 package org.apache.hc.core5.http2.frame;
 
+/**
+ * Standard HTTP/2 frame flags.
+ *
+ * @since 5.0
+ */
 public enum FrameFlag {
 
     END_STREAM    (0x01),

@@ -24,21 +24,8 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2;
-
-import java.io.IOException;
 
 /**
- * Signals corrupt HTTP/2 frame.
- *
- * @since 5.0
+ * Support classes for HTTP/2 asynchronous transport.
  */
-public class H2CorruptFrameException extends IOException {
-
-    private static final long serialVersionUID = 1L;
-
-    public H2CorruptFrameException(final String message) {
-        super(message);
-    }
-
-}
+package org.apache.hc.core5.http2.nio.support;

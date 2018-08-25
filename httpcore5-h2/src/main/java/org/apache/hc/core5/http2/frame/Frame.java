@@ -26,6 +26,13 @@
  */
 package org.apache.hc.core5.http2.frame;
 
+/**
+ * Abstract HTTP/2 data frame.
+ *
+ * @since 5.0
+ *
+ * @param <T> frame payload representation.
+ */
 public abstract class Frame<T> {
 
     private final int type;

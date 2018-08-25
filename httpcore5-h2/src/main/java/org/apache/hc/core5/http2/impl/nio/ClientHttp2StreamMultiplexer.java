@@ -28,6 +28,7 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
@@ -47,10 +48,13 @@ import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 
 /**
- * Client side HTTP/2 stream multiplexer.
+ * I/O event handler for events fired by {@link ProtocolIOSession} that implements
+ * client side HTTP/2 messaging protocol with full support for
+ * multiplexed message transmission.
  *
  * @since 5.0
  */
+@Internal
 public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer {
 
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;

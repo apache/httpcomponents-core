@@ -27,10 +27,13 @@
 
 package org.apache.hc.core5.http2.hpack;
 
+import org.apache.hc.core5.annotation.Internal;
+
 /**
  * This Huffman codec implementation has been derived from Twitter HPack project
  * (https://github.com/twitter/hpack)
  */
+@Internal
 public final class Huffman {
 
     private Huffman() {

@@ -26,6 +26,11 @@
  */
 package org.apache.hc.core5.http2.frame;
 
+/**
+ * Values used by HTTP/2 protocol.
+ *
+ * @since 5.0
+ */
 public final class FrameConsts {
 
     private FrameConsts() {

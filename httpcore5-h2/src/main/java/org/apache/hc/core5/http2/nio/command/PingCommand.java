@@ -27,15 +27,17 @@
 
 package org.apache.hc.core5.http2.nio.command;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Ping command.
+ * HTTP/2 ping command.
  *
  * @since 5.0
  */
+@Internal
 public final class PingCommand implements Command {
 
     private final AsyncPingHandler handler;

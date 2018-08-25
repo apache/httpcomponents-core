@@ -65,6 +65,8 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
+ * {@link Http2AsyncRequester} bootstrap.
+ *
  * @since 5.0
  */
 public class H2RequesterBootstrap {

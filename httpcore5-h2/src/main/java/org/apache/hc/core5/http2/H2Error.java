@@ -29,6 +29,11 @@ package org.apache.hc.core5.http2;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Errors codes defined by HTTP/2 specification.
+ *
+ * @since 5.0
+ */
 public enum H2Error {
 
     /**

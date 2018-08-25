@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
 import java.util.concurrent.Future;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.HttpHost;
@@ -44,12 +45,19 @@ import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Timeout;
 
 /**
+ * Client side message exchange initiator capable of negotiating
+ * HTTP/2 or HTTP/1.1 compatible connections.
+ *
  * @since 5.0
  */
 public class Http2AsyncRequester extends HttpAsyncRequester {
 
     private final HttpVersionPolicy versionPolicy;
 
+    /**
+     * Use {@link H2RequesterBootstrap} to create instances of this class.
+     */
+    @Internal
     public Http2AsyncRequester(
             final HttpVersionPolicy versionPolicy,
             final IOReactorConfig ioReactorConfig,

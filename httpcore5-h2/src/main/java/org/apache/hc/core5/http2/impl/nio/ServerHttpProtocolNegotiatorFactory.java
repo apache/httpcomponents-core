@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
@@ -37,9 +38,12 @@ import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link ServerHttpProtocolNegotiator} factory.
+ *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.IMMUTABLE)
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
+@Internal
 public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactory {
 
     private final ServerHttp1StreamDuplexerFactory http1StreamDuplexerFactory;

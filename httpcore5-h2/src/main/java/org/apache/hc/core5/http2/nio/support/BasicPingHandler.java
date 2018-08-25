@@ -35,6 +35,8 @@ import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * Basic {@link AsyncPingHandler} implementation.
+ *
  * @since 5.0
  */
 public class BasicPingHandler implements AsyncPingHandler {

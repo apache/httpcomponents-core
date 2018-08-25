@@ -54,6 +54,8 @@ import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
+ * {@link Http2MultiplexingRequester} bootstrap.
+ *
  * @since 5.0
  */
 public class Http2MultiplexingRequesterBootstrap {

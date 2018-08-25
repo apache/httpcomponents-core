@@ -28,6 +28,11 @@ package org.apache.hc.core5.http2.config;
 
 import org.apache.hc.core5.util.Args;
 
+/**
+ * HTTP/2 protocol settings.
+ *
+ * @since 5.0
+ */
 public final class H2Setting {
 
     private final H2Param param;

@@ -41,6 +41,11 @@ import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.ssl.ReflectionSupport;
 
+/**
+ * HTTP/2 TLS support methods
+ *
+ * @since 5.0
+ */
 public final class H2TlsSupport {
 
     private final static String[] PROTOCOL_BLACKLIST = {

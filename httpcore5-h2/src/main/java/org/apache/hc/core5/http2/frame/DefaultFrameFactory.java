@@ -31,6 +31,11 @@ import java.nio.ByteBuffer;
 
 import org.apache.hc.core5.util.Args;
 
+/**
+ * Default {@link FrameFactory} implementation.
+ *
+ * @since 5.0
+ */
 public class DefaultFrameFactory extends FrameFactory {
 
     public static final FrameFactory INSTANCE = new DefaultFrameFactory();

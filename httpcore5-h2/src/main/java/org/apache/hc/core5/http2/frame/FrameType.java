@@ -26,6 +26,11 @@
  */
 package org.apache.hc.core5.http2.frame;
 
+/**
+ * Standard HTTP/2 frame types.
+ *
+ * @since 5.0
+ */
 public enum FrameType {
 
     DATA          (0x00),

@@ -27,15 +27,13 @@
 
 package org.apache.hc.core5.http2.impl.nio;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-
 /**
- * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements client side HTTP/2 messaging protocol.
+ * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements
+ * client side HTTP/2 messaging protocol with full support for
+ * multiplexed message transmission.
  *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class ClientHttp2IOEventHandler extends AbstractHttp2IOEventHandler {
 
     public ClientHttp2IOEventHandler(final ClientHttp2StreamMultiplexer streamMultiplexer) {

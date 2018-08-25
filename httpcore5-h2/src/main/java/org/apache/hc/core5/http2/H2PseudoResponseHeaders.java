@@ -28,6 +28,8 @@
 package org.apache.hc.core5.http2;
 
 /**
+ * Response pseudo HTTP headers defined by the HTTP/2 specification.
+ *
  * @since 5.0
  */
 public final class H2PseudoResponseHeaders {

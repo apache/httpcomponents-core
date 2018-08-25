@@ -38,12 +38,30 @@ import org.apache.hc.core5.http.HttpException;
  */
 public interface AsyncPingHandler {
 
+    /**
+     * Returns content of ping message.
+     *
+     * @return the ping message content.
+     */
     ByteBuffer getData();
 
+    /**
+     * Triggered to signal receipt of a ping response message.
+     *
+     * @param feedback the ping message feedback.
+     */
     void consumeResponse(ByteBuffer feedback) throws HttpException, IOException;
 
+    /**
+     * Triggered to signal a failure in data processing.
+     *
+     * @param cause the cause of the failure.
+     */
     void failed(Exception cause);
 
+    /**
+     * Triggered to cancel the message exchange.
+     */
     void cancel();
 
 }

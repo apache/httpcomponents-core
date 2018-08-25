@@ -32,12 +32,11 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Param;
 
-/**
- * @since 5.0
- */
+@Internal
 public final class FramePrinter {
 
     public void printFrameInfo(final RawFrame frame, final Appendable appendable) throws IOException {

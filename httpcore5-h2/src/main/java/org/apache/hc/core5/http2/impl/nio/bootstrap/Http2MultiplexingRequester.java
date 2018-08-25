@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.concurrent.CancellableDependency;
 import org.apache.hc.core5.concurrent.ComplexFuture;
@@ -77,12 +78,18 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 /**
+ * HTTP/2 multiplexing client side message exchange initiator.
+ *
  * @since 5.0
  */
 public class Http2MultiplexingRequester extends AsyncRequester{
 
     private final H2ConnPool connPool;
 
+    /**
+     * Use {@link Http2MultiplexingRequesterBootstrap} to create instances of this class.
+     */
+    @Internal
     public Http2MultiplexingRequester(
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,

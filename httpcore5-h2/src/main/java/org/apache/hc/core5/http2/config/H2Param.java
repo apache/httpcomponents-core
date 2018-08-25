@@ -26,6 +26,11 @@
  */
 package org.apache.hc.core5.http2.config;
 
+/**
+ * HTTP/2 protocol parameters.
+ *
+ * @since 5.0
+ */
 public enum H2Param {
 
     HEADER_TABLE_SIZE      (0x1),

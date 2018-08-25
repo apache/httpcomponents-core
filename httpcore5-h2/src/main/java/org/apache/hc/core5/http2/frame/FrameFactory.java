@@ -34,6 +34,12 @@ import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Setting;
 import org.apache.hc.core5.util.Args;
 
+/**
+ * Abstract {@link RawFrame} factory that supports standard
+ * HTTP/2 {@link FrameType}s.
+ *
+ * @since 5.0
+ */
 public abstract class FrameFactory {
 
     public RawFrame createSettings(final H2Setting... settings) {

@@ -26,6 +26,11 @@
  */
 package org.apache.hc.core5.http2;
 
+/**
+ * HTTP protocol version policy.
+ *
+ * @since 5.0
+ */
 public enum HttpVersionPolicy {
 
     FORCE_HTTP_1, FORCE_HTTP_2, NEGOTIATE

@@ -37,11 +37,18 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 
+/**
+ * HPACK decoder.
+ *
+ * @since 5.0
+ */
+@Internal
 public final class HPackDecoder {
 
     private static final String UNEXPECTED_EOS = "Unexpected end of HPACK data";

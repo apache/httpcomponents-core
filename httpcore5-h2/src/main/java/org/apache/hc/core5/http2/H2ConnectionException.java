@@ -30,6 +30,12 @@ import java.io.IOException;
 
 import org.apache.hc.core5.util.Args;
 
+/**
+ * Signals fatal HTTP/2 protocol violation that renders the actual
+ * HTTP/2 connection unreliable.
+ *
+ * @since 5.0
+ */
 public class H2ConnectionException extends IOException {
 
     private static final long serialVersionUID = -2014204317155428658L;
