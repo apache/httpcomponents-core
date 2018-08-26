@@ -21,8 +21,7 @@ Apache HttpComponents Core
 
 Welcome to the HttpCore component of the Apache HttpComponents project.
 
-[![Build Status](https://travis-ci.org/apache/httpcore.svg?branch=trunk)](https://travis-ci.org/apache/httpcore)
-[![Coverage Status](https://coveralls.io/repos/github/apache/httpcore/badge.svg?branch=trunk)](https://coveralls.io/github/apache/httpcore?branch=trunk)
+[![Build Status](https://travis-ci.org/apache/httpcomponents-core.svg?branch=trunk)](https://travis-ci.org/apache/httpcomponents-core)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.httpcomponents.core5/httpcore5/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.httpcomponents.core5/httpcore5)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
