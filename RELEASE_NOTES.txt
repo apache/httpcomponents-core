@@ -1,10 +1,34 @@
 Release 5.0-BETA3
 -------------------
 
-This BETA release fixes a number of defects found since the previous release and
-adds several incremental improvements.
+This BETA release fixes a number of defects found since the previous release, adds several
+incremental improvements and improves javadoc documentation.
 
-* HTTPCORE-510: Avoid an ArithmeticException in AbstractMultiworkerIOReactor by failing earlier by checking ioThreadCount in IOReactorConfig constructor.
+Changelog
+-------------------
+
+* Improved information responses (1xx) processing.
+  Contributed by Kirill Usov <kirill.usov at gmail.com>
+
+* Bugfix: fixed AbstractAsyncResponseConsumer to handle null callback parameter
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bugfix: HTTP stream handlers no longer call #failed event of the associated exchange handler when
+  the message exchange has already been completed.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bugfix: fixed NPE caused by null timeout attribute of IOSessionRequest
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bugfix: fixed incorrect propagation of exception cause in case of an HTTP protocol violation during
+  HTTP protocol version negotiation
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Workaround for misbehaved servers that return HTTP 204 responses with a content
+  Contributed by Alessandro Gherardi <alessandro.gherardi at schneider-electric.com>
+
+* HTTPCORE-510: Avoid an ArithmeticException in AbstractMultiworkerIOReactor by failing earlier by checking
+  ioThreadCount in IOReactorConfig constructor.
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * HTTPCORE-511: Do not cache result of Runtime.getRuntime().availableProcessors() in IOReactorConfig.
@@ -13,16 +37,19 @@ adds several incremental improvements.
 * HTTPCORE-509: AVAIL_PROCS is auto-configured based on core count.
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* HTTPCORE-514: Exceptions defined by HttpCore should clean message strings when built to replace non-printable characters with hex values.
+* HTTPCORE-514: Exceptions defined by HttpCore should clean message strings when built to replace non-printable
+  characters with hex values.
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * HTTPCORE-517: Allow SecurityManager to stop socket connections.
   Contributed by Gary Gregory <ggregory at apache.org> and Paul Thompson <pathompson at atlassian dot com>
   
-* HTTPCORE-537: org.apache.hc.core5.http.message.BasicHttpResponse.toString() prints its code twice and no protocol version.
+* HTTPCORE-537: org.apache.hc.core5.http.message.BasicHttpResponse.toString() prints its code twice and
+  no protocol version.
   Contributed by Gary Gregory <ggregory at apache.org>
   
-* HTTPCORE-539: Constructing a new FileEntityProducer for a file whose length is greater than 2GB throws an IllegalArgumentException.
+* HTTPCORE-539: Constructing a new FileEntityProducer for a file whose length is greater than 2GB throws
+  an IllegalArgumentException.
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * HTTPCORE-540: EndpointDetails implements HttpConnectionMetrics.
@@ -49,17 +76,30 @@ adds several incremental improvements.
 * HTTPCORE-548: Add missing HttpContext parameter to APIs.
   Contributed by Gary Gregory <ggregory at apache.org>
   
-* Refactor duplicate messages into a new 0-arg constructor for org.apache.hc.core5.http.StreamClosedException.
+* Refactor duplicate messages into a new 0-arg constructor for StreamClosedException.
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * Refactor timeout APIs to include the actual timeout value.
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* Refactor timeout APIs to include the scale in the method name; for example 'int getSocketTimeout()' vs. int 'getSocketTimeoutMillis()'.
+* Refactor timeout APIs to include the scale in the method name; for example 'int getSocketTimeout()'
+  vs. int 'getSocketTimeoutMillis()'.
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* HTTPCORE-550: When a ParseException is caught and rethrown as an IOException in org.apache.http.impl.nio.codecs.ChunkDecoder.processFooters(), the IOException does not chain the original ParseException.
+* HTTPCORE-550: When a ParseException is caught and rethrown as an IOException in ChunkDecoder#processFooters(),
+  the IOException does not chain the original ParseException.
   Contributed by Gary Gregory <ggregory at apache.org>
+
+* Request specific push consumers
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-1927: URLEncodedUtils#parse breaks at double quotes when parsing unquoted values
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-528: SSL I/O session spins upon abnormal connection closure by the opposite endpoint.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 
 Release 5.0-BETA2
 -------------------
