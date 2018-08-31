@@ -24,34 +24,23 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2;
+package org.apache.hc.core5.http;
 
-import org.apache.hc.core5.http.HttpStreamResetException;
-import org.apache.hc.core5.util.Args;
+import java.io.IOException;
 
 /**
- * Signals HTTP/2 protocol error that renders the actual HTTP/2 data stream
- * unreliable.
+ * Signals HTTP protocol error that renders the actual HTTP data stream unreliable.
  *
  * @since 5.0
  */
-public class H2StreamResetException extends HttpStreamResetException {
+public class HttpStreamResetException extends IOException {
 
-    private final int code;
-
-    public H2StreamResetException(final H2Error error, final String message) {
+    public HttpStreamResetException(final String message) {
         super(message);
-        Args.notNull(error, "H2 Error code may not be null");
-        this.code = error.getCode();
     }
 
-    public H2StreamResetException(final int code, final String message) {
-        super(message);
-        this.code = code;
-    }
-
-    public int getCode() {
-        return code;
+    public HttpStreamResetException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 
 }

@@ -34,10 +34,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.AsyncDataProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.util.Args;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
@@ -133,10 +132,7 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
         try {
             synchronized (buffers) {
                 if (t != null) {
-                    final H2StreamResetException ex = new H2StreamResetException(H2Error.NO_ERROR,
-                        "Request publisher threw an exception");
-                    ex.initCause(t);
-                    throw ex;
+                    throw new HttpStreamResetException(t.getMessage(), t);
                 } else if (this.complete.get() && buffers.isEmpty()) {
                     channel.endStream();
                 } else {

@@ -53,6 +53,7 @@ import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -84,13 +85,13 @@ import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.Identifiable;
-import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 
 abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConnection {
 
@@ -733,6 +734,8 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     consumeDataFrame(frame, stream);
                 } catch (final H2StreamResetException ex) {
                     stream.localReset(ex);
+                } catch (final HttpStreamResetException ex) {
+                    stream.localReset(ex, ex.getCause() != null ? H2Error.INTERNAL_ERROR : H2Error.CANCEL);
                 }
 
                 if (stream.isTerminated()) {
@@ -773,6 +776,8 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     }
                 } catch (final H2StreamResetException ex) {
                     stream.localReset(ex);
+                } catch (final HttpStreamResetException ex) {
+                    stream.localReset(ex, ex.getCause() != null ? H2Error.INTERNAL_ERROR : H2Error.CANCEL);
                 }
 
                 if (stream.isTerminated()) {
@@ -795,6 +800,8 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     consumeContinuationFrame(frame, stream);
                 } catch (final H2StreamResetException ex) {
                     stream.localReset(ex);
+                } catch (final HttpStreamResetException ex) {
+                    stream.localReset(ex, ex.getCause() != null ? H2Error.INTERNAL_ERROR : H2Error.CANCEL);
                 }
 
                 if (stream.isTerminated()) {
@@ -943,6 +950,8 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     consumePushPromiseFrame(frame, payload, promisedStream);
                 } catch (final H2StreamResetException ex) {
                     promisedStream.localReset(ex);
+                } catch (final HttpStreamResetException ex) {
+                    stream.localReset(ex, ex.getCause() != null ? H2Error.INTERNAL_ERROR : H2Error.NO_ERROR);
                 }
             }
             break;

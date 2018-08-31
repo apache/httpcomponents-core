@@ -26,20 +26,34 @@
  */
 package org.apache.hc.core5.testing.reactive;
 
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
+import java.io.ByteArrayOutputStream;
+import java.net.InetSocketAddress;
+import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.WritableByteChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
@@ -66,25 +80,11 @@ import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayOutputStream;
-import java.net.InetSocketAddress;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
+import io.reactivex.Flowable;
+import io.reactivex.Observable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
 
 @RunWith(Parameterized.class)
 public class ReactiveClientTest {
@@ -289,7 +289,7 @@ public class ReactiveClientTest {
             future.get();
             Assert.fail("Expected exception");
         } catch (final ExecutionException ex) {
-            Assert.assertTrue(ex.getCause() instanceof H2StreamResetException);
+            Assert.assertTrue(ex.getCause() instanceof HttpStreamResetException);
             Assert.assertSame(exceptionThrown, ex.getCause().getCause());
         }
     }
@@ -321,8 +321,7 @@ public class ReactiveClientTest {
                     cause instanceof SocketTimeoutException);
             } else if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_2) {
                 Assert.assertTrue(String.format("Expected RST_STREAM, but %s was thrown", cause.getClass().getName()),
-                    cause instanceof H2StreamResetException);
-                Assert.assertEquals(H2Error.NO_ERROR.getCode(), ((H2StreamResetException) cause).getCode());
+                    cause instanceof HttpStreamResetException);
             } else {
                 Assert.fail("Unknown HttpVersionPolicy: " + versionPolicy);
             }
@@ -380,7 +379,7 @@ public class ReactiveClientTest {
             future.get();
             Assert.fail("Expected exception");
         } catch (final ExecutionException | CancellationException ex) {
-            Assert.assertTrue(ex.getCause() instanceof H2StreamResetException);
+            Assert.assertTrue(ex.getCause() instanceof HttpStreamResetException);
             Assert.assertTrue(requestPublisherWasCancelled.get());
             Assert.assertNull(requestStreamError.get());
         }

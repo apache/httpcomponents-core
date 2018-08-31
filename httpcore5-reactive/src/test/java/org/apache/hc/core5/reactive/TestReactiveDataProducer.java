@@ -29,8 +29,8 @@ package org.apache.hc.core5.reactive;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http2.H2StreamResetException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -81,7 +81,7 @@ public class TestReactiveDataProducer {
         try {
             producer.produce(streamChannel);
             Assert.fail("Expected ProtocolException");
-        } catch (final H2StreamResetException ex) {
+        } catch (final HttpStreamResetException ex) {
             Assert.assertTrue("Expected published exception to be rethrown", ex.getCause() instanceof RuntimeException);
             Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
         }
