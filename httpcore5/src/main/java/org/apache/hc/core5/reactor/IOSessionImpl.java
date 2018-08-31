@@ -28,6 +28,7 @@
 package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
+import java.net.SocketException;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -218,8 +219,13 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void close(final CloseMode closeMode) {
-        // For this type of session, a close() does exactly
-        // what we need and nothing more.
+        if (closeMode == CloseMode.IMMEDIATE) {
+            try {
+                this.channel.socket().setSoLinger(true, 0);
+            } catch (final SocketException e) {
+                // Quietly ignore
+            }
+        }
         close();
     }
 
