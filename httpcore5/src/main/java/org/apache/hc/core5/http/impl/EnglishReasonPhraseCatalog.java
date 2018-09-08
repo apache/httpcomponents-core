@@ -93,7 +93,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         new String[4],  // 1xx
         new String[9],  // 2xx
         new String[9],  // 3xx
-        new String[32], // 4xx
+        new String[52], // 4xx
         new String[12]   // 5xx
     };
 
@@ -242,6 +242,9 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         //Permanent Redirect - see RFC 7538
         setReason(HttpStatus.SC_PERMANENT_REDIRECT,
                 "Permanent Redirect");
+        // Legal Obstacles - see RFC 7725
+        setReason(HttpStatus.SC_UNAVAILABLE_FOR_LEGAL_REASONS,
+                "Unavailable For Legal Reasons");
     }
 
 

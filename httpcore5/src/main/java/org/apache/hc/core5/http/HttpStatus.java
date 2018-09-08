@@ -30,8 +30,8 @@ package org.apache.hc.core5.http;
 /**
  * Constants enumerating the HTTP status codes.
  * All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1),
- * RFC2518 (WebDAV), RFC7540 (HTTP/2), RFC6585 (Additional HTTP Status Codes)
- * and RFC8297 (Early Hints) are listed.
+ * RFC2518 (WebDAV), RFC7540 (HTTP/2), RFC7725 (An HTTP Status Code to Report Legal Obstacles)
+ * and RFC6585 (Additional HTTP Status Codes) are listed.
  *
  * @see <a href="https://tools.ietf.org/html/rfc1945">RFC1945 (HTTP/1.0)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2616">RFC2616 (HTTP/1.1)</a>
@@ -40,6 +40,7 @@ package org.apache.hc.core5.http;
  * @see <a href="https://tools.ietf.org/html/rfc6585">RFC6585 (Additional HTTP Status Codes)</a>
  * @see <a href="https://tools.ietf.org/html/rfc8297">RFC8297 (Early Hints)</a>
  * @see <a href="https://tools.ietf.org/html/rfc7538">RFC7538 (Permanent Redirect)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7725">RFC7725 (An HTTP Status Code to Report Legal Obstacles)</a>
  * @since 4.0
  */
 public interface HttpStatus {
@@ -186,6 +187,8 @@ public interface HttpStatus {
     int SC_TOO_MANY_REQUESTS = 429;
     /** {@code 431 Request Header Fields Too Large} (Additional HTTP Status Codes - RFC 6585) */
     int SC_REQUEST_HEADER_FIELDS_TOO_LARGE = 431;
+    /** {@code 451 Unavailable For Legal Reasons} (Legal Obstacles - RFC 7725) */
+    int SC_UNAVAILABLE_FOR_LEGAL_REASONS = 451;
 
     // --- 5xx Server Error ---
     /** {@code 500 Server Error} (HTTP/1.0 - RFC 1945) */
