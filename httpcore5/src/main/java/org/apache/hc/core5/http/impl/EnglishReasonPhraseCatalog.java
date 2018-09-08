@@ -93,7 +93,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         new String[3],  // 1xx
         new String[8],  // 2xx
         new String[8],  // 3xx
-        new String[32], // 4xx
+        new String[52], // 4xx
         new String[12]   // 5xx
     };
 
@@ -232,6 +232,9 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         setReason(HttpStatus.SC_NETWORK_AUTHENTICATION_REQUIRED,
                 "Network Authentication Required");
 
+        // Legal Obstacles - see RFC 7725
+        setReason(HttpStatus.SC_UNAVAILABLE_FOR_LEGAL_REASONS,
+                "Unavailable For Legal Reasons");
 
     }
 
