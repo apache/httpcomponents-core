@@ -232,6 +232,9 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         setReason(HttpStatus.SC_NETWORK_AUTHENTICATION_REQUIRED,
                 "Network Authentication Required");
 
+        // Transparent Content Negotiation - see RFC 2295
+        setReason(HttpStatus.SC_VARIANT_ALSO_NEGOTIATES,
+                "Variant Also Negotiates");
 
     }
 
