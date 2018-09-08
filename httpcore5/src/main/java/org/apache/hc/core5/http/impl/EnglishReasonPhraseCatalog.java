@@ -91,7 +91,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
     private static final String[][] REASON_PHRASES = new String[][]{
         null,
         new String[3],  // 1xx
-        new String[8],  // 2xx
+        new String[9],  // 2xx
         new String[8],  // 3xx
         new String[32], // 4xx
         new String[12]   // 5xx
@@ -209,6 +209,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                   "Processing");
         setReason(HttpStatus.SC_MULTI_STATUS,
                   "Multi-Status");
+        setReason(HttpStatus.SC_ALREADY_REPORTED,
+                "Already Reported");
         setReason(HttpStatus.SC_UNPROCESSABLE_ENTITY,
                   "Unprocessable Entity");
         setReason(HttpStatus.SC_INSUFFICIENT_SPACE_ON_RESOURCE,
@@ -219,6 +221,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                   "Locked");
         setReason(HttpStatus.SC_INSUFFICIENT_STORAGE,
                   "Insufficient Storage");
+        setReason(HttpStatus.SC_LOOP_DETECTED,
+                "Loop Detected");
         setReason(HttpStatus.SC_FAILED_DEPENDENCY,
                   "Failed Dependency");
 
