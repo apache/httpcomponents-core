@@ -90,7 +90,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
     /** Reason phrases lookup table. */
     private static final String[][] REASON_PHRASES = new String[][]{
         null,
-        new String[3],  // 1xx
+        new String[4],  // 1xx
         new String[8],  // 2xx
         new String[8],  // 3xx
         new String[32], // 4xx
@@ -231,6 +231,10 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                 "Request Header Fields Too Large");
         setReason(HttpStatus.SC_NETWORK_AUTHENTICATION_REQUIRED,
                 "Network Authentication Required");
+
+        // Early Hints - see RFC 8297
+        setReason(HttpStatus.SC_EARLY_HINTS,
+                "Early Hints");
 
 
     }

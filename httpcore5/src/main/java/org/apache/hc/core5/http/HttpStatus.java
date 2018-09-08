@@ -30,13 +30,15 @@ package org.apache.hc.core5.http;
 /**
  * Constants enumerating the HTTP status codes.
  * All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1),
- * RFC2518 (WebDAV), RFC7540 (HTTP/2) and RFC6585 (Additional HTTP Status Codes) are listed.
+ * RFC2518 (WebDAV), RFC7540 (HTTP/2), RFC6585 (Additional HTTP Status Codes)
+ * and RFC8297 (Early Hints) are listed.
  *
  * @see <a href="https://tools.ietf.org/html/rfc1945">RFC1945 (HTTP/1.0)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2616">RFC2616 (HTTP/1.1)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2518">RFC2518 (WebDAV)</a>
  * @see <a href="https://tools.ietf.org/html/rfc7540">RFC7540 (HTTP/2)</a>
  * @see <a href="https://tools.ietf.org/html/rfc6585">RFC6585 (Additional HTTP Status Codes)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc8297">RFC8297 (Early Hints)</a>
  * @since 4.0
  */
 public interface HttpStatus {
@@ -51,6 +53,8 @@ public interface HttpStatus {
     int SC_SWITCHING_PROTOCOLS = 101;
     /** {@code 102 Processing} (WebDAV - RFC 2518) */
     int SC_PROCESSING = 102;
+    /** {@code 103 Early Hints (Early Hints - RFC 8297)}*/
+    int SC_EARLY_HINTS = 103;
 
     // --- 2xx Success ---
     /** {@code 2xx Success} (HTTP/1.0 - RFC 1945) */
