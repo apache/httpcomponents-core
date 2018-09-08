@@ -92,7 +92,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         null,
         new String[4],  // 1xx
         new String[9],  // 2xx
-        new String[8],  // 3xx
+        new String[9],  // 3xx
         new String[32], // 4xx
         new String[12]   // 5xx
     };
@@ -239,8 +239,9 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         // Early Hints - see RFC 8297
         setReason(HttpStatus.SC_EARLY_HINTS,
                 "Early Hints");
-
-
+        //Permanent Redirect - see RFC 7538
+        setReason(HttpStatus.SC_PERMANENT_REDIRECT,
+                "Permanent Redirect");
     }
 
 
