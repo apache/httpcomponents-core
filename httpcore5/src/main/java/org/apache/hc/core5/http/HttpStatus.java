@@ -215,6 +215,11 @@ public interface HttpStatus {
      */
     int SC_LOOP_DETECTED = 508;
 
+    /**
+     * {@code 510 Not Extended} (An HTTP Extension Framework - RFC 2774, p. 10, section 7)
+     */
+    int SC_NOT_EXTENDED = 510;
+
     /** {@code  511 Network Authentication Required} (Additional HTTP Status Codes - RFC 6585) */
     int SC_NETWORK_AUTHENTICATION_REQUIRED = 511;
 }

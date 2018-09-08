@@ -223,6 +223,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                   "Insufficient Storage");
         setReason(HttpStatus.SC_LOOP_DETECTED,
                 "Loop Detected");
+        setReason(HttpStatus.SC_NOT_EXTENDED,
+                "Not Extended");
         setReason(HttpStatus.SC_FAILED_DEPENDENCY,
                   "Failed Dependency");
 
