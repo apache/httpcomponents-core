@@ -92,7 +92,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         null,
         new String[3],  // 1xx
         new String[8],  // 2xx
-        new String[8],  // 3xx
+        new String[9],  // 3xx
         new String[32], // 4xx
         new String[12]   // 5xx
     };
@@ -231,6 +231,10 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                 "Request Header Fields Too Large");
         setReason(HttpStatus.SC_NETWORK_AUTHENTICATION_REQUIRED,
                 "Network Authentication Required");
+
+        //Permanent Redirect - see RFC 7538
+        setReason(HttpStatus.SC_PERMANENT_REDIRECT,
+                "Permanent Redirect");
 
 
     }

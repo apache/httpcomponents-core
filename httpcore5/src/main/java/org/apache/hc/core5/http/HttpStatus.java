@@ -37,6 +37,7 @@ package org.apache.hc.core5.http;
  * @see <a href="https://tools.ietf.org/html/rfc2518">RFC2518 (WebDAV)</a>
  * @see <a href="https://tools.ietf.org/html/rfc7540">RFC7540 (HTTP/2)</a>
  * @see <a href="https://tools.ietf.org/html/rfc6585">RFC6585 (Additional HTTP Status Codes)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7538">RFC7538 (Permanent Redirect)</a>
  * @since 4.0
  */
 public interface HttpStatus {
@@ -95,6 +96,9 @@ public interface HttpStatus {
     int SC_USE_PROXY = 305;
     /** {@code 307 Temporary Redirect} (HTTP/1.1 - RFC 2616) */
     int SC_TEMPORARY_REDIRECT = 307;
+
+    /** {@code 308 Permanent Redirect} (HTTP/1.1 - RFC 7538) */
+    int SC_PERMANENT_REDIRECT = 308;
 
     // --- 4xx Client Error ---
     /** {@code 4xx Client Error} (HTTP/1.1 - RFC 2616) */
