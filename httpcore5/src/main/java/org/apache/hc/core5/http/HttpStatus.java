@@ -81,6 +81,11 @@ public interface HttpStatus {
      */
     int SC_MULTI_STATUS = 207;
 
+    /**
+     * {@code 208 Already Reported} (WebDAV - RFC 5842, p.30, section 7.1)
+     */
+    int SC_ALREADY_REPORTED = 208;
+
     // --- 3xx Redirection ---
     /** {@code 3xx Redirection} (HTTP/1.1 - RFC 2616) */
     int SC_REDIRECTION = 300;
@@ -197,6 +202,11 @@ public interface HttpStatus {
 
     /** {@code 507 Insufficient Storage} (WebDAV - RFC 2518) */
     int SC_INSUFFICIENT_STORAGE = 507;
+
+    /**
+     * {@code 508 Loop Detected} (WebDAV - RFC 5842, p.33, section 7.2)
+     */
+    int SC_LOOP_DETECTED = 508;
 
     /** {@code  511 Network Authentication Required} (Additional HTTP Status Codes - RFC 6585) */
     int SC_NETWORK_AUTHENTICATION_REQUIRED = 511;
