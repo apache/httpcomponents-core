@@ -30,8 +30,10 @@ package org.apache.hc.core5.http;
 /**
  * Constants enumerating the HTTP status codes.
  * All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1),
- * RFC2518 (WebDAV), RFC7540 (HTTP/2), RFC7725 (An HTTP Status Code to Report Legal Obstacles)
- * and RFC6585 (Additional HTTP Status Codes) are listed.
+ * RFC2518 (WebDAV), RFC7540 (HTTP/2), RFC6585 (Additional HTTP Status Codes)
+ * RFC8297 (Early Hints), RFC7538 (Permanent Redirect), RFC7725 (An HTTP Status
+ * Code to Report Legal Obstacles) and RFC2295 (Transparent Content Negotiation)
+ * are listed.
  *
  * @see <a href="https://tools.ietf.org/html/rfc1945">RFC1945 (HTTP/1.0)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2616">RFC2616 (HTTP/1.1)</a>
@@ -41,6 +43,7 @@ package org.apache.hc.core5.http;
  * @see <a href="https://tools.ietf.org/html/rfc8297">RFC8297 (Early Hints)</a>
  * @see <a href="https://tools.ietf.org/html/rfc7538">RFC7538 (Permanent Redirect)</a>
  * @see <a href="https://tools.ietf.org/html/rfc7725">RFC7725 (An HTTP Status Code to Report Legal Obstacles)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc2295">RFC2295 (Transparent Content Negotiation)</a>
  * @since 4.0
  */
 public interface HttpStatus {
@@ -206,7 +209,8 @@ public interface HttpStatus {
     int SC_GATEWAY_TIMEOUT = 504;
     /** {@code 505 HTTP Version Not Supported} (HTTP/1.1 - RFC 2616) */
     int SC_HTTP_VERSION_NOT_SUPPORTED = 505;
-
+    /** {@code 506 Variant Also Negotiates} ( Transparent Content Negotiation - RFC2295) */
+    int SC_VARIANT_ALSO_NEGOTIATES = 506;
     /** {@code 507 Insufficient Storage} (WebDAV - RFC 2518) */
     int SC_INSUFFICIENT_STORAGE = 507;
 

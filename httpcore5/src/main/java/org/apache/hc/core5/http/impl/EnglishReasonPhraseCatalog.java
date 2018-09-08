@@ -247,6 +247,9 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         // Legal Obstacles - see RFC 7725
         setReason(HttpStatus.SC_UNAVAILABLE_FOR_LEGAL_REASONS,
                 "Unavailable For Legal Reasons");
+        // Transparent Content Negotiation - see RFC 2295
+        setReason(HttpStatus.SC_VARIANT_ALSO_NEGOTIATES,
+                "Variant Also Negotiates");
     }
 
 
