@@ -189,7 +189,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
             @Override
             public void completed(final PoolEntry<HttpHost, IOSession> poolEntry) {
-                final AsyncClientEndpoint endpoint = new InternalAsyncClientEndpoint(poolEntry);
+                final AsyncClientEndpoint endpoint = new InternalAsyncClientEndpoint(host, timeout, attachment, poolEntry);
                 final IOSession ioSession = poolEntry.getConnection();
                 if (ioSession != null && ioSession.isClosed()) {
                     poolEntry.discardConnection(CloseMode.IMMEDIATE);
@@ -432,9 +432,19 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
     private class InternalAsyncClientEndpoint extends AsyncClientEndpoint {
 
-        final AtomicReference<PoolEntry<HttpHost, IOSession>> poolEntryRef;
+        private final HttpHost host;
+        private final Timeout timeout;
+        private final Object attachment;
+        private final AtomicReference<PoolEntry<HttpHost, IOSession>> poolEntryRef;
 
-        InternalAsyncClientEndpoint(final PoolEntry<HttpHost, IOSession> poolEntry) {
+        InternalAsyncClientEndpoint(
+                final HttpHost host,
+                final Timeout timeout,
+                final Object attachment,
+                final PoolEntry<HttpHost, IOSession> poolEntry) {
+            this.host = host;
+            this.timeout = timeout;
+            this.attachment = attachment;
             this.poolEntryRef = new AtomicReference<>(poolEntry);
         }
 
@@ -451,7 +461,36 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             if (ioSession == null) {
                 throw new IllegalStateException("I/O session is invalid");
             }
-            ioSession.enqueue(new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context), Command.Priority.NORMAL);
+
+            final RequestExecutionCommand command = new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context);
+            if (ioSession.isClosed()) {
+                poolEntry.discardConnection(CloseMode.IMMEDIATE);
+                requestSession(
+                        host,
+                        timeout,
+                        attachment,
+                        new FutureCallback<IOSession>() {
+
+                            @Override
+                            public void completed(final IOSession ioSession) {
+                                poolEntry.assignConnection(ioSession);
+                                ioSession.enqueue(command, Command.Priority.NORMAL);
+                            }
+
+                            @Override
+                            public void failed(final Exception ex) {
+                                exchangeHandler.failed(ex);
+                            }
+
+                            @Override
+                            public void cancelled() {
+                                exchangeHandler.cancel();
+                            }
+
+                        });
+            } else {
+                ioSession.enqueue(command, Command.Priority.NORMAL);
+            }
         }
 
         @Override
