@@ -637,7 +637,7 @@ public class TestStandardInterceptors {
         interceptor.process(response, response.getEntity(), context);
         final Header header = response.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
-        Assert.assertEquals("keep-alive", header.getValue());
+        Assert.assertEquals("close", header.getValue());
     }
 
     @Test

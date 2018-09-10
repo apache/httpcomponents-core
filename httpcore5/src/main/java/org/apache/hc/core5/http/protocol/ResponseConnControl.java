@@ -108,8 +108,12 @@ public class ResponseConnControl implements HttpResponseInterceptor {
                     if (response.containsHeader(HttpHeaders.UPGRADE)) {
                         response.addHeader(HttpHeaders.CONNECTION, HeaderElements.UPGRADE);
                     } else {
-                        if (keepAliveRequested || ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                        if (keepAliveRequested) {
                             response.addHeader(HttpHeaders.CONNECTION, HeaderElements.KEEP_ALIVE);
+                        } else {
+                            if (ver.lessEquals(HttpVersion.HTTP_1_0)) {
+                                response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                            }
                         }
                     }
                 }
