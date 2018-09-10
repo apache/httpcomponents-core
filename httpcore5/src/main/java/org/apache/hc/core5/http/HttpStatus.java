@@ -94,6 +94,11 @@ public interface HttpStatus {
      */
     int SC_IM_USED = 226;
 
+    /**
+     * {@code 226 IM Used} (Delta encoding in HTTP - RFC 3229, p. 30, section 10.4.1)
+     */
+    int SC_IM_USED = 226;
+
     // --- 3xx Redirection ---
     /** {@code 3xx Redirection} (HTTP/1.1 - RFC 2616) */
     int SC_REDIRECTION = 300;

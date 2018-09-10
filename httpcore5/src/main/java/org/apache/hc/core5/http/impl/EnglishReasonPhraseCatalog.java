@@ -91,10 +91,9 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
     private static final String[][] REASON_PHRASES = new String[][]{
         null,
         new String[4],  // 1xx
-        new String[27], // 2xx
+        new String[27],  // 2xx
         new String[9],  // 3xx
         new String[52], // 4xx
-        new String[12]   // 5xx
     };
 
 
