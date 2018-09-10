@@ -30,13 +30,20 @@ package org.apache.hc.core5.http;
 /**
  * Constants enumerating the HTTP status codes.
  * All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1),
- * RFC2518 (WebDAV), RFC7540 (HTTP/2) and RFC6585 (Additional HTTP Status Codes) are listed.
+ * RFC2518 (WebDAV), RFC7540 (HTTP/2), RFC6585 (Additional HTTP Status Codes)
+ * RFC8297 (Early Hints), RFC7538 (Permanent Redirect), RFC7725 (An HTTP Status
+ * Code to Report Legal Obstacles) and RFC2295 (Transparent Content Negotiation)
+ * are listed.
  *
  * @see <a href="https://tools.ietf.org/html/rfc1945">RFC1945 (HTTP/1.0)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2616">RFC2616 (HTTP/1.1)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2518">RFC2518 (WebDAV)</a>
  * @see <a href="https://tools.ietf.org/html/rfc7540">RFC7540 (HTTP/2)</a>
  * @see <a href="https://tools.ietf.org/html/rfc6585">RFC6585 (Additional HTTP Status Codes)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc8297">RFC8297 (Early Hints)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7538">RFC7538 (Permanent Redirect)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7725">RFC7725 (An HTTP Status Code to Report Legal Obstacles)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc2295">RFC2295 (Transparent Content Negotiation)</a>
  * @since 4.0
  */
 public interface HttpStatus {
@@ -51,6 +58,8 @@ public interface HttpStatus {
     int SC_SWITCHING_PROTOCOLS = 101;
     /** {@code 102 Processing} (WebDAV - RFC 2518) */
     int SC_PROCESSING = 102;
+    /** {@code 103 Early Hints (Early Hints - RFC 8297)}*/
+    int SC_EARLY_HINTS = 103;
 
     // --- 2xx Success ---
     /** {@code 2xx Success} (HTTP/1.0 - RFC 1945) */
@@ -76,6 +85,14 @@ public interface HttpStatus {
      * {@code 207 Partial Update OK} (HTTP/1.1 - draft-ietf-http-v11-spec-rev-01?)
      */
     int SC_MULTI_STATUS = 207;
+    /**
+     * {@code 208 Already Reported} (WebDAV - RFC 5842, p.30, section 7.1)
+     */
+    int SC_ALREADY_REPORTED = 208;
+    /**
+     * {@code 226 IM Used} (Delta encoding in HTTP - RFC 3229, p. 30, section 10.4.1)
+     */
+    int SC_IM_USED = 226;
 
     /**
      * {@code 226 IM Used} (Delta encoding in HTTP - RFC 3229, p. 30, section 10.4.1)
@@ -100,6 +117,9 @@ public interface HttpStatus {
     int SC_USE_PROXY = 305;
     /** {@code 307 Temporary Redirect} (HTTP/1.1 - RFC 2616) */
     int SC_TEMPORARY_REDIRECT = 307;
+
+    /** {@code 308 Permanent Redirect} (HTTP/1.1 - RFC 7538) */
+    int SC_PERMANENT_REDIRECT = 308;
 
     // --- 4xx Client Error ---
     /** {@code 4xx Client Error} (HTTP/1.1 - RFC 2616) */
@@ -178,6 +198,8 @@ public interface HttpStatus {
     int SC_TOO_MANY_REQUESTS = 429;
     /** {@code 431 Request Header Fields Too Large} (Additional HTTP Status Codes - RFC 6585) */
     int SC_REQUEST_HEADER_FIELDS_TOO_LARGE = 431;
+    /** {@code 451 Unavailable For Legal Reasons} (Legal Obstacles - RFC 7725) */
+    int SC_UNAVAILABLE_FOR_LEGAL_REASONS = 451;
 
     // --- 5xx Server Error ---
     /** {@code 500 Server Error} (HTTP/1.0 - RFC 1945) */
@@ -195,9 +217,20 @@ public interface HttpStatus {
     int SC_GATEWAY_TIMEOUT = 504;
     /** {@code 505 HTTP Version Not Supported} (HTTP/1.1 - RFC 2616) */
     int SC_HTTP_VERSION_NOT_SUPPORTED = 505;
-
+    /** {@code 506 Variant Also Negotiates} ( Transparent Content Negotiation - RFC2295) */
+    int SC_VARIANT_ALSO_NEGOTIATES = 506;
     /** {@code 507 Insufficient Storage} (WebDAV - RFC 2518) */
     int SC_INSUFFICIENT_STORAGE = 507;
+
+    /**
+     * {@code 508 Loop Detected} (WebDAV - RFC 5842, p.33, section 7.2)
+     */
+    int SC_LOOP_DETECTED = 508;
+
+    /**
+     * {@code 510 Not Extended} (An HTTP Extension Framework - RFC 2774, p. 10, section 7)
+     */
+    int SC_NOT_EXTENDED = 510;
 
     /** {@code  511 Network Authentication Required} (Additional HTTP Status Codes - RFC 6585) */
     int SC_NETWORK_AUTHENTICATION_REQUIRED = 511;

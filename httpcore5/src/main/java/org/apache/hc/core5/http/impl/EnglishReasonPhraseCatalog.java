@@ -90,11 +90,10 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
     /** Reason phrases lookup table. */
     private static final String[][] REASON_PHRASES = new String[][]{
         null,
-        new String[3],  // 1xx
+        new String[4],  // 1xx
         new String[27],  // 2xx
-        new String[8],  // 3xx
-        new String[32], // 4xx
-        new String[12]   // 5xx
+        new String[9],  // 3xx
+        new String[52], // 4xx
     };
 
 
@@ -209,6 +208,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                   "Processing");
         setReason(HttpStatus.SC_MULTI_STATUS,
                   "Multi-Status");
+        setReason(HttpStatus.SC_ALREADY_REPORTED,
+                "Already Reported");
         setReason(HttpStatus.SC_IM_USED,
                 "IM Used");
         setReason(HttpStatus.SC_UNPROCESSABLE_ENTITY,
@@ -221,6 +222,10 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                   "Locked");
         setReason(HttpStatus.SC_INSUFFICIENT_STORAGE,
                   "Insufficient Storage");
+        setReason(HttpStatus.SC_LOOP_DETECTED,
+                "Loop Detected");
+        setReason(HttpStatus.SC_NOT_EXTENDED,
+                "Not Extended");
         setReason(HttpStatus.SC_FAILED_DEPENDENCY,
                   "Failed Dependency");
 
@@ -234,7 +239,18 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         setReason(HttpStatus.SC_NETWORK_AUTHENTICATION_REQUIRED,
                 "Network Authentication Required");
 
-
+        // Early Hints - see RFC 8297
+        setReason(HttpStatus.SC_EARLY_HINTS,
+                "Early Hints");
+        //Permanent Redirect - see RFC 7538
+        setReason(HttpStatus.SC_PERMANENT_REDIRECT,
+                "Permanent Redirect");
+        // Legal Obstacles - see RFC 7725
+        setReason(HttpStatus.SC_UNAVAILABLE_FOR_LEGAL_REASONS,
+                "Unavailable For Legal Reasons");
+        // Transparent Content Negotiation - see RFC 2295
+        setReason(HttpStatus.SC_VARIANT_ALSO_NEGOTIATES,
+                "Variant Also Negotiates");
     }
 
 

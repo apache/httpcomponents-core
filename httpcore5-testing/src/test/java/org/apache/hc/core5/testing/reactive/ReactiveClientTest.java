@@ -27,6 +27,7 @@
 package org.apache.hc.core5.testing.reactive;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -46,25 +47,36 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactive.ReactiveEntityProducer;
+import org.apache.hc.core5.reactive.ReactiveRequestProcessor;
 import org.apache.hc.core5.reactive.ReactiveResponseConsumer;
+import org.apache.hc.core5.reactive.ReactiveServerExchangeHandler;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
-import org.apache.hc.core5.testing.nio.EchoHandler;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingHttp2StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
@@ -109,6 +121,28 @@ public class ReactiveClientTest {
 
     private HttpAsyncServer server;
 
+    private static final class ReactiveEchoProcessor implements ReactiveRequestProcessor {
+        @Override
+        public void processRequest(
+                final HttpRequest request,
+                final EntityDetails entityDetails,
+                final ResponseChannel responseChannel,
+                final HttpContext context,
+                final Publisher<ByteBuffer> requestBody,
+                final Callback<Publisher<ByteBuffer>> responseBodyFuture
+        ) throws HttpException, IOException {
+            if (new BasicHeader("Expect", "100-continue").equals(request.getSingleHeader("Expect"))) {
+                responseChannel.sendInformation(new BasicHttpResponse(100), context);
+            }
+
+            responseChannel.sendResponse(
+                    new BasicHttpResponse(200),
+                    new BasicEntityDetails(-1, ContentType.APPLICATION_OCTET_STREAM),
+                    context);
+            responseBodyFuture.execute(requestBody);
+        }
+    }
+
     @Rule
     public ExternalResource serverResource = new ExternalResource() {
 
@@ -129,7 +163,7 @@ public class ReactiveClientTest {
 
                     @Override
                     public AsyncServerExchangeHandler get() {
-                        return new EchoHandler(10 * 1024 * 1024);
+                        return new ReactiveServerExchangeHandler(new ReactiveEchoProcessor());
                     }
 
                 })
@@ -234,7 +268,7 @@ public class ReactiveClientTest {
         final InetSocketAddress address = startClientAndServer();
         final AtomicLong requestLength = new AtomicLong(0L);
         final AtomicReference<MessageDigest> requestDigest = new AtomicReference<>(newDigest());
-        final Publisher<ByteBuffer> publisher = Flowable.rangeLong(1, 500)
+        final Publisher<ByteBuffer> publisher = Flowable.rangeLong(1, 10)
             .map(new Function<Long, ByteBuffer>() {
                 @Override
                 public ByteBuffer apply(final Long seed) {

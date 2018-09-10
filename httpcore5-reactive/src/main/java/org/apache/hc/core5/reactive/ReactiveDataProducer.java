@@ -63,6 +63,10 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
         this.publisher = Args.notNull(publisher, "publisher");
     }
 
+    void setChannel(final DataStreamChannel channel) {
+        requestChannel.set(channel);
+    }
+
     @Override
     public void onSubscribe(final Subscription subscription) {
         if (this.subscription.getAndSet(subscription) != null) {
