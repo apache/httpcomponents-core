@@ -455,6 +455,18 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         }
 
         @Override
+        public boolean isConnected() {
+            final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.get();
+            if (poolEntry != null) {
+                final IOSession ioSession = poolEntry.getConnection();
+                if (ioSession != null && !ioSession.isClosed()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
         public void releaseAndReuse() {
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.getAndSet(null);
             if (poolEntry != null) {

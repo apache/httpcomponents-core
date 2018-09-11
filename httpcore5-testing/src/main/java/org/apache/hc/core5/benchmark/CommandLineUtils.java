@@ -27,13 +27,15 @@
 package org.apache.hc.core5.benchmark;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.util.Timeout;
 
 public class CommandLineUtils {
 
@@ -131,24 +133,25 @@ public class CommandLineUtils {
         return options;
     }
 
-    public static void parseCommandLine(final CommandLine cmd, final Config config) {
+    public static BenchmarkConfig parseCommandLine(final CommandLine cmd) {
+        final BenchmarkConfig.Builder builder = new BenchmarkConfig.Builder();
         if (cmd.hasOption('v')) {
             final String s = cmd.getOptionValue('v');
             try {
-                config.setVerbosity(Integer.parseInt(s));
+                builder.setVerbosity(Integer.parseInt(s));
             } catch (final NumberFormatException ex) {
                 printError("Invalid verbosity level: " + s);
             }
         }
 
         if (cmd.hasOption('k')) {
-            config.setKeepAlive(true);
+            builder.setKeepAlive(true);
         }
 
         if (cmd.hasOption('c')) {
             final String s = cmd.getOptionValue('c');
             try {
-                config.setThreads(Integer.parseInt(s));
+                builder.setThreads(Integer.parseInt(s));
             } catch (final NumberFormatException ex) {
                 printError("Invalid number for concurrency: " + s);
             }
@@ -157,7 +160,7 @@ public class CommandLineUtils {
         if (cmd.hasOption('n')) {
             final String s = cmd.getOptionValue('n');
             try {
-                config.setRequests(Integer.parseInt(s));
+                builder.setRequests(Integer.parseInt(s));
             } catch (final NumberFormatException ex) {
                 printError("Invalid number of requests: " + s);
             }
@@ -168,26 +171,26 @@ public class CommandLineUtils {
             if (!file.exists()) {
                 printError("File not found: " + file);
             }
-            config.setPayloadFile(file);
+            builder.setPayloadFile(file);
         }
 
         if (cmd.hasOption('T')) {
-            config.setContentType(cmd.getOptionValue('T'));
+            builder.setContentType(ContentType.parse(cmd.getOptionValue('T')));
         }
 
         if (cmd.hasOption('i')) {
-            config.setHeadInsteadOfGet(true);
+            builder.setHeadInsteadOfGet(true);
         }
 
         if (cmd.hasOption('H')) {
             final String headerStr = cmd.getOptionValue('H');
-            config.setHeaders(headerStr.split(","));
+            builder.setHeaders(headerStr.split(","));
         }
 
         if (cmd.hasOption('t')) {
             final String t = cmd.getOptionValue('t');
             try {
-                config.setSocketTimeoutMillis(Integer.parseInt(t));
+                builder.setSocketTimeout(Timeout.ofMillis(Integer.parseInt(t)));
             } catch (final NumberFormatException ex) {
                 printError("Invalid socket timeout: " + t);
             }
@@ -196,42 +199,44 @@ public class CommandLineUtils {
         if (cmd.hasOption('l')) {
             final String l = cmd.getOptionValue('l');
             try {
-                config.setTimeLimit(Integer.parseInt(l));
+                builder.setTimeLimit(Integer.parseInt(l));
             } catch (final NumberFormatException ex) {
                 printError("Invalid time limit: " + l);
             }
         }
 
         if (cmd.hasOption('o')) {
-            config.setUseHttp1_0(true);
+            builder.setUseHttp1_0(true);
         }
 
         if (cmd.hasOption('m')) {
-            config.setMethod(cmd.getOptionValue('m'));
+            builder.setMethod(cmd.getOptionValue('m'));
         } else if (cmd.hasOption('p')) {
-            config.setMethod("POST");
+            builder.setMethod("POST");
         }
 
         if (cmd.hasOption('u')) {
-            config.setUseChunking(true);
+            builder.setUseChunking(true);
         }
 
         if (cmd.hasOption('x')) {
-            config.setUseExpectContinue(true);
+            builder.setUseExpectContinue(true);
         }
 
         if (cmd.hasOption('g')) {
-            config.setUseAcceptGZip(true);
+            builder.setUseAcceptGZip(true);
         }
 
         final String[] cmdargs = cmd.getArgs();
         if (cmdargs.length > 0) {
             try {
-                config.setUrl(new URL(cmdargs[0]));
-            } catch (final MalformedURLException e) {
-                printError("Invalid request URL : " + cmdargs[0]);
+                builder.setUri(new URI(cmdargs[0]));
+            } catch (final URISyntaxException e) {
+                printError("Invalid request URI: " + cmdargs[0]);
             }
         }
+
+        return builder.build();
     }
 
     static void showUsage(final Options options) {

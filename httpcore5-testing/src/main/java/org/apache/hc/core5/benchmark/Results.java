@@ -33,24 +33,47 @@ package org.apache.hc.core5.benchmark;
  */
 public final class Results {
 
-    String serverName;
-    String hostName;
-    int hostPort;
-    String documentPath;
-    long contentLength;
-    int concurrencyLevel;
-    long totalTimeNano;
-    long successCount;
-    long failureCount;
-    long writeErrors;
-    long keepAliveCount;
-    long totalBytesRcvd;
-    long totalBytesSent;
-    long totalBytes;
+    private final String serverName;
+    private final String hostName;
+    private final int hostPort;
+    private final String documentPath;
+    private final long contentLength;
+    private final int concurrencyLevel;
+    private final long totalTimeMillis;
+    private final long successCount;
+    private final long failureCount;
+    private final long keepAliveCount;
+    private final long totalBytesRcvd;
+    private final long totalBytesSent;
+    private final long totalContentBytesRecvd;
 
-    Results() {
-        super();
-        this.contentLength = -1;
+    public Results(
+            final String serverName,
+            final String hostName,
+            final int hostPort,
+            final String documentPath,
+            final long contentLength,
+            final int concurrencyLevel,
+            final long totalTimeMillis,
+            final long successCount,
+            final long failureCount,
+            final long keepAliveCount,
+            final long totalBytesRcvd,
+            final long totalBytesSent,
+            final long totalContentBytesRecvd) {
+        this.serverName = serverName;
+        this.hostName = hostName;
+        this.hostPort = hostPort;
+        this.documentPath = documentPath;
+        this.contentLength = contentLength;
+        this.concurrencyLevel = concurrencyLevel;
+        this.totalTimeMillis = totalTimeMillis;
+        this.successCount = successCount;
+        this.failureCount = failureCount;
+        this.keepAliveCount = keepAliveCount;
+        this.totalBytesRcvd = totalBytesRcvd;
+        this.totalBytesSent = totalBytesSent;
+        this.totalContentBytesRecvd = totalContentBytesRecvd;
     }
 
     public String getServerName() {
@@ -77,8 +100,8 @@ public final class Results {
         return concurrencyLevel;
     }
 
-    public long getTotalTimeNano() {
-        return totalTimeNano;
+    public long getTotalTimeMillis() {
+        return totalTimeMillis;
     }
 
     public long getSuccessCount() {
@@ -87,10 +110,6 @@ public final class Results {
 
     public long getFailureCount() {
         return failureCount;
-    }
-
-    public long getWriteErrors() {
-        return writeErrors;
     }
 
     public long getKeepAliveCount() {
@@ -105,8 +124,8 @@ public final class Results {
         return totalBytesSent;
     }
 
-    public long getTotalBytes() {
-        return totalBytes;
+    public long getTotalContentBytesRecvd() {
+        return totalContentBytesRecvd;
     }
 
     @Override
@@ -118,14 +137,13 @@ public final class Results {
                 .append(", documentPath=").append(documentPath)
                 .append(", contentLength=").append(contentLength)
                 .append(", concurrencyLevel=").append(concurrencyLevel)
-                .append(", totalTimeNano=").append(totalTimeNano)
+                .append(", totalTimeMillis=").append(totalTimeMillis)
                 .append(", successCount=").append(successCount)
                 .append(", failureCount=").append(failureCount)
-                .append(", writeErrors=").append(writeErrors)
                 .append(", keepAliveCount=").append(keepAliveCount)
                 .append(", totalBytesRcvd=").append(totalBytesRcvd)
                 .append(", totalBytesSent=").append(totalBytesSent)
-                .append(", totalBytes=").append(totalBytes)
+                .append(", totalContentBytesRecvd=").append(totalContentBytesRecvd)
                 .append("]");
         return builder.toString();
     }

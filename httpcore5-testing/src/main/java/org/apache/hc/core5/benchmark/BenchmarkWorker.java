@@ -27,256 +27,343 @@
 package org.apache.hc.core5.benchmark;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
-import javax.net.SocketFactory;
-
-import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.ConnectionReuseStrategy;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
+import org.apache.hc.core5.http.nio.AsyncEntityProducer;
+import org.apache.hc.core5.http.nio.AsyncRequestProducer;
+import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
+import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.http.nio.RequestChannel;
+import org.apache.hc.core5.http.nio.ResourceHolder;
+import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
-import org.apache.hc.core5.http.protocol.RequestConnControl;
-import org.apache.hc.core5.http.protocol.RequestContent;
-import org.apache.hc.core5.http.protocol.RequestExpectContinue;
-import org.apache.hc.core5.http.protocol.RequestTargetHost;
-import org.apache.hc.core5.http.protocol.RequestUserAgent;
-import org.apache.hc.core5.io.CloseMode;
 
-/**
- * Worker thread for the {@link HttpBenchmark HttpBenchmark}.
- *
- *
- * @since 4.0
- */
-class BenchmarkWorker implements Runnable {
+class BenchmarkWorker implements ResourceHolder {
 
-    private final byte[] buffer = new byte[4096];
-    private final HttpCoreContext context;
-    private final HttpProcessor httpProcessor;
-    private final HttpRequestExecutor httpexecutor;
-    private final ConnectionReuseStrategy connstrategy;
+    private final HttpAsyncRequester requester;
     private final HttpHost host;
-    private final ClassicHttpRequest request;
-    private final Config config;
-    private final SocketFactory socketFactory;
-    private boolean shutdownSignal;
-    private final Stats stats = new Stats();
+    private final HttpCoreContext context;
+    private final AtomicLong requestCount;
+    private final CountDownLatch completionLatch;
+    private final Stats stats;
+    private final BenchmarkConfig config;
+    private final AtomicReference<AsyncClientEndpoint> endpointRef;
 
     public BenchmarkWorker(
+            final HttpAsyncRequester requester,
             final HttpHost host,
-            final ClassicHttpRequest request,
-            final SocketFactory socketFactory,
-            final Config config) {
-        super();
-        this.context = new HttpCoreContext();
+            final HttpCoreContext context,
+            final AtomicLong requestCount,
+            final CountDownLatch completionLatch,
+            final Stats stats,
+            final BenchmarkConfig config) {
+        this.requester = requester;
         this.host = host;
-        this.request = request;
+        this.context = context;
+        this.requestCount = requestCount;
+        this.completionLatch = completionLatch;
+        this.stats = stats;
         this.config = config;
-        final HttpProcessorBuilder builder = HttpProcessorBuilder.create()
-                .addAll(
-                        new RequestContent(),
-                        new RequestTargetHost(),
-                        new RequestConnControl(),
-                        new RequestUserAgent("HttpCore-AB/1.1"));
-        if (this.config.isUseExpectContinue()) {
-            builder.add(new RequestExpectContinue());
-        }
-        this.httpProcessor = builder.build();
-        this.httpexecutor = new HttpRequestExecutor();
-
-        this.connstrategy = DefaultConnectionReuseStrategy.INSTANCE;
-        this.socketFactory = socketFactory;
-        this.shutdownSignal = false;
+        this.endpointRef = new AtomicReference<>(null);
     }
 
-    @Override
-    public void run() {
-        ClassicHttpResponse response = null;
-        final HttpVersion version = config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1;
-        final BenchmarkConnection conn = new BenchmarkConnection(H1Config.DEFAULT, stats);
-
-        final String scheme = this.host.getSchemeName();
-        final String hostname = this.host.getHostName();
-        int port = this.host.getPort();
-        if (port == -1) {
-            if (scheme.equalsIgnoreCase("https")) {
-                port = 443;
-            } else {
-                port = 80;
-            }
+    private AsyncRequestProducer createRequestProducer() {
+        String method = config.getMethod();
+        if (method == null) {
+            method = config.isHeadInsteadOfGet() ? "HEAD" : "GET";
         }
 
-        // Populate the execution context
-        context.setProtocolVersion(version);
-
-        stats.start();
-        final int count = config.getRequests();
-        for (int i = 0; i < count; i++) {
-
-            try {
-                resetHeader(request);
-                if (!conn.isOpen()) {
-
-                    final Socket socket;
-                    if (socketFactory != null) {
-                        socket = socketFactory.createSocket();
-                    } else {
-                        socket = new Socket();
-                    }
-
-                    final int timeoutMillis = config.getSocketTimeoutMillis();
-                    socket.setSoTimeout(timeoutMillis);
-                    socket.connect(new InetSocketAddress(hostname, port), timeoutMillis);
-
-                    conn.bind(socket);
+        final BasicHttpRequest request = new BasicHttpRequest(method, config.getUri());
+        final String[] headers = config.getHeaders();
+        if (headers != null) {
+            for (final String s : headers) {
+                final int pos = s.indexOf(':');
+                if (pos != -1) {
+                    request.addHeader(new BasicHeader(s.substring(0, pos).trim(), s.substring(pos + 1)));
                 }
+            }
+        }
+        if (!config.isKeepAlive()) {
+            request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE));
+        }
+        if (config.isUseAcceptGZip()) {
+            request.addHeader(new BasicHeader(HttpHeaders.ACCEPT_ENCODING, "gzip"));
+        }
+        if (config.getSoapAction() != null && config.getSoapAction().length() > 0) {
+            request.addHeader(new BasicHeader("SOAPAction", config.getSoapAction()));
+        }
 
-                try {
-                    // Prepare request
-                    this.httpexecutor.preProcess(this.request, this.httpProcessor, this.context);
-                    // Execute request and get a response
-                    response = this.httpexecutor.execute(this.request, conn, this.context);
-                    // Finalize response
-                    this.httpexecutor.postProcess(response, this.httpProcessor, this.context);
+        final AsyncEntityProducer entityProducer;
+        if (config.getPayloadFile() != null) {
+            entityProducer = new FileEntityProducer(
+                    config.getPayloadFile(),
+                    config.getContentType(),
+                    config.isUseChunking());
+        } else if (config.getPayloadText() != null) {
+            entityProducer = new BasicAsyncEntityProducer(
+                    config.getPayloadText(),
+                    config.getContentType(),
+                    config.isUseChunking());
+        } else {
+            entityProducer = null;
+        }
 
-                } catch (final HttpException e) {
-                    stats.incWriteErrors();
-                    if (config.getVerbosity() >= 2) {
-                        System.err.println("Failed HTTP request : " + e.getMessage());
-                    }
-                    conn.close(CloseMode.IMMEDIATE);
-                    continue;
+        return new AsyncRequestProducer() {
+
+            @Override
+            public void sendRequest(
+                    final RequestChannel channel,
+                    final HttpContext context) throws HttpException, IOException {
+                channel.sendRequest(request, entityProducer, context);
+            }
+
+            @Override
+            public boolean isRepeatable() {
+                return entityProducer == null || entityProducer.isRepeatable();
+            }
+
+            @Override
+            public int available() {
+                return entityProducer != null ? entityProducer.available() : 0;
+            }
+
+            @Override
+            public void produce(final DataStreamChannel channel) throws IOException {
+                if (entityProducer != null) {
+                    entityProducer.produce(channel);
                 }
+            }
 
-                verboseOutput(response);
+            @Override
+            public void failed(final Exception cause) {
+                stats.incFailureCount();
+                if (config.getVerbosity() >= 1) {
+                    System.out.println("Failed HTTP request : " + cause.getMessage());
+                }
+            }
 
-                if (response.getCode() == HttpStatus.SC_OK) {
+            @Override
+            public void releaseResources() {
+                if (entityProducer != null) {
+                    entityProducer.releaseResources();
+                }
+            }
+
+        };
+    }
+
+    private AsyncResponseConsumer<Void> createResponseConsumer() {
+
+        return new AsyncResponseConsumer<Void>() {
+
+            volatile int status;
+            volatile Charset charset;
+            final AtomicLong contentLength = new AtomicLong();
+            final AtomicReference<FutureCallback<Void>> resultCallbackRef = new AtomicReference<>(null);
+
+            @Override
+            public void consumeResponse(
+                    final HttpResponse response,
+                    final EntityDetails entityDetails,
+                    final HttpContext context,
+                    final FutureCallback<Void> resultCallback) throws HttpException, IOException {
+                status = response.getCode();
+                resultCallbackRef.set(resultCallback);
+                final Header serverHeader = response.getFirstHeader(HttpHeaders.SERVER);
+                if (serverHeader != null) {
+                    stats.setServerName(serverHeader.getValue());
+                }
+                if (config.getVerbosity() >= 2) {
+                    System.out.println(response.getCode());
+                }
+                if (entityDetails != null) {
+                    if (config.getVerbosity() >= 4) {
+                        if (entityDetails.getContentType() != null) {
+                            final ContentType contentType = ContentType.parseLenient(entityDetails.getContentType());
+                            charset = contentType.getCharset();
+                        }
+                    }
+                } else {
+                    streamEnd(null);
+                }
+            }
+
+            @Override
+            public void informationResponse(
+                    final HttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+            }
+
+            @Override
+            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                capacityChannel.update(Integer.MAX_VALUE);
+            }
+
+            @Override
+            public int consume(final ByteBuffer src) throws IOException {
+                final int n = src.remaining();
+                contentLength.addAndGet(n);
+                stats.incTotalContentLength(n);
+                if (config.getVerbosity() >= 4) {
+                    final CharsetDecoder decoder = (charset != null ? charset : StandardCharsets.US_ASCII).newDecoder();
+                    System.out.print(decoder.decode(src));
+                }
+                return Integer.MAX_VALUE;
+            }
+
+            @Override
+            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+                if (status == HttpStatus.SC_OK) {
                     stats.incSuccessCount();
                 } else {
                     stats.incFailureCount();
                 }
-
-                final HttpEntity entity = response.getEntity();
-                if (entity != null) {
-                    final ContentType ct = EntityUtils.getContentTypeOrDefault(entity);
-                    Charset charset = ct.getCharset();
-                    if (charset == null) {
-                        charset = StandardCharsets.ISO_8859_1;
-                    }
-                    long contentLen = 0;
-                    final InputStream inStream = entity.getContent();
-                    int l;
-                    while ((l = inStream.read(this.buffer)) != -1) {
-                        contentLen += l;
-                        if (config.getVerbosity() >= 4) {
-                            final String s = new String(this.buffer, 0, l, charset);
-                            System.out.print(s);
-                        }
-                    }
-                    inStream.close();
-                    stats.setContentLength(contentLen);
+                stats.setContentLength(contentLength.get());
+                final FutureCallback<Void> resultCallback = resultCallbackRef.getAndSet(null);
+                if (resultCallback != null) {
+                    resultCallback.completed(null);
                 }
-
                 if (config.getVerbosity() >= 4) {
                     System.out.println();
                     System.out.println();
                 }
+            }
 
-                if (!config.isKeepAlive() || !conn.isConsistent() || !this.connstrategy.keepAlive(request, response, this.context)) {
-                    conn.close();
-                } else {
-                    stats.incKeepAliveCount();
-                }
+            @Override
+            public Void getResult() {
+                return null;
+            }
 
-            } catch (final IOException ex) {
+            @Override
+            public void failed(final Exception cause) {
                 stats.incFailureCount();
-                if (config.getVerbosity() >= 2) {
-                    System.err.println("I/O error: " + ex.getMessage());
+                final FutureCallback<Void> resultCallback = resultCallbackRef.getAndSet(null);
+                if (resultCallback != null) {
+                    resultCallback.failed(cause);
                 }
-            } catch (final Exception ex) {
-                stats.incFailureCount();
-                if (config.getVerbosity() >= 2) {
-                    System.err.println("Generic error: " + ex.getMessage());
+                if (config.getVerbosity() >= 1) {
+                    System.out.println("HTTP response error: " + cause.getMessage());
                 }
             }
 
-            if (shutdownSignal) {
-                break;
+            @Override
+            public void releaseResources() {
             }
-        }
-        stats.finish();
 
-        if (response != null) {
-            final Header header = response.getFirstHeader("Server");
-            if (header != null) {
-                stats.setServerName(header.getValue());
-            }
-        }
+        };
+    }
 
-        try {
-            conn.close();
-        } catch (final IOException ex) {
-            stats.incFailureCount();
-            if (config.getVerbosity() >= 2) {
-                System.err.println("I/O error: " + ex.getMessage());
+    public void execute() {
+        if (requestCount.decrementAndGet() >= 0) {
+            AsyncClientEndpoint endpoint = endpointRef.get();
+            if (endpoint != null && !endpoint.isConnected()) {
+                endpoint.releaseAndDiscard();
+                endpoint = null;
             }
+            if (endpoint == null) {
+                requester.connect(host, config.getSocketTimeout(), null, new FutureCallback<AsyncClientEndpoint>() {
+
+                    @Override
+                    public void completed(final AsyncClientEndpoint endpoint) {
+                        endpointRef.set(endpoint);
+                        endpoint.execute(
+                                createRequestProducer(),
+                                createResponseConsumer(),
+                                context,
+                                new FutureCallback<Void>() {
+
+                                    @Override
+                                    public void completed(final Void result) {
+                                        execute();
+                                    }
+
+                                    @Override
+                                    public void failed(final Exception cause) {
+                                        execute();
+                                    }
+
+                                    @Override
+                                    public void cancelled() {
+                                        completionLatch.countDown();
+                                    }
+
+                                });
+                    }
+
+                    @Override
+                    public void failed(final Exception cause) {
+                        stats.incFailureCount();
+                        if (config.getVerbosity() >= 1) {
+                            System.out.println("Connect error: " + cause.getMessage());
+                        }
+                        execute();
+                    }
+
+                    @Override
+                    public void cancelled() {
+                        completionLatch.countDown();
+                    }
+
+                });
+            } else {
+                endpoint.execute(
+                        createRequestProducer(),
+                        createResponseConsumer(),
+                        context,
+                        new FutureCallback<Void>() {
+
+                            @Override
+                            public void completed(final Void result) {
+                                execute();
+                            }
+
+                            @Override
+                            public void failed(final Exception cause) {
+                                execute();
+                            }
+
+                            @Override
+                            public void cancelled() {
+                                completionLatch.countDown();
+                            }
+
+                        });
+            }
+        } else {
+            completionLatch.countDown();
         }
     }
 
-    private void verboseOutput(final ClassicHttpResponse response) {
-        if (config.getVerbosity() >= 3) {
-            System.out.println(">> " + request.getMethod() + " " + request.getRequestUri());
-            final Header[] headers = request.getAllHeaders();
-            for (final Header header : headers) {
-                System.out.println(">> " + header.toString());
-            }
-            System.out.println();
-        }
-        if (config.getVerbosity() >= 2) {
-            System.out.println(response.getCode());
-        }
-        if (config.getVerbosity() >= 3) {
-            System.out.println("<< " + response.getCode() + " " + response.getReasonPhrase());
-            final Header[] headers = response.getAllHeaders();
-            for (final Header header : headers) {
-                System.out.println("<< " + header.toString());
-            }
-            System.out.println();
+    @Override
+    public void releaseResources() {
+        final AsyncClientEndpoint endpoint = endpointRef.getAndSet(null);
+        if (endpoint != null) {
+            endpoint.releaseAndDiscard();
         }
     }
 
-    private static void resetHeader(final ClassicHttpRequest request) {
-        for (final Iterator<Header> it = request.headerIterator(); it.hasNext();) {
-            final Header header = it.next();
-            if (!(header instanceof DefaultHeader)) {
-                it.remove();
-            }
-        }
-    }
-
-    public Stats getStats() {
-        return stats;
-    }
-
-    public synchronized void setShutdownSignal() {
-        this.shutdownSignal = true;
-    }
 }

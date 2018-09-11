@@ -82,6 +82,11 @@ public abstract class AsyncClientEndpoint {
     public abstract void releaseAndDiscard();
 
     /**
+     * Determines if the connection to the remote endpoint is still open and valid.
+     */
+    public abstract boolean isConnected();
+
+    /**
      * Initiates message exchange using the given request producer and response consumer.
      * <p>
      * Once the endpoint is no longer needed it MUST be released with {@link #releaseAndReuse()}

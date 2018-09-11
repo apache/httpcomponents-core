@@ -26,118 +26,101 @@
  */
 package org.apache.hc.core5.benchmark;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
- * Helper to gather statistics for an {@link HttpBenchmark HttpBenchmark}.
- *
+ * Statistics for an {@link HttpBenchmark HttpBenchmark}.
  *
  * @since 4.0
  */
 public class Stats {
 
-    private long startTime = -1;    // nano seconds - does not represent an actual time
-    private long finishTime = -1;   // nano seconds - does not represent an actual time
-    private int successCount = 0;
-    private int failureCount = 0;
-    private int writeErrors = 0;
-    private int keepAliveCount = 0;
-    private String serverName = null;
-    private long totalBytesRecv = 0;
-    private long totalBytesSent = 0;
-    private long contentLength = -1;
-
-    public Stats() {
-        super();
-    }
-
-    public void start() {
-        this.startTime = System.nanoTime();
-    }
-
-    public void finish() {
-        this.finishTime = System.nanoTime();
-    }
-
-    public long getFinishTime() {
-        return this.finishTime;
-    }
-
-    public long getStartTime() {
-        return this.startTime;
-    }
-
-    /**
-     * Total execution time measured in nano seconds
-     *
-     * @return duration in nanoseconds
-     */
-    public long getDuration() {
-        // we are using System.nanoTime() and the return values could be negative
-        // but its only the difference that we are concerned about
-        return this.finishTime - this.startTime;
-    }
+    private final AtomicInteger successCount = new AtomicInteger();
+    private final AtomicInteger failureCount = new AtomicInteger();
+    private final AtomicInteger keepAliveCount = new AtomicInteger();
+    private final AtomicReference<String> serverName = new AtomicReference<>();
+    private final AtomicLong totalBytesRecv = new AtomicLong();
+    private final AtomicLong totalBytesSent = new AtomicLong();
+    private final AtomicLong contentLength = new AtomicLong();
+    private final AtomicLong totalContentLength = new AtomicLong();
 
     public void incSuccessCount() {
-        this.successCount++;
+        this.successCount.incrementAndGet();
     }
 
     public int getSuccessCount() {
-        return this.successCount;
+        return this.successCount.get();
     }
 
     public void incFailureCount() {
-        this.failureCount++;
+        this.failureCount.incrementAndGet();
     }
 
     public int getFailureCount() {
-        return this.failureCount;
-    }
-
-    public void incWriteErrors() {
-        this.writeErrors++;
-    }
-
-    public int getWriteErrors() {
-        return this.writeErrors;
+        return this.failureCount.get();
     }
 
     public void incKeepAliveCount() {
-        this.keepAliveCount++;
+        this.keepAliveCount.incrementAndGet();
     }
 
     public int getKeepAliveCount() {
-        return this.keepAliveCount;
+        return this.keepAliveCount.get();
+    }
+
+    public void incTotalBytesRecv(final int n) {
+        this.totalBytesRecv.addAndGet(n);
     }
 
     public long getTotalBytesRecv() {
-        return this.totalBytesRecv;
+        return this.totalBytesRecv.get();
     }
 
-    public void incTotalBytesRecv(final long n) {
-        this.totalBytesRecv += n;
+    public void incTotalBytesSent(final int n) {
+        this.totalBytesSent.addAndGet(n);
     }
 
     public long getTotalBytesSent() {
-        return this.totalBytesSent;
+        return this.totalBytesSent.get();
     }
 
-    public void incTotalBytesSent(final long n) {
-        this.totalBytesSent += n;
+    public void setContentLength(final long n) {
+        this.contentLength.set(n);
+    }
+
+    public void incTotalContentLength(final long n) {
+        this.totalContentLength.addAndGet(n);
     }
 
     public long getContentLength() {
-        return this.contentLength;
+        return this.contentLength.get();
     }
 
-    public void setContentLength(final long contentLength) {
-        this.contentLength = contentLength;
-    }
-
-    public String getServerName() {
-        return this.serverName;
+    public long getTotalContentLength() {
+        return this.totalContentLength.get();
     }
 
     public void setServerName(final String serverName) {
-        this.serverName = serverName;
+        this.serverName.set(serverName);
+    }
+
+    public String getServerName() {
+        return this.serverName.get();
+    }
+
+    @Override
+    public String toString() {
+        return "Stats{" +
+                "successCount=" + successCount +
+                ", failureCount=" + failureCount +
+                ", keepAliveCount=" + keepAliveCount +
+                ", serverName=" + serverName +
+                ", totalBytesRecv=" + totalBytesRecv +
+                ", totalBytesSent=" + totalBytesSent +
+                ", contentLength=" + contentLength +
+                '}';
     }
 
 }

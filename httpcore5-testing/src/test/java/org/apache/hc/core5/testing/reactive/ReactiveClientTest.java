@@ -273,7 +273,7 @@ public class ReactiveClientTest {
                 @Override
                 public ByteBuffer apply(final Long seed) {
                     final Random random = new Random(seed);
-                    final byte[] bytes = new byte[1 + random.nextInt(32 * 1024)];
+                    final byte[] bytes = new byte[32 * 1024];
                     requestLength.addAndGet(bytes.length);
                     random.nextBytes(bytes);
                     return ByteBuffer.wrap(bytes);

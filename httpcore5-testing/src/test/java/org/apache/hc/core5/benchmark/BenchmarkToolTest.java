@@ -27,7 +27,6 @@
 package org.apache.hc.core5.benchmark;
 
 import java.io.IOException;
-import java.net.URL;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -40,6 +39,7 @@ import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.net.URIBuilder;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -75,23 +75,24 @@ public class BenchmarkToolTest {
 
     @Test
     public void testBasics() throws Exception {
-        final Config config = new Config();
-        config.setKeepAlive(true);
-        config.setMethod("GET");
-        config.setUrl(new URL("http://localhost:" + server.getLocalPort() + "/"));
-        config.setThreads(3);
-        config.setRequests(100);
+        final BenchmarkConfig config = BenchmarkConfig.custom()
+                .setKeepAlive(true)
+                .setMethod("GET")
+                .setUri(new URIBuilder()
+                        .setHost("localhost")
+                        .setPort(server.getLocalPort())
+                        .build())
+                .setThreads(3)
+                .setRequests(100)
+                .build();
         final HttpBenchmark httpBenchmark = new HttpBenchmark(config);
-        final Results results = httpBenchmark.doExecute();
+        final Results results = httpBenchmark.execute();
         Assert.assertNotNull(results);
         Assert.assertEquals(16, results.getContentLength());
         Assert.assertEquals(3, results.getConcurrencyLevel());
-        Assert.assertEquals(300, results.getKeepAliveCount());
-        Assert.assertEquals(300, results.getSuccessCount());
+        Assert.assertEquals(100, results.getSuccessCount());
         Assert.assertEquals(0, results.getFailureCount());
-        Assert.assertEquals(0, results.getWriteErrors());
-        Assert.assertEquals(300 * 16, results.getTotalBytes());
-        Assert.assertEquals(300 * 16, results.getTotalBytesRcvd());
+        Assert.assertEquals(100 * 16, results.getTotalContentBytesRecvd());
     }
 
 }
