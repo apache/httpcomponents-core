@@ -50,21 +50,27 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
     private final ByteBuffer bytebuf;
     private final int length;
     private final ContentType contentType;
+    private final boolean chunked;
     private final AtomicReference<Exception> exception;
 
-    public BasicAsyncEntityProducer(final byte[] content, final ContentType contentType) {
+    public BasicAsyncEntityProducer(final byte[] content, final ContentType contentType, final boolean chunked) {
         Args.notNull(content, "Content");
         this.bytebuf = ByteBuffer.wrap(content);
         this.length = this.bytebuf.remaining();
         this.contentType = contentType;
+        this.chunked = chunked;
         this.exception = new AtomicReference<>(null);
+    }
+
+    public BasicAsyncEntityProducer(final byte[] content, final ContentType contentType) {
+        this(content, contentType, false);
     }
 
     public BasicAsyncEntityProducer(final byte[] content) {
         this(content, ContentType.APPLICATION_OCTET_STREAM);
     }
 
-    public BasicAsyncEntityProducer(final CharSequence content, final ContentType contentType) {
+    public BasicAsyncEntityProducer(final CharSequence content, final ContentType contentType, final boolean chunked) {
         Args.notNull(content, "Content");
         this.contentType = contentType;
         Charset charset = contentType != null ? contentType.getCharset() : null;
@@ -73,7 +79,12 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
         }
         this.bytebuf = charset.encode(CharBuffer.wrap(content));
         this.length = this.bytebuf.remaining();
+        this.chunked = chunked;
         this.exception = new AtomicReference<>(null);
+    }
+
+    public BasicAsyncEntityProducer(final CharSequence content, final ContentType contentType) {
+        this(content, contentType, false);
     }
 
     public BasicAsyncEntityProducer(final CharSequence content) {
@@ -107,7 +118,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
 
     @Override
     public boolean isChunked() {
-        return false;
+        return chunked;
     }
 
     @Override

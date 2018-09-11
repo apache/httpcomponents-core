@@ -51,21 +51,27 @@ public final class FileEntityProducer implements AsyncEntityProducer {
     private final ByteBuffer byteBuffer;
     private final long length;
     private final ContentType contentType;
+    private final boolean chunked;
     private final AtomicReference<Exception> exception;
     private final AtomicReference<RandomAccessFile> accessFileRef;
     private boolean eof;
 
-    public FileEntityProducer(final File file, final int bufferSize, final ContentType contentType) {
+    public FileEntityProducer(final File file, final int bufferSize, final ContentType contentType, final boolean chunked) {
         this.file = Args.notNull(file, "File");
         this.length = file.length();
         this.byteBuffer = ByteBuffer.allocate(bufferSize);
         this.contentType = contentType;
+        this.chunked = chunked;
         this.accessFileRef = new AtomicReference<>(null);
         this.exception = new AtomicReference<>(null);
     }
 
+    public FileEntityProducer(final File file, final ContentType contentType, final boolean chunked) {
+        this(file, 8192, contentType, chunked);
+    }
+
     public FileEntityProducer(final File file, final ContentType contentType) {
-        this(file, 8192, contentType);
+        this(file, contentType, false);
     }
 
     public FileEntityProducer(final File file) {
@@ -99,7 +105,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
 
     @Override
     public boolean isChunked() {
-        return false;
+        return chunked;
     }
 
     @Override
