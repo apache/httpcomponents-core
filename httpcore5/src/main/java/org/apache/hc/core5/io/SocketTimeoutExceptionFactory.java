@@ -55,6 +55,6 @@ public final class SocketTimeoutExceptionFactory {
      * @return a message for the given timeout.
      */
     public static String toMessage(final int timeoutMillis) {
-        return String.format("%,d millisecond", timeoutMillis);
+        return String.format("%,d milliseconds", timeoutMillis);
     }
 }
