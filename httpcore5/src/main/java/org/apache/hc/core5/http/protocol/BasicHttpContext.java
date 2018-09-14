@@ -73,13 +73,12 @@ public class BasicHttpContext implements HttpContext {
     }
 
     @Override
-    public void setAttribute(final String id, final Object obj) {
+    public Object setAttribute(final String id, final Object obj) {
         Args.notNull(id, "Id");
         if (obj != null) {
-            this.map.put(id, obj);
-        } else {
-            this.map.remove(id);
+            return this.map.put(id, obj);
         }
+        return this.map.remove(id);
     }
 
     @Override

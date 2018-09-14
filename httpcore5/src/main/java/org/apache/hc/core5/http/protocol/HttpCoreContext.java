@@ -115,8 +115,8 @@ public class HttpCoreContext implements HttpContext {
     }
 
     @Override
-    public void setAttribute(final String id, final Object obj) {
-        context.setAttribute(id, obj);
+    public Object setAttribute(final String id, final Object obj) {
+        return context.setAttribute(id, obj);
     }
 
     @Override
