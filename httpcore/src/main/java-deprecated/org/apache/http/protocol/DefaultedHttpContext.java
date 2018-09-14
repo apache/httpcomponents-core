@@ -56,9 +56,8 @@ public final class DefaultedHttpContext implements HttpContext {
         final Object obj = this.local.getAttribute(id);
         if (obj == null) {
             return this.defaults.getAttribute(id);
-        } else {
-            return obj;
         }
+        return obj;
     }
 
     @Override

@@ -393,9 +393,8 @@ public abstract class AbstractSessionInputBuffer implements SessionInputBuffer, 
         final int readLen = readLine(charbuffer);
         if (readLen != -1) {
             return charbuffer.toString();
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override

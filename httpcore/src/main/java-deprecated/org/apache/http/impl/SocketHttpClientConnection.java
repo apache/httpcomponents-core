@@ -164,36 +164,32 @@ public class SocketHttpClientConnection
     public InetAddress getLocalAddress() {
         if (this.socket != null) {
             return this.socket.getLocalAddress();
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
     public int getLocalPort() {
         if (this.socket != null) {
             return this.socket.getLocalPort();
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     @Override
     public InetAddress getRemoteAddress() {
         if (this.socket != null) {
             return this.socket.getInetAddress();
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
     public int getRemotePort() {
         if (this.socket != null) {
             return this.socket.getPort();
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     @Override
@@ -218,9 +214,8 @@ public class SocketHttpClientConnection
             } catch (final SocketException ignore) {
                 return -1;
             }
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     @Override
@@ -245,10 +240,12 @@ public class SocketHttpClientConnection
                 try {
                     sock.shutdownOutput();
                 } catch (final IOException ignore) {
+                    // ignore
                 }
                 try {
                     sock.shutdownInput();
                 } catch (final IOException ignore) {
+                    // ignore
                 }
             } catch (final UnsupportedOperationException ignore) {
                 // if one isn't supported, the other one isn't either
@@ -282,9 +279,8 @@ public class SocketHttpClientConnection
                 formatAddress(buffer, remoteAddress);
             }
             return buffer.toString();
-        } else {
-            return super.toString();
         }
+        return super.toString();
     }
 
 }

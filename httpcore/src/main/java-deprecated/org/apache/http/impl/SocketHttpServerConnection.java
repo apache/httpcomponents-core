@@ -153,36 +153,32 @@ public class SocketHttpServerConnection extends
     public InetAddress getLocalAddress() {
         if (this.socket != null) {
             return this.socket.getLocalAddress();
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
     public int getLocalPort() {
         if (this.socket != null) {
             return this.socket.getLocalPort();
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     @Override
     public InetAddress getRemoteAddress() {
         if (this.socket != null) {
             return this.socket.getInetAddress();
-        } else {
-            return null;
         }
+        return null;
     }
 
     @Override
     public int getRemotePort() {
         if (this.socket != null) {
             return this.socket.getPort();
-        } else {
-            return -1;
         }
+        return -1;
     }
 
     @Override
