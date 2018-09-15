@@ -110,7 +110,9 @@ public class ReactiveClientTest {
             { HttpVersionPolicy.FORCE_HTTP_2 }
         });
     }
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(3000);
+    private static final Timeout SOCKET_TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout RESULT_TIMEOUT = Timeout.ofSeconds(60);
+
     private static final Random RANDOM = new Random();
 
     private final HttpVersionPolicy versionPolicy;
@@ -153,7 +155,7 @@ public class ReactiveClientTest {
                 .setVersionPolicy(versionPolicy)
                 .setIOReactorConfig(
                     IOReactorConfig.custom()
-                        .setSoTimeout(TIMEOUT)
+                        .setSoTimeout(SOCKET_TIMEOUT)
                         .build())
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
@@ -202,7 +204,7 @@ public class ReactiveClientTest {
             requester = H2RequesterBootstrap.bootstrap()
                 .setVersionPolicy(versionPolicy)
                 .setIOReactorConfig(IOReactorConfig.custom()
-                    .setSoTimeout(TIMEOUT)
+                    .setSoTimeout(SOCKET_TIMEOUT)
                     .build())
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
@@ -233,7 +235,7 @@ public class ReactiveClientTest {
 
     };
 
-    @Test(timeout = 5_000)
+    @Test
     public void testSimpleRequest() throws Exception {
         final InetSocketAddress address = startClientAndServer();
         final byte[] input = new byte[1024];
@@ -244,9 +246,10 @@ public class ReactiveClientTest {
         final BasicRequestProducer request = getRequestProducer(address, producer);
 
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
-        requester.execute(request, consumer, Timeout.ofSeconds(2), null);
+        requester.execute(request, consumer, SOCKET_TIMEOUT, null);
 
-        final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture().get();
+        final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
+                .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
 
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final WritableByteChannel writableByteChannel = Channels.newChannel(byteArrayOutputStream);
@@ -263,7 +266,7 @@ public class ReactiveClientTest {
             URI.create("http://localhost:" + address.getPort()), producer);
     }
 
-    @Test(timeout = 20_000)
+    @Test
     public void testLongRunningRequest() throws Exception {
         final InetSocketAddress address = startClientAndServer();
         final AtomicLong requestLength = new AtomicLong(0L);
@@ -289,8 +292,9 @@ public class ReactiveClientTest {
         final BasicRequestProducer request = getRequestProducer(address, producer);
 
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
-        requester.execute(request, consumer, Timeout.ofSeconds(2), null);
-        final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture().get();
+        requester.execute(request, consumer, SOCKET_TIMEOUT, null);
+        final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
+                .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
 
         final AtomicLong responseLength = new AtomicLong(0);
         final AtomicReference<MessageDigest> responseDigest = new AtomicReference<>(newDigest());
@@ -306,7 +310,7 @@ public class ReactiveClientTest {
         Assert.assertArrayEquals(requestDigest.get().digest(), responseDigest.get().digest());
     }
 
-    @Test(timeout = 5_000)
+    @Test
     public void testRequestError() throws Exception {
         final InetSocketAddress address = startClientAndServer();
         final RuntimeException exceptionThrown = new RuntimeException("Test");
@@ -317,10 +321,10 @@ public class ReactiveClientTest {
 
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
 
-        final Future<Void> future = requester.execute(request, consumer, Timeout.ofSeconds(1), null);
+        final Future<Void> future = requester.execute(request, consumer, SOCKET_TIMEOUT, null);
 
         try {
-            future.get();
+            future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
             Assert.fail("Expected exception");
         } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof HttpStreamResetException);
@@ -328,7 +332,7 @@ public class ReactiveClientTest {
         }
     }
 
-    @Test(timeout = 5_000)
+    @Test
     public void testRequestTimeout() throws Exception {
         final InetSocketAddress address = startClientAndServer();
         final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean(false);
@@ -346,7 +350,7 @@ public class ReactiveClientTest {
         final Future<Void> future = requester.execute(request, consumer, Timeout.ofSeconds(1), null);
 
         try {
-            future.get();
+            future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
         } catch (final ExecutionException ex) {
             Assert.assertTrue(requestPublisherWasCancelled.get());
             final Throwable cause = ex.getCause();
@@ -362,7 +366,7 @@ public class ReactiveClientTest {
         }
     }
 
-    @Test(timeout = 5_000)
+    @Test
     public void testResponseCancellation() throws Exception {
         final InetSocketAddress address = startClientAndServer();
         final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean(false);
@@ -393,8 +397,9 @@ public class ReactiveClientTest {
         final BasicRequestProducer request = getRequestProducer(address, producer);
 
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
-        final Future<Void> future = requester.execute(request, consumer, Timeout.ofSeconds(1), null);
-        final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture().get();
+        final Future<Void> future = requester.execute(request, consumer, SOCKET_TIMEOUT, null);
+        final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
+                .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
 
         final AtomicBoolean responsePublisherWasCancelled = new AtomicBoolean(false);
         final List<ByteBuffer> outputBuffers = Flowable.fromPublisher(response.getBody())
@@ -410,7 +415,7 @@ public class ReactiveClientTest {
         Assert.assertEquals(3, outputBuffers.size());
         Assert.assertTrue("The response subscription should have been cancelled", responsePublisherWasCancelled.get());
         try {
-            future.get();
+            future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
             Assert.fail("Expected exception");
         } catch (final ExecutionException | CancellationException ex) {
             Assert.assertTrue(ex.getCause() instanceof HttpStreamResetException);
