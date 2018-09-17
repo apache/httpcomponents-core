@@ -90,12 +90,15 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
             final TlsDetails tlsDetails = ioSession.getTlsDetails();
             switch (versionPolicy) {
                 case NEGOTIATE:
-                    if (tlsDetails != null) {
-                        if (ApplicationProtocols.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
-                            expectValidH2Preface = true;
-                            // Proceed with the H2 preface
-                            break;
-                        }
+                    if (tlsDetails != null &&
+                            ApplicationProtocols.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
+                        expectValidH2Preface = true;
+                    }
+                    break;
+                case FORCE_HTTP_2:
+                    if (tlsDetails == null ||
+                            !ApplicationProtocols.HTTP_1_1.id.equals(tlsDetails.getApplicationProtocol())) {
+                        expectValidH2Preface = true;
                     }
                     break;
                 case FORCE_HTTP_1:
