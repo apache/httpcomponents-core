@@ -1200,7 +1200,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
     @Override
     public void close() throws IOException {
-        ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.IMMEDIATE);
+        ioSession.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.IMMEDIATE);
     }
 
     @Override

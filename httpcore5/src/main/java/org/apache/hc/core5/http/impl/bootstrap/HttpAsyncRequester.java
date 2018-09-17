@@ -105,7 +105,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
             @Override
             public void execute(final IOSession session) {
-                session.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.IMMEDIATE);
+                session.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.IMMEDIATE);
             }
 
         }, DefaultAddressResolver.INSTANCE);

@@ -80,7 +80,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
 
                     @Override
                     public void execute(final IOSession session) {
-                        session.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
+                        session.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.NORMAL);
                     }
 
                 }))) {

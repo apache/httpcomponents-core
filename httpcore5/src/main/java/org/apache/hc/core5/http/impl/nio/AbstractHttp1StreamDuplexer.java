@@ -144,7 +144,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     void shutdownSession(final CloseMode closeMode) {
         if (closeMode == CloseMode.GRACEFUL) {
             connState = ConnectionState.GRACEFUL_SHUTDOWN;
-            ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
+            ioSession.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.NORMAL);
         } else {
             connState = ConnectionState.SHUTDOWN;
             ioSession.close();
@@ -546,7 +546,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     @Override
     public void close() throws IOException {
-        ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
+        ioSession.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.NORMAL);
     }
 
     @Override

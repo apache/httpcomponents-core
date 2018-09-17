@@ -143,7 +143,7 @@ public final class ClientSessionEndpoint implements ModalCloseable {
     public void close(final CloseMode closeMode) {
         if (closed.compareAndSet(false, true)) {
             if (closeMode == CloseMode.GRACEFUL) {
-                ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
+                ioSession.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.NORMAL);
             } else {
                 ioSession.close(closeMode);
             }
@@ -153,7 +153,7 @@ public final class ClientSessionEndpoint implements ModalCloseable {
     @Override
     public void close() throws IOException {
         if (closed.compareAndSet(false, true)) {
-            ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.IMMEDIATE);
+            ioSession.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.IMMEDIATE);
         }
     }
 

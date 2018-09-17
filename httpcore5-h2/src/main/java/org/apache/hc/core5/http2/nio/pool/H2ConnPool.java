@@ -88,7 +88,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final IOSession ioSession,
             final CloseMode closeMode) {
         if (closeMode == CloseMode.GRACEFUL) {
-            ioSession.enqueue(new ShutdownCommand(CloseMode.GRACEFUL), Command.Priority.NORMAL);
+            ioSession.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.NORMAL);
         } else {
             ioSession.close(closeMode);
         }
