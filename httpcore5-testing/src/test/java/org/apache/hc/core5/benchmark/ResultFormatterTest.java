@@ -54,7 +54,8 @@ public class ResultFormatterTest {
                 50000000);
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         ResultFormatter.print(new PrintStream(buf, true, StandardCharsets.US_ASCII.name()), results);
-        Assert.assertThat(new String(buf.toByteArray(), StandardCharsets.US_ASCII), CoreMatchers.equalTo(
+        Assert.assertThat(new String(buf.toByteArray(), StandardCharsets.US_ASCII).replace("\r\n", "\n"),
+                CoreMatchers.equalTo(
                 "\nServer Software:\t\tTestServer/1.1\n" +
                         "Server Hostname:\t\tlocalhost\n" +
                         "Server Port:\t\t\t8080\n" +
