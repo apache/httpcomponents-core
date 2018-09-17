@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
@@ -82,6 +83,7 @@ public class Http2FullDuplexServerExample {
         final HttpAsyncServer server = H2ServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
                 .setH2Config(h2Config)
+                .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
                 .setStreamListener(new Http2StreamListener() {
 
                     @Override
