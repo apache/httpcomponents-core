@@ -332,7 +332,7 @@ public class HttpBenchmark {
 
         final AtomicLong requestCount = new AtomicLong(config.getRequests());
 
-        final HttpVersion version = config.isUseHttp1_0() ? HttpVersion.HTTP_1_0 : HttpVersion.HTTP_1_1;
+        final HttpVersion version = HttpVersion.HTTP_1_1;
 
         final CountDownLatch completionLatch = new CountDownLatch(config.getConcurrencyLevel());
         final BenchmarkWorker[] workers = new BenchmarkWorker[config.getConcurrencyLevel()];
@@ -350,7 +350,7 @@ public class HttpBenchmark {
             workers[i] = worker;
         }
 
-        final long deadline = config.getTimeLimit() > 0 ? config.getTimeLimit() : Long.MAX_VALUE;
+        final long deadline = config.getTimeLimit() != null ? config.getTimeLimit().toMillis() : Long.MAX_VALUE;
 
         final long startTime = System.currentTimeMillis();
 
@@ -358,7 +358,7 @@ public class HttpBenchmark {
             workers[i].execute();
         }
 
-        completionLatch.await(deadline, TimeUnit.SECONDS);
+        completionLatch.await(deadline, TimeUnit.MILLISECONDS);
 
         if (config.getVerbosity() >= 3) {
             System.out.println("...done");

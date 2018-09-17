@@ -82,7 +82,7 @@ public class BenchmarkToolTest {
                         .setHost("localhost")
                         .setPort(server.getLocalPort())
                         .build())
-                .setThreads(3)
+                .setConcurrencyLevel(3)
                 .setRequests(100)
                 .build();
         final HttpBenchmark httpBenchmark = new HttpBenchmark(config);

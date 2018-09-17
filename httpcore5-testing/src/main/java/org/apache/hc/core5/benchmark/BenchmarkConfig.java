@@ -32,6 +32,7 @@ import java.util.Arrays;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 public class BenchmarkConfig {
@@ -39,22 +40,21 @@ public class BenchmarkConfig {
     private final URI uri;
     private final int requests;
     private final int concurrencyLevel;
-    private final boolean keepAlive;
+    private final TimeValue timeLimit;
+    private final Timeout socketTimeout;
+    private final File payloadFile;
+    private final ContentType contentType;
     private final int verbosity;
     private final boolean headInsteadOfGet;
-    private final boolean useHttp1_0;
-    private final ContentType contentType;
     private final String[] headers;
-    private final Timeout socketTimeout;
+    private final boolean keepAlive;
     private final String method;
+
     private final boolean useChunking;
     private final boolean useExpectContinue;
     private final boolean useAcceptGZip;
-    private final File payloadFile;
     private final String payloadText;
     private final String soapAction;
-    private final int timeLimit;
-
     private final boolean disableSSLVerification;
     private final String trustStorePath;
     private final String identityStorePath;
@@ -64,20 +64,20 @@ public class BenchmarkConfig {
     private BenchmarkConfig(final URI uri,
                             final int requests,
                             final int concurrencyLevel,
-                            final boolean keepAlive, final int verbosity,
-                            final boolean headInsteadOfGet,
-                            final boolean useHttp1_0,
-                            final ContentType contentType,
-                            final String[] headers,
+                            final TimeValue timeLimit,
                             final Timeout socketTimeout,
+                            final File payloadFile,
+                            final ContentType contentType,
+                            final int verbosity,
+                            final boolean headInsteadOfGet,
+                            final String[] headers,
+                            final boolean keepAlive,
                             final String method,
                             final boolean useChunking,
                             final boolean useExpectContinue,
                             final boolean useAcceptGZip,
-                            final File payloadFile,
                             final String payloadText,
                             final String soapAction,
-                            final int timeLimit,
                             final boolean disableSSLVerification,
                             final String trustStorePath,
                             final String identityStorePath,
@@ -86,21 +86,20 @@ public class BenchmarkConfig {
         this.uri = uri;
         this.requests = requests;
         this.concurrencyLevel = concurrencyLevel;
-        this.keepAlive = keepAlive;
+        this.timeLimit = timeLimit;
+        this.socketTimeout = socketTimeout;
+        this.payloadFile = payloadFile;
+        this.contentType = contentType;
         this.verbosity = verbosity;
         this.headInsteadOfGet = headInsteadOfGet;
-        this.useHttp1_0 = useHttp1_0;
-        this.contentType = contentType;
         this.headers = headers;
-        this.socketTimeout = socketTimeout;
+        this.keepAlive = keepAlive;
         this.method = method;
         this.useChunking = useChunking;
         this.useExpectContinue = useExpectContinue;
         this.useAcceptGZip = useAcceptGZip;
-        this.payloadFile = payloadFile;
         this.payloadText = payloadText;
         this.soapAction = soapAction;
-        this.timeLimit = timeLimit;
         this.disableSSLVerification = disableSSLVerification;
         this.trustStorePath = trustStorePath;
         this.identityStorePath = identityStorePath;
@@ -130,10 +129,6 @@ public class BenchmarkConfig {
 
     public boolean isHeadInsteadOfGet() {
         return headInsteadOfGet;
-    }
-
-    public boolean isUseHttp1_0() {
-        return useHttp1_0;
     }
 
     public File getPayloadFile() {
@@ -196,7 +191,7 @@ public class BenchmarkConfig {
         return identityStorePassword;
     }
 
-    public int getTimeLimit() {
+    public TimeValue getTimeLimit() {
         return timeLimit;
     }
 
@@ -206,21 +201,20 @@ public class BenchmarkConfig {
                 "uri=" + uri +
                 ", requests=" + requests +
                 ", concurrencyLevel=" + concurrencyLevel +
-                ", keepAlive=" + keepAlive +
+                ", timeLimit=" + timeLimit +
+                ", socketTimeout=" + socketTimeout +
+                ", payloadFile=" + payloadFile +
+                ", contentType=" + contentType +
                 ", verbosity=" + verbosity +
                 ", headInsteadOfGet=" + headInsteadOfGet +
-                ", useHttp1_0=" + useHttp1_0 +
-                ", contentType=" + contentType +
                 ", headers=" + Arrays.toString(headers) +
-                ", socketTimeout=" + socketTimeout +
+                ", keepAlive=" + keepAlive +
                 ", method='" + method + '\'' +
                 ", useChunking=" + useChunking +
                 ", useExpectContinue=" + useExpectContinue +
                 ", useAcceptGZip=" + useAcceptGZip +
-                ", payloadFile=" + payloadFile +
                 ", payloadText='" + payloadText + '\'' +
                 ", soapAction='" + soapAction + '\'' +
-                ", timeLimit=" + timeLimit +
                 ", disableSSLVerification=" + disableSSLVerification +
                 ", trustStorePath='" + trustStorePath + '\'' +
                 ", identityStorePath='" + identityStorePath + '\'' +
@@ -238,22 +232,21 @@ public class BenchmarkConfig {
         return new Builder()
                 .setUri(config.getUri())
                 .setRequests(config.getRequests())
-                .setThreads(config.getConcurrencyLevel())
-                .setKeepAlive(config.isKeepAlive())
+                .setConcurrencyLevel(config.getConcurrencyLevel())
+                .setTimeLimit(config.getTimeLimit())
+                .setSocketTimeout(config.getSocketTimeout())
+                .setPayloadFile(config.getPayloadFile())
+                .setContentType(config.getContentType())
                 .setVerbosity(config.getVerbosity())
                 .setHeadInsteadOfGet(config.isHeadInsteadOfGet())
-                .setUseHttp1_0(config.isUseHttp1_0())
-                .setContentType(config.getContentType())
                 .setHeaders(config.getHeaders())
-                .setSocketTimeout(config.getSocketTimeout())
+                .setKeepAlive(config.isKeepAlive())
                 .setMethod(config.getMethod())
                 .setUseChunking(config.isUseChunking())
                 .setUseExpectContinue(config.isUseExpectContinue())
                 .setUseAcceptGZip(config.isUseAcceptGZip())
-                .setPayloadFile(config.getPayloadFile())
                 .setPayloadText(config.getPayloadText())
                 .setSoapAction(config.getSoapAction())
-                .setTimeLimit(config.getTimeLimit())
                 .setDisableSSLVerification(config.isDisableSSLVerification())
                 .setTrustStorePath(config.getTrustStorePath())
                 .setIdentityStorePath(config.getIdentityStorePath())
@@ -266,24 +259,23 @@ public class BenchmarkConfig {
 
         private URI uri;
         private int requests;
-        private int threads;
-        private boolean keepAlive;
+        private int concurrencyLevel;
+        private TimeValue timeLimit;
+        private Timeout socketTimeout;
+        private File payloadFile;
+        private ContentType contentType;
         private int verbosity;
         private boolean headInsteadOfGet;
-        private boolean useHttp1_0;
-        private ContentType contentType;
         private String[] headers;
-        private Timeout socketTimeout;
+        private boolean keepAlive;
         private String method;
+
         private boolean useChunking;
         private boolean useExpectContinue;
         private boolean useAcceptGZip;
-        private File payloadFile;
         private String payloadText;
         private String soapAction;
-        private int timeLimit = -1;
-
-        private boolean disableSSLVerification = true;
+        private boolean disableSSLVerification;
         private String trustStorePath;
         private String identityStorePath;
         private String trustStorePassword;
@@ -292,11 +284,10 @@ public class BenchmarkConfig {
         public Builder() {
             super();
             this.requests = 1;
-            this.threads = 1;
+            this.concurrencyLevel = 1;
             this.keepAlive = false;
             this.verbosity = 0;
             this.headInsteadOfGet = false;
-            this.useHttp1_0 = false;
             this.socketTimeout = Timeout.ofSeconds(60);
         }
 
@@ -310,8 +301,8 @@ public class BenchmarkConfig {
             return this;
         }
 
-        public Builder setThreads(final int threads) {
-            this.threads = threads;
+        public Builder setConcurrencyLevel(final int concurrencyLevel) {
+            this.concurrencyLevel = concurrencyLevel;
             return this;
         }
 
@@ -327,11 +318,6 @@ public class BenchmarkConfig {
 
         public Builder setHeadInsteadOfGet(final boolean headInsteadOfGet) {
             this.headInsteadOfGet = headInsteadOfGet;
-            return this;
-        }
-
-        public Builder setUseHttp1_0(final boolean useHttp1_0) {
-            this.useHttp1_0 = useHttp1_0;
             return this;
         }
 
@@ -385,7 +371,7 @@ public class BenchmarkConfig {
             return this;
         }
 
-        public Builder setTimeLimit(final int timeLimit) {
+        public Builder setTimeLimit(final TimeValue timeLimit) {
             this.timeLimit = timeLimit;
             return this;
         }
@@ -416,10 +402,29 @@ public class BenchmarkConfig {
         }
 
         public BenchmarkConfig build() {
-            return new BenchmarkConfig(uri, requests, threads, keepAlive, verbosity, headInsteadOfGet, useHttp1_0,
-                    contentType, headers, socketTimeout, method, useChunking, useExpectContinue, useAcceptGZip,
-                    payloadFile, payloadText, soapAction, timeLimit, disableSSLVerification, trustStorePath,
-                    identityStorePath, trustStorePassword, identityStorePassword);
+            return new BenchmarkConfig(
+                    uri,
+                    requests,
+                    concurrencyLevel,
+                    timeLimit,
+                    socketTimeout,
+                    payloadFile,
+                    contentType,
+                    verbosity,
+                    headInsteadOfGet,
+                    headers,
+                    keepAlive,
+                    method,
+                    useChunking,
+                    useExpectContinue,
+                    useAcceptGZip,
+                    payloadText,
+                    soapAction,
+                    disableSSLVerification,
+                    trustStorePath,
+                    identityStorePath,
+                    trustStorePassword,
+                    identityStorePassword);
         }
 
     }
