@@ -34,6 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -60,6 +61,9 @@ import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.http2.frame.FramePrinter;
+import org.apache.hc.core5.http2.frame.RawFrame;
+import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
 import org.apache.hc.core5.http2.protocol.H2RequestContent;
@@ -324,6 +328,89 @@ public class HttpBenchmark {
                     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
                         if (keepAlive) {
                             stats.incKeepAliveCount();
+                        }
+                    }
+
+                })
+                .setStreamListener(new Http2StreamListener() {
+
+                    private final FramePrinter framePrinter = new FramePrinter();
+
+                    @Override
+                    public void onHeaderInput(
+                            final HttpConnection connection,
+                            final int streamId,
+                            final List<? extends Header> headers) {
+                        if (config.getVerbosity() >= 3) {
+                            for (final Header header : headers) {
+                                System.out.println(">> " + header.toString());
+                            }
+                            System.out.println();
+                        }
+                    }
+
+                    @Override
+                    public void onHeaderOutput(
+                            final HttpConnection connection,
+                            final int streamId,
+                            final List<? extends Header> headers) {
+                        if (config.getVerbosity() >= 3) {
+                            for (final Header header : headers) {
+                                System.out.println("<< " + header.toString());
+                            }
+                            System.out.println();
+                        }
+                    }
+
+                    @Override
+                    public void onFrameInput(
+                            final HttpConnection connection,
+                            final int streamId,
+                            final RawFrame frame) {
+                        if (config.getVerbosity() >= 4) {
+                            System.out.print(">> ");
+                            try {
+                                framePrinter.printFrameInfo(frame, System.out);
+                            } catch (final IOException ignore) {
+                            }
+                            System.out.println();
+                        }
+                    }
+
+                    @Override
+                    public void onFrameOutput(
+                            final HttpConnection connection,
+                            final int streamId,
+                            final RawFrame frame) {
+                        if (config.getVerbosity() >= 4) {
+                            System.out.print("<< ");
+                            try {
+                                framePrinter.printFrameInfo(frame, System.out);
+                            } catch (final IOException ignore) {
+                            }
+                            System.out.println();
+                        }
+                    }
+
+                    @Override
+                    public void onInputFlowControl(
+                            final HttpConnection connection,
+                            final int streamId,
+                            final int delta,
+                            final int actualSize) {
+                        if (config.getVerbosity() >= 5) {
+                            System.out.println(">> stream " + streamId + ": " + actualSize + " " + delta);
+                        }
+                    }
+
+                    @Override
+                    public void onOutputFlowControl(
+                            final HttpConnection connection,
+                            final int streamId,
+                            final int delta,
+                            final int actualSize) {
+                        if (config.getVerbosity() >= 5) {
+                            System.out.println("<< stream " + streamId + ": " + actualSize + " " + delta);
                         }
                     }
 

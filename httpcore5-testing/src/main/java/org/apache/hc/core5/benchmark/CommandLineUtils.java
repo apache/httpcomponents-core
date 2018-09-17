@@ -72,10 +72,13 @@ public class CommandLineUtils {
         Topt.setRequired(false);
         Topt.setArgName("content-type");
 
-        final Option vopt = new Option("v", true, "Set verbosity level - 4 and above " +
-                "prints response content, 3 and above prints " +
-                "information on headers, 2 and above prints response codes (404, 200, " +
-                "etc.), 1 and above prints warnings and errors");
+        final Option vopt = new Option("v", true, "Set verbosity level: " +
+                "1 prints warnings and errors, " +
+                "2 prints response codes, " +
+                "3 prints message headers, " +
+                "4 prints HTTP/2 frame info, " +
+                "5 prints HTTP/2 flow control events, " +
+                "6 prints response content");
         vopt.setRequired(false);
         vopt.setArgName("verbosity");
 

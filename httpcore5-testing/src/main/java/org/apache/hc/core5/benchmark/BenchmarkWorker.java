@@ -202,7 +202,7 @@ class BenchmarkWorker implements ResourceHolder {
                     System.out.println(response.getCode());
                 }
                 if (entityDetails != null) {
-                    if (config.getVerbosity() >= 4) {
+                    if (config.getVerbosity() >= 6) {
                         if (entityDetails.getContentType() != null) {
                             final ContentType contentType = ContentType.parseLenient(entityDetails.getContentType());
                             charset = contentType.getCharset();
@@ -229,7 +229,7 @@ class BenchmarkWorker implements ResourceHolder {
                 final int n = src.remaining();
                 contentLength.addAndGet(n);
                 stats.incTotalContentLength(n);
-                if (config.getVerbosity() >= 4) {
+                if (config.getVerbosity() >= 6) {
                     final CharsetDecoder decoder = (charset != null ? charset : StandardCharsets.US_ASCII).newDecoder();
                     System.out.print(decoder.decode(src));
                 }
@@ -248,7 +248,7 @@ class BenchmarkWorker implements ResourceHolder {
                 if (resultCallback != null) {
                     resultCallback.completed(null);
                 }
-                if (config.getVerbosity() >= 4) {
+                if (config.getVerbosity() >= 6) {
                     System.out.println();
                     System.out.println();
                 }
