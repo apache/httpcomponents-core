@@ -106,6 +106,9 @@ public class CommandLineUtils {
         final Option gopt = new Option("g", false, "Accept GZip. Default is false");
         gopt.setRequired(false);
 
+        final Option http2opt = new Option("2", false, "Force HTTP/2");
+        gopt.setRequired(false);
+
         final Option hopt = new Option("h", false, "Display usage information");
         nopt.setRequired(false);
 
@@ -127,6 +130,7 @@ public class CommandLineUtils {
         options.addOption(uopt);
         options.addOption(xopt);
         options.addOption(gopt);
+        options.addOption(http2opt);
 
         options.addOption(hopt);
         return options;
@@ -220,6 +224,10 @@ public class CommandLineUtils {
 
         if (cmd.hasOption('g')) {
             builder.setUseAcceptGZip(true);
+        }
+
+        if (cmd.hasOption('2')) {
+            builder.setForceHttp2(true);
         }
 
         final String[] cmdargs = cmd.getArgs();

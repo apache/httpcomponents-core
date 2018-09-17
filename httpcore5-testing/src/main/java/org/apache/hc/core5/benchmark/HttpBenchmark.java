@@ -53,16 +53,17 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
-import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
-import org.apache.hc.core5.http.protocol.RequestConnControl;
-import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
-import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
+import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
+import org.apache.hc.core5.http2.protocol.H2RequestContent;
+import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -100,6 +101,7 @@ public class HttpBenchmark {
 
         final HttpBenchmark httpBenchmark = new HttpBenchmark(config);
         final Results results = httpBenchmark.execute();
+        System.out.println();
         ResultFormatter.print(System.out, results);
     }
 
@@ -111,10 +113,10 @@ public class HttpBenchmark {
     public Results execute() throws Exception {
         final HttpProcessorBuilder builder = HttpProcessorBuilder.create()
                 .addAll(
-                        new RequestContent(),
-                        new RequestTargetHost(),
-                        new RequestConnControl(),
-                        new RequestUserAgent("HttpCore-AB/1.1"));
+                        new H2RequestContent(),
+                        new H2RequestTargetHost(),
+                        new H2RequestConnControl(),
+                        new RequestUserAgent("HttpCore-AB/5.0"));
         if (this.config.isUseExpectContinue()) {
             builder.add(new RequestExpectContinue());
         }
@@ -149,10 +151,22 @@ public class HttpBenchmark {
             sslContext = SSLContexts.createSystemDefault();
         }
 
+        final HttpVersionPolicy versionPolicy;
+        if (config.isForceHttp2()) {
+            versionPolicy = HttpVersionPolicy.FORCE_HTTP_2;
+        } else {
+            if (sslContext != null) {
+                versionPolicy = HttpVersionPolicy.NEGOTIATE;
+            } else {
+                versionPolicy = HttpVersionPolicy.FORCE_HTTP_1;
+            }
+        }
+
         final Stats stats = new Stats();
-        try (final HttpAsyncRequester requester = AsyncRequesterBootstrap.bootstrap()
+        try (final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
                 .setHttpProcessor(builder.build())
                 .setTlsStrategy(new BasicClientTlsStrategy(sslContext))
+                .setVersionPolicy(versionPolicy)
                 .setIOSessionDecorator(new Decorator<IOSession>() {
 
                     @Override
@@ -372,6 +386,7 @@ public class HttpBenchmark {
 
         return new Results(
                 stats.getServerName(),
+                stats.getVersion(),
                 host.getHostName(),
                 host.getPort() > 0 ? host.getPort() : host.getSchemeName().equalsIgnoreCase("https") ? 443 : 80,
                 requestUri.toASCIIString(),

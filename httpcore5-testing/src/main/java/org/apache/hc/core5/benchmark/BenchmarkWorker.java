@@ -107,7 +107,7 @@ class BenchmarkWorker implements ResourceHolder {
                 }
             }
         }
-        if (!config.isKeepAlive()) {
+        if (!config.isKeepAlive() && !config.isForceHttp2()) {
             request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE));
         }
         if (config.isUseAcceptGZip()) {
@@ -193,6 +193,7 @@ class BenchmarkWorker implements ResourceHolder {
                     final FutureCallback<Void> resultCallback) throws HttpException, IOException {
                 status = response.getCode();
                 resultCallbackRef.set(resultCallback);
+                stats.setVersion(response.getVersion());
                 final Header serverHeader = response.getFirstHeader(HttpHeaders.SERVER);
                 if (serverHeader != null) {
                     stats.setServerName(serverHeader.getValue());

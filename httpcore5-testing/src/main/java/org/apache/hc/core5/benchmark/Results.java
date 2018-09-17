@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.benchmark;
 
+import org.apache.hc.core5.http.ProtocolVersion;
+
 /**
  * Benchmark results
  *
@@ -34,6 +36,7 @@ package org.apache.hc.core5.benchmark;
 public final class Results {
 
     private final String serverName;
+    private final ProtocolVersion protocolVersion;
     private final String hostName;
     private final int hostPort;
     private final String documentPath;
@@ -49,6 +52,7 @@ public final class Results {
 
     public Results(
             final String serverName,
+            final ProtocolVersion protocolVersion,
             final String hostName,
             final int hostPort,
             final String documentPath,
@@ -62,6 +66,7 @@ public final class Results {
             final long totalBytesSent,
             final long totalContentBytesRecvd) {
         this.serverName = serverName;
+        this.protocolVersion = protocolVersion;
         this.hostName = hostName;
         this.hostPort = hostPort;
         this.documentPath = documentPath;
@@ -78,6 +83,10 @@ public final class Results {
 
     public String getServerName() {
         return serverName;
+    }
+
+    public ProtocolVersion getProtocolVersion() {
+        return protocolVersion;
     }
 
     public String getHostName() {

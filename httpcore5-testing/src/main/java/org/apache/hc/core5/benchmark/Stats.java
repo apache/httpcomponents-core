@@ -30,6 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.http.ProtocolVersion;
+
 /**
  * Statistics for an {@link HttpBenchmark HttpBenchmark}.
  *
@@ -40,11 +42,12 @@ public class Stats {
     private final AtomicInteger successCount = new AtomicInteger();
     private final AtomicInteger failureCount = new AtomicInteger();
     private final AtomicInteger keepAliveCount = new AtomicInteger();
-    private final AtomicReference<String> serverName = new AtomicReference<>();
     private final AtomicLong totalBytesRecv = new AtomicLong();
     private final AtomicLong totalBytesSent = new AtomicLong();
     private final AtomicLong contentLength = new AtomicLong();
     private final AtomicLong totalContentLength = new AtomicLong();
+    private final AtomicReference<String> serverNameRef = new AtomicReference<>();
+    private final AtomicReference<ProtocolVersion> versionRef = new AtomicReference<>();
 
     public void incSuccessCount() {
         this.successCount.incrementAndGet();
@@ -103,11 +106,19 @@ public class Stats {
     }
 
     public void setServerName(final String serverName) {
-        this.serverName.set(serverName);
+        this.serverNameRef.set(serverName);
     }
 
     public String getServerName() {
-        return this.serverName.get();
+        return this.serverNameRef.get();
+    }
+
+    public ProtocolVersion getVersion() {
+        return versionRef.get();
+    }
+
+    public void setVersion(final ProtocolVersion version) {
+        this.versionRef.set(version);
     }
 
     @Override
@@ -116,7 +127,7 @@ public class Stats {
                 "successCount=" + successCount +
                 ", failureCount=" + failureCount +
                 ", keepAliveCount=" + keepAliveCount +
-                ", serverName=" + serverName +
+                ", serverName=" + serverNameRef.get() +
                 ", totalBytesRecv=" + totalBytesRecv +
                 ", totalBytesSent=" + totalBytesSent +
                 ", contentLength=" + contentLength +

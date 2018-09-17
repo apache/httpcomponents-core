@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.hc.core5.http.HttpVersion;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
@@ -40,6 +41,7 @@ public class ResultFormatterTest {
     public void testBasics() throws Exception {
         final Results results = new Results(
                 "TestServer/1.1",
+                HttpVersion.HTTP_1_1,
                 "localhost",
                 8080,
                 "/index.html",
@@ -56,7 +58,8 @@ public class ResultFormatterTest {
         ResultFormatter.print(new PrintStream(buf, true, StandardCharsets.US_ASCII.name()), results);
         Assert.assertThat(new String(buf.toByteArray(), StandardCharsets.US_ASCII).replace("\r\n", "\n"),
                 CoreMatchers.equalTo(
-                "\nServer Software:\t\tTestServer/1.1\n" +
+                "Server Software:\t\tTestServer/1.1\n" +
+                        "Protocol version:\t\tHTTP/1.1\n" +
                         "Server Hostname:\t\tlocalhost\n" +
                         "Server Port:\t\t\t8080\n" +
                         "Document Path:\t\t\t/index.html\n" +

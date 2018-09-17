@@ -55,6 +55,7 @@ public class BenchmarkConfig {
     private final boolean useAcceptGZip;
     private final String payloadText;
     private final String soapAction;
+    private final boolean forceHttp2;
     private final boolean disableSSLVerification;
     private final String trustStorePath;
     private final String identityStorePath;
@@ -78,6 +79,7 @@ public class BenchmarkConfig {
                             final boolean useAcceptGZip,
                             final String payloadText,
                             final String soapAction,
+                            final boolean forceHttp2,
                             final boolean disableSSLVerification,
                             final String trustStorePath,
                             final String identityStorePath,
@@ -100,6 +102,7 @@ public class BenchmarkConfig {
         this.useAcceptGZip = useAcceptGZip;
         this.payloadText = payloadText;
         this.soapAction = soapAction;
+        this.forceHttp2 = forceHttp2;
         this.disableSSLVerification = disableSSLVerification;
         this.trustStorePath = trustStorePath;
         this.identityStorePath = identityStorePath;
@@ -171,6 +174,10 @@ public class BenchmarkConfig {
         return soapAction;
     }
 
+    public boolean isForceHttp2() {
+        return forceHttp2;
+    }
+
     public boolean isDisableSSLVerification() {
         return disableSSLVerification;
     }
@@ -215,6 +222,7 @@ public class BenchmarkConfig {
                 ", useAcceptGZip=" + useAcceptGZip +
                 ", payloadText='" + payloadText + '\'' +
                 ", soapAction='" + soapAction + '\'' +
+                ", forceHttp2=" + forceHttp2+
                 ", disableSSLVerification=" + disableSSLVerification +
                 ", trustStorePath='" + trustStorePath + '\'' +
                 ", identityStorePath='" + identityStorePath + '\'' +
@@ -247,6 +255,7 @@ public class BenchmarkConfig {
                 .setUseAcceptGZip(config.isUseAcceptGZip())
                 .setPayloadText(config.getPayloadText())
                 .setSoapAction(config.getSoapAction())
+                .setForceHttp2(config.isForceHttp2())
                 .setDisableSSLVerification(config.isDisableSSLVerification())
                 .setTrustStorePath(config.getTrustStorePath())
                 .setIdentityStorePath(config.getIdentityStorePath())
@@ -275,6 +284,7 @@ public class BenchmarkConfig {
         private boolean useAcceptGZip;
         private String payloadText;
         private String soapAction;
+        private boolean forceHttp2;
         private boolean disableSSLVerification;
         private String trustStorePath;
         private String identityStorePath;
@@ -376,6 +386,11 @@ public class BenchmarkConfig {
             return this;
         }
 
+        public Builder setForceHttp2(final boolean forceHttp2) {
+            this.forceHttp2 = forceHttp2;
+            return this;
+        }
+
         public Builder setDisableSSLVerification(final boolean disableSSLVerification) {
             this.disableSSLVerification = disableSSLVerification;
             return this;
@@ -420,6 +435,7 @@ public class BenchmarkConfig {
                     useAcceptGZip,
                     payloadText,
                     soapAction,
+                    forceHttp2,
                     disableSSLVerification,
                     trustStorePath,
                     identityStorePath,
