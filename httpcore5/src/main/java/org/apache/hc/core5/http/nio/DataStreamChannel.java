@@ -64,6 +64,7 @@ public interface DataStreamChannel extends StreamChannel<ByteBuffer> {
      *
      * @return The number of bytes written, possibly zero
      */
+    @Override
     int write(ByteBuffer src) throws IOException;
 
     /**

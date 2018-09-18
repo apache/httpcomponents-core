@@ -57,6 +57,7 @@ public interface IOReactor extends ModalCloseable {
      * to complete the ongoing I/O sessions. During immediate shutdown
      * all ongoing I/O sessions get aborted immediately.
      */
+    @Override
     void close(CloseMode closeMode);
 
     /**
