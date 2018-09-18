@@ -36,7 +36,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -76,14 +75,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
                 ioEventHandlerFactory,
                 ioReactorConfig,
                 workerThreadFactory,
-                new Callback<IOSession>() {
-
-                    @Override
-                    public void execute(final IOSession session) {
-                        session.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.NORMAL);
-                    }
-
-                }))) {
+                ShutdownCommand.GRACEFUL_NORMAL_CALLBACK))) {
             if (status.compareAndSet(Status.READY, Status.RUNNING)) {
                 ioReactorRef.get().start();
             }

@@ -38,7 +38,6 @@ import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -101,14 +100,8 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final IOSessionListener sessionListener,
             final ManagedConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener, new Callback<IOSession>() {
-
-            @Override
-            public void execute(final IOSession session) {
-                session.enqueue(ShutdownCommand.GRACEFUL, Command.Priority.IMMEDIATE);
-            }
-
-        }, DefaultAddressResolver.INSTANCE);
+        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener,
+                        ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
         this.connPool = Args.notNull(connPool, "Connection pool");
         this.tlsStrategy = tlsStrategy;
     }
