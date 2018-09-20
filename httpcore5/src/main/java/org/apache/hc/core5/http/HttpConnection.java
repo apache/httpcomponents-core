@@ -42,27 +42,64 @@ import org.apache.hc.core5.io.ModalCloseable;
 public interface HttpConnection extends ModalCloseable {
 
     /**
-     * Returns connection endpoint details.
-     */
-    EndpointDetails getEndpointDetails();
-
-    /**
-     * Returns SSL session or {@code null} if TLS has not been activated.
-     */
-    SSLSession getSSLSession();
-
-    /**
-     * Closes this connection gracefully.
-     * This method will attempt to flush the internal output
-     * buffer prior to closing the underlying socket.
-     * This method MUST NOT be called from a different thread to force
-     * shutdown of the connection. Use {@link #close shutdown} instead.
+     * Closes this connection gracefully. This method will attempt to flush the internal output
+     * buffer prior to closing the underlying socket. This method MUST NOT be called from a
+     * different thread to force shutdown of the connection. Use {@link #close shutdown} instead.
      */
     @Override
     void close() throws IOException;
 
     /**
+     * Returns this connection's endpoint details.
+     *
+     * @return this connection's endpoint details.
+     */
+    EndpointDetails getEndpointDetails();
+
+    /**
+     * Returns this connection's local address or {@code null} if it is not bound yet.
+     *
+     * @return this connection's local address or {@code null} if it is not bound yet.
+     * @since 5.0
+     */
+    SocketAddress getLocalAddress();
+
+    /**
+     * Returns this connection's protocol version or {@code null} if unknown.
+     *
+     * @return this connection's protocol version or {@code null} if unknown.
+     * @since 5.0
+     */
+    ProtocolVersion getProtocolVersion();
+
+    /**
+     * Returns this connection's remote address or {@code null} if it is not connected yet or
+     * unconnected.
+     *
+     * @return this connection's remote address or {@code null} if it is not connected yet or
+     *         unconnected.
+     * @since 5.0
+     */
+    SocketAddress getRemoteAddress();
+
+    /**
+     * Returns the socket timeout value.
+     *
+     * @return positive value in milliseconds if a timeout is set, {@code 0} if timeout is disabled
+     *         or {@code -1} if timeout is undefined.
+     */
+    int getSocketTimeoutMillis();
+
+    /**
+     * Returns this connection's SSL session or {@code null} if TLS has not been activated.
+     *
+     * @return this connection's SSL session or {@code null} if TLS has not been activated.
+     */
+    SSLSession getSSLSession();
+
+    /**
      * Checks if this connection is open.
+     *
      * @return true if it is open, false if it is closed.
      */
     boolean isOpen();
@@ -70,34 +107,9 @@ public interface HttpConnection extends ModalCloseable {
     /**
      * Sets the socket timeout value.
      *
-     * @param timeout timeout value in milliseconds
+     * @param timeout
+     *            timeout value in milliseconds
      */
     void setSocketTimeoutMillis(int timeout);
-
-    /**
-     * Returns the socket timeout value.
-     *
-     * @return positive value in milliseconds if a timeout is set,
-     * {@code 0} if timeout is disabled or {@code -1} if
-     * timeout is undefined.
-     */
-    int getSocketTimeoutMillis();
-
-    /**
-     * Returns protocol version used by this connection or {@code null} if unknown.
-     *
-     * @since 5.0
-     */
-    ProtocolVersion getProtocolVersion();
-
-    /**
-     * @since 5.0
-     */
-    SocketAddress getRemoteAddress();
-
-    /**
-     * @since 5.0
-     */
-    SocketAddress getLocalAddress();
 
 }
