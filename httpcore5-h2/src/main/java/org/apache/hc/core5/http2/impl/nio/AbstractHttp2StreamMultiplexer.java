@@ -853,7 +853,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                         throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid RST_STREAM frame payload");
                     }
                     final int errorCode = payload.getInt();
-                    stream.reset(new H2StreamResetException(errorCode, "Stream reset"));
+                    stream.reset(new H2StreamResetException(errorCode, "Stream reset (" + errorCode + ")"));
                     streamMap.remove(streamId);
                     stream.releaseResources();
                 }
@@ -961,7 +961,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 }
                 final ByteBuffer payload = frame.getPayload();
                 if (payload == null || payload.remaining() < 8) {
-                    throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid RST_STREAM payload");
+                    throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Invalid GOAWAY payload");
                 }
                 final int processedLocalStreamId = payload.getInt();
                 final int errorCode = payload.getInt();
@@ -982,7 +982,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
                         final Map.Entry<Integer, Http2Stream> entry = it.next();
                         final Http2Stream stream = entry.getValue();
-                        stream.reset(new H2StreamResetException(errorCode, "Connection terminated by the peer"));
+                        stream.reset(new H2StreamResetException(errorCode, "Connection terminated by the peer (" + errorCode + ")"));
                     }
                     streamMap.clear();
                     connState = ConnectionHandshake.SHUTDOWN;
