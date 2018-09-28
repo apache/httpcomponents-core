@@ -70,13 +70,13 @@ import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Identifiable;
-import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
         implements Identifiable, HttpConnection {
@@ -301,9 +301,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
                 int bytesRead;
                 while ((bytesRead = contentDecoder.read(contentBuffer)) > 0) {
-                    if (bytesRead > 0) {
-                        totalBytesRead += bytesRead;
-                    }
+                    totalBytesRead += bytesRead;
                     contentBuffer.flip();
                     final int capacity = consumeData(contentBuffer);
                     contentBuffer.clear();
