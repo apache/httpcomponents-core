@@ -274,13 +274,13 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final BasicHttpTransportMetrics metrics) throws HttpException {
+        final int chunkSizeHint = h1Config.getChunkSizeHint() >= 0 ? h1Config.getChunkSizeHint() : 2048;
         if (len >= 0) {
-            return new LengthDelimitedEncoder(channel, buffer, metrics, len, h1Config.getChunkSizeHint());
+            return new LengthDelimitedEncoder(channel, buffer, metrics, len, chunkSizeHint);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            final int chunkSizeHint = h1Config.getChunkSizeHint() >= 0 ? h1Config.getChunkSizeHint() : 2048;
             return new ChunkEncoder(channel, buffer, metrics, chunkSizeHint);
         } else {
-            return new IdentityEncoder(channel, buffer, metrics, h1Config.getChunkSizeHint());
+            return new IdentityEncoder(channel, buffer, metrics, chunkSizeHint);
         }
     }
 
