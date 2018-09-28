@@ -28,6 +28,7 @@ package org.apache.hc.core5.reactive;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.reactivestreams.Publisher;
@@ -48,7 +49,7 @@ public final class ReactiveEntityProducer implements AsyncEntityProducer {
     private final ReactiveDataProducer reactiveDataProducer;
 
     private final long contentLength;
-    private final String contentType;
+    private final ContentType contentType;
     private final String contentEncoding;
 
     /**
@@ -62,7 +63,7 @@ public final class ReactiveEntityProducer implements AsyncEntityProducer {
     public ReactiveEntityProducer(
         final Publisher<ByteBuffer> publisher,
         final long contentLength,
-        final String contentType,
+        final ContentType contentType,
         final String contentEncoding
     ) {
         this.reactiveDataProducer = new ReactiveDataProducer(publisher);
@@ -103,7 +104,7 @@ public final class ReactiveEntityProducer implements AsyncEntityProducer {
 
     @Override
     public String getContentType() {
-        return contentType;
+        return contentType != null ? contentType.toString() : null;
     }
 
     @Override

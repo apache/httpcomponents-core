@@ -119,7 +119,7 @@ public class ReactiveFullDuplexClientExample {
                 }
             });
         final AsyncEntityProducer reactiveEntityProducer = new ReactiveEntityProducer(publisher, -1,
-            ContentType.TEXT_PLAIN.toString(), null);
+            ContentType.TEXT_PLAIN, null);
         final URI requestUri = new URI(endpoint);
         final BasicRequestProducer requestProducer = new BasicRequestProducer(
             "POST", requestUri, reactiveEntityProducer);
