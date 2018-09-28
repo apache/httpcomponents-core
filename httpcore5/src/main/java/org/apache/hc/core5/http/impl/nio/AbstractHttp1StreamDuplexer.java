@@ -288,7 +288,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
                 if (bytesRead == -1 && !inbuf.hasData()) {
                     if (outputIdle() && inputIdle()) {
-                        requestShutdown(CloseMode.IMMEDIATE);
+                        requestShutdown(CloseMode.GRACEFUL);
                     } else {
                         shutdownSession(new ConnectionClosedException("Connection closed by peer"));
                     }

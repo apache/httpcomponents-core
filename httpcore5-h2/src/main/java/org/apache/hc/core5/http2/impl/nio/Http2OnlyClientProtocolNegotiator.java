@@ -126,7 +126,7 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
             if (preface != null) {
                 writePreface(session);
             } else {
-                session.close(CloseMode.IMMEDIATE);
+                session.close(CloseMode.GRACEFUL);
             }
         } catch (final IOException ex) {
             session.close(CloseMode.IMMEDIATE);

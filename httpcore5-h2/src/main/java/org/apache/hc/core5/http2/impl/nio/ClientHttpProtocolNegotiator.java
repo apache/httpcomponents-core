@@ -158,7 +158,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 startHttp2(session);
             }
         } else {
-            session.close(CloseMode.IMMEDIATE);
+            session.close(CloseMode.GRACEFUL);
         }
     }
 

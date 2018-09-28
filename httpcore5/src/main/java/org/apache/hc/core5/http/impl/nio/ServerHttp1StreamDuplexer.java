@@ -116,7 +116,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
             @Override
             public void close() {
-                ServerHttp1StreamDuplexer.this.close(CloseMode.IMMEDIATE);
+                ServerHttp1StreamDuplexer.this.close(CloseMode.GRACEFUL);
             }
 
             @Override
