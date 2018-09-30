@@ -13,6 +13,9 @@ Changelog
 * Update the org.apache.hc.core5.http.protocol.HttpContext.setAttribute(String, Object) API to return the previous value.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* Rename org.apache.hc.core5.http.EndpointDetails.getSocketTimeout() to getSocketTimeoutMillis().
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 5.0-BETA3
 -------------------
@@ -114,7 +117,6 @@ Changelog
 
 * HTTPCORE-528: SSL I/O session spins upon abnormal connection closure by the opposite endpoint.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
-
 
 
 Release 5.0-BETA2

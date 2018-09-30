@@ -40,13 +40,13 @@ public abstract class EndpointDetails implements HttpConnectionMetrics {
 
     private final SocketAddress remoteAddress;
     private final SocketAddress localAddress;
-    private final int socketTimeout;
+    private final int socketTimeoutMillis;
 
     protected EndpointDetails(final SocketAddress remoteAddress, final SocketAddress localAddress,
-                    final int socketTimeout) {
+                    final int socketTimeoutMillis) {
         this.remoteAddress = remoteAddress;
         this.localAddress = localAddress;
-        this.socketTimeout = socketTimeout;
+        this.socketTimeoutMillis = socketTimeoutMillis;
     }
 
     public SocketAddress getRemoteAddress() {
@@ -90,8 +90,8 @@ public abstract class EndpointDetails implements HttpConnectionMetrics {
      *
      * @return the socket timeout.
      */
-    public int getSocketTimeout() {
-        return socketTimeout;
+    public int getSocketTimeoutMillis() {
+        return socketTimeoutMillis;
     }
 
     @Override
