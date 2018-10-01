@@ -109,7 +109,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
     protected void onRequestReceived(final ClassicHttpRequest request) {
         if (request != null && this.headerLog.isDebugEnabled()) {
             this.headerLog.debug(id + " >> " + new RequestLine(request));
-            final Header[] headers = request.getAllHeaders();
+            final Header[] headers = request.getHeaders();
             for (final Header header : headers) {
                 this.headerLog.debug(this.id + " >> " + header.toString());
             }
@@ -120,7 +120,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
     protected void onResponseSubmitted(final ClassicHttpResponse response) {
         if (response != null && this.headerLog.isDebugEnabled()) {
             this.headerLog.debug(this.id + " << " + new StatusLine(response));
-            final Header[] headers = response.getAllHeaders();
+            final Header[] headers = response.getHeaders();
             for (final Header header : headers) {
                 this.headerLog.debug(this.id + " << " + header.toString());
             }

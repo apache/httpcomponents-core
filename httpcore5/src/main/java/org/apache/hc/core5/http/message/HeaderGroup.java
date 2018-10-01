@@ -299,7 +299,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * @return an array of length &ge; 0
      */
     @Override
-    public Header[] getAllHeaders() {
+    public Header[] getHeaders() {
         return headers.toArray(new Header[headers.size()]);
     }
 

@@ -122,8 +122,8 @@ public abstract class AbstractMessageWrapper implements HttpMessage {
     }
 
     @Override
-    public Header[] getAllHeaders() {
-        return message.getAllHeaders();
+    public Header[] getHeaders() {
+        return message.getHeaders();
     }
 
     @Override

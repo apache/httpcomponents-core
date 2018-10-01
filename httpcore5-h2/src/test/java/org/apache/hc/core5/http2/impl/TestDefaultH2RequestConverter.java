@@ -64,7 +64,7 @@ public class TestDefaultH2RequestConverter {
         Assert.assertEquals("http", request.getScheme());
         Assert.assertEquals(new URIAuthority("www.example.com"), request.getAuthority());
         Assert.assertEquals("/", request.getPath());
-        final Header[] allHeaders = request.getAllHeaders();
+        final Header[] allHeaders = request.getHeaders();
         Assert.assertEquals(1, allHeaders.length);
         Assert.assertEquals("custom123", allHeaders[0].getName());
         Assert.assertEquals("value", allHeaders[0].getValue());

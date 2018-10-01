@@ -61,7 +61,7 @@ public class TestResponseParser {
 
         Assert.assertEquals(200, httpresponse.getCode());
         Assert.assertEquals("OK", httpresponse.getReasonPhrase());
-        final Header[] headers = httpresponse.getAllHeaders();
+        final Header[] headers = httpresponse.getHeaders();
         Assert.assertEquals(3, headers.length);
     }
 
@@ -91,7 +91,7 @@ public class TestResponseParser {
 
         Assert.assertEquals(200, httpresponse.getCode());
         Assert.assertEquals("OK", httpresponse.getReasonPhrase());
-        final Header[] headers = httpresponse.getAllHeaders();
+        final Header[] headers = httpresponse.getHeaders();
         Assert.assertEquals(1, headers.length);
     }
 
@@ -141,7 +141,7 @@ public class TestResponseParser {
 
         Assert.assertEquals(200, httpresponse.getCode());
         Assert.assertEquals("OK", httpresponse.getReasonPhrase());
-        final Header[] headers = httpresponse.getAllHeaders();
+        final Header[] headers = httpresponse.getHeaders();
         Assert.assertEquals(3, headers.length);
     }
 

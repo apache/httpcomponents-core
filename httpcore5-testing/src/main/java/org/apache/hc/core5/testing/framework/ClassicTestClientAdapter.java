@@ -152,7 +152,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
 
             // convert the headers to a Map
             final Map<String, Object> headerMap = new HashMap<>();
-            for (final Header header : response.getAllHeaders()) {
+            for (final Header header : response.getHeaders()) {
                 headerMap.put(header.getName(), header.getValue());
             }
             ret.put(HEADERS, headerMap);

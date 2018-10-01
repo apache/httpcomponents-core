@@ -105,7 +105,7 @@ public interface MessageHeaders {
      *
      * @return all the headers of this message
      */
-    Header[] getAllHeaders();
+    Header[] getHeaders();
 
     /**
      * Returns an iterator of all the headers.

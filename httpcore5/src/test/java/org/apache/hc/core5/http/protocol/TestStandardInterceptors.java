@@ -278,7 +278,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         final RequestContent interceptor = new RequestContent();
         interceptor.process(request, request.getEntity(), context);
-        Assert.assertEquals(0, request.getAllHeaders().length);
+        Assert.assertEquals(0, request.getHeaders().length);
     }
 
     @Test
@@ -385,7 +385,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         final RequestExpectContinue interceptor = new RequestExpectContinue();
         interceptor.process(request, request.getEntity(), context);
-        Assert.assertEquals(0, request.getAllHeaders().length);
+        Assert.assertEquals(0, request.getHeaders().length);
     }
 
     @Test

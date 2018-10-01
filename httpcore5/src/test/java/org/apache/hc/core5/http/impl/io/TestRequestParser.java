@@ -60,7 +60,7 @@ public class TestRequestParser {
 
         Assert.assertEquals("GET", httprequest.getMethod());
         Assert.assertEquals("/", httprequest.getPath());
-        final Header[] headers = httprequest.getAllHeaders();
+        final Header[] headers = httprequest.getHeaders();
         Assert.assertEquals(3, headers.length);
     }
 
@@ -90,7 +90,7 @@ public class TestRequestParser {
 
         Assert.assertEquals("GET", httprequest.getMethod());
         Assert.assertEquals("/", httprequest.getPath());
-        final Header[] headers = httprequest.getAllHeaders();
+        final Header[] headers = httprequest.getHeaders();
         Assert.assertEquals(1, headers.length);
     }
 
@@ -141,7 +141,7 @@ public class TestRequestParser {
 
         Assert.assertEquals("GET", httprequest.getMethod());
         Assert.assertEquals("/", httprequest.getPath());
-        final Header[] headers = httprequest.getAllHeaders();
+        final Header[] headers = httprequest.getHeaders();
         Assert.assertEquals(3, headers.length);
     }
 

@@ -57,7 +57,7 @@ public class TestDefaultH2ResponseConverter {
         final HttpResponse response = converter.convert(headers);
         Assert.assertNotNull(response );
         Assert.assertEquals(200, response .getCode());
-        final Header[] allHeaders = response.getAllHeaders();
+        final Header[] allHeaders = response.getHeaders();
         Assert.assertEquals(2, allHeaders.length);
         Assert.assertEquals("location", allHeaders[0].getName());
         Assert.assertEquals("http://www.example.com/", allHeaders[0].getValue());

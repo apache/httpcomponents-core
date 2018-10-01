@@ -163,7 +163,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             final Map<String, String> expectedHeaders = (Map<String, String>) requestExpectations.get(HEADERS);
             if (expectedHeaders != null) {
                 final Map<String, String> actualHeadersMap = new HashMap<>();
-                final Header[] actualHeaders = request.getAllHeaders();
+                final Header[] actualHeaders = request.getHeaders();
                 for (final Header header : actualHeaders) {
                     actualHeadersMap.put(header.getName(), header.getValue());
                 }

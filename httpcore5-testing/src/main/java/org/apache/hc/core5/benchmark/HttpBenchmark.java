@@ -304,7 +304,7 @@ public class HttpBenchmark {
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
                         if (config.getVerbosity() >= 3) {
                             System.out.println(">> " + request.getMethod() + " " + request.getRequestUri());
-                            final Header[] headers = request.getAllHeaders();
+                            final Header[] headers = request.getHeaders();
                             for (final Header header : headers) {
                                 System.out.println(">> " + header.toString());
                             }
@@ -316,7 +316,7 @@ public class HttpBenchmark {
                     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
                         if (config.getVerbosity() >= 3) {
                             System.out.println("<< " + response.getCode() + " " + response.getReasonPhrase());
-                            final Header[] headers = response.getAllHeaders();
+                            final Header[] headers = response.getHeaders();
                             for (final Header header : headers) {
                                 System.out.println("<< " + header.toString());
                             }
