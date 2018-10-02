@@ -61,6 +61,7 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
 
     private final BlockingQueue<ByteBuffer> buffers = new LinkedBlockingQueue<>();
     private final AtomicBoolean flushInProgress = new AtomicBoolean(false);
+    private final AtomicInteger windowScalingIncrement = new AtomicInteger(0);
     private volatile boolean cancelled = false;
     private volatile boolean completed = false;
     private volatile Exception exception;
@@ -125,21 +126,23 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
                 s.onError(exception);
                 return;
             }
-            int windowScalingIncrement = 0;
             ByteBuffer next;
             while (requests.get() > 0 && ((next = buffers.poll()) != null)) {
                 final int bytesFreed = next.remaining();
                 remainingBufferSpace.addAndGet(bytesFreed);
                 s.onNext(next);
                 requests.decrementAndGet();
-                windowScalingIncrement += bytesFreed;
+                windowScalingIncrement.addAndGet(bytesFreed);
             }
-            if (capacityChannel != null && windowScalingIncrement > 0) {
-                try {
-                    capacityChannel.update(windowScalingIncrement);
-                } catch (final IOException ex) {
-                    failed(ex);
-                    return;
+            if (capacityChannel != null) {
+                final int increment = windowScalingIncrement.getAndSet(0);
+                if (increment > 0) {
+                    try {
+                        capacityChannel.update(increment);
+                    } catch (final IOException ex) {
+                        failed(ex);
+                        return;
+                    }
                 }
             }
             if (completed && buffers.isEmpty()) {
