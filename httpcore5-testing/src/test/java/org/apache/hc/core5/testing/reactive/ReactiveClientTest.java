@@ -133,7 +133,7 @@ public class ReactiveClientTest {
                 final Publisher<ByteBuffer> requestBody,
                 final Callback<Publisher<ByteBuffer>> responseBodyFuture
         ) throws HttpException, IOException {
-            if (new BasicHeader("Expect", "100-continue").equals(request.getSingleHeader("Expect"))) {
+            if (new BasicHeader("Expect", "100-continue").equals(request.getHeader("Expect"))) {
                 responseChannel.sendInformation(new BasicHttpResponse(100), context);
             }
 

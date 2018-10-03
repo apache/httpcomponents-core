@@ -63,7 +63,7 @@ public class RequestValidateHost implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
 
-        final Header header = request.getSingleHeader(HttpHeaders.HOST);
+        final Header header = request.getHeader(HttpHeaders.HOST);
         if (header != null) {
             final URIAuthority authority;
             try {

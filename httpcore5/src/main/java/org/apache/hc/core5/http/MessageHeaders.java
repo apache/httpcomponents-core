@@ -50,29 +50,30 @@ public interface MessageHeaders {
      *
      * @param name the header name to check for.
      * @return number of occurrences of the header in the message.
+     * @deprecated Will be removed in the next beta.
+     * @see #countHeaders(String)
      */
+    @Deprecated
     int containsHeaders(String name);
 
     /**
-     * Returns all the headers with a specified name of this message. Header values
-     * are ignored. Headers are orderd in the sequence they will be sent over a
-     * connection.
+     * Checks if a certain header is present in this message and how many times.
      *
-     * @param name the name of the headers to return.
-     * @return the headers whose name property equals {@code name}.
+     * @param name the header name to check for.
+     * @return number of occurrences of the header in the message.
      */
-    Header[] getHeaders(String name);
+    int countHeaders(String name);
 
     /**
-     * Gets single first header with the given name.
+     * Returns all the headers of this message. Headers are orderd in the sequence
+     * they will be sent over a connection.
      *
-     * <p>Header name comparison is case insensitive.
-     *
-     * @param name the name of the header to get
-     * @return the first header or {@code null}
-     * @throws ProtocolException in case multiple headers with the given name are found.
+     * @return all the headers of this message
+     * @deprecated Will be removed in the next beta.
+     * @see #getHeaders()
      */
-    Header getSingleHeader(String name) throws ProtocolException;
+    @Deprecated
+    Header[] getAllHeaders();
 
     /**
      * Returns the first header with a specified name of this message. Header
@@ -88,6 +89,35 @@ public interface MessageHeaders {
     Header getFirstHeader(String name);
 
     /**
+     * Gets single first header with the given name.
+     *
+     * <p>Header name comparison is case insensitive.
+     *
+     * @param name the name of the header to get
+     * @return the first header or {@code null}
+     * @throws ProtocolException in case multiple headers with the given name are found.
+     */
+    Header getHeader(String name) throws ProtocolException;
+
+    /**
+     * Returns all the headers of this message. Headers are orderd in the sequence
+     * they will be sent over a connection.
+     *
+     * @return all the headers of this message
+     */
+    Header[] getHeaders();
+
+    /**
+     * Returns all the headers with a specified name of this message. Header values
+     * are ignored. Headers are orderd in the sequence they will be sent over a
+     * connection.
+     *
+     * @param name the name of the headers to return.
+     * @return the headers whose name property equals {@code name}.
+     */
+    Header[] getHeaders(String name);
+
+    /**
      * Returns the last header with a specified name of this message. Header values
      * are ignored. If there is more than one matching header in the message the
      * last element of {@link #getHeaders(String)} is returned. If there is no
@@ -100,12 +130,18 @@ public interface MessageHeaders {
     Header getLastHeader(String name);
 
     /**
-     * Returns all the headers of this message. Headers are orderd in the sequence
-     * they will be sent over a connection.
+     * Gets single first header with the given name.
      *
-     * @return all the headers of this message
+     * <p>Header name comparison is case insensitive.
+     *
+     * @param name the name of the header to get
+     * @return the first header or {@code null}
+     * @throws ProtocolException in case multiple headers with the given name are found.
+     * @deprecated Will be removed in the next beta.
+     * @see #getHeader(String)
      */
-    Header[] getHeaders();
+    @Deprecated
+    Header getSingleHeader(String name) throws ProtocolException;
 
     /**
      * Returns an iterator of all the headers.

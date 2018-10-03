@@ -89,6 +89,18 @@ public abstract class EndpointDetails implements HttpConnectionMetrics {
      * Gets the socket timeout.
      *
      * @return the socket timeout.
+     * @deprecated Will be removed in the next beta.
+     * @see #getSocketTimeoutMillis()
+     */
+    @Deprecated
+    public int getSocketTimeout() {
+        return socketTimeoutMillis;
+    }
+
+    /**
+     * Gets the socket timeout.
+     *
+     * @return the socket timeout.
      */
     public int getSocketTimeoutMillis() {
         return socketTimeoutMillis;

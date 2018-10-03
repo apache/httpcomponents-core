@@ -75,7 +75,7 @@ public class DefaultContentLengthStrategy implements ContentLengthStrategy {
             }
             throw new NotImplementedException("Unsupported transfer encoding: " + headerValue);
         }
-        if (message.containsHeaders(HttpHeaders.CONTENT_LENGTH) > 1) {
+        if (message.countHeaders(HttpHeaders.CONTENT_LENGTH) > 1) {
             throw new ProtocolException("Multiple Content-Length headers");
         }
         final Header contentLengthHeader = message.getFirstHeader(HttpHeaders.CONTENT_LENGTH);

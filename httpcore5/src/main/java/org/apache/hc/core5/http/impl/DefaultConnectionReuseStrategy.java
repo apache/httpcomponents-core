@@ -120,7 +120,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         } else {
             final String method = request != null ? request.getMethod() : null;
             if (MessageSupport.canResponseHaveBody(method, response)
-                    && response.containsHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
+                    && response.countHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
                 return false;
             }
         }
