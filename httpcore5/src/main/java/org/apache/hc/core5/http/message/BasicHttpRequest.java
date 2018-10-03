@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
@@ -192,7 +193,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         if (this.requestUri == null) {
             final StringBuilder buf = new StringBuilder();
             if (this.authority != null) {
-                buf.append(this.scheme != null ? this.scheme : "http").append("://");
+                buf.append(this.scheme != null ? this.scheme : URIScheme.HTTP.id).append("://");
                 buf.append(this.authority.getHostName());
                 if (this.authority.getPort() >= 0) {
                     buf.append(":").append(this.authority.getPort());
