@@ -30,7 +30,7 @@ package org.apache.hc.core5.http;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Supported URI schemes
+ * Enumerates supported URI schemes.
  *
  * @since 5.0
  */
