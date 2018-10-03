@@ -129,7 +129,7 @@ public class ReactiveFullDuplexClientExample {
         final Message<HttpResponse, Publisher<ByteBuffer>> streamingResponse = consumer.getResponseFuture().get();
 
         System.out.println(streamingResponse.getHead());
-        for (final Header header : streamingResponse.getHead().getAllHeaders()) {
+        for (final Header header : streamingResponse.getHead().getHeaders()) {
             System.out.println(header.toString());
         }
         System.out.println();
