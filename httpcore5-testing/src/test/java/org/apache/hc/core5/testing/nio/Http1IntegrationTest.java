@@ -128,6 +128,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -872,7 +873,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H1Config.custom().setWaitForContinueTimeoutMillis(100).build());
+        client.start(H1Config.custom().setWaitForContinueTimeout(Timeout.ofMillis(100)).build());
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();

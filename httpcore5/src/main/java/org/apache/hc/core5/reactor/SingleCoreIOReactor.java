@@ -46,9 +46,9 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.TimeValue;
 
 class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
@@ -64,7 +64,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private final Queue<SocketChannel> channelQueue;
     private final Queue<IOSessionRequest> requestQueue;
     private final AtomicBoolean shutdownInitiated;
-
+    private final long selectTimeoutMillis;
     private volatile long lastTimeoutCheckMillis;
 
     SingleCoreIOReactor(
@@ -84,6 +84,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         this.closedSessions = new ConcurrentLinkedQueue<>();
         this.channelQueue = new ConcurrentLinkedQueue<>();
         this.requestQueue = new ConcurrentLinkedQueue<>();
+        this.selectTimeoutMillis = this.reactorConfig.getSelectInterval().toMillis();
     }
 
     void enqueueChannel(final SocketChannel socketChannel) throws IOReactorShutdownException {
@@ -104,10 +105,9 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     @Override
     void doExecute() throws IOException {
-        final long selectTimeoutMillis = this.reactorConfig.getSelectIntervalMillis();
         while (!Thread.currentThread().isInterrupted()) {
 
-            final int readyCount = this.selector.select(selectTimeoutMillis);
+            final int readyCount = this.selector.select(this.selectTimeoutMillis);
 
             if (getStatus().compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0) {
                 if (this.shutdownInitiated.compareAndSet(false, true)) {
@@ -159,7 +159,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     private void validateActiveChannels() {
         final long currentTimeMillis = System.currentTimeMillis();
-        if ((currentTimeMillis - this.lastTimeoutCheckMillis) >= this.reactorConfig.getSelectIntervalMillis()) {
+        if ((currentTimeMillis - this.lastTimeoutCheckMillis) >= this.selectTimeoutMillis) {
             this.lastTimeoutCheckMillis = currentTimeMillis;
             for (final SelectionKey key : this.selector.keys()) {
                 checkTimeout(key, currentTimeMillis);

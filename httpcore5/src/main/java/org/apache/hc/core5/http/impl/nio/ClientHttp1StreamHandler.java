@@ -163,7 +163,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
                 if (expectContinue) {
                     requestState = MessageState.ACK;
                     timeout = outputChannel.getSocketTimeoutMillis();
-                    outputChannel.setSocketTimeoutMillis(h1Config.getWaitForContinueTimeoutMillis());
+                    outputChannel.setSocketTimeoutMillis(h1Config.getWaitForContinueTimeout().toMillisIntBound());
                 } else {
                     requestState = MessageState.BODY;
                     exchangeHandler.produce(internalDataChannel);

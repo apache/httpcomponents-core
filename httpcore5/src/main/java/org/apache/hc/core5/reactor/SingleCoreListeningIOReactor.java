@@ -55,8 +55,8 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
     private final Callback<SocketChannel> callback;
     private final Queue<ListenerEndpointRequest> requestQueue;
     private final ConcurrentMap<ListenerEndpoint, Boolean> endpoints;
-
     private final AtomicBoolean paused;
+    private final long selectTimeoutMillis;
 
     SingleCoreListeningIOReactor(
             final Queue<ExceptionEvent> auditLog,
@@ -68,6 +68,7 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
         this.requestQueue = new ConcurrentLinkedQueue<>();
         this.endpoints = new ConcurrentHashMap<>();
         this.paused = new AtomicBoolean(false);
+        this.selectTimeoutMillis = this.reactorConfig.getSelectInterval().toMillis();
     }
 
     @Override
@@ -80,13 +81,12 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
 
     @Override
     protected final void doExecute() throws IOException {
-        final long selectTimeoutMillis = this.reactorConfig.getSelectIntervalMillis();
         while (!Thread.currentThread().isInterrupted()) {
             if (getStatus().compareTo(IOReactorStatus.ACTIVE) != 0) {
                 break;
             }
 
-            final int readyCount = this.selector.select(selectTimeoutMillis);
+            final int readyCount = this.selector.select(this.selectTimeoutMillis);
 
             if (getStatus().compareTo(IOReactorStatus.ACTIVE) != 0) {
                 break;

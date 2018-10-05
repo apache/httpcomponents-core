@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.config;
 
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * HTTP/1.1 protocol parameters.
@@ -45,17 +46,17 @@ public class H1Config {
 
     private final int bufferSize;
     private final int chunkSizeHint;
-    private final int waitForContinueTimeoutMillis;
+    private final Timeout waitForContinueTimeout;
     private final int maxLineLength;
     private final int maxHeaderCount;
     private final int maxEmptyLineCount;
 
-    H1Config(final int bufferSize, final int chunkSizeHint, final int waitForContinueTimeout,
+    H1Config(final int bufferSize, final int chunkSizeHint, final Timeout waitForContinueTimeout,
              final int maxLineLength, final int maxHeaderCount, final int maxEmptyLineCount) {
         super();
         this.bufferSize = bufferSize;
         this.chunkSizeHint = chunkSizeHint;
-        this.waitForContinueTimeoutMillis = waitForContinueTimeout;
+        this.waitForContinueTimeout = waitForContinueTimeout;
         this.maxLineLength = maxLineLength;
         this.maxHeaderCount = maxHeaderCount;
         this.maxEmptyLineCount = maxEmptyLineCount;
@@ -69,8 +70,8 @@ public class H1Config {
         return chunkSizeHint;
     }
 
-    public int getWaitForContinueTimeoutMillis() {
-        return waitForContinueTimeoutMillis;
+    public Timeout getWaitForContinueTimeout() {
+        return waitForContinueTimeout;
     }
 
     public int getMaxLineLength() {
@@ -90,7 +91,7 @@ public class H1Config {
         final StringBuilder builder = new StringBuilder();
         builder.append("[bufferSize=").append(bufferSize)
                 .append(", chunkSizeHint=").append(chunkSizeHint)
-                .append(", waitForContinueTimeout=").append(waitForContinueTimeoutMillis)
+                .append(", waitForContinueTimeout=").append(waitForContinueTimeout)
                 .append(", maxLineLength=").append(maxLineLength)
                 .append(", maxHeaderCount=").append(maxHeaderCount)
                 .append(", maxEmptyLineCount=").append(maxEmptyLineCount)
@@ -107,7 +108,7 @@ public class H1Config {
         return new Builder()
                 .setBufferSize(config.getBufferSize())
                 .setChunkSizeHint(config.getChunkSizeHint())
-                .setWaitForContinueTimeoutMillis(config.getWaitForContinueTimeoutMillis())
+                .setWaitForContinueTimeout(config.getWaitForContinueTimeout())
                 .setMaxHeaderCount(config.getMaxHeaderCount())
                 .setMaxLineLength(config.getMaxLineLength())
                 .setMaxEmptyLineCount(config.maxEmptyLineCount);
@@ -117,7 +118,7 @@ public class H1Config {
 
         private int bufferSize;
         private int chunkSizeHint;
-        private int waitForContinueTimeout;
+        private Timeout waitForContinueTimeout;
         private int maxLineLength;
         private int maxHeaderCount;
         private int maxEmptyLineCount;
@@ -125,7 +126,7 @@ public class H1Config {
         Builder() {
             this.bufferSize = -1;
             this.chunkSizeHint = -1;
-            this.waitForContinueTimeout = 3000;
+            this.waitForContinueTimeout = Timeout.ofSeconds(3);
             this.maxLineLength = -1;
             this.maxHeaderCount = -1;
             this.maxEmptyLineCount = 10;
@@ -141,7 +142,7 @@ public class H1Config {
             return this;
         }
 
-        public Builder setWaitForContinueTimeoutMillis(final int waitForContinueTimeout) {
+        public Builder setWaitForContinueTimeout(final Timeout waitForContinueTimeout) {
             this.waitForContinueTimeout = waitForContinueTimeout;
             return this;
         }
@@ -162,7 +163,13 @@ public class H1Config {
         }
 
         public H1Config build() {
-            return new H1Config(bufferSize > 0 ? bufferSize : 8192, chunkSizeHint, waitForContinueTimeout, maxLineLength, maxHeaderCount, maxEmptyLineCount);
+            return new H1Config(
+                    bufferSize > 0 ? bufferSize : 8192,
+                    chunkSizeHint,
+                    waitForContinueTimeout != null ? waitForContinueTimeout : Timeout.ofSeconds(3),
+                    maxLineLength,
+                    maxHeaderCount,
+                    maxEmptyLineCount);
         }
 
     }
