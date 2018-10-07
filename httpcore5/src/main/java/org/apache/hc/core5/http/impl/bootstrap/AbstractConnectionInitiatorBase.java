@@ -34,7 +34,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractConnectionInitiatorBase implements ConnectionInitiator {
 
@@ -43,7 +43,7 @@ abstract class AbstractConnectionInitiatorBase implements ConnectionInitiator {
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
-            final TimeValue timeout,
+            final Timeout timeout,
             final Object attachment,
             final FutureCallback<IOSession> callback) {
         return getIOReactor().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);

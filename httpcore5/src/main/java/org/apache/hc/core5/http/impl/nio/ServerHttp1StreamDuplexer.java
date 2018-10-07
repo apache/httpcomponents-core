@@ -67,6 +67,7 @@ import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * I/O event handler for events fired by {@link ProtocolIOSession} that implements
@@ -138,13 +139,13 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
-            public int getSocketTimeoutMillis() {
-                return getSessionTimeoutMillis();
+            public Timeout getSocketTimeout() {
+                return getSessionTimeout();
             }
 
             @Override
-            public void setSocketTimeoutMillis(final int timeout) {
-                setSessionTimeoutMillis(timeout);
+            public void setSocketTimeout(final Timeout timeout) {
+                setSessionTimeout(timeout);
             }
 
             @Override
@@ -446,13 +447,13 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         }
 
         @Override
-        public int getSocketTimeoutMillis() {
-            return channel.getSocketTimeoutMillis();
+        public Timeout getSocketTimeout() {
+            return channel.getSocketTimeout();
         }
 
         @Override
-        public void setSocketTimeoutMillis(final int timeout) {
-            channel.setSocketTimeoutMillis(timeout);
+        public void setSocketTimeout(final Timeout timeout) {
+            channel.setSocketTimeout(timeout);
         }
 
         @Override

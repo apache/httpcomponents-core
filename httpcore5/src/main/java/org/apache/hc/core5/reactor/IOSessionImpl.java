@@ -40,8 +40,9 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.io.Closer;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 class IOSessionImpl implements IOSession {
 
@@ -54,8 +55,7 @@ class IOSessionImpl implements IOSession {
     private final String id;
     private final AtomicInteger status;
 
-    private volatile IOEventHandler eventHandler;
-    private volatile int socketTimeout;
+    private volatile Timeout socketTimeout;
     private volatile long lastReadTime;
     private volatile long lastWriteTime;
 
@@ -71,7 +71,7 @@ class IOSessionImpl implements IOSession {
         this.channel = Args.notNull(socketChannel, "Socket channel");
         this.commandQueue = new ConcurrentLinkedDeque<>();
         this.lock = new ReentrantLock();
-        this.socketTimeout = 0;
+        this.socketTimeout = Timeout.DISABLED;
         this.id = String.format("i/o-%08X", COUNT.getAndIncrement());
         this.status = new AtomicInteger(ACTIVE);
         this.lastReadTime = System.currentTimeMillis();
@@ -166,13 +166,13 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public int getSocketTimeoutMillis() {
+    public Timeout getSocketTimeout() {
         return this.socketTimeout;
     }
 
     @Override
-    public void setSocketTimeoutMillis(final int timeout) {
-        this.socketTimeout = timeout;
+    public void setSocketTimeout(final Timeout timeout) {
+        this.socketTimeout = Timeout.defaultsToDisabled(timeout);
     }
 
     @Override
@@ -186,7 +186,7 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public long getLastReadTimeMillis() {
+    public long getLastReadTime() {
         return lastReadTime;
     }
 

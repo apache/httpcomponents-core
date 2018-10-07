@@ -44,7 +44,7 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor> implements ConnectionInitiator {
 
@@ -76,7 +76,7 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
         return new InetSocketAddress(hostName, port);
     }
 
-    public Future<IOSession> requestSession(final HttpHost host, final TimeValue timeout, final FutureCallback<IOSession> callback) {
+    public Future<IOSession> requestSession(final HttpHost host, final Timeout timeout, final FutureCallback<IOSession> callback) {
         Args.notNull(host, "Host");
         return reactor().connect(host, toSocketAddress(host), null, timeout, null, callback);
     }
@@ -86,7 +86,7 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
-            final TimeValue timeout,
+            final Timeout timeout,
             final Object attachment,
             final FutureCallback<IOSession> callback) {
         return reactor().connect(remoteEndpoint, remoteAddress, localAddress, timeout, attachment, callback);

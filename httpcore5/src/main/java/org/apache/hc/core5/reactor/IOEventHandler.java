@@ -29,6 +29,8 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.util.Timeout;
+
 /**
  * IOEventHandler interface is used by I/O reactors to handle I/O events for individual
  * I/O sessions. All methods of this interface are executed on a single dispatch thread
@@ -62,12 +64,12 @@ public interface IOEventHandler {
     void outputReady(IOSession session) throws IOException;
 
     /**
-     * Triggered when the given session as timed out.
+     * Triggered when the given session has timed out.
      *
      * @param session the I/O session.
-     * @param timeoutMillis the timeout in milliseconds.
+     * @param timeout the timeout.
      */
-    void timeout(IOSession session, int timeoutMillis) throws IOException;
+    void timeout(IOSession session, Timeout timeout) throws IOException;
 
     /**
      * Triggered when the given session throws a exception.

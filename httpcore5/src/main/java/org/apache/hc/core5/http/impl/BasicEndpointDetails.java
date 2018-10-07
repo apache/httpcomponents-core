@@ -31,6 +31,7 @@ import java.net.SocketAddress;
 
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpConnectionMetrics;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Basic HTTP connection endpoint details.
@@ -45,8 +46,8 @@ public final class BasicEndpointDetails extends EndpointDetails {
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
             final HttpConnectionMetrics metrics,
-            final int socketTimeoutMillis) {
-        super(remoteAddress, localAddress, socketTimeoutMillis);
+            final Timeout socketTimeout) {
+        super(remoteAddress, localAddress, socketTimeout);
         this.metrics = metrics;
     }
 

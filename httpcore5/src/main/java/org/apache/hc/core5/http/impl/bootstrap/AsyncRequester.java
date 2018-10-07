@@ -52,6 +52,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Protocol agnostic client side I/O session initiator.
@@ -88,7 +89,7 @@ public class AsyncRequester extends AbstractConnectionInitiatorBase implements I
 
     public Future<IOSession> requestSession(
             final HttpHost host,
-            final TimeValue timeout,
+            final Timeout timeout,
             final Object attachment,
             final FutureCallback<IOSession> callback) {
         Args.notNull(host, "Host");

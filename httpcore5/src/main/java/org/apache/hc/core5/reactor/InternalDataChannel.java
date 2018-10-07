@@ -48,6 +48,7 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.Timeout;
 
 final class InternalDataChannel extends InternalChannel implements ProtocolIOSession {
 
@@ -172,14 +173,14 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    int getTimeoutMillis() {
-        return ioSession.getSocketTimeoutMillis();
+    Timeout getTimeout() {
+        return ioSession.getSocketTimeout();
     }
 
     @Override
-    void onTimeout(final int timeoutMillis) throws IOException {
+    void onTimeout(final Timeout timeout) throws IOException {
         final IOEventHandler handler = ensureHandler();
-        handler.timeout(this, timeoutMillis);
+        handler.timeout(this, timeout);
         final SSLIOSession tlsSession = tlsSessionRef.get();
         if (tlsSession != null) {
             if (tlsSession.isOutboundDone() && !tlsSession.isInboundDone()) {
@@ -345,13 +346,13 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    public int getSocketTimeoutMillis() {
-        return ioSession.getSocketTimeoutMillis();
+    public Timeout getSocketTimeout() {
+        return ioSession.getSocketTimeout();
     }
 
     @Override
-    public void setSocketTimeoutMillis(final int timeout) {
-        ioSession.setSocketTimeoutMillis(timeout);
+    public void setSocketTimeout(final Timeout timeout) {
+        ioSession.setSocketTimeout(timeout);
     }
 
     @Override
@@ -365,8 +366,8 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    public long getLastReadTimeMillis() {
-        return ioSession.getLastReadTimeMillis();
+    public long getLastReadTime() {
+        return ioSession.getLastReadTime();
     }
 
     @Override

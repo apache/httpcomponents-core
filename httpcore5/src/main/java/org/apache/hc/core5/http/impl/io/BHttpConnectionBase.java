@@ -59,9 +59,10 @@ import org.apache.hc.core5.http.io.BHttpConnection;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.io.Closer;
+import org.apache.hc.core5.util.Timeout;
 
 class BHttpConnectionBase implements BHttpConnection {
 
@@ -192,11 +193,11 @@ class BHttpConnectionBase implements BHttpConnection {
     }
 
     @Override
-    public void setSocketTimeoutMillis(final int timeout) {
+    public void setSocketTimeout(final Timeout timeout) {
         final SocketHolder socketHolder = this.socketHolderRef.get();
         if (socketHolder != null) {
             try {
-                socketHolder.getSocket().setSoTimeout(timeout);
+                socketHolder.getSocket().setSoTimeout(Timeout.defaultsToDisabled(timeout).toMillisIntBound());
             } catch (final SocketException ignore) {
                 // It is not quite clear from the Sun's documentation if there are any
                 // other legitimate cases for a socket exception to be thrown when setting
@@ -206,16 +207,15 @@ class BHttpConnectionBase implements BHttpConnection {
     }
 
     @Override
-    public int getSocketTimeoutMillis() {
+    public Timeout getSocketTimeout() {
         final SocketHolder socketHolder = this.socketHolderRef.get();
         if (socketHolder != null) {
             try {
-                return socketHolder.getSocket().getSoTimeout();
+                return Timeout.ofMillis(socketHolder.getSocket().getSoTimeout());
             } catch (final SocketException ignore) {
-                return -1;
             }
         }
-        return -1;
+        return Timeout.DISABLED;
     }
 
     @Override
@@ -334,14 +334,17 @@ class BHttpConnectionBase implements BHttpConnection {
             if (socketHolder != null) {
                 @SuppressWarnings("resource")
                 final Socket socket = socketHolder.getSocket();
-                int soTimeoutMillis;
+                Timeout socketTimeout;
                 try {
-                    soTimeoutMillis = socket.getSoTimeout();
+                    socketTimeout = Timeout.ofMillis(socket.getSoTimeout());
                 } catch (final SocketException e) {
-                    soTimeoutMillis = 0;
+                    socketTimeout = Timeout.DISABLED;
                 }
-                endpointDetails = new BasicEndpointDetails(socket.getRemoteSocketAddress(),
-                                socket.getLocalSocketAddress(), this.connMetrics, soTimeoutMillis);
+                endpointDetails = new BasicEndpointDetails(
+                        socket.getRemoteSocketAddress(),
+                        socket.getLocalSocketAddress(),
+                        this.connMetrics,
+                        socketTimeout);
             }
         }
         return endpointDetails;

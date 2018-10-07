@@ -30,6 +30,7 @@ package org.apache.hc.core5.http;
 import java.net.SocketAddress;
 
 import org.apache.hc.core5.net.InetAddressUtils;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * HTTP connection endpoint details.
@@ -40,13 +41,12 @@ public abstract class EndpointDetails implements HttpConnectionMetrics {
 
     private final SocketAddress remoteAddress;
     private final SocketAddress localAddress;
-    private final int socketTimeoutMillis;
+    private final Timeout socketTimeout;
 
-    protected EndpointDetails(final SocketAddress remoteAddress, final SocketAddress localAddress,
-                    final int socketTimeoutMillis) {
+    protected EndpointDetails(final SocketAddress remoteAddress, final SocketAddress localAddress, final Timeout socketTimeout) {
         this.remoteAddress = remoteAddress;
         this.localAddress = localAddress;
-        this.socketTimeoutMillis = socketTimeoutMillis;
+        this.socketTimeout = socketTimeout;
     }
 
     public SocketAddress getRemoteAddress() {
@@ -89,21 +89,9 @@ public abstract class EndpointDetails implements HttpConnectionMetrics {
      * Gets the socket timeout.
      *
      * @return the socket timeout.
-     * @deprecated Will be removed in the next beta.
-     * @see #getSocketTimeoutMillis()
      */
-    @Deprecated
-    public int getSocketTimeout() {
-        return socketTimeoutMillis;
-    }
-
-    /**
-     * Gets the socket timeout.
-     *
-     * @return the socket timeout.
-     */
-    public int getSocketTimeoutMillis() {
-        return socketTimeoutMillis;
+    public Timeout getSocketTimeout() {
+        return socketTimeout;
     }
 
     @Override

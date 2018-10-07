@@ -33,7 +33,7 @@ import java.util.concurrent.Future;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractIOReactorBase implements ConnectionInitiator, IOReactorService {
 
@@ -42,7 +42,7 @@ abstract class AbstractIOReactorBase implements ConnectionInitiator, IOReactorSe
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
-            final TimeValue timeout,
+            final Timeout timeout,
             final Object attachment,
             final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
         Args.notNull(remoteEndpoint, "Remote endpoint");

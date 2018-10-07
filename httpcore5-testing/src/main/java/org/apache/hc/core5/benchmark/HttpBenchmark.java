@@ -75,6 +75,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.ssl.TrustStrategy;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Main program of the HTTP benchmark.
@@ -266,16 +267,16 @@ public class HttpBenchmark {
                                 return ioSession.isClosed();
                             }
 
-                            public int getSocketTimeoutMillis() {
-                                return ioSession.getSocketTimeoutMillis();
+                            public Timeout getSocketTimeout() {
+                                return ioSession.getSocketTimeout();
                             }
 
-                            public void setSocketTimeoutMillis(final int timeout) {
-                                ioSession.setSocketTimeoutMillis(timeout);
+                            public void setSocketTimeout(final Timeout timeout) {
+                                ioSession.setSocketTimeout(timeout);
                             }
 
-                            public long getLastReadTimeMillis() {
-                                return ioSession.getLastReadTimeMillis();
+                            public long getLastReadTime() {
+                                return ioSession.getLastReadTime();
                             }
 
                             public long getLastWriteTime() {

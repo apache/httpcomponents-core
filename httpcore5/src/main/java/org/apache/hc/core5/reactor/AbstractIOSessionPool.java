@@ -41,8 +41,8 @@ import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.TimeValue;
@@ -264,7 +264,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
         for (final PoolEntry poolEntry: sessionPool.values()) {
             if (poolEntry.session != null) {
                 synchronized (poolEntry) {
-                    if (poolEntry.session != null && poolEntry.session.getLastReadTimeMillis() <= deadline) {
+                    if (poolEntry.session != null && poolEntry.session.getLastReadTime() <= deadline) {
                         closeSession(poolEntry.session, CloseMode.GRACEFUL);
                         poolEntry.session = null;
                     }

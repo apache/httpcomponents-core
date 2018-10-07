@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -203,7 +204,7 @@ public class TestBHttpConnectionBase {
     public void testSetSocketTimeout() throws Exception {
         conn.bind(socket);
 
-        conn.setSocketTimeoutMillis(123);
+        conn.setSocketTimeout(Timeout.ofMillis(123));
 
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(123);
     }
@@ -214,29 +215,29 @@ public class TestBHttpConnectionBase {
 
         Mockito.doThrow(new SocketException()).when(socket).setSoTimeout(ArgumentMatchers.anyInt());
 
-        conn.setSocketTimeoutMillis(123);
+        conn.setSocketTimeout(Timeout.ofMillis(123));
 
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(123);
     }
 
     @Test
     public void testGetSocketTimeout() throws Exception {
-        Assert.assertEquals(-1, conn.getSocketTimeoutMillis());
+        Assert.assertEquals(Timeout.DISABLED, conn.getSocketTimeout());
 
         Mockito.when(socket.getSoTimeout()).thenReturn(345);
         conn.bind(socket);
 
-        Assert.assertEquals(345, conn.getSocketTimeoutMillis());
+        Assert.assertEquals(Timeout.ofMillis(345), conn.getSocketTimeout());
     }
 
     @Test
     public void testGetSocketTimeoutException() throws Exception {
-        Assert.assertEquals(-1, conn.getSocketTimeoutMillis());
+        Assert.assertEquals(Timeout.DISABLED, conn.getSocketTimeout());
 
         Mockito.when(socket.getSoTimeout()).thenThrow(new SocketException());
         conn.bind(socket);
 
-        Assert.assertEquals(-1, conn.getSocketTimeoutMillis());
+        Assert.assertEquals(Timeout.DISABLED, conn.getSocketTimeout());
     }
 
     @Test

@@ -54,6 +54,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * I/O event handler for events fired by {@link ProtocolIOSession} that implements
@@ -163,8 +164,8 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void timeout(final IOSession session, final int timeoutMillis) {
-        exception(session, SocketTimeoutExceptionFactory.create(timeoutMillis));
+    public void timeout(final IOSession session, final Timeout timeout) {
+        exception(session, SocketTimeoutExceptionFactory.create(timeout));
     }
 
     @Override
@@ -221,13 +222,13 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void setSocketTimeoutMillis(final int timeout) {
-        ioSession.setSocketTimeoutMillis(timeout);
+    public void setSocketTimeout(final Timeout timeout) {
+        ioSession.setSocketTimeout(timeout);
     }
 
     @Override
-    public int getSocketTimeoutMillis() {
-        return ioSession.getSocketTimeoutMillis();
+    public Timeout getSocketTimeout() {
+        return ioSession.getSocketTimeout();
     }
 
     @Override

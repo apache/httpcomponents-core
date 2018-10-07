@@ -119,6 +119,7 @@ import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -146,8 +147,8 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
         super(scheme);
     }
 
-    private static final TimeValue TIMEOUT = TimeValue.ofSeconds(30);
-    private static final TimeValue LONG_TIMEOUT = TimeValue.ofSeconds(60);
+    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout LONG_TIMEOUT = Timeout.ofSeconds(60);
 
     private Http2TestClient client;
 

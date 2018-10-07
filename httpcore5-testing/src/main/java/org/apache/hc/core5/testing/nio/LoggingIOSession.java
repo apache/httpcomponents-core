@@ -38,6 +38,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.testing.classic.Wire;
+import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 
 public class LoggingIOSession implements IOSession {
@@ -177,16 +178,16 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
-    public int getSocketTimeoutMillis() {
-        return this.session.getSocketTimeoutMillis();
+    public Timeout getSocketTimeout() {
+        return this.session.getSocketTimeout();
     }
 
     @Override
-    public void setSocketTimeoutMillis(final int timeout) {
+    public void setSocketTimeout(final Timeout timeout) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.session + " Set timeout " + timeout);
         }
-        this.session.setSocketTimeoutMillis(timeout);
+        this.session.setSocketTimeout(timeout);
     }
 
     @Override
@@ -200,8 +201,8 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
-    public long getLastReadTimeMillis() {
-        return this.session.getLastReadTimeMillis();
+    public long getLastReadTime() {
+        return this.session.getLastReadTime();
     }
 
     @Override

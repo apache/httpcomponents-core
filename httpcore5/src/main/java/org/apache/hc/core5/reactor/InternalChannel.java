@@ -30,20 +30,21 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.nio.channels.CancelledKeyException;
 
-import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.util.Timeout;
 
 abstract class InternalChannel implements ModalCloseable {
 
     abstract void onIOEvent(final int ops) throws IOException;
 
-    abstract void onTimeout(int timeoutMillis) throws IOException;
+    abstract void onTimeout(Timeout timeout) throws IOException;
 
     abstract void onException(final Exception cause);
 
-    abstract int getTimeoutMillis();
+    abstract Timeout getTimeout();
 
-    abstract long getLastReadTimeMillis();
+    abstract long getLastReadTime();
 
     final void handleIOEvent(final int ops) {
         try {
@@ -57,12 +58,13 @@ abstract class InternalChannel implements ModalCloseable {
     }
 
     final boolean checkTimeout(final long currentTimeMillis) {
-        final int timeoutMillis = getTimeoutMillis();
-        if (timeoutMillis > 0) {
-            final long deadlineMillils = getLastReadTimeMillis() + timeoutMillis;
-            if (currentTimeMillis > deadlineMillils) {
+        final Timeout timeout = getTimeout();
+        if (!timeout.isDisabled()) {
+            final long timeoutMillis = timeout.toMillis();
+            final long deadlineMillis = getLastReadTime() + timeoutMillis;
+            if (currentTimeMillis > deadlineMillis) {
                 try {
-                    onTimeout(timeoutMillis);
+                    onTimeout(timeout);
                 } catch (final CancelledKeyException ex) {
                     close(CloseMode.GRACEFUL);
                 } catch (final Exception ex) {

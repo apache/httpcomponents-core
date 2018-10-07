@@ -33,7 +33,7 @@ import java.nio.channels.SocketChannel;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 final class InternalConnectChannel extends InternalChannel {
 
@@ -78,18 +78,18 @@ final class InternalConnectChannel extends InternalChannel {
     }
 
     @Override
-    int getTimeoutMillis() {
-        return TimeValue.defaultsToZeroMillis(sessionRequest.timeout).toMillisIntBound();
+    Timeout getTimeout() {
+        return sessionRequest.timeout;
     }
 
     @Override
-    long getLastReadTimeMillis() {
+    long getLastReadTime() {
         return creationTimeMillis;
     }
 
     @Override
-    void onTimeout(final int timeoutMillis) throws IOException {
-        sessionRequest.failed(SocketTimeoutExceptionFactory.create(timeoutMillis));
+    void onTimeout(final Timeout timeout) throws IOException {
+        sessionRequest.failed(SocketTimeoutExceptionFactory.create(timeout));
         close();
     }
 

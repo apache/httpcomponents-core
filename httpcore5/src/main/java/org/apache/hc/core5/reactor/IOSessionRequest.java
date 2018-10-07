@@ -36,17 +36,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 final class IOSessionRequest implements Future<IOSession> {
 
     final NamedEndpoint remoteEndpoint;
     final SocketAddress remoteAddress;
     final SocketAddress localAddress;
-    final TimeValue timeout;
+    final Timeout timeout;
     final Object attachment;
     final BasicFuture<IOSession> future;
 
@@ -56,7 +56,7 @@ final class IOSessionRequest implements Future<IOSession> {
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
-            final TimeValue timeout,
+            final Timeout timeout,
             final Object attachment,
             final FutureCallback<IOSession> callback) {
         super();

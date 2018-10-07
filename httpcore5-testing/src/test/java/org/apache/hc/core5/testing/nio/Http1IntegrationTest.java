@@ -155,8 +155,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         super(scheme);
     }
 
-    private static final TimeValue TIMEOUT = TimeValue.ofSeconds(30);
-    private static final TimeValue LONG_TIMEOUT = TimeValue.ofSeconds(60);
+    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout LONG_TIMEOUT = Timeout.ofSeconds(60);
 
     private Http1TestClient client;
 

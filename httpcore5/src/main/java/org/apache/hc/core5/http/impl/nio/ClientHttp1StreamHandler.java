@@ -53,6 +53,7 @@ import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.util.Timeout;
 
 class ClientHttp1StreamHandler implements ResourceHolder {
 
@@ -67,7 +68,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     private final AtomicBoolean done;
 
     private volatile boolean keepAlive;
-    private volatile int timeout;
+    private volatile Timeout timeout;
     private volatile HttpRequest committedRequest;
     private volatile MessageState requestState;
     private volatile MessageState responseState;
@@ -162,8 +163,8 @@ class ClientHttp1StreamHandler implements ResourceHolder {
                 final boolean expectContinue = h != null && "100-continue".equalsIgnoreCase(h.getValue());
                 if (expectContinue) {
                     requestState = MessageState.ACK;
-                    timeout = outputChannel.getSocketTimeoutMillis();
-                    outputChannel.setSocketTimeoutMillis(h1Config.getWaitForContinueTimeout().toMillisIntBound());
+                    timeout = outputChannel.getSocketTimeout();
+                    outputChannel.setSocketTimeout(h1Config.getWaitForContinueTimeout());
                 } else {
                     requestState = MessageState.BODY;
                     exchangeHandler.produce(internalDataChannel);
@@ -219,7 +220,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         }
         if (requestState == MessageState.ACK) {
             if (status == HttpStatus.SC_CONTINUE || status >= HttpStatus.SC_SUCCESS) {
-                outputChannel.setSocketTimeoutMillis(timeout);
+                outputChannel.setSocketTimeout(timeout);
                 requestState = MessageState.BODY;
                 if (status < HttpStatus.SC_CLIENT_ERROR) {
                     exchangeHandler.produce(internalDataChannel);
@@ -277,7 +278,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     boolean handleTimeout() {
         if (requestState == MessageState.ACK) {
             requestState = MessageState.BODY;
-            outputChannel.setSocketTimeoutMillis(timeout);
+            outputChannel.setSocketTimeout(timeout);
             outputChannel.requestOutput();
             return true;
         }

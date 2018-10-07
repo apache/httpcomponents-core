@@ -42,6 +42,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -73,7 +74,7 @@ public class TestDefaultListeningIOReactor {
                 }
 
                 @Override
-                public void timeout(final IOSession session, final int timeoutMillis) {
+                public void timeout(final IOSession session, final Timeout timeout) {
                 }
 
                 @Override

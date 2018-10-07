@@ -31,6 +31,7 @@ import java.io.IOException;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.nio.ContentEncoder;
+import org.apache.hc.core5.util.Timeout;
 
 interface Http1StreamChannel<OutgoingMessage extends HttpMessage> extends ContentEncoder {
 
@@ -46,8 +47,8 @@ interface Http1StreamChannel<OutgoingMessage extends HttpMessage> extends Conten
 
     boolean abortGracefully() throws IOException;
 
-    int getSocketTimeoutMillis();
+    Timeout getSocketTimeout();
 
-    void setSocketTimeoutMillis(int timeout);
+    void setSocketTimeout(Timeout timeout);
 
 }

@@ -33,6 +33,7 @@ import java.util.concurrent.locks.Lock;
 
 import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Identifiable;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * IOSession interface represents a sequence of logically related data exchanges
@@ -172,7 +173,7 @@ public interface IOSession extends ModalCloseable, Identifiable {
      *
      * @return socket timeout.
      */
-    int getSocketTimeoutMillis();
+    Timeout getSocketTimeout();
 
     /**
      * Sets value of the socket timeout in milliseconds. The value of
@@ -180,14 +181,14 @@ public interface IOSession extends ModalCloseable, Identifiable {
      *
      * @param timeout socket timeout.
      */
-    void setSocketTimeoutMillis(int timeout);
+    void setSocketTimeout(Timeout timeout);
 
     /**
      * Returns timestamp of the last read event.
      *
      * @return timestamp.
      */
-    long getLastReadTimeMillis();
+    long getLastReadTime();
 
     /**
      * Returns timestamp of the last write event.

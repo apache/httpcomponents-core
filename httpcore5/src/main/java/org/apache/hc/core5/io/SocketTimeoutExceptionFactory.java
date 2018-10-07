@@ -28,6 +28,9 @@
 package org.apache.hc.core5.io;
 
 import java.net.SocketTimeoutException;
+import java.util.Objects;
+
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Creates SocketTimeoutException instances.
@@ -39,22 +42,12 @@ public final class SocketTimeoutExceptionFactory {
     /**
      * Creates a new SocketTimeoutException with a message for the given timeout.
      *
-     * @param timeoutMillis
-     *            a timeout in milliseconds.
+     * @param timeout
+     *            the timeout value.
      * @return a new SocketTimeoutException with a message for the given timeout.
      */
-    static public SocketTimeoutException create(final int timeoutMillis) {
-        return new SocketTimeoutException(toMessage(timeoutMillis));
+    static public SocketTimeoutException create(final Timeout timeout) {
+        return new SocketTimeoutException(Objects.toString(timeout));
     }
 
-    /**
-     * Creates a message for the given timeout.
-     *
-     * @param timeoutMillis
-     *            a timeout in milliseconds.
-     * @return a message for the given timeout.
-     */
-    public static String toMessage(final int timeoutMillis) {
-        return String.format("%,d milliseconds", timeoutMillis);
-    }
 }

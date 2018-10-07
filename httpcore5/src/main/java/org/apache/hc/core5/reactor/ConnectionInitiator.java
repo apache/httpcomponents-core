@@ -32,7 +32,7 @@ import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Non-blocking connection initiator.
@@ -79,7 +79,7 @@ public interface ConnectionInitiator {
             NamedEndpoint remoteEndpoint,
             SocketAddress remoteAddress,
             SocketAddress localAddress,
-            TimeValue timeout,
+            Timeout timeout,
             Object attachment,
             FutureCallback<IOSession> callback);
 

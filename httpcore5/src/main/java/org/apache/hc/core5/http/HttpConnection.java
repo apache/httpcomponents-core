@@ -33,6 +33,7 @@ import java.net.SocketAddress;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * A generic HTTP connection, useful on client and server side.
@@ -85,10 +86,17 @@ public interface HttpConnection extends ModalCloseable {
     /**
      * Returns the socket timeout value.
      *
-     * @return positive value in milliseconds if a timeout is set, {@code 0} if timeout is disabled
-     *         or {@code -1} if timeout is undefined.
+     * @return timeout value.
      */
-    int getSocketTimeoutMillis();
+    Timeout getSocketTimeout();
+
+    /**
+     * Sets the socket timeout value.
+     *
+     * @param timeout
+     *            timeout value
+     */
+    void setSocketTimeout(Timeout timeout);
 
     /**
      * Returns this connection's SSL session or {@code null} if TLS has not been activated.
@@ -103,13 +111,5 @@ public interface HttpConnection extends ModalCloseable {
      * @return true if it is open, false if it is closed.
      */
     boolean isOpen();
-
-    /**
-     * Sets the socket timeout value.
-     *
-     * @param timeout
-     *            timeout value in milliseconds
-     */
-    void setSocketTimeoutMillis(int timeout);
 
 }

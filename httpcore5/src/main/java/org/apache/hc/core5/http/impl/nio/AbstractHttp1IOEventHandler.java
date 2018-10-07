@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
 
@@ -75,9 +76,9 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void timeout(final IOSession session, final int timeoutMillis) throws IOException {
+    public void timeout(final IOSession session, final Timeout timeout) throws IOException {
         try {
-            streamDuplexer.onTimeout(timeoutMillis);
+            streamDuplexer.onTimeout(timeout);
         } catch (final HttpException ex) {
             streamDuplexer.onException(ex);
         }
@@ -109,8 +110,8 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public void setSocketTimeoutMillis(final int timeout) {
-        streamDuplexer.setSocketTimeoutMillis(timeout);
+    public void setSocketTimeout(final Timeout timeout) {
+        streamDuplexer.setSocketTimeout(timeout);
     }
 
     @Override
@@ -124,8 +125,8 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     }
 
     @Override
-    public int getSocketTimeoutMillis() {
-        return streamDuplexer.getSocketTimeoutMillis();
+    public Timeout getSocketTimeout() {
+        return streamDuplexer.getSocketTimeout();
     }
 
     @Override

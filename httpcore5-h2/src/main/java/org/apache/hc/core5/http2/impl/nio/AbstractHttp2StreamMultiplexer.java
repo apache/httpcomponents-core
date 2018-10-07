@@ -85,13 +85,13 @@ import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.Identifiable;
+import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConnection {
 
@@ -529,27 +529,22 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         }
     }
 
-    public final void onTimeout(final int timeoutMillis) throws HttpException, IOException {
+    public final void onTimeout(final Timeout timeout) throws HttpException, IOException {
         connState = ConnectionHandshake.SHUTDOWN;
 
         final RawFrame goAway;
         if (localSettingState != SettingsHandshake.ACKED) {
             goAway = frameFactory.createGoAway(processedRemoteStreamId, H2Error.SETTINGS_TIMEOUT,
-                            "Setting timeout ("
-                                            + SocketTimeoutExceptionFactory.toMessage(timeoutMillis)
-                                            + ")");
+                            "Setting timeout (" + timeout + ")");
         } else {
             goAway = frameFactory.createGoAway(processedRemoteStreamId, H2Error.NO_ERROR,
-                            "Timeout due to inactivity "
-                                            + SocketTimeoutExceptionFactory.toMessage(timeoutMillis)
-                                            + ")");
+                            "Timeout due to inactivity (" + timeout + ")");
         }
         commitFrame(goAway);
         for (final Iterator<Map.Entry<Integer, Http2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
             final Map.Entry<Integer, Http2Stream> entry = it.next();
             final Http2Stream stream = entry.getValue();
-            stream.reset(new H2StreamResetException(H2Error.NO_ERROR, "Timeout due to inactivity ("
-                            + SocketTimeoutExceptionFactory.toMessage(timeoutMillis) + ")"));
+            stream.reset(new H2StreamResetException(H2Error.NO_ERROR, "Timeout due to inactivity (" + timeout + ")"));
         }
         streamMap.clear();
     }
@@ -1214,8 +1209,8 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     }
 
     @Override
-    public void setSocketTimeoutMillis(final int timeout) {
-        ioSession.setSocketTimeoutMillis(timeout);
+    public void setSocketTimeout(final Timeout timeout) {
+        ioSession.setSocketTimeout(timeout);
     }
 
     @Override
@@ -1227,15 +1222,18 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     @Override
     public EndpointDetails getEndpointDetails() {
         if (endpointDetails == null) {
-            endpointDetails = new BasicEndpointDetails(ioSession.getRemoteAddress(),
-                            ioSession.getLocalAddress(), connMetrics, ioSession.getSocketTimeoutMillis());
+            endpointDetails = new BasicEndpointDetails(
+                    ioSession.getRemoteAddress(),
+                    ioSession.getLocalAddress(),
+                    connMetrics,
+                    ioSession.getSocketTimeout());
         }
         return endpointDetails;
     }
 
     @Override
-    public int getSocketTimeoutMillis() {
-        return ioSession.getSocketTimeoutMillis();
+    public Timeout getSocketTimeout() {
+        return ioSession.getSocketTimeout();
     }
 
     @Override

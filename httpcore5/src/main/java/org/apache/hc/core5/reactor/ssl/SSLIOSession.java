@@ -57,6 +57,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.ssl.ReflectionSupport;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * {@code SSLIOSession} is a decorator class intended to transparently extend
@@ -658,8 +659,8 @@ public class SSLIOSession implements IOSession {
                 return;
             }
             this.status = CLOSING;
-            if (this.session.getSocketTimeoutMillis() == 0) {
-                this.session.setSocketTimeoutMillis(1000);
+            if (this.session.getSocketTimeout().isDisabled()) {
+                this.session.setSocketTimeout(Timeout.ofMillis(1000));
             }
             try {
                 updateEventMask();
@@ -779,13 +780,13 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public int getSocketTimeoutMillis() {
-        return this.session.getSocketTimeoutMillis();
+    public Timeout getSocketTimeout() {
+        return this.session.getSocketTimeout();
     }
 
     @Override
-    public void setSocketTimeoutMillis(final int timeout) {
-        this.session.setSocketTimeoutMillis(timeout);
+    public void setSocketTimeout(final Timeout timeout) {
+        this.session.setSocketTimeout(timeout);
     }
 
     @Override
@@ -799,8 +800,8 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public long getLastReadTimeMillis() {
-        return this.session.getLastReadTimeMillis();
+    public long getLastReadTime() {
+        return this.session.getLastReadTime();
     }
 
     @Override

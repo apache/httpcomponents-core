@@ -59,6 +59,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.nio.ClientSessionEndpoint;
 import org.apache.hc.core5.testing.nio.Http2TestClient;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 public class Http2CompatibilityTest {
 
@@ -115,7 +116,7 @@ public class Http2CompatibilityTest {
     private final static String[] REQUEST_URIS = new String[] {"/", "/news.html", "/status.html"};
 
     void execute() throws Exception {
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, TimeValue.ofSeconds(5));
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, Timeout.ofSeconds(5));
         final ClientSessionEndpoint clientEndpoint = connectFuture.get(5, TimeUnit.SECONDS);
 
         final BlockingDeque<RequestResult> resultQueue = new LinkedBlockingDeque<>();

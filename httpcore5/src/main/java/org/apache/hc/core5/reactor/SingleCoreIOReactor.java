@@ -49,7 +49,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
 
@@ -206,7 +206,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             }
             final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, null, sessionListener, closedSessions);
             dataChannel.upgrade(this.eventHandlerFactory.createHandler(dataChannel, null));
-            dataChannel.setSocketTimeoutMillis(this.reactorConfig.getSoTimeout().toMillisIntBound());
+            dataChannel.setSocketTimeout(this.reactorConfig.getSoTimeout());
             key.attach(dataChannel);
             dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
         }
@@ -238,7 +238,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             final NamedEndpoint remoteEndpoint,
             final SocketAddress remoteAddress,
             final SocketAddress localAddress,
-            final TimeValue timeout,
+            final Timeout timeout,
             final Object attachment,
             final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
         Args.notNull(remoteEndpoint, "Remote endpoint");
@@ -329,7 +329,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 }
                 final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, namedEndpoint, sessionListener, closedSessions);
                 dataChannel.upgrade(eventHandlerFactory.createHandler(dataChannel, attachment));
-                dataChannel.setSocketTimeoutMillis(reactorConfig.getSoTimeout().toMillisIntBound());
+                dataChannel.setSocketTimeout(reactorConfig.getSoTimeout());
                 return dataChannel;
             }
 
