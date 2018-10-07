@@ -36,7 +36,7 @@
   <name>Apache HttpComponents Core</name>
   <version>4.4.11-SNAPSHOT</version>
   <description>Apache HttpComponents Core is a library of components for building HTTP enabled services</description>
-  <url>http://hc.apache.org/httpcomponents-core</url>
+  <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <inceptionYear>2005</inceptionYear>
   <packaging>pom</packaging>
 
