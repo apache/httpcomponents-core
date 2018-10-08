@@ -63,10 +63,7 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
-import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -74,6 +71,8 @@ import org.junit.Test;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
 public class Http1AuthenticationTest {
@@ -148,7 +147,7 @@ public class Http1AuthenticationTest {
                         }
                     })
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .create();
         }
@@ -181,7 +180,7 @@ public class Http1AuthenticationTest {
                     .setMaxTotal(2)
                     .setDefaultMaxPerRoute(2)
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
+                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                     .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .create();
