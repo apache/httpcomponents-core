@@ -128,7 +128,8 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                     }
                 } while (tlsSession.getReadCount() > 0);
             }
-            if ((readyOps & SelectionKey.OP_WRITE) != 0) {
+            if ((readyOps & SelectionKey.OP_WRITE) != 0
+                    || (ioSession.getEventMask() & SelectionKey.OP_WRITE) != 0) {
                 ioSession.updateWriteTime();
                 if (tlsSession.isAppOutputReady()) {
                     if (sessionListener != null) {
