@@ -26,29 +26,8 @@
  */
 package org.apache.hc.core5.http.impl.nio;
 
-import java.io.IOException;
+enum FlushMode {
 
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.nio.ContentEncoder;
-import org.apache.hc.core5.util.Timeout;
-
-interface Http1StreamChannel<OutgoingMessage extends HttpMessage> extends ContentEncoder {
-
-    void close();
-
-    void activate() throws HttpException, IOException;
-
-    void submit(OutgoingMessage messageHead, boolean endStream, final FlushMode flushMode) throws HttpException, IOException;
-
-    void requestOutput();
-
-    void suspendOutput() throws IOException;
-
-    boolean abortGracefully() throws IOException;
-
-    Timeout getSocketTimeout();
-
-    void setSocketTimeout(Timeout timeout);
+    IMMEDIATE, BUFFER
 
 }

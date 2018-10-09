@@ -146,7 +146,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
                 keepAlive = false;
             }
 
-            outputChannel.submit(response, endStream);
+            outputChannel.submit(response, endStream, endStream ? FlushMode.IMMEDIATE : FlushMode.BUFFER);
             if (endStream) {
                 if (!keepAlive) {
                     outputChannel.close();
@@ -169,7 +169,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         if (status < HttpStatus.SC_INFORMATIONAL || status >= HttpStatus.SC_SUCCESS) {
             throw new HttpException("Invalid intermediate response: " + status);
         }
-        outputChannel.submit(response, true);
+        outputChannel.submit(response, true, FlushMode.IMMEDIATE);
     }
 
     private void commitPromise() throws HttpException {

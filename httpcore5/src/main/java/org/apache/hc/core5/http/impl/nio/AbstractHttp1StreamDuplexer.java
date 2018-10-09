@@ -444,7 +444,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         ioSession.setEvent(SelectionKey.OP_WRITE);
     }
 
-    void commitMessageHead(final OutgoingMessage messageHead, final boolean endStream) throws HttpException, IOException {
+    void commitMessageHead(
+            final OutgoingMessage messageHead,
+            final boolean endStream,
+            final FlushMode flushMode) throws HttpException, IOException {
         outputLock.lock();
         try {
             outgoingMessageWriter.write(messageHead, outbuf);
@@ -462,6 +465,9 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 }
             }
             outgoingMessageWriter.reset();
+            if (flushMode == FlushMode.IMMEDIATE) {
+                outbuf.flush(ioSession.channel());
+            }
             ioSession.setEvent(EventMask.WRITE);
         } finally {
             outputLock.unlock();

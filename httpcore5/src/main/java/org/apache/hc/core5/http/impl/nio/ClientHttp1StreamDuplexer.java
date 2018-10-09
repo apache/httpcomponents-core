@@ -116,11 +116,14 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
-            public void submit(final HttpRequest request, final boolean endStream) throws HttpException, IOException {
+            public void submit(
+                    final HttpRequest request,
+                    final boolean endStream,
+                    final FlushMode flushMode) throws HttpException, IOException {
                 if (streamListener != null) {
                     streamListener.onRequestHead(ClientHttp1StreamDuplexer.this, request);
                 }
-                commitMessageHead(request, endStream);
+                commitMessageHead(request, endStream, flushMode);
             }
 
             @Override

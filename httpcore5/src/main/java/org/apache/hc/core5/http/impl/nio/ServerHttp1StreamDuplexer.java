@@ -121,11 +121,14 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
-            public void submit(final HttpResponse response, final boolean endStream) throws HttpException, IOException {
+            public void submit(
+                    final HttpResponse response,
+                    final boolean endStream,
+                    final FlushMode flushMode) throws HttpException, IOException {
                 if (streamListener != null) {
                     streamListener.onResponseHead(ServerHttp1StreamDuplexer.this, response);
                 }
-                commitMessageHead(response, endStream);
+                commitMessageHead(response, endStream, flushMode);
             }
 
             @Override
@@ -425,10 +428,13 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         }
 
         @Override
-        public void submit(final HttpResponse response, final boolean endStream) throws HttpException, IOException {
+        public void submit(
+                final HttpResponse response,
+                final boolean endStream,
+                final FlushMode flushMode) throws HttpException, IOException {
             synchronized (this) {
                 if (direct) {
-                    channel.submit(response, endStream);
+                    channel.submit(response, endStream, flushMode);
                 } else {
                     delayedResponse = response;
                     completed = endStream;
@@ -497,7 +503,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             synchronized (this) {
                 direct = true;
                 if (delayedResponse != null) {
-                    channel.submit(delayedResponse, completed);
+                    channel.submit(delayedResponse, completed, completed ? FlushMode.IMMEDIATE : FlushMode.BUFFER);
                     delayedResponse = null;
                 }
             }
