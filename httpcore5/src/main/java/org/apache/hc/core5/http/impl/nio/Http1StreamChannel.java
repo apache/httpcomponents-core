@@ -43,7 +43,7 @@ interface Http1StreamChannel<OutgoingMessage extends HttpMessage> extends Conten
 
     void requestOutput();
 
-    void suspendOutput();
+    void suspendOutput() throws IOException;
 
     boolean abortGracefully() throws IOException;
 

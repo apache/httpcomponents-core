@@ -124,7 +124,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
-            public void suspendOutput() {
+            public void suspendOutput() throws IOException {
                 suspendSessionOutput();
             }
 

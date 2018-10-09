@@ -134,7 +134,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
 
             @Override
-            public void suspendOutput() {
+            public void suspendOutput() throws IOException {
                 suspendSessionOutput();
             }
 
@@ -437,7 +437,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         }
 
         @Override
-        public void suspendOutput() {
+        public void suspendOutput() throws IOException {
             channel.suspendOutput();
         }
 

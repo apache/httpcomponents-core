@@ -489,8 +489,17 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         ioSession.setSocketTimeout(timeout);
     }
 
-    void suspendSessionOutput() {
-        ioSession.clearEvent(SelectionKey.OP_WRITE);
+    void suspendSessionOutput() throws IOException {
+        outputLock.lock();
+        try {
+            if (outbuf.hasData()) {
+                outbuf.flush(ioSession.channel());
+            } else {
+                ioSession.clearEvent(SelectionKey.OP_WRITE);
+            }
+        } finally {
+            outputLock.unlock();
+        }
     }
 
     int streamOutput(final ByteBuffer src) throws IOException {
