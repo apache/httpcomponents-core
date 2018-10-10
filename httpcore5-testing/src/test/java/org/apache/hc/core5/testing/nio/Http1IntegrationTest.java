@@ -1425,7 +1425,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(entityConsumer);
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(requestProducer, responseConsumer, null);
         try {
-            future1.get();
+            future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assert.fail("ExecutionException should have been thrown");
         } catch (final ExecutionException ex) {
             final Throwable cause = ex.getCause();
