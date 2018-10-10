@@ -109,7 +109,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                 }
             }
             if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
-                ioSession.clearEvent(SelectionKey.OP_CONNECT);
+                tlsSession.clearEvent(SelectionKey.OP_CONNECT);
             }
             if ((readyOps & SelectionKey.OP_READ) != 0) {
                 ioSession.updateReadTime();
