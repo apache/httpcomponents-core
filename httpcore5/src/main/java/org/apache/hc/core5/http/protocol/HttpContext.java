@@ -32,7 +32,6 @@ import org.apache.hc.core5.http.ProtocolVersion;
 /**
  * HttpContext represents execution state of an HTTP process. It is a structure
  * that can be used to map an attribute name to an attribute value.
- * </p>
  * <p>
  * The primary purpose of the HTTP context is to facilitate information sharing
  * among various  logically related components. HTTP context can be used

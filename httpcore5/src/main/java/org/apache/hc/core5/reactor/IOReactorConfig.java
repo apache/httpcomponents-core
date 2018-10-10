@@ -229,7 +229,7 @@ public final class IOReactorConfig {
         /**
          * Gets the default value for {@code ioThreadCount}. Returns
          * {@link Runtime#availableProcessors()} if
-         * {@link #setDefaultMaxIoThreadCount(int)} was called with a value <=0.
+         * {@link #setDefaultMaxIoThreadCount(int)} was called with a value less &lt;= 0.
          *
          * @return the default value for ioThreadCount.
          * @since 4.4.10
@@ -239,7 +239,7 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Sets the default value for {@code ioThreadCount}. Use a value <= 0 to
+         * Sets the default value for {@code ioThreadCount}. Use a value &lt;= 0 to
          * cause {@link #getDefaultMaxIoThreadCount()} to return
          * {@link Runtime#availableProcessors()}.
          *

@@ -38,6 +38,6 @@
  * be used by a signle thread at a time and do not require synchronization
  * as long as they do not interact with event handlers run by separate
  * threads.
- * <p/>
+ * </p>
  */
 package org.apache.hc.core5.http.nio;
