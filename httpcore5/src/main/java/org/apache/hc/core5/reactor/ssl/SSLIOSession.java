@@ -455,13 +455,16 @@ public class SSLIOSession implements IOSession {
         final ByteBuffer inEncryptedBuf = this.inEncrypted.acquire();
 
         // Perform operation
-        final int ret = this.session.channel().read(inEncryptedBuf);
+        final int bytesRead = this.session.channel().read(inEncryptedBuf);
 
         // Release if empty
         if (inEncryptedBuf.position() == 0) {
             this.inEncrypted.release();
         }
-        return ret;
+        if (bytesRead == -1) {
+            this.endOfStream = true;
+        }
+        return bytesRead;
     }
 
     private boolean decryptData() throws SSLException {
@@ -499,6 +502,9 @@ public class SSLIOSession implements IOSession {
                 }
             }
         }
+        if (this.sslEngine.isInboundDone()) {
+            this.endOfStream = true;
+        }
         return decrypted;
     }
 
@@ -512,10 +518,7 @@ public class SSLIOSession implements IOSession {
         this.session.lock().lock();
         try {
             do {
-                final int bytesRead = receiveEncryptedData();
-                if (bytesRead == -1) {
-                    this.endOfStream = true;
-                }
+                receiveEncryptedData();
                 doHandshake();
                 final HandshakeStatus status = this.sslEngine.getHandshakeStatus();
                 if (status == HandshakeStatus.NOT_HANDSHAKING || status == HandshakeStatus.FINISHED) {
