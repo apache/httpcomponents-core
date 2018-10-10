@@ -304,7 +304,7 @@ public class SSLIOSession implements IOSession {
                 // Just wrap an empty buffer because there is no data to write.
                 result = doWrap(EMPTY_BUFFER, outEncryptedBuf);
 
-                if (result.getStatus() != Status.OK) {
+                if (result.getStatus() != Status.OK || result.getHandshakeStatus() == HandshakeStatus.NEED_WRAP) {
                     handshaking = false;
                 }
                 break;
@@ -369,6 +369,10 @@ public class SSLIOSession implements IOSession {
 
     private void updateEventMask() {
         // Graceful session termination
+        if (this.status == ACTIVE
+                && (this.endOfStream || this.sslEngine.isInboundDone())) {
+            this.status = CLOSING;
+        }
         if (this.status == CLOSING && !this.outEncrypted.hasData()) {
             this.sslEngine.closeOutbound();
         }
