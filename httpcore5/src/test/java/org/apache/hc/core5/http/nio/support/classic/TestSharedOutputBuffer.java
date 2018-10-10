@@ -38,16 +38,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 public class TestSharedOutputBuffer {
+
+    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
     static class DataStreamChannelMock implements DataStreamChannel {
 
@@ -182,8 +184,8 @@ public class TestSharedOutputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(5, TimeUnit.SECONDS));
-        Assert.assertEquals(Boolean.TRUE, task2.get(5, TimeUnit.SECONDS));
+        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
 
         Assert.assertEquals("1234567890123456789012123456789012345678901234567890", new String(channel.toByteArray(), charset));
     }
@@ -219,9 +221,9 @@ public class TestSharedOutputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task2.get(5, TimeUnit.SECONDS));
+        Assert.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         try {
-            task1.get(5, TimeUnit.SECONDS);
+            task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof InterruptedIOException);
         }

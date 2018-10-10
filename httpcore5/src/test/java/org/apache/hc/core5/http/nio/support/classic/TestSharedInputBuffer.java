@@ -35,15 +35,17 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 public class TestSharedInputBuffer {
+
+    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
     @Test
     public void testBasis() throws Exception {
@@ -114,8 +116,8 @@ public class TestSharedInputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(5, TimeUnit.SECONDS));
-        Assert.assertEquals(Integer.valueOf(10), task2.get(5, TimeUnit.SECONDS));
+        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals(Integer.valueOf(10), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Mockito.verify(capacityChannel).update(10);
     }
 
@@ -150,8 +152,8 @@ public class TestSharedInputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(5, TimeUnit.SECONDS));
-        Assert.assertEquals(Integer.valueOf('a'), task2.get(5, TimeUnit.SECONDS));
+        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals(Integer.valueOf('a'), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Mockito.verify(capacityChannel).update(10);
     }
 
@@ -198,8 +200,9 @@ public class TestSharedInputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(5, TimeUnit.SECONDS));
-        Assert.assertEquals("12345678901234567890123456789012345678901234567890", task2.get(5, TimeUnit.SECONDS));
+        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals("12345678901234567890123456789012345678901234567890",
+                task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Mockito.verify(capacityChannel, Mockito.atLeast(1)).update(ArgumentMatchers.anyInt());
     }
 
@@ -234,8 +237,8 @@ public class TestSharedInputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(5, TimeUnit.SECONDS));
-        Assert.assertEquals(Integer.valueOf(-1), task2.get(5, TimeUnit.SECONDS));
+        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals(Integer.valueOf(-1), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Mockito.verify(capacityChannel, Mockito.never()).update(10);
     }
 
