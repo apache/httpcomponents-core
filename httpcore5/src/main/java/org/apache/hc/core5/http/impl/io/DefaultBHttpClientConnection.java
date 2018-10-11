@@ -205,9 +205,6 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         Args.notNull(response, "HTTP response");
         final SocketHolder socketHolder = ensureOpen();
         final long len = this.incomingContentStrategy.determineLength(response);
-        if (len == ContentLengthStrategy.UNDEFINED) {
-            return;
-        }
         response.setEntity(createIncomingEntity(response, this.inBuffer, socketHolder.getInputStream(), len));
     }
 }

@@ -92,6 +92,38 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
+    public void testReadResponseEntityWithoutContentLength() throws Exception {
+        final String s = "HTTP/1.1 200 OK\r\nServer: test\r\n\r\n123";
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
+        Mockito.when(socket.getInputStream()).thenReturn(inStream);
+
+        conn.bind(socket);
+
+        Assert.assertEquals(0, conn.getEndpointDetails().getResponseCount());
+
+        final ClassicHttpResponse response = conn.receiveResponseHeader();
+
+        Assert.assertNotNull(response);
+        Assert.assertEquals(200, response.getCode());
+        Assert.assertTrue(response.containsHeader("Server"));
+        Assert.assertEquals(1, conn.getEndpointDetails().getResponseCount());
+
+        conn.receiveResponseEntity(response);
+
+        final HttpEntity entity = response.getEntity();
+        Assert.assertNotNull(entity);
+        Assert.assertEquals(-1, entity.getContentLength());
+        Assert.assertEquals(1, conn.getEndpointDetails().getResponseCount());
+
+        final InputStream content = entity.getContent();
+        Assert.assertNotNull(content);
+        Assert.assertEquals(3, content.available());
+        Assert.assertEquals('1', content.read());
+        Assert.assertEquals('2', content.read());
+        Assert.assertEquals('3', content.read());
+    }
+
+    @Test
     public void testReadResponseEntityWithContentLength() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\nContent-Length: 3\r\n\r\n123";
         final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
