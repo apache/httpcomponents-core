@@ -34,7 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -44,13 +43,14 @@ import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+import org.apache.hc.core5.util.TimeoutValueException;
 
 /**
  * Connection pool with higher concurrency but with lax connection limit guarantees.
@@ -466,7 +466,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
                 final long now = System.currentTimeMillis();
                 if (now > deadline) {
-                    leaseRequest.failed(new TimeoutException());
+                    leaseRequest.failed(TimeoutValueException.ofMillis(deadline, now));
                 } else {
                     final PoolEntry<T, C> availableEntry = getAvailableEntry(state);
                     if (availableEntry != null) {
@@ -493,7 +493,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 } else {
                     final long deadline = request.getDeadline();
                     if (now > deadline) {
-                        request.failed(new TimeoutException());
+                        request.failed(TimeoutValueException.ofMillis(deadline, now));
                     }
                     if (request.isDone()) {
                         it.remove();

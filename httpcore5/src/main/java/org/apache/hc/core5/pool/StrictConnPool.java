@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -45,13 +44,14 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+import org.apache.hc.core5.util.TimeoutValueException;
 
 /**
  * Connection pool with strict connection limit guarantees.
@@ -269,7 +269,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
         final long now = System.currentTimeMillis();
         if (now > deadline) {
-            request.failed(new TimeoutException());
+            request.failed(TimeoutValueException.ofMillis(deadline, now));
             return false;
         }
 
@@ -375,7 +375,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
                 } else {
                     final long deadline = request.getDeadline();
                     if (now > deadline) {
-                        request.failed(new TimeoutException());
+                        request.failed(TimeoutValueException.ofMillis(deadline, now));
                     }
                     if (request.isDone()) {
                         it.remove();

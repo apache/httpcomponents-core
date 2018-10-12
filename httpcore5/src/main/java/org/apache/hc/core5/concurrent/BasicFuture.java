@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TimeoutValueException;
 
 /**
  * Basic implementation of the {@link Future} interface. {@code BasicFuture}
@@ -94,7 +95,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         if (this.completed) {
             return getResult();
         } else if (waitTime <= 0) {
-            throw new TimeoutException();
+            throw TimeoutValueException.ofMillis(msecs, msecs + Math.abs(waitTime));
         } else {
             for (;;) {
                 wait(waitTime);
@@ -103,7 +104,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
                 }
                 waitTime = msecs - (System.currentTimeMillis() - startTime);
                 if (waitTime <= 0) {
-                    throw new TimeoutException();
+                    throw TimeoutValueException.ofMillis(msecs, msecs + Math.abs(waitTime));
                 }
             }
         }
