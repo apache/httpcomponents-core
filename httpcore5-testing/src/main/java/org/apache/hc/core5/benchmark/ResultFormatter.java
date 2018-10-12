@@ -28,6 +28,7 @@ package org.apache.hc.core5.benchmark;
 
 import java.io.PrintStream;
 import java.text.NumberFormat;
+import java.util.Locale;
 
 public class ResultFormatter {
 
@@ -35,9 +36,9 @@ public class ResultFormatter {
         // Do not allow utility class to be instantiated.
     }
 
-    static NumberFormat nf2 = NumberFormat.getInstance();
-    static NumberFormat nf3 = NumberFormat.getInstance();
-    static NumberFormat nf6 = NumberFormat.getInstance();
+    static NumberFormat nf2 = NumberFormat.getInstance(Locale.ROOT);
+    static NumberFormat nf3 = NumberFormat.getInstance(Locale.ROOT);
+    static NumberFormat nf6 = NumberFormat.getInstance(Locale.ROOT);
 
     static {
         nf2.setMaximumFractionDigits(2);
