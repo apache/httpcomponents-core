@@ -496,9 +496,6 @@ public class SSLIOSession implements IOSession {
                     }
                     break;
                 }
-                if (result.getHandshakeStatus() != HandshakeStatus.NOT_HANDSHAKING) {
-                    break;
-                }
             } finally {
                 // Release inEncrypted if empty
                 if (this.inEncrypted.acquire().position() == 0) {
