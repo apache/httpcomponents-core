@@ -167,7 +167,7 @@ public class Timeout extends TimeValue {
     }
 
     Timeout(final long duration, final TimeUnit timeUnit) {
-        super(Args.notNegative(duration, "Duration"), Args.notNull(timeUnit, "timeUnit"));
+        super(Args.notNegative(duration, "duration"), Args.notNull(timeUnit, "timeUnit"));
     }
 
     /**
