@@ -31,6 +31,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.hc.core5.util.TimeoutValueException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -223,7 +224,7 @@ public class TestBasicFuture {
         future.get(1, TimeUnit.MILLISECONDS);
     }
 
-    @Test(expected=TimeoutException.class)
+    @Test(expected=TimeoutValueException.class)
     public void testAsyncNegativeTimeout() throws Exception {
         final BasicFuture<Object> future = new BasicFuture<>(null);
         future.get(-1, TimeUnit.MILLISECONDS);
