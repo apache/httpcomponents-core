@@ -60,8 +60,13 @@ public class StringAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<S
     }
 
     @Override
-    protected int capacity() {
+    protected int capacityIncrement() {
         return capacityIncrement;
+    }
+
+    @Override
+    protected int remainingCapacity() {
+        return content.capacity() - content.length();
     }
 
     @Override
