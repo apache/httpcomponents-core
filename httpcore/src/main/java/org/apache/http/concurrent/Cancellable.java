@@ -34,6 +34,12 @@ package org.apache.http.concurrent;
  */
 public interface Cancellable {
 
+    /**
+     * Cancels the ongoing operation or process.
+     *
+     * @return {@code true} if the operation or process has been cancelled as a result of
+     * this method call or {@code false} if it has already been cancelled or not started.
+     */
     boolean cancel();
 
 }
