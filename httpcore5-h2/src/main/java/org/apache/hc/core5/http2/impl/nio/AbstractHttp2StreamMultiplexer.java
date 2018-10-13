@@ -368,16 +368,15 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         return 0;
     }
 
-    private void updateInputCapacity(
+    private void incrementInputCapacity(
             final int streamId, final AtomicInteger inputWindow, final int inputCapacity) throws IOException {
         if (inputCapacity > 0) {
             final int streamWinSize = inputWindow.get();
-            final int chunk = inputCapacity - streamWinSize;
-            if (chunk > 0) {
-                final RawFrame windowUpdateFrame = frameFactory.createWindowUpdate(streamId, chunk);
-                commitFrame(windowUpdateFrame);
-                updateInputWindow(streamId, inputWindow, chunk);
-            }
+            final int remainingCapacity = Integer.MAX_VALUE - streamWinSize;
+            final int chunk = Math.min(inputCapacity, remainingCapacity);
+            final RawFrame windowUpdateFrame = frameFactory.createWindowUpdate(streamId, chunk);
+            commitFrame(windowUpdateFrame);
+            updateInputWindow(streamId, inputWindow, chunk);
         }
     }
 
@@ -1365,7 +1364,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             if (remoteEndStream) {
                 return;
             }
-            updateInputCapacity(id, inputWindow, increment);
+            incrementInputCapacity(id, inputWindow, increment);
         }
 
         @Override
