@@ -271,12 +271,14 @@ public class ReactiveClientTest {
         final InetSocketAddress address = startClientAndServer();
         final AtomicLong requestLength = new AtomicLong(0L);
         final AtomicReference<MessageDigest> requestDigest = new AtomicReference<>(newDigest());
-        final Publisher<ByteBuffer> publisher = Flowable.rangeLong(1, 10)
+        final Publisher<ByteBuffer> publisher = Flowable.rangeLong(1, 100)
             .map(new Function<Long, ByteBuffer>() {
                 @Override
                 public ByteBuffer apply(final Long seed) {
                     final Random random = new Random(seed);
-                    final byte[] bytes = new byte[32 * 1024];
+                    // Using blocks slightly larger than the HTTP/2 window size serves to exercise the input window
+                    // management code
+                    final byte[] bytes = new byte[65535 + 7];
                     requestLength.addAndGet(bytes.length);
                     random.nextBytes(bytes);
                     return ByteBuffer.wrap(bytes);
