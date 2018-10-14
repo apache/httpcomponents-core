@@ -56,7 +56,12 @@ public class TestAbstractBinAsyncEntityConsumer {
         }
 
         @Override
-        protected int capacity() {
+        protected int remainingCapacity() {
+            return buffer.capacity() - buffer.length();
+        }
+
+        @Override
+        protected int capacityIncrement() {
             return Integer.MAX_VALUE;
         }
 
