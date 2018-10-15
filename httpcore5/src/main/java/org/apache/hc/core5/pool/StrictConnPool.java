@@ -48,10 +48,11 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.Deadline;
+import org.apache.hc.core5.util.DeadlineTimeoutException;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.apache.hc.core5.util.TimeoutValueException;
 
 /**
  * Connection pool with strict connection limit guarantees.
@@ -265,11 +266,10 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     private boolean processPendingRequest(final LeaseRequest<T, C> request) {
         final T route = request.getRoute();
         final Object state = request.getState();
-        final long deadline = request.getDeadline();
+        final Deadline deadline = request.getDeadline();
 
-        final long now = System.currentTimeMillis();
-        if (now > deadline) {
-            request.failed(TimeoutValueException.ofMillis(deadline, now));
+        if (deadline.isExpired()) {
+            request.failed(DeadlineTimeoutException.from(deadline));
             return false;
         }
 
@@ -280,7 +280,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             if (entry == null) {
                 break;
             }
-            if (entry.getExpiry() < System.currentTimeMillis()) {
+            if (entry.getExpiryDeadline().isBeforeNow()) {
                 entry.discardConnection(CloseMode.GRACEFUL);
                 this.available.remove(entry);
                 pool.free(entry, false);
@@ -373,9 +373,9 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
                 if (future.isCancelled() && !request.isDone()) {
                     it.remove();
                 } else {
-                    final long deadline = request.getDeadline();
-                    if (now > deadline) {
-                        request.failed(TimeoutValueException.ofMillis(deadline, now));
+                    final Deadline deadline = request.getDeadline();
+                    if (deadline.isBefore(now)) {
+                        request.failed(DeadlineTimeoutException.from(deadline));
                     }
                     if (request.isDone()) {
                         it.remove();
@@ -593,7 +593,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
             @Override
             public void execute(final PoolEntry<T, C> entry) {
-                if (entry.getExpiry() < now) {
+                if (entry.getExpiryDeadline().isBefore(now)) {
                     entry.discardConnection(CloseMode.GRACEFUL);
                 }
             }
@@ -619,7 +619,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
         private final T route;
         private final Object state;
-        private final long deadline;
+        private final Deadline deadline;
         private final BasicFuture<PoolEntry<T, C>> future;
         private final AtomicBoolean completed;
         private volatile PoolEntry<T, C> result;
@@ -641,7 +641,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             super();
             this.route = route;
             this.state = state;
-            this.deadline = Timeout.calculateDeadline(System.currentTimeMillis(), requestTimeout);
+            this.deadline = Deadline.calculate(System.currentTimeMillis(), requestTimeout);
             this.future = future;
             this.completed = new AtomicBoolean(false);
         }
@@ -654,7 +654,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             return this.state;
         }
 
-        public long getDeadline() {
+        public Deadline getDeadline() {
             return this.deadline;
         }
 

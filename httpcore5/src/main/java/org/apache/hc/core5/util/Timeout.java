@@ -52,11 +52,9 @@ public class Timeout extends TimeValue {
     public static final Timeout DISABLED = ZERO_MILLISECONDS;
 
     /**
-     * Returns the given {@code timeout} if it is not {@code null}, if {@code null} then returns
-     * {@link #DISABLED}.
+     * Returns the given {@code timeout} if it is not {@code null}, if {@code null} then returns {@link #DISABLED}.
      *
-     * @param timeout
-     *            may be {@code null}
+     * @param timeout may be {@code null}
      * @return {@code timeValue} or {@link #DISABLED}
      */
     public static Timeout defaultsToDisabled(final Timeout timeout) {
@@ -66,10 +64,8 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
-     * @param duration
-     *            the time duration in the given {@code timeUnit}.
-     * @param timeUnit
-     *            the time unit for the given durarion.
+     * @param duration the time duration in the given {@code timeUnit}.
+     * @param timeUnit the time unit for the given duration.
      * @return a Timeout
      */
     public static Timeout of(final long duration, final TimeUnit timeUnit) {
@@ -79,8 +75,7 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
-     * @param days
-     *            the duration in days and the given {@code timeUnit}.
+     * @param days the duration in days and the given {@code timeUnit}.
      * @return a Timeout
      */
     public static Timeout ofDays(final long days) {
@@ -90,8 +85,7 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
-     * @param hours
-     *            the duration in hours and the given {@code timeUnit}.
+     * @param hours the duration in hours and the given {@code timeUnit}.
      * @return a Timeout
      */
     public static Timeout ofHours(final long hours) {
@@ -101,8 +95,7 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
-     * @param microseconds
-     *            the duration in seconds and the given {@code timeUnit}.
+     * @param microseconds the duration in seconds and the given {@code timeUnit}.
      * @return a Timeout
      */
     public static Timeout ofMicroseconds(final long microseconds) {
@@ -112,8 +105,7 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
-     * @param milliseconds
-     *            the duration in milliseconds and the given {@code timeUnit}.
+     * @param milliseconds the duration in milliseconds and the given {@code timeUnit}.
      * @return a Timeout
      */
     public static Timeout ofMillis(final long milliseconds) {
@@ -123,8 +115,7 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
-     * @param minutes
-     *            the duration in minutes and the given {@code timeUnit}.
+     * @param minutes the duration in minutes and the given {@code timeUnit}.
      * @return a Timeout
      */
     public static Timeout ofMinutes(final long minutes) {
@@ -134,8 +125,7 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
-     * @param nanoseconds
-     *            the duration in seconds and the given {@code timeUnit}.
+     * @param nanoseconds the duration in seconds and the given {@code timeUnit}.
      * @return a Timeout
      */
     public static Timeout ofNanoseconds(final long nanoseconds) {
@@ -145,8 +135,7 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
-     * @param seconds
-     *            the duration in seconds and the given {@code timeUnit}.
+     * @param seconds the duration in seconds and the given {@code timeUnit}.
      * @return a Timeout
      */
     public static Timeout ofSeconds(final long seconds) {
@@ -156,11 +145,9 @@ public class Timeout extends TimeValue {
     /**
      * Parses a Timeout in the format {@code <Integer><SPACE><TimeUnit>}, for example {@code "1,200 MILLISECONDS"}
      *
-     * @param value
-     *            the TimeValue to parse
+     * @param value the TimeValue to parse
      * @return a new TimeValue
-     * @throws ParseException
-     *             if the number cannot be parsed
+     * @throws ParseException if the number cannot be parsed
      */
     public static Timeout parse(final String value) throws ParseException {
         return TimeValue.parse(value).toTimeout();

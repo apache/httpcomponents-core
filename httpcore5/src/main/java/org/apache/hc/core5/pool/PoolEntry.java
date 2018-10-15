@@ -29,9 +29,10 @@ package org.apache.hc.core5.pool;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Deadline;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
@@ -55,8 +56,8 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     private volatile Object state;
     private volatile long created;
     private volatile long updated;
-    private volatile long expiry;
-    private volatile long validityDeadline;
+    private volatile Deadline expiryDeadline = Deadline.MIN_VALUE;
+    private volatile Deadline validityDeadline = Deadline.MIN_VALUE;
     private Supplier<Long> currentTimeSupplier;
 
     PoolEntry(final T route, final TimeValue timeToLive, final Supplier<Long> currentTimeSupplier) {
@@ -96,8 +97,9 @@ public final class PoolEntry<T, C extends ModalCloseable> {
 
     /**
      * @since 4.4
+     * @since 5.0 return value is Deadline.
      */
-    public long getValidityDeadline() {
+    public Deadline getValidityDeadline() {
         return this.validityDeadline;
     }
 
@@ -109,8 +111,8 @@ public final class PoolEntry<T, C extends ModalCloseable> {
         return this.updated;
     }
 
-    public long getExpiry() {
-        return this.expiry;
+    public Deadline getExpiryDeadline() {
+        return this.expiryDeadline;
     }
 
     /**
@@ -128,8 +130,8 @@ public final class PoolEntry<T, C extends ModalCloseable> {
         if (this.connRef.compareAndSet(null, conn)) {
             this.created = getCurrentTime();
             this.updated = this.created;
-            this.validityDeadline = TimeValue.calculateDeadline(this.created, this.timeToLive);
-            this.expiry = this.validityDeadline;
+            this.validityDeadline = Deadline.calculate(this.created, this.timeToLive);
+            this.expiryDeadline = this.validityDeadline;
             this.state = null;
         } else {
             throw new IllegalStateException("Connection already assigned");
@@ -145,8 +147,8 @@ public final class PoolEntry<T, C extends ModalCloseable> {
             this.state = null;
             this.created = 0;
             this.updated = 0;
-            this.expiry = 0;
-            this.validityDeadline = 0;
+            this.expiryDeadline = Deadline.MIN_VALUE;
+            this.validityDeadline = Deadline.MIN_VALUE;
             connection.close(closeMode);
         }
     }
@@ -157,8 +159,8 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     public void updateExpiry(final TimeValue expiryTime) {
         Args.notNull(expiryTime, "Expiry time");
         final long currentTime = getCurrentTime();
-        final long newExpiry = TimeValue.calculateDeadline(currentTime, expiryTime);
-        this.expiry = Math.min(newExpiry, this.validityDeadline);
+        final Deadline newExpiry = Deadline.calculate(currentTime, expiryTime);
+        this.expiryDeadline = newExpiry.min(this.validityDeadline);
         this.updated = currentTime;
     }
 
