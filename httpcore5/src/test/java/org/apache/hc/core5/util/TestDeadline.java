@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.util;
 
-import java.util.TimeZone;
+import java.text.ParseException;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,9 +36,16 @@ import org.junit.Test;
 public class TestDeadline {
 
     @Test
-    public void testMessage() {
-        Assert.assertEquals("1969-12-31T17:00:01.000 " + TimeZone.getDefault().getID(),
-                Deadline.fromUnixMillis(1000).toString());
+    public void testFormat() throws ParseException {
+        final Deadline deadline = Deadline.fromUnixMillis(1000);
+        final Deadline deadline2 = Deadline.parse(deadline.toString());
+        Assert.assertEquals(1000, deadline2.getValue());
+    }
+
+    @Test
+    public void testParse() throws ParseException {
+        final Deadline deadline = Deadline.parse("1969-12-31T17:00:01.000 MST");
+        Assert.assertEquals(1000, deadline.getValue());
     }
 
 }

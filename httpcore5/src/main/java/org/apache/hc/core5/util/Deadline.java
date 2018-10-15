@@ -27,8 +27,9 @@
 
 package org.apache.hc.core5.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Objects;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,6 +39,11 @@ import java.util.concurrent.TimeUnit;
  * @since 5.0
  */
 public class Deadline {
+
+    /**
+     * The format used for parsing and formatting dates.
+     */
+    public static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
 
     /**
      * A special internal value that marks a deadline as the longest possible.
@@ -58,6 +64,8 @@ public class Deadline {
      * The minimum (shortest-lived) deadline.
      */
     public static Deadline MIN_VALUE = new Deadline(INTERNAL_MIN_VALUE);
+
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
 
     /**
      * Calculates a deadline with a given time in milliseconds plus a given time value. Non-positive time values
@@ -90,6 +98,17 @@ public class Deadline {
             return MIN_VALUE;
         }
         return new Deadline(value);
+    }
+
+    /**
+     * Creates a deadline from a string in the format {@value #DATE_FORMAT}.
+     *
+     * @param source a string in the format {@value #DATE_FORMAT}.
+     * @return a deadline from a string in the format {@value #DATE_FORMAT}.
+     * @throws ParseException if the specified source string cannot be parsed.
+     */
+    public static Deadline parse(final String source) throws ParseException {
+        return fromUnixMillis(simpleDateFormat.parse(source).getTime());
     }
 
     private volatile long lastCheck;
@@ -149,16 +168,12 @@ public class Deadline {
     }
 
     /**
-     * Formats the deadline value as a string like "1969-12-31T17:00:01.000 MST".
+     * Formats the deadline value as a string in the format {@value #DATE_FORMAT}.
      *
-     * @return a formatted string.
+     * @return a formatted string in the format {@value #DATE_FORMAT}.
      */
     public String formatTarget() {
-        // (1) Deadline in a format similar to ISO8601 (YYYY-MM-DDThh:mm:ss.sTZD)
-        // We use the TimeZone zone ID because we cannot get it from String.format() in
-        // Java 7 and the short names have been deprecated.
-        // (2) String could be cached in ivar.
-        return String.format("%1$tFT%1$tT.%1$tL " + TimeZone.getDefault().getID(), value);
+        return simpleDateFormat.format(value);
     }
 
     /**
@@ -166,7 +181,7 @@ public class Deadline {
      *
      * @return the UNIX time deadline value.
      */
-    public long getTarget() {
+    public long getValue() {
         return value;
     }
 

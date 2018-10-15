@@ -71,7 +71,7 @@ public class TestPoolEntry {
         Assert.assertEquals("route1", entry1.getRoute());
         Assert.assertTrue(now >= entry1.getUpdated());
         Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiryDeadline());
-        Assert.assertEquals(entry1.getUpdated() + 10L, entry1.getValidityDeadline().getTarget());
+        Assert.assertEquals(entry1.getUpdated() + 10L, entry1.getValidityDeadline().getValue());
 
         entry1.discardConnection(CloseMode.IMMEDIATE);
         Assert.assertEquals(0, entry1.getUpdated());
@@ -99,7 +99,7 @@ public class TestPoolEntry {
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
         Assert.assertEquals(Deadline.MAX_VALUE, entry1.getExpiryDeadline());
         entry1.updateExpiry(TimeValue.of(50L, TimeUnit.MILLISECONDS));
-        Assert.assertEquals(entry1.getUpdated() + 50L, entry1.getExpiryDeadline().getTarget());
+        Assert.assertEquals(entry1.getUpdated() + 50L, entry1.getExpiryDeadline().getValue());
         entry1.updateExpiry(TimeValue.ZERO_MILLISECONDS);
         Assert.assertEquals(Deadline.MAX_VALUE, entry1.getExpiryDeadline());
 
@@ -107,9 +107,9 @@ public class TestPoolEntry {
                 "route1", TimeValue.of(100L, TimeUnit.MILLISECONDS), currentTimeSupplier);
         entry2.assignConnection(Mockito.mock(HttpConnection.class));
         final Deadline validityDeadline = entry2.getValidityDeadline();
-        Assert.assertEquals(entry2.getUpdated() + 100L, entry2.getExpiryDeadline().getTarget());
+        Assert.assertEquals(entry2.getUpdated() + 100L, entry2.getExpiryDeadline().getValue());
         entry2.updateExpiry(TimeValue.of(50L, TimeUnit.MILLISECONDS));
-        Assert.assertEquals(entry2.getUpdated() + 50L, entry2.getExpiryDeadline().getTarget());
+        Assert.assertEquals(entry2.getUpdated() + 50L, entry2.getExpiryDeadline().getValue());
         entry2.updateExpiry(TimeValue.of(150L, TimeUnit.MILLISECONDS));
         Assert.assertEquals(validityDeadline, entry2.getExpiryDeadline());
     }
