@@ -192,7 +192,8 @@ public class Deadline {
      * @return whether this deadline occurs before the given current time.
      */
     public boolean isBeforeNow() {
-        return value < System.currentTimeMillis();
+        this.lastCheck = System.currentTimeMillis();
+        return value < this.lastCheck;
     }
 
     /**
