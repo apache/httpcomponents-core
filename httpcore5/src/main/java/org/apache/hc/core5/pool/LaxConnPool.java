@@ -47,10 +47,11 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.Deadline;
+import org.apache.hc.core5.util.DeadlineTimeoutException;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.apache.hc.core5.util.TimeoutValueException;
 
 /**
  * Connection pool with higher concurrency but with lax connection limit guarantees.
@@ -267,7 +268,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
             @Override
             public void execute(final PoolEntry<T, C> entry) {
-                if (entry.getExpiry() < now) {
+                if (entry.getExpiryDeadline().isBefore(now)) {
                     entry.discardConnection(CloseMode.GRACEFUL);
                 }
             }
@@ -292,16 +293,16 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
     static class LeaseRequest<T, C extends ModalCloseable> implements Cancellable {
 
         private final Object state;
-        private final long deadline;
+        private final Deadline deadline;
         private final BasicFuture<PoolEntry<T, C>> future;
 
         LeaseRequest(
                 final Object state,
-                final TimeValue requestTimeout,
+                final Timeout requestTimeout,
                 final BasicFuture<PoolEntry<T, C>> future) {
             super();
             this.state = state;
-            this.deadline = TimeValue.calculateDeadline(System.currentTimeMillis(), requestTimeout);
+            this.deadline = Deadline.calculate(System.currentTimeMillis(), requestTimeout);
             this.future = future;
         }
 
@@ -313,7 +314,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             return this.state;
         }
 
-        public long getDeadline() {
+        public Deadline getDeadline() {
             return this.deadline;
         }
 
@@ -407,7 +408,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         private PoolEntry<T, C> getAvailableEntry(final Object state) {
             final PoolEntry<T, C> entry = available.poll();
             if (entry != null) {
-                if (entry.getExpiry() < System.currentTimeMillis()) {
+                if (entry.getExpiryDeadline().isNotExpired()) {
                     entry.discardConnection(CloseMode.GRACEFUL);
                 }
                 if (!LangUtils.equals(entry.getState(), state)) {
@@ -419,7 +420,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
         public Future<PoolEntry<T, C>> lease(
                 final Object state,
-                final TimeValue requestTimeout,
+                final Timeout requestTimeout,
                 final FutureCallback<PoolEntry<T, C>> callback) {
             Asserts.check(!terminated.get(), "Connection pool shut down");
             final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<>(callback);
@@ -441,7 +442,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
         public void release(final PoolEntry<T, C> releasedEntry, final boolean reusable) {
             removeLeased(releasedEntry);
-            if (!reusable || releasedEntry.getExpiry() < System.currentTimeMillis()) {
+            if (!reusable || releasedEntry.getExpiryDeadline().isNotExpired()) {
                 releasedEntry.discardConnection(CloseMode.GRACEFUL);
             }
             if (releasedEntry.hasConnection()) {
@@ -462,11 +463,10 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                     continue;
                 }
                 final Object state = leaseRequest.getState();
-                final long deadline = leaseRequest.getDeadline();
+                final Deadline deadline = leaseRequest.getDeadline();
 
-                final long now = System.currentTimeMillis();
-                if (now > deadline) {
-                    leaseRequest.failed(TimeoutValueException.ofMillis(deadline, now));
+                if (deadline.isExpired()) {
+                    leaseRequest.failed(DeadlineTimeoutException.from(deadline));
                 } else {
                     final PoolEntry<T, C> availableEntry = getAvailableEntry(state);
                     if (availableEntry != null) {
@@ -491,9 +491,9 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 if (future.isCancelled() && !request.isDone()) {
                     it.remove();
                 } else {
-                    final long deadline = request.getDeadline();
-                    if (now > deadline) {
-                        request.failed(TimeoutValueException.ofMillis(deadline, now));
+                    final Deadline deadline = request.getDeadline();
+                    if (deadline.isExpired()) {
+                        request.failed(DeadlineTimeoutException.from(deadline));
                     }
                     if (request.isDone()) {
                         it.remove();

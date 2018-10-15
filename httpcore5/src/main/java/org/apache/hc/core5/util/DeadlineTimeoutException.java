@@ -27,70 +27,49 @@
 
 package org.apache.hc.core5.util;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * A specialization of {@link TimeoutException} that carries a {@link Timeout} deadline and the actual value.
+ * A specialization of {@link TimeoutException} that carries a deadline and an actual value, both as UNIX times.
  *
  * @since 5.0
  */
-public class TimeoutValueException extends TimeoutException {
+public class DeadlineTimeoutException extends TimeoutException {
 
     private static final long serialVersionUID = 1L;
 
     /**
      * Creates a new exception for the given timeout deadline and actual timeout.
      *
-     * @param timeoutDeadline How long was the expected timeout in milliseconds.
-     * @param timeoutActual How long we actually waited in milliseconds.
+     * @param deadline When was the deadline in UNIX time.
      * @return a new TimeoutValueException.
      */
-    public static TimeoutValueException fromMillis(final long timeoutDeadline, final long timeoutActual) {
-        return new TimeoutValueException(Timeout.ofMillis(min0(timeoutDeadline)),
-                Timeout.ofMillis(min0(timeoutActual)));
+    public static DeadlineTimeoutException from(final Deadline deadline) {
+        return new DeadlineTimeoutException(deadline);
     }
 
-    /**
-     * Returns the given {@code value} if positive, otherwise returns 0.
-     *
-     * @param value any timeout
-     * @return the given {@code value} if positive, otherwise returns 0.
-     */
-    private static long min0(final long value) {
-        return value < 0 ? 0 : value;
-    }
-
-    private final Timeout actual;
-
-    private final Timeout deadline;
+    private final Deadline deadline;
 
     /**
      * Creates a new exception for the given timeout deadline and actual timeout.
      *
-     * @param deadline How long was the expected timeout.
-     * @param actual How long we actually waited.
+     * @param deadline When was the deadline in UNIX time.
      */
-    public TimeoutValueException(final Timeout deadline, final Timeout actual) {
-        super(String.format("Timeout deadline: %s, actual: %s", deadline, actual));
-        this.actual = actual;
+    private DeadlineTimeoutException(final Deadline deadline) {
+        // Deadline in a format like ISO8601: YYYY-MM-DDThh:mm:ss.sTZD
+        // We use the TimeZone zone ID because we cannot get from String.format() in
+        // Java 7 and the short names have been deprecated.
+        super(deadline.format(TimeUnit.MILLISECONDS));
         this.deadline = deadline;
     }
 
     /**
-     * Gets how long was the expected timeout in milliseconds.
+     * The expected deadline for this timeout since the start of UNIX time.
      *
-     * @return how long was the expected timeout in milliseconds.
+     * @return The expected deadline for this timeout since the start of UNIX time.
      */
-    public Timeout getActual() {
-        return actual;
-    }
-
-    /**
-     * Gets how long we actually waited in milliseconds.
-     *
-     * @return how long we actually waited in milliseconds.
-     */
-    public Timeout getDeadline() {
+    public Deadline getDeadline() {
         return deadline;
     }
 

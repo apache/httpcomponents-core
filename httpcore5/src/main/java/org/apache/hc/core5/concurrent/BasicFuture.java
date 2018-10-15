@@ -95,7 +95,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         if (this.completed) {
             return getResult();
         } else if (waitTime <= 0) {
-            throw TimeoutValueException.ofMillis(msecs, msecs + Math.abs(waitTime));
+            throw TimeoutValueException.fromMillis(msecs, msecs + Math.abs(waitTime));
         } else {
             for (;;) {
                 wait(waitTime);
@@ -104,7 +104,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
                 }
                 waitTime = msecs - (System.currentTimeMillis() - startTime);
                 if (waitTime <= 0) {
-                    throw TimeoutValueException.ofMillis(msecs, msecs + Math.abs(waitTime));
+                    throw TimeoutValueException.fromMillis(msecs, msecs + Math.abs(waitTime));
                 }
             }
         }

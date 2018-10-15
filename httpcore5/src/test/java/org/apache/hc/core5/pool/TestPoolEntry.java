@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.util.Deadline;
 import org.apache.hc.core5.util.TimeValue;
 import org.junit.Assert;
 import org.junit.Before;
@@ -63,18 +64,18 @@ public class TestPoolEntry {
 
         Assert.assertEquals("route1", entry1.getRoute());
         Assert.assertEquals(0, entry1.getUpdated());
-        Assert.assertEquals(0, entry1.getExpiry());
+        Assert.assertEquals(Deadline.MIN_VALUE, entry1.getExpiryDeadline());
 
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
         final long now = System.currentTimeMillis();
         Assert.assertEquals("route1", entry1.getRoute());
         Assert.assertTrue(now >= entry1.getUpdated());
-        Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
-        Assert.assertEquals(entry1.getUpdated() + 10L, entry1.getValidityDeadline());
+        Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiryDeadline());
+        Assert.assertEquals(entry1.getUpdated() + 10L, entry1.getValidityDeadline().getValue());
 
         entry1.discardConnection(CloseMode.IMMEDIATE);
         Assert.assertEquals(0, entry1.getUpdated());
-        Assert.assertEquals(0, entry1.getExpiry());
+        Assert.assertEquals(Deadline.MIN_VALUE, entry1.getExpiryDeadline());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -87,8 +88,8 @@ public class TestPoolEntry {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
                 "route1", TimeValue.ZERO_MILLISECONDS, currentTimeSupplier);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
-        Assert.assertEquals(Long.MAX_VALUE, entry1.getValidityDeadline());
-        Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiry());
+        Assert.assertEquals(Deadline.MAX_VALUE, entry1.getValidityDeadline());
+        Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiryDeadline());
     }
 
     @Test
@@ -96,21 +97,21 @@ public class TestPoolEntry {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
                 "route1", TimeValue.ZERO_MILLISECONDS, currentTimeSupplier);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
-        Assert.assertEquals(Long.MAX_VALUE, entry1.getExpiry());
+        Assert.assertEquals(Deadline.MAX_VALUE, entry1.getExpiryDeadline());
         entry1.updateExpiry(TimeValue.of(50L, TimeUnit.MILLISECONDS));
-        Assert.assertEquals(entry1.getUpdated() + 50L, entry1.getExpiry());
+        Assert.assertEquals(entry1.getUpdated() + 50L, entry1.getExpiryDeadline().getValue());
         entry1.updateExpiry(TimeValue.ZERO_MILLISECONDS);
-        Assert.assertEquals(Long.MAX_VALUE, entry1.getExpiry());
+        Assert.assertEquals(Deadline.MAX_VALUE, entry1.getExpiryDeadline());
 
         final PoolEntry<String, HttpConnection> entry2 = new PoolEntry<>(
                 "route1", TimeValue.of(100L, TimeUnit.MILLISECONDS), currentTimeSupplier);
         entry2.assignConnection(Mockito.mock(HttpConnection.class));
-        final long validityDeadline = entry2.getValidityDeadline();
-        Assert.assertEquals(entry2.getUpdated() + 100L, entry2.getExpiry());
+        final Deadline validityDeadline = entry2.getValidityDeadline();
+        Assert.assertEquals(entry2.getUpdated() + 100L, entry2.getExpiryDeadline().getValue());
         entry2.updateExpiry(TimeValue.of(50L, TimeUnit.MILLISECONDS));
-        Assert.assertEquals(entry2.getUpdated() + 50L, entry2.getExpiry());
+        Assert.assertEquals(entry2.getUpdated() + 50L, entry2.getExpiryDeadline().getValue());
         entry2.updateExpiry(TimeValue.of(150L, TimeUnit.MILLISECONDS));
-        Assert.assertEquals(validityDeadline, entry2.getExpiry());
+        Assert.assertEquals(validityDeadline, entry2.getExpiryDeadline());
     }
 
     @Test(expected=IllegalArgumentException.class)
@@ -125,7 +126,7 @@ public class TestPoolEntry {
         final PoolEntry<String, HttpConnection> entry = new PoolEntry<>(
                 "route1", TimeValue.of(Long.MAX_VALUE, TimeUnit.MILLISECONDS), currentTimeSupplier);
         entry.assignConnection(Mockito.mock(HttpConnection.class));
-        Assert.assertEquals(Long.MAX_VALUE, entry.getValidityDeadline());
+        Assert.assertEquals(Deadline.MAX_VALUE, entry.getValidityDeadline());
     }
 
 }

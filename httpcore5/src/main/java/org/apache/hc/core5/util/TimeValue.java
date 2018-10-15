@@ -68,8 +68,7 @@ public class TimeValue {
      * For example: {@code TimeValue.asBoundInt(Long.MAX_VALUE)} returns {@code Integer.MAX_VALUE}.
      * </p>
      *
-     * @param value
-     *            a long value to convert
+     * @param value a long value to convert
      * @return an int value bound within {@link Integer#MIN_VALUE} and {@link Integer#MAX_VALUE}.
      */
     public static int asBoundInt(final long value) {
@@ -85,10 +84,8 @@ public class TimeValue {
      * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns the given
      * {@code defaultValue}.
      *
-     * @param timeValue
-     *            may be {@code null}
-     * @param defaultValue
-     *            may be {@code null}
+     * @param timeValue may be {@code null}
+     * @param defaultValue may be {@code null}
      * @return {@code timeValue} or {@code defaultValue}
      */
     public static <T extends TimeValue> T defaultsTo(final T timeValue, final T defaultValue) {
@@ -99,8 +96,7 @@ public class TimeValue {
      * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
      * {@link #NEG_ONE_SECONDS}.
      *
-     * @param timeValue
-     *            may be {@code null}
+     * @param timeValue may be {@code null}
      * @return {@code timeValue} or {@link #NEG_ONE_SECONDS}
      */
     public static TimeValue defaultsToNegativeOneMillisecond(final TimeValue timeValue) {
@@ -111,8 +107,7 @@ public class TimeValue {
      * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
      * {@link #NEG_ONE_SECONDS}.
      *
-     * @param timeValue
-     *            may be {@code null}
+     * @param timeValue may be {@code null}
      * @return {@code timeValue} or {@link #NEG_ONE_SECONDS}
      */
     public static TimeValue defaultsToNegativeOneSecond(final TimeValue timeValue) {
@@ -123,8 +118,7 @@ public class TimeValue {
      * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
      * {@link #ZERO_MILLISECONDS}.
      *
-     * @param timeValue
-     *            may be {@code null}
+     * @param timeValue may be {@code null}
      * @return {@code timeValue} or {@link #ZERO_MILLISECONDS}
      */
     public static TimeValue defaultsToZeroMillis(final TimeValue timeValue) {
@@ -142,10 +136,8 @@ public class TimeValue {
     /**
      * Creates a TimeValue.
      *
-     * @param duration
-     *            the time duration in the given {@code timeUnit}.
-     * @param timeUnit
-     *            the time unit for the given durarion.
+     * @param duration the time duration in the given {@code timeUnit}.
+     * @param timeUnit the time unit for the given durarion.
      * @return a Timeout
      */
     public static TimeValue of(final long duration, final TimeUnit timeUnit) {
@@ -183,11 +175,9 @@ public class TimeValue {
     /**
      * Parses a TimeValue in the format {@code <Integer><SPACE><TimeUnit>}, for example {@code "1,200 MILLISECONDS"}
      *
-     * @param value
-     *            the TimeValue to parse
+     * @param value the TimeValue to parse
      * @return a new TimeValue
-     * @throws ParseException
-     *             if the number cannot be parsed
+     * @throws ParseException if the number cannot be parsed
      */
     public static TimeValue parse(final String value) throws ParseException {
         final String split[] = value.split("\\s+");
@@ -197,22 +187,6 @@ public class TimeValue {
         }
         return TimeValue.of(NumberFormat.getInstance(Locale.ROOT).parse(split[0]).longValue(),
                 TimeUnit.valueOf(split[1].trim().toUpperCase(Locale.ROOT)));
-    }
-
-    /**
-     * Calculates the deadline with the current time in milliseconds and the given time value.
-     * Non-positive time value represents an indefinite timeout without a deadline.
-     *
-     * @param currentTimeMillis current time
-     * @param timeValue time value
-     * @return deadline in milliseconds
-     */
-    public static long calculateDeadline(final long currentTimeMillis, final TimeValue timeValue) {
-        if (TimeValue.isPositive(timeValue)) {
-            final long deadline = currentTimeMillis + timeValue.toMillis();
-            return deadline >= 0 ? deadline : Long.MAX_VALUE;
-        }
-        return Long.MAX_VALUE;
     }
 
     private final long duration;
