@@ -187,16 +187,6 @@ public class Deadline {
     }
 
     /**
-     * Returns whether this deadline occurs before the given current time.
-     *
-     * @return whether this deadline occurs before the given current time.
-     */
-    public boolean isBeforeNow() {
-        this.lastCheck = System.currentTimeMillis();
-        return value < this.lastCheck;
-    }
-
-    /**
      * Returns whether the deadline has expired.
      *
      * @return whether the deadline has expired.
@@ -222,6 +212,16 @@ public class Deadline {
      */
     public boolean isMin() {
         return value == INTERNAL_MIN_VALUE;
+    }
+
+    /**
+     * Returns whether this deadline has not expired.
+     *
+     * @return whether this deadline has not expired.
+     */
+    public boolean isNotExpired() {
+        this.lastCheck = System.currentTimeMillis();
+        return value < this.lastCheck;
     }
 
     /**

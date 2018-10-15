@@ -408,7 +408,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         private PoolEntry<T, C> getAvailableEntry(final Object state) {
             final PoolEntry<T, C> entry = available.poll();
             if (entry != null) {
-                if (entry.getExpiryDeadline().isBeforeNow()) {
+                if (entry.getExpiryDeadline().isNotExpired()) {
                     entry.discardConnection(CloseMode.GRACEFUL);
                 }
                 if (!LangUtils.equals(entry.getState(), state)) {
@@ -442,7 +442,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
         public void release(final PoolEntry<T, C> releasedEntry, final boolean reusable) {
             removeLeased(releasedEntry);
-            if (!reusable || releasedEntry.getExpiryDeadline().isBeforeNow()) {
+            if (!reusable || releasedEntry.getExpiryDeadline().isNotExpired()) {
                 releasedEntry.discardConnection(CloseMode.GRACEFUL);
             }
             if (releasedEntry.hasConnection()) {

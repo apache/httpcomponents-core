@@ -280,7 +280,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             if (entry == null) {
                 break;
             }
-            if (entry.getExpiryDeadline().isBeforeNow()) {
+            if (entry.getExpiryDeadline().isNotExpired()) {
                 entry.discardConnection(CloseMode.GRACEFUL);
                 this.available.remove(entry);
                 pool.free(entry, false);
