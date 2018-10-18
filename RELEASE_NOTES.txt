@@ -1,3 +1,9 @@
+Release 5.0-BETA5
+-------------------
+
+This BETA release fixed a severe regression introduced in 5.0-BETA4.
+
+
 Release 5.0-BETA4
 -------------------
 
