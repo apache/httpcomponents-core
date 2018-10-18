@@ -263,7 +263,7 @@ public final class IOReactorConfig {
         private int backlogSize;
 
         Builder() {
-            this.selectInterval = TimeValue.ofMicroseconds(1000);
+            this.selectInterval = TimeValue.ofSeconds(1);
             this.ioThreadCount = Builder.getDefaultMaxIoThreadCount();
             this.soTimeout = Timeout.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
@@ -337,7 +337,7 @@ public final class IOReactorConfig {
 
         public IOReactorConfig build() {
             return new IOReactorConfig(
-                    selectInterval != null ? selectInterval : TimeValue.ofMicroseconds(1000),
+                    selectInterval != null ? selectInterval : TimeValue.ofSeconds(1),
                     ioThreadCount,
                     Timeout.defaultsToDisabled(soTimeout),
                     soReuseAddress,
