@@ -664,7 +664,7 @@ public class SSLIOSession implements IOSession {
             }
             this.status = CLOSING;
             if (this.session.getSocketTimeout().isDisabled()) {
-                this.session.setSocketTimeout(Timeout.ofMillis(1000));
+                this.session.setSocketTimeout(Timeout.ofMilliseconds(1000));
             }
             try {
                 updateEventMask();

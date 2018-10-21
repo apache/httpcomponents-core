@@ -70,7 +70,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
 
         final Timeout timeout;
         if (request.containsKey(TIMEOUT)) {
-            timeout = Timeout.ofMillis((long) request.get(TIMEOUT));
+            timeout = Timeout.ofMilliseconds((long) request.get(TIMEOUT));
         } else {
             timeout = null;
         }

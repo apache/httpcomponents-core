@@ -37,7 +37,7 @@ public class TestDeadlineTimeoutException {
         final Deadline deadline = Deadline.fromUnixMillis(1000);
         Assert.assertTrue(deadline.toString(), deadline.isExpired());
         final String format = deadline.formatTarget();
-        final TimeValue diff = TimeValue.ofMillis(deadline.difference());
+        final TimeValue diff = TimeValue.ofMilliseconds(deadline.difference());
         Assert.assertEquals("Deadline: " + format + ", " + diff + " overdue",
                 DeadlineTimeoutException.from(deadline).getMessage());
     }

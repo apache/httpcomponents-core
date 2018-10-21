@@ -46,8 +46,8 @@ public class TimeoutValueException extends TimeoutException {
      * @return a new TimeoutValueException.
      */
     public static TimeoutValueException fromMillis(final long timeoutDeadline, final long timeoutActual) {
-        return new TimeoutValueException(Timeout.ofMillis(min0(timeoutDeadline)),
-                Timeout.ofMillis(min0(timeoutActual)));
+        return new TimeoutValueException(Timeout.ofMilliseconds(min0(timeoutDeadline)),
+                Timeout.ofMilliseconds(min0(timeoutActual)));
     }
 
     /**

@@ -171,7 +171,7 @@ public class CommandLineUtils {
         if (cmd.hasOption('s')) {
             final String s = cmd.getOptionValue('s');
             try {
-                builder.setSocketTimeout(Timeout.ofMillis(Integer.parseInt(s)));
+                builder.setSocketTimeout(Timeout.ofMilliseconds(Integer.parseInt(s)));
             } catch (final NumberFormatException ex) {
                 printError("Invalid socket timeout: " + s);
             }

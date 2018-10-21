@@ -211,7 +211,7 @@ class BHttpConnectionBase implements BHttpConnection {
         final SocketHolder socketHolder = this.socketHolderRef.get();
         if (socketHolder != null) {
             try {
-                return Timeout.ofMillis(socketHolder.getSocket().getSoTimeout());
+                return Timeout.ofMilliseconds(socketHolder.getSocket().getSoTimeout());
             } catch (final SocketException ignore) {
             }
         }
@@ -336,7 +336,7 @@ class BHttpConnectionBase implements BHttpConnection {
                 final Socket socket = socketHolder.getSocket();
                 Timeout socketTimeout;
                 try {
-                    socketTimeout = Timeout.ofMillis(socket.getSoTimeout());
+                    socketTimeout = Timeout.ofMilliseconds(socket.getSoTimeout());
                 } catch (final SocketException e) {
                     socketTimeout = Timeout.DISABLED;
                 }

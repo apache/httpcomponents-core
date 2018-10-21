@@ -1,3 +1,12 @@
+Release 5.0-BETA6
+-------------------
+
+* Deprecate and rename org.apache.hc.core5.util.Timeout.ofMillis(long) to ofMilliseconds(long).
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* Deprecate and rename org.apache.hc.core5.util.TimeValue.ofMillis(long) to ofMilliseconds(long).
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 Release 5.0-BETA5
 -------------------
 

@@ -493,9 +493,9 @@ public class TestStrictConnPool {
 
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
 
-        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
-        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
-        final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", null, Timeout.ofMillis(10), null);
+        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMilliseconds(0), null);
+        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(0), null);
+        final Future<PoolEntry<String, HttpConnection>> future3 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
 
         Assert.assertTrue(future1.isDone());
         final PoolEntry<String, HttpConnection> entry1 = future1.get();
@@ -516,14 +516,14 @@ public class TestStrictConnPool {
     public void testLeaseRequestCanceled() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
 
-        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
+        final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null, Timeout.ofMilliseconds(0), null);
 
         Assert.assertTrue(future1.isDone());
         final PoolEntry<String, HttpConnection> entry1 = future1.get();
         Assert.assertNotNull(entry1);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
 
-        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMillis(0), null);
+        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(0), null);
         future2.cancel(true);
 
         pool.release(entry1, true);

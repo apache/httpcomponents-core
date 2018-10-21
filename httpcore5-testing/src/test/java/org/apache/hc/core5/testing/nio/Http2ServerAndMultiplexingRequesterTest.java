@@ -289,7 +289,7 @@ public class Http2ServerAndMultiplexingRequesterTest {
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
-        requester.setValidateAfterInactivity(TimeValue.ofMillis(10));
+        requester.setValidateAfterInactivity(TimeValue.ofMilliseconds(10));
 
         final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
