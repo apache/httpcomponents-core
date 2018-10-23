@@ -7,6 +7,12 @@ Release 5.0-BETA6
 * Deprecate and rename org.apache.hc.core5.util.TimeValue.ofMillis(long) to ofMilliseconds(long).
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* Fix org.apache.hc.core5.util.TimeValue.convert(TimeUnit).
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* Add org.apache.hc.core5.util.TimeValue.divide(*).
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 Release 5.0-BETA5
 -------------------
 

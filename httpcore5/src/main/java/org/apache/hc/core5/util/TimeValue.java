@@ -36,7 +36,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 
 /**
- * Represents a time value as a {@code long} time and {@link TimeUnit}.
+ * Represents a time value as a {@code long} time and a {@link TimeUnit}.
  *
  * @since 5.0
  */
@@ -207,8 +207,8 @@ public class TimeValue {
         this.timeUnit = Args.notNull(timeUnit, "timeUnit");
     }
 
-    public long convert(final TimeUnit sourceUnit) {
-        return timeUnit.convert(duration, sourceUnit);
+    public long convert(final TimeUnit targetTimeUnit) {
+        return targetTimeUnit.convert(duration, timeUnit);
     }
 
     @Override
@@ -221,6 +221,35 @@ public class TimeValue {
             return this.duration == that.duration && LangUtils.equals(this.timeUnit, that.timeUnit);
         }
         return false;
+    }
+
+    /**
+     * Returns a TimeValue whose value is {@code (this / divisor)}.
+     *
+     * @param divisor
+     *            value by which this TimeValue is to be divided.
+     * @return {@code this / divisor}
+     * @throws ArithmeticException
+     *             if {@code divisor} is zero.
+     */
+    public TimeValue divide(final long divisor) {
+        final long newDuration = duration / divisor;
+        return of(newDuration, timeUnit);
+    }
+
+    /**
+     * Returns a TimeValue whose value is {@code (this / divisor)}.
+     *
+     * @param divisor
+     *            value by which this TimeValue is to be divided.
+     * @param targetTimeUnit
+     *            the target TimeUnit
+     * @return {@code this / divisor}
+     * @throws ArithmeticException
+     *             if {@code divisor} is zero.
+     */
+    public TimeValue divide(final long divisor, final TimeUnit targetTimeUnit) {
+        return of(convert(targetTimeUnit) / divisor, targetTimeUnit);
     }
 
     public long getDuration() {
@@ -237,6 +266,52 @@ public class TimeValue {
         hash = LangUtils.hashCode(hash, duration);
         hash = LangUtils.hashCode(hash, timeUnit);
         return hash;
+    }
+
+    public TimeValue min(final TimeValue other) {
+        return isGreaterThan(other) ? other : this;
+    }
+
+    private boolean isGreaterThan(final TimeValue other) {
+        final TimeUnit targetTimeUnit = min(other.getTimeUnit());
+        return convert(targetTimeUnit) > other.convert(targetTimeUnit);
+    }
+
+    private TimeUnit min(final TimeUnit other) {
+        return scale() > scale(other) ? other : getTimeUnit();
+    }
+
+    private int scale() {
+        return scale(timeUnit);
+    }
+
+    /**
+     * Returns a made up scale for TimeUnits.
+     *
+     * @param tUnit
+     *            a TimeUnit
+     * @return a number from 1 to 7, where 1 is NANOSECONDS and 7 DAYS.
+     */
+    private int scale(final TimeUnit tUnit) {
+        switch (tUnit) {
+        case NANOSECONDS:
+            return 1;
+        case MICROSECONDS:
+            return 2;
+        case MILLISECONDS:
+            return 3;
+        case SECONDS:
+            return 4;
+        case MINUTES:
+            return 5;
+        case HOURS:
+            return 6;
+        case DAYS:
+            return 7;
+        default:
+            // Should never happens unless Java adds to the enum.
+            throw new IllegalStateException();
+        }
     }
 
     public void sleep() throws InterruptedException {

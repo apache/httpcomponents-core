@@ -85,6 +85,36 @@ public class TestTimeValue {
         test(1);
     }
 
+    @Test
+    public void testConvert() {
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).convert(TimeUnit.DAYS));
+        Assert.assertEquals(1000, TimeValue.ofSeconds(1).convert(TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testDivide() {
+        // nominator is 0, result should be 0.
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toDays());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toHours());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMicros());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMillis());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMinutes());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toNanos());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toSeconds());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMillisIntBound());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toSecondsIntBound());
+        //
+        Assert.assertEquals(50, TimeValue.ofMilliseconds(100).divide(2).toMillis());
+        Assert.assertEquals(0, TimeValue.ofMinutes(1).divide(2).toSeconds());
+        Assert.assertEquals(30, TimeValue.ofMinutes(1).divide(2, TimeUnit.SECONDS).toSeconds());
+        Assert.assertEquals(30000, TimeValue.ofMinutes(1).divide(2, TimeUnit.MILLISECONDS).toMillis());
+    }
+
+    @Test(expected = ArithmeticException.class)
+    public void testDivideBy0() {
+        TimeValue.ofMilliseconds(0).divide(0);
+    }
+
     private void testFactory(final TimeUnit timeUnit) {
         Assert.assertEquals(timeUnit, TimeValue.of(1, timeUnit).getTimeUnit());
     }
@@ -122,6 +152,81 @@ public class TestTimeValue {
     @Test
     public void testFactoryForSeconds() {
         testFactory(TimeUnit.SECONDS);
+    }
+
+    @Test
+    public void testMin() {
+        final TimeValue nanos1 = TimeValue.ofNanoseconds(1);
+        final TimeValue micros1 = TimeValue.ofMicroseconds(1);
+        final TimeValue millis1 = TimeValue.ofMilliseconds(1);
+        final TimeValue seconds1 = TimeValue.ofSeconds(1);
+        final TimeValue minutes1 = TimeValue.ofMinutes(1);
+        final TimeValue hours1 = TimeValue.ofHours(1);
+        final TimeValue days1 = TimeValue.ofDays(1);
+        //
+        Assert.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(nanos1));
+        Assert.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(micros1));
+        Assert.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(millis1));
+        Assert.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(seconds1));
+        Assert.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(minutes1));
+        Assert.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(hours1));
+        Assert.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.ZERO_MILLISECONDS.min(days1));
+        //
+        Assert.assertEquals(nanos1, nanos1.min(nanos1));
+        Assert.assertEquals(nanos1, nanos1.min(micros1));
+        Assert.assertEquals(nanos1, nanos1.min(millis1));
+        Assert.assertEquals(nanos1, nanos1.min(seconds1));
+        Assert.assertEquals(nanos1, nanos1.min(minutes1));
+        Assert.assertEquals(nanos1, nanos1.min(hours1));
+        Assert.assertEquals(nanos1, nanos1.min(days1));
+        //
+        Assert.assertEquals(nanos1, micros1.min(nanos1));
+        Assert.assertEquals(micros1, micros1.min(micros1));
+        Assert.assertEquals(micros1, micros1.min(millis1));
+        Assert.assertEquals(micros1, micros1.min(seconds1));
+        Assert.assertEquals(micros1, micros1.min(minutes1));
+        Assert.assertEquals(micros1, micros1.min(hours1));
+        Assert.assertEquals(micros1, micros1.min(days1));
+        //
+        Assert.assertEquals(nanos1, millis1.min(nanos1));
+        Assert.assertEquals(micros1, millis1.min(micros1));
+        Assert.assertEquals(millis1, millis1.min(millis1));
+        Assert.assertEquals(millis1, millis1.min(seconds1));
+        Assert.assertEquals(millis1, millis1.min(minutes1));
+        Assert.assertEquals(millis1, millis1.min(hours1));
+        Assert.assertEquals(millis1, millis1.min(days1));
+        //
+        Assert.assertEquals(nanos1, seconds1.min(nanos1));
+        Assert.assertEquals(micros1, seconds1.min(micros1));
+        Assert.assertEquals(millis1, seconds1.min(millis1));
+        Assert.assertEquals(seconds1, seconds1.min(seconds1));
+        Assert.assertEquals(seconds1, seconds1.min(minutes1));
+        Assert.assertEquals(seconds1, seconds1.min(hours1));
+        Assert.assertEquals(seconds1, seconds1.min(days1));
+        //
+        Assert.assertEquals(nanos1, minutes1.min(nanos1));
+        Assert.assertEquals(micros1, minutes1.min(micros1));
+        Assert.assertEquals(millis1, minutes1.min(millis1));
+        Assert.assertEquals(seconds1, minutes1.min(seconds1));
+        Assert.assertEquals(minutes1, minutes1.min(minutes1));
+        Assert.assertEquals(minutes1, minutes1.min(hours1));
+        Assert.assertEquals(minutes1, minutes1.min(days1));
+        //
+        Assert.assertEquals(nanos1, hours1.min(nanos1));
+        Assert.assertEquals(micros1, hours1.min(micros1));
+        Assert.assertEquals(millis1, hours1.min(millis1));
+        Assert.assertEquals(seconds1, hours1.min(seconds1));
+        Assert.assertEquals(minutes1, hours1.min(minutes1));
+        Assert.assertEquals(hours1, hours1.min(hours1));
+        Assert.assertEquals(hours1, hours1.min(days1));
+        //
+        Assert.assertEquals(nanos1, days1.min(nanos1));
+        Assert.assertEquals(micros1, days1.min(micros1));
+        Assert.assertEquals(millis1, days1.min(millis1));
+        Assert.assertEquals(seconds1, days1.min(seconds1));
+        Assert.assertEquals(minutes1, days1.min(minutes1));
+        Assert.assertEquals(hours1, days1.min(hours1));
+        Assert.assertEquals(days1, days1.min(days1));
     }
 
     @Test
