@@ -213,7 +213,7 @@ public class TestAbstractIOSessionPool {
         Assert.assertThat(entry2, CoreMatchers.notNullValue());
         entry2.session = ioSession2;
 
-        impl.closeIdle(TimeValue.ofMilliseconds(0L));
+        impl.closeIdle(TimeValue.ZERO_MILLISECONDS);
 
         Mockito.verify(impl).closeSession(ioSession1, CloseMode.GRACEFUL);
         Mockito.verify(impl).closeSession(ioSession2, CloseMode.GRACEFUL);
