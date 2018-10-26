@@ -44,6 +44,10 @@ public enum URIScheme {
         this.id = Args.notBlank(id, "Id");
     }
 
+    public String getId() {
+        return id;
+    }
+
     public boolean same(final String scheme) {
         return id.equalsIgnoreCase(scheme);
     }
