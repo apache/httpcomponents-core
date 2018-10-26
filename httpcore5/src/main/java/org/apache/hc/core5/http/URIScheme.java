@@ -41,7 +41,7 @@ public enum URIScheme {
     public final String id;
 
     URIScheme(final String id) {
-        this.id = Args.notBlank(id, "Id");
+        this.id = Args.notBlank(id, "id");
     }
 
     public String getId() {
