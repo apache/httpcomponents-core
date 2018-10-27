@@ -171,10 +171,10 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
+    public final void consume(final ByteBuffer src) throws IOException {
         final AsyncRequestConsumer<T> requestConsumer = requestConsumerRef.get();
         Asserts.notNull(requestConsumer, "Data consumer");
-        return requestConsumer.consume(src);
+        requestConsumer.consume(src);
     }
 
     @Override

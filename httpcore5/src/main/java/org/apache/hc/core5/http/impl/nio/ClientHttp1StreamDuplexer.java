@@ -352,9 +352,9 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
-    int consumeData(final ByteBuffer src) throws HttpException, IOException {
+    void consumeData(final ByteBuffer src) throws HttpException, IOException {
         Asserts.notNull(incoming, "Response stream handler");
-        return incoming.consumeData(src);
+        incoming.consumeData(src);
     }
 
     @Override

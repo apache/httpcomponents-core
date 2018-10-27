@@ -115,8 +115,8 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
-        return buffer.fill(src);
+    public final void consume(final ByteBuffer src) throws IOException {
+        buffer.fill(src);
     }
 
     @Override

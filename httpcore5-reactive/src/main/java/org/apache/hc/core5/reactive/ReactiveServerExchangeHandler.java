@@ -26,6 +26,11 @@
  */
 package org.apache.hc.core5.reactive;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -37,11 +42,6 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.reactivestreams.Publisher;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An implementation of {@link AsyncServerExchangeHandler} designed to work with reactive streams.
@@ -102,8 +102,8 @@ public final class ReactiveServerExchangeHandler implements AsyncServerExchangeH
     }
 
     @Override
-    public int consume(final ByteBuffer src) throws IOException {
-        return requestConsumer.consume(src);
+    public void consume(final ByteBuffer src) throws IOException {
+        requestConsumer.consume(src);
     }
 
     @Override

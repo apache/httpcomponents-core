@@ -264,9 +264,9 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
+    public final void consume(final ByteBuffer src) throws IOException {
         Asserts.notNull(inputBuffer, "Input buffer");
-        return inputBuffer.fill(src);
+        inputBuffer.fill(src);
     }
 
     @Override

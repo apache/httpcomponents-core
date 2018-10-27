@@ -65,11 +65,6 @@ public class StringAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<S
     }
 
     @Override
-    protected int remainingCapacity() {
-        return content.capacity() - content.length();
-    }
-
-    @Override
     protected final void data(final CharBuffer src, final boolean endOfStream) {
         Args.notNull(src, "CharBuffer");
         final int chunk = src.remaining();

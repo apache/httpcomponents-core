@@ -837,8 +837,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     }
 
                     @Override
-                    public int consume(final ByteBuffer src) throws IOException {
-                        return Integer.MAX_VALUE;
+                    public void consume(final ByteBuffer src) throws IOException {
                     }
 
                     @Override
@@ -929,8 +928,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     }
 
                     @Override
-                    public int consume(final ByteBuffer src) throws IOException {
-                        return Integer.MAX_VALUE;
+                    public void consume(final ByteBuffer src) throws IOException {
                     }
 
                     @Override
@@ -1670,8 +1668,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     }
 
                     @Override
-                    public int consume(final ByteBuffer src) throws IOException {
-                        return Integer.MAX_VALUE;
+                    public void consume(final ByteBuffer src) throws IOException {
                     }
 
                     @Override

@@ -150,8 +150,7 @@ public abstract class AbstractAsyncServerAuthFilter<T> implements AsyncFilterHan
             }
 
             @Override
-            public int consume(final ByteBuffer src) throws IOException {
-                return Integer.MAX_VALUE;
+            public void consume(final ByteBuffer src) throws IOException {
             }
 
             @Override

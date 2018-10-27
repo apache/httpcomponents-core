@@ -178,8 +178,8 @@ public class AsyncFullDuplexClientExample {
             }
 
             @Override
-            public int consume(final ByteBuffer src) throws IOException {
-                return responseConsumer.consume(src);
+            public void consume(final ByteBuffer src) throws IOException {
+                responseConsumer.consume(src);
             }
 
             @Override

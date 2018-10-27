@@ -129,7 +129,7 @@ public class AsyncFullDuplexServerExample {
                             }
 
                             @Override
-                            public int consume(final ByteBuffer src) throws IOException {
+                            public void consume(final ByteBuffer src) throws IOException {
                                 if (buffer.position() == 0) {
                                     if (outputDataChannel != null) {
                                         outputDataChannel.write(src);
@@ -142,7 +142,6 @@ public class AsyncFullDuplexServerExample {
                                         outputDataChannel.requestOutput();
                                     }
                                 }
-                                return buffer.remaining();
                             }
 
                             @Override

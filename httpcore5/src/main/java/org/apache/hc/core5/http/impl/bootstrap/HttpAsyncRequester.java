@@ -331,8 +331,8 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                                 }
 
                                 @Override
-                                public int consume(final ByteBuffer src) throws IOException {
-                                    return exchangeHandler.consume(src);
+                                public void consume(final ByteBuffer src) throws IOException {
+                                    exchangeHandler.consume(src);
                                 }
 
                                 @Override

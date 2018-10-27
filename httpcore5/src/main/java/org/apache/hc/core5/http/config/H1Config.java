@@ -50,9 +50,11 @@ public class H1Config {
     private final int maxLineLength;
     private final int maxHeaderCount;
     private final int maxEmptyLineCount;
+    private final int initialWindowSize;
 
     H1Config(final int bufferSize, final int chunkSizeHint, final Timeout waitForContinueTimeout,
-             final int maxLineLength, final int maxHeaderCount, final int maxEmptyLineCount) {
+             final int maxLineLength, final int maxHeaderCount, final int maxEmptyLineCount,
+             final int initialWindowSize) {
         super();
         this.bufferSize = bufferSize;
         this.chunkSizeHint = chunkSizeHint;
@@ -60,6 +62,7 @@ public class H1Config {
         this.maxLineLength = maxLineLength;
         this.maxHeaderCount = maxHeaderCount;
         this.maxEmptyLineCount = maxEmptyLineCount;
+        this.initialWindowSize = initialWindowSize;
     }
 
     public int getBufferSize() {
@@ -86,6 +89,10 @@ public class H1Config {
         return this.maxEmptyLineCount;
     }
 
+    public int getInitialWindowSize() {
+        return initialWindowSize;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -95,6 +102,7 @@ public class H1Config {
                 .append(", maxLineLength=").append(maxLineLength)
                 .append(", maxHeaderCount=").append(maxHeaderCount)
                 .append(", maxEmptyLineCount=").append(maxEmptyLineCount)
+                .append(", initialWindowSize=").append(initialWindowSize)
                 .append("]");
         return builder.toString();
     }
@@ -122,6 +130,7 @@ public class H1Config {
         private int maxLineLength;
         private int maxHeaderCount;
         private int maxEmptyLineCount;
+        private int initialWindowSize;
 
         Builder() {
             this.bufferSize = -1;
@@ -130,6 +139,7 @@ public class H1Config {
             this.maxLineLength = -1;
             this.maxHeaderCount = -1;
             this.maxEmptyLineCount = 10;
+            this.initialWindowSize = -1;
         }
 
         public Builder setBufferSize(final int bufferSize) {
@@ -162,6 +172,11 @@ public class H1Config {
             return this;
         }
 
+        public Builder setInitialWindowSize(final int initialWindowSize) {
+            this.initialWindowSize = initialWindowSize;
+            return this;
+        }
+
         public H1Config build() {
             return new H1Config(
                     bufferSize > 0 ? bufferSize : 8192,
@@ -169,7 +184,8 @@ public class H1Config {
                     waitForContinueTimeout != null ? waitForContinueTimeout : Timeout.ofSeconds(3),
                     maxLineLength,
                     maxHeaderCount,
-                    maxEmptyLineCount);
+                    maxEmptyLineCount,
+                    initialWindowSize > 0 ? initialWindowSize : 65535);
         }
 
     }

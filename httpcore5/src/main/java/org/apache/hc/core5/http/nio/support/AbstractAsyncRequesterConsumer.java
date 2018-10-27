@@ -116,8 +116,8 @@ public abstract class AbstractAsyncRequesterConsumer<T, E> implements AsyncReque
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
-        return entityConsumer.consume(src);
+    public final void consume(final ByteBuffer src) throws IOException {
+        entityConsumer.consume(src);
     }
 
     @Override

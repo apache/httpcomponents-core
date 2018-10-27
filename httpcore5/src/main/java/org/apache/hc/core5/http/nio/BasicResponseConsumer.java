@@ -109,8 +109,8 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     }
 
     @Override
-    public int consume(final ByteBuffer src) throws IOException {
-        return dataConsumer.consume(src);
+    public void consume(final ByteBuffer src) throws IOException {
+        dataConsumer.consume(src);
     }
 
     @Override

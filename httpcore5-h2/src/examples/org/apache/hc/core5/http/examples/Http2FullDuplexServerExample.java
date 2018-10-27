@@ -148,7 +148,7 @@ public class Http2FullDuplexServerExample {
                             }
 
                             @Override
-                            public int consume(final ByteBuffer src) throws IOException {
+                            public void consume(final ByteBuffer src) throws IOException {
                                 if (buffer.position() == 0) {
                                     if (outputDataChannel != null) {
                                         outputDataChannel.write(src);
@@ -161,7 +161,6 @@ public class Http2FullDuplexServerExample {
                                         outputDataChannel.requestOutput();
                                     }
                                 }
-                                return buffer.remaining();
                             }
 
                             @Override

@@ -274,14 +274,14 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         }
     }
 
-    int consumeData(final ByteBuffer src) throws HttpException, IOException {
+    void consumeData(final ByteBuffer src) throws HttpException, IOException {
         if (done.get() || requestState != MessageState.BODY) {
             throw new ProtocolException("Unexpected message data");
         }
         if (responseState == MessageState.ACK) {
             outputChannel.requestOutput();
         }
-        return exchangeHandler.consume(src);
+        exchangeHandler.consume(src);
     }
 
     void updateCapacity(final CapacityChannel capacityChannel) throws IOException {

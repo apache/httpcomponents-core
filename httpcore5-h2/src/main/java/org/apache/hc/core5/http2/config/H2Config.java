@@ -167,7 +167,12 @@ public class H2Config {
 
         public H2Config build() {
             return new H2Config(
-                    headerTableSize, pushEnabled, maxConcurrentStreams, initialWindowSize, maxFrameSize, maxHeaderListSize);
+                    headerTableSize,
+                    pushEnabled,
+                    maxConcurrentStreams,
+                    initialWindowSize > 0 ? initialWindowSize : 65535,
+                    maxFrameSize,
+                    maxHeaderListSize);
         }
 
     }

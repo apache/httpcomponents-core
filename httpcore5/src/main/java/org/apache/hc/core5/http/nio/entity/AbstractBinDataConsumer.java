@@ -45,14 +45,6 @@ public abstract class AbstractBinDataConsumer implements AsyncDataConsumer {
     private static final ByteBuffer EMPTY = ByteBuffer.wrap(new byte[0]);
 
     /**
-     * Triggered to obtain the remaining capacity of the consumer.
-     *
-     * @return the total number of bytes this consumer is capable
-     * to process without having to allocate additional resources.
-     */
-    protected abstract int remainingCapacity();
-
-    /**
      * Triggered to obtain the capacity increment.
      *
      * @return the number of bytes this consumer is prepared to process.
@@ -79,9 +71,8 @@ public abstract class AbstractBinDataConsumer implements AsyncDataConsumer {
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
+    public final void consume(final ByteBuffer src) throws IOException {
         data(src, false);
-        return remainingCapacity();
     }
 
     @Override

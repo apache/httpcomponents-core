@@ -848,8 +848,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                     }
 
                     @Override
-                    public int consume(final ByteBuffer src) throws IOException {
-                        return Integer.MAX_VALUE;
+                    public void consume(final ByteBuffer src) throws IOException {
                     }
 
                     @Override

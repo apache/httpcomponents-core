@@ -52,16 +52,14 @@ public interface AsyncDataConsumer extends ResourceHolder {
     /**
      * Triggered to pass incoming data to the data consumer. The consumer must
      * consume the entire content of the data buffer. The consumer must stop
-     * incrementing its capacity on the capacity channel and must return zero
-     * capacity from this method if it is unable to accept more data.
-     * Once the data consumer has handled accumulated data or allocated more
-     * intermediate storage it can update its capacity information on the capacity
-     * channel.
+     * incrementing its capacity on the capacity channel if it is unable to
+     * accept more data. Once the data consumer has handled accumulated data
+     * or allocated more intermediate storage it can update its capacity
+     * information on the capacity channel.
      *
      * @param src data source.
-     * @return current capacity of the data consumer
      */
-    int consume(ByteBuffer src) throws IOException;
+    void consume(ByteBuffer src) throws IOException;
 
     /**
      * Triggered to signal termination of the data stream.

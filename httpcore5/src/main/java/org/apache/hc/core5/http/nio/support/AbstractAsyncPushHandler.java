@@ -112,8 +112,8 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
-        return responseConsumer.consume(src);
+    public final void consume(final ByteBuffer src) throws IOException {
+        responseConsumer.consume(src);
     }
 
     @Override

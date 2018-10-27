@@ -26,6 +26,13 @@
  */
 package org.apache.hc.core5.reactive;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.Future;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
@@ -39,13 +46,6 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 import org.reactivestreams.Publisher;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * An {@link AsyncResponseConsumer} that publishes the response body through
@@ -152,8 +152,8 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     }
 
     @Override
-    public int consume(final ByteBuffer src) throws IOException {
-        return reactiveDataConsumer.consume(src);
+    public void consume(final ByteBuffer src) throws IOException {
+        reactiveDataConsumer.consume(src);
     }
 
     @Override

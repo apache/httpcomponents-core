@@ -77,11 +77,11 @@ public class DigestingEntityConsumer<T> implements AsyncEntityConsumer<T> {
     }
 
     @Override
-    public int consume(final ByteBuffer src) throws IOException {
+    public void consume(final ByteBuffer src) throws IOException {
         src.mark();
         digester.update(src);
         src.reset();
-        return wrapped.consume(src);
+        wrapped.consume(src);
     }
 
     @Override

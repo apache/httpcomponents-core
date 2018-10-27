@@ -86,7 +86,7 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
     }
 
     @Override
-    public int consume(final ByteBuffer byteBuffer) throws IOException {
+    public void consume(final ByteBuffer byteBuffer) throws IOException {
         if (completed) {
             throw new IllegalStateException("Received data past end of stream");
         }
@@ -98,7 +98,6 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
         buffers.add(ByteBuffer.wrap(copy));
 
         flushToSubscriber();
-        return remainingBufferSpace.get();
     }
 
     @Override

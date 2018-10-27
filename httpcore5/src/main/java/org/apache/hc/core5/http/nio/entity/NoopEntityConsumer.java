@@ -59,8 +59,7 @@ public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
-        return Integer.MAX_VALUE;
+    public final void consume(final ByteBuffer src) throws IOException {
     }
 
     @Override

@@ -109,9 +109,9 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
     }
 
     @Override
-    public int consume(final ByteBuffer src) throws IOException {
+    public void consume(final ByteBuffer src) throws IOException {
         Asserts.notNull(dataConsumer, "Data consumer");
-        return dataConsumer.consume(src);
+        dataConsumer.consume(src);
     }
 
     @Override

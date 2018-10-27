@@ -101,9 +101,11 @@ public class BasicAsyncServerExpectationDecorator implements AsyncServerExchange
     }
 
     @Override
-    public final int consume(final ByteBuffer src) throws IOException {
+    public final void consume(final ByteBuffer src) throws IOException {
         final AsyncResponseProducer responseProducer = responseProducerRef.get();
-        return responseProducer == null ? handler.consume(src) : Integer.MAX_VALUE;
+        if (responseProducer == null) {
+            handler.consume(src);
+        }
     }
 
     @Override

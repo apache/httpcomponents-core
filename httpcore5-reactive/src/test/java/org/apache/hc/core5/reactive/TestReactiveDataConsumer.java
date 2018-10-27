@@ -159,10 +159,10 @@ public class TestReactiveDataConsumer {
             }
         });
 
-        Assert.assertEquals(ReactiveDataConsumer.MAX_BUFFER - (1 * 1024), consumer.consume(data.duplicate()));
-        Assert.assertEquals(ReactiveDataConsumer.MAX_BUFFER - (2 * 1024), consumer.consume(data.duplicate()));
-        Assert.assertEquals(ReactiveDataConsumer.MAX_BUFFER - (3 * 1024), consumer.consume(data.duplicate()));
-        Assert.assertEquals(ReactiveDataConsumer.MAX_BUFFER - (4 * 1024), consumer.consume(data.duplicate()));
+        consumer.consume(data.duplicate());
+        consumer.consume(data.duplicate());
+        consumer.consume(data.duplicate());
+        consumer.consume(data.duplicate());
 
         subscription.get().request(1);
         Assert.assertEquals(1024, lastIncrement.get());

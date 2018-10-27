@@ -225,7 +225,7 @@ class BenchmarkWorker implements ResourceHolder {
             }
 
             @Override
-            public int consume(final ByteBuffer src) throws IOException {
+            public void consume(final ByteBuffer src) throws IOException {
                 final int n = src.remaining();
                 contentLength.addAndGet(n);
                 stats.incTotalContentLength(n);
@@ -233,7 +233,6 @@ class BenchmarkWorker implements ResourceHolder {
                     final CharsetDecoder decoder = (charset != null ? charset : StandardCharsets.US_ASCII).newDecoder();
                     System.out.print(decoder.decode(src));
                 }
-                return Integer.MAX_VALUE;
             }
 
             @Override

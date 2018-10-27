@@ -344,7 +344,7 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
-        public int consume(final ByteBuffer src) throws IOException {
+        public void consume(final ByteBuffer src) throws IOException {
             synchronized (exchangeState) {
                 System.out.println("[client->proxy] " + exchangeState.id + " " + src.remaining() + " bytes received");
                 DataStreamChannel dataChannel = exchangeState.requestDataChannel;
@@ -369,7 +369,6 @@ public class AsyncReverseProxyExample {
                 if (dataChannel != null) {
                     dataChannel.requestOutput();
                 }
-                return capacity;
             }
         }
 
@@ -586,7 +585,7 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
-        public int consume(final ByteBuffer src) throws IOException {
+        public void consume(final ByteBuffer src) throws IOException {
             synchronized (exchangeState) {
                 System.out.println("[proxy<-origin] " + exchangeState.id + " " + src.remaining() + " bytes received");
                 DataStreamChannel dataChannel = exchangeState.responseDataChannel;
@@ -611,7 +610,6 @@ public class AsyncReverseProxyExample {
                 if (dataChannel != null) {
                     dataChannel.requestOutput();
                 }
-                return capacity;
             }
         }
 
