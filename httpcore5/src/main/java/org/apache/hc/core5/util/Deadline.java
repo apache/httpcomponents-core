@@ -85,6 +85,17 @@ public class Deadline {
     }
 
     /**
+     * Calculates a deadline from now plus a given time value. Non-positive time values
+     * represent an indefinite timeout without a deadline.
+     *
+     * @param timeValue time value to add to {@code timeMillis}.
+     * @return a deadline representing the current time plus the given time value.
+     */
+    public static Deadline calculate(final TimeValue timeValue) {
+        return calculate(System.currentTimeMillis(), timeValue);
+    }
+
+    /**
      * Creates a deadline from a UNIX time in milliseconds.
      *
      * @param value a UNIX time in milliseconds.
@@ -118,27 +129,25 @@ public class Deadline {
      */
     private final long value;
 
-    private Deadline(final long deadline) {
+    /**
+     * Constructs a new instance with the given UNIX time in milliseconds.
+     *
+     * @param deadlineMillis UNIX time in milliseconds.
+     */
+    private Deadline(final long deadlineMillis) {
         super();
-        this.value = deadline;
+        this.value = deadlineMillis;
     }
 
     /**
-     * Returns the difference in milliseconds between the deadline and the last time we checked it expired.
+     * Returns the difference in milliseconds between the deadline and now.
      *
-     * @return the different in milliseconds between the deadline and the last time we checked it expired.
+     * @return the different in milliseconds between the deadline and now.
+     * @deprecated Use {@link #remaining()}
      */
+    @Deprecated
     public long difference() {
-        return lastCheck - value;
-    }
-
-    /**
-     * Returns the difference as a TimeValue between the deadline and the last time we checked it expired.
-     *
-     * @return Returns the different as a TimeValue between the deadline and the last time we checked it expired.
-     */
-    private TimeValue differenceTimeValue() {
-        return TimeValue.of(difference(), TimeUnit.MILLISECONDS);
+        return remaining();
     }
 
     @Override
@@ -164,7 +173,7 @@ public class Deadline {
      * @return a formatted string.
      */
     public String format(final TimeUnit overdueTimeUnit) {
-        return String.format("Deadline: %s, %s overdue", formatTarget(), differenceTimeValue());
+        return String.format("Deadline: %s, %s overdue", formatTarget(), remainingTimeValue());
     }
 
     /**
@@ -174,6 +183,15 @@ public class Deadline {
      */
     public String formatTarget() {
         return simpleDateFormat.format(value);
+    }
+
+    /**
+     * Package private for testing.
+     *
+     * @return the last time we checked the current time.
+     */
+    long getLastCheck() {
+        return lastCheck;
     }
 
     /**
@@ -207,8 +225,8 @@ public class Deadline {
      * @return whether the deadline has expired.
      */
     public boolean isExpired() {
-        this.lastCheck = System.currentTimeMillis();
-        return this.lastCheck > value;
+        setLastCheck();
+        return value < this.lastCheck;
     }
 
     /**
@@ -235,8 +253,8 @@ public class Deadline {
      * @return whether this deadline has not expired.
      */
     public boolean isNotExpired() {
-        this.lastCheck = System.currentTimeMillis();
-        return value < this.lastCheck;
+        setLastCheck();
+        return value >= this.lastCheck;
     }
 
     /**
@@ -247,6 +265,29 @@ public class Deadline {
      */
     public Deadline min(final Deadline other) {
         return value <= other.value ? this : other;
+    }
+
+    /**
+     * Returns the difference in milliseconds between the deadline and now.
+     *
+     * @return the different in milliseconds between the deadline and now.
+     */
+    public long remaining() {
+        setLastCheck();
+        return value - lastCheck;
+    }
+
+    /**
+     * Returns the difference as a TimeValue between the deadline and now.
+     *
+     * @return Returns the different as a TimeValue between the deadline and now.
+     */
+    public TimeValue remainingTimeValue() {
+        return TimeValue.of(remaining(), TimeUnit.MILLISECONDS);
+    }
+
+    private void setLastCheck() {
+        this.lastCheck = System.currentTimeMillis();
     }
 
     @Override

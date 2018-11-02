@@ -280,7 +280,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             if (entry == null) {
                 break;
             }
-            if (entry.getExpiryDeadline().isNotExpired()) {
+            if (entry.getExpiryDeadline().isExpired()) {
                 entry.discardConnection(CloseMode.GRACEFUL);
                 this.available.remove(entry);
                 pool.free(entry, false);
@@ -641,7 +641,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             super();
             this.route = route;
             this.state = state;
-            this.deadline = Deadline.calculate(System.currentTimeMillis(), requestTimeout);
+            this.deadline = Deadline.calculate(requestTimeout);
             this.future = future;
             this.completed = new AtomicBoolean(false);
         }

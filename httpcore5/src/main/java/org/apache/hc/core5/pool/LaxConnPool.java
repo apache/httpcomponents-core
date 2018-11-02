@@ -302,7 +302,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 final BasicFuture<PoolEntry<T, C>> future) {
             super();
             this.state = state;
-            this.deadline = Deadline.calculate(System.currentTimeMillis(), requestTimeout);
+            this.deadline = Deadline.calculate(requestTimeout);
             this.future = future;
         }
 
@@ -408,7 +408,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         private PoolEntry<T, C> getAvailableEntry(final Object state) {
             final PoolEntry<T, C> entry = available.poll();
             if (entry != null) {
-                if (entry.getExpiryDeadline().isNotExpired()) {
+                if (entry.getExpiryDeadline().isExpired()) {
                     entry.discardConnection(CloseMode.GRACEFUL);
                 }
                 if (!LangUtils.equals(entry.getState(), state)) {
@@ -442,7 +442,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
         public void release(final PoolEntry<T, C> releasedEntry, final boolean reusable) {
             removeLeased(releasedEntry);
-            if (!reusable || releasedEntry.getExpiryDeadline().isNotExpired()) {
+            if (!reusable || releasedEntry.getExpiryDeadline().isExpired()) {
                 releasedEntry.discardConnection(CloseMode.GRACEFUL);
             }
             if (releasedEntry.hasConnection()) {
