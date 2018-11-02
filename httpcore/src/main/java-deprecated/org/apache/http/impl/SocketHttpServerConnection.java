@@ -44,6 +44,9 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
 
+/**
+ * @deprecated Do not use.
+ */
 @Deprecated
 public class SocketHttpServerConnection extends
         AbstractHttpServerConnection implements HttpInetConnection {

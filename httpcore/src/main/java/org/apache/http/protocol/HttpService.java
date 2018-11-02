@@ -442,6 +442,8 @@ public class HttpService {
 
     /**
      * Adaptor class to transition from HttpRequestHandlerResolver to HttpRequestHandlerMapper.
+     *
+     * @deprecated Do not use.
      */
     @Deprecated
     private static class HttpRequestHandlerResolverAdapter implements HttpRequestHandlerMapper {

@@ -170,6 +170,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         this(null, null);
     }
 
+    /**
+     * @deprecated Do not use.
+     */
     @Deprecated
     static IOReactorConfig convert(final int workerCount, final HttpParams params) {
         Args.notNull(params, "HTTP parameters");

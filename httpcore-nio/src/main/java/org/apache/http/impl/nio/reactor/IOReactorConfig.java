@@ -53,6 +53,9 @@ public final class IOReactorConfig implements Cloneable {
     private int rcvBufSize;
     private final int backlogSize;
 
+    /**
+     * @deprecated Use {@link Builder}.
+     */
     @Deprecated
     public IOReactorConfig() {
         super();

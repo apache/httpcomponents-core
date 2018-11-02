@@ -44,6 +44,9 @@ public abstract class AbstractHttpMessage implements HttpMessage {
 
     protected HeaderGroup headergroup;
 
+    /**
+     * @deprecated Do not use.
+     */
     @Deprecated
     protected HttpParams params;
 
