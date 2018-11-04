@@ -15,6 +15,9 @@ Changelog
 * HTTPCORE-550: When a ParseException is caught and rethrown as an IOException in org.apache.http.impl.nio.codecs.ChunkDecoder.processFooters(), the IOException does not chain the original ParseException.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* HTTPCORE-562: The reason phrase returned by org.apache.hc.core5.http.HttpResponse.getReasonPhrase() may be empty.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.10
 -------------------

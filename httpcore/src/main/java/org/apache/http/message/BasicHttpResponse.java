@@ -36,6 +36,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.ReasonPhraseCatalog;
 import org.apache.http.StatusLine;
 import org.apache.http.util.Args;
+import org.apache.http.util.TextUtils;
 
 /**
  * Basic implementation of {@link HttpResponse}.
@@ -190,7 +191,7 @@ public class BasicHttpResponse extends AbstractHttpMessage implements HttpRespon
     @Override
     public void setReasonPhrase(final String reason) {
         this.statusline = null;
-        this.reasonPhrase = reason;
+        this.reasonPhrase = TextUtils.isBlank(reason) ? null : reason;
     }
 
     // non-javadoc, see interface HttpResponse
