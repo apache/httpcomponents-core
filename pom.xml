@@ -263,6 +263,8 @@
             <exclude>src/docbkx/resources/**</exclude>
             <exclude>src/test/resources/*.truststore</exclude>
             <exclude>**/.dockerignore</exclude>
+            <!-- Eclipse can leave some file in 'bin' when an imported project misconfigured. -->
+            <exclude>bin/**</exclude>
           </excludes>
         </configuration>
       </plugin>

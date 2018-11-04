@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
 import org.apache.hc.core5.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Basic implementation of {@link HttpResponse}.
@@ -140,7 +141,7 @@ public class BasicHttpResponse extends HeaderGroup implements HttpResponse {
 
     @Override
     public void setReasonPhrase(final String reason) {
-        this.reasonPhrase = reason;
+        this.reasonPhrase = TextUtils.isBlank(reason) ? null : reason;
     }
 
     @Override

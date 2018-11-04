@@ -15,6 +15,9 @@ Release 5.0-BETA6
   
 * org.apache.hc.core5.http.URIScheme.getId()
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* The reason phrase returned by org.apache.hc.core5.http.HttpResponse.getReasonPhrase() may be empty.
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 Release 5.0-BETA5
 -------------------
