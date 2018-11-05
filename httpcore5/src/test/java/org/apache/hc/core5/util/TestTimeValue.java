@@ -253,10 +253,13 @@ public class TestTimeValue {
     @Test
     public void testFromString() throws ParseException {
         Assert.assertEquals(TimeValue.ofSeconds(Long.MAX_VALUE), TimeValue.parse("9,223,372,036,854,775,807 SECONDS"));
+        Assert.assertEquals(TimeValue.ofSeconds(Long.MAX_VALUE), TimeValue.parse("9223372036854775807 SECONDS"));
+        Assert.assertEquals(TimeValue.ofSeconds(Long.MAX_VALUE), TimeValue.parse(" 9223372036854775807 SECONDS "));
         Assert.assertEquals(TimeValue.ofSeconds(Long.MAX_VALUE), TimeValue.parse("9,223,372,036,854,775,807 Seconds"));
         Assert.assertEquals(TimeValue.ofSeconds(Long.MAX_VALUE), TimeValue.parse("9,223,372,036,854,775,807  Seconds"));
         Assert.assertEquals(TimeValue.ofSeconds(Long.MAX_VALUE), TimeValue.parse("9,223,372,036,854,775,807\tSeconds"));
         Assert.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.parse("0 MILLISECONDS"));
+        Assert.assertEquals(TimeValue.ofMilliseconds(1), TimeValue.parse("1 MILLISECOND"));
     }
 
 }

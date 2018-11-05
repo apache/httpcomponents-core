@@ -181,20 +181,32 @@ public class TimeValue {
     }
 
     /**
-     * Parses a TimeValue in the format {@code <Integer><SPACE><TimeUnit>}, for example {@code "1,200 MILLISECONDS"}
+     * Parses a TimeValue in the format {@code <Long><SPACE><TimeUnit>}, for example {@code "1,200 MILLISECONDS"}.
+     * <p>
+     * Parses:
+     * </p>
+     * <ul>
+     * <li>{@code "1,200 MILLISECONDS"} Note the comma.</li>
+     * <li>{@code "1200 MILLISECONDS"} Without a comma.</li>
+     * <li>{@code " 1,200 MILLISECONDS "} Spaces are ignored.</li>
+     * <li></li>
+     * </ul>
+     *
      *
      * @param value the TimeValue to parse
      * @return a new TimeValue
      * @throws ParseException if the number cannot be parsed
      */
     public static TimeValue parse(final String value) throws ParseException {
-        final String split[] = value.split("\\s+");
+        final Locale locale = Locale.ROOT;
+        final String split[] = value.trim().split("\\s+");
         if (split.length < 2) {
-            throw new IllegalArgumentException(
-                    String.format("Expected format for <Integer><SPACE><TimeUnit>: ", value));
+            throw new IllegalArgumentException(String.format("Expected format for <Long><SPACE><TimeUnit>: ", value));
         }
-        return TimeValue.of(NumberFormat.getInstance(Locale.ROOT).parse(split[0]).longValue(),
-                TimeUnit.valueOf(split[1].trim().toUpperCase(Locale.ROOT)));
+        final String clean0 = split[0].trim();
+        final String clean1 = split[1].trim().toUpperCase(Locale.ROOT);
+        final String timeUnitStr = clean1.endsWith("S") ? clean1 : clean1 + "S";
+        return TimeValue.of(NumberFormat.getInstance(locale).parse(clean0).longValue(), TimeUnit.valueOf(timeUnitStr));
     }
 
     private final long duration;
