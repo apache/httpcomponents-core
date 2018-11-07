@@ -483,7 +483,6 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         }
 
         public void validatePendingRequests() {
-            final long now = System.currentTimeMillis();
             final Iterator<LeaseRequest<T, C>> it = pending.iterator();
             while (it.hasNext()) {
                 final LeaseRequest<T, C> request = it.next();
