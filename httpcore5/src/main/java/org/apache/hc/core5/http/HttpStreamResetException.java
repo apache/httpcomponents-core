@@ -35,6 +35,8 @@ import java.io.IOException;
  */
 public class HttpStreamResetException extends IOException {
 
+    private static final long serialVersionUID = 1L;
+
     public HttpStreamResetException(final String message) {
         super(message);
     }

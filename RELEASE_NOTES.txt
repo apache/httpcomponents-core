@@ -21,6 +21,9 @@ Release 5.0-BETA6
 
 * TimeValue can parse more leniently: Allow spaces and singular words for time units, for example " 1 SECOND ".
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* Add HttpStreamResetException.serialVersionUID 
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 
 Release 5.0-BETA5
