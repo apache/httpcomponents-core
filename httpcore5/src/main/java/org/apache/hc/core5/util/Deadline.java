@@ -122,6 +122,8 @@ public class Deadline {
         return fromUnixMillis(simpleDateFormat.parse(source).getTime());
     }
 
+    private volatile boolean frozen;
+
     private volatile long lastCheck;
 
     /*
@@ -137,6 +139,7 @@ public class Deadline {
     private Deadline(final long deadlineMillis) {
         super();
         this.value = deadlineMillis;
+        setLastCheck();
     }
 
     /**
@@ -183,6 +186,11 @@ public class Deadline {
      */
     public String formatTarget() {
         return simpleDateFormat.format(value);
+    }
+
+    public Deadline freeze() {
+        frozen = true;
+        return this;
     }
 
     /**
@@ -287,8 +295,9 @@ public class Deadline {
     }
 
     private void setLastCheck() {
-        this.lastCheck = System.currentTimeMillis();
-    }
+        if (!frozen) {
+            this.lastCheck = System.currentTimeMillis();
+        }}
 
     @Override
     public String toString() {
