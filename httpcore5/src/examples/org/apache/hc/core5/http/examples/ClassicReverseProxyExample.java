@@ -107,16 +107,16 @@ public class ClassicReverseProxyExample {
 
                     @Override
                     public void onLease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
-                        StringBuilder buf = new StringBuilder();
+                        final StringBuilder buf = new StringBuilder();
                         buf.append("[proxy->origin] " + Thread.currentThread()  + " connection leased ").append(route);
                         System.out.println(buf.toString());
                     }
 
                     @Override
                     public void onRelease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
-                        StringBuilder buf = new StringBuilder();
+                        final StringBuilder buf = new StringBuilder();
                         buf.append("[proxy->origin] " + Thread.currentThread()  + " connection released ").append(route);
-                        PoolStats totals = connPoolStats.getTotalStats();
+                        final PoolStats totals = connPoolStats.getTotalStats();
                         buf.append("; total kept alive: ").append(totals.getAvailable()).append("; ");
                         buf.append("total allocated: ").append(totals.getLeased() + totals.getAvailable());
                         buf.append(" of ").append(totals.getMax());
@@ -225,8 +225,8 @@ public class ClassicReverseProxyExample {
                     incomingRequest.getMethod(),
                     targetHost,
                     incomingRequest.getPath());
-            for (Iterator<Header> it = incomingRequest.headerIterator(); it.hasNext(); ) {
-                Header header = it.next();
+            for (final Iterator<Header> it = incomingRequest.headerIterator(); it.hasNext(); ) {
+                final Header header = it.next();
                 if (!HOP_BY_HOP.contains(header.getName().toLowerCase(Locale.ROOT))) {
                     outgoingRequest.addHeader(header);
                 }
@@ -235,8 +235,8 @@ public class ClassicReverseProxyExample {
             final ClassicHttpResponse incomingResponse = requester.execute(
                     targetHost, outgoingRequest, Timeout.ofMinutes(1), clientContext);
             outgoingResponse.setCode(incomingResponse.getCode());
-            for (Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
-                Header header = it.next();
+            for (final Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
+                final Header header = it.next();
                 if (!HOP_BY_HOP.contains(header.getName().toLowerCase(Locale.ROOT))) {
                     outgoingResponse.addHeader(header);
                 }

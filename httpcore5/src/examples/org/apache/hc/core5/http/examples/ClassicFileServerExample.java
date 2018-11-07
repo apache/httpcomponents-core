@@ -67,13 +67,13 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class ClassicFileServerExample {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
             System.err.println("Please specify document root directory");
             System.exit(1);
         }
         // Document root directory
-        String docRoot = args[0];
+        final String docRoot = args[0];
         int port = 8080;
         if (args.length >= 2) {
             port = Integer.parseInt(args[1]);
@@ -82,7 +82,7 @@ public class ClassicFileServerExample {
         SSLContext sslContext = null;
         if (port == 8443) {
             // Initialize SSL context
-            URL url = ClassicFileServerExample.class.getResource("/my.keystore");
+            final URL url = ClassicFileServerExample.class.getResource("/my.keystore");
             if (url == null) {
                 System.out.println("Keystore not found");
                 System.exit(1);
@@ -92,7 +92,7 @@ public class ClassicFileServerExample {
                     .build();
         }
 
-        SocketConfig socketConfig = SocketConfig.custom()
+        final SocketConfig socketConfig = SocketConfig.custom()
                 .setSoTimeout(15, TimeUnit.SECONDS)
                 .setTcpNoDelay(true)
                 .build();
@@ -151,15 +151,15 @@ public class ClassicFileServerExample {
                 final ClassicHttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            String method = request.getMethod().toUpperCase(Locale.ROOT);
+            final String method = request.getMethod().toUpperCase(Locale.ROOT);
             if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
                 throw new MethodNotSupportedException(method + " method not supported");
             }
-            String path = request.getPath();
+            final String path = request.getPath();
 
-            HttpEntity incomingEntity = request.getEntity();
+            final HttpEntity incomingEntity = request.getEntity();
             if (incomingEntity != null) {
-                byte[] entityContent = EntityUtils.toByteArray(incomingEntity);
+                final byte[] entityContent = EntityUtils.toByteArray(incomingEntity);
                 System.out.println("Incoming incomingEntity content (bytes): " + entityContent.length);
             }
 
@@ -167,7 +167,7 @@ public class ClassicFileServerExample {
             if (!file.exists()) {
 
                 response.setCode(HttpStatus.SC_NOT_FOUND);
-                StringEntity outgoingEntity = new StringEntity(
+                final StringEntity outgoingEntity = new StringEntity(
                         "<html><body><h1>File " + file.getPath() +
                         " not found</h1></body></html>",
                         ContentType.create("text/html", "UTF-8"));
@@ -177,17 +177,17 @@ public class ClassicFileServerExample {
             } else if (!file.canRead() || file.isDirectory()) {
 
                 response.setCode(HttpStatus.SC_FORBIDDEN);
-                StringEntity outgoingEntity = new StringEntity(
+                final StringEntity outgoingEntity = new StringEntity(
                         "<html><body><h1>Access denied</h1></body></html>",
                         ContentType.create("text/html", "UTF-8"));
                 response.setEntity(outgoingEntity);
                 System.out.println("Cannot read file " + file.getPath());
 
             } else {
-                HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                EndpointDetails endpoint = coreContext.getEndpointDetails();
+                final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
+                final EndpointDetails endpoint = coreContext.getEndpointDetails();
                 response.setCode(HttpStatus.SC_OK);
-                FileEntity body = new FileEntity(file, ContentType.create("text/html", (Charset) null));
+                final FileEntity body = new FileEntity(file, ContentType.create("text/html", (Charset) null));
                 response.setEntity(body);
                 System.out.println(endpoint + ": serving file " + file.getPath());
             }

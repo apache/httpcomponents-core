@@ -67,9 +67,9 @@ import org.apache.hc.core5.util.Timeout;
  */
 public class AsyncFullDuplexClientExample {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
 
-        IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
+        final IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
                 .setSoTimeout(5, TimeUnit.SECONDS)
                 .build();
 
@@ -147,7 +147,7 @@ public class AsyncFullDuplexClientExample {
             }
 
             @Override
-            public void produceRequest(final RequestChannel channel, HttpContext httpContext) throws HttpException, IOException {
+            public void produceRequest(final RequestChannel channel, final HttpContext httpContext) throws HttpException, IOException {
                 requestProducer.sendRequest(channel, httpContext);
             }
 
@@ -162,12 +162,12 @@ public class AsyncFullDuplexClientExample {
             }
 
             @Override
-            public void consumeInformation(final HttpResponse response, HttpContext httpContext) throws HttpException, IOException {
+            public void consumeInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
                 System.out.println(requestUri + "->" + response.getCode());
             }
 
             @Override
-            public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException {
+            public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
                 System.out.println(requestUri + "->" + response.getCode());
                 responseConsumer.consumeResponse(response, entityDetails, httpContext, null);
             }

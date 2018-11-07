@@ -52,9 +52,9 @@ import org.apache.hc.core5.util.Timeout;
  */
 public class AsyncRequestExecutionExample {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
 
-        IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
+        final IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
                 .setSoTimeout(5, TimeUnit.SECONDS)
                 .build();
 
@@ -95,8 +95,8 @@ public class AsyncRequestExecutionExample {
         });
         requester.start();
 
-        HttpHost target = new HttpHost("httpbin.org");
-        String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
+        final HttpHost target = new HttpHost("httpbin.org");
+        final String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
@@ -108,8 +108,8 @@ public class AsyncRequestExecutionExample {
 
                         @Override
                         public void completed(final Message<HttpResponse, String> message) {
-                            HttpResponse response = message.getHead();
-                            String body = message.getBody();
+                            final HttpResponse response = message.getHead();
+                            final String body = message.getBody();
                             System.out.println(requestUri + "->" + response.getCode());
                             System.out.println(body);
                             latch.countDown();

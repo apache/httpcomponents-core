@@ -51,8 +51,8 @@ import org.apache.hc.core5.util.Timeout;
  */
 public class ClassicGetExecutionExample {
 
-    public static void main(String[] args) throws Exception {
-        HttpRequester httpRequester = RequesterBootstrap.bootstrap()
+    public static void main(final String[] args) throws Exception {
+        final HttpRequester httpRequester = RequesterBootstrap.bootstrap()
                 .setStreamListener(new Http1StreamListener() {
 
                     @Override
@@ -81,13 +81,13 @@ public class ClassicGetExecutionExample {
                         .build())
                 .create();
 
-        HttpCoreContext coreContext = HttpCoreContext.create();
-        HttpHost target = new HttpHost("httpbin.org");
-        String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
+        final HttpCoreContext coreContext = HttpCoreContext.create();
+        final HttpHost target = new HttpHost("httpbin.org");
+        final String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
 
         for (int i = 0; i < requestUris.length; i++) {
-            String requestUri = requestUris[i];
-            ClassicHttpRequest request = new BasicClassicHttpRequest("GET", target, requestUri);
+            final String requestUri = requestUris[i];
+            final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", target, requestUri);
             try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
                 System.out.println(requestUri + "->" + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));

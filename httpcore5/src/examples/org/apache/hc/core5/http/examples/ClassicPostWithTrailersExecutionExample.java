@@ -49,19 +49,19 @@ import org.apache.hc.core5.util.Timeout;
  * Example of POST request with trailers execution using classic I/O.
  */
 public class ClassicPostWithTrailersExecutionExample {
-    public static void main(String[] args) throws Exception {
-        HttpRequester httpRequester = RequesterBootstrap.bootstrap()
+    public static void main(final String[] args) throws Exception {
+        final HttpRequester httpRequester = RequesterBootstrap.bootstrap()
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(5, TimeUnit.SECONDS)
                         .build())
                 .create();
 
-        HttpCoreContext coreContext = HttpCoreContext.create();
-        HttpHost target = new HttpHost("httpbin.org");
+        final HttpCoreContext coreContext = HttpCoreContext.create();
+        final HttpHost target = new HttpHost("httpbin.org");
 
-        String requestUri = "/post";
-        ClassicHttpRequest request = new BasicClassicHttpRequest("POST", target, requestUri);
-        HttpEntity requestBody = new HttpEntityWithTrailers(
+        final String requestUri = "/post";
+        final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", target, requestUri);
+        final HttpEntity requestBody = new HttpEntityWithTrailers(
                 new StringEntity("Chunked message with trailers", ContentType.TEXT_PLAIN),
                 new BasicHeader("t1","Hello world"));
         request.setEntity(requestBody);

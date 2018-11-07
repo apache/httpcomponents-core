@@ -63,7 +63,7 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class AsyncFileServerExample {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
             System.err.println("Please specify document root directory");
             System.exit(1);
@@ -75,7 +75,7 @@ public class AsyncFileServerExample {
             port = Integer.parseInt(args[1]);
         }
 
-        IOReactorConfig config = IOReactorConfig.custom()
+        final IOReactorConfig config = IOReactorConfig.custom()
                 .setSoTimeout(15, TimeUnit.SECONDS)
                 .setTcpNoDelay(true)
                 .build();
@@ -97,14 +97,14 @@ public class AsyncFileServerExample {
                             final Message<HttpRequest, Void> message,
                             final ResponseTrigger responseTrigger,
                             final HttpContext context) throws HttpException, IOException {
-                        HttpRequest request = message.getHead();
+                        final HttpRequest request = message.getHead();
                         URI requestUri;
                         try {
                             requestUri = request.getUri();
-                        } catch (URISyntaxException ex) {
+                        } catch (final URISyntaxException ex) {
                             throw new ProtocolException(ex.getMessage(), ex);
                         }
-                        String path = requestUri.getPath();
+                        final String path = requestUri.getPath();
                         final File file = new File(docRoot, path);
                         if (!file.exists()) {
 
@@ -137,8 +137,8 @@ public class AsyncFileServerExample {
                                 contentType = ContentType.DEFAULT_BINARY;
                             }
 
-                            HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                            EndpointDetails endpoint = coreContext.getEndpointDetails();
+                            final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
+                            final EndpointDetails endpoint = coreContext.getEndpointDetails();
                             System.out.println(endpoint + ": serving file " + file.getPath());
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_OK, new FileEntityProducer(file, contentType)), context);
@@ -157,8 +157,8 @@ public class AsyncFileServerExample {
         });
 
         server.start();
-        Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
-        ListenerEndpoint listenerEndpoint = future.get();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
+        final ListenerEndpoint listenerEndpoint = future.get();
         System.out.print("Listening on " + listenerEndpoint.getAddress());
         server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));
     }

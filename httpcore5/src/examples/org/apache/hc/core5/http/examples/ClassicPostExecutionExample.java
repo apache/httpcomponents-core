@@ -58,8 +58,8 @@ import org.apache.hc.core5.util.Timeout;
  */
 public class ClassicPostExecutionExample {
 
-    public static void main(String[] args) throws Exception {
-        HttpRequester httpRequester = RequesterBootstrap.bootstrap()
+    public static void main(final String[] args) throws Exception {
+        final HttpRequester httpRequester = RequesterBootstrap.bootstrap()
                 .setStreamListener(new Http1StreamListener() {
 
                     @Override
@@ -87,10 +87,10 @@ public class ClassicPostExecutionExample {
                         .setSoTimeout(5, TimeUnit.SECONDS)
                         .build())
                 .create();
-        HttpCoreContext coreContext = HttpCoreContext.create();
-        HttpHost target = new HttpHost("httpbin.org");
+        final HttpCoreContext coreContext = HttpCoreContext.create();
+        final HttpHost target = new HttpHost("httpbin.org");
 
-        HttpEntity[] requestBodies = {
+        final HttpEntity[] requestBodies = {
                 new StringEntity(
                         "This is the first test request",
                         ContentType.create("text/plain", StandardCharsets.UTF_8)),
@@ -104,9 +104,9 @@ public class ClassicPostExecutionExample {
                         ContentType.APPLICATION_OCTET_STREAM)
         };
 
-        String requestUri = "/post";
+        final String requestUri = "/post";
         for (int i = 0; i < requestBodies.length; i++) {
-            ClassicHttpRequest request = new BasicClassicHttpRequest("POST", target,requestUri);
+            final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", target,requestUri);
             request.setEntity(requestBodies[i]);
             try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
                 System.out.println(requestUri + "->" + response.getCode());

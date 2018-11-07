@@ -52,8 +52,8 @@ public class PrintVersionInfo {
      *                  information for the default packages. Otherwise, pass
      *                  a list of packages for which to get version info.
      */
-    public static void main(String args[]) {
-        String[]    pckgs = (args.length > 0) ? args : MODULE_LIST;
+    public static void main(final String args[]) {
+        final String[]    pckgs = (args.length > 0) ? args : MODULE_LIST;
         VersionInfo[] via = VersionInfo.loadVersionInfo(pckgs, null);
         System.out.println("version info for thread context classloader:");
         for (int i=0; i<via.length; i++)

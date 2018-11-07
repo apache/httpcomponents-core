@@ -55,12 +55,12 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class ClassicServerFilterExample {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         int port = 8080;
         if (args.length >= 1) {
             port = Integer.parseInt(args[0]);
         }
-        SocketConfig socketConfig = SocketConfig.custom()
+        final SocketConfig socketConfig = SocketConfig.custom()
                 .setSoTimeout(15, TimeUnit.SECONDS)
                 .setTcpNoDelay(true)
                 .build();
@@ -106,7 +106,7 @@ public class ClassicServerFilterExample {
                     @Override
                     public void handle(final ClassicHttpRequest request,
                                        final HttpFilterChain.ResponseTrigger responseTrigger,
-                                       final HttpContext context, HttpFilterChain chain) throws HttpException, IOException {
+                                       final HttpContext context, final HttpFilterChain chain) throws HttpException, IOException {
                         if (request.getRequestUri().equals("/back-door")) {
                             final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK);
                             response.setEntity(new StringEntity("Welcome", ContentType.TEXT_PLAIN));
