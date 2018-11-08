@@ -270,7 +270,7 @@ public class AsyncReverseProxyExample {
                 final HttpRequest incomingRequest,
                 final EntityDetails entityDetails,
                 final ResponseChannel responseChannel,
-                final HttpContext context) throws HttpException, IOException {
+                final HttpContext httpContext) throws HttpException, IOException {
 
             synchronized (exchangeState) {
                 System.out.println("[client->proxy] " + exchangeState.id + " " +
@@ -283,7 +283,7 @@ public class AsyncReverseProxyExample {
                 if (entityDetails != null) {
                     final Header h = incomingRequest.getFirstHeader(HttpHeaders.EXPECT);
                     if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
-                        responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), context);
+                        responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), httpContext);
                     }
                 }
             }
@@ -298,7 +298,7 @@ public class AsyncReverseProxyExample {
                     synchronized (exchangeState) {
                         exchangeState.clientEndpoint = clientEndpoint;
                     }
-                    clientEndpoint.execute(new OutgoingExchangeHandler(targetHost, clientEndpoint, exchangeState), context);
+                    clientEndpoint.execute(new OutgoingExchangeHandler(targetHost, clientEndpoint, exchangeState), httpContext);
                 }
 
                 @Override
@@ -316,7 +316,7 @@ public class AsyncReverseProxyExample {
                     System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
 
                     try {
-                        responseChannel.sendResponse(outgoingResponse, exEntityDetails, context);
+                        responseChannel.sendResponse(outgoingResponse, exEntityDetails, httpContext);
                     } catch (HttpException | IOException ignore) {
                         // ignore
                     }
