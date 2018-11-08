@@ -50,6 +50,9 @@ public class URIBuilder {
     /**
      * Creates a new builder for the host {@link InetAddress#getLocalHost()}.
      *
+     * @return a new builder.
+     * @throws UnknownHostException if the local host name could not be resolved into an address.
+     *
      * @since 4.6
      */
     public static URIBuilder localhost() throws UnknownHostException {
