@@ -447,18 +447,18 @@ public class AsyncReverseProxyExample {
 
     }
 
-    private final static Set<String> HOP_BY_HOP = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-            HttpHeaders.HOST.toLowerCase(Locale.ROOT),
-            HttpHeaders.CONTENT_LENGTH.toLowerCase(Locale.ROOT),
-            HttpHeaders.TRANSFER_ENCODING.toLowerCase(Locale.ROOT),
-            HttpHeaders.CONNECTION.toLowerCase(Locale.ROOT),
-            "Keep-Alive".toLowerCase(Locale.ROOT),
-            "Proxy-Authenticate".toLowerCase(Locale.ROOT),
-            HttpHeaders.TE.toLowerCase(Locale.ROOT),
-            HttpHeaders.TRAILER.toLowerCase(Locale.ROOT),
-            HttpHeaders.UPGRADE.toLowerCase(Locale.ROOT))));
-
     private static class OutgoingExchangeHandler implements AsyncClientExchangeHandler {
+
+        private final static Set<String> HOP_BY_HOP = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+                        HttpHeaders.HOST.toLowerCase(Locale.ROOT),
+                        HttpHeaders.CONTENT_LENGTH.toLowerCase(Locale.ROOT),
+                        HttpHeaders.TRANSFER_ENCODING.toLowerCase(Locale.ROOT),
+                        HttpHeaders.CONNECTION.toLowerCase(Locale.ROOT),
+                        "Keep-Alive".toLowerCase(Locale.ROOT),
+                        "Proxy-Authenticate".toLowerCase(Locale.ROOT),
+                        HttpHeaders.TE.toLowerCase(Locale.ROOT),
+                        HttpHeaders.TRAILER.toLowerCase(Locale.ROOT),
+                        HttpHeaders.UPGRADE.toLowerCase(Locale.ROOT))));
 
         private final HttpHost targetHost;
         private final AsyncClientEndpoint clientEndpoint;
