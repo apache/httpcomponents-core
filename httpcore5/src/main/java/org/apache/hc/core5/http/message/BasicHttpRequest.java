@@ -168,16 +168,17 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         return getPath();
     }
 
-    void setUri(final URI requestUri) {
+    @Override
+    public void setUri(final URI requestUri) {
         this.scheme = requestUri.getScheme();
         this.authority = requestUri.getHost() != null ? new URIAuthority(
                 requestUri.getRawUserInfo(),
                 requestUri.getHost(),
                 requestUri.getPort()) : null;
         final StringBuilder buf = new StringBuilder();
-        final String path = requestUri.getRawPath();
-        if (!TextUtils.isBlank(path)) {
-            buf.append(path);
+        final String rawPath = requestUri.getRawPath();
+        if (!TextUtils.isBlank(rawPath)) {
+            buf.append(rawPath);
         } else {
             buf.append("/");
         }

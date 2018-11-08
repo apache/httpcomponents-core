@@ -24,6 +24,9 @@ Release 5.0-BETA6
   
 * Add HttpStreamResetException.serialVersionUID 
   Contributed by Gary Gregory <ggregory at apache.org>
+  
+* Add org.apache.hc.core5.http.HttpRequest.setUri(URI)
+  Contributed by Gary Gregory <ggregory at apache.org>
 
 
 Release 5.0-BETA5

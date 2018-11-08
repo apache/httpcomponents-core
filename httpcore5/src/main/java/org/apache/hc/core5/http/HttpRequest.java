@@ -113,4 +113,13 @@ public interface HttpRequest extends HttpMessage {
      */
     URI getUri() throws URISyntaxException;
 
+    /**
+     * Sets the full request URI of this request message.
+     *
+     * @param requestUri the request URI.
+     *
+     * @since 5.0
+     */
+    void setUri(final URI requestUri);
+
 }

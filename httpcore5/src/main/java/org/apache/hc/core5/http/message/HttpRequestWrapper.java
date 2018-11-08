@@ -90,4 +90,9 @@ public class HttpRequestWrapper extends AbstractMessageWrapper implements HttpRe
         return message.getUri();
     }
 
+    @Override
+    public void setUri(final URI requestUri) {
+        message.setUri(requestUri);
+    }
+
 }
