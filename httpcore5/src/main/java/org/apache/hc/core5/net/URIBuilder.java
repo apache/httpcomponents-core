@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.util.TextUtils;
@@ -242,6 +243,8 @@ public class URIBuilder {
 
     /**
      * Sets URI scheme.
+     *
+     * @return this.
      */
     public URIBuilder setScheme(final String scheme) {
         this.scheme = !TextUtils.isBlank(scheme) ? scheme : null;
@@ -251,6 +254,8 @@ public class URIBuilder {
     /**
      * Sets URI user info. The value is expected to be unescaped and may contain non ASCII
      * characters.
+     *
+     * @return this.
      */
     public URIBuilder setUserInfo(final String userInfo) {
         this.userInfo = !TextUtils.isBlank(userInfo) ? userInfo : null;
@@ -263,6 +268,8 @@ public class URIBuilder {
     /**
      * Sets URI user info as a combination of username and password. These values are expected to
      * be unescaped and may contain non ASCII characters.
+     *
+     * @return this.
      */
     public URIBuilder setUserInfo(final String username, final String password) {
         return setUserInfo(username + ':' + password);
@@ -271,6 +278,7 @@ public class URIBuilder {
     /**
      * Sets URI host.
      *
+     * @return this.
      * @since 4.6
      */
     public URIBuilder setHost(final InetAddress host) {
@@ -282,17 +290,33 @@ public class URIBuilder {
 
     /**
      * Sets URI host.
+     *
+     * @return this.
      */
     public URIBuilder setHost(final String host) {
         this.host = !TextUtils.isBlank(host) ? host : null;
-        this.host = host;
         this.encodedSchemeSpecificPart = null;
         this.encodedAuthority = null;
         return this;
     }
 
     /**
+     * Sets the scheme, host name, and port.
+     *
+     * @param httpHost the scheme, host name, and port.
+     * @return this.
+     */
+    public URIBuilder setHttpHost(final HttpHost httpHost ) {
+        setScheme(httpHost.getSchemeName());
+        setHost(httpHost.getHostName());
+        setPort(httpHost.getPort());
+        return this;
+    }
+
+    /**
      * Sets URI port.
+     *
+     * @return this.
      */
     public URIBuilder setPort(final int port) {
         this.port = port < 0 ? -1 : port;
@@ -303,6 +327,8 @@ public class URIBuilder {
 
     /**
      * Sets URI path. The value is expected to be unescaped and may contain non ASCII characters.
+     *
+     * @return this.
      */
     public URIBuilder setPath(final String path) {
         this.path = !TextUtils.isBlank(path) ? path : null;
@@ -313,6 +339,8 @@ public class URIBuilder {
 
     /**
      * Removes URI query.
+     *
+     * @return this.
      */
     public URIBuilder removeQuery() {
         this.queryParams = null;
@@ -330,6 +358,7 @@ public class URIBuilder {
      * will remove custom query if present.
      * </p>
      *
+     * @return this.
      * @since 4.3
      */
     public URIBuilder setParameters(final List <NameValuePair> nvps) {
@@ -353,6 +382,7 @@ public class URIBuilder {
      * will remove custom query if present.
      * </p>
      *
+     * @return this.
      * @since 4.3
      */
     public URIBuilder addParameters(final List <NameValuePair> nvps) {
@@ -374,6 +404,7 @@ public class URIBuilder {
      * will remove custom query if present.
      * </p>
      *
+     * @return this.
      * @since 4.3
      */
     public URIBuilder setParameters(final NameValuePair... nvps) {
@@ -398,6 +429,8 @@ public class URIBuilder {
      * Please note query parameters and custom query component are mutually exclusive. This method
      * will remove custom query if present.
      * </p>
+     *
+     * @return this.
      */
     public URIBuilder addParameter(final String param, final String value) {
         if (this.queryParams == null) {
@@ -417,6 +450,8 @@ public class URIBuilder {
      * Please note query parameters and custom query component are mutually exclusive. This method
      * will remove custom query if present.
      * </p>
+     *
+     * @return this.
      */
     public URIBuilder setParameter(final String param, final String value) {
         if (this.queryParams == null) {
@@ -440,6 +475,7 @@ public class URIBuilder {
     /**
      * Clears URI query parameters.
      *
+     * @return this.
      * @since 4.3
      */
     public URIBuilder clearParameters() {
@@ -457,6 +493,7 @@ public class URIBuilder {
      * will remove query parameters if present.
      * </p>
      *
+     * @return this.
      * @since 4.3
      */
     public URIBuilder setCustomQuery(final String query) {
@@ -470,6 +507,8 @@ public class URIBuilder {
     /**
      * Sets URI fragment. The value is expected to be unescaped and may contain non ASCII
      * characters.
+     *
+     * @return this.
      */
     public URIBuilder setFragment(final String fragment) {
         this.fragment = !TextUtils.isBlank(fragment) ? fragment : null;

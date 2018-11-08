@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.hamcrest.CoreMatchers;
@@ -412,5 +413,15 @@ public class TestURIBuilder {
                         .build(),
                 CoreMatchers.equalTo(URI.create("//localhost:8443")));
     }
+
+    @Test
+    public void testHttpHost() throws Exception {
+        final HttpHost httpHost = new HttpHost("example.com", 1234, "http");
+        final URIBuilder uribuilder = new URIBuilder();
+        uribuilder.setHttpHost(httpHost);
+        final URI result = uribuilder.build();
+        Assert.assertEquals(URI.create(httpHost.toURI()), result);
+    }
+
 
 }

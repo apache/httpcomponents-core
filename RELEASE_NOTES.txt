@@ -28,6 +28,9 @@ Release 5.0-BETA6
 * Add org.apache.hc.core5.http.HttpRequest.setUri(URI)
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* org.apache.hc.core5.net.URIBuilder.setHttpHost(HttpHost)
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 5.0-BETA5
 -------------------
