@@ -416,7 +416,7 @@ public class TestURIBuilder {
 
     @Test
     public void testHttpHost() throws Exception {
-        final HttpHost httpHost = new HttpHost("example.com", 1234, "http");
+        final HttpHost httpHost = new HttpHost("http", "example.com", 1234);
         final URIBuilder uribuilder = new URIBuilder();
         uribuilder.setHttpHost(httpHost);
         final URI result = uribuilder.build();

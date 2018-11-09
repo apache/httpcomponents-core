@@ -212,7 +212,7 @@ public class Http2ServerAndMultiplexingRequesterTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer("POST", target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
@@ -255,7 +255,7 @@ public class Http2ServerAndMultiplexingRequesterTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
 
         queue.add(requester.execute(
@@ -291,7 +291,7 @@ public class Http2ServerAndMultiplexingRequesterTest {
         requester.start();
         requester.setValidateAfterInactivity(TimeValue.ofMilliseconds(10));
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer("POST", target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
@@ -342,7 +342,7 @@ public class Http2ServerAndMultiplexingRequesterTest {
 
         final CountDownLatch countDownLatch = new CountDownLatch(reqNo);
         final Random random = new Random();
-        final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         for (int i = 0; i < reqNo; i++) {
             final Cancellable cancellable = requester.execute(
                     new BasicClientExchangeHandler<>(new BasicRequestProducer("POST", target, "/stuff",

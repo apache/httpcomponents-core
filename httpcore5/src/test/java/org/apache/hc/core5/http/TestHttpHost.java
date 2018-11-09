@@ -57,26 +57,26 @@ public class TestHttpHost {
         Assert.assertEquals("somehost", host3.getHostName());
         Assert.assertEquals(-1, host3.getPort());
         Assert.assertEquals("http", host3.getSchemeName());
-        final HttpHost host4 = new HttpHost("somehost", 443, "https");
+        final HttpHost host4 = new HttpHost("https", "somehost", 443);
         Assert.assertEquals("somehost", host4.getHostName());
         Assert.assertEquals(443, host4.getPort());
         Assert.assertEquals("https", host4.getSchemeName());
-        final HttpHost host5 = new HttpHost("somehost", "https");
+        final HttpHost host5 = new HttpHost("https", "somehost");
         Assert.assertEquals("somehost", host5.getHostName());
         Assert.assertEquals(-1, host5.getPort());
         Assert.assertEquals("https", host5.getSchemeName());
         try {
-            new HttpHost((String) null, -1, null);
+            new HttpHost(null, (String) null, -1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
         try {
-            new HttpHost("   ", -1, null);
+            new HttpHost(null, "   ", -1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
         try {
-            new HttpHost((InetAddress) null, -1, null);
+            new HttpHost(null, (InetAddress) null, -1);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException expected) {
         }
@@ -84,21 +84,21 @@ public class TestHttpHost {
 
     @Test
     public void testHashCode() throws Exception {
-        final HttpHost host1 = new HttpHost("somehost", 8080, "http");
-        final HttpHost host2 = new HttpHost("somehost", 80, "http");
-        final HttpHost host3 = new HttpHost("someotherhost", 8080, "http");
-        final HttpHost host4 = new HttpHost("somehost", 80, "http");
-        final HttpHost host5 = new HttpHost("SomeHost", 80, "http");
-        final HttpHost host6 = new HttpHost("SomeHost", 80, "myhttp");
+        final HttpHost host1 = new HttpHost("http", "somehost", 8080);
+        final HttpHost host2 = new HttpHost("http", "somehost", 80);
+        final HttpHost host3 = new HttpHost("http", "someotherhost", 8080);
+        final HttpHost host4 = new HttpHost("http", "somehost", 80);
+        final HttpHost host5 = new HttpHost("http", "SomeHost", 80);
+        final HttpHost host6 = new HttpHost("myhttp", "SomeHost", 80);
         final HttpHost host7 = new HttpHost(
-                InetAddress.getByAddress("127.0.0.1", new byte[] {127,0,0,1}), 80, "http");
-        final HttpHost host8 = new HttpHost("127.0.0.1", 80, "http");
+                "http", InetAddress.getByAddress("127.0.0.1", new byte[] {127,0,0,1}), 80);
+        final HttpHost host8 = new HttpHost("http", "127.0.0.1", 80);
         final HttpHost host9 = new HttpHost(
-                        InetAddress.getByAddress("somehost",new byte[] {127,0,0,1}), 80, "http");
+                        "http", InetAddress.getByAddress("somehost",new byte[] {127,0,0,1}), 80);
         final HttpHost host10 = new HttpHost(
-                        InetAddress.getByAddress(new byte[] {127,0,0,1}), "somehost", 80, "http");
+                        "http", InetAddress.getByAddress(new byte[] {127,0,0,1}), "somehost", 80);
         final HttpHost host11 = new HttpHost(
-                        InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80, "http");
+                        "http", InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80);
 
         Assert.assertTrue(host1.hashCode() == host1.hashCode());
         Assert.assertTrue(host1.hashCode() != host2.hashCode());
@@ -115,21 +115,21 @@ public class TestHttpHost {
 
     @Test
     public void testEquals() throws Exception {
-        final HttpHost host1 = new HttpHost("somehost", 8080, "http");
-        final HttpHost host2 = new HttpHost("somehost", 80, "http");
-        final HttpHost host3 = new HttpHost("someotherhost", 8080, "http");
-        final HttpHost host4 = new HttpHost("somehost", 80, "http");
-        final HttpHost host5 = new HttpHost("SomeHost", 80, "http");
-        final HttpHost host6 = new HttpHost("SomeHost", 80, "myhttp");
+        final HttpHost host1 = new HttpHost("http", "somehost", 8080);
+        final HttpHost host2 = new HttpHost("http", "somehost", 80);
+        final HttpHost host3 = new HttpHost("http", "someotherhost", 8080);
+        final HttpHost host4 = new HttpHost("http", "somehost", 80);
+        final HttpHost host5 = new HttpHost("http", "SomeHost", 80);
+        final HttpHost host6 = new HttpHost("myhttp", "SomeHost", 80);
         final HttpHost host7 = new HttpHost(
-                InetAddress.getByAddress("127.0.0.1", new byte[] {127,0,0,1}), 80, "http");
-        final HttpHost host8 = new HttpHost("127.0.0.1", 80, "http");
+                "http", InetAddress.getByAddress("127.0.0.1", new byte[] {127,0,0,1}), 80);
+        final HttpHost host8 = new HttpHost("http", "127.0.0.1", 80);
         final HttpHost host9 = new HttpHost(
-                        InetAddress.getByAddress("somehost", new byte[] {127,0,0,1}), 80, "http");
+                        "http", InetAddress.getByAddress("somehost", new byte[] {127,0,0,1}), 80);
         final HttpHost host10 = new HttpHost(
-                        InetAddress.getByAddress(new byte[] {127,0,0,1}), "somehost", 80, "http");
+                        "http", InetAddress.getByAddress(new byte[] {127,0,0,1}), "somehost", 80);
         final HttpHost host11 = new HttpHost(
-                        InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80, "http");
+                        "http", InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80);
 
         Assert.assertTrue(host1.equals(host1));
         Assert.assertFalse(host1.equals(host2));
@@ -157,15 +157,15 @@ public class TestHttpHost {
         Assert.assertEquals("http://somehost", host3.toString());
         final HttpHost host4 = new HttpHost("somehost", 8888);
         Assert.assertEquals("http://somehost:8888", host4.toString());
-        final HttpHost host5 = new HttpHost("somehost", -1, "myhttp");
+        final HttpHost host5 = new HttpHost("myhttp", "somehost", -1);
         Assert.assertEquals("myhttp://somehost", host5.toString());
-        final HttpHost host6 = new HttpHost("somehost", 80, "myhttp");
+        final HttpHost host6 = new HttpHost("myhttp", "somehost", 80);
         Assert.assertEquals("myhttp://somehost:80", host6.toString());
         final HttpHost host7 = new HttpHost(
-                InetAddress.getByAddress("127.0.0.1", new byte[] {127,0,0,1}), 80, "http");
+                "http", InetAddress.getByAddress("127.0.0.1", new byte[] {127,0,0,1}), 80);
         Assert.assertEquals("http://127.0.0.1:80", host7.toString());
         final HttpHost host9 = new HttpHost(
-                        InetAddress.getByAddress("somehost", new byte[] {127,0,0,1}), 80, "http");
+                        "http", InetAddress.getByAddress("somehost", new byte[] {127,0,0,1}), 80);
         Assert.assertEquals("http://somehost:80", host9.toString());
     }
 
@@ -183,7 +183,7 @@ public class TestHttpHost {
 
     @Test
     public void testSerialization() throws Exception {
-        final HttpHost orig = new HttpHost("somehost", 8080, "https");
+        final HttpHost orig = new HttpHost("https", "somehost", 8080);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
         final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
         outStream.writeObject(orig);
@@ -197,10 +197,10 @@ public class TestHttpHost {
 
     @Test
     public void testCreateFromString() throws Exception {
-        Assert.assertEquals(new HttpHost("somehost", 8080, "https"), HttpHost.create("https://somehost:8080"));
-        Assert.assertEquals(new HttpHost("somehost", 8080, "https"), HttpHost.create("HttpS://SomeHost:8080"));
-        Assert.assertEquals(new HttpHost("somehost", 1234, null), HttpHost.create("somehost:1234"));
-        Assert.assertEquals(new HttpHost("somehost", -1, null), HttpHost.create("somehost"));
+        Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create("https://somehost:8080"));
+        Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create("HttpS://SomeHost:8080"));
+        Assert.assertEquals(new HttpHost(null, "somehost", 1234), HttpHost.create("somehost:1234"));
+        Assert.assertEquals(new HttpHost(null, "somehost", -1), HttpHost.create("somehost"));
     }
 
     @Test

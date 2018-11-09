@@ -188,7 +188,7 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestWithAuthority() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("somehost", -1, "http"), "/stuff");
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("http", "somehost", -1), "/stuff");
         Assert.assertEquals("GET", request.getMethod());
         Assert.assertEquals("/stuff", request.getPath());
         Assert.assertEquals(new URIAuthority("somehost"), request.getAuthority());
@@ -197,7 +197,7 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestWithAuthorityRelativePath() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("somehost", -1, "http"), "stuff");
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("http", "somehost", -1), "stuff");
         Assert.assertEquals("GET", request.getMethod());
         Assert.assertEquals("stuff", request.getPath());
         Assert.assertEquals(new URIAuthority("somehost"), request.getAuthority());

@@ -241,7 +241,7 @@ public class Http1ServerAndRequesterTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer("POST", target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
@@ -284,7 +284,7 @@ public class Http1ServerAndRequesterTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer("POST", target, "/no-keep-alive/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
@@ -327,7 +327,7 @@ public class Http1ServerAndRequesterTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
         final AsyncClientEndpoint endpoint = endpointFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         try {
@@ -378,7 +378,7 @@ public class Http1ServerAndRequesterTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), scheme.id);
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
         final AsyncClientEndpoint endpoint = endpointFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         try {

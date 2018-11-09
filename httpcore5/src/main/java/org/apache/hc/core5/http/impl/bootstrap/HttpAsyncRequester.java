@@ -271,7 +271,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                     if (authority == null) {
                         throw new ProtocolException("Request authority not specified");
                     }
-                    final HttpHost target = new HttpHost(authority, scheme);
+                    final HttpHost target = new HttpHost(scheme, authority);
                     connect(target, timeout, null, new FutureCallback<AsyncClientEndpoint>() {
 
                         @Override

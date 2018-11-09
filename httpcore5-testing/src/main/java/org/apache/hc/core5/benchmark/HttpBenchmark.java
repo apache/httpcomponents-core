@@ -430,7 +430,7 @@ public class HttpBenchmark {
     private Results doExecute(final HttpAsyncRequester requester, final Stats stats) throws Exception {
 
         final URI requestUri = config.getUri();
-        final HttpHost host = new HttpHost(requestUri.getHost(), requestUri.getPort(), requestUri.getScheme());
+        final HttpHost host = new HttpHost(requestUri.getScheme(), requestUri.getHost(), requestUri.getPort());
 
         final AtomicLong requestCount = new AtomicLong(config.getRequests());
 

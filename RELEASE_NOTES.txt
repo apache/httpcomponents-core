@@ -1,6 +1,8 @@
 Release 5.0-BETA6
 -------------------
 
+* Note: At some point before 5.0, all deprecated methods will be removed.
+
 * Deprecate and rename org.apache.hc.core5.util.Timeout.ofMillis(long) to ofMilliseconds(long).
   Contributed by Gary Gregory <ggregory at apache.org>
 
@@ -29,6 +31,9 @@ Release 5.0-BETA6
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * org.apache.hc.core5.net.URIBuilder.setHttpHost(HttpHost)
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* Deprecate constructors in org.apache.hc.core5.http.HttpHost that do not have the scheme argument first in favor of new constructors that do.
   Contributed by Gary Gregory <ggregory at apache.org>
 
 

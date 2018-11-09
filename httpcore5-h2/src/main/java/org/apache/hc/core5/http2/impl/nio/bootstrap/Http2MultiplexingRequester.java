@@ -157,7 +157,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
                     if (authority == null) {
                         throw new ProtocolException("Request authority not specified");
                     }
-                    final HttpHost target = new HttpHost(authority, scheme);
+                    final HttpHost target = new HttpHost(scheme, authority);
                     connPool.getSession(target, timeout, new FutureCallback<IOSession>() {
 
                         @Override

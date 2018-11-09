@@ -188,7 +188,7 @@ public class Http2AlpnTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), URIScheme.HTTPS.id);
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer("POST", target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
@@ -225,7 +225,7 @@ public class Http2AlpnTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), URIScheme.HTTPS.id);
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer("POST", target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),

@@ -195,7 +195,7 @@ public class Http2ProtocolNegotiationTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), "https");
+        final HttpHost target = new HttpHost("https", "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_1, null);
         final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
@@ -218,7 +218,7 @@ public class Http2ProtocolNegotiationTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), "https");
+        final HttpHost target = new HttpHost("https", "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
         final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
@@ -241,7 +241,7 @@ public class Http2ProtocolNegotiationTest {
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("localhost", address.getPort(), "https");
+        final HttpHost target = new HttpHost("https", "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.NEGOTIATE, null);
         final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
