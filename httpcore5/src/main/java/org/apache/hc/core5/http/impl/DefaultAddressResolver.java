@@ -56,8 +56,7 @@ public final class DefaultAddressResolver implements Resolver<HttpHost, InetSock
                 port = 443;
             }
         }
-        final String hostName = host.getHostName();
-        return new InetSocketAddress(hostName, port);
+        return new InetSocketAddress(host.getHostName(), port);
     }
 
 }
