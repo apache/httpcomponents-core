@@ -29,6 +29,7 @@ package org.apache.hc.core5.http;
 
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
 
@@ -162,7 +163,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     }
 
     /**
-     * Creates {@code HttpHost} instance from string. Text may not contain any blanks.
+     * Creates {@code HttpHost} instance from a string. Text may not contain any blanks.
      *
      * @since 4.4
      */
@@ -195,6 +196,19 @@ public final class HttpHost implements NamedEndpoint, Serializable {
                 scheme != null ? scheme.toLowerCase(Locale.ROOT) : DEFAULT_SCHEME.id,
                 text.toLowerCase(Locale.ROOT),
                 port, true);
+    }
+
+    /**
+     * Creates an {@code HttpHost} instance from the scheme, host, and port from the given URI. Other URI elements are ignored.
+     *
+     * @param uri scheme, host, and port.
+     * @return a new HttpHost
+     *
+     * @since 5.0
+     */
+    public static HttpHost create(final URI uri) {
+        final String scheme = uri.getScheme();
+        return new HttpHost(scheme != null ? scheme : URIScheme.HTTP.getId(), uri.getHost(), uri.getPort());
     }
 
     /**

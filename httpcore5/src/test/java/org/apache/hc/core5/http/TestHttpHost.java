@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.junit.Assert;
@@ -201,6 +202,13 @@ public class TestHttpHost {
         Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create("HttpS://SomeHost:8080"));
         Assert.assertEquals(new HttpHost(null, "somehost", 1234), HttpHost.create("somehost:1234"));
         Assert.assertEquals(new HttpHost(null, "somehost", -1), HttpHost.create("somehost"));
+    }
+
+    @Test
+    public void testCreateFromURI() throws Exception {
+        Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create(URI.create("https://somehost:8080")));
+        Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create(URI.create("HttpS://SomeHost:8080")));
+        Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create(URI.create("HttpS://SomeHost:8080/foo")));
     }
 
     @Test

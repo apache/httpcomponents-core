@@ -36,6 +36,9 @@ Release 5.0-BETA6
 * Deprecate constructors in org.apache.hc.core5.http.HttpHost that do not have the scheme argument first in favor of new constructors that do.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* Add org.apache.hc.core5.http.HttpHost.create(URI)
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 5.0-BETA5
 -------------------
