@@ -136,6 +136,8 @@ public class ExpandableBuffer {
 
     /**
      * Ensures the buffer can accommodate the required capacity.
+     *
+     * @param requiredCapacity the required capacity.
      */
     protected void ensureCapacity(final int requiredCapacity) {
         if (requiredCapacity > this.buffer.capacity()) {
