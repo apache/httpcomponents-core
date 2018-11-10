@@ -305,14 +305,16 @@ public class AsyncReverseProxyExample {
                 public void failed(final Exception cause) {
                     final HttpResponse outgoingResponse = new BasicHttpResponse(HttpStatus.SC_SERVICE_UNAVAILABLE);
                     outgoingResponse.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-                    exchangeState.response = outgoingResponse;
                     final ByteBuffer msg = StandardCharsets.US_ASCII.encode(CharBuffer.wrap(cause.getMessage()));
-                    final EntityDetails exEntityDetails = new BasicEntityDetails(msg.remaining(), ContentType.TEXT_PLAIN);
-                    exchangeState.responseEntityDetails = exEntityDetails;
-                    exchangeState.outBuf = new ProxyBuffer(1024);
-                    exchangeState.outBuf.put(msg);
-                    exchangeState.outputEnd = true;
-
+                    final EntityDetails exEntityDetails = new BasicEntityDetails(msg.remaining(),
+                                    ContentType.TEXT_PLAIN);
+                    synchronized (exchangeState) {
+                        exchangeState.response = outgoingResponse;
+                        exchangeState.responseEntityDetails = exEntityDetails;
+                        exchangeState.outBuf = new ProxyBuffer(1024);
+                        exchangeState.outBuf.put(msg);
+                        exchangeState.outputEnd = true;
+                    }
                     System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
 
                     try {
