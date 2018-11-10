@@ -51,7 +51,7 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
         super(new ReentrantLock(), bufferSize);
     }
 
-    public int fill(final ByteBuffer src) throws IOException {
+    public int fill(final ByteBuffer src) {
         lock.lock();
         try {
             setInputMode();
@@ -144,7 +144,7 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
         }
     }
 
-    public void markEndStream() throws IOException {
+    public void markEndStream() {
         if (endStream) {
             return;
         }
