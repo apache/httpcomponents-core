@@ -99,10 +99,10 @@ public class ExpandableBuffer {
     }
 
     private void expandCapacity(final int capacity) {
-        final ByteBuffer oldbuffer = this.buffer;
+        final ByteBuffer oldBuffer = this.buffer;
         this.buffer = ByteBuffer.allocate(capacity);
-        oldbuffer.flip();
-        this.buffer.put(oldbuffer);
+        oldBuffer.flip();
+        this.buffer.put(oldBuffer);
     }
 
     /**
