@@ -74,8 +74,9 @@ class IOSessionImpl implements IOSession {
         this.socketTimeout = Timeout.DISABLED;
         this.id = String.format("i/o-%08X", COUNT.getAndIncrement());
         this.status = new AtomicInteger(ACTIVE);
-        this.lastReadTime = System.currentTimeMillis();
-        this.lastWriteTime = System.currentTimeMillis();
+        final long currentTimeMillis = System.currentTimeMillis();
+        this.lastReadTime = currentTimeMillis;
+        this.lastWriteTime = currentTimeMillis;
     }
 
     @Override
@@ -130,7 +131,7 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void setEventMask(final int newValue) {
-        if (this.status.get() == CLOSED) {
+        if (isStatusClosed()) {
             return;
         }
         this.key.interestOps(newValue);
@@ -139,7 +140,7 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void setEvent(final int op) {
-        if (this.status.get() == CLOSED) {
+        if (isStatusClosed()) {
             return;
         }
         lock.lock();
@@ -153,7 +154,7 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void clearEvent(final int op) {
-        if (this.status.get() == CLOSED) {
+        if (isStatusClosed()) {
             return;
         }
         lock.lock();
@@ -214,7 +215,11 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public boolean isClosed() {
-        return this.status.get() == CLOSED || !this.channel.isOpen();
+        return isStatusClosed() || !this.channel.isOpen();
+    }
+
+    private boolean isStatusClosed() {
+        return this.status.get() == CLOSED;
     }
 
     @Override
