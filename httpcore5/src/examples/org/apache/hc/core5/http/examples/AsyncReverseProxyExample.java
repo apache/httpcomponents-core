@@ -564,7 +564,10 @@ public class AsyncReverseProxyExample {
                 exchangeState.outputEnd = entityDetails == null;
 
                 final ResponseChannel responseChannel = exchangeState.responseMessageChannel;
-                responseChannel.sendResponse(outgoingResponse, entityDetails, httpContext);
+                if (responseChannel != null) {
+                    // responseChannel can be null under load.
+                    responseChannel.sendResponse(outgoingResponse, entityDetails, httpContext);
+                }
 
                 System.out.println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
                 if (entityDetails == null) {
