@@ -48,6 +48,9 @@ public class ExpandableBuffer {
 
     /**
      * Allocates buffer of the given size using the given allocator.
+     * <p>
+     * Sets the mode to input.
+     * </p>
      *
      * @param bufferSize the buffer size.
      */
@@ -75,7 +78,7 @@ public class ExpandableBuffer {
     }
 
     /**
-     * Sets output mode. The buffer can now be read from.
+     * Sets the mode to output. The buffer can now be read from.
      */
     protected void setOutputMode() {
         if (this.mode != OUTPUT_MODE) {
@@ -85,7 +88,7 @@ public class ExpandableBuffer {
     }
 
     /**
-     * Sets input mode. The buffer can now be written into.
+     * Sets the mode to input. The buffer can now be written into.
      */
     protected void setInputMode() {
         if (this.mode != INPUT_MODE) {
@@ -147,6 +150,9 @@ public class ExpandableBuffer {
 
     /**
      * Determines if the buffer contains data.
+     * <p>
+     * Sets the mode to output.
+     * </p>
      *
      * @return {@code true} if there is data in the buffer,
      *   {@code false} otherwise.
@@ -158,6 +164,9 @@ public class ExpandableBuffer {
 
     /**
      * Returns the length of this buffer.
+     * <p>
+     * Sets the mode to output.
+     * </p>
      *
      * @return buffer length.
      */
@@ -178,6 +187,9 @@ public class ExpandableBuffer {
 
     /**
      * Clears buffer.
+     * <p>
+     * Sets the mode to input.
+     * </p>
      */
     protected void clear() {
         this.buffer.clear();
