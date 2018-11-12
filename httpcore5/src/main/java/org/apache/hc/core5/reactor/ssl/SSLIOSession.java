@@ -623,7 +623,7 @@ public class SSLIOSession implements IOSession {
                 // Acquire buffer
                 final ByteBuffer inPlainBuf = this.inPlain.acquire();
 
-                // Perform opertaions
+                // Perform operations
                 inPlainBuf.flip();
                 final int n = Math.min(inPlainBuf.remaining(), dst.remaining());
                 for (int i = 0; i < n; i++) {
