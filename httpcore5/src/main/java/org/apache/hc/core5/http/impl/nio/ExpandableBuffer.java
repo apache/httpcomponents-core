@@ -35,15 +35,16 @@ import java.nio.ByteBuffer;
  * by an instance of {@link ByteBuffer}.
  * <p>
  * This class is not thread safe.
- *
+ * </p>
  * @since 4.0
  */
 public class ExpandableBuffer {
 
-    public final static int INPUT_MODE = 0;
-    public final static int OUTPUT_MODE = 1;
+    public enum Mode {
+        INPUT, OUTPUT
+    }
 
-    private int mode;
+    private Mode mode;
     private ByteBuffer buffer;
 
     /**
@@ -57,19 +58,19 @@ public class ExpandableBuffer {
     protected ExpandableBuffer(final int bufferSize) {
         super();
         this.buffer = ByteBuffer.allocate(bufferSize);
-        this.mode = INPUT_MODE;
+        this.mode = Mode.INPUT;
     }
 
     /**
      * Returns the current mode:
      * <p>
-     * {@link #INPUT_MODE}: the buffer is in the input mode.
+     * {@link Mode#INPUT}: the buffer is in the input mode.
      * <p>
-     * {@link #OUTPUT_MODE}: the buffer is in the output mode.
+     * {@link Mode#OUTPUT}: the buffer is in the output mode.
      *
      * @return current input/output mode.
      */
-    public int mode() {
+    public Mode mode() {
         return this.mode;
     }
 
@@ -81,9 +82,9 @@ public class ExpandableBuffer {
      * Sets the mode to output. The buffer can now be read from.
      */
     protected void setOutputMode() {
-        if (this.mode != OUTPUT_MODE) {
+        if (this.mode != Mode.OUTPUT) {
             this.buffer.flip();
-            this.mode = OUTPUT_MODE;
+            this.mode = Mode.OUTPUT;
         }
     }
 
@@ -91,13 +92,13 @@ public class ExpandableBuffer {
      * Sets the mode to input. The buffer can now be written into.
      */
     protected void setInputMode() {
-        if (this.mode != INPUT_MODE) {
+        if (this.mode != Mode.INPUT) {
             if (this.buffer.hasRemaining()) {
                 this.buffer.compact();
             } else {
                 this.buffer.clear();
             }
-            this.mode = INPUT_MODE;
+            this.mode = Mode.INPUT;
         }
     }
 
@@ -193,18 +194,14 @@ public class ExpandableBuffer {
      */
     protected void clear() {
         this.buffer.clear();
-        this.mode = INPUT_MODE;
+        this.mode = Mode.INPUT;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("[mode=");
-        if (mode() == INPUT_MODE) {
-            sb.append("in");
-        } else {
-            sb.append("out");
-        }
+        sb.append(this.mode);
         sb.append(" pos=");
         sb.append(this.buffer.position());
         sb.append(" lim=");
