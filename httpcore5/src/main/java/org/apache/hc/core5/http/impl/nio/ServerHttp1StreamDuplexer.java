@@ -377,7 +377,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     void outputEnd() throws HttpException, IOException {
         if (outgoing != null && outgoing.isResponseFinal()) {
             if (streamListener != null) {
-                streamListener.onExchangeComplete(this, isOpen());
+                streamListener.onExchangeComplete(this, outgoing.keepAlive());
             }
             if (outgoing.isCompleted()) {
                 outgoing.releaseResources();

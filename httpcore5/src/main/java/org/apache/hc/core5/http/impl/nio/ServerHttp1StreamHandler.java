@@ -184,6 +184,10 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         return responseState == MessageState.COMPLETE;
     }
 
+    boolean keepAlive() {
+        return keepAlive;
+    }
+
     boolean isCompleted() {
         return requestState == MessageState.COMPLETE && responseState == MessageState.COMPLETE;
     }
