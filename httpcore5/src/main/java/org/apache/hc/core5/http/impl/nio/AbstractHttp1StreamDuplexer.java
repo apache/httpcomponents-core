@@ -378,17 +378,15 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 produceOutput();
             } else {
                 final int pendingOutputRequests = outputRequests.get();
-                final boolean outputPending;
                 outputLock.lock();
                 try {
-                    outputPending = outbuf.hasData();
+                    if (!outbuf.hasData() && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
+                        ioSession.clearEvent(SelectionKey.OP_WRITE);
+                    } else {
+                        outputRequests.addAndGet(-pendingOutputRequests);
+                    }
                 } finally {
                     outputLock.unlock();
-                }
-                if (!outputPending && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
-                    ioSession.clearEvent(SelectionKey.OP_WRITE);
-                } else {
-                    outputRequests.addAndGet(-pendingOutputRequests);
                 }
             }
 
