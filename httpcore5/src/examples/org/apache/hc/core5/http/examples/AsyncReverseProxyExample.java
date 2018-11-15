@@ -73,6 +73,7 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolStats;
@@ -298,7 +299,9 @@ public class AsyncReverseProxyExample {
                     synchronized (exchangeState) {
                         exchangeState.clientEndpoint = clientEndpoint;
                     }
-                    clientEndpoint.execute(new OutgoingExchangeHandler(targetHost, clientEndpoint, exchangeState), httpContext);
+                    clientEndpoint.execute(
+                            new OutgoingExchangeHandler(targetHost, clientEndpoint, exchangeState),
+                            HttpCoreContext.create());
                 }
 
                 @Override
