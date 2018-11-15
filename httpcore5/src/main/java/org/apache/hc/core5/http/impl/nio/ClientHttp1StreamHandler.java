@@ -148,7 +148,9 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
                 throw new UnsupportedHttpVersionException(transportVersion);
             }
-            context.setProtocolVersion(transportVersion);
+            if (transportVersion != null) {
+                context.setProtocolVersion(transportVersion);
+            }
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
             httpProcessor.process(request, entityDetails, context);
