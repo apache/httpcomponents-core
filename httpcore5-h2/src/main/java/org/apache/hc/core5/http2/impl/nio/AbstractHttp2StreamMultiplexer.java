@@ -483,20 +483,16 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     }
                 }
             }
-            if (!outputPending) {
-                outputLock.lock();
-                try {
-                    if (!outputBuffer.isEmpty() || !outputQueue.isEmpty()) {
-                        outputPending = true;
-                    }
-                } finally {
-                    outputLock.unlock();
+            outputLock.lock();
+            try {
+                if (!outputPending && outputBuffer.isEmpty() && outputQueue.isEmpty()
+                        && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
+                    ioSession.clearEvent(SelectionKey.OP_WRITE);
+                } else {
+                    outputRequests.addAndGet(-pendingOutputRequests);
                 }
-            }
-            if (!outputPending && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
-                ioSession.clearEvent(SelectionKey.OP_WRITE);
-            } else {
-                outputRequests.addAndGet(-pendingOutputRequests);
+            } finally {
+                outputLock.unlock();
             }
         }
 
