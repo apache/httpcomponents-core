@@ -41,8 +41,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLSession;
 
@@ -117,7 +115,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     private final Queue<AsyncPingHandler> pingHandlers;
     private final AtomicInteger connInputWindow;
     private final AtomicInteger connOutputWindow;
-    private final Lock outputLock;
     private final AtomicInteger outputRequests;
     private final AtomicInteger lastStreamId;
     private final Http2StreamListener streamListener;
@@ -153,7 +150,6 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         this.outputBuffer = new FrameOutputBuffer(this.outputMetrics, this.localConfig.getMaxFrameSize());
         this.outputQueue = new ConcurrentLinkedDeque<>();
         this.pingHandlers = new ConcurrentLinkedQueue<>();
-        this.outputLock = new ReentrantLock();
         this.outputRequests = new AtomicInteger(0);
         this.lastStreamId = new AtomicInteger(0);
         this.hPackEncoder = new HPackEncoder(CharCodingSupport.createEncoder(charCodingConfig));
@@ -246,11 +242,11 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
     private void commitFrame(final RawFrame frame) throws IOException {
         Args.notNull(frame, "Frame");
-        outputLock.lock();
+        ioSession.lock().lock();
         try {
             commitFrameInternal(frame);
         } finally {
-            outputLock.unlock();
+            ioSession.lock().unlock();
         }
     }
 
@@ -434,7 +430,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
     }
 
     public final void onOutput() throws HttpException, IOException {
-        outputLock.lock();
+        ioSession.lock().lock();
         try {
             if (!outputBuffer.isEmpty()) {
                 outputBuffer.flush(ioSession.channel());
@@ -451,7 +447,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 }
             }
         } finally {
-            outputLock.unlock();
+            ioSession.lock().unlock();
         }
 
         final int connWinSize = connInputWindow.get();
@@ -483,7 +479,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     }
                 }
             }
-            outputLock.lock();
+            ioSession.lock().lock();
             try {
                 if (!outputPending && outputBuffer.isEmpty() && outputQueue.isEmpty()
                         && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
@@ -492,7 +488,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     outputRequests.addAndGet(-pendingOutputRequests);
                 }
             } finally {
-                outputLock.unlock();
+                ioSession.lock().unlock();
             }
         }
 
@@ -513,13 +509,13 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             }
         }
         if (connState.compareTo(ConnectionHandshake.SHUTDOWN) >= 0) {
-            outputLock.lock();
+            ioSession.lock().lock();
             try {
                 if (outputBuffer.isEmpty() && outputQueue.isEmpty()) {
                     ioSession.close();
                 }
             } finally {
-                outputLock.unlock();
+                ioSession.lock().unlock();
             }
         }
     }
@@ -1307,7 +1303,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
         @Override
         public void submit(final List<Header> headers, final boolean endStream) throws IOException {
-            outputLock.lock();
+            ioSession.lock().lock();
             try {
                 if (headers == null || headers.isEmpty()) {
                     throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Message headers are missing");
@@ -1321,7 +1317,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     localEndStream = true;
                 }
             } finally {
-                outputLock.unlock();
+                ioSession.lock().unlock();
             }
         }
 
@@ -1342,7 +1338,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             final Http2Stream stream = new Http2Stream(channel, streamHandler, false);
             streamMap.put(promisedStreamId, stream);
 
-            outputLock.lock();
+            ioSession.lock().lock();
             try {
                 if (localEndStream) {
                     stream.releaseResources();
@@ -1351,7 +1347,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 commitPushPromise(id, promisedStreamId, headers);
                 idle = false;
             } finally {
-                outputLock.unlock();
+                ioSession.lock().unlock();
             }
         }
 
@@ -1365,20 +1361,20 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
 
         @Override
         public int write(final ByteBuffer payload) throws IOException {
-            outputLock.lock();
+            ioSession.lock().lock();
             try {
                 if (localEndStream) {
                     return 0;
                 }
                 return streamData(id, outputWindow, payload);
             } finally {
-                outputLock.unlock();
+                ioSession.lock().unlock();
             }
         }
 
         @Override
         public void endStream(final List<? extends Header> trailers) throws IOException {
-            outputLock.lock();
+            ioSession.lock().lock();
             try {
                 if (localEndStream) {
                     return;
@@ -1391,7 +1387,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                     commitFrameInternal(frame);
                 }
             } finally {
-                outputLock.unlock();
+                ioSession.lock().unlock();
             }
         }
 
@@ -1431,7 +1427,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         }
 
         boolean localReset(final int code) throws IOException {
-            outputLock.lock();
+            ioSession.lock().lock();
             try {
                 if (localEndStream) {
                     return false;
@@ -1445,7 +1441,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
                 }
                 return false;
             } finally {
-                outputLock.unlock();
+                ioSession.lock().unlock();
             }
         }
 
