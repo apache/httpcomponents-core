@@ -374,20 +374,18 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             outputLock.unlock();
         }
         if (connState.compareTo(ConnectionState.SHUTDOWN) < 0) {
-            if (isOutputReady()) {
-                produceOutput();
-            } else {
-                final int pendingOutputRequests = outputRequests.get();
-                outputLock.lock();
-                try {
-                    if (!outbuf.hasData() && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
-                        ioSession.clearEvent(SelectionKey.OP_WRITE);
-                    } else {
-                        outputRequests.addAndGet(-pendingOutputRequests);
-                    }
-                } finally {
-                    outputLock.unlock();
+            produceOutput();
+            final int pendingOutputRequests = outputRequests.get();
+            final boolean outputPending = isOutputReady();
+            outputLock.lock();
+            try {
+                if (!outputPending && !outbuf.hasData() && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
+                    ioSession.clearEvent(SelectionKey.OP_WRITE);
+                } else {
+                    outputRequests.addAndGet(-pendingOutputRequests);
                 }
+            } finally {
+                outputLock.unlock();
             }
 
             outputLock.lock();
