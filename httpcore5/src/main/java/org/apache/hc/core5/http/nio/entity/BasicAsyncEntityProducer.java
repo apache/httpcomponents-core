@@ -128,7 +128,9 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
 
     @Override
     public final void produce(final DataStreamChannel channel) throws IOException {
-        channel.write(bytebuf);
+        if (bytebuf.hasRemaining()) {
+            channel.write(bytebuf);
+        }
         if (!bytebuf.hasRemaining()) {
             channel.endStream();
         }
