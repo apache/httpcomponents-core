@@ -821,7 +821,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                                             responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), context);
                                         }
                                         final HttpResponse response = new BasicHttpResponse(200);
-                                        responseChannel.sendResponse(response, entityProducer, context);
+                                        synchronized (entityProducer) {
+                                            responseChannel.sendResponse(response, entityProducer, context);
+                                        }
                                     }
                                 } catch (final Exception ignore) {
                                     // ignore
