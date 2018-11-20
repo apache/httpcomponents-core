@@ -33,18 +33,18 @@ import java.util.Objects;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Creates SocketTimeoutException instances.
+ * Creates {@link SocketTimeoutException} instances.
  *
  * @since 5.0
  */
 public final class SocketTimeoutExceptionFactory {
 
     /**
-     * Creates a new SocketTimeoutException with a message for the given timeout.
+     * Creates a new {@link SocketTimeoutException} with a message for the given timeout.
      *
      * @param timeout
      *            the timeout value.
-     * @return a new SocketTimeoutException with a message for the given timeout.
+     * @return a new {@link SocketTimeoutException} with a message for the given timeout.
      */
     static public SocketTimeoutException create(final Timeout timeout) {
         return new SocketTimeoutException(Objects.toString(timeout));
