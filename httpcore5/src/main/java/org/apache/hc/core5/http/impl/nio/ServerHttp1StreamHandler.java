@@ -315,7 +315,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         }
     }
 
-    void dumpState(final StringBuilder buf) {
+    void appendState(final StringBuilder buf) {
         buf.append("requestState=").append(requestState)
                 .append(", responseState=").append(responseState)
                 .append(", responseCommitted=").append(responseCommitted)
@@ -327,7 +327,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     public String toString() {
         final StringBuilder buf = new StringBuilder();
         buf.append("[");
-        dumpState(buf);
+        appendState(buf);
         buf.append("]");
         return buf.toString();
     }

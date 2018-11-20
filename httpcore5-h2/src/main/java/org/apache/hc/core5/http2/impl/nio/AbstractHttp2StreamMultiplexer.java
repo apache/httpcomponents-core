@@ -1242,7 +1242,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         return ioSession.getLocalAddress();
     }
 
-    void dumpState(final StringBuilder buf) {
+    void appendState(final StringBuilder buf) {
         buf.append("connState=").append(connState)
                 .append(", connInputWindow=").append(connInputWindow)
                 .append(", connOutputWindow=").append(connOutputWindow)
@@ -1467,7 +1467,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             }
         }
 
-        void dumpState(final StringBuilder buf) {
+        void appendState(final StringBuilder buf) {
             buf.append("id=").append(id)
                     .append(", connState=").append(connState)
                     .append(", inputWindow=").append(inputWindow)
@@ -1480,7 +1480,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         public String toString() {
             final StringBuilder buf = new StringBuilder();
             buf.append("[");
-            dumpState(buf);
+            appendState(buf);
             buf.append("]");
             return buf.toString();
         }
@@ -1619,9 +1619,9 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             channel.requestOutput();
         }
 
-        void dumpState(final StringBuilder buf) {
+        void appendState(final StringBuilder buf) {
             buf.append("channel=[");
-            channel.dumpState(buf);
+            channel.appendState(buf);
             buf.append("]");
         }
 
@@ -1629,7 +1629,7 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         public String toString() {
             final StringBuilder buf = new StringBuilder();
             buf.append("[");
-            dumpState(buf);
+            appendState(buf);
             buf.append("]");
             return buf.toString();
         }

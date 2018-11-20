@@ -49,7 +49,7 @@ public class ClientHttp1IOEventHandler extends AbstractHttp1IOEventHandler {
         buf.append("->");
         InetAddressUtils.formatAddress(buf, getRemoteAddress());
         buf.append(" [");
-        streamDuplexer.dumpState(buf);
+        streamDuplexer.appendState(buf);
         buf.append("]");
         return buf.toString();
     }

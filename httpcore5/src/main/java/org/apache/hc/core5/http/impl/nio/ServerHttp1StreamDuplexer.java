@@ -401,15 +401,15 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
-    void dumpState(final StringBuilder buf) {
-        super.dumpState(buf);
+    void appendState(final StringBuilder buf) {
+        super.appendState(buf);
         buf.append(", incoming=[");
         if (incoming != null) {
-            incoming.dumpState(buf);
+            incoming.appendState(buf);
         }
         buf.append("], outgoing=[");
         if (outgoing != null) {
-            outgoing.dumpState(buf);
+            outgoing.appendState(buf);
         }
         buf.append("], pipeline=");
         buf.append(pipeline.size());
@@ -419,7 +419,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     public String toString() {
         final StringBuilder buf = new StringBuilder();
         buf.append("[");
-        dumpState(buf);
+        appendState(buf);
         buf.append("]");
         return buf.toString();
     }

@@ -49,7 +49,7 @@ public class ClientHttp2IOEventHandler extends AbstractHttp2IOEventHandler {
         buf.append("->");
         InetAddressUtils.formatAddress(buf, getRemoteAddress());
         buf.append(" [");
-        streamMultiplexer.dumpState(buf);
+        streamMultiplexer.appendState(buf);
         buf.append("]");
         return buf.toString();
     }

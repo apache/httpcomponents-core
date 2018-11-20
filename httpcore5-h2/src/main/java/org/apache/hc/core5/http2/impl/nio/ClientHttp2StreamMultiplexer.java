@@ -139,7 +139,7 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     public String toString() {
         final StringBuilder buf = new StringBuilder();
         buf.append("[");
-        dumpState(buf);
+        appendState(buf);
         buf.append("]");
         return buf.toString();
     }
