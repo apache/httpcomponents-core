@@ -261,4 +261,11 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         ioSession.close(closeMode);
     }
 
+    @Override
+    public String toString() {
+        return "[" +
+                "versionPolicy=" + versionPolicy +
+                ']';
+    }
+
 }

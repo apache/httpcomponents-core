@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.net.InetAddressUtils;
 
 /**
  * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements
@@ -42,6 +43,18 @@ public class ServerHttp1IOEventHandler extends AbstractHttp1IOEventHandler {
 
     public ServerHttp1IOEventHandler(final ServerHttp1StreamDuplexer streamDuplexer) {
         super(streamDuplexer);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder buf = new StringBuilder();
+        InetAddressUtils.formatAddress(buf, getRemoteAddress());
+        buf.append("->");
+        InetAddressUtils.formatAddress(buf, getLocalAddress());
+        buf.append(" [");
+        streamDuplexer.dumpState(buf);
+        buf.append("]");
+        return buf.toString();
     }
 
 }

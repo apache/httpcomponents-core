@@ -378,7 +378,18 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     public String toString() {
-        return getSessionImpl().toString();
+        final StringBuilder buf = new StringBuilder();
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        if (tlsSession != null) {
+            buf.append(tlsSession);
+        } else {
+            buf.append(ioSession);
+        }
+        final IOEventHandler handler = getHandler();
+        if (handler != null) {
+            buf.append(handler);
+        }
+        return buf.toString();
     }
 
 }

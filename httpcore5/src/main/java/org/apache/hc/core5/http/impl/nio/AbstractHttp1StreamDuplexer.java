@@ -623,4 +623,11 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         return tlsDetails != null ? tlsDetails.getSSLSession() : null;
     }
 
+    void dumpState(final StringBuilder buf) {
+        buf.append("connState=").append(connState)
+                .append(", inbuf=").append(inbuf)
+                .append(", outbuf=").append(outbuf)
+                .append(", inputWindow=").append(inputWindow);
+    }
+
 }

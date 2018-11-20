@@ -43,7 +43,7 @@ import org.apache.hc.core5.util.Timeout;
 
 class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
 
-    private final AbstractHttp2StreamMultiplexer streamMultiplexer;
+    final AbstractHttp2StreamMultiplexer streamMultiplexer;
 
     AbstractHttp2IOEventHandler(final AbstractHttp2StreamMultiplexer streamMultiplexer) {
         this.streamMultiplexer = Args.notNull(streamMultiplexer, "Stream multiplexer");
@@ -145,8 +145,4 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
         return streamMultiplexer.getLocalAddress();
     }
 
-    @Override
-    public String toString() {
-        return streamMultiplexer.toString();
-    }
 }

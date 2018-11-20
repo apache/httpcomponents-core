@@ -42,7 +42,7 @@ import org.apache.hc.core5.util.Timeout;
 
 class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
 
-    private final AbstractHttp1StreamDuplexer<?, ?> streamDuplexer;
+    final AbstractHttp1StreamDuplexer<?, ?> streamDuplexer;
 
     AbstractHttp1IOEventHandler(final AbstractHttp1StreamDuplexer<?, ?> streamDuplexer) {
         this.streamDuplexer = Args.notNull(streamDuplexer, "Stream multiplexer");
@@ -142,11 +142,6 @@ class AbstractHttp1IOEventHandler implements HttpConnectionEventHandler {
     @Override
     public SocketAddress getLocalAddress() {
         return streamDuplexer.getLocalAddress();
-    }
-
-    @Override
-    public String toString() {
-        return streamDuplexer.toString();
     }
 
 }

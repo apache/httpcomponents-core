@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http2.impl.nio;
 
+import org.apache.hc.core5.net.InetAddressUtils;
+
 /**
  * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements
  * server side HTTP/2 messaging protocol with full support for
@@ -38,6 +40,18 @@ public class ServerHttp2IOEventHandler extends AbstractHttp2IOEventHandler{
 
     public ServerHttp2IOEventHandler(final ServerHttp2StreamMultiplexer streamMultiplexer) {
         super(streamMultiplexer);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder buf = new StringBuilder();
+        InetAddressUtils.formatAddress(buf, getRemoteAddress());
+        buf.append("->");
+        InetAddressUtils.formatAddress(buf, getLocalAddress());
+        buf.append(" [");
+        streamMultiplexer.dumpState(buf);
+        buf.append("]");
+        return buf.toString();
     }
 
 }

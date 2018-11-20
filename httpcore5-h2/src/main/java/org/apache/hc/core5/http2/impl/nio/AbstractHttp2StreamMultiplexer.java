@@ -1242,6 +1242,15 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
         return ioSession.getLocalAddress();
     }
 
+    void dumpState(final StringBuilder buf) {
+        buf.append("connState=").append(connState)
+                .append(", connInputWindow=").append(connInputWindow)
+                .append(", connOutputWindow=").append(connOutputWindow)
+                .append(", outputQueue=").append(outputQueue.size())
+                .append(", streamMap=").append(streamMap.size())
+                .append(", processedRemoteStreamId=").append(processedRemoteStreamId);
+    }
+
     private static class Continuation {
 
         final int streamId;
@@ -1458,15 +1467,22 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             }
         }
 
+        void dumpState(final StringBuilder buf) {
+            buf.append("id=").append(id)
+                    .append(", connState=").append(connState)
+                    .append(", inputWindow=").append(inputWindow)
+                    .append(", outputWindow=").append(outputWindow)
+                    .append(", localEndStream=").append(localEndStream)
+                    .append(", idle=").append(idle);
+        }
+
         @Override
         public String toString() {
-            return "[" +
-                    "id=" + id +
-                    ", inputWindow=" + inputWindow +
-                    ", outputWindow=" + outputWindow +
-                    ", remoteEndStream=" + remoteEndStream +
-                    ", localEndStream=" + localEndStream +
-                    ']';
+            final StringBuilder buf = new StringBuilder();
+            buf.append("[");
+            dumpState(buf);
+            buf.append("]");
+            return buf.toString();
         }
 
     }
@@ -1603,9 +1619,19 @@ abstract class AbstractHttp2StreamMultiplexer implements Identifiable, HttpConne
             channel.requestOutput();
         }
 
+        void dumpState(final StringBuilder buf) {
+            buf.append("channel=[");
+            channel.dumpState(buf);
+            buf.append("]");
+        }
+
         @Override
         public String toString() {
-            return channel.toString();
+            final StringBuilder buf = new StringBuilder();
+            buf.append("[");
+            dumpState(buf);
+            buf.append("]");
+            return buf.toString();
         }
 
     }

@@ -142,7 +142,8 @@ public class AsyncReverseProxyExample {
 
                     @Override
                     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
-                        System.out.println("[proxy<-origin] connection " + connection +
+                        System.out.println("[proxy<-origin] connection " +
+                                connection.getLocalAddress() + "->" + connection.getRemoteAddress() +
                                 (keepAlive ? " kept alive" : " cannot be kept alive"));
                     }
 
@@ -167,7 +168,8 @@ public class AsyncReverseProxyExample {
 
                     @Override
                     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
-                        System.out.println("[client<-proxy] connection " + connection +
+                        System.out.println("[client<-proxy] connection " +
+                                connection.getLocalAddress() + "->" + connection.getRemoteAddress() +
                                 (keepAlive ? " kept alive" : " cannot be kept alive"));
                     }
 

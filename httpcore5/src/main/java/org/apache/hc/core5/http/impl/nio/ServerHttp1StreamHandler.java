@@ -315,13 +315,21 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         }
     }
 
+    void dumpState(final StringBuilder buf) {
+        buf.append("requestState=").append(requestState)
+                .append(", responseState=").append(responseState)
+                .append(", responseCommitted=").append(responseCommitted)
+                .append(", keepAlive=").append(keepAlive)
+                .append(", done=").append(done);
+    }
+
     @Override
     public String toString() {
-        return "[" +
-                "requestState=" + requestState +
-                ", responseState=" + responseState +
-                ", outputChannel=" + outputChannel +
-                ']';
+        final StringBuilder buf = new StringBuilder();
+        buf.append("[");
+        dumpState(buf);
+        buf.append("]");
+        return buf.toString();
     }
 
 }

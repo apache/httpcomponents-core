@@ -111,4 +111,10 @@ final class InternalConnectChannel extends InternalChannel {
         } catch (final IOException ignore) {
         }
     }
+
+    @Override
+    public String toString() {
+        return sessionRequest.toString();
+    }
+
 }

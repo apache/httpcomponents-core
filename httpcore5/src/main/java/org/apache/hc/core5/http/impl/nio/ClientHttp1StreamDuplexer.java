@@ -64,7 +64,6 @@ import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
@@ -388,12 +387,28 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
+    void dumpState(final StringBuilder buf) {
+        super.dumpState(buf);
+        super.dumpState(buf);
+        buf.append(", incoming=[");
+        if (incoming != null) {
+            incoming.dumpState(buf);
+        }
+        buf.append("], outgoing=[");
+        if (outgoing != null) {
+            outgoing.dumpState(buf);
+        }
+        buf.append("], pipeline=");
+        buf.append(pipeline.size());
+    }
+
+    @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        InetAddressUtils.formatAddress(buffer, getLocalAddress());
-        buffer.append("->");
-        InetAddressUtils.formatAddress(buffer, getRemoteAddress());
-        return buffer.toString();
+        final StringBuilder buf = new StringBuilder();
+        buf.append("[");
+        dumpState(buf);
+        buf.append("]");
+        return buf.toString();
     }
 
 }

@@ -231,4 +231,12 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
         ioSession.close(closeMode);
     }
 
+    @Override
+    public String toString() {
+        return "[" +
+                "versionPolicy=" + versionPolicy +
+                ", expectValidH2Preface=" + expectValidH2Preface +
+                ']';
+    }
+
 }

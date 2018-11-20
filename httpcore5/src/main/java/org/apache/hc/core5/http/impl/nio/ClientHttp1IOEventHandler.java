@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import org.apache.hc.core5.net.InetAddressUtils;
+
 /**
  * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements
  *  client side HTTP/1.1 messaging protocol with full support for
@@ -38,6 +40,18 @@ public class ClientHttp1IOEventHandler extends AbstractHttp1IOEventHandler {
 
     public ClientHttp1IOEventHandler(final ClientHttp1StreamDuplexer streamDuplexer) {
         super(streamDuplexer);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder buf = new StringBuilder();
+        InetAddressUtils.formatAddress(buf, getLocalAddress());
+        buf.append("->");
+        InetAddressUtils.formatAddress(buf, getRemoteAddress());
+        buf.append(" [");
+        streamDuplexer.dumpState(buf);
+        buf.append("]");
+        return buf.toString();
     }
 
 }

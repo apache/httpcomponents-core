@@ -117,4 +117,14 @@ final class IOSessionRequest implements Future<IOSession> {
         return future.get(timeout, unit);
     }
 
+    @Override
+    public String toString() {
+        return "[" +
+                "remoteEndpoint=" + remoteEndpoint +
+                ", remoteAddress=" + remoteAddress +
+                ", localAddress=" + localAddress +
+                ", attachment=" + attachment +
+                ']';
+    }
+
 }
