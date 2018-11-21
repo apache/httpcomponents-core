@@ -53,4 +53,21 @@ public final class ReflectionUtils {
         }
     }
 
+    public static int determineJRELevel() {
+        final String s = System.getProperty("java.version");
+        final String[] parts = s.split("\\.");
+        if (parts.length > 0) {
+            try {
+                final int majorVersion = Integer.parseInt(parts[0]);
+                if (majorVersion > 1) {
+                    return majorVersion;
+                } else if (majorVersion == 1 && parts.length > 1) {
+                    return Integer.parseInt(parts[1]);
+                }
+            } catch (final NumberFormatException ignore) {
+            }
+        }
+        return 7;
+    }
+
 }

@@ -60,8 +60,8 @@ import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.testing.TestingSupport;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
+import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -196,7 +196,7 @@ public class Http2ServerAndRequesterTest {
 
     @BeforeClass
     public static void determineJavaVersion() {
-        javaVersion = TestingSupport.determineJRELevel();
+        javaVersion = ReflectionUtils.determineJRELevel();
     }
 
     @Before
