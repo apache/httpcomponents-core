@@ -27,8 +27,8 @@
 
 package org.apache.http.protocol;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -60,7 +60,7 @@ public class UriPatternMatcher<T> {
 
     public UriPatternMatcher() {
         super();
-        this.map = new HashMap<String, T>();
+        this.map = new LinkedHashMap<String, T>();
     }
 
     /**

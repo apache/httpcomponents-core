@@ -18,6 +18,9 @@ Changelog
 * HTTPCORE-562: The reason phrase returned by org.apache.hc.core5.http.HttpResponse.getReasonPhrase() may be empty.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* Keep the entries in org.apache.hc.core5.http.protocol.UriPatternMatcher#map in insertion order.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 4.4.10
 -------------------
