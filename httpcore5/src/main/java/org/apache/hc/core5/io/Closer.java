@@ -38,7 +38,7 @@ import java.io.IOException;
 public final class Closer {
 
     /**
-     * Closes the given closeable quietly even in the event of an exception.
+     * Closes the given Closeable quietly even in the event of an exception.
      *
      * @param closeable
      *            what to close.
