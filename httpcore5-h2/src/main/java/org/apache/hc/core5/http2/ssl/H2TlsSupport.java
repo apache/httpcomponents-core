@@ -39,7 +39,7 @@ import javax.net.ssl.SSLParameters;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
-import org.apache.hc.core5.ssl.ReflectionSupport;
+import org.apache.hc.core5.util.ReflectionUtils;
 
 /**
  * HTTP/2 TLS support methods
@@ -367,11 +367,11 @@ public final class H2TlsSupport {
     }
 
     public static void setEnableRetransmissions(final SSLParameters sslParameters, final boolean value) {
-        ReflectionSupport.callSetter(sslParameters, "EnableRetransmissions", Boolean.TYPE, value);
+        ReflectionUtils.callSetter(sslParameters, "EnableRetransmissions", Boolean.TYPE, value);
     }
 
     public static void setApplicationProtocols(final SSLParameters sslParameters, final String[] values) {
-        ReflectionSupport.callSetter(sslParameters, "ApplicationProtocols", String[].class, values);
+        ReflectionUtils.callSetter(sslParameters, "ApplicationProtocols", String[].class, values);
     }
 
     public static String[] selectApplicationProtocols(final Object attachment) {

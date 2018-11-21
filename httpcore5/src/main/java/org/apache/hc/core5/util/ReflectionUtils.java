@@ -25,11 +25,14 @@
  *
  */
 
-package org.apache.hc.core5.ssl;
+package org.apache.hc.core5.util;
 
 import java.lang.reflect.Method;
 
-public final class ReflectionSupport {
+import org.apache.hc.core5.annotation.Internal;
+
+@Internal
+public final class ReflectionUtils {
 
     public static void callSetter(final Object object, final String setterName, final Class<?> type, final Object value) {
         try {
