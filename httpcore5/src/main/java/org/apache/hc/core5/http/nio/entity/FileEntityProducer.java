@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
+import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
@@ -152,15 +153,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
     @Override
     public void releaseResources() {
         eof = false;
-        @SuppressWarnings("resource")
-        final RandomAccessFile accessFile = accessFileRef.getAndSet(null);
-        if (accessFile != null) {
-            try {
-                accessFile.close();
-            } catch (final IOException ignore) {
-                // ignore
-            }
-        }
+        Closer.closeQuietly(accessFileRef.getAndSet(null));
     }
 
 }
