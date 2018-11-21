@@ -65,21 +65,20 @@ public class AsyncRequestExecutionExample {
 
                     @Override
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
-                        System.out.println(connection + " " + new RequestLine(request));
-
+                        System.out.println(connection.getRemoteAddress() + " " + new RequestLine(request));
                     }
 
                     @Override
                     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
-                        System.out.println(connection + " " + new StatusLine(response));
+                        System.out.println(connection.getRemoteAddress() + " " + new StatusLine(response));
                     }
 
                     @Override
                     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
                         if (keepAlive) {
-                            System.out.println(connection + " exchange completed (connection kept alive)");
+                            System.out.println(connection.getRemoteAddress() + " exchange completed (connection kept alive)");
                         } else {
-                            System.out.println(connection + " exchange completed (connection closed)");
+                            System.out.println(connection.getRemoteAddress() + " exchange completed (connection closed)");
                         }
                     }
 

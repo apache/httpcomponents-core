@@ -35,10 +35,10 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.RequestLine;
@@ -57,21 +57,21 @@ public class ClassicGetExecutionExample {
 
                     @Override
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
-                        System.out.println(connection + " " + new RequestLine(request));
+                        System.out.println(connection.getRemoteAddress() + " " + new RequestLine(request));
 
                     }
 
                     @Override
                     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
-                        System.out.println(connection + " " + new StatusLine(response));
+                        System.out.println(connection.getRemoteAddress() + " " + new StatusLine(response));
                     }
 
                     @Override
                     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
                         if (keepAlive) {
-                            System.out.println(connection + " exchange completed (connection kept alive)");
+                            System.out.println(connection.getRemoteAddress() + " exchange completed (connection kept alive)");
                         } else {
-                            System.out.println(connection + " exchange completed (connection closed)");
+                            System.out.println(connection.getRemoteAddress() + " exchange completed (connection closed)");
                         }
                     }
 

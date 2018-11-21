@@ -84,14 +84,14 @@ public class Http2FullDuplexClientExample {
                     @Override
                     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
                         for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection + " (" + streamId + ") << " + headers.get(i));
+                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + headers.get(i));
                         }
                     }
 
                     @Override
                     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
                         for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection + " (" + streamId + ") >> " + headers.get(i));
+                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + headers.get(i));
                         }
                     }
 
