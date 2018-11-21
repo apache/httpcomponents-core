@@ -133,6 +133,7 @@ public class StringEntity extends AbstractHttpEntity implements Cloneable {
 
     @Override
     public void close() throws IOException {
+        // nothing to do
     }
 
 }

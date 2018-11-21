@@ -248,6 +248,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         }
     }
 
+    @SuppressWarnings("resource")
     @Override
     public TlsDetails getTlsDetails() {
         final SSLIOSession sslIoSession = tlsSessionRef.get();

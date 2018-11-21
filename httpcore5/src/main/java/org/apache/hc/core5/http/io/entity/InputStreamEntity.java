@@ -125,8 +125,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
     @Override
     public void writeTo(final OutputStream outStream) throws IOException {
         Args.notNull(outStream, "Output stream");
-        final InputStream inStream = this.content;
-        try {
+        try (final InputStream inStream = this.content) {
             final byte[] buffer = new byte[OUTPUT_BUFFER_SIZE];
             int readLen;
             if (this.length < 0) {
@@ -138,7 +137,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
                 // consume no more than length
                 long remaining = this.length;
                 while (remaining > 0) {
-                    readLen = inStream.read(buffer, 0, (int)Math.min(OUTPUT_BUFFER_SIZE, remaining));
+                    readLen = inStream.read(buffer, 0, (int) Math.min(OUTPUT_BUFFER_SIZE, remaining));
                     if (readLen == -1) {
                         break;
                     }
@@ -146,8 +145,6 @@ public class InputStreamEntity extends AbstractHttpEntity {
                     remaining -= readLen;
                 }
             }
-        } finally {
-            inStream.close();
         }
     }
 

@@ -33,6 +33,7 @@ import java.nio.channels.SelectionKey;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.Closer;
 
 class ListenerEndpointImpl implements ListenerEndpoint {
 
@@ -72,10 +73,7 @@ class ListenerEndpointImpl implements ListenerEndpoint {
 
     @Override
     public void close(final CloseMode closeMode) {
-        try {
-            close();
-        } catch (final IOException ignore) {
-        }
+        Closer.closeQuietly(this);
     }
 
 }

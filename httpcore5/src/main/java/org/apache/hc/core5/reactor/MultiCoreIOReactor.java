@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -118,12 +119,10 @@ class MultiCoreIOReactor implements IOReactor {
         } else {
             this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN);
             for (int i = 0; i < this.ioReactors.length; i++) {
-                final IOReactor ioReactor = this.ioReactors[i];
-                ioReactor.close(CloseMode.IMMEDIATE);
+                Closer.close(this.ioReactors[i], CloseMode.IMMEDIATE);
             }
             for (int i = 0; i < this.threads.length; i++) {
-                final Thread thread = this.threads[i];
-                thread.interrupt();
+                this.threads[i].interrupt();
             }
         }
         this.status.set(IOReactorStatus.SHUT_DOWN);

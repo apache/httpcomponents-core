@@ -36,6 +36,7 @@ import java.util.Set;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.io.entity.AbstractImmutableHttpEntity;
+import org.apache.hc.core5.io.Closer;
 
 class IncomingHttpEntity extends AbstractImmutableHttpEntity {
 
@@ -100,9 +101,7 @@ class IncomingHttpEntity extends AbstractImmutableHttpEntity {
 
     @Override
     public void close() throws IOException {
-        if (content != null) {
-            content.close();
-        }
+        Closer.close(content);
     }
 
 }

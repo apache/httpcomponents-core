@@ -33,6 +33,7 @@ import java.util.Locale;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
+import org.apache.hc.core5.io.Closer;
 
 /**
  * Basic implementation of {@link ClassicHttpResponse}.
@@ -89,9 +90,7 @@ public class BasicClassicHttpResponse extends BasicHttpResponse implements Class
 
     @Override
     public void close() throws IOException {
-        if (entity != null) {
-            entity.close();
-        }
+        Closer.close(entity);
     }
 
 }

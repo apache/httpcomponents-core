@@ -68,6 +68,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
@@ -291,10 +292,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
                             if (localConn != null) {
                                 if (requestExecutor.keepAlive(request, response, localConn, context)) {
                                     if (super.isStreaming()) {
-                                        final InputStream content = super.getContent();
-                                        if (content != null) {
-                                            content.close();
-                                        }
+                                        Closer.close(super.getContent());
                                     }
                                     connectionHolder.releaseConnection();
                                 }

@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.URLEncodedUtils;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
@@ -88,10 +89,7 @@ public final class EntityUtils {
             return;
         }
         if (entity.isStreaming()) {
-            final InputStream inStream = entity.getContent();
-            if (inStream != null) {
-                inStream.close();
-            }
+            Closer.close(entity.getContent());
         }
     }
 
@@ -196,11 +194,10 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "Entity");
-        final InputStream inStream = entity.getContent();
-        if (inStream == null) {
-            return null;
-        }
-        try {
+        try (final InputStream inStream = entity.getContent()) {
+            if (inStream == null) {
+                return null;
+            }
             int i = (int) Args.checkContentLength(entity);
             if (i < 0) {
                 i = 4096;
@@ -208,23 +205,20 @@ public final class EntityUtils {
             final ByteArrayBuffer buffer = new ByteArrayBuffer(i);
             final byte[] tmp = new byte[4096];
             int l;
-            while((l = inStream.read(tmp)) != -1) {
+            while ((l = inStream.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
             }
             return buffer.toByteArray();
-        } finally {
-            inStream.close();
         }
     }
 
     private static String toString(
             final HttpEntity entity,
-            final ContentType contentType) throws IOException {
-        final InputStream inStream = entity.getContent();
-        if (inStream == null) {
-            return null;
-        }
-        try {
+                    final ContentType contentType) throws IOException {
+        try (final InputStream inStream = entity.getContent()) {
+            if (inStream == null) {
+                return null;
+            }
             int contentLength = (int) Args.checkContentLength(entity);
             if (contentLength < 0) {
                 contentLength = 4096;
@@ -244,12 +238,10 @@ public final class EntityUtils {
             final CharArrayBuffer buffer = new CharArrayBuffer(contentLength);
             final char[] tmp = new char[1024];
             int chReadCount;
-            while((chReadCount = reader.read(tmp)) != -1) {
+            while ((chReadCount = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, chReadCount);
             }
             return buffer.toString();
-        } finally {
-            inStream.close();
         }
     }
 
@@ -348,23 +340,21 @@ public final class EntityUtils {
         }
         final long len = entity.getContentLength();
         Args.checkRange(len, 0, Integer.MAX_VALUE, "HTTP entity is too large");
-        final Charset charset = contentType.getCharset() != null ? contentType.getCharset() : StandardCharsets.ISO_8859_1;
-        final InputStream inStream = entity.getContent();
-        if (inStream == null) {
-            return Collections.emptyList();
-        }
+        final Charset charset = contentType.getCharset() != null ? contentType.getCharset()
+                        : StandardCharsets.ISO_8859_1;
         final CharArrayBuffer buf;
-        try {
+        try (final InputStream inStream = entity.getContent()) {
+            if (inStream == null) {
+                return Collections.emptyList();
+            }
             buf = new CharArrayBuffer(len > 0 ? (int) len : 1024);
             final Reader reader = new InputStreamReader(inStream, charset);
             final char[] tmp = new char[1024];
             int l;
-            while((l = reader.read(tmp)) != -1) {
+            while ((l = reader.read(tmp)) != -1) {
                 buf.append(tmp, 0, l);
             }
 
-        } finally {
-            inStream.close();
         }
         if (buf.isEmpty()) {
             return Collections.emptyList();

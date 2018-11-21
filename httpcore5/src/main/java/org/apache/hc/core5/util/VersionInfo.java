@@ -229,14 +229,11 @@ public class VersionInfo {
         try {
             // org.apache.http becomes
             // org/apache/http/version.properties
-            final InputStream is = cl.getResourceAsStream(pckg.replace('.', '/') + "/" + VERSION_PROPERTY_FILE);
-            if (is != null) {
-                try {
+            try (final InputStream is = cl.getResourceAsStream(pckg.replace('.', '/') + "/" + VERSION_PROPERTY_FILE)) {
+                if (is != null) {
                     final Properties props = new Properties();
                     props.load(is);
                     vip = props;
-                } finally {
-                    is.close();
                 }
             }
         } catch (final IOException ex) {

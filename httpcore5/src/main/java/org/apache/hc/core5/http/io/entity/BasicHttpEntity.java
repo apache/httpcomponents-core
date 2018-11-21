@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.hc.core5.http.impl.io.EmptyInputStream;
+import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Asserts;
 
 /**
@@ -111,9 +112,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
 
     @Override
     public void close() throws IOException {
-        if (content != null) {
-            content.close();
-        }
+        Closer.close(content);
     }
 
 }

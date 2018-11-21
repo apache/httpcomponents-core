@@ -46,16 +46,13 @@ public abstract class AbstractImmutableHttpEntity implements HttpEntity {
     @Override
     public void writeTo(final OutputStream outStream) throws IOException {
         Args.notNull(outStream, "Output stream");
-        final InputStream inStream = getContent();
-        if (inStream != null) {
-            try {
-                int l;
+        try (final InputStream inStream = getContent()) {
+            if (inStream != null) {
+                int count;
                 final byte[] tmp = new byte[OUTPUT_BUFFER_SIZE];
-                while ((l = inStream.read(tmp)) != -1) {
-                    outStream.write(tmp, 0, l);
+                while ((count = inStream.read(tmp)) != -1) {
+                    outStream.write(tmp, 0, count);
                 }
-            } finally {
-                inStream.close();
             }
         }
     }

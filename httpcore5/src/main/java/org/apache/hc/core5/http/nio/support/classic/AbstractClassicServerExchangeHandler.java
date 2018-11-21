@@ -52,6 +52,7 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
@@ -237,9 +238,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
                 public void run() {
                     try {
                         handle(request, inputStream, responseWrapper, outputStream, context);
-                        if (inputStream != null) {
-                            inputStream.close();
-                        }
+                        Closer.close(inputStream);
                         outputStream.close();
                     } catch (final Exception ex) {
                         exception.compareAndSet(null, ex);

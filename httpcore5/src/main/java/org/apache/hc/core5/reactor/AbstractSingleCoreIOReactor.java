@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -79,6 +80,7 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
             try {
                 doExecute();
             } catch (final ClosedSelectorException ignore) {
+                // ignore
             } catch (final Exception ex) {
                 addExceptionEvent(ex);
             } finally {
@@ -86,13 +88,10 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
                     doTerminate();
                     final Set<SelectionKey> keys = this.selector.keys();
                     for (final SelectionKey key : keys) {
-                        final Closeable closeable = (Closeable) key.attachment();
-                        if (closeable != null) {
-                            try {
-                                closeable.close();
-                            } catch (final IOException ex) {
-                                addExceptionEvent(ex);
-                            }
+                        try {
+                            Closer.close((Closeable) key.attachment());
+                        } catch (final IOException ex) {
+                            addExceptionEvent(ex);
                         }
                         key.channel().close();
                     }

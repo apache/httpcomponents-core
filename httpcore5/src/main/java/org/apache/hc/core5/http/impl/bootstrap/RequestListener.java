@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.io.SocketConfig;
 class RequestListener implements Runnable {
 
     private final SocketConfig socketConfig;
-    private final ServerSocket serversocket;
+    private final ServerSocket serverSocket;
     private final HttpService httpService;
     private final HttpConnectionFactory<? extends HttpServerConnection> connectionFactory;
     private final ExceptionListener exceptionListener;
@@ -56,7 +56,7 @@ class RequestListener implements Runnable {
             final ExceptionListener exceptionListener,
             final ExecutorService executorService) {
         this.socketConfig = socketConfig;
-        this.serversocket = serversocket;
+        this.serverSocket = serversocket;
         this.connectionFactory = connectionFactory;
         this.httpService = httpService;
         this.exceptionListener = exceptionListener;
@@ -68,7 +68,7 @@ class RequestListener implements Runnable {
     public void run() {
         try {
             while (!isTerminated() && !Thread.interrupted()) {
-                final Socket socket = this.serversocket.accept();
+                final Socket socket = this.serverSocket.accept();
                 socket.setSoTimeout(this.socketConfig.getSoTimeout().toMillisIntBound());
                 socket.setKeepAlive(this.socketConfig.isSoKeepAlive());
                 socket.setTcpNoDelay(this.socketConfig.isTcpNoDelay());
@@ -96,7 +96,7 @@ class RequestListener implements Runnable {
 
     public void terminate() throws IOException {
         if (this.terminated.compareAndSet(false, true)) {
-            this.serversocket.close();
+            this.serverSocket.close();
         }
     }
 
