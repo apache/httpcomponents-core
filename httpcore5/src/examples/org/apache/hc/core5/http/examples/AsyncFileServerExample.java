@@ -67,6 +67,7 @@ public class AsyncFileServerExample {
 
     static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");
 
+    /** Example command line args: {@code "c:\temp" 8080} */
     public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
             System.err.println("Please specify document root directory");
