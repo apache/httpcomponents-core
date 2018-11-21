@@ -374,6 +374,19 @@ public final class H2TlsSupport {
         ReflectionSupport.callSetter(sslParameters, "ApplicationProtocols", String[].class, values);
     }
 
+    public static String[] selectApplicationProtocols(final Object attachment) {
+        final HttpVersionPolicy versionPolicy = attachment instanceof HttpVersionPolicy ?
+                (HttpVersionPolicy) attachment : HttpVersionPolicy.NEGOTIATE;
+        switch (versionPolicy) {
+            case FORCE_HTTP_1:
+                return new String[] { ApplicationProtocols.HTTP_1_1.id };
+            case FORCE_HTTP_2:
+                return new String[] { ApplicationProtocols.HTTP_2.id };
+            default:
+                return new String[] { ApplicationProtocols.HTTP_2.id, ApplicationProtocols.HTTP_1_1.id };
+        }
+    }
+
     public static SSLSessionInitializer enforceRequirements(
             final Object attachment,
             final SSLSessionInitializer initializer) {
@@ -385,21 +398,7 @@ public final class H2TlsSupport {
                 sslParameters.setProtocols(excludeBlacklistedProtocols(sslParameters.getProtocols()));
                 sslParameters.setCipherSuites(excludeBlacklistedCiphers(sslParameters.getCipherSuites()));
                 setEnableRetransmissions(sslParameters, false);
-                final HttpVersionPolicy versionPolicy = attachment instanceof HttpVersionPolicy ?
-                        (HttpVersionPolicy) attachment : HttpVersionPolicy.NEGOTIATE;
-                final String[] appProtocols;
-                switch (versionPolicy) {
-                    case FORCE_HTTP_1:
-                        appProtocols = new String[] { ApplicationProtocols.HTTP_1_1.id };
-                        break;
-                    case FORCE_HTTP_2:
-                        appProtocols = new String[] { ApplicationProtocols.HTTP_2.id };
-                        break;
-                    default:
-                        appProtocols = new String[] { ApplicationProtocols.HTTP_2.id, ApplicationProtocols.HTTP_1_1.id };
-                        break;
-                }
-                setApplicationProtocols(sslParameters, appProtocols);
+                setApplicationProtocols(sslParameters, selectApplicationProtocols(attachment));
                 sslEngine.setSSLParameters(sslParameters);
                 if (initializer != null) {
                     initializer.initialize(endpoint, sslEngine);
