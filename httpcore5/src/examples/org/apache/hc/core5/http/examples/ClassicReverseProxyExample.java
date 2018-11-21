@@ -186,7 +186,7 @@ public class ClassicReverseProxyExample {
         });
 
         System.out.println("Listening on port " + port);
-        server.awaitTermination(TimeValue.ofDays(Long.MAX_VALUE));
+        server.awaitTermination(TimeValue.MAX_VALUE);
     }
 
     private final static Set<String> HOP_BY_HOP = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(

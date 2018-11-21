@@ -190,7 +190,7 @@ public class AsyncServerFilterExample {
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
         final ListenerEndpoint listenerEndpoint = future.get();
         System.out.print("Listening on " + listenerEndpoint.getAddress());
-        server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));
+        server.awaitShutdown(TimeValue.MAX_VALUE);
     }
 
 }

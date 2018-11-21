@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -62,6 +64,8 @@ import org.apache.hc.core5.util.TimeValue;
  * Example of asynchronous embedded HTTP/1.1 file server.
  */
 public class AsyncFileServerExample {
+
+    static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");
 
     public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
@@ -139,7 +143,7 @@ public class AsyncFileServerExample {
 
                             final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
                             final EndpointDetails endpoint = coreContext.getEndpointDetails();
-                            System.out.println(endpoint + ": serving file " + file.getPath());
+                            System.out.println(DATE_FORMATTER.format(new Date()) + " | " + endpoint + " | serving file " + file.getPath());
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_OK, new FileEntityProducer(file, contentType)), context);
                         }
@@ -160,7 +164,7 @@ public class AsyncFileServerExample {
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
         final ListenerEndpoint listenerEndpoint = future.get();
         System.out.println("Listening on " + listenerEndpoint.getAddress());
-        server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));
+        server.awaitShutdown(TimeValue.MAX_VALUE);
     }
 
 }

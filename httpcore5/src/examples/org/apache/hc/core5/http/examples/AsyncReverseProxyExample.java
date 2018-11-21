@@ -198,7 +198,7 @@ public class AsyncReverseProxyExample {
         server.listen(new InetSocketAddress(port));
         System.out.println("Listening on port " + port);
 
-        server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));
+        server.awaitShutdown(TimeValue.MAX_VALUE);
     }
 
     private static class ProxyBuffer extends ExpandableBuffer {

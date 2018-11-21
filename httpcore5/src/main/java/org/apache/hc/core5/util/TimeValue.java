@@ -46,6 +46,11 @@ public class TimeValue {
     static final int INT_UNDEFINED = -1;
 
     /**
+     * A constant holding the maximum value a {@code TimeValue} can have: <code>Long.MAX_VALUE</code> days.
+     */
+    public static final TimeValue MAX_VALUE = ofDays(Long.MAX_VALUE);
+
+    /**
      * A negative one millisecond {@link TimeValue}.
      */
     public static final TimeValue NEG_ONE_MILLISECONDS = TimeValue.of(INT_UNDEFINED, TimeUnit.MILLISECONDS);
