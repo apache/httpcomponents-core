@@ -38,10 +38,9 @@ public class HttpException extends Exception {
     private static final long serialVersionUID = -5437299376222011036L;
 
     /**
-     * Converts characters < 32 to hex.
+     * Cleans the given String by converting characters with values less than 32 to equivalent hexadecimal codes.
      *
-     * @param message
-     *            the source string.
+     * @param message the source string.
      * @return a converted string.
      */
     static String clean(final String message) {
