@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -58,7 +58,7 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
 
     public UriPatternMatcher() {
         super();
-        this.map = new HashMap<>();
+        this.map = new LinkedHashMap<>();
     }
 
     /**

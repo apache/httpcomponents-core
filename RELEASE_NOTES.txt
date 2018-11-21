@@ -39,6 +39,9 @@ Release 5.0-BETA6
 * Add org.apache.hc.core5.http.HttpHost.create(URI)
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* Keep the entries in org.apache.hc.core5.http.protocol.UriPatternMatcher#map in insertion order.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 5.0-BETA5
 -------------------
