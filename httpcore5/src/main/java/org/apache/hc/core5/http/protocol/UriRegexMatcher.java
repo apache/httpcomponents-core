@@ -44,6 +44,7 @@ import org.apache.hc.core5.util.Args;
  * class can be used to resolve an object matching a particular request URI.
  * </p>
  *
+ * @param <T> The type of registered objects.
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
