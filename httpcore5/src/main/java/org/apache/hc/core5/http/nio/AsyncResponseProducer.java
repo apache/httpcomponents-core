@@ -40,7 +40,7 @@ public interface AsyncResponseProducer extends AsyncDataProducer {
 
     /**
      * Triggered to signal the ability of the underlying response channel
-     * to accept response messagess. The data producer can choose to send
+     * to accept response messages. The data producer can choose to send
      * response messages immediately inside the call or asynchronously
      * at some later point.
      *
