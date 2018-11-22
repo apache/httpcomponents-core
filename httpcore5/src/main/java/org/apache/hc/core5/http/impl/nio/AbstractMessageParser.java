@@ -50,11 +50,11 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public abstract class AbstractMessageParser<T extends HttpMessage> implements NHttpMessageParser<T> {
 
-    private static final int READ_HEAD_LINE = 0;
-    private static final int READ_HEADERS   = 1;
-    private static final int COMPLETED      = 2;
+    private enum State {
+        READ_HEAD_LINE, READ_HEADERS, COMPLETED
+    }
 
-    private int state;
+    private State state;
 
     private T message;
     private CharArrayBuffer lineBuf;
@@ -79,7 +79,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.messageConstraints = messageConstraints != null ? messageConstraints : H1Config.DEFAULT;
         this.headerBufs = new ArrayList<>();
-        this.state = READ_HEAD_LINE;
+        this.state = State.READ_HEAD_LINE;
     }
 
     LineParser getLineParser() {
@@ -88,7 +88,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
 
     @Override
     public void reset() {
-        this.state = READ_HEAD_LINE;
+        this.state = State.READ_HEAD_LINE;
         this.headerBufs.clear();
         this.emptyLineCount = 0;
         this.message = null;
@@ -145,7 +145,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     public T parse(
             final SessionInputBuffer sessionBuffer, final boolean endOfStream) throws IOException, HttpException {
         Args.notNull(sessionBuffer, "Session input buffer");
-        while (this.state != COMPLETED) {
+        while (this.state !=State.COMPLETED) {
             if (this.lineBuf == null) {
                 this.lineBuf = new CharArrayBuffer(64);
             } else {
@@ -166,7 +166,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
             case READ_HEAD_LINE:
                 this.message = parseHeadLine();
                 if (this.message != null) {
-                    this.state = READ_HEADERS;
+                    this.state = State.READ_HEADERS;
                 }
                 break;
             case READ_HEADERS:
@@ -178,15 +178,15 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
 
                     parseHeader();
                 } else {
-                    this.state = COMPLETED;
+                    this.state = State.COMPLETED;
                 }
                 break;
             }
             if (endOfStream && !sessionBuffer.hasData()) {
-                this.state = COMPLETED;
+                this.state = State.COMPLETED;
             }
         }
-        if (this.state == COMPLETED) {
+        if (this.state ==State. COMPLETED) {
             for (final CharArrayBuffer buffer : this.headerBufs) {
                 this.message.addHeader(this.lineParser.parseHeader(buffer));
             }
