@@ -49,8 +49,6 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.SAFE)
 public class ResponseDate implements HttpResponseInterceptor {
 
-    private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();
-
     public ResponseDate() {
         super();
     }
@@ -62,8 +60,7 @@ public class ResponseDate implements HttpResponseInterceptor {
         final int status = response.getCode();
         if ((status >= HttpStatus.SC_OK) &&
             !response.containsHeader(HttpHeaders.DATE)) {
-            final String httpdate = DATE_GENERATOR.getCurrentDate();
-            response.setHeader(HttpHeaders.DATE, httpdate);
+            response.setHeader(HttpHeaders.DATE, HttpDateGenerator.INSTANCE.getCurrentDate());
         }
     }
 

@@ -48,8 +48,6 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.SAFE)
 public class RequestDate implements HttpRequestInterceptor {
 
-    private static final HttpDateGenerator DATE_GENERATOR = new HttpDateGenerator();
-
     public RequestDate() {
         super();
     }
@@ -59,8 +57,7 @@ public class RequestDate implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         if (entity != null && !request.containsHeader(HttpHeaders.DATE)) {
-            final String httpdate = DATE_GENERATOR.getCurrentDate();
-            request.setHeader(HttpHeaders.DATE, httpdate);
+            request.setHeader(HttpHeaders.DATE, HttpDateGenerator.INSTANCE.getCurrentDate());
         }
     }
 

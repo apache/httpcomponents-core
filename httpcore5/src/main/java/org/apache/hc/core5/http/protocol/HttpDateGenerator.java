@@ -44,29 +44,42 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 @Contract(threading = ThreadingBehavior.SAFE)
 public class HttpDateGenerator {
 
+    private static final int GRANULARITY_MILLIS = 1000;
+
     /** Date format pattern used to generate the header in RFC 1123 format. */
-    public static final
-        String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
+    public static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
 
     /** The time zone to use in the date header. */
     public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
+    /** Singleton instance. */
+    public static final HttpDateGenerator INSTANCE = new HttpDateGenerator(PATTERN_RFC1123, Locale.US, GMT);
+
     private final DateFormat dateformat;
-    private long dateAsLong = 0L;
+    private long dateAsMillis = 0L;
     private String dateAsText = null;
 
+    /**
+     * @deprecated Use {@link #INSTANCE}.
+     */
+    @Deprecated
     public HttpDateGenerator() {
         super();
         this.dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
         this.dateformat.setTimeZone(GMT);
     }
 
+    private HttpDateGenerator(final String pattern, final Locale locale, final TimeZone timeZone) {
+        this.dateformat = new SimpleDateFormat(pattern, locale);
+        this.dateformat.setTimeZone(timeZone);
+    }
+
     public synchronized String getCurrentDate() {
         final long now = System.currentTimeMillis();
-        if (now - this.dateAsLong > 1000) {
+        if (now - this.dateAsMillis > GRANULARITY_MILLIS) {
             // Generate new date string
             this.dateAsText = this.dateformat.format(new Date(now));
-            this.dateAsLong = now;
+            this.dateAsMillis = now;
         }
         return this.dateAsText;
     }
