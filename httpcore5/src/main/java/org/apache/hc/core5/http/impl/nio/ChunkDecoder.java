@@ -47,18 +47,18 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
- * Implements chunked transfer coding. The content is received in small chunks.
+ * Implements chunked transfer decoding. The content is received in small chunks.
  * Entities transferred using this encoder can be of unlimited length.
  *
  * @since 4.0
  */
 public class ChunkDecoder extends AbstractContentDecoder {
 
-    private static final int READ_CONTENT   = 0;
-    private static final int READ_FOOTERS  = 1;
-    private static final int COMPLETED      = 2;
+    private enum State {
+        READ_CONTENT, READ_FOOTERS, COMPLETED
+    }
 
-    private int state;
+    private State state;
     private boolean endOfChunk;
     private boolean endOfStream;
 
@@ -79,7 +79,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
             final H1Config h1Config,
             final BasicHttpTransportMetrics metrics) {
         super(channel, buffer, metrics);
-        this.state = READ_CONTENT;
+        this.state = State.READ_CONTENT;
         this.chunkSize = -1L;
         this.pos = 0L;
         this.endOfChunk = false;
@@ -184,12 +184,12 @@ public class ChunkDecoder extends AbstractContentDecoder {
     @Override
     public int read(final ByteBuffer dst) throws IOException {
         Args.notNull(dst, "Byte buffer");
-        if (this.state == COMPLETED) {
+        if (this.state == State.COMPLETED) {
             return -1;
         }
 
         int totalRead = 0;
-        while (this.state != COMPLETED) {
+        while (this.state != State.COMPLETED) {
 
             if (!this.buffer.hasData() || this.chunkSize == -1L) {
                 final int bytesRead = fillBufferFromChannel();
@@ -210,7 +210,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     if (this.chunkSize == 0L) {
                         // Last chunk. Read footers
                         this.chunkSize = -1L;
-                        this.state = READ_FOOTERS;
+                        this.state = State.READ_FOOTERS;
                         break;
                     }
                 }
@@ -221,7 +221,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     totalRead += len;
                 } else {
                     if (!this.buffer.hasData() && this.endOfStream) {
-                        this.state = COMPLETED;
+                        this.state = State.COMPLETED;
                         setCompleted();
                         throw new TruncatedChunkException(
                                         "Truncated chunk (expected size: %,d; actual size: %,d)",
@@ -246,7 +246,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 if (!this.buffer.readLine(this.lineBuf, this.endOfStream)) {
                     // Unable to read a footer
                     if (this.endOfStream) {
-                        this.state = COMPLETED;
+                        this.state = State.COMPLETED;
                         setCompleted();
                     }
                     return totalRead;
@@ -258,7 +258,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     }
                     parseHeader();
                 } else {
-                    this.state = COMPLETED;
+                    this.state = State.COMPLETED;
                     setCompleted();
                     processFooters();
                 }
