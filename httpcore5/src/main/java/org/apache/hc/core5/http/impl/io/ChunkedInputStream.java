@@ -59,10 +59,9 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public class ChunkedInputStream extends InputStream {
 
-    private static final int CHUNK_LEN               = 1;
-    private static final int CHUNK_DATA              = 2;
-    private static final int CHUNK_CRLF              = 3;
-    private static final int CHUNK_INVALID           = Integer.MAX_VALUE;
+    private enum State {
+        CHUNK_LEN, CHUNK_DATA, CHUNK_CRLF, CHUNK_INVALID
+    }
 
     private static final int BUFFER_SIZE = 2048;
 
@@ -72,7 +71,7 @@ public class ChunkedInputStream extends InputStream {
     private final CharArrayBuffer lineBuffer;
     private final H1Config h1Config;
 
-    private int state;
+    private State state;
 
     /** The chunk size */
     private long chunkSize;
@@ -104,7 +103,7 @@ public class ChunkedInputStream extends InputStream {
         this.pos = 0L;
         this.lineBuffer = new CharArrayBuffer(16);
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
-        this.state = CHUNK_LEN;
+        this.state = State.CHUNK_LEN;
     }
 
     /**
@@ -143,7 +142,7 @@ public class ChunkedInputStream extends InputStream {
         if (this.eof) {
             return -1;
         }
-        if (state != CHUNK_DATA) {
+        if (state != State.CHUNK_DATA) {
             nextChunk();
             if (this.eof) {
                 return -1;
@@ -153,7 +152,7 @@ public class ChunkedInputStream extends InputStream {
         if (b != -1) {
             pos++;
             if (pos >= chunkSize) {
-                state = CHUNK_CRLF;
+                state = State.CHUNK_CRLF;
             }
         }
         return b;
@@ -179,7 +178,7 @@ public class ChunkedInputStream extends InputStream {
         if (eof) {
             return -1;
         }
-        if (state != CHUNK_DATA) {
+        if (state != State.CHUNK_DATA) {
             nextChunk();
             if (eof) {
                 return -1;
@@ -189,7 +188,7 @@ public class ChunkedInputStream extends InputStream {
         if (bytesRead != -1) {
             pos += bytesRead;
             if (pos >= chunkSize) {
-                state = CHUNK_CRLF;
+                state = State.CHUNK_CRLF;
             }
             return bytesRead;
         }
@@ -215,7 +214,7 @@ public class ChunkedInputStream extends InputStream {
      * @throws IOException in case of an I/O error
      */
     private void nextChunk() throws IOException {
-        if (state == CHUNK_INVALID) {
+        if (state == State.CHUNK_INVALID) {
             throw new MalformedChunkCodingException("Corrupt data stream");
         }
         try {
@@ -223,14 +222,14 @@ public class ChunkedInputStream extends InputStream {
             if (chunkSize < 0L) {
                 throw new MalformedChunkCodingException("Negative chunk size");
             }
-            state = CHUNK_DATA;
+            state = State.CHUNK_DATA;
             pos = 0L;
             if (chunkSize == 0L) {
                 eof = true;
                 parseTrailerHeaders();
             }
         } catch (final MalformedChunkCodingException ex) {
-            state = CHUNK_INVALID;
+            state = State.CHUNK_INVALID;
             throw ex;
         }
     }
@@ -241,7 +240,7 @@ public class ChunkedInputStream extends InputStream {
      * comment\r\n" Positions the stream at the start of the next line.
      */
     private long getChunkSize() throws IOException {
-        final int st = this.state;
+        final State st = this.state;
         switch (st) {
         case CHUNK_CRLF:
             lineBuffer.clear();
@@ -254,7 +253,7 @@ public class ChunkedInputStream extends InputStream {
                 throw new MalformedChunkCodingException(
                     "Unexpected content at the end of chunk");
             }
-            state = CHUNK_LEN;
+            state = State.CHUNK_LEN;
             //$FALL-THROUGH$
         case CHUNK_LEN:
             lineBuffer.clear();
@@ -306,7 +305,7 @@ public class ChunkedInputStream extends InputStream {
     public void close() throws IOException {
         if (!closed) {
             try {
-                if (!eof && state != CHUNK_INVALID) {
+                if (!eof && state != State.CHUNK_INVALID) {
                     // read and discard the remainder of the message
                     final byte[] buff = new byte[BUFFER_SIZE];
                     while (read(buff) >= 0) {
