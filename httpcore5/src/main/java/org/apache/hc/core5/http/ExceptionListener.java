@@ -39,10 +39,12 @@ public interface ExceptionListener {
 
         @Override
         public void onError(final Exception ex) {
+            // no-op
         }
 
         @Override
         public void onError(final HttpConnection connection, final Exception ex) {
+            // no-op
         }
 
     };
