@@ -154,8 +154,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
         if (len == ContentLengthStrategy.UNDEFINED) {
             return;
         }
-        final HttpEntity entity = createIncomingEntity(request, this.inBuffer, socketHolder.getInputStream(), len);
-        request.setEntity(entity);
+        request.setEntity(createIncomingEntity(request, this.inBuffer, socketHolder.getInputStream(), len));
     }
 
     @Override
