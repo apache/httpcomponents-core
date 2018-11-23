@@ -332,7 +332,6 @@ public class TestEntityUtils {
      */
     public static class NullHttpEntity extends BasicHttpEntity {
 
-        // default constructor
         /**
          * Obtains no content.
          * This method disables the state checks in the base class.
