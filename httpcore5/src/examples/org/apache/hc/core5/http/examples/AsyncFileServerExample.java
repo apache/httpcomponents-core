@@ -31,8 +31,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +53,7 @@ import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http.protocol.HttpDateGenerator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
@@ -64,8 +63,6 @@ import org.apache.hc.core5.util.TimeValue;
  * Example of asynchronous embedded HTTP/1.1 file server.
  */
 public class AsyncFileServerExample {
-
-    static final SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z");
 
     /** Example command line args: {@code "c:\temp" 8080} */
     public static void main(final String[] args) throws Exception {
@@ -144,7 +141,11 @@ public class AsyncFileServerExample {
 
                             final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
                             final EndpointDetails endpoint = coreContext.getEndpointDetails();
-                            System.out.println(DATE_FORMATTER.format(new Date()) + " | " + endpoint + " | serving file " + file.getPath());
+
+                            System.out.println(HttpDateGenerator.INSTANCE.getCurrentDate() +
+                                    " | " + endpoint +
+                                    " | serving file " + file.getPath());
+
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_OK, new FileEntityProducer(file, contentType)), context);
                         }
