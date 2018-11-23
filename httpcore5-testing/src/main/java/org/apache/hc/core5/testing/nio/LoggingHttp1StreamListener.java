@@ -47,28 +47,23 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
     public final static LoggingHttp1StreamListener INSTANCE_CLIENT = new LoggingHttp1StreamListener(Type.CLIENT);
     public final static LoggingHttp1StreamListener INSTANCE_SERVER = new LoggingHttp1StreamListener(Type.SERVER);
 
-    private final Type type;
     private final Logger connLog = LoggerFactory.getLogger("org.apache.hc.core5.http.connection");
     private final Logger headerLog = LoggerFactory.getLogger("org.apache.hc.core5.http.headers");
+    private final String requestDirection;
+    private final String responseDirection;
 
     private LoggingHttp1StreamListener(final Type type) {
-        this.type = type;
-    }
-
-    private String requestDirection() {
-        return type == Type.CLIENT ? " >> " : " << ";
-    }
-
-    private String responseDirection() {
-        return type == Type.CLIENT ? " << " : " >> ";
+        this.requestDirection = type == Type.CLIENT ? " >> " : " << ";
+        this.responseDirection = type == Type.CLIENT ? " << " : " >> ";
     }
 
     @Override
     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
         if (headerLog.isDebugEnabled()) {
-            headerLog.debug(LoggingSupport.getId(connection) + requestDirection() + new RequestLine(request));
+            final String idRequestDirection = LoggingSupport.getId(connection) + requestDirection;
+            headerLog.debug(idRequestDirection + new RequestLine(request));
             for (final Iterator<Header> it = request.headerIterator(); it.hasNext(); ) {
-                headerLog.debug(LoggingSupport.getId(connection) + requestDirection() + it.next());
+                headerLog.debug(idRequestDirection + it.next());
             }
         }
     }
@@ -76,9 +71,10 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
     @Override
     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
         if (headerLog.isDebugEnabled()) {
-            headerLog.debug(LoggingSupport.getId(connection) + responseDirection() + new StatusLine(response));
+            final String idResponseDirection = LoggingSupport.getId(connection) + responseDirection;
+            headerLog.debug(idResponseDirection + new StatusLine(response));
             for (final Iterator<Header> it = response.headerIterator(); it.hasNext(); ) {
-                headerLog.debug(LoggingSupport.getId(connection) + responseDirection() + it.next());
+                headerLog.debug(idResponseDirection + it.next());
             }
         }
     }

@@ -88,8 +88,9 @@ public class LoggingHttp2StreamListener implements Http2StreamListener {
     @Override
     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
+            final String prefix = LoggingSupport.getId(connection) + " << ";
             for (int i = 0; i < headers.size(); i++) {
-                headerLog.debug(LoggingSupport.getId(connection) + " << " + headers.get(i));
+                headerLog.debug(prefix + headers.get(i));
             }
         }
     }
@@ -97,8 +98,9 @@ public class LoggingHttp2StreamListener implements Http2StreamListener {
     @Override
     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
+            final String prefix = LoggingSupport.getId(connection) + " >> ";
             for (int i = 0; i < headers.size(); i++) {
-                headerLog.debug(LoggingSupport.getId(connection) + " >> " + headers.get(i));
+                headerLog.debug(prefix + headers.get(i));
             }
         }
     }
