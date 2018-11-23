@@ -37,45 +37,78 @@ public final class EmptyInputStream extends InputStream {
     public static final EmptyInputStream INSTANCE = new EmptyInputStream();
 
     private EmptyInputStream() {
+        // noop.
     }
 
+    /**
+     * Returns {@code 0}.
+     */
     @Override
     public int available() {
         return 0;
     }
 
+    /**
+     * Noop.
+     */
     @Override
     public void close() {
+        // noop.
     }
 
+    /**
+     * Noop.
+     */
+    @SuppressWarnings("sync-override")
     @Override
     public void mark(final int readLimit) {
+        // noop.
     }
 
+    /**
+     * Returns {@code true}.
+     */
     @Override
     public boolean markSupported() {
         return true;
     }
 
+    /**
+     * Returns {@code -1}.
+     */
     @Override
     public int read() {
         return -1;
     }
 
+    /**
+     * Returns {@code -1}.
+     */
     @Override
     public int read(final byte[] buf) {
         return -1;
     }
 
+    /**
+     * Returns {@code -1}.
+     */
     @Override
     public int read(final byte[] buf, final int off, final int len) {
         return -1;
     }
 
+    /**
+     * Noop.
+     */
+    @SuppressWarnings("sync-override")
     @Override
     public void reset() {
+        // noop
     }
 
+    /**
+     * Returns {@code 0}.
+     */
     @Override
     public long skip(final long n) {
         return 0L;
