@@ -110,7 +110,7 @@ public class AsyncFileServerExample {
                         final File file = new File(docRoot, path);
                         if (!file.exists()) {
 
-                            System.out.println("File " + file.getPath() + " not found");
+                            println("File " + file.getPath() + " not found");
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_NOT_FOUND,
                                     "<html><body><h1>File " + file.getPath() +
@@ -119,7 +119,7 @@ public class AsyncFileServerExample {
 
                         } else if (!file.canRead() || file.isDirectory()) {
 
-                            System.out.println("Cannot read file " + file.getPath());
+                            println("Cannot read file " + file.getPath());
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_FORBIDDEN,
                                     "<html><body><h1>Access denied</h1></body></html>",
@@ -142,9 +142,7 @@ public class AsyncFileServerExample {
                             final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
                             final EndpointDetails endpoint = coreContext.getEndpointDetails();
 
-                            System.out.println(HttpDateGenerator.INSTANCE.getCurrentDate() +
-                                    " | " + endpoint +
-                                    " | serving file " + file.getPath());
+                            println(endpoint + " | serving file " + file.getPath());
 
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_OK, new FileEntityProducer(file, contentType)), context);
@@ -157,7 +155,7 @@ public class AsyncFileServerExample {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                System.out.println("HTTP server shutting down");
+                println("HTTP server shutting down");
                 server.close(CloseMode.GRACEFUL);
             }
         });
@@ -165,8 +163,12 @@ public class AsyncFileServerExample {
         server.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
         final ListenerEndpoint listenerEndpoint = future.get();
-        System.out.println("Listening on " + listenerEndpoint.getAddress());
+        println("Listening on " + listenerEndpoint.getAddress());
         server.awaitShutdown(TimeValue.MAX_VALUE);
+    }
+
+    static final void println(final String msg) {
+        System.out.println(HttpDateGenerator.INSTANCE.getCurrentDate() + " | " + msg);
     }
 
 }
