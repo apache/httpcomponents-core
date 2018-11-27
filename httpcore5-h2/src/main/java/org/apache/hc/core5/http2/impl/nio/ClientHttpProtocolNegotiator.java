@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.SelectionKey;
 
 import javax.net.ssl.SSLSession;
 
@@ -114,6 +115,19 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         }
     }
 
+    private void writeOutPreface(final IOSession session) throws IOException {
+        if (preface.hasRemaining()) {
+            final ByteChannel channel = session.channel();
+            channel.write(preface);
+        }
+        if (!preface.hasRemaining()) {
+            session.clearEvent(SelectionKey.OP_WRITE);
+            startHttp2(session);
+        } else {
+            session.setEvent(SelectionKey.OP_WRITE);
+        }
+    }
+
     @Override
     public void connected(final IOSession session) throws IOException {
         switch (versionPolicy) {
@@ -133,31 +147,19 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         if (preface == null) {
             startHttp1(session);
         } else {
-            if (preface.hasRemaining()) {
-                final ByteChannel channel = session.channel();
-                channel.write(preface);
-            }
-            if (!preface.hasRemaining()) {
-                startHttp2(session);
-            }
+            writeOutPreface(session);
         }
     }
 
     @Override
-    public void inputReady(final IOSession session)throws IOException  {
+    public void inputReady(final IOSession session) throws IOException  {
         outputReady(session);
     }
 
     @Override
     public void outputReady(final IOSession session) throws IOException {
         if (preface != null) {
-            if (preface.hasRemaining()) {
-                final ByteChannel channel = session.channel();
-                channel.write(preface);
-            }
-            if (!preface.hasRemaining()) {
-                startHttp2(session);
-            }
+            writeOutPreface(session);
         } else {
             session.close(CloseMode.GRACEFUL);
         }

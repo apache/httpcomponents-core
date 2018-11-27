@@ -164,8 +164,12 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
     public void setup() throws Exception {
         log.debug("Starting up test client");
         client = new Http1TestClient(
-                IOReactorConfig.DEFAULT,
+                buildReactorConfig(),
                 scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
+    }
+
+    protected IOReactorConfig buildReactorConfig() {
+        return IOReactorConfig.DEFAULT;
     }
 
     @After
