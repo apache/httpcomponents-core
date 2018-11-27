@@ -313,7 +313,14 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             sock.setReuseAddress(this.reactorConfig.isSoReuseAddress());
             sock.bind(sessionRequest.localAddress);
         }
-        final boolean connected = socketChannel.connect(sessionRequest.remoteAddress);
+
+        final SocketAddress targetAddress;
+        if (this.reactorConfig.getSocksProxyAddress() != null) {
+            targetAddress = this.reactorConfig.getSocksProxyAddress();
+        } else {
+            targetAddress = sessionRequest.remoteAddress;
+        }
+        final boolean connected = socketChannel.connect(targetAddress);
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
         final InternalChannel channel = new InternalConnectChannel(key, socketChannel, sessionRequest, new InternalDataChannelFactory() {
 
@@ -333,7 +340,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 return dataChannel;
             }
 
-        });
+        }, this.reactorConfig.getSocksProxyAddress() != null);
         if (connected) {
             channel.handleIOEvent(SelectionKey.OP_CONNECT);
         } else {

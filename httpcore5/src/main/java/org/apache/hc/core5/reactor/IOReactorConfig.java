@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -55,6 +56,7 @@ public final class IOReactorConfig {
     private final int sndBufSize;
     private final int rcvBufSize;
     private final int backlogSize;
+    private final SocketAddress socksProxyAddress;
 
     IOReactorConfig(
             final TimeValue selectInterval,
@@ -66,7 +68,8 @@ public final class IOReactorConfig {
             final boolean tcpNoDelay,
             final int sndBufSize,
             final int rcvBufSize,
-            final int backlogSize) {
+            final int backlogSize,
+            final SocketAddress socksProxyAddress) {
         super();
         this.selectInterval = selectInterval;
         this.ioThreadCount = ioThreadCount;
@@ -78,6 +81,7 @@ public final class IOReactorConfig {
         this.sndBufSize = sndBufSize;
         this.rcvBufSize = rcvBufSize;
         this.backlogSize = backlogSize;
+        this.socksProxyAddress = socksProxyAddress;
     }
 
     /**
@@ -203,6 +207,13 @@ public final class IOReactorConfig {
         return backlogSize;
     }
 
+    /**
+     * The address of the SOCKS proxy to use.
+     */
+    public SocketAddress getSocksProxyAddress() {
+        return this.socksProxyAddress;
+    }
+
     public static Builder custom() {
         return new Builder();
     }
@@ -219,7 +230,8 @@ public final class IOReactorConfig {
             .setTcpNoDelay(config.isTcpNoDelay())
             .setSndBufSize(config.getSndBufSize())
             .setRcvBufSize(config.getRcvBufSize())
-            .setBacklogSize(config.getBacklogSize());
+            .setBacklogSize(config.getBacklogSize())
+            .setSocksProxyAddress(config.getSocksProxyAddress());
     }
 
     public static class Builder {
@@ -261,6 +273,7 @@ public final class IOReactorConfig {
         private int sndBufSize;
         private int rcvBufSize;
         private int backlogSize;
+        private SocketAddress socksProxyAddress;
 
         Builder() {
             this.selectInterval = TimeValue.ofSeconds(1);
@@ -273,6 +286,7 @@ public final class IOReactorConfig {
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
             this.backlogSize = 0;
+            this.socksProxyAddress = null;
         }
 
         public Builder setSelectInterval(final TimeValue selectInterval) {
@@ -335,6 +349,11 @@ public final class IOReactorConfig {
             return this;
         }
 
+        public Builder setSocksProxyAddress(final SocketAddress socksProxyAddress) {
+            this.socksProxyAddress = socksProxyAddress;
+            return this;
+        }
+
         public IOReactorConfig build() {
             return new IOReactorConfig(
                     selectInterval != null ? selectInterval : TimeValue.ofSeconds(1),
@@ -344,7 +363,7 @@ public final class IOReactorConfig {
                     TimeValue.defaultsToNegativeOneMillisecond(soLinger),
                     soKeepAlive,
                     tcpNoDelay,
-                    sndBufSize, rcvBufSize, backlogSize);
+                    sndBufSize, rcvBufSize, backlogSize, socksProxyAddress);
         }
 
     }
@@ -362,6 +381,7 @@ public final class IOReactorConfig {
                 .append(", sndBufSize=").append(this.sndBufSize)
                 .append(", rcvBufSize=").append(this.rcvBufSize)
                 .append(", backlogSize=").append(this.backlogSize)
+                .append(", socksProxyAddress=").append(this.socksProxyAddress)
                 .append("]");
         return builder.toString();
     }
