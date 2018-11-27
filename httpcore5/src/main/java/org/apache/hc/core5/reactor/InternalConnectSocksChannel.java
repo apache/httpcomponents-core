@@ -43,6 +43,8 @@ import org.apache.hc.core5.util.Timeout;
 
 final class InternalConnectSocksChannel extends InternalChannel {
 
+    private static final int MAX_COMMAND_CONNECT_LENGTH = 22;
+
     public static final byte CLIENT_VERSION = 5;
 
     public static final byte NO_AUTHENTICATION_REQUIRED = 0;
@@ -101,13 +103,13 @@ final class InternalConnectSocksChannel extends InternalChannel {
             case SEND_AUTH:
                 if (writeBuffer(readyOps)) {
                     this.buffer.clear();
+                    this.buffer.limit(2);
                     this.state = State.RECEIVE_AUTH;
                     this.key.interestOps(SelectionKey.OP_READ);
                 }
                 break;
             case RECEIVE_AUTH:
-                fillBuffer(readyOps);
-                if (this.buffer.position() >= 2) {
+                if (fillBuffer(readyOps)) {
                     this.buffer.flip();
                     final byte serverVersion = this.buffer.get();
                     final byte serverMethod = this.buffer.get();
@@ -122,6 +124,7 @@ final class InternalConnectSocksChannel extends InternalChannel {
                     }
 
                     this.buffer.clear();
+                    this.buffer.limit(MAX_COMMAND_CONNECT_LENGTH);
                     buildConnectCommand();
                     this.buffer.flip();
 
@@ -132,15 +135,13 @@ final class InternalConnectSocksChannel extends InternalChannel {
             case SEND_CONNECT:
                 if (writeBuffer(readyOps)) {
                     this.buffer.clear();
+                    this.buffer.limit(2);
                     this.state = State.RECEIVE_RESPONSE_CODE;
                     this.key.interestOps(SelectionKey.OP_READ);
                 }
                 break;
             case RECEIVE_RESPONSE_CODE:
-                fillBuffer(readyOps);
-                if (this.buffer.position() < 2) {
-                    break;
-                } else {
+                if (fillBuffer(readyOps)) {
                     this.buffer.flip();
                     final byte serverVersion = this.buffer.get();
                     final byte responseCode = this.buffer.get();
@@ -151,13 +152,14 @@ final class InternalConnectSocksChannel extends InternalChannel {
                         throw new IOException("SOCKS server was unable to establish connection returned error code: " + responseCode);
                     }
                     this.buffer.compact();
+                    this.buffer.limit(3);
                     this.state = State.RECEIVE_ADDRESS_TYPE;
+                    // deliberate fall-through
+                } else {
+                    break;
                 }
             case RECEIVE_ADDRESS_TYPE:
-                fillBuffer(readyOps);
-                if (this.buffer.position() < 3) {
-                    break;
-                } else {
+                if (fillBuffer(readyOps)) {
                     this.buffer.flip();
                     this.buffer.get(); // reserved byte that has no purpose
                     final byte aType = this.buffer.get();
@@ -177,10 +179,12 @@ final class InternalConnectSocksChannel extends InternalChannel {
                     // make sure we only read what we need to, don't read too much
                     this.buffer.limit(this.remainingResponseSize);
                     this.state = State.RECEIVE_ADDRESS;
+                    // deliberate fall-through
+                } else {
+                    break;
                 }
             case RECEIVE_ADDRESS:
-                fillBuffer(readyOps);
-                if (this.buffer.position() == this.remainingResponseSize) {
+                if (fillBuffer(readyOps)) {
                     this.buffer.clear();
                     state = State.COMPLETE;
                 }
@@ -232,10 +236,10 @@ final class InternalConnectSocksChannel extends InternalChannel {
     }
 
     private boolean fillBuffer(final int readyOps) throws IOException {
-        if ((readyOps & SelectionKey.OP_READ) != 0) {
-            return this.socketChannel.read(this.buffer) > 0;
+        if (this.buffer.hasRemaining() && (readyOps & SelectionKey.OP_READ) != 0) {
+           this.socketChannel.read(this.buffer);
         }
-        return false;
+        return !this.buffer.hasRemaining();
     }
 
     @Override
