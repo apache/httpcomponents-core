@@ -315,10 +315,17 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         }
 
         final SocketAddress targetAddress;
+        final IOEventHandlerFactory eventHandlerFactory;
         if (this.reactorConfig.getSocksProxyAddress() != null) {
             targetAddress = this.reactorConfig.getSocksProxyAddress();
+            eventHandlerFactory = new SocksProxyProtocolHandlerFactory(
+                    sessionRequest.remoteAddress,
+                    this.reactorConfig.getSocksProxyUsername(),
+                    this.reactorConfig.getSocksProxyPassword(),
+                    this.eventHandlerFactory);
         } else {
             targetAddress = sessionRequest.remoteAddress;
+            eventHandlerFactory = this.eventHandlerFactory;
         }
         final boolean connected = socketChannel.connect(targetAddress);
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
@@ -340,9 +347,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 return dataChannel;
             }
 
-        }, this.reactorConfig.getSocksProxyAddress() != null,
-            this.reactorConfig.getSocksProxyUsername(),
-            this.reactorConfig.getSocksProxyPassword());
+        }, false, null, null);
         if (connected) {
             channel.handleIOEvent(SelectionKey.OP_CONNECT);
         } else {
