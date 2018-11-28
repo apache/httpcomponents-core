@@ -340,7 +340,9 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 return dataChannel;
             }
 
-        }, this.reactorConfig.getSocksProxyAddress() != null);
+        }, this.reactorConfig.getSocksProxyAddress() != null,
+            this.reactorConfig.getSocksProxyUsername(),
+            this.reactorConfig.getSocksProxyPassword());
         if (connected) {
             channel.handleIOEvent(SelectionKey.OP_CONNECT);
         } else {

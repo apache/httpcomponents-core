@@ -36,63 +36,82 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.util.Timeout;
 
+/**
+ * Implements the client side of SOCKS protocol version 5 as per https://tools.ietf.org/html/rfc1928.
+ * Supports SOCKS username/password authentication as per https://tools.ietf.org/html/rfc1929.
+ *
+ * @author dmap
+ */
 final class InternalConnectSocksChannel extends InternalChannel {
 
     private static final int MAX_COMMAND_CONNECT_LENGTH = 22;
 
-    public static final byte CLIENT_VERSION = 5;
+    private static final byte CLIENT_VERSION = 5;
 
-    public static final byte NO_AUTHENTICATION_REQUIRED = 0;
+    private static final byte NO_AUTHENTICATION_REQUIRED = 0;
 
-    public static final byte USERNAME_PASSWORD = 2;
+    private static final byte USERNAME_PASSWORD = 2;
 
-    public static final byte USERNAME_PASSWORD_VERSION = 1;
+    private static final byte USERNAME_PASSWORD_VERSION = 1;
 
-    public static final byte SUCCESS = 0;
+    private static final byte SUCCESS = 0;
 
-    public static final byte COMMAND_CONNECT = 1;
+    private static final byte COMMAND_CONNECT = 1;
 
-    public static final byte ATYP_IPV4 = 1;
+    private static final byte ATYP_IPV4 = 1;
 
-    public static final byte ATYP_DOMAINNAME = 3;
+    private static final byte ATYP_DOMAINNAME = 3;
 
-    public static final byte ATYP_IPV6 = 4;
+    private static final byte ATYP_IPV6 = 4;
 
-    private static enum State { SEND_AUTH, RECEIVE_AUTH, SEND_CONNECT, RECEIVE_RESPONSE_CODE, RECEIVE_ADDRESS_TYPE, RECEIVE_ADDRESS, COMPLETE }
+    private static enum State { SEND_AUTH, RECEIVE_AUTH_METHOD, SEND_USERNAME_PASSWORD, RECEIVE_AUTH, SEND_CONNECT, RECEIVE_RESPONSE_CODE, RECEIVE_ADDRESS_TYPE, RECEIVE_ADDRESS, COMPLETE }
 
     private final SelectionKey key;
     private final SocketChannel socketChannel;
     private final IOSessionRequest sessionRequest;
-    private final long creationTimeMillis;
     private final InternalDataChannelFactory dataChannelFactory;
+    private final String username;
+    private final String password;
 
-    // the largest buffer we can possibly ever need is 0xFF to read a max length domain name address + 2 bytes for the port number
-    private ByteBuffer buffer = ByteBuffer.allocate(0xFF + 2);
+    private volatile long lastReadTime;
+
+    // a 32 byte buffer is enough for all usual SOCKS negotiations, we expand it if necessary during the processing
+    private ByteBuffer buffer = ByteBuffer.allocate(32);
     private State state = State.SEND_AUTH;
-    private int remainingResponseSize = -1;
 
     InternalConnectSocksChannel(
             final SelectionKey key,
             final SocketChannel socketChannel,
             final IOSessionRequest sessionRequest,
-            final InternalDataChannelFactory dataChannelFactory) {
+            final InternalDataChannelFactory dataChannelFactory,
+            final String username,
+            final String password) {
         super();
         this.key = key;
         this.socketChannel = socketChannel;
         this.sessionRequest = sessionRequest;
-        this.creationTimeMillis = System.currentTimeMillis();
         this.dataChannelFactory = dataChannelFactory;
+        this.username = username;
+        this.password = password;
+        this.lastReadTime = System.currentTimeMillis();
     }
 
     public void doConnect() {
         buffer.put(CLIENT_VERSION);
-        buffer.put((byte) 1);
-        buffer.put(NO_AUTHENTICATION_REQUIRED);
+        if (this.username != null && this.password != null) {
+            buffer.put((byte) 2);
+            buffer.put(NO_AUTHENTICATION_REQUIRED);
+            buffer.put(USERNAME_PASSWORD);
+        } else {
+            buffer.put((byte) 1);
+            buffer.put(NO_AUTHENTICATION_REQUIRED);
+        }
         buffer.flip();
         this.key.interestOps(SelectionKey.OP_WRITE);
     }
@@ -101,14 +120,11 @@ final class InternalConnectSocksChannel extends InternalChannel {
     void onIOEvent(final int readyOps) throws IOException {
         switch(this.state) {
             case SEND_AUTH:
-                if (writeBuffer(readyOps)) {
-                    this.buffer.clear();
-                    this.buffer.limit(2);
-                    this.state = State.RECEIVE_AUTH;
-                    this.key.interestOps(SelectionKey.OP_READ);
+                if (writeAndPrepareRead(readyOps, 2)) {
+                    this.state = State.RECEIVE_AUTH_METHOD;
                 }
                 break;
-            case RECEIVE_AUTH:
+            case RECEIVE_AUTH_METHOD:
                 if (fillBuffer(readyOps)) {
                     this.buffer.flip();
                     final byte serverVersion = this.buffer.get();
@@ -116,28 +132,44 @@ final class InternalConnectSocksChannel extends InternalChannel {
                     if (serverVersion != CLIENT_VERSION) {
                         throw new IOException("SOCKS server returned unsupported version: " + serverVersion);
                     }
-                    if (serverMethod != NO_AUTHENTICATION_REQUIRED) {
+                    if (serverMethod == USERNAME_PASSWORD) {
+                        this.buffer.clear();
+                        setBufferLimit(this.username.length() + this.password.length() + 3);
+                        this.buffer.put(USERNAME_PASSWORD_VERSION);
+                        this.buffer.put((byte) this.username.length());
+                        this.buffer.put(this.username.getBytes(StandardCharsets.ISO_8859_1));
+                        this.buffer.put((byte) this.password.length());
+                        this.buffer.put(this.password.getBytes(StandardCharsets.ISO_8859_1));
+                        this.key.interestOps(SelectionKey.OP_WRITE);
+                        this.state = State.SEND_USERNAME_PASSWORD;
+                    } else if (serverMethod == NO_AUTHENTICATION_REQUIRED) {
+                        prepareConnectCommand();
+                        this.state = State.SEND_CONNECT;
+                    } else {
                         throw new IOException("SOCKS server return unsupported authentication method: " + serverMethod);
                     }
-                    if (this.buffer.hasRemaining()) {
-                       throw new IOException("SOCKS server sent unexpected response content");
-                    }
-
-                    this.buffer.clear();
-                    this.buffer.limit(MAX_COMMAND_CONNECT_LENGTH);
-                    buildConnectCommand();
+                }
+                break;
+            case SEND_USERNAME_PASSWORD:
+                if (writeAndPrepareRead(readyOps, 2)) {
+                    this.state = State.RECEIVE_AUTH;
+                }
+                break;
+            case RECEIVE_AUTH:
+                if (fillBuffer(readyOps)) {
                     this.buffer.flip();
-
-                    this.key.interestOps(SelectionKey.OP_WRITE);
+                    this.buffer.get(); // skip server auth version
+                    final byte status = this.buffer.get();
+                    if (status != SUCCESS) {
+                        throw new IOException("Authentication failed for external SOCKS proxy");
+                    }
+                    prepareConnectCommand();
                     this.state = State.SEND_CONNECT;
                 }
                 break;
             case SEND_CONNECT:
-                if (writeBuffer(readyOps)) {
-                    this.buffer.clear();
-                    this.buffer.limit(2);
+                if (writeAndPrepareRead(readyOps, 2)) {
                     this.state = State.RECEIVE_RESPONSE_CODE;
-                    this.key.interestOps(SelectionKey.OP_READ);
                 }
                 break;
             case RECEIVE_RESPONSE_CODE:
@@ -152,7 +184,7 @@ final class InternalConnectSocksChannel extends InternalChannel {
                         throw new IOException("SOCKS server was unable to establish connection returned error code: " + responseCode);
                     }
                     this.buffer.compact();
-                    this.buffer.limit(3);
+                    setBufferLimit(3);
                     this.state = State.RECEIVE_ADDRESS_TYPE;
                     // deliberate fall-through
                 } else {
@@ -174,10 +206,9 @@ final class InternalConnectSocksChannel extends InternalChannel {
                     } else {
                         throw new IOException("SOCKS server returned unsupported address type: " + aType);
                     }
-                    this.remainingResponseSize = addressSize + 2;
                     this.buffer.compact();
-                    // make sure we only read what we need to, don't read too much
-                    this.buffer.limit(this.remainingResponseSize);
+                    // make sure we only read what we need to, the address + 2 bytes for the port number
+                    setBufferLimit(addressSize + 2);
                     this.state = State.RECEIVE_ADDRESS;
                     // deliberate fall-through
                 } else {
@@ -205,7 +236,28 @@ final class InternalConnectSocksChannel extends InternalChannel {
         }
     }
 
-    private void buildConnectCommand() throws IOException {
+    private void setBufferLimit(final int newLimit) {
+        if (this.buffer.capacity() < newLimit) {
+            final ByteBuffer newBuffer = ByteBuffer.allocate(newLimit);
+            this.buffer.flip();
+            newBuffer.put(this.buffer);
+            this.buffer = newBuffer;
+        } else {
+            this.buffer.limit(newLimit);
+        }
+    }
+
+    private boolean writeAndPrepareRead(final int readyOps, final int readSize) throws IOException {
+        if (writeBuffer(readyOps)) {
+            this.buffer.clear();
+            setBufferLimit(readSize);
+            this.key.interestOps(SelectionKey.OP_READ);
+            return true;
+        }
+        return false;
+    }
+
+    private void prepareConnectCommand() throws IOException {
         final InetSocketAddress targetAddress = (InetSocketAddress) sessionRequest.remoteAddress;
         final InetAddress address = targetAddress.getAddress();
         final int port = targetAddress.getPort();
@@ -213,6 +265,8 @@ final class InternalConnectSocksChannel extends InternalChannel {
             throw new UnresolvedAddressException();
         }
 
+        this.buffer.clear();
+        setBufferLimit(MAX_COMMAND_CONNECT_LENGTH);
         this.buffer.put(CLIENT_VERSION);
         this.buffer.put(COMMAND_CONNECT);
         this.buffer.put((byte) 0); // reserved
@@ -226,6 +280,9 @@ final class InternalConnectSocksChannel extends InternalChannel {
             throw new IOException("Unsupported remote address class: " + address.getClass().getName());
         }
         this.buffer.putShort((short) port);
+        this.buffer.flip();
+
+        this.key.interestOps(SelectionKey.OP_WRITE);
     }
 
     private boolean writeBuffer(final int readyOps) throws IOException {
@@ -237,7 +294,9 @@ final class InternalConnectSocksChannel extends InternalChannel {
 
     private boolean fillBuffer(final int readyOps) throws IOException {
         if (this.buffer.hasRemaining() && (readyOps & SelectionKey.OP_READ) != 0) {
-           this.socketChannel.read(this.buffer);
+           if (this.socketChannel.read(this.buffer) > 0) {
+               this.lastReadTime = System.currentTimeMillis();
+           }
         }
         return !this.buffer.hasRemaining();
     }
@@ -249,7 +308,7 @@ final class InternalConnectSocksChannel extends InternalChannel {
 
     @Override
     long getLastReadTime() {
-        return creationTimeMillis;
+        return this.lastReadTime;
     }
 
     @Override

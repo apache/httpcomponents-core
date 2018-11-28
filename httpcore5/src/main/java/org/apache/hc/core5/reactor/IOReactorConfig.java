@@ -57,6 +57,8 @@ public final class IOReactorConfig {
     private final int rcvBufSize;
     private final int backlogSize;
     private final SocketAddress socksProxyAddress;
+    private final String socksProxyUsername;
+    private final String socksProxyPassword;
 
     IOReactorConfig(
             final TimeValue selectInterval,
@@ -69,7 +71,9 @@ public final class IOReactorConfig {
             final int sndBufSize,
             final int rcvBufSize,
             final int backlogSize,
-            final SocketAddress socksProxyAddress) {
+            final SocketAddress socksProxyAddress,
+            final String socksProxyUsername,
+            final String socksProxyPassword) {
         super();
         this.selectInterval = selectInterval;
         this.ioThreadCount = ioThreadCount;
@@ -82,6 +86,8 @@ public final class IOReactorConfig {
         this.rcvBufSize = rcvBufSize;
         this.backlogSize = backlogSize;
         this.socksProxyAddress = socksProxyAddress;
+        this.socksProxyUsername = socksProxyUsername;
+        this.socksProxyPassword = socksProxyPassword;
     }
 
     /**
@@ -214,6 +220,20 @@ public final class IOReactorConfig {
         return this.socksProxyAddress;
     }
 
+    /**
+     * The username to provide to the SOCKS proxy for username/password authentication.
+     */
+    public String getSocksProxyUsername() {
+        return this.socksProxyUsername;
+    }
+
+    /**
+     * The password to provide to the SOCKS proxy for username/password authentication.
+     */
+    public String getSocksProxyPassword() {
+        return this.socksProxyPassword;
+    }
+
     public static Builder custom() {
         return new Builder();
     }
@@ -231,7 +251,9 @@ public final class IOReactorConfig {
             .setSndBufSize(config.getSndBufSize())
             .setRcvBufSize(config.getRcvBufSize())
             .setBacklogSize(config.getBacklogSize())
-            .setSocksProxyAddress(config.getSocksProxyAddress());
+            .setSocksProxyAddress(config.getSocksProxyAddress())
+            .setSocksProxyUsername(config.getSocksProxyUsername())
+            .setSocksProxyPassword(config.getSocksProxyPassword());
     }
 
     public static class Builder {
@@ -274,6 +296,8 @@ public final class IOReactorConfig {
         private int rcvBufSize;
         private int backlogSize;
         private SocketAddress socksProxyAddress;
+        private String socksProxyUsername;
+        private String socksProxyPassword;
 
         Builder() {
             this.selectInterval = TimeValue.ofSeconds(1);
@@ -287,6 +311,8 @@ public final class IOReactorConfig {
             this.rcvBufSize = 0;
             this.backlogSize = 0;
             this.socksProxyAddress = null;
+            this.socksProxyUsername = null;
+            this.socksProxyPassword = null;
         }
 
         public Builder setSelectInterval(final TimeValue selectInterval) {
@@ -354,6 +380,16 @@ public final class IOReactorConfig {
             return this;
         }
 
+        public Builder setSocksProxyUsername(final String socksProxyUsername) {
+            this.socksProxyUsername = socksProxyUsername;
+            return this;
+        }
+
+        public Builder setSocksProxyPassword(final String socksProxyPassword) {
+            this.socksProxyPassword = socksProxyPassword;
+            return this;
+        }
+
         public IOReactorConfig build() {
             return new IOReactorConfig(
                     selectInterval != null ? selectInterval : TimeValue.ofSeconds(1),
@@ -363,7 +399,8 @@ public final class IOReactorConfig {
                     TimeValue.defaultsToNegativeOneMillisecond(soLinger),
                     soKeepAlive,
                     tcpNoDelay,
-                    sndBufSize, rcvBufSize, backlogSize, socksProxyAddress);
+                    sndBufSize, rcvBufSize, backlogSize,
+                    socksProxyAddress, socksProxyUsername, socksProxyPassword);
         }
 
     }

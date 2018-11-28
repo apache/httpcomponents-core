@@ -44,13 +44,17 @@ final class InternalConnectChannel extends InternalChannel {
     private final long creationTimeMillis;
     private final InternalDataChannelFactory dataChannelFactory;
     private final boolean negoiateSocks;
+    private final String socksUsername;
+    private final String socksPassword;
 
     InternalConnectChannel(
             final SelectionKey key,
             final SocketChannel socketChannel,
             final IOSessionRequest sessionRequest,
             final InternalDataChannelFactory dataChannelFactory,
-            final boolean negoiateSocks) {
+            final boolean negoiateSocks,
+            final String socksUsername,
+            final String socksPassword) {
         super();
         this.key = key;
         this.socketChannel = socketChannel;
@@ -58,6 +62,8 @@ final class InternalConnectChannel extends InternalChannel {
         this.creationTimeMillis = System.currentTimeMillis();
         this.dataChannelFactory = dataChannelFactory;
         this.negoiateSocks = negoiateSocks;
+        this.socksUsername = socksUsername;
+        this.socksPassword = socksPassword;
     }
 
     @Override
@@ -69,9 +75,8 @@ final class InternalConnectChannel extends InternalChannel {
             //check out connectTimeout
             final long now = System.currentTimeMillis();
             if (checkTimeout(now)) {
-                // SOCKS client protocol
                 if (this.negoiateSocks) {
-                    final InternalConnectSocksChannel socksChannel = new InternalConnectSocksChannel(key, socketChannel, sessionRequest, dataChannelFactory);
+                    final InternalConnectSocksChannel socksChannel = new InternalConnectSocksChannel(key, socketChannel, sessionRequest, dataChannelFactory, socksUsername, socksPassword);
                     key.attach(socksChannel);
                     socksChannel.doConnect();
                 } else {
