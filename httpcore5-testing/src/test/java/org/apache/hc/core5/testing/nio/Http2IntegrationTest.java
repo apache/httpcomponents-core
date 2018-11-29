@@ -155,8 +155,12 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
     @Before
     public void setup() throws Exception {
         log.debug("Starting up test client");
-        client = new Http2TestClient(IOReactorConfig.DEFAULT,
+        client = new Http2TestClient(buildReactorConfig(),
                 scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
+    }
+
+    protected IOReactorConfig buildReactorConfig() {
+        return IOReactorConfig.DEFAULT;
     }
 
     @After

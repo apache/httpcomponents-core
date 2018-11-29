@@ -318,11 +318,12 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         final IOEventHandlerFactory eventHandlerFactory;
         if (this.reactorConfig.getSocksProxyAddress() != null) {
             targetAddress = this.reactorConfig.getSocksProxyAddress();
-            eventHandlerFactory = new SocksProxyProtocolHandlerFactory(
-                    sessionRequest.remoteAddress,
-                    this.reactorConfig.getSocksProxyUsername(),
-                    this.reactorConfig.getSocksProxyPassword(),
-                    this.eventHandlerFactory);
+            eventHandlerFactory = this.eventHandlerFactory;
+//            eventHandlerFactory = new SocksProxyProtocolHandlerFactory(
+//                    sessionRequest.remoteAddress,
+//                    this.reactorConfig.getSocksProxyUsername(),
+//                    this.reactorConfig.getSocksProxyPassword(),
+//                    this.eventHandlerFactory);
         } else {
             targetAddress = sessionRequest.remoteAddress;
             eventHandlerFactory = this.eventHandlerFactory;
@@ -347,7 +348,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 return dataChannel;
             }
 
-        }, false, null, null);
+        }, this.reactorConfig.getSocksProxyAddress() != null, this.reactorConfig.getSocksProxyUsername(), this.reactorConfig.getSocksProxyPassword());
         if (connected) {
             channel.handleIOEvent(SelectionKey.OP_CONNECT);
         } else {
