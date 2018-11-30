@@ -247,7 +247,8 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                         }
                     }
 
-                }))) {
+                },
+                null))) {
             throw new IllegalStateException("TLS already activated");
         }
     }
