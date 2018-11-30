@@ -90,6 +90,7 @@ public class SSLIOSession implements IOSession {
     private volatile SSLMode sslMode;
     private volatile int status;
     private volatile boolean initialized;
+    private volatile Timeout socketTimeout;
     private TlsDetails tlsDetails;
 
     /**
@@ -112,7 +113,7 @@ public class SSLIOSession implements IOSession {
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier,
             final Callback<SSLIOSession> callback) {
-        this(targetEndpoint, session, sslMode, sslContext, SSLBufferMode.STATIC, initializer, verifier, callback);
+        this(targetEndpoint, session, sslMode, sslContext, SSLBufferMode.STATIC, initializer, verifier, callback, null);
     }
 
     /**
@@ -125,6 +126,7 @@ public class SSLIOSession implements IOSession {
      * @param sslBufferMode buffer management mode
      * @param initializer optional SSL session initializer. May be {@code null}.
      * @param verifier optional SSL session verifier. May be {@code null}.
+     * @param connectTimeout timeout to apply for the TLS/SSL handshake. May be {@code null}.
      *
      * @since 5.0
      */
@@ -136,7 +138,8 @@ public class SSLIOSession implements IOSession {
             final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier,
-            final Callback<SSLIOSession> callback) {
+            final Callback<SSLIOSession> callback,
+            final Timeout connectTimeout) {
         super();
         Args.notNull(session, "IO session");
         Args.notNull(sslContext, "SSL context");
@@ -187,6 +190,12 @@ public class SSLIOSession implements IOSession {
 
         };
         this.bytesReadCount = new AtomicLong(0);
+
+        // Save the initial socketTimeout of the underlying IOSession, to be restored after the handshake is finished
+        this.socketTimeout = this.session.getSocketTimeout();
+        if (connectTimeout != null) {
+            this.session.setSocketTimeout(connectTimeout);
+        }
     }
 
     @Override
@@ -345,6 +354,7 @@ public class SSLIOSession implements IOSession {
                 handshaking = false;
                 break;
             case FINISHED:
+                this.session.setSocketTimeout(this.socketTimeout);
                 break;
             }
         }
@@ -790,7 +800,16 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public void setSocketTimeout(final Timeout timeout) {
-        this.session.setSocketTimeout(timeout);
+        this.socketTimeout = timeout;
+
+        this.session.lock().lock();
+        try {
+            if (this.sslEngine.getHandshakeStatus() == HandshakeStatus.FINISHED) {
+                this.session.setSocketTimeout(timeout);
+            }
+        } finally {
+            this.session.lock().unlock();
+        }
     }
 
     @Override
