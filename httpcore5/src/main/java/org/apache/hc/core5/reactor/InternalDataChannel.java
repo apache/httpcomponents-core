@@ -81,10 +81,14 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         return ioSession.getId();
     }
 
-
     @Override
     public IOEventHandler getHandler() {
         return handlerRef.get();
+    }
+
+    @Override
+    public NamedEndpoint getInitialEndpoint() {
+        return initialEndpoint;
     }
 
     @Override

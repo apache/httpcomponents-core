@@ -46,7 +46,6 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
@@ -59,7 +58,6 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
-import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -74,7 +72,6 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -87,7 +84,6 @@ import org.apache.hc.core5.util.Timeout;
 public class HttpAsyncRequester extends AsyncRequester implements ConnPoolControl<HttpHost> {
 
     private final ManagedConnPool<HttpHost, IOSession> connPool;
-    private final TlsStrategy tlsStrategy;
 
     /**
      * Use {@link AsyncRequesterBootstrap} to create instances of this class.
@@ -98,12 +94,10 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final IOEventHandlerFactory eventHandlerFactory,
             final Decorator<IOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
-            final ManagedConnPool<HttpHost, IOSession> connPool,
-            final TlsStrategy tlsStrategy) {
+            final ManagedConnPool<HttpHost, IOSession> connPool) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener,
                         ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
         this.connPool = Args.notNull(connPool, "Connection pool");
-        this.tlsStrategy = tlsStrategy;
     }
 
     @Override
@@ -194,16 +188,6 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
                         @Override
                         public void completed(final IOSession session) {
-                            if (tlsStrategy != null
-                                    && URIScheme.HTTPS.same(host.getSchemeName())
-                                    && session instanceof TransportSecurityLayer) {
-                                tlsStrategy.upgrade(
-                                        (TransportSecurityLayer) session,
-                                        host,
-                                        session.getLocalAddress(),
-                                        session.getRemoteAddress(),
-                                        attachment);
-                            }
                             session.setSocketTimeout(timeout);
                             poolEntry.assignConnection(session);
                             resultFuture.completed(endpoint);

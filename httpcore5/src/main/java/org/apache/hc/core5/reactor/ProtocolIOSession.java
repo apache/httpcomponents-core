@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.reactor;
 
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 
 /**
@@ -35,5 +36,7 @@ import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
  * @since 5.0
  */
 public interface ProtocolIOSession extends IOSession, ProtocolLayer, TransportSecurityLayer {
-    // empty
+
+    NamedEndpoint getInitialEndpoint();
+
 }

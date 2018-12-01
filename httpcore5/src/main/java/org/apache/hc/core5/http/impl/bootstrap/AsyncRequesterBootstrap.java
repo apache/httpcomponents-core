@@ -221,14 +221,15 @@ public class AsyncRequesterBootstrap {
                 null,
                 null,
                 streamListener);
-        final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(streamDuplexerFactory);
+        final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(
+                streamDuplexerFactory,
+                tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy());
         return new HttpAsyncRequester(
                 ioReactorConfig,
                 ioEventHandlerFactory,
                 ioSessionDecorator,
                 sessionListener,
-                connPool,
-                tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy());
+                connPool);
     }
 
 }

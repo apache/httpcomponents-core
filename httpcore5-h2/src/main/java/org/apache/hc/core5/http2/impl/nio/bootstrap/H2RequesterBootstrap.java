@@ -303,15 +303,15 @@ public class H2RequesterBootstrap {
         final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiatorFactory(
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
-                versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE);
+                versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
+                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());
         return new Http2AsyncRequester(
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 ioReactorConfig,
                 ioEventHandlerFactory,
                 ioSessionDecorator,
                 sessionListener,
-                connPool,
-                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());
+                connPool);
     }
 
 }

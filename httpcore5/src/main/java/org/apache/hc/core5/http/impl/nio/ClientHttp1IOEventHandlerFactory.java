@@ -29,6 +29,9 @@ package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -43,13 +46,28 @@ import org.apache.hc.core5.util.Args;
 public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     private final ClientHttp1StreamDuplexerFactory streamDuplexerFactory;
+    private final TlsStrategy tlsStrategy;
 
-    public ClientHttp1IOEventHandlerFactory(final ClientHttp1StreamDuplexerFactory streamDuplexerFactory) {
+    public ClientHttp1IOEventHandlerFactory(
+            final ClientHttp1StreamDuplexerFactory streamDuplexerFactory,
+            final TlsStrategy tlsStrategy) {
         this.streamDuplexerFactory = Args.notNull(streamDuplexerFactory, "Stream duplexer factory");
+        this.tlsStrategy = tlsStrategy;
     }
 
     @Override
     public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
+        if (tlsStrategy != null && ioSession.getInitialEndpoint() instanceof HttpHost) {
+            final HttpHost host = (HttpHost) ioSession.getInitialEndpoint();
+            if (URIScheme.HTTPS.same(host.getSchemeName())) {
+                tlsStrategy.upgrade(
+                        ioSession,
+                        host,
+                        ioSession.getLocalAddress(),
+                        ioSession.getRemoteAddress(),
+                        attachment);
+            }
+        }
         return new ClientHttp1IOEventHandler(streamDuplexerFactory.create(ioSession));
     }
 

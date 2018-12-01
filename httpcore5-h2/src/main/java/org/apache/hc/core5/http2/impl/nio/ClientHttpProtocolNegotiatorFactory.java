@@ -30,7 +30,10 @@ package org.apache.hc.core5.http2.impl.nio;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -48,18 +51,32 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
     private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
+    private final TlsStrategy tlsStrategy;
 
     public ClientHttpProtocolNegotiatorFactory(
             final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
             final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
-            final HttpVersionPolicy versionPolicy) {
+            final HttpVersionPolicy versionPolicy,
+            final TlsStrategy tlsStrategy) {
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
+        this.tlsStrategy = tlsStrategy;
     }
 
     @Override
     public ClientHttpProtocolNegotiator createHandler(final ProtocolIOSession ioSession, final Object attachment) {
+        if (tlsStrategy != null && ioSession.getInitialEndpoint() instanceof HttpHost) {
+            final HttpHost host = (HttpHost) ioSession.getInitialEndpoint();
+            if (URIScheme.HTTPS.same(host.getSchemeName())) {
+                tlsStrategy.upgrade(
+                        ioSession,
+                        host,
+                        ioSession.getLocalAddress(),
+                        ioSession.getRemoteAddress(),
+                        attachment);
+            }
+        }
         return new ClientHttpProtocolNegotiator(
                 ioSession,
                 http1StreamHandlerFactory,
