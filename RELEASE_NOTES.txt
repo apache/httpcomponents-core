@@ -1,7 +1,39 @@
 Release 5.0-BETA6
 -------------------
 
-* Note: At some point before 5.0, all deprecated methods will be removed.
+This BETA release adds support for advanced TLS functions (such as ALPN protocol negotiation)
+on Java 1.7 and Java 1.8 through Conscrypt TLS library, and fixes a number of defects found
+since the previous release.
+
+Please note AsyncDataConsumer interface has been changed in order to make it simpler to implement.
+However existing AsyncDataConsumer might require minor modifications.
+
+
+Change Log
+-------------------
+
+* Removed OSGi module.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Added support for advanced TLS functions (such as ALPN extension) on Java 1.7 and Java 1.8
+  through Conscrypt TLS library.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTP/1.1 and HTTP/2 async protocol handlers to use I/O session lock for output synchronization.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: non-blocking HTTP/1.1 server side streams incorrectly report their keep-alive status.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: fixed a race condition in non-blocking HTTP/1.1 protocol handlers causing premature
+  clearing of output interest.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Simplified AsyncDataConsumer interface contract
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-560: Fix LaxConnPool leasing incorrect PoolEntry when processing pending requests
+  Contributed by Desmond Yeung <dyeung at datto.com>
 
 * Deprecate and rename org.apache.hc.core5.util.Timeout.ofMillis(long) to ofMilliseconds(long).
   Contributed by Gary Gregory <ggregory at apache.org>
@@ -18,10 +50,12 @@ Release 5.0-BETA6
 * org.apache.hc.core5.http.URIScheme.getId()
   Contributed by Gary Gregory <ggregory at apache.org>
   
-* HTTPCORE-562: The reason phrase returned by org.apache.hc.core5.http.HttpResponse.getReasonPhrase() may be empty.
+* HTTPCORE-562: The reason phrase returned by org.apache.hc.core5.http.HttpResponse.getReasonPhrase()
+  may be empty.
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* TimeValue can parse more leniently: Allow spaces and singular words for time units, for example " 1 SECOND ".
+* TimeValue can parse more leniently: Allow spaces and singular words for time units,
+  for example " 1 SECOND ".
   Contributed by Gary Gregory <ggregory at apache.org>
   
 * Add HttpStreamResetException.serialVersionUID 
@@ -33,7 +67,8 @@ Release 5.0-BETA6
 * org.apache.hc.core5.net.URIBuilder.setHttpHost(HttpHost)
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* Deprecate constructors in org.apache.hc.core5.http.HttpHost that do not have the scheme argument first in favor of new constructors that do.
+* Deprecate constructors in org.apache.hc.core5.http.HttpHost that do not have the scheme argument
+  first in favor of new constructors that do.
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * Add org.apache.hc.core5.http.HttpHost.create(URI)
