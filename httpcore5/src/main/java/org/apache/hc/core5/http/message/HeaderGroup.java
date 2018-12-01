@@ -48,10 +48,6 @@ import org.apache.hc.core5.util.LangUtils;
  */
 public class HeaderGroup implements MessageHeaders, Serializable {
 
-
-    // HTTPCORE-361 : we don't use the for-each syntax, when iterating headers
-    // as that creates an Iterator that needs to be garbage-collected
-
     private static final long serialVersionUID = 2608834160639271617L;
 
     private final Header[] EMPTY = new Header[] {};
@@ -344,9 +340,6 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public boolean containsHeader(final String name) {
-        // HTTPCORE-361 : we don't use the for-each syntax, i.e.
-        //     for (Header header : headers)
-        // as that creates an Iterator that needs to be garbage-collected
         for (int i = 0; i < this.headers.size(); i++) {
             final Header header = this.headers.get(i);
             if (header.getName().equalsIgnoreCase(name)) {
@@ -380,9 +373,6 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public int countHeaders(final String name) {
-        // HTTPCORE-361 : we don't use the for-each syntax, i.e.
-        //     for (Header header : headers)
-        // as that creates an Iterator that needs to be garbage-collected
         int count = 0;
         for (int i = 0; i < this.headers.size(); i++) {
             final Header header = this.headers.get(i);
