@@ -269,23 +269,6 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     }
 
     /**
-     * Gets single first header with the given name.
-     *
-     * <p>Header name comparison is case insensitive.
-     *
-     * @param name the name of the header to get
-     * @return the first header or {@code null}
-     * @throws ProtocolException in case multiple headers with the given name are found.
-     * @deprecated Will be removed in the next beta.
-     * @see #getHeader(String)
-     */
-    @Deprecated
-    @Override
-    public Header getSingleHeader(final String name) throws ProtocolException {
-        return getHeader(name);
-    }
-
-    /**
      * Gets the last header with the given name.
      *
      * <p>Header name comparison is case insensitive.
@@ -317,19 +300,6 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     }
 
     /**
-     * Gets all of the headers contained within this group.
-     *
-     * @return an array of length &ge; 0
-     * @deprecated Will be removed in the next beta.
-     * @see #getHeaders()
-     */
-    @Deprecated
-    @Override
-    public Header[] getAllHeaders() {
-        return headers.toArray(new Header[headers.size()]);
-    }
-
-    /**
      * Tests if headers with the given name are contained within this group.
      *
      * <p>Header name comparison is case insensitive.
@@ -348,20 +318,6 @@ public class HeaderGroup implements MessageHeaders, Serializable {
         }
 
         return false;
-    }
-
-    /**
-     * Checks if a certain header is present in this message and how many times.
-     *
-     * @param name the header name to check for.
-     * @return number of occurrences of the header in the message.
-     * @deprecated Will be removed in the next beta.
-     * @see #countHeaders(String)
-     */
-    @Override
-    @Deprecated
-    public int containsHeaders(final String name) {
-        return countHeaders(name);
     }
 
     /**

@@ -50,30 +50,8 @@ public interface MessageHeaders {
      *
      * @param name the header name to check for.
      * @return number of occurrences of the header in the message.
-     * @deprecated Will be removed in the next beta.
-     * @see #countHeaders(String)
-     */
-    @Deprecated
-    int containsHeaders(String name);
-
-    /**
-     * Checks if a certain header is present in this message and how many times.
-     *
-     * @param name the header name to check for.
-     * @return number of occurrences of the header in the message.
      */
     int countHeaders(String name);
-
-    /**
-     * Returns all the headers of this message. Headers are orderd in the sequence
-     * they will be sent over a connection.
-     *
-     * @return all the headers of this message
-     * @deprecated Will be removed in the next beta.
-     * @see #getHeaders()
-     */
-    @Deprecated
-    Header[] getAllHeaders();
 
     /**
      * Returns the first header with a specified name of this message. Header
@@ -128,20 +106,6 @@ public interface MessageHeaders {
      *   or {@code null} if no such header could be found.
      */
     Header getLastHeader(String name);
-
-    /**
-     * Gets single first header with the given name.
-     *
-     * <p>Header name comparison is case insensitive.
-     *
-     * @param name the name of the header to get
-     * @return the first header or {@code null}
-     * @throws ProtocolException in case multiple headers with the given name are found.
-     * @deprecated Will be removed in the next beta.
-     * @see #getHeader(String)
-     */
-    @Deprecated
-    Header getSingleHeader(String name) throws ProtocolException;
 
     /**
      * Returns an iterator of all the headers.

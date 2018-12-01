@@ -96,16 +96,6 @@ public abstract class AbstractMessageWrapper implements HttpMessage {
         return message.containsHeader(name);
     }
 
-    /**
-     * @deprecated Will be removed in the next beta.
-     * @see #countHeaders(String)
-     */
-    @Deprecated
-    @Override
-    public int containsHeaders(final String name) {
-        return message.containsHeaders(name);
-    }
-
     @Override
     public int countHeaders(final String name) {
         return message.countHeaders(name);
@@ -121,16 +111,6 @@ public abstract class AbstractMessageWrapper implements HttpMessage {
         return message.getHeader(name);
     }
 
-    /**
-     * @deprecated Will be removed in the next beta.
-     * @see #getHeader(String)
-     */
-    @Override
-    @Deprecated
-    public Header getSingleHeader(final String name) throws ProtocolException {
-        return message.getSingleHeader(name);
-    }
-
     @Override
     public Header getFirstHeader(final String name) {
         return message.getFirstHeader(name);
@@ -144,16 +124,6 @@ public abstract class AbstractMessageWrapper implements HttpMessage {
     @Override
     public Header[] getHeaders() {
         return message.getHeaders();
-    }
-
-    /**
-     * @deprecated Will be removed in the next beta.
-     * @see #getHeaders(String)
-     */
-    @Deprecated
-    @Override
-    public Header[] getAllHeaders() {
-        return message.getAllHeaders();
     }
 
     @Override
