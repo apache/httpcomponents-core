@@ -36,6 +36,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * {@link ServerHttpProtocolNegotiator} factory.
@@ -50,16 +51,19 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     private final ServerHttp2StreamMultiplexerFactory http2StreamMultiplexerFactory;
     private final HttpVersionPolicy versionPolicy;
     private final TlsStrategy tlsStrategy;
+    private final Timeout handshakeTimeout;
 
     public ServerHttpProtocolNegotiatorFactory(
             final ServerHttp1StreamDuplexerFactory http1StreamDuplexerFactory,
             final ServerHttp2StreamMultiplexerFactory http2StreamMultiplexerFactory,
             final HttpVersionPolicy versionPolicy,
-            final TlsStrategy tlsStrategy) {
+            final TlsStrategy tlsStrategy,
+            final Timeout handshakeTimeout) {
         this.http1StreamDuplexerFactory = Args.notNull(http1StreamDuplexerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamMultiplexerFactory = Args.notNull(http2StreamMultiplexerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.tlsStrategy = tlsStrategy;
+        this.handshakeTimeout = handshakeTimeout;
     }
 
     @Override
@@ -70,7 +74,8 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
                     null,
                     ioSession.getLocalAddress(),
                     ioSession.getRemoteAddress(),
-                    attachment != null ? attachment : versionPolicy);
+                    attachment != null ? attachment : versionPolicy,
+                    handshakeTimeout);
         }
         return new ServerHttpProtocolNegotiator(ioSession, http1StreamDuplexerFactory, http2StreamMultiplexerFactory, versionPolicy);
     }

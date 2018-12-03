@@ -71,6 +71,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * HTTP/2 capable {@link HttpAsyncServer} bootstrap.
@@ -90,6 +91,7 @@ public class H2ServerBootstrap {
     private H2Config h2Config;
     private H1Config h1Config;
     private TlsStrategy tlsStrategy;
+    private Timeout handshakeTimeout;
     private Decorator<IOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
     private Http2StreamListener http2StreamListener;
@@ -167,6 +169,11 @@ public class H2ServerBootstrap {
      */
     public final H2ServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
+        return this;
+    }
+
+    public final H2ServerBootstrap setHandshakeTimeout(final Timeout handshakeTimeout) {
+        this.handshakeTimeout = handshakeTimeout;
         return this;
     }
 
@@ -414,7 +421,8 @@ public class H2ServerBootstrap {
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
-                tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(443, 8443));
+                tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(443, 8443),
+                handshakeTimeout);
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener);
     }
 

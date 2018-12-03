@@ -64,6 +64,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * {@link HttpAsyncServer} bootstrap.
@@ -82,6 +83,7 @@ public class AsyncServerBootstrap {
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
     private TlsStrategy tlsStrategy;
+    private Timeout handshakeTimeout;
     private Decorator<IOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
@@ -148,6 +150,14 @@ public class AsyncServerBootstrap {
      */
     public final AsyncServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
+        return this;
+    }
+
+    /**
+     * Assigns TLS handshake {@link Timeout}.
+     */
+    public final AsyncServerBootstrap setTlsHandshakeTimeout(final Timeout handshakeTimeout) {
+        this.handshakeTimeout = handshakeTimeout;
         return this;
     }
 
@@ -381,7 +391,8 @@ public class AsyncServerBootstrap {
                 streamListener);
         final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttp1IOEventHandlerFactory(
                 streamHandlerFactory,
-                tlsStrategy);
+                tlsStrategy,
+                handshakeTimeout);
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener);
     }
 

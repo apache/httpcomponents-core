@@ -38,6 +38,7 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Basic side-side implementation of {@link TlsStrategy} that upgrades to TLS for endpoints
@@ -95,9 +96,10 @@ public class BasicServerTlsStrategy implements TlsStrategy {
             final HttpHost host,
             final SocketAddress localAddress,
             final SocketAddress remoteAddress,
-            final Object attachment) {
+            final Object attachment,
+            final Timeout handshakeTimeout) {
         if (securePortStrategy != null && securePortStrategy.isSecure(localAddress)) {
-            tlsSession.startTls(sslContext, host, sslBufferMode, initializer, verifier);
+            tlsSession.startTls(sslContext, host, sslBufferMode, initializer, verifier, handshakeTimeout);
             return true;
         }
         return false;

@@ -31,6 +31,7 @@ import java.net.SocketAddress;
 
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} sessions.
@@ -40,13 +41,14 @@ import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 public interface TlsStrategy {
 
     /**
-     * Secures current session layer with LTS security.
+     * Secures current session layer with TLS security.
      *
      * @param sessionLayer the session layer
      * @param host the name of the opposite endpoint when givem or {@code null} otherwise.
      * @param localAddress the address of the local endpoint.
      * @param remoteAddress the address of the remote endpoint.
      * @param attachment arbitrary object passes to the TLS session initialization code.
+     * @param handshakeTimeout the timeout to use while performing the TLS handshake; may be {@code null}.
      * @return {@code true} if the session has been upgraded, {@code false} otherwise.
      */
     boolean upgrade(
@@ -54,6 +56,7 @@ public interface TlsStrategy {
             HttpHost host,
             SocketAddress localAddress,
             SocketAddress remoteAddress,
-            Object attachment);
+            Object attachment,
+            Timeout handshakeTimeout);
 
 }

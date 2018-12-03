@@ -38,6 +38,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * {@link ClientHttpProtocolNegotiator} factory.
@@ -52,16 +53,19 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
     private final TlsStrategy tlsStrategy;
+    private final Timeout handshakeTimeout;
 
     public ClientHttpProtocolNegotiatorFactory(
             final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
             final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
             final HttpVersionPolicy versionPolicy,
-            final TlsStrategy tlsStrategy) {
+            final TlsStrategy tlsStrategy,
+            final Timeout handshakeTimeout) {
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.tlsStrategy = tlsStrategy;
+        this.handshakeTimeout = handshakeTimeout;
     }
 
     @Override
@@ -74,7 +78,8 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
                         host,
                         ioSession.getLocalAddress(),
                         ioSession.getRemoteAddress(),
-                        attachment);
+                        attachment,
+                        handshakeTimeout);
             }
         }
         return new ClientHttpProtocolNegotiator(
