@@ -218,7 +218,8 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
             final NamedEndpoint endpoint,
             final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
-            final SSLSessionVerifier verifier) {
+            final SSLSessionVerifier verifier,
+            final Timeout handshakeTimeout) {
         if (!tlsSessionRef.compareAndSet(null, new SSLIOSession(
                 endpoint != null ? endpoint : initialEndpoint,
                 ioSession,
@@ -248,7 +249,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                     }
 
                 },
-                null))) {
+                handshakeTimeout))) {
             throw new IllegalStateException("TLS already activated");
         }
     }

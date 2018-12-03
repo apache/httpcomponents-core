@@ -66,6 +66,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     protected abstract Future<IOSession> connectSession(
             T namedEndpoint,
             Timeout requestTimeout,
+            final Timeout handshakeTimeout,
             FutureCallback<IOSession> callback);
 
     protected abstract void validateSession(
@@ -123,12 +124,14 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     public final Future<IOSession> getSession(
             final T endpoint,
             final Timeout requestTimeout,
+            final Timeout handshakeTimeout,
             final FutureCallback<IOSession> callback) {
         Args.notNull(endpoint, "Endpoint");
         Asserts.check(!closed.get(), "Connection pool shut down");
         final ComplexFuture<IOSession> future = new ComplexFuture<>(callback);
         final PoolEntry poolEntry = getPoolEntry(endpoint);
-        getSessionInternal(poolEntry, false, endpoint, requestTimeout, new FutureCallback<IOSession>() {
+        getSessionInternal(poolEntry, false, endpoint, requestTimeout, handshakeTimeout,
+            new FutureCallback<IOSession>() {
 
             @Override
             public void completed(final IOSession ioSession) {
@@ -139,7 +142,8 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                         if (result) {
                             future.completed(ioSession);
                         } else {
-                            getSessionInternal(poolEntry, true, endpoint, requestTimeout, new FutureCallback<IOSession>() {
+                            getSessionInternal(poolEntry, true, endpoint, requestTimeout, handshakeTimeout,
+                                new FutureCallback<IOSession>() {
 
                                 @Override
                                 public void completed(final IOSession ioSession) {
@@ -182,6 +186,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
             final boolean requestNew,
             final T namedEndpoint,
             final Timeout requestTimeout,
+            final Timeout handshakeTimeout,
             final FutureCallback<IOSession> callback) {
         synchronized (poolEntry) {
             if (poolEntry.session != null && requestNew) {
@@ -199,6 +204,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                     poolEntry.sessionFuture = connectSession(
                             namedEndpoint,
                             requestTimeout,
+                            handshakeTimeout,
                             new FutureCallback<IOSession>() {
 
                                 @Override

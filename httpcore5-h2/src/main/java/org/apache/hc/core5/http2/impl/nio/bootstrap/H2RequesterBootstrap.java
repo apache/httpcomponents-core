@@ -63,6 +63,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * {@link Http2AsyncRequester} bootstrap.
@@ -85,6 +86,7 @@ public class H2RequesterBootstrap {
     private PoolReusePolicy poolReusePolicy;
     private PoolConcurrencyPolicy poolConcurrencyPolicy;
     private TlsStrategy tlsStrategy;
+    private Timeout handshakeTimeout;
     private Decorator<IOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
     private Http2StreamListener streamListener;
@@ -184,6 +186,11 @@ public class H2RequesterBootstrap {
      */
     public final H2RequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
+        return this;
+    }
+
+    public final H2RequesterBootstrap setHandshakeTimeout(final Timeout handshakeTimeout) {
+        this.handshakeTimeout = handshakeTimeout;
         return this;
     }
 
@@ -304,7 +311,8 @@ public class H2RequesterBootstrap {
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
-                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());
+                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
+                handshakeTimeout);
         return new Http2AsyncRequester(
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 ioReactorConfig,

@@ -111,7 +111,7 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
     @Override
     public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
         if (sslContext != null) {
-            ioSession.startTls(sslContext, null, null ,null, null);
+            ioSession.startTls(sslContext, null, null ,null, null, null);
         }
         final ServerHttp1StreamDuplexer streamDuplexer = createServerHttp1StreamDuplexer(
                 ioSession,
