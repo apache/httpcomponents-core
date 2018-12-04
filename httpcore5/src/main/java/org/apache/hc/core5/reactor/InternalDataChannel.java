@@ -102,6 +102,11 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         return handler;
     }
 
+    public void reconnectHandler() throws IOException {
+        this.connected.set(false);
+        onIOEvent(SelectionKey.OP_CONNECT);
+    }
+
     @Override
     void onIOEvent(final int readyOps) throws IOException {
         final SSLIOSession tlsSession = tlsSessionRef.get();

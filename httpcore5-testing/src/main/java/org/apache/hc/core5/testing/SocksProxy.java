@@ -42,8 +42,6 @@ import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Cheap and nasty SOCKS protocol version 5 proxy, recommended for use in unit tests only so we can test our SOCKS client code.
- *
- * @author dmap
  */
 public class SocksProxy {
 

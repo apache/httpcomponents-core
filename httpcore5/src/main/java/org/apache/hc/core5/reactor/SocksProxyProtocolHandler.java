@@ -46,10 +46,8 @@ import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Implements the client side of SOCKS protocol version 5 as per https://tools.ietf.org/html/rfc1928.
- * Supports SOCKS username/password authentication as per https://tools.ietf.org/html/rfc1929.
- *
- * @author dmap
+ * Implements the client side of SOCKS protocol version 5 as per https://tools.ietf.org/html/rfc1928. Supports SOCKS username/password
+ * authentication as per https://tools.ietf.org/html/rfc1929.
  */
 final class SocksProxyProtocolHandler implements IOEventHandler {
 
@@ -73,7 +71,9 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     private static final byte ATYP_IPV6 = 4;
 
-    private static enum State { SEND_AUTH, RECEIVE_AUTH_METHOD, SEND_USERNAME_PASSWORD, RECEIVE_AUTH, SEND_CONNECT, RECEIVE_RESPONSE_CODE, RECEIVE_ADDRESS_TYPE, RECEIVE_ADDRESS, COMPLETE }
+    private static enum State {
+        SEND_AUTH, RECEIVE_AUTH_METHOD, SEND_USERNAME_PASSWORD, RECEIVE_AUTH, SEND_CONNECT, RECEIVE_RESPONSE_CODE, RECEIVE_ADDRESS_TYPE, RECEIVE_ADDRESS, COMPLETE
+    }
 
     private final ProtocolIOSession ioSession;
     private final Object attachment;
@@ -87,13 +87,8 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
     private State state = State.SEND_AUTH;
     private int remainingResponseSize = -1;
 
-    SocksProxyProtocolHandler(
-            final ProtocolIOSession ioSession,
-            final Object attachment,
-            final InetSocketAddress targetAddress,
-            final String username,
-            final String password,
-            final IOEventHandlerFactory eventHandlerFactory) {
+    SocksProxyProtocolHandler(final ProtocolIOSession ioSession, final Object attachment, final InetSocketAddress targetAddress,
+            final String username, final String password, final IOEventHandlerFactory eventHandlerFactory) {
         this.ioSession = ioSession;
         this.attachment = attachment;
         this.targetAddress = targetAddress;
@@ -113,7 +108,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     @Override
     public void outputReady(final IOSession session) throws IOException {
-        switch(this.state) {
+        switch (this.state) {
             case SEND_AUTH:
                 if (writeAndPrepareRead(session.channel(), 2)) {
                     session.setEventMask(SelectionKey.OP_READ);
@@ -137,6 +132,8 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
             case RECEIVE_ADDRESS:
             case RECEIVE_ADDRESS_TYPE:
             case RECEIVE_RESPONSE_CODE:
+                session.setEventMask(SelectionKey.OP_READ);
+                break;
             case COMPLETE:
                 break;
         }
@@ -144,7 +141,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     @Override
     public void inputReady(final IOSession session) throws IOException {
-        switch(this.state) {
+        switch (this.state) {
             case RECEIVE_AUTH_METHOD:
                 if (fillBuffer(session.channel())) {
                     this.buffer.flip();
@@ -231,21 +228,24 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
             case RECEIVE_ADDRESS:
                 if (fillBuffer(session.channel())) {
                     this.buffer.clear();
-                    state = State.COMPLETE;
+                    this.state = State.COMPLETE;
+                    upgradeHandler();
                 }
                 break;
             case SEND_AUTH:
             case SEND_USERNAME_PASSWORD:
             case SEND_CONNECT:
+                session.setEventMask(SelectionKey.OP_WRITE);
+                break;
             case COMPLETE:
                 break;
         }
+    }
 
-        if (this.state == State.COMPLETE) {
-            final IOEventHandler newHandler = this.eventHandlerFactory.createHandler(this.ioSession, this.attachment);
-            this.ioSession.upgrade(newHandler);
-            newHandler.connected(this.ioSession);
-        }
+    private void upgradeHandler() throws IOException {
+        final IOEventHandler newHandler = this.eventHandlerFactory.createHandler(this.ioSession, this.attachment);
+        this.ioSession.upgrade(newHandler);
+        ((InternalDataChannel) this.ioSession).reconnectHandler();
     }
 
     private void prepareConnectCommand() throws IOException {
@@ -302,7 +302,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     private boolean fillBuffer(final ByteChannel channel) throws IOException {
         if (this.buffer.hasRemaining()) {
-           channel.read(this.buffer);
+            channel.read(this.buffer);
         }
         return !this.buffer.hasRemaining();
     }

@@ -43,27 +43,18 @@ final class InternalConnectChannel extends InternalChannel {
     private final IOSessionRequest sessionRequest;
     private final long creationTimeMillis;
     private final InternalDataChannelFactory dataChannelFactory;
-    private final boolean negoiateSocks;
-    private final String socksUsername;
-    private final String socksPassword;
 
     InternalConnectChannel(
             final SelectionKey key,
             final SocketChannel socketChannel,
             final IOSessionRequest sessionRequest,
-            final InternalDataChannelFactory dataChannelFactory,
-            final boolean negoiateSocks,
-            final String socksUsername,
-            final String socksPassword) {
+            final InternalDataChannelFactory dataChannelFactory) {
         super();
         this.key = key;
         this.socketChannel = socketChannel;
         this.sessionRequest = sessionRequest;
         this.creationTimeMillis = System.currentTimeMillis();
         this.dataChannelFactory = dataChannelFactory;
-        this.negoiateSocks = negoiateSocks;
-        this.socksUsername = socksUsername;
-        this.socksPassword = socksPassword;
     }
 
     @Override
@@ -75,20 +66,14 @@ final class InternalConnectChannel extends InternalChannel {
             //check out connectTimeout
             final long now = System.currentTimeMillis();
             if (checkTimeout(now)) {
-                if (this.negoiateSocks) {
-                    final InternalConnectSocksChannel socksChannel = new InternalConnectSocksChannel(key, socketChannel, sessionRequest, dataChannelFactory, socksUsername, socksPassword);
-                    key.attach(socksChannel);
-                    socksChannel.doConnect();
-                } else {
-                    final InternalDataChannel dataChannel = dataChannelFactory.create(
-                            key,
-                            socketChannel,
-                            sessionRequest.remoteEndpoint,
-                            sessionRequest.attachment);
-                    key.attach(dataChannel);
-                    sessionRequest.completed(dataChannel);
-                    dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
-                }
+                final InternalDataChannel dataChannel = dataChannelFactory.create(
+                        key,
+                        socketChannel,
+                        sessionRequest.remoteEndpoint,
+                        sessionRequest.attachment);
+                key.attach(dataChannel);
+                sessionRequest.completed(dataChannel);
+                dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
             }
         }
     }
