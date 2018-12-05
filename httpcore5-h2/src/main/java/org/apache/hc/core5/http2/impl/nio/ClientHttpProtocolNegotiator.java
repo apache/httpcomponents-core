@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.channels.SelectionKey;
 
 import javax.net.ssl.SSLSession;
 
@@ -138,7 +139,10 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 channel.write(preface);
             }
             if (!preface.hasRemaining()) {
+                session.clearEvent(SelectionKey.OP_WRITE);
                 startHttp2(session);
+            } else {
+                session.setEvent(SelectionKey.OP_WRITE);
             }
         }
     }
@@ -156,7 +160,10 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 channel.write(preface);
             }
             if (!preface.hasRemaining()) {
+                session.clearEvent(SelectionKey.OP_WRITE);
                 startHttp2(session);
+            } else {
+                session.setEvent(SelectionKey.OP_WRITE);
             }
         } else {
             session.close(CloseMode.GRACEFUL);
