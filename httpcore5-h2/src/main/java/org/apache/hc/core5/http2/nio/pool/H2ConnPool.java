@@ -98,6 +98,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
     protected Future<IOSession> connectSession(
             final HttpHost namedEndpoint,
             final Timeout requestTimeout,
+            final Timeout handshakeTimeout,
             final FutureCallback<IOSession> callback) {
         final InetSocketAddress remoteAddress = addressResolver.resolve(namedEndpoint);
         return connectionInitiator.connect(namedEndpoint, remoteAddress, null, requestTimeout, null, new FutureCallback<IOSession>() {
@@ -112,7 +113,8 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
                             namedEndpoint,
                             ioSession.getLocalAddress(),
                             ioSession.getRemoteAddress(),
-                            null);
+                            null,
+                            handshakeTimeout);
                     ioSession.setSocketTimeout(requestTimeout);
                 }
                 callback.completed(ioSession);

@@ -69,6 +69,7 @@ public class AsyncRequesterBootstrap {
     private PoolReusePolicy poolReusePolicy;
     private PoolConcurrencyPolicy poolConcurrencyPolicy;
     private TlsStrategy tlsStrategy;
+    private Timeout handshakeTimeout;
     private Decorator<IOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
@@ -161,6 +162,11 @@ public class AsyncRequesterBootstrap {
         return this;
     }
 
+    public final AsyncRequesterBootstrap setTlsHandshakeTimeout(final Timeout handshakeTimeout) {
+        this.handshakeTimeout = handshakeTimeout;
+        return this;
+    }
+
     /**
      * Assigns {@link IOSession} {@link Decorator} instance.
      */
@@ -223,7 +229,8 @@ public class AsyncRequesterBootstrap {
                 streamListener);
         final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(
                 streamDuplexerFactory,
-                tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy());
+                tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy(),
+                handshakeTimeout);
         return new HttpAsyncRequester(
                 ioReactorConfig,
                 ioEventHandlerFactory,

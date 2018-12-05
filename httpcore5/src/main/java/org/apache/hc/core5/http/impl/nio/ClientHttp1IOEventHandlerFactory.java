@@ -36,6 +36,7 @@ import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * {@link ClientHttp1IOEventHandler} factory.
@@ -47,12 +48,15 @@ public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     private final ClientHttp1StreamDuplexerFactory streamDuplexerFactory;
     private final TlsStrategy tlsStrategy;
+    private final Timeout handshakeTimeout;
 
     public ClientHttp1IOEventHandlerFactory(
             final ClientHttp1StreamDuplexerFactory streamDuplexerFactory,
-            final TlsStrategy tlsStrategy) {
+            final TlsStrategy tlsStrategy,
+            final Timeout handshakeTimeout) {
         this.streamDuplexerFactory = Args.notNull(streamDuplexerFactory, "Stream duplexer factory");
         this.tlsStrategy = tlsStrategy;
+        this.handshakeTimeout = handshakeTimeout;
     }
 
     @Override
@@ -65,7 +69,8 @@ public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
                         host,
                         ioSession.getLocalAddress(),
                         ioSession.getRemoteAddress(),
-                        attachment);
+                        attachment,
+                        handshakeTimeout);
             }
         }
         return new ClientHttp1IOEventHandler(streamDuplexerFactory.create(ioSession));
