@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
@@ -109,19 +110,25 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     void onIOEvent(final int readyOps) throws IOException {
-        final SSLIOSession tlsSession = tlsSessionRef.get();
-        if (tlsSession != null) {
-            if (!tlsSession.isInitialized()) {
-                tlsSession.initialize();
-                if (sessionListener != null) {
-                    sessionListener.tlsStarted(tlsSession);
+        if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
+            final SSLIOSession tlsSession = getTlsSession();
+            if (tlsSession != null) {
+                tlsSession.clearEvent(SelectionKey.OP_CONNECT);
+            } else {
+                ioSession.clearEvent(SelectionKey.OP_CONNECT);
+                if (connected.compareAndSet(false, true)) {
+                    if (sessionListener != null) {
+                        sessionListener.connected(this);
+                    }
+                    final IOEventHandler handler = ensureHandler();
+                    handler.connected(this);
                 }
             }
-            if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
-                tlsSession.clearEvent(SelectionKey.OP_CONNECT);
-            }
-            if ((readyOps & SelectionKey.OP_READ) != 0) {
-                ioSession.updateReadTime();
+        }
+        if ((readyOps & SelectionKey.OP_READ) != 0) {
+            ioSession.updateReadTime();
+            final SSLIOSession tlsSession = getTlsSession();
+            if (tlsSession != null) {
                 do {
                     tlsSession.resetReadCount();
                     if (tlsSession.isAppInputReady()) {
@@ -136,7 +143,16 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                         sessionListener.tlsInbound(tlsSession);
                     }
                 } while (tlsSession.getReadCount() > 0);
+            } else {
+                if (sessionListener != null) {
+                    sessionListener.inputReady(this);
+                }
+                final IOEventHandler handler = ensureHandler();
+                handler.inputReady(this);
             }
+        }
+        final SSLIOSession tlsSession = getTlsSession();
+        if (tlsSession != null) {
             if ((readyOps & SelectionKey.OP_WRITE) != 0
                     || (ioSession.getEventMask() & SelectionKey.OP_WRITE) != 0) {
                 ioSession.updateWriteTime();
@@ -153,24 +169,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                 }
             }
         } else {
-            if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
-                ioSession.clearEvent(SelectionKey.OP_CONNECT);
-                if (connected.compareAndSet(false, true)) {
-                    if (sessionListener != null) {
-                        sessionListener.connected(this);
-                    }
-                    final IOEventHandler handler = ensureHandler();
-                    handler.connected(this);
-                }
-            }
-            if ((readyOps & SelectionKey.OP_READ) != 0) {
-                ioSession.updateReadTime();
-                if (sessionListener != null) {
-                    sessionListener.inputReady(this);
-                }
-                final IOEventHandler handler = ensureHandler();
-                handler.inputReady(this);
-            }
             if ((readyOps & SelectionKey.OP_WRITE) != 0) {
                 ioSession.updateWriteTime();
                 if (sessionListener != null) {
@@ -180,6 +178,19 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                 handler.outputReady(this);
             }
         }
+    }
+
+    private SSLIOSession getTlsSession() throws SSLException {
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        if (tlsSession != null) {
+            if (!tlsSession.isInitialized()) {
+                tlsSession.initialize();
+                if (sessionListener != null) {
+                    sessionListener.tlsStarted(tlsSession);
+                }
+            }
+        }
+        return tlsSession;
     }
 
     @Override
