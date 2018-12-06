@@ -38,8 +38,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.nio.reactor.IOSession;
 import org.apache.http.nio.reactor.SessionBufferStatus;
 import org.apache.http.nio.reactor.SocketAccessor;
@@ -216,8 +216,6 @@ public class IOSessionImpl implements IOSession, SocketAccessor {
                 return;
             }
             this.status = CLOSED;
-        }
-        synchronized (this.key) {
             this.key.cancel();
             try {
                 this.key.channel().close();
