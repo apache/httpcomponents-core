@@ -614,6 +614,9 @@ public class SSLIOSession implements IOSession {
             if (this.status != ACTIVE) {
                 throw new ClosedChannelException();
             }
+            if (!this.initialized) {
+                return 0;
+            }
             final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
             final SSLEngineResult result = doWrap(src, outEncryptedBuf);
             if (result.getStatus() == Status.CLOSED) {
@@ -629,6 +632,9 @@ public class SSLIOSession implements IOSession {
         Args.notNull(dst, "Byte buffer");
         this.session.lock().lock();
         try {
+            if (!this.initialized) {
+                return 0;
+            }
             if (this.inPlain.hasData()) {
                 // Acquire buffer
                 final ByteBuffer inPlainBuf = this.inPlain.acquire();
