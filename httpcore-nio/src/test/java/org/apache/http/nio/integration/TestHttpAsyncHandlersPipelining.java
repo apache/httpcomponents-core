@@ -379,8 +379,8 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
         for (int i = 0; i < 3; i++) {
 
             final HttpAsyncRequestProducer p1 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
-            final HttpAsyncRequestProducer p2 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
-            final HttpAsyncRequestProducer p3 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/boom"));
+            final HttpAsyncRequestProducer p2 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/boom"));
+            final HttpAsyncRequestProducer p3 = new BasicAsyncRequestProducer(target, new BasicHttpRequest("GET", "/"));
             final List<HttpAsyncRequestProducer> requestProducers = new ArrayList<HttpAsyncRequestProducer>();
             requestProducers.add(p1);
             requestProducers.add(p2);
@@ -405,9 +405,9 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             Assert.assertTrue(c1.isDone());
             Assert.assertNotNull(c1.getResult());
             Assert.assertTrue(c2.isDone());
-            Assert.assertNotNull(c2.getResult());
-            Assert.assertTrue(c2.isDone());
-            Assert.assertNotNull(c3.getResult());
+//            Assert.assertNotNull(c2.getResult());
+            Assert.assertTrue(c3.isDone());
+            Assert.assertNull(c3.getResult());
         }
     }
 

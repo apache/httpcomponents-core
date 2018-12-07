@@ -120,6 +120,10 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         this(DEFAULT_WAIT_FOR_CONTINUE, null);
     }
 
+    private static boolean pipelining(final HttpAsyncClientExchangeHandler handler) {
+        return handler.getClass().getAnnotation(Pipelined.class) != null;
+    }
+
     @Override
     public void connected(
             final NHttpClientConnection conn,
@@ -132,16 +136,20 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
 
     @Override
     public void closed(final NHttpClientConnection conn) {
-        final State state = getState(conn);
         final HttpAsyncClientExchangeHandler handler = getHandler(conn);
+        if (handler == null) {
+            return;
+        }
+        final State state = getState(conn);
         if (state != null) {
             if (state.getRequestState() != MessageState.READY || state.getResponseState() != MessageState.READY) {
-                if (handler != null) {
-                    handler.failed(new ConnectionClosedException("Connection closed unexpectedly"));
-                }
+                handler.failed(new ConnectionClosedException("Connection closed unexpectedly"));
             }
         }
-        if (state == null || (handler != null && handler.isDone())) {
+        if (!handler.isDone() && pipelining(handler)) {
+            handler.failed(new ConnectionClosedException("Connection closed unexpectedly"));
+        }
+        if (state == null || handler.isDone()) {
             closeHandler(handler);
         }
     }
@@ -180,7 +188,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
                 return;
             }
         }
-        final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
+        final boolean pipelined = pipelining(handler);
 
         final HttpRequest request = handler.generateRequest();
         if (request == null) {
@@ -241,8 +249,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         handler.produceContent(encoder, conn);
         if (encoder.isCompleted()) {
             handler.requestCompleted();
-            final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
-            state.setRequestState(pipelined ? MessageState.READY : MessageState.COMPLETED);
+            state.setRequestState(pipelining(handler) ? MessageState.READY : MessageState.COMPLETED);
         }
     }
 
@@ -257,9 +264,8 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         final HttpAsyncClientExchangeHandler handler = getHandler(conn);
         Asserts.notNull(handler, "Client exchange handler");
 
-        final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
         final HttpRequest request;
-        if (pipelined) {
+        if (pipelining(handler)) {
             request = state.getRequestQueue().poll();
             Asserts.notNull(request, "HTTP request");
         } else {
@@ -441,8 +447,7 @@ public class HttpAsyncRequestExecutor implements NHttpClientEventHandler {
         }
         handler.responseCompleted();
 
-        final boolean pipelined = handler.getClass().getAnnotation(Pipelined.class) != null;
-        if (!pipelined) {
+        if (!pipelining(handler)) {
             state.setRequestState(MessageState.READY);
             state.setRequest(null);
         }
