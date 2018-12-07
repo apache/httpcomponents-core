@@ -68,8 +68,8 @@ import org.apache.http.util.Args;
 import org.apache.http.util.NetUtils;
 
 /**
- * This class serves as a base for all {@link HttpConnection} implementations and provides
- * functionality common to both client and server HTTP connections.
+ * This class serves as a base for all {@link org.apache.http.HttpConnection} implementations
+ * and provides functionality common to both client and server HTTP connections.
  *
  * @since 4.0
  */
