@@ -55,6 +55,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLServerSocket;
@@ -485,6 +486,8 @@ public class TestSSLContextBuilder {
             clientSocket.connect(new InetSocketAddress("localhost", localPort), TIMEOUT);
             clientSocket.setSoTimeout(TIMEOUT);
             clientSocket.startHandshake();
+            final InputStream inputStream = clientSocket.getInputStream();
+            Assert.assertEquals(-1, inputStream.read());
         } finally {
             clientSocket.close();
         }
@@ -669,7 +672,7 @@ public class TestSSLContextBuilder {
         if (isWindows()) {
             thrown.expect(IOException.class);
         } else {
-            thrown.expect(SSLHandshakeException.class);
+            thrown.expect(SSLException.class);
         }
 
         final URL resource1 = getResource("/test-server.keystore");
