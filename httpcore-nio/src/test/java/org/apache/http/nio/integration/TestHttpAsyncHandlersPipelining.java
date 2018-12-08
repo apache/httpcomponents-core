@@ -37,6 +37,7 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -86,6 +87,8 @@ import org.junit.runners.Parameterized;
  */
 @RunWith(Parameterized.class)
 public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
+
+    private final static long RESULT_TIMEOUT_SEC = 30;
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {
@@ -166,7 +169,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<List<HttpResponse>> future = queue.remove();
-            final List<HttpResponse> responses = future.get();
+            final List<HttpResponse> responses = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
             for (final HttpResponse response: responses) {
@@ -200,7 +203,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<List<HttpResponse>> future = queue.remove();
-            final List<HttpResponse> responses = future.get();
+            final List<HttpResponse> responses = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
             for (final HttpResponse response: responses) {
@@ -244,7 +247,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<List<HttpResponse>> future = queue.remove();
-            final List<HttpResponse> responses = future.get();
+            final List<HttpResponse> responses = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
             for (final HttpResponse response: responses) {
@@ -332,7 +335,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<List<HttpResponse>> future = queue.remove();
-            final List<HttpResponse> responses = future.get();
+            final List<HttpResponse> responses = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(responses);
             Assert.assertEquals(3, responses.size());
             for (final HttpResponse response: responses) {
@@ -396,7 +399,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
 
             final Future<List<HttpResponse>> future = this.client.executePipelined(target, requestProducers, responseConsumers, null, null);
             try {
-                future.get();
+                future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             } catch (final ExecutionException ex) {
                 final Throwable cause = ex.getCause();
                 Assert.assertTrue(cause instanceof ConnectionClosedException);
@@ -405,7 +408,7 @@ public class TestHttpAsyncHandlersPipelining extends HttpCoreNIOTestBase {
             Assert.assertTrue(c1.isDone());
             Assert.assertNotNull(c1.getResult());
             Assert.assertTrue(c2.isDone());
-//            Assert.assertNotNull(c2.getResult());
+            Assert.assertNotNull(c2.getResult());
             Assert.assertTrue(c3.isDone());
             Assert.assertNull(c3.getResult());
         }

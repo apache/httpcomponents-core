@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
@@ -75,6 +76,8 @@ import org.junit.Test;
  * Tests for handling truncated chunks.
  */
 public class TestTruncatedChunks extends HttpCoreNIOTestBase {
+
+    private final static long RESULT_TIMEOUT_SEC = 30;
 
     @Before
     public void setUp() throws Exception {
@@ -182,7 +185,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
         final BasicHttpRequest request = new BasicHttpRequest("GET", pattern + "x" + count);
         final Future<HttpResponse> future = this.client.execute(target, request);
         try {
-            future.get();
+            future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.fail("ExecutionException should have been thrown");
         } catch (final ExecutionException ex) {
             final Throwable cause = ex.getCause();
@@ -258,7 +261,7 @@ public class TestTruncatedChunks extends HttpCoreNIOTestBase {
                 new LenientAsyncResponseConsumer(),
                 null, null);
 
-        final HttpResponse response = future.get();
+        final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         Assert.assertEquals(new String(GARBAGE, Consts.ISO_8859_1.name()),

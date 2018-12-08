@@ -34,6 +34,7 @@ import java.util.Collection;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
@@ -79,6 +80,8 @@ import org.junit.runners.Parameterized;
  */
 @RunWith(Parameterized.class)
 public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
+
+    private final static long RESULT_TIMEOUT_SEC = 30;
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {
@@ -149,7 +152,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
@@ -175,7 +178,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         }
@@ -206,7 +209,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
@@ -238,7 +241,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
@@ -269,7 +272,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
@@ -297,7 +300,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         }
@@ -327,7 +330,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final Future<HttpResponse> future = this.client.execute(target, request);
 
-        final HttpResponse response = future.get();
+        final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
     }
@@ -366,7 +369,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         final Future<HttpResponse> future = this.client.execute(target, request);
 
-        final HttpResponse response = future.get();
+        final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
         Assert.assertNotNull(response);
         Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
     }
@@ -398,7 +401,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
         }
@@ -530,7 +533,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
         }
@@ -651,7 +654,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getStatusLine().getStatusCode());
         }
@@ -676,7 +679,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getStatusLine().getStatusCode());
         }
@@ -709,7 +712,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
         while (!queue.isEmpty()) {
             final Future<HttpResponse> future = queue.remove();
-            final HttpResponse response = future.get();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertNull(response.getEntity());
         }

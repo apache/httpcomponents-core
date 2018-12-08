@@ -32,6 +32,7 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -62,6 +63,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TestCustomSSL {
+
+    private final static long RESULT_TIMEOUT_SEC = 30;
 
     protected HttpServerNio server;
     protected HttpClientNio client;
@@ -146,7 +149,7 @@ public class TestCustomSSL {
         final HttpHost target = new HttpHost("localhost", address.getPort());
         final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
         final Future<HttpResponse> future = this.client.execute(target, request);
-        final HttpResponse response = future.get();
+        final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
         Assert.assertNotNull(response);
         Assert.assertEquals(200, response.getStatusLine().getStatusCode());
     }
