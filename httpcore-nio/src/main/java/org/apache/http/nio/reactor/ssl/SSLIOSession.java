@@ -366,7 +366,9 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             this.sslEngine.closeOutbound();
         }
         if (this.status == CLOSING && this.sslEngine.isOutboundDone()
-                && (this.endOfStream || this.sslEngine.isInboundDone())) {
+                && (this.endOfStream || this.sslEngine.isInboundDone())
+                && !this.inPlain.hasData()
+                && this.appBufferStatus != null && !this.appBufferStatus.hasBufferedInput()) {
             this.status = CLOSED;
         }
         // Abnormal session termination
