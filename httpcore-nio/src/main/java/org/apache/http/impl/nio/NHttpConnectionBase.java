@@ -365,7 +365,11 @@ public class NHttpConnectionBase
 
     @Override
     public void suspendOutput() {
-        this.session.clearEvent(EventMask.WRITE);
+        synchronized (this.session) {
+            if (!this.outbuf.hasData()) {
+                this.session.clearEvent(EventMask.WRITE);
+            }
+        }
     }
 
     /**
