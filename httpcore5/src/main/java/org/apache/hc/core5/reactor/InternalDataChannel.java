@@ -262,8 +262,13 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
+    public Lock getLock() {
+        return ioSession.getLock();
+    }
+
+    @Override
     public Lock lock() {
-        return ioSession.lock();
+        return ioSession.getLock();
     }
 
     private IOSession getSessionImpl() {

@@ -85,6 +85,11 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
+    public Lock getLock() {
+        return lock;
+    }
+
+    @Override
     public Lock lock() {
         return lock;
     }

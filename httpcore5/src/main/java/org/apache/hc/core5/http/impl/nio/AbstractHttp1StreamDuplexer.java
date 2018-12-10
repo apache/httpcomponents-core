@@ -358,7 +358,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     public final void onOutput() throws IOException, HttpException {
-        ioSession.lock().lock();
+        ioSession.getLock().lock();
         try {
             if (outbuf.hasData()) {
                 final int bytesWritten = outbuf.flush(ioSession.channel());
@@ -367,14 +367,14 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 }
             }
         } finally {
-            ioSession.lock().unlock();
+            ioSession.getLock().unlock();
         }
         if (connState.compareTo(ConnectionState.SHUTDOWN) < 0) {
             produceOutput();
             final int pendingOutputRequests = outputRequests.get();
             final boolean outputPending = isOutputReady();
             final boolean outputEnd;
-            ioSession.lock().lock();
+            ioSession.getLock().lock();
             try {
                 if (!outputPending && !outbuf.hasData() && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
                     ioSession.clearEvent(SelectionKey.OP_WRITE);
@@ -383,7 +383,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 }
                 outputEnd = outgoingMessage == null && !outbuf.hasData();
             } finally {
-                ioSession.lock().unlock();
+                ioSession.getLock().unlock();
             }
             if (outputEnd) {
                 outputEnd();
@@ -459,7 +459,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             final OutgoingMessage messageHead,
             final boolean endStream,
             final FlushMode flushMode) throws HttpException, IOException {
-        ioSession.lock().lock();
+        ioSession.getLock().lock();
         try {
             outgoingMessageWriter.write(messageHead, outbuf);
             updateOutputMetrics(messageHead, connMetrics);
@@ -481,7 +481,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             }
             ioSession.setEvent(EventMask.WRITE);
         } finally {
-            ioSession.lock().unlock();
+            ioSession.getLock().unlock();
         }
     }
 
@@ -503,7 +503,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     void suspendSessionOutput() throws IOException {
-        ioSession.lock().lock();
+        ioSession.getLock().lock();
         try {
             if (outbuf.hasData()) {
                 outbuf.flush(ioSession.channel());
@@ -511,12 +511,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 ioSession.clearEvent(SelectionKey.OP_WRITE);
             }
         } finally {
-            ioSession.lock().unlock();
+            ioSession.getLock().unlock();
         }
     }
 
     int streamOutput(final ByteBuffer src) throws IOException {
-        ioSession.lock().lock();
+        ioSession.getLock().lock();
         try {
             if (outgoingMessage == null) {
                 throw new ClosedChannelException();
@@ -528,14 +528,14 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             }
             return bytesWritten;
         } finally {
-            ioSession.lock().unlock();
+            ioSession.getLock().unlock();
         }
     }
 
     enum MessageDelineation { NONE, CHUNK_CODED, MESSAGE_HEAD}
 
     MessageDelineation endOutputStream(final List<? extends Header> trailers) throws IOException {
-        ioSession.lock().lock();
+        ioSession.getLock().lock();
         try {
             if (outgoingMessage == null) {
                 return MessageDelineation.NONE;
@@ -548,12 +548,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                             ? MessageDelineation.CHUNK_CODED
                             : MessageDelineation.MESSAGE_HEAD;
         } finally {
-            ioSession.lock().unlock();
+            ioSession.getLock().unlock();
         }
     }
 
     boolean isOutputCompleted() {
-        ioSession.lock().lock();
+        ioSession.getLock().lock();
         try {
             if (outgoingMessage == null) {
                 return true;
@@ -561,7 +561,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             final ContentEncoder contentEncoder = outgoingMessage.getBody();
             return contentEncoder.isCompleted();
         } finally {
-            ioSession.lock().unlock();
+            ioSession.getLock().unlock();
         }
     }
 

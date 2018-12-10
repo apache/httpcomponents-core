@@ -66,8 +66,13 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
+    public Lock getLock() {
+        return this.session.getLock();
+    }
+
+    @Override
     public Lock lock() {
-        return this.session.lock();
+        return this.session.getLock();
     }
 
     @Override

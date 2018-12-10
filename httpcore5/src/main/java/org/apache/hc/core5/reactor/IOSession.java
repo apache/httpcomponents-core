@@ -63,6 +63,16 @@ public interface IOSession extends ModalCloseable, Identifiable {
      *
      * @since 5.0
      */
+    Lock getLock();
+
+    /**
+     * Returns session lock that should be used by I/O event handlers
+     * to synchronize access to the session.
+     *
+     * @since 5.0
+     * @deprecated Use {@link #getLock()}.
+     */
+    @Deprecated
     Lock lock();
 
     /**

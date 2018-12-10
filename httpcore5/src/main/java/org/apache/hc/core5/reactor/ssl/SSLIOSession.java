@@ -204,8 +204,13 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
+    public Lock getLock() {
+        return this.session.getLock();
+    }
+
+    @Override
     public Lock lock() {
-        return this.session.lock();
+        return this.session.getLock();
     }
 
     /**
@@ -226,7 +231,7 @@ public class SSLIOSession implements IOSession {
      */
     public void initialize() throws SSLException {
         Asserts.check(!this.initialized, "SSL I/O session already initialized");
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             if (this.status >= IOSession.CLOSING) {
                 return;
@@ -250,7 +255,7 @@ public class SSLIOSession implements IOSession {
             this.inPlain.release();
             doHandshake();
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
@@ -526,7 +531,7 @@ public class SSLIOSession implements IOSession {
      * @throws IOException in case of an I/O error.
      */
     public boolean isAppInputReady() throws IOException {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             do {
                 receiveEncryptedData();
@@ -539,7 +544,7 @@ public class SSLIOSession implements IOSession {
             // Some decrypted data is available or at the end of stream
             return this.inPlain.hasData() || (this.endOfStream && this.status == ACTIVE);
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
@@ -550,13 +555,13 @@ public class SSLIOSession implements IOSession {
      * @throws IOException - not thrown currently
      */
     public boolean isAppOutputReady() throws IOException {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             return (this.appEventMask & SelectionKey.OP_WRITE) > 0
                     && this.status == ACTIVE
                     && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING;
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
@@ -566,11 +571,11 @@ public class SSLIOSession implements IOSession {
      * @throws IOException - not thrown currently
      */
     public void inboundTransport() throws IOException {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             updateEventMask();
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
@@ -580,7 +585,7 @@ public class SSLIOSession implements IOSession {
      * @throws IOException in case of an I/O error.
      */
     public void outboundTransport() throws IOException {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             if (this.session.isClosed()) {
                 return;
@@ -589,7 +594,7 @@ public class SSLIOSession implements IOSession {
             doHandshake();
             updateEventMask();
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
@@ -609,7 +614,7 @@ public class SSLIOSession implements IOSession {
 
     private int writePlain(final ByteBuffer src) throws IOException {
         Args.notNull(src, "Byte buffer");
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             if (this.status != ACTIVE) {
                 throw new ClosedChannelException();
@@ -624,13 +629,13 @@ public class SSLIOSession implements IOSession {
             }
             return result.bytesConsumed();
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
     private int readPlain(final ByteBuffer dst) {
         Args.notNull(dst, "Byte buffer");
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             if (!this.initialized) {
                 return 0;
@@ -659,7 +664,7 @@ public class SSLIOSession implements IOSession {
             }
             return 0;
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
@@ -673,7 +678,7 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public void close() {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             if (this.status >= CLOSING) {
                 return;
@@ -688,13 +693,13 @@ public class SSLIOSession implements IOSession {
                 close(CloseMode.GRACEFUL);
             }
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
     @Override
     public void close(final CloseMode closeMode) {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             if (this.status == CLOSED) {
                 return;
@@ -706,7 +711,7 @@ public class SSLIOSession implements IOSession {
             this.status = CLOSED;
             this.session.close(closeMode);
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
@@ -722,12 +727,12 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public void enqueue(final Command command, final Command.Priority priority) {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             this.session.enqueue(command, priority);
             setEvent(SelectionKey.OP_WRITE);
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
@@ -758,44 +763,44 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public int getEventMask() {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             return this.appEventMask;
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
     @Override
     public void setEventMask(final int ops) {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             this.appEventMask = ops;
             updateEventMask();
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
     @Override
     public void setEvent(final int op) {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             this.appEventMask = this.appEventMask | op;
             updateEventMask();
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
     @Override
     public void clearEvent(final int op) {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             this.appEventMask = this.appEventMask & ~op;
             updateEventMask();
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
@@ -808,13 +813,13 @@ public class SSLIOSession implements IOSession {
     public void setSocketTimeout(final Timeout timeout) {
         this.socketTimeout = timeout;
 
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             if (this.sslEngine.getHandshakeStatus() == HandshakeStatus.FINISHED) {
                 this.session.setSocketTimeout(timeout);
             }
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 
@@ -849,7 +854,7 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public String toString() {
-        this.session.lock().lock();
+        this.session.getLock().lock();
         try {
             final StringBuilder buffer = new StringBuilder();
             buffer.append(this.session);
@@ -887,7 +892,7 @@ public class SSLIOSession implements IOSession {
             buffer.append("]");
             return buffer.toString();
         } finally {
-            this.session.lock().unlock();
+            this.session.getLock().unlock();
         }
     }
 

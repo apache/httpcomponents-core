@@ -178,26 +178,37 @@ public class HttpBenchmark {
                     public IOSession decorate(final IOSession ioSession) {
                         return new IOSession() {
 
+                            @Override
                             public String getId() {
                                 return ioSession.getId();
                             }
 
-                            public Lock lock() {
-                                return ioSession.lock();
+                            @Override
+                            public Lock getLock() {
+                                return ioSession.getLock();
                             }
 
+                            @Override
+                            public Lock lock() {
+                                return ioSession.getLock();
+                            }
+
+                            @Override
                             public void enqueue(final Command command, final Command.Priority priority) {
                                 ioSession.enqueue(command, priority);
                             }
 
+                            @Override
                             public boolean hasCommands() {
                                 return ioSession.hasCommands();
                             }
 
+                            @Override
                             public Command poll() {
                                 return ioSession.poll();
                             }
 
+                            @Override
                             public ByteChannel channel() {
                                 return new ByteChannel() {
 
@@ -231,66 +242,82 @@ public class HttpBenchmark {
                                 };
                             }
 
+                            @Override
                             public SocketAddress getRemoteAddress() {
                                 return ioSession.getRemoteAddress();
                             }
 
+                            @Override
                             public SocketAddress getLocalAddress() {
                                 return ioSession.getLocalAddress();
                             }
 
+                            @Override
                             public int getEventMask() {
                                 return ioSession.getEventMask();
                             }
 
+                            @Override
                             public void setEventMask(final int ops) {
                                 ioSession.setEventMask(ops);
                             }
 
+                            @Override
                             public void setEvent(final int op) {
                                 ioSession.setEvent(op);
                             }
 
+                            @Override
                             public void clearEvent(final int op) {
                                 ioSession.clearEvent(op);
                             }
 
+                            @Override
                             public void close() {
                                 ioSession.close();
                             }
 
+                            @Override
                             public int getStatus() {
                                 return ioSession.getStatus();
                             }
 
+                            @Override
                             public boolean isClosed() {
                                 return ioSession.isClosed();
                             }
 
+                            @Override
                             public Timeout getSocketTimeout() {
                                 return ioSession.getSocketTimeout();
                             }
 
+                            @Override
                             public void setSocketTimeout(final Timeout timeout) {
                                 ioSession.setSocketTimeout(timeout);
                             }
 
+                            @Override
                             public long getLastReadTime() {
                                 return ioSession.getLastReadTime();
                             }
 
+                            @Override
                             public long getLastWriteTime() {
                                 return ioSession.getLastWriteTime();
                             }
 
+                            @Override
                             public void updateReadTime() {
                                 ioSession.updateReadTime();
                             }
 
+                            @Override
                             public void updateWriteTime() {
                                 ioSession.updateWriteTime();
                             }
 
+                            @Override
                             public void close(final CloseMode closeMode) {
                                 ioSession.close(closeMode);
                             }

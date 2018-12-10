@@ -1,3 +1,14 @@
+Release 5.0-BETA7
+-------------------
+
+TODO: Add release description
+
+Change Log
+-------------------
+
+* org.apache.hc.core5.reactor.IOSession: Deprecate lock() in favor of getLock().
+ 
+
 Release 5.0-BETA6
 -------------------
 
