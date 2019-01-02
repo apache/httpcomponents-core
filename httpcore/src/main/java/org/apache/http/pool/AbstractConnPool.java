@@ -661,15 +661,20 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
     @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append("[leased: ");
-        buffer.append(this.leased);
-        buffer.append("][available: ");
-        buffer.append(this.available);
-        buffer.append("][pending: ");
-        buffer.append(this.pending);
-        buffer.append("]");
-        return buffer.toString();
+        this.lock.lock();
+        try {
+            final StringBuilder buffer = new StringBuilder();
+            buffer.append("[leased: ");
+            buffer.append(this.leased);
+            buffer.append("][available: ");
+            buffer.append(this.available);
+            buffer.append("][pending: ");
+            buffer.append(this.pending);
+            buffer.append("]");
+            return buffer.toString();
+        } finally {
+            this.lock.unlock();
+        }
     }
 
 }
