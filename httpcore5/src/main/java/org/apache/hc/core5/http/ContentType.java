@@ -405,4 +405,8 @@ public final class ContentType implements Serializable {
         return create(this.getMimeType(), newParams.toArray(new NameValuePair[newParams.size()]), true);
     }
 
+    public boolean isSameMimeType(final ContentType contentType) {
+        return contentType != null && mimeType.equalsIgnoreCase(contentType.getMimeType());
+    }
+
 }
