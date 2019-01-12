@@ -35,6 +35,8 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -46,17 +48,17 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProducer {
 
-    private enum State { ACTIVE, FLUSHING, END_STREAM }
-
     private static final CharBuffer EMPTY = CharBuffer.wrap(new char[0]);
+
+    enum State { ACTIVE, FLUSHING, END_STREAM }
 
     private final ByteBuffer bytebuf;
     private final int fragmentSizeHint;
     private final ContentType contentType;
     private final CharsetEncoder charsetEncoder;
-    private final StreamChannel<CharBuffer> charDataStream;
 
     private volatile State state;
 
@@ -65,7 +67,7 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
             final int fragmentSizeHint,
             final ContentType contentType) {
         Args.positive(bufferSize, "Buffer size");
-        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : bufferSize / 2;
+        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : 0;
         this.bytebuf = ByteBuffer.allocate(bufferSize);
         this.contentType = contentType;
         Charset charset = contentType != null ? contentType.getCharset() : null;
@@ -73,32 +75,77 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
             charset = StandardCharsets.US_ASCII;
         }
         this.charsetEncoder = charset.newEncoder();
-        this.charDataStream = new StreamChannel<CharBuffer>() {
-
-            @Override
-            public int write(final CharBuffer src) throws IOException {
-                Args.notNull(src, "Buffer");
-                final int p = src.position();
-                final CoderResult result = charsetEncoder.encode(src, bytebuf, false);
-                if (result.isError()) {
-                    result.throwException();
-                }
-                return src.position() - p;
-            }
-
-            @Override
-            public void endStream() throws IOException {
-                state = State.FLUSHING;
-            }
-
-        };
         this.state = State.ACTIVE;
     }
+
+    private void flush(final StreamChannel<ByteBuffer> channel) throws IOException {
+        if (bytebuf.position() > 0) {
+            bytebuf.flip();
+            channel.write(bytebuf);
+            bytebuf.compact();
+        }
+    }
+
+    final int writeData(final StreamChannel<ByteBuffer> channel, final CharBuffer src) throws IOException {
+
+        final int chunk = src.remaining();
+        if (chunk == 0) {
+            return 0;
+        }
+
+        final int p = src.position();
+        final CoderResult result = charsetEncoder.encode(src, bytebuf, false);
+        if (result.isError()) {
+            result.throwException();
+        }
+
+        if (!bytebuf.hasRemaining() || bytebuf.position() >= fragmentSizeHint) {
+            flush(channel);
+        }
+
+        return src.position() - p;
+    }
+
+    final void streamEnd(final StreamChannel<ByteBuffer> channel) throws IOException {
+        if (state == State.ACTIVE) {
+            state = State.FLUSHING;
+            if (!bytebuf.hasRemaining()) {
+                flush(channel);
+            }
+
+            final CoderResult result = charsetEncoder.encode(EMPTY, bytebuf, true);
+            if (result.isError()) {
+                result.throwException();
+            }
+            final CoderResult result2 = charsetEncoder.flush(bytebuf);
+            if (result2.isError()) {
+                result.throwException();
+            } else if (result.isUnderflow()) {
+                flush(channel);
+                if (bytebuf.position() == 0) {
+                    state = State.END_STREAM;
+                    channel.endStream();
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Returns the number of bytes immediately available for output.
+     * This method can be used as a hint to control output events
+     * of the underlying I/O session.
+     *
+     * @return the number of bytes immediately available for output
+     */
+    protected abstract int availableData();
 
     /**
      * Triggered to signal the ability of the underlying char channel
      * to accept more data. The data producer can choose to write data
      * immediately inside the call or asynchronously at some later point.
+     * <p>
+     * {@link StreamChannel} passed to this method is threading-safe.
      *
      * @param channel the data channel capable to accepting more data.
      */
@@ -115,6 +162,11 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
     }
 
     @Override
+    public long getContentLength() {
+        return -1;
+    }
+
+    @Override
     public boolean isChunked() {
         return false;
     }
@@ -125,41 +177,62 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
     }
 
     @Override
-    public final void produce(final DataStreamChannel channel) throws IOException {
-        if (state.compareTo(State.ACTIVE) == 0) {
-            produceData(charDataStream);
-        }
-        if (state.compareTo(State.ACTIVE) > 0 || !bytebuf.hasRemaining() || bytebuf.position() >= fragmentSizeHint) {
-            bytebuf.flip();
-            channel.write(bytebuf);
-            bytebuf.compact();
-        }
-        if (state.compareTo(State.FLUSHING) == 0) {
-            final CoderResult result = charsetEncoder.encode(EMPTY, bytebuf, true);
-            if (result.isError()) {
-                result.throwException();
-            } else if (result.isUnderflow()) {
-                final CoderResult result2 = charsetEncoder.flush(bytebuf);
-                if (result2.isError()) {
-                    result.throwException();
-                } else if (result2.isUnderflow()) {
-                    state = State.END_STREAM;
-                }
+    public final int available() {
+        if (state == State.ACTIVE) {
+            return availableData();
+        } else {
+            synchronized (bytebuf) {
+                return bytebuf.position();
             }
         }
-        if (bytebuf.position() == 0 && state.compareTo(State.END_STREAM) == 0) {
-            channel.endStream();
-        }
-    }
-
-    protected void releaseResourcesInternal() {
     }
 
     @Override
-    public final void releaseResources() {
-        charsetEncoder.reset();
+    public final void produce(final DataStreamChannel channel) throws IOException {
+        synchronized (bytebuf) {
+            if (state == State.ACTIVE) {
+                produceData(new StreamChannel<CharBuffer>() {
+
+                    @Override
+                    public int write(final CharBuffer src) throws IOException {
+                        Args.notNull(src, "Buffer");
+                        synchronized (bytebuf) {
+                            return writeData(channel, src);
+                        }
+                    }
+
+                    @Override
+                    public void endStream() throws IOException {
+                        synchronized (bytebuf) {
+                            streamEnd(channel);
+                        }
+                    }
+
+                });
+            }
+            if (state == State.FLUSHING) {
+                final CoderResult result = charsetEncoder.flush(bytebuf);
+                if (result.isError()) {
+                    result.throwException();
+                } else if (result.isOverflow()) {
+                    flush(channel);
+                } else if (result.isUnderflow()) {
+                    flush(channel);
+                    if (bytebuf.position() == 0) {
+                        state = State.END_STREAM;
+                        channel.endStream();
+                    }
+                }
+
+            }
+
+        }
+    }
+
+    @Override
+    public void releaseResources() {
         state = State.ACTIVE;
-        releaseResourcesInternal();
+        charsetEncoder.reset();
     }
 
 }

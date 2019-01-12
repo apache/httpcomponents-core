@@ -62,6 +62,11 @@ public class TestAbstractCharAsyncEntityProducer {
         }
 
         @Override
+        protected int availableData() {
+            return Integer.MAX_VALUE;
+        }
+
+        @Override
         protected void produceData(final StreamChannel<CharBuffer> channel) throws IOException {
             if (count < content.length) {
                 channel.write(CharBuffer.wrap(content[count]));
@@ -70,16 +75,6 @@ public class TestAbstractCharAsyncEntityProducer {
             if (count >= content.length) {
                 channel.endStream();
             }
-        }
-
-        @Override
-        public long getContentLength() {
-            return -1;
-        }
-
-        @Override
-        public int available() {
-            return Integer.MAX_VALUE;
         }
 
         @Override
