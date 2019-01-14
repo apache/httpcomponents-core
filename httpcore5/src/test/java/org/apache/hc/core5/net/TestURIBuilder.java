@@ -423,5 +423,23 @@ public class TestURIBuilder {
         Assert.assertEquals(URI.create(httpHost.toURI()), result);
     }
 
+    @Test
+    public void testMultipleLeadingPathSlashes() throws Exception {
+        final URI uri = new URIBuilder()
+                .setScheme("ftp")
+                .setHost("somehost")
+                .setPath("//blah//blah")
+                .build();
+        Assert.assertThat(uri, CoreMatchers.equalTo(URI.create("ftp://somehost//blah//blah")));
+    }
+
+    @Test
+    public void testPathNoLeadingSlash() throws Exception {
+        final URI uri = new URIBuilder()
+                .setScheme("ftp")
+                .setPath("blah")
+                .build();
+        Assert.assertThat(uri, CoreMatchers.equalTo(URI.create("ftp:/blah")));
+    }
 
 }
