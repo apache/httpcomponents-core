@@ -1,25 +1,62 @@
 Release 4.4.11
 -------------------
 
-This is a maintenance release.
+This is a maintenance release that corrects a number of defects in non-blocking SSL session code
+that caused compatibility issues with TLSv1.3 protocol implementation shipped with Java 11.
+
 
 Changelog
 -------------------
 
-* Refactor duplicate messages into a new 0-arg constructor for org.apache.http.ConnectionClosedException.
+* HTTPCORE-564: fixed deadlock in IOSessionImpl caused by concurrent session closure and i/o reactor
+  shutdown.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: asynchronous HTTP connections must not suspend output if there is buffered output data.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: SSL I/O session to keep input interest if there is buffered application data.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: keep SSL i/o session in 'CLOSING' state as long as there is buffered application data.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: corrected abnormal termination of pipelined request sequence.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: non-blocking SSL session incorrectly stops decrypting incoming data if unwrap operation
+  results in NOT_HANDSHAKING status (back-ported from master).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: corrected handling of NEED_WRAP handshake status during graceful SSL session termination
+  (back-ported from master).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: corrected handling of graceful SSL session termination initiated by the opposite endpoint
+  (back-ported from master).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Refactor duplicate messages into a new 0-arg constructor for
+  org.apache.http.ConnectionClosedException.
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * Fix typos in exception messages.
   Contributed by Gary Gregory <ggregory at apache.org>
   
-* HTTPCORE-550: When a ParseException is caught and rethrown as an IOException in org.apache.http.impl.nio.codecs.ChunkDecoder.processFooters(), the IOException does not chain the original ParseException.
+* HTTPCORE-550: When a ParseException is caught and rethrown as an IOException in
+  org.apache.http.impl.nio.codecs.ChunkDecoder.processFooters(), the IOException does not chain the
+  original ParseException.
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* HTTPCORE-562: The reason phrase returned by org.apache.hc.core5.http.HttpResponse.getReasonPhrase() may be empty.
+* HTTPCORE-562: The reason phrase returned by org.apache.hc.core5.http.HttpResponse.getReasonPhrase()
+  may be empty.
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * Keep the entries in org.apache.hc.core5.http.protocol.UriPatternMatcher#map in insertion order.
   Contributed by Gary Gregory <ggregory at apache.org>
+
+* Corrected Automatic-Module-Name entries for HttpCore NIO and HttpCore AB
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
 Release 4.4.10
