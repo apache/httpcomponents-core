@@ -52,7 +52,6 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Timeout;
 
 /**
  * {@link Http2MultiplexingRequester} bootstrap.
@@ -68,7 +67,6 @@ public class Http2MultiplexingRequesterBootstrap {
     private CharCodingConfig charCodingConfig;
     private H2Config h2Config;
     private TlsStrategy tlsStrategy;
-    private Timeout handshakeTimeout;
     private boolean strictALPNHandshake;
     private Decorator<IOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
@@ -119,11 +117,6 @@ public class Http2MultiplexingRequesterBootstrap {
      */
     public final Http2MultiplexingRequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
-        return this;
-    }
-
-    public final Http2MultiplexingRequesterBootstrap setHandshakeTimeout(final Timeout handshakeTimeout) {
-        this.handshakeTimeout = handshakeTimeout;
         return this;
     }
 
@@ -218,8 +211,7 @@ public class Http2MultiplexingRequesterBootstrap {
                 ioSessionDecorator,
                 sessionListener,
                 DefaultAddressResolver.INSTANCE,
-                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
-                handshakeTimeout);
+                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());
     }
 
 }

@@ -83,7 +83,6 @@ import org.apache.hc.core5.util.Timeout;
 public class Http2MultiplexingRequester extends AsyncRequester{
 
     private final H2ConnPool connPool;
-    private final Timeout handshakeTimeout;
 
     /**
      * Use {@link Http2MultiplexingRequesterBootstrap} to create instances of this class.
@@ -95,12 +94,10 @@ public class Http2MultiplexingRequester extends AsyncRequester{
             final Decorator<IOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
             final Resolver<HttpHost, InetSocketAddress> addressResolver,
-            final TlsStrategy tlsStrategy,
-            final Timeout handshakeTimeout) {
+            final TlsStrategy tlsStrategy) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener,
                         ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
         this.connPool = new H2ConnPool(this, addressResolver, tlsStrategy);
-        this.handshakeTimeout = handshakeTimeout;
     }
 
     public void closeIdle(final TimeValue idleTime) {
@@ -161,7 +158,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
                         throw new ProtocolException("Request authority not specified");
                     }
                     final HttpHost target = new HttpHost(scheme, authority);
-                    connPool.getSession(target, timeout, handshakeTimeout, new FutureCallback<IOSession>() {
+                    connPool.getSession(target, timeout, new FutureCallback<IOSession>() {
 
                         @Override
                         public void completed(final IOSession ioSession) {
