@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -177,6 +178,10 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         return pool;
     }
 
+    private static Exception operationAborted() {
+        return new CancellationException("Operation aborted");
+    }
+
     /**
      * {@inheritDoc}
      * <p>
@@ -198,8 +203,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
             @Override
             public boolean cancel(final boolean mayInterruptIfRunning) {
-                if (cancelled.compareAndSet(false, true)) {
-                    done.set(true);
+                if (done.compareAndSet(false, true)) {
+                    cancelled.set(true);
                     lock.lock();
                     try {
                         condition.signalAll();
@@ -235,13 +240,16 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
             @Override
             public E get(final long timeout, final TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
-                final E entry = entryRef.get();
-                if (entry != null) {
-                    return entry;
-                }
-                synchronized (this) {
-                    try {
-                        for (;;) {
+                for (;;) {
+                    synchronized (this) {
+                        try {
+                            final E entry = entryRef.get();
+                            if (entry != null) {
+                                return entry;
+                            }
+                            if (done.get()) {
+                                throw new ExecutionException(operationAborted());
+                            }
                             final E leasedEntry = getPoolEntryBlocking(route, state, timeout, timeUnit, this);
                             if (validateAfterInactivity > 0)  {
                                 if (leasedEntry.getUpdated() + validateAfterInactivity <= System.currentTimeMillis()) {
@@ -252,20 +260,26 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                                     }
                                 }
                             }
-                            entryRef.set(leasedEntry);
-                            done.set(true);
-                            onLease(leasedEntry);
-                            if (callback != null) {
-                                callback.completed(leasedEntry);
+                            if (done.compareAndSet(false, true)) {
+                                entryRef.set(leasedEntry);
+                                done.set(true);
+                                onLease(leasedEntry);
+                                if (callback != null) {
+                                    callback.completed(leasedEntry);
+                                }
+                                return leasedEntry;
+                            } else {
+                                release(leasedEntry, true);
+                                throw new ExecutionException(operationAborted());
                             }
-                            return leasedEntry;
+                        } catch (final IOException ex) {
+                            if (done.compareAndSet(false, true)) {
+                                if (callback != null) {
+                                    callback.failed(ex);
+                                }
+                            }
+                            throw new ExecutionException(ex);
                         }
-                    } catch (final IOException ex) {
-                        done.set(true);
-                        if (callback != null) {
-                            callback.failed(ex);
-                        }
-                        throw new ExecutionException(ex);
                     }
                 }
             }
@@ -296,7 +310,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     private E getPoolEntryBlocking(
             final T route, final Object state,
             final long timeout, final TimeUnit timeUnit,
-            final Future<E> future) throws IOException, InterruptedException, TimeoutException {
+            final Future<E> future) throws IOException, InterruptedException, ExecutionException, TimeoutException {
 
         Date deadline = null;
         if (timeout > 0) {
@@ -308,6 +322,9 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             E entry;
             for (;;) {
                 Asserts.check(!this.isShutDown, "Connection pool shut down");
+                if (future.isCancelled()) {
+                    throw new ExecutionException(operationAborted());
+                }
                 for (;;) {
                     entry = pool.getFree(state);
                     if (entry == null) {
@@ -368,9 +385,6 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
 
                 boolean success = false;
                 try {
-                    if (future.isCancelled()) {
-                        throw new InterruptedException("Operation interrupted");
-                    }
                     pool.queue(future);
                     this.pending.add(future);
                     if (deadline != null) {
@@ -380,7 +394,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                         success = true;
                     }
                     if (future.isCancelled()) {
-                        throw new InterruptedException("Operation interrupted");
+                        throw new ExecutionException(operationAborted());
                     }
                 } finally {
                     // In case of 'success', we were woken up by the
