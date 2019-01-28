@@ -55,12 +55,7 @@ public class MultiLineEntityProducer extends AbstractCharAsyncEntityProducer {
     }
 
     @Override
-    public long getContentLength() {
-        return -1;
-    }
-
-    @Override
-    public int available() {
+    protected int availableData() {
         return Integer.MAX_VALUE;
     }
 
@@ -85,9 +80,10 @@ public class MultiLineEntityProducer extends AbstractCharAsyncEntityProducer {
     }
 
     @Override
-    public void releaseResourcesInternal() {
+    public void releaseResources() {
         count = 0;
         charbuf.clear();
+        super.releaseResources();
     }
 
 }

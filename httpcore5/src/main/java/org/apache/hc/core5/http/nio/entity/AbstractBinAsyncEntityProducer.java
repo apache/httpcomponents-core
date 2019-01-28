@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Set;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -41,28 +43,91 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
+@Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProducer {
 
-    private final ByteBuffer bytebuf;
+    enum State { ACTIVE, FLUSHING, END_STREAM }
+
     private final int fragmentSizeHint;
+    private final ByteBuffer bytebuf;
     private final ContentType contentType;
 
-    private volatile boolean endStream;
+    private volatile State state;
 
-    public AbstractBinAsyncEntityProducer(
-            final int bufferSize,
-            final int fragmentSizeHint,
-            final ContentType contentType) {
-        Args.positive(bufferSize, "Buffer size");
-        this.bytebuf = ByteBuffer.allocate(bufferSize);
-        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : bufferSize / 2;
+    public AbstractBinAsyncEntityProducer(final int fragmentSizeHint, final ContentType contentType) {
+        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : 0;
+        this.bytebuf = ByteBuffer.allocate(this.fragmentSizeHint);
         this.contentType = contentType;
+        this.state = State.ACTIVE;
     }
+
+    private void flush(final StreamChannel<ByteBuffer> channel) throws IOException {
+        if (bytebuf.position() > 0) {
+            bytebuf.flip();
+            channel.write(bytebuf);
+            bytebuf.compact();
+        }
+    }
+
+    final int writeData(final StreamChannel<ByteBuffer> channel, final ByteBuffer src) throws IOException {
+        final int chunk = src.remaining();
+        if (chunk == 0) {
+            return 0;
+        }
+        if (chunk > fragmentSizeHint) {
+            // the data chunk is greater than the fragment hint
+            // attempt to write it out to the channel directly
+
+            // flush the buffer if not empty
+            flush(channel);
+            if (bytebuf.position() == 0) {
+                return channel.write(src);
+            }
+        } else {
+            // the data chunk is smaller than the fragment hint
+            // attempt to buffer it
+
+            // flush the buffer if there is not enough space to store the chunk
+            if (bytebuf.remaining() < chunk) {
+                flush(channel);
+            }
+            if (bytebuf.remaining() >= chunk) {
+                bytebuf.put(src);
+                if (!bytebuf.hasRemaining()) {
+                    flush(channel);
+                }
+                return chunk;
+            }
+        }
+        return 0;
+    }
+
+    final void streamEnd(final StreamChannel<ByteBuffer> channel) throws IOException {
+        if (state == State.ACTIVE) {
+            state = State.FLUSHING;
+            flush(channel);
+            if (bytebuf.position() == 0) {
+                state = State.END_STREAM;
+                channel.endStream();
+            }
+        }
+    }
+
+    /**
+     * Returns the number of bytes immediately available for output.
+     * This method can be used as a hint to control output events
+     * of the underlying I/O session.
+     *
+     * @return the number of bytes immediately available for output
+     */
+    protected abstract int availableData();
 
     /**
      * Triggered to signal the ability of the underlying byte channel
      * to accept more data. The data producer can choose to write data
      * immediately inside the call or asynchronously at some later point.
+     * <p>
+     * {@link StreamChannel} passed to this method is threading-safe.
      *
      * @param channel the data channel capable to accepting more data.
      */
@@ -89,49 +154,57 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
     }
 
     @Override
+    public long getContentLength() {
+        return -1;
+    }
+
+    @Override
+    public final int available() {
+        if (state == State.ACTIVE) {
+            return availableData();
+        } else {
+            synchronized (bytebuf) {
+                return bytebuf.position();
+            }
+        }
+    }
+
+    @Override
     public final void produce(final DataStreamChannel channel) throws IOException {
-        produceData(new StreamChannel<ByteBuffer>() {
+        synchronized (bytebuf) {
+            if (state == State.ACTIVE) {
+                produceData(new StreamChannel<ByteBuffer>() {
 
-            @Override
-            public int write(final ByteBuffer src) throws IOException {
-                Args.notNull(src, "Buffer");
-                final int chunk = src.remaining();
-                if (chunk == 0) {
-                    return 0;
-                }
-                if (bytebuf.remaining() >= chunk) {
-                    bytebuf.put(src);
-                    return chunk;
-                }
-                int totalBytesWritten = 0;
-                if (!bytebuf.hasRemaining() || bytebuf.position() >= fragmentSizeHint) {
-                    bytebuf.flip();
-                    final int bytesWritten = channel.write(bytebuf);
-                    bytebuf.compact();
-                    totalBytesWritten += bytesWritten;
-                }
+                    @Override
+                    public int write(final ByteBuffer src) throws IOException {
+                        Args.notNull(src, "Buffer");
+                        synchronized (bytebuf) {
+                            return writeData(channel, src);
+                        }
+                    }
+
+                    @Override
+                    public void endStream() throws IOException {
+                        synchronized (bytebuf) {
+                            streamEnd(channel);
+                        }
+                    }
+
+                });
+            }
+            if (state == State.FLUSHING) {
+                flush(channel);
                 if (bytebuf.position() == 0) {
-                    final int bytesWritten = channel.write(src);
-                    totalBytesWritten += bytesWritten;
+                    state = State.END_STREAM;
+                    channel.endStream();
                 }
-                return totalBytesWritten;
             }
-
-            @Override
-            public void endStream() throws IOException {
-                endStream = true;
-            }
-
-        });
-
-        if (endStream || !bytebuf.hasRemaining() || bytebuf.position() >= fragmentSizeHint) {
-            bytebuf.flip();
-            channel.write(bytebuf);
-            bytebuf.compact();
         }
-        if (bytebuf.position() == 0 && endStream) {
-            channel.endStream();
-        }
+    }
+
+    @Override
+    public void releaseResources() {
+        state = State.ACTIVE;
     }
 
 }

@@ -31,8 +31,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
@@ -48,17 +48,21 @@ public class TestAbstractBinAsyncEntityProducer {
         private int count = 0;
 
         public ChunkByteAsyncEntityProducer(
-                final int bufferSize,
                 final int fragmentSizeHint,
                 final ContentType contentType,
                 final byte[]... content) {
-            super(bufferSize, fragmentSizeHint, contentType);
+            super(fragmentSizeHint, contentType);
             this.content = content;
         }
 
         @Override
         public boolean isRepeatable() {
             return false;
+        }
+
+        @Override
+        protected int availableData() {
+            return Integer.MAX_VALUE;
         }
 
         @Override
@@ -73,21 +77,7 @@ public class TestAbstractBinAsyncEntityProducer {
         }
 
         @Override
-        public long getContentLength() {
-            return -1;
-        }
-
-        @Override
-        public int available() {
-            return Integer.MAX_VALUE;
-        }
-
-        @Override
         public void failed(final Exception cause) {
-        }
-
-        @Override
-        public void releaseResources() {
         }
 
     }
@@ -96,8 +86,9 @@ public class TestAbstractBinAsyncEntityProducer {
     public void testProduceDataNoBuffering() throws Exception {
 
         final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
-                256, 0, ContentType.TEXT_PLAIN,
-                new byte[] { '1', '2', '3' }, new byte[] { '4', '5', '6' });
+                0, ContentType.TEXT_PLAIN,
+                new byte[] { '1', '2', '3' },
+                new byte[] { '4', '5', '6' });
 
         Assert.assertEquals(-1, producer.getContentLength());
         Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
@@ -118,10 +109,10 @@ public class TestAbstractBinAsyncEntityProducer {
     }
 
     @Test
-    public void testProduceDataWithBuffering() throws Exception {
+    public void testProduceDataWithBuffering1() throws Exception {
 
         final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
-                256, 5, ContentType.TEXT_PLAIN,
+                5, ContentType.TEXT_PLAIN,
                 new byte[] { '1', '2', '3' },
                 new byte[] { '4', '5', '6' },
                 new byte[] { '7', '8' },
@@ -136,7 +127,52 @@ public class TestAbstractBinAsyncEntityProducer {
 
         producer.produce(streamChannel);
         Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("123456", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assert.assertEquals("123", byteChannel.dump(StandardCharsets.US_ASCII));
+
+        producer.produce(streamChannel);
+        Assert.assertTrue(byteChannel.isOpen());
+        Assert.assertEquals("45678", byteChannel.dump(StandardCharsets.US_ASCII));
+
+        producer.produce(streamChannel);
+        Assert.assertFalse(byteChannel.isOpen());
+        Assert.assertEquals("90", byteChannel.dump(StandardCharsets.US_ASCII));
+    }
+
+    @Test
+    public void testProduceDataWithBuffering2() throws Exception {
+
+        final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
+                5, ContentType.TEXT_PLAIN,
+                new byte[] { '1' },
+                new byte[] { '2' },
+                new byte[] { '3' },
+                new byte[] { '4', '5' },
+                new byte[] { '6' },
+                new byte[] { '7', '8' },
+                new byte[] { '9', '0' });
+
+        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+
+        producer.produce(streamChannel);
+        Assert.assertTrue(byteChannel.isOpen());
+        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+
+        producer.produce(streamChannel);
+        Assert.assertTrue(byteChannel.isOpen());
+        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+
+        producer.produce(streamChannel);
+        Assert.assertTrue(byteChannel.isOpen());
+        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+
+        producer.produce(streamChannel);
+        Assert.assertTrue(byteChannel.isOpen());
+        Assert.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
+
+        producer.produce(streamChannel);
+        Assert.assertTrue(byteChannel.isOpen());
+        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
 
         producer.produce(streamChannel);
         Assert.assertTrue(byteChannel.isOpen());
@@ -144,7 +180,8 @@ public class TestAbstractBinAsyncEntityProducer {
 
         producer.produce(streamChannel);
         Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("7890", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assert.assertEquals("67890", byteChannel.dump(StandardCharsets.US_ASCII));
+
     }
 
 }
