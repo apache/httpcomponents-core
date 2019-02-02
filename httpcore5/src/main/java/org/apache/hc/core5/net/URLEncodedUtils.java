@@ -33,7 +33,9 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.hc.core5.http.NameValuePair;
@@ -57,21 +59,20 @@ public class URLEncodedUtils {
     private static final char QP_SEP_A = '&';
     private static final char QP_SEP_S = ';';
     private static final String NAME_VALUE_SEPARATOR = "=";
+    private static final char PATH_SEPARATOR = '/';
+
+    private static final BitSet PATH_SEPARATORS     = new BitSet(256);
+    static {
+        PATH_SEPARATORS.set(PATH_SEPARATOR);
+    }
 
     /**
-     * Returns a list of {@link NameValuePair NameValuePairs} as built from the URI's query portion. For example, a URI
-     * of {@code http://example.org/path/to/file?a=1&b=2&c=3} would return a list of three NameValuePairs, one for a=1,
-     * one for b=2, and one for c=3. By convention, {@code '&'} and {@code ';'} are accepted as parameter separators.
-     * <p>
-     * This is typically useful while parsing an HTTP PUT.
+     * Returns a list of {@link NameValuePair}s URI query parameters.
+     * By convention, {@code '&'} and {@code ';'} are accepted as parameter separators.
      *
-     * This API is currently only used for testing.
-     *
-     * @param uri
-     *        URI to parse
-     * @param charset
-     *        Charset to use while parsing the query
-     * @return a list of {@link NameValuePair} as built from the URI's query portion.
+     * @param uri input URI.
+     * @param charset parameter charset.
+     * @return list of query parameters.
      *
      * @since 4.5
      */
@@ -85,14 +86,12 @@ public class URLEncodedUtils {
     }
 
     /**
-     * Returns a list of {@link NameValuePair NameValuePairs} as parsed from the given string using the given character
-     * encoding. By convention, {@code '&'} and {@code ';'} are accepted as parameter separators.
+     * Returns a list of {@link NameValuePair}s URI query parameters.
+     * By convention, {@code '&'} and {@code ';'} are accepted as parameter separators.
      *
-     * @param s
-     *            text to parse.
-     * @param charset
-     *            Encoding to use when decoding the parameters.
-     * @return a list of {@link NameValuePair} as built from the URI's query portion.
+     * @param s URI query component.
+     * @param charset charset to use when decoding the parameters.
+     * @return list of query parameters.
      *
      * @since 4.2
      */
@@ -104,22 +103,18 @@ public class URLEncodedUtils {
     }
 
     /**
-     * Returns a list of {@link NameValuePair NameValuePairs} as parsed from the given string using
-     * the given character encoding.
+     * Returns a list of {@link NameValuePair}s parameters.
      *
-     * @param s
-     *            text to parse.
-     * @param charset
-     *            Encoding to use when decoding the parameters.
-     * @param separators
-     *            element separators.
-     * @return a list of {@link NameValuePair} as built from the URI's query portion.
+     * @param s input text.
+     * @param charset parameter charset.
+     * @param separators parameter separators.
+     * @return list of query parameters.
      *
      * @since 4.4
      */
     public static List<NameValuePair> parse(
             final CharSequence s, final Charset charset, final char... separators) {
-        Args.notNull(s, "Char array buffer");
+        Args.notNull(s, "Char sequence");
         final TokenParser tokenParser = TokenParser.INSTANCE;
         final BitSet delimSet = new BitSet();
         for (final char separator: separators) {
@@ -149,6 +144,98 @@ public class URLEncodedUtils {
             }
         }
         return list;
+    }
+
+    static List<String> splitSegments(final CharSequence s, final BitSet separators) {
+        final ParserCursor cursor = new ParserCursor(0, s.length());
+        // Skip leading separator
+        if (cursor.atEnd()) {
+            return Collections.emptyList();
+        }
+        if (separators.get(s.charAt(cursor.getPos()))) {
+            cursor.updatePos(cursor.getPos() + 1);
+        }
+        final List<String> list = new ArrayList<>();
+        final StringBuilder buf = new StringBuilder();
+        for (;;) {
+            if (cursor.atEnd()) {
+                list.add(buf.toString());
+                break;
+            }
+            final char current = s.charAt(cursor.getPos());
+            if (separators.get(current)) {
+                list.add(buf.toString());
+                buf.setLength(0);
+            } else {
+                buf.append(current);
+            }
+            cursor.updatePos(cursor.getPos() + 1);
+        }
+        return list;
+    }
+
+    static List<String> splitPathSegments(final CharSequence s) {
+        return splitSegments(s, PATH_SEPARATORS);
+    }
+
+    /**
+     * Returns a list of URI path segments.
+     *
+     * @param s URI path component.
+     * @param charset parameter charset.
+     * @return list of segments.
+     *
+     * @since 4.5
+     */
+    public static List<String> parsePathSegments(final CharSequence s, final Charset charset) {
+        Args.notNull(s, "Char sequence");
+        final List<String> list = splitPathSegments(s);
+        for (int i = 0; i < list.size(); i++) {
+            list.set(i, urlDecode(list.get(i), charset != null ? charset : StandardCharsets.UTF_8, false));
+        }
+        return list;
+    }
+
+    /**
+     * Returns a list of URI path segments.
+     *
+     * @param s URI path component.
+     * @return list of segments.
+     *
+     * @since 4.5
+     */
+    public static List<String> parsePathSegments(final CharSequence s) {
+        return parsePathSegments(s, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Returns a string consisting of joint encoded path segments.
+     *
+     * @param segments the segments.
+     * @param charset parameter charset.
+     * @return URI path component
+     *
+     * @since 4.5
+     */
+    public static String formatSegments(final Iterable<String> segments, final Charset charset) {
+        Args.notNull(segments, "Segments");
+        final StringBuilder result = new StringBuilder();
+        for (final String segment : segments) {
+            result.append(PATH_SEPARATOR).append(urlEncode(segment, charset, PATHSAFE, false));
+        }
+        return result.toString();
+    }
+
+    /**
+     * Returns a string consisting of joint encoded path segments.
+     *
+     * @param segments the segments.
+     * @return URI path component
+     *
+     * @since 4.5
+     */
+    public static String formatSegments(final String... segments) {
+        return formatSegments(Arrays.asList(segments), StandardCharsets.UTF_8);
     }
 
     /**
@@ -239,6 +326,8 @@ public class URLEncodedUtils {
      */
     private static final BitSet URLENCODER   = new BitSet(256);
 
+    private static final BitSet PATH_SPECIAL = new BitSet(256);
+
     static {
         // unreserved chars
         // alpha characters
@@ -276,15 +365,17 @@ public class URLEncodedUtils {
 
         // URL path safe
         PATHSAFE.or(UNRESERVED);
-        PATHSAFE.set('/'); // segment separator
         PATHSAFE.set(';'); // param separator
-        PATHSAFE.set(':'); // rest as per list in 2396, i.e. : @ & = + $ ,
+        PATHSAFE.set(':'); // RFC 2396
         PATHSAFE.set('@');
         PATHSAFE.set('&');
         PATHSAFE.set('=');
         PATHSAFE.set('+');
         PATHSAFE.set('$');
         PATHSAFE.set(',');
+
+        PATH_SPECIAL.or(PATHSAFE);
+        PATH_SPECIAL.set('/');
 
         RESERVED.set(';');
         RESERVED.set('/');
@@ -433,19 +524,6 @@ public class URLEncodedUtils {
      */
     static String encUric(final String content, final Charset charset) {
         return urlEncode(content, charset, URIC, false);
-    }
-
-    /**
-     * Encode a String using the {@link #PATHSAFE} set of characters.
-     * <p>
-     * Used by URIBuilder to encode path segments.
-     *
-     * @param content the string to encode, does not convert space to '+'
-     * @param charset the charset to use
-     * @return the encoded string
-     */
-    static String encPath(final String content, final Charset charset) {
-        return urlEncode(content, charset, PATHSAFE, false);
     }
 
 }
