@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.io;
 
+import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -53,6 +54,7 @@ public class SocketConfig {
     private final int sndBufSize;
     private final int rcvBufSize;
     private final int backlogSize;
+    private final SocketAddress socksProxyAddress;
 
     SocketConfig(
             final Timeout soTimeout,
@@ -62,7 +64,8 @@ public class SocketConfig {
             final boolean tcpNoDelay,
             final int sndBufSize,
             final int rcvBufSize,
-            final int backlogSize) {
+            final int backlogSize,
+            final SocketAddress socksProxyAddress) {
         super();
         this.soTimeout = soTimeout;
         this.soReuseAddress = soReuseAddress;
@@ -72,6 +75,7 @@ public class SocketConfig {
         this.sndBufSize = sndBufSize;
         this.rcvBufSize = rcvBufSize;
         this.backlogSize = backlogSize;
+        this.socksProxyAddress = socksProxyAddress;
     }
 
     /**
@@ -186,6 +190,13 @@ public class SocketConfig {
         return backlogSize;
     }
 
+    /**
+     * The address of the SOCKS proxy to use.
+     */
+    public SocketAddress getSocksProxyAddress() {
+        return this.socksProxyAddress;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -197,6 +208,7 @@ public class SocketConfig {
                 .append(", sndBufSize=").append(this.sndBufSize)
                 .append(", rcvBufSize=").append(this.rcvBufSize)
                 .append(", backlogSize=").append(this.backlogSize)
+                .append(", socksProxyAddress=").append(this.socksProxyAddress)
                 .append("]");
         return builder.toString();
     }
@@ -215,7 +227,8 @@ public class SocketConfig {
             .setTcpNoDelay(config.isTcpNoDelay())
             .setSndBufSize(config.getSndBufSize())
             .setRcvBufSize(config.getRcvBufSize())
-            .setBacklogSize(config.getBacklogSize());
+            .setBacklogSize(config.getBacklogSize())
+            .setSocksProxyAddress(config.getSocksProxyAddress());
     }
 
     public static class Builder {
@@ -228,6 +241,7 @@ public class SocketConfig {
         private int sndBufSize;
         private int rcvBufSize;
         private int backlogSize;
+        private SocketAddress socksProxyAddress;
 
         Builder() {
             this.soTimeout = Timeout.ZERO_MILLISECONDS;
@@ -238,6 +252,7 @@ public class SocketConfig {
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
             this.backlogSize = 0;
+            this.socksProxyAddress = null;
         }
 
         public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
@@ -299,12 +314,18 @@ public class SocketConfig {
             return this;
         }
 
+        public Builder setSocksProxyAddress(final SocketAddress socksProxyAddress) {
+            this.socksProxyAddress = socksProxyAddress;
+            return this;
+        }
+
         public SocketConfig build() {
             return new SocketConfig(
                     Timeout.defaultsToDisabled(soTimeout),
                     soReuseAddress,
                     soLinger != null ? soLinger : TimeValue.NEG_ONE_SECONDS,
-                    soKeepAlive, tcpNoDelay, sndBufSize, rcvBufSize, backlogSize);
+                    soKeepAlive, tcpNoDelay, sndBufSize, rcvBufSize, backlogSize,
+                    socksProxyAddress);
         }
 
     }

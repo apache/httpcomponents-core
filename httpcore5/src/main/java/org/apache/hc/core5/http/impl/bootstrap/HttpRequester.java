@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.Socket;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -52,7 +53,6 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
@@ -62,13 +62,14 @@ import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpClientResponseHandler;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.HttpEntityWrapper;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
+import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
@@ -226,7 +227,12 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
     }
 
     private Socket createSocket(final HttpHost targetHost) throws IOException {
-        final Socket sock = new Socket();
+        final Socket sock;
+        if (socketConfig.getSocksProxyAddress() != null) {
+            sock = new Socket(new Proxy(Proxy.Type.SOCKS, socketConfig.getSocksProxyAddress()));
+        } else {
+            sock = new Socket();
+        }
         sock.setSoTimeout(socketConfig.getSoTimeout().toMillisIntBound());
         sock.setReuseAddress(socketConfig.isSoReuseAddress());
         sock.setTcpNoDelay(socketConfig.isTcpNoDelay());
