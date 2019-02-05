@@ -30,10 +30,13 @@ package org.apache.hc.core5.net;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -92,6 +95,42 @@ public class TestURLEncodedUtils {
         result = parse("price=10%20%E2%82%AC");
         Assert.assertEquals(1, result.size());
         assertNameValuePair(result.get(0), "price", "10 \u20AC");
+    }
+
+    @Test
+    public void testParseSegments() throws Exception {
+        Assert.assertThat(URLEncodedUtils.parsePathSegments("/this/that"),
+                CoreMatchers.equalTo(Arrays.asList("this", "that")));
+        Assert.assertThat(URLEncodedUtils.parsePathSegments("this/that"),
+                CoreMatchers.equalTo(Arrays.asList("this", "that")));
+        Assert.assertThat(URLEncodedUtils.parsePathSegments("this//that"),
+                CoreMatchers.equalTo(Arrays.asList("this", "", "that")));
+        Assert.assertThat(URLEncodedUtils.parsePathSegments("this//that/"),
+                CoreMatchers.equalTo(Arrays.asList("this", "", "that", "")));
+        Assert.assertThat(URLEncodedUtils.parsePathSegments("this//that/%2fthis%20and%20that"),
+                CoreMatchers.equalTo(Arrays.asList("this", "", "that", "/this and that")));
+        Assert.assertThat(URLEncodedUtils.parsePathSegments("this///that//"),
+                CoreMatchers.equalTo(Arrays.asList("this", "", "", "that", "", "")));
+        Assert.assertThat(URLEncodedUtils.parsePathSegments("/"),
+                CoreMatchers.equalTo(Collections.singletonList("")));
+        Assert.assertThat(URLEncodedUtils.parsePathSegments(""),
+                CoreMatchers.equalTo(Collections.<String>emptyList()));
+    }
+
+    @Test
+    public void testFormatSegments() throws Exception {
+        Assert.assertThat(URLEncodedUtils.formatSegments("this", "that"),
+                CoreMatchers.equalTo("/this/that"));
+        Assert.assertThat(URLEncodedUtils.formatSegments("this", "", "that"),
+                CoreMatchers.equalTo("/this//that"));
+        Assert.assertThat(URLEncodedUtils.formatSegments("this", "", "that", "/this and that"),
+                CoreMatchers.equalTo("/this//that/%2Fthis%20and%20that"));
+        Assert.assertThat(URLEncodedUtils.formatSegments("this", "", "", "that", "", ""),
+                CoreMatchers.equalTo("/this///that//"));
+        Assert.assertThat(URLEncodedUtils.formatSegments(""),
+                CoreMatchers.equalTo("/"));
+        Assert.assertThat(URLEncodedUtils.formatSegments(),
+                CoreMatchers.equalTo(""));
     }
 
     @Test

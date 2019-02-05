@@ -33,6 +33,8 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -76,8 +78,8 @@ public class URIBuilder {
     private String encodedUserInfo;
     private String host;
     private int port;
-    private String path;
     private String encodedPath;
+    private List<String> pathSegments;
     private String encodedQuery;
     private List<NameValuePair> queryParams;
     private String query;
@@ -135,6 +137,13 @@ public class URIBuilder {
         return null;
     }
 
+    private List <String> parsePath(final String path, final Charset charset) {
+        if (path != null && !path.isEmpty()) {
+            return URLEncodedUtils.parsePathSegments(path, charset);
+        }
+        return null;
+    }
+
     /**
      * Builds a {@link URI} instance.
      */
@@ -157,7 +166,8 @@ public class URIBuilder {
                 if (this.encodedUserInfo != null) {
                     sb.append(this.encodedUserInfo).append("@");
                 } else if (this.userInfo != null) {
-                    sb.append(encodeUserInfo(this.userInfo)).append("@");
+                    encodeUserInfo(sb, this.userInfo);
+                    sb.append("@");
                 }
                 if (InetAddressUtils.isIPv6Address(this.host)) {
                     sb.append("[").append(this.host).append("]");
@@ -170,21 +180,24 @@ public class URIBuilder {
             }
             if (this.encodedPath != null) {
                 sb.append(normalizePath(this.encodedPath, sb.length() == 0));
-            } else if (this.path != null) {
-                sb.append(encodePath(normalizePath(this.path, sb.length() == 0)));
+            } else if (this.pathSegments != null) {
+                encodePath(sb, this.pathSegments);
             }
             if (this.encodedQuery != null) {
                 sb.append("?").append(this.encodedQuery);
             } else if (this.queryParams != null && !this.queryParams.isEmpty()) {
-                sb.append("?").append(encodeUrlForm(this.queryParams));
+                sb.append("?");
+                encodeUrlForm(sb, this.queryParams);
             } else if (this.query != null) {
-                sb.append("?").append(encodeUric(this.query));
+                sb.append("?");
+                encodeUric(sb, this.query);
             }
         }
         if (this.encodedFragment != null) {
             sb.append("#").append(this.encodedFragment);
         } else if (this.fragment != null) {
-            sb.append("#").append(encodeUric(this.fragment));
+            sb.append("#");
+            encodeUric(sb, this.fragment);
         }
         return sb.toString();
     }
@@ -209,27 +222,27 @@ public class URIBuilder {
         this.encodedUserInfo = uri.getRawUserInfo();
         this.userInfo = uri.getUserInfo();
         this.encodedPath = uri.getRawPath();
-        this.path = uri.getPath();
+        this.pathSegments = parsePath(uri.getPath(), this.charset != null ? this.charset : StandardCharsets.UTF_8);
         this.encodedQuery = uri.getRawQuery();
         this.queryParams = parseQuery(uri.getRawQuery(), this.charset != null ? this.charset : StandardCharsets.UTF_8);
         this.encodedFragment = uri.getRawFragment();
         this.fragment = uri.getFragment();
     }
 
-    private String encodeUserInfo(final String userInfo) {
-        return URLEncodedUtils.encUserInfo(userInfo, this.charset != null ? this.charset : StandardCharsets.UTF_8);
+    private void encodeUserInfo(final StringBuilder buf, final String userInfo) {
+        URLEncodedUtils.encUserInfo(buf, userInfo, this.charset != null ? this.charset : StandardCharsets.UTF_8);
     }
 
-    private String encodePath(final String path) {
-        return URLEncodedUtils.encPath(path, this.charset != null ? this.charset : StandardCharsets.UTF_8);
+    private void encodePath(final StringBuilder buf, final List<String> pathSegments) {
+        URLEncodedUtils.formatSegments(buf, pathSegments, this.charset != null ? this.charset : StandardCharsets.UTF_8);
     }
 
-    private String encodeUrlForm(final List<NameValuePair> params) {
-        return URLEncodedUtils.format(params, this.charset != null ? this.charset : StandardCharsets.UTF_8);
+    private void encodeUrlForm(final StringBuilder buf, final List<NameValuePair> params) {
+        URLEncodedUtils.formatParameters(buf, params, this.charset != null ? this.charset : StandardCharsets.UTF_8);
     }
 
-    private String encodeUric(final String fragment) {
-        return URLEncodedUtils.encUric(fragment, this.charset != null ? this.charset : StandardCharsets.UTF_8);
+    private void encodeUric(final StringBuilder buf, final String fragment) {
+        URLEncodedUtils.encUric(buf, fragment, this.charset != null ? this.charset : StandardCharsets.UTF_8);
     }
 
     /**
@@ -322,7 +335,19 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder setPath(final String path) {
-        this.path = !TextUtils.isBlank(path) ? path : null;
+        this.pathSegments = path != null ? URLEncodedUtils.splitPathSegments(path) : null;
+        this.encodedSchemeSpecificPart = null;
+        this.encodedPath = null;
+        return this;
+    }
+
+    /**
+     * Sets URI path. The value is expected to be unescaped and may contain non ASCII characters.
+     *
+     * @return this.
+     */
+    public URIBuilder setPathSegments(final String... pathSegments) {
+        this.pathSegments = pathSegments.length > 0 ? Arrays.asList(pathSegments) : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedPath = null;
         return this;
@@ -518,7 +543,7 @@ public class URIBuilder {
      * @since 4.3
      */
     public boolean isOpaque() {
-        return this.path == null;
+        return this.pathSegments == null || this.pathSegments.isEmpty();
     }
 
     public String getScheme() {
@@ -537,13 +562,23 @@ public class URIBuilder {
         return this.port;
     }
 
+    public List<String> getPathSegments() {
+        return this.pathSegments != null ? new ArrayList<>(this.pathSegments) : Collections.<String>emptyList();
+    }
+
     public String getPath() {
-        return this.path;
+        if (this.pathSegments == null) {
+            return null;
+        }
+        final StringBuilder result = new StringBuilder();
+        for (final String segment : this.pathSegments) {
+            result.append('/').append(segment);
+        }
+        return result.toString();
     }
 
     public List<NameValuePair> getQueryParams() {
-        return this.queryParams != null ? new ArrayList<>(this.queryParams)
-                        : new ArrayList<NameValuePair>();
+        return this.queryParams != null ? new ArrayList<>(this.queryParams) : Collections.<NameValuePair>emptyList();
     }
 
     public String getFragment() {
