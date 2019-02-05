@@ -166,7 +166,8 @@ public class URIBuilder {
                 if (this.encodedUserInfo != null) {
                     sb.append(this.encodedUserInfo).append("@");
                 } else if (this.userInfo != null) {
-                    sb.append(encodeUserInfo(this.userInfo)).append("@");
+                    encodeUserInfo(sb, this.userInfo);
+                    sb.append("@");
                 }
                 if (InetAddressUtils.isIPv6Address(this.host)) {
                     sb.append("[").append(this.host).append("]");
@@ -180,20 +181,23 @@ public class URIBuilder {
             if (this.encodedPath != null) {
                 sb.append(normalizePath(this.encodedPath, sb.length() == 0));
             } else if (this.pathSegments != null) {
-                sb.append(encodePath(this.pathSegments));
+                encodePath(sb, this.pathSegments);
             }
             if (this.encodedQuery != null) {
                 sb.append("?").append(this.encodedQuery);
             } else if (this.queryParams != null && !this.queryParams.isEmpty()) {
-                sb.append("?").append(encodeUrlForm(this.queryParams));
+                sb.append("?");
+                encodeUrlForm(sb, this.queryParams);
             } else if (this.query != null) {
-                sb.append("?").append(encodeUric(this.query));
+                sb.append("?");
+                encodeUric(sb, this.query);
             }
         }
         if (this.encodedFragment != null) {
             sb.append("#").append(this.encodedFragment);
         } else if (this.fragment != null) {
-            sb.append("#").append(encodeUric(this.fragment));
+            sb.append("#");
+            encodeUric(sb, this.fragment);
         }
         return sb.toString();
     }
@@ -225,20 +229,20 @@ public class URIBuilder {
         this.fragment = uri.getFragment();
     }
 
-    private String encodeUserInfo(final String userInfo) {
-        return URLEncodedUtils.encUserInfo(userInfo, this.charset != null ? this.charset : StandardCharsets.UTF_8);
+    private void encodeUserInfo(final StringBuilder buf, final String userInfo) {
+        URLEncodedUtils.encUserInfo(buf, userInfo, this.charset != null ? this.charset : StandardCharsets.UTF_8);
     }
 
-    private String encodePath(final List<String> pathSegments) {
-        return URLEncodedUtils.formatSegments(pathSegments, this.charset != null ? this.charset : StandardCharsets.UTF_8);
+    private void encodePath(final StringBuilder buf, final List<String> pathSegments) {
+        URLEncodedUtils.formatSegments(buf, pathSegments, this.charset != null ? this.charset : StandardCharsets.UTF_8);
     }
 
-    private String encodeUrlForm(final List<NameValuePair> params) {
-        return URLEncodedUtils.format(params, this.charset != null ? this.charset : StandardCharsets.UTF_8);
+    private void encodeUrlForm(final StringBuilder buf, final List<NameValuePair> params) {
+        URLEncodedUtils.formatParameters(buf, params, this.charset != null ? this.charset : StandardCharsets.UTF_8);
     }
 
-    private String encodeUric(final String fragment) {
-        return URLEncodedUtils.encUric(fragment, this.charset != null ? this.charset : StandardCharsets.UTF_8);
+    private void encodeUric(final StringBuilder buf, final String fragment) {
+        URLEncodedUtils.encUric(buf, fragment, this.charset != null ? this.charset : StandardCharsets.UTF_8);
     }
 
     /**
