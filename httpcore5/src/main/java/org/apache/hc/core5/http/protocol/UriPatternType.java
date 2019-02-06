@@ -32,17 +32,27 @@ package org.apache.hc.core5.http.protocol;
  */
 public enum UriPatternType {
 
-    BASIC, REGEX;
+    /**
+     * @deprecated Use {@link #URI_PATTERN_ORDER_EXACT_OVERRIDE}
+     */
+    @Deprecated
+    BASIC,
+
+    REGEX, URI_PATTERN, URI_PATTERN_IN_ORDER;
 
     public static <T> LookupRegistry<T> newMatcher(final UriPatternType type) {
         if (type == null) {
             return new UriPatternMatcher<>();
         }
         switch (type) {
-            case REGEX:
-                return new UriRegexMatcher<>();
-            default:
-                return new UriPatternMatcher<>();
+        case REGEX:
+            return new UriRegexMatcher<>();
+        case URI_PATTERN:
+            return new UriPatternMatcher<>();
+        case URI_PATTERN_IN_ORDER:
+            return new UriPatternMatcher<>(false);
+        default:
+            return new UriPatternMatcher<>(true);
         }
     }
 

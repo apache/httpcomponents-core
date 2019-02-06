@@ -55,10 +55,16 @@ import org.apache.hc.core5.util.Args;
 public class UriPatternMatcher<T> implements LookupRegistry<T> {
 
     private final Map<String, T> map;
+    private final boolean exactMatchOverride;
 
     public UriPatternMatcher() {
+        this(true);
+    }
+
+    public UriPatternMatcher(final boolean exactMatchOverride) {
         super();
         this.map = new LinkedHashMap<>();
+        this.exactMatchOverride = exactMatchOverride;
     }
 
     /**
@@ -112,7 +118,7 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
     public synchronized T lookup(final String path) {
         Args.notNull(path, "Request path");
         // direct match?
-        T obj = this.map.get(path);
+        T obj = exactMatchOverride ? this.map.get(path) : null;
         if (obj == null) {
             // pattern match?
             String bestMatch = null;
