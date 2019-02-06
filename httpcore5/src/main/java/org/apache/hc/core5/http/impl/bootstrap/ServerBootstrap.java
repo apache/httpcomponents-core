@@ -34,6 +34,7 @@ import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLServerSocketFactory;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
@@ -60,7 +61,9 @@ import org.apache.hc.core5.http.io.support.HttpServerExpectationFilter;
 import org.apache.hc.core5.http.io.support.HttpServerFilterChainElement;
 import org.apache.hc.core5.http.io.support.HttpServerFilterChainRequestHandler;
 import org.apache.hc.core5.http.io.support.TerminalServerFilter;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.LookupRegistry;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.net.InetAddressUtils;
@@ -76,7 +79,7 @@ public class ServerBootstrap {
     private final List<HandlerEntry<HttpRequestHandler>> handlerList;
     private final List<FilterEntry<HttpFilterHandler>> filters;
     private String canonicalHostName;
-    private UriPatternType uriPatternType;
+    private LookupRegistry<AsyncServerExchangeHandler> lookupRegistry;
     private int listenerPort;
     private InetAddress localAddress;
     private SocketConfig socketConfig;
@@ -176,10 +179,13 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link UriPatternType} for handler registration.
+     * Assigns {@link LookupRegistry} instance.
+     *
+     * @return this
+     * @since 5.0
      */
-    public final ServerBootstrap  setUriPatternType(final UriPatternType uriPatternType) {
-        this.uriPatternType = uriPatternType;
+    public final ServerBootstrap setLookupRegistry(final LookupRegistry<AsyncServerExchangeHandler> lookupRegistry) {
+        this.lookupRegistry = lookupRegistry;
         return this;
     }
 
@@ -320,7 +326,14 @@ public class ServerBootstrap {
     public HttpServer create() {
         final RequestHandlerRegistry<HttpRequestHandler> handlerRegistry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
-                uriPatternType);
+                new Supplier() {
+
+                    @Override
+                    public LookupRegistry get() {
+                        return lookupRegistry != null ? lookupRegistry : UriPatternType.newMatcher(UriPatternType.URI_PATTERN);
+                    }
+
+                });
         for (final HandlerEntry<HttpRequestHandler> entry: handlerList) {
             handlerRegistry.register(entry.hostname, entry.uriPattern, entry.handler);
         }

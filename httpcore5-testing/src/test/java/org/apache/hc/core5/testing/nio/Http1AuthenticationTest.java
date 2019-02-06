@@ -103,6 +103,7 @@ public class Http1AuthenticationTest {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             server = AsyncServerBootstrap.bootstrap()
+                    .setLookupRegistry(null) // same as the default
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
