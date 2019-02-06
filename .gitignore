@@ -8,3 +8,4 @@ maven-eclipse.xml
 .idea
 *.iml
 **/log4j2-debug.xml
+**/.checkstyle
