@@ -60,7 +60,7 @@ public final class Host implements NamedEndpoint, Serializable {
     public static Host create(final String s) throws URISyntaxException {
         Args.notEmpty(s, "HTTP Host");
         final int portIdx = s.lastIndexOf(":");
-        int port;
+        final int port;
         if (portIdx > 0) {
             try {
                 port = Integer.parseInt(s.substring(portIdx + 1));
