@@ -53,14 +53,14 @@ import org.apache.hc.core5.util.Args;
  * </p>
  *
  * @param <T> The type of registered objects.
- * @since 4.0
+ * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-public class UriPatternMatcher<T> implements LookupRegistry<T> {
+public class UriPatternOrderedMatcher<T> implements LookupRegistry<T> {
 
     private final Map<String, T> map;
 
-    public UriPatternMatcher() {
+    public UriPatternOrderedMatcher() {
         super();
         this.map = new LinkedHashMap<>();
     }
@@ -68,7 +68,7 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
     /**
      * Returns a {@link Set} view of the mappings contained in this matcher.
      *
-     * @return  a set view of the mappings contained in this matcher.
+     * @return a set view of the mappings contained in this matcher.
      *
      * @see Map#entrySet()
      * @since 4.4.9
@@ -80,10 +80,8 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
     /**
      * Registers the given object for URIs matching the given pattern.
      *
-     * @param pattern
-     *            the pattern to register the handler for.
-     * @param obj
-     *            the object.
+     * @param pattern the pattern to register the handler for.
+     * @param obj     the object.
      */
     @Override
     public synchronized void register(final String pattern, final T obj) {
@@ -94,8 +92,7 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
     /**
      * Removes registered object, if exists, for the given pattern.
      *
-     * @param pattern
-     *            the pattern to unregister.
+     * @param pattern the pattern to unregister.
      */
     @Override
     public synchronized void unregister(final String pattern) {
@@ -108,40 +105,31 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
     /**
      * Looks up an object matching the given request path.
      *
-     * @param path
-     *            the request path
+     * @param path the request path
      * @return object or {@code null} if no match is found.
      */
     @Override
     public synchronized T lookup(final String path) {
         Args.notNull(path, "Request path");
-        // direct match?
-        T obj = this.map.get(path);
-        if (obj == null) {
-            // pattern match?
-            String bestMatch = null;
-            for (final String pattern : this.map.keySet()) {
-                if (matchUriRequestPattern(pattern, path)) {
-                    // we have a match. is it any better?
-                    if (bestMatch == null || (bestMatch.length() < pattern.length())
-                            || (bestMatch.length() == pattern.length() && pattern.endsWith("*"))) {
-                        obj = this.map.get(pattern);
-                        bestMatch = pattern;
-                    }
-                }
+        for (final Entry<String, T> entry : this.map.entrySet()) {
+            final String pattern = entry.getKey();
+            if (path.equals(pattern)) {
+                return entry.getValue();
+            }
+            if (matchUriRequestPattern(pattern, path)) {
+                return this.map.get(pattern);
             }
         }
-        return obj;
+        return null;
     }
 
     /**
      * Tests if the given request path matches the given pattern.
      *
-     * @param pattern
-     *            the pattern
-     * @param path
-     *            the request path
-     * @return {@code true} if the request URI matches the pattern, {@code false} otherwise.
+     * @param pattern the pattern
+     * @param path    the request path
+     * @return {@code true} if the request URI matches the pattern, {@code false}
+     *         otherwise.
      */
     protected boolean matchUriRequestPattern(final String pattern, final String path) {
         if (pattern.equals("*")) {

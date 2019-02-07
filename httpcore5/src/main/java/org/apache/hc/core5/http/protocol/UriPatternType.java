@@ -33,7 +33,7 @@ package org.apache.hc.core5.http.protocol;
 public enum UriPatternType {
 
     /**
-     * @deprecated Use {@link #URI_PATTERN_ORDER_EXACT_OVERRIDE}
+     * @deprecated Use {@link #URI_PATTERN_IN_ORDER}.
      */
     @Deprecated
     BASIC,
@@ -50,9 +50,9 @@ public enum UriPatternType {
         case URI_PATTERN:
             return new UriPatternMatcher<>();
         case URI_PATTERN_IN_ORDER:
-            return new UriPatternMatcher<>(false);
+            return new UriPatternOrderedMatcher<>();
         default:
-            return new UriPatternMatcher<>(true);
+            return new UriPatternMatcher<>();
         }
     }
 

@@ -37,7 +37,6 @@ public class TestUriPatternType {
         @SuppressWarnings("deprecation")
         final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.BASIC);
         Assert.assertTrue(matcher instanceof UriPatternMatcher);
-        Assert.assertTrue(((UriPatternMatcher<?>) matcher).isExactMatchOverride());
     }
 
     @Test
@@ -50,14 +49,12 @@ public class TestUriPatternType {
     public void testUriPattern() {
         final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.URI_PATTERN);
         Assert.assertTrue(matcher instanceof UriPatternMatcher);
-        Assert.assertTrue(((UriPatternMatcher<?>) matcher).isExactMatchOverride());
     }
 
     @Test
     public void testUriPatternInOrder() {
         final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.URI_PATTERN_IN_ORDER);
-        Assert.assertTrue(matcher instanceof UriPatternMatcher);
-        Assert.assertFalse(((UriPatternMatcher<?>) matcher).isExactMatchOverride());
+        Assert.assertTrue(matcher instanceof UriPatternOrderedMatcher);
     }
 
 }
