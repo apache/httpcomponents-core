@@ -166,4 +166,17 @@ public class TestUriPatternMatcher {
         matcher.lookup(null);
     }
 
+    @Test
+    public void testNoExactMatchOverride() {
+        final Object h1 = new Object();
+        final Object h2 = new Object();
+
+        final LookupRegistry<Object> matcher = new UriPatternMatcher<>(false);
+        matcher.register("*", h1);
+        matcher.register("exact", h2);
+
+        final Object h = matcher.lookup("/exact");
+        Assert.assertNotNull(h);
+        Assert.assertTrue(h1 == h);
+    }
 }

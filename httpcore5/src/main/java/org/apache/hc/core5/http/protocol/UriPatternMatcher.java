@@ -38,15 +38,31 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Maintains a map of objects keyed by a request URI pattern. <br>
+ * Maintains a map of objects keyed by a request URI pattern.
+ * <p>
  * Patterns may have three formats:
+ * </p>
  * <ul>
  * <li>{@code *}</li>
  * <li>{@code *<uri>}</li>
  * <li>{@code <uri>*}</li>
  * </ul>
- * <br>
- * This class can be used to resolve an object matching a particular request URI.
+ * <p>
+ * This class can be used to resolve an object matching a particular request
+ * URI.
+ * </p>
+ * <p>
+ * By default, exact matches override other patterns: "*" and patterns that
+ * start and end with a "*".
+ * </p>
+ * <p>
+ * The order of pattern registration matters for patterns: "*" and patterns that
+ * start and end with a "*".
+ * </p>
+ * <p>
+ * You can disable exact matches by passing {@code false} to
+ * {@link #UriPatternMatcher(boolean)}.
+ * </p>
  *
  * @param <T> The type of registered objects.
  * @since 4.0
@@ -61,6 +77,9 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
         this(true);
     }
 
+    /**
+     * @since 5.0
+     */
     public UriPatternMatcher(final boolean exactMatchOverride) {
         super();
         this.map = new LinkedHashMap<>();
@@ -77,6 +96,17 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
      */
     public synchronized Set<Entry<String, T>> entrySet() {
         return new HashSet<>(map.entrySet());
+    }
+
+    /**
+     * Returns whether this exact matches override other patterns; the "*", and the
+     * ones starting and ending with a "*".
+     *
+     * @return whether this exact matches override other patterns
+     * @since 5.0
+     */
+    boolean isExactMatchOverride() {
+        return exactMatchOverride;
     }
 
     /**
