@@ -50,9 +50,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
+import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.io.CloseMode;
 
 public class TestingFramework {
@@ -231,6 +232,7 @@ public class TestingFramework {
                                           .build();
 
         final ServerBootstrap serverBootstrap = ServerBootstrap.bootstrap()
+                                          .setLookupRegistry(new UriPatternMatcher())
                                           .setSocketConfig(socketConfig)
                                           .register("/*", requestHandler);
 

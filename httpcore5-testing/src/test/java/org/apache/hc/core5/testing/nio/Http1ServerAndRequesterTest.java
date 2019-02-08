@@ -67,6 +67,7 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -113,6 +114,7 @@ public class Http1ServerAndRequesterTest {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             server = AsyncServerBootstrap.bootstrap()
+                    .setLookupRegistry(new UriPatternMatcher<AsyncServerExchangeHandler>()) // same as the default
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)

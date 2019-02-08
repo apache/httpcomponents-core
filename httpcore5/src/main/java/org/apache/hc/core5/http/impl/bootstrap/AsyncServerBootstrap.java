@@ -56,6 +56,7 @@ import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.nio.support.TerminalAsyncServerFilter;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.LookupRegistry;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.net.InetAddressUtils;
@@ -76,7 +77,7 @@ public class AsyncServerBootstrap {
     private final List<HandlerEntry<Supplier<AsyncServerExchangeHandler>>> handlerList;
     private final List<FilterEntry<AsyncFilterHandler>> filters;
     private String canonicalHostName;
-    private UriPatternType uriPatternType;
+    private LookupRegistry<AsyncServerExchangeHandler> lookupRegistry;
     private IOReactorConfig ioReactorConfig;
     private H1Config h1Config;
     private CharCodingConfig charCodingConfig;
@@ -178,20 +179,23 @@ public class AsyncServerBootstrap {
     }
 
     /**
+     * Assigns {@link LookupRegistry} instance.
+     *
+     * @return this
+     * @since 5.0
+     */
+    public final AsyncServerBootstrap setLookupRegistry(final LookupRegistry<AsyncServerExchangeHandler> lookupRegistry) {
+        this.lookupRegistry = lookupRegistry;
+        return this;
+    }
+
+    /**
      * Assigns {@link Http1StreamListener} instance.
      *
      * @since 5.0
      */
     public final AsyncServerBootstrap setStreamListener(final Http1StreamListener streamListener) {
         this.streamListener = streamListener;
-        return this;
-    }
-
-    /**
-     * Assigns {@link UriPatternType} for handler registration.
-     */
-    public final AsyncServerBootstrap setUriPatternType(final UriPatternType uriPatternType) {
-        this.uriPatternType = uriPatternType;
         return this;
     }
 
@@ -324,7 +328,14 @@ public class AsyncServerBootstrap {
     public HttpAsyncServer create() {
         final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
-                uriPatternType);
+                new Supplier() {
+
+                    @Override
+                    public LookupRegistry get() {
+                        return lookupRegistry != null ? lookupRegistry : UriPatternType.newMatcher(UriPatternType.URI_PATTERN);
+                    }
+
+                });
         for (final HandlerEntry<Supplier<AsyncServerExchangeHandler>> entry: handlerList) {
             registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }
