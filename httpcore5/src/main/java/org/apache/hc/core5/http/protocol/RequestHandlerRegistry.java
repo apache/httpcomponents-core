@@ -87,7 +87,7 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
     }
 
     public RequestHandlerRegistry() {
-        this(LOCALHOST, UriPatternType.BASIC);
+        this(LOCALHOST, UriPatternType.URI_PATTERN);
     }
 
     private LookupRegistry<T> getPatternMatcher(final String hostname) {
