@@ -32,6 +32,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
 
@@ -40,65 +42,43 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class FileEntity extends AbstractHttpEntity {
 
     private final File file;
 
-    /**
-     * Creates a new instance.
-     *
-     * @param file The file to serve.
-     * @param contentType  The content type for the given {@code file}.
-     *
-     * @since 4.2
-     */
-    public FileEntity(final File file, final ContentType contentType) {
-        super();
+    public FileEntity(final File file, final ContentType contentType, final String contentEncoding) {
+        super(contentType, contentEncoding);
         this.file = Args.notNull(file, "File");
-        if (contentType != null) {
-            setContentType(contentType.toString());
-        }
     }
 
-    /**
-     * Creates a new instance.
-     *
-     * @param file The file to serve.
-     *
-     * @since 4.2
-     */
-    public FileEntity(final File file) {
-        super();
+    public FileEntity(final File file, final ContentType contentType) {
+        super(contentType, null);
         this.file = Args.notNull(file, "File");
     }
 
     @Override
-    public boolean isRepeatable() {
+    public final boolean isRepeatable() {
         return true;
     }
 
     @Override
-    public long getContentLength() {
+    public final long getContentLength() {
         return this.file.length();
     }
 
     @Override
-    public InputStream getContent() throws IOException {
+    public final InputStream getContent() throws IOException {
         return new FileInputStream(this.file);
     }
 
-    /**
-     * Tells that this entity is not streaming.
-     *
-     * @return {@code false}
-     */
     @Override
-    public boolean isStreaming() {
+    public final boolean isStreaming() {
         return false;
     }
 
     @Override
-    public void close() throws IOException {
+    public final void close() throws IOException {
         // do nothing
     }
 

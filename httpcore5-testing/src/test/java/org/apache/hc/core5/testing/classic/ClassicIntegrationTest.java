@@ -53,9 +53,9 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -161,7 +161,7 @@ public class ClassicIntegrationTest {
                 }
                 final int index = Integer.parseInt(s);
                 final byte[] data = testData.get(index);
-                final ByteArrayEntity entity = new ByteArrayEntity(data);
+                final ByteArrayEntity entity = new ByteArrayEntity(data, null);
                 response.setEntity(entity);
             }
 
@@ -216,13 +216,10 @@ public class ClassicIntegrationTest {
                     final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                final HttpEntity incoming = request.getEntity();
-                if (incoming != null) {
-                    final byte[] data = EntityUtils.toByteArray(incoming);
-
-                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-                    outgoing.setChunked(false);
-                    response.setEntity(outgoing);
+                final HttpEntity entity = request.getEntity();
+                if (entity != null) {
+                    final byte[] data = EntityUtils.toByteArray(entity);
+                    response.setEntity(new ByteArrayEntity(data, null));
                 }
             }
 
@@ -237,8 +234,7 @@ public class ClassicIntegrationTest {
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             final byte[] data = testData.get(r);
-            final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-            post.setEntity(outgoing);
+            post.setEntity(new ByteArrayEntity(data, null));
 
             try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
@@ -284,9 +280,7 @@ public class ClassicIntegrationTest {
                 final HttpEntity entity = request.getEntity();
                 if (entity != null) {
                     final byte[] data = EntityUtils.toByteArray(entity);
-                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-                    outgoing.setChunked(true);
-                    response.setEntity(outgoing);
+                    response.setEntity(new ByteArrayEntity(data, null, true));
                 }
             }
 
@@ -301,9 +295,7 @@ public class ClassicIntegrationTest {
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             final byte[] data = testData.get(r);
-            final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-            outgoing.setChunked(true);
-            post.setEntity(outgoing);
+            post.setEntity(new ByteArrayEntity(data, null, true));
 
             try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
@@ -345,12 +337,10 @@ public class ClassicIntegrationTest {
                     final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                final HttpEntity incoming = request.getEntity();
-                if (incoming != null) {
-                    final byte[] data = EntityUtils.toByteArray(incoming);
-                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-                    outgoing.setChunked(false);
-                    response.setEntity(outgoing);
+                final HttpEntity entity = request.getEntity();
+                if (entity != null) {
+                    final byte[] data = EntityUtils.toByteArray(entity);
+                    response.setEntity(new ByteArrayEntity(data, null));
                 }
                 if (HttpVersion.HTTP_1_0.equals(request.getVersion())) {
                     response.addHeader("Version", "1.0");
@@ -370,8 +360,7 @@ public class ClassicIntegrationTest {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             post.setVersion(HttpVersion.HTTP_1_0);
             final byte[] data = testData.get(r);
-            final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-            post.setEntity(outgoing);
+            post.setEntity(new ByteArrayEntity(data, null));
 
             try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
                 Assert.assertEquals(HttpVersion.HTTP_1_1, response.getVersion());
@@ -418,13 +407,10 @@ public class ClassicIntegrationTest {
                     final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                final HttpEntity incoming = request.getEntity();
-                if (incoming != null) {
-                    final byte[] data = EntityUtils.toByteArray(incoming);
-
-                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-                    outgoing.setChunked(true);
-                    response.setEntity(outgoing);
+                final HttpEntity entity = request.getEntity();
+                if (entity != null) {
+                    final byte[] data = EntityUtils.toByteArray(entity);
+                    response.setEntity(new ByteArrayEntity(data, null, true));
                 }
             }
 
@@ -439,9 +425,7 @@ public class ClassicIntegrationTest {
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
             final byte[] data = testData.get(r);
-            final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-            outgoing.setChunked(true);
-            post.setEntity(outgoing);
+            post.setEntity(new ByteArrayEntity(data, null, true));
 
             try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
@@ -473,8 +457,7 @@ public class ClassicIntegrationTest {
                     final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                final StringEntity outgoing = new StringEntity("No content");
-                response.setEntity(outgoing);
+                response.setEntity(new StringEntity("No content"));
             }
 
         });
@@ -523,9 +506,7 @@ public class ClassicIntegrationTest {
             for (int i = 0; i < b.length; i++) {
                 b[i] = (byte) ('a' + r);
             }
-            final ByteArrayEntity requestEntity = new ByteArrayEntity(b, ContentType.TEXT_PLAIN);
-            requestEntity.setChunked(false);
-            post.setEntity(requestEntity);
+            post.setEntity(new ByteArrayEntity(b, ContentType.TEXT_PLAIN));
 
             try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
                 final HttpEntity responseEntity = response.getEntity();
@@ -546,8 +527,8 @@ public class ClassicIntegrationTest {
         private final byte[] raw;
         private final int n;
 
-        public RepeatingEntity(final String content, final Charset charset, final int n) {
-            super();
+        public RepeatingEntity(final String content, final Charset charset, final int n, final boolean chunked) {
+            super(ContentType.TEXT_PLAIN.withCharset(charset), null, chunked);
             final Charset cs = charset != null ? charset : Charset.forName("US-ASCII");
             this.raw = content.getBytes(cs);
             this.n = n;
@@ -637,17 +618,15 @@ public class ClassicIntegrationTest {
                     }
                 }
 
-                final HttpEntity incoming = request.getEntity();
-                if (incoming != null) {
-                    final String line = EntityUtils.toString(incoming);
-                    final ContentType contentType = EntityUtils.getContentTypeOrDefault(incoming);
+                final HttpEntity entity = request.getEntity();
+                if (entity != null) {
+                    final String line = EntityUtils.toString(entity);
+                    final ContentType contentType = ContentType.parse(entity.getContentType());
                     Charset charset = contentType.getCharset();
                     if (charset == null) {
                         charset = StandardCharsets.ISO_8859_1;
                     }
-                    final RepeatingEntity outgoing = new RepeatingEntity(line, charset, n);
-                    outgoing.setChunked(n % 2 == 0);
-                    response.setEntity(outgoing);
+                    response.setEntity(new RepeatingEntity(line, charset, n, n % 2 == 0));
                 }
             }
 
@@ -663,15 +642,13 @@ public class ClassicIntegrationTest {
             for (int n = 1000; n < 1020; n++) {
                 final BasicClassicHttpRequest post = new BasicClassicHttpRequest(
                         "POST", "/?n=" + n);
-                final StringEntity outgoing = new StringEntity(pattern);
-                outgoing.setChunked(n % 2 == 0);
-                post.setEntity(outgoing);
+                post.setEntity(new StringEntity(pattern, ContentType.TEXT_PLAIN, n % 2 == 0));
 
                 try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
-                    final HttpEntity incoming = response.getEntity();
-                    Assert.assertNotNull(incoming);
-                    final InputStream inStream = incoming.getContent();
-                    final ContentType contentType = EntityUtils.getContentTypeOrDefault(incoming);
+                    final HttpEntity entity = response.getEntity();
+                    Assert.assertNotNull(entity);
+                    final InputStream inStream = entity.getContent();
+                    final ContentType contentType = ContentType.parse(entity.getContentType());
                     Charset charset = contentType.getCharset();
                     if (charset == null) {
                         charset = StandardCharsets.ISO_8859_1;
@@ -701,11 +678,10 @@ public class ClassicIntegrationTest {
                     final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                final HttpEntity incoming = request.getEntity();
-                if (incoming != null) {
-                    final byte[] data = EntityUtils.toByteArray(incoming);
-                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-                    response.setEntity(outgoing);
+                final HttpEntity entity = request.getEntity();
+                if (entity != null) {
+                    final byte[] data = EntityUtils.toByteArray(entity);
+                    response.setEntity(new ByteArrayEntity(data, null));
                 }
             }
 
@@ -737,11 +713,10 @@ public class ClassicIntegrationTest {
                     final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                final HttpEntity incoming = request.getEntity();
-                if (incoming != null) {
-                    final byte[] data = EntityUtils.toByteArray(incoming);
-                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-                    response.setEntity(outgoing);
+                final HttpEntity entity = request.getEntity();
+                if (entity != null) {
+                    final byte[] data = EntityUtils.toByteArray(entity);
+                    response.setEntity(new ByteArrayEntity(data, null));
                 }
             }
 
@@ -777,11 +752,10 @@ public class ClassicIntegrationTest {
                     final ClassicHttpResponse response,
                     final HttpContext context) throws HttpException, IOException {
 
-                final HttpEntity incoming = request.getEntity();
-                if (incoming != null) {
-                    final byte[] data = EntityUtils.toByteArray(incoming);
-                    final ByteArrayEntity outgoing = new ByteArrayEntity(data);
-                    response.setEntity(outgoing);
+                final HttpEntity entity = request.getEntity();
+                if (entity != null) {
+                    final byte[] data = EntityUtils.toByteArray(entity);
+                    response.setEntity(new ByteArrayEntity(data, null));
                 }
             }
 

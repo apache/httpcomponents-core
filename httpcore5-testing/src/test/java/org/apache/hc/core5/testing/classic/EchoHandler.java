@@ -31,6 +31,7 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
@@ -47,23 +48,13 @@ public class EchoHandler implements HttpRequestHandler {
             final ClassicHttpResponse response,
             final HttpContext context) throws HttpException, IOException {
 
-        final HttpEntity entity = request.getEntity();
-        // For some reason, just putting the incoming entity into
-        // the response will not work. We have to buffer the message.
-        final byte[] data;
-        if (entity == null) {
-            data = new byte[0];
-        } else {
-            data = EntityUtils.toByteArray(entity);
-        }
-
-        final ByteArrayEntity bae = new ByteArrayEntity(data);
-        if (entity != null) {
-            bae.setContentType(entity.getContentType());
-        }
-
         response.setCode(HttpStatus.SC_OK);
-        response.setEntity(bae);
+        final HttpEntity entity = request.getEntity();
+        final byte[] data;
+        if (entity != null) {
+            data = EntityUtils.toByteArray(entity);
+            response.setEntity(new ByteArrayEntity(data, ContentType.parse(entity.getContentType())));
+        }
     }
 
 }

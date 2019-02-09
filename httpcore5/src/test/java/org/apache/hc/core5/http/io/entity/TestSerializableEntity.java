@@ -50,30 +50,14 @@ public class TestSerializableEntity {
     }
 
     @Test
-    public void testBasicsBuff() throws Exception {
+    public void testBasics() throws Exception {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final ObjectOutputStream out = new ObjectOutputStream(baos);
 
         final Serializable serializableObj = new SerializableObject();
         out.writeObject(serializableObj);
 
-        final SerializableEntity httpentity = new SerializableEntity(serializableObj, true);
-
-        Assert.assertEquals(baos.toByteArray().length, httpentity.getContentLength());
-        Assert.assertNotNull(httpentity.getContent());
-        Assert.assertTrue(httpentity.isRepeatable());
-        Assert.assertFalse(httpentity.isStreaming());
-    }
-
-    @Test
-    public void testBasicsDirect() throws Exception {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final ObjectOutputStream out = new ObjectOutputStream(baos);
-
-        final Serializable serializableObj = new SerializableObject();
-        out.writeObject(serializableObj);
-
-        final SerializableEntity httpentity = new SerializableEntity(serializableObj, false);
+        final SerializableEntity httpentity = new SerializableEntity(serializableObj, null);
 
         Assert.assertEquals(-1, httpentity.getContentLength());
         Assert.assertNotNull(httpentity.getContent());
@@ -82,42 +66,9 @@ public class TestSerializableEntity {
     }
 
     @Test
-    public void testIllegalConstructor() throws Exception {
-        try {
-            new SerializableEntity(null, false);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-    }
-
-    @Test
-    public void testWriteToBuff() throws Exception {
+    public void testWriteTo() throws Exception {
         final Serializable serializableObj = new SerializableObject();
-        final SerializableEntity httpentity = new SerializableEntity(serializableObj, true);
-
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        httpentity.writeTo(out);
-        final byte[] bytes = out.toByteArray();
-        Assert.assertNotNull(bytes);
-        final ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(
-                bytes));
-        final SerializableObject serIn = (SerializableObject) oin.readObject();
-        Assert.assertEquals(4, serIn.intValue);
-        Assert.assertEquals("Hello", serIn.stringValue);
-
-        try {
-            httpentity.writeTo(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-    }
-
-    @Test
-    public void testWriteToDirect() throws Exception {
-        final Serializable serializableObj = new SerializableObject();
-        final SerializableEntity httpentity = new SerializableEntity(serializableObj, false);
+        final SerializableEntity httpentity = new SerializableEntity(serializableObj, null);
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);

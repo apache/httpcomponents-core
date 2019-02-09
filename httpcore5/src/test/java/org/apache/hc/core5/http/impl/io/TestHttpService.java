@@ -134,7 +134,7 @@ public class TestHttpService {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         final InputStream inStream = Mockito.mock(InputStream.class);
-        final InputStreamEntity entity = new InputStreamEntity(inStream, -1);
+        final InputStreamEntity entity = new InputStreamEntity(inStream, -1, null);
         request.setEntity(entity);
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -174,7 +174,7 @@ public class TestHttpService {
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
         final InputStream inStream = Mockito.mock(InputStream.class);
-        final InputStreamEntity entity = new InputStreamEntity(inStream, -1);
+        final InputStreamEntity entity = new InputStreamEntity(inStream, -1, null);
         request.setEntity(entity);
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);

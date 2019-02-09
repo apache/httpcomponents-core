@@ -43,24 +43,19 @@ public class TestByteBufferEntity {
     @Test
     public void testBasics() throws Exception {
         final ByteBuffer bytes = ByteBuffer.wrap("Message content".getBytes(StandardCharsets.US_ASCII));
-        final ByteBufferEntity httpentity = new ByteBufferEntity(bytes);
+        final ByteBufferEntity httpentity = new ByteBufferEntity(bytes, null);
 
         Assert.assertEquals(bytes.capacity(), httpentity.getContentLength());
         Assert.assertNotNull(httpentity.getContent());
-        Assert.assertTrue(httpentity.isRepeatable());
+        Assert.assertFalse(httpentity.isRepeatable());
         Assert.assertFalse(httpentity.isStreaming());
     }
 
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testIllegalConstructorNullByteArray() throws Exception {
-        new ByteBufferEntity(null);
-    }
-
     @Test
     public void testWriteTo() throws Exception {
         final ByteBuffer bytes = ByteBuffer.wrap("Message content".getBytes(StandardCharsets.US_ASCII));
-        final ByteBufferEntity httpentity = new ByteBufferEntity(bytes);
+        final ByteBufferEntity httpentity = new ByteBufferEntity(bytes, null);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);

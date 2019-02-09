@@ -29,16 +29,18 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.io.entity.AbstractImmutableHttpEntity;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.io.Closer;
 
-class IncomingHttpEntity extends AbstractImmutableHttpEntity {
+class IncomingHttpEntity implements HttpEntity {
 
     private final InputStream content;
     private final long len;
@@ -90,6 +92,11 @@ class IncomingHttpEntity extends AbstractImmutableHttpEntity {
     }
 
     @Override
+    public void writeTo(final OutputStream outStream) throws IOException {
+        AbstractHttpEntity.writeTo(this, outStream);
+    }
+
+    @Override
     public Supplier<List<? extends Header>> getTrailers() {
         return null;
     }
@@ -102,6 +109,28 @@ class IncomingHttpEntity extends AbstractImmutableHttpEntity {
     @Override
     public void close() throws IOException {
         Closer.close(content);
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append('[');
+        sb.append("Content-Type: ");
+        sb.append(getContentType());
+        sb.append(',');
+        sb.append("Content-Encoding: ");
+        sb.append(getContentEncoding());
+        sb.append(',');
+        final long len = getContentLength();
+        if (len >= 0) {
+            sb.append("Content-Length: ");
+            sb.append(len);
+            sb.append(',');
+        }
+        sb.append("Chunked: ");
+        sb.append(isChunked());
+        sb.append(']');
+        return sb.toString();
     }
 
 }
