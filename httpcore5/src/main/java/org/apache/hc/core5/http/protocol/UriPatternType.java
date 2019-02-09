@@ -33,7 +33,7 @@ package org.apache.hc.core5.http.protocol;
 public enum UriPatternType {
 
     /**
-     * @deprecated Use {@link #URI_PATTERN_IN_ORDER}.
+     * @deprecated Use {@link #URI_PATTERN}.
      */
     @Deprecated
     BASIC,
