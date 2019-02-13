@@ -67,7 +67,7 @@ import io.reactivex.functions.Function;
  */
 public class ReactiveFullDuplexClientExample {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         String endpoint = "http://localhost:8080/echo";
         if (args.length >= 1) {
             endpoint = args[0];

@@ -24,59 +24,44 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.examples;
+package org.apache.hc.core5.http2.examples;
 
-import java.io.IOException;
-import java.net.URI;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
 
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
-import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
-import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.RequestChannel;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Example of full-duplex, streaming HTTP message exchanges with an asynchronous HTTP/2 requester.
+ * Example of HTTP/2 request execution.
  */
-public class Http2FullDuplexClientExample {
+public class Http2RequestExecutionExample {
 
-    public static void main(String[] args) throws Exception {
-
-        IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
-                .setSoTimeout(5, TimeUnit.SECONDS)
-                .build();
+    public static void main(final String[] args) throws Exception {
 
         // Create and start requester
-        H2Config h2Config = H2Config.custom()
+        final H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
-                .setMaxConcurrentStreams(100)
                 .build();
+
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
-                .setIOReactorConfig(ioReactorConfig)
                 .setH2Config(h2Config)
                 .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
                 .setStreamListener(new Http2StreamListener() {
@@ -113,7 +98,6 @@ public class Http2FullDuplexClientExample {
 
                 })
                 .create();
-
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
@@ -123,74 +107,44 @@ public class Http2FullDuplexClientExample {
         });
         requester.start();
 
-        final URI requestUri = new URI("http://nghttp2.org/httpbin/post");
-        final BasicRequestProducer requestProducer = new BasicRequestProducer(
-                "POST", requestUri, new BasicAsyncEntityProducer("stuff", ContentType.TEXT_PLAIN));
-        final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(
-                new StringAsyncEntityConsumer());
+        final HttpHost target = new HttpHost("nghttp2.org");
+        final String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
 
-        final CountDownLatch latch = new CountDownLatch(1);
-        requester.execute(new AsyncClientExchangeHandler() {
+        final CountDownLatch latch = new CountDownLatch(requestUris.length);
+        for (final String requestUri: requestUris) {
+            final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
+            final AsyncClientEndpoint clientEndpoint = future.get();
+            clientEndpoint.execute(
+                    new BasicRequestProducer("GET", target, requestUri),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                    new FutureCallback<Message<HttpResponse, String>>() {
 
-            @Override
-            public void releaseResources() {
-                requestProducer.releaseResources();
-                responseConsumer.releaseResources();
-                latch.countDown();
-            }
+                        @Override
+                        public void completed(final Message<HttpResponse, String> message) {
+                            clientEndpoint.releaseAndReuse();
+                            final HttpResponse response = message.getHead();
+                            final String body = message.getBody();
+                            System.out.println(requestUri + "->" + response.getCode());
+                            System.out.println(body);
+                            latch.countDown();
+                        }
 
-            @Override
-            public void cancel() {
-                System.out.println(requestUri + " cancelled");
-            }
+                        @Override
+                        public void failed(final Exception ex) {
+                            clientEndpoint.releaseAndDiscard();
+                            System.out.println(requestUri + "->" + ex);
+                            latch.countDown();
+                        }
 
-            @Override
-            public void failed(final Exception cause) {
-                System.out.println(requestUri + "->" + cause);
-            }
+                        @Override
+                        public void cancelled() {
+                            clientEndpoint.releaseAndDiscard();
+                            System.out.println(requestUri + " cancelled");
+                            latch.countDown();
+                        }
 
-            @Override
-            public void produceRequest(final RequestChannel channel, HttpContext httpContext) throws HttpException, IOException {
-                requestProducer.sendRequest(channel, httpContext);
-            }
-
-            @Override
-            public int available() {
-                return requestProducer.available();
-            }
-
-            @Override
-            public void produce(final DataStreamChannel channel) throws IOException {
-                requestProducer.produce(channel);
-            }
-
-            @Override
-            public void consumeInformation(final HttpResponse response, HttpContext httpContext) throws HttpException, IOException {
-                System.out.println(requestUri + "->" + response.getCode());
-            }
-
-            @Override
-            public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails, HttpContext httpContext) throws HttpException, IOException {
-                System.out.println(requestUri + "->" + response.getCode());
-                responseConsumer.consumeResponse(response, entityDetails, httpContext, null);
-            }
-
-            @Override
-            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                responseConsumer.updateCapacity(capacityChannel);
-            }
-
-            @Override
-            public void consume(final ByteBuffer src) throws IOException {
-                responseConsumer.consume(src);
-            }
-
-            @Override
-            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-                responseConsumer.streamEnd(trailers);
-            }
-
-        }, Timeout.ofSeconds(30), HttpCoreContext.create());
+                    });
+        }
 
         latch.await();
         System.out.println("Shutting down I/O reactor");

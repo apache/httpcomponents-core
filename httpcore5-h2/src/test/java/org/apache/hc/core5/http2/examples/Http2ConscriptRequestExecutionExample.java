@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.examples;
+package org.apache.hc.core5.http2.examples;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -62,7 +62,7 @@ public class Http2ConscriptRequestExecutionExample {
     public final static void main(final String[] args) throws Exception {
 
         // Create and start requester
-        H2Config h2Config = H2Config.custom()
+        final H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
                 .build();
 
@@ -116,8 +116,8 @@ public class Http2ConscriptRequestExecutionExample {
         });
         requester.start();
 
-        HttpHost target = new HttpHost("https", "nghttp2.org", 443);
-        String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
+        final HttpHost target = new HttpHost("https", "nghttp2.org", 443);
+        final String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
@@ -131,8 +131,8 @@ public class Http2ConscriptRequestExecutionExample {
                         @Override
                         public void completed(final Message<HttpResponse, String> message) {
                             clientEndpoint.releaseAndReuse();
-                            HttpResponse response = message.getHead();
-                            String body = message.getBody();
+                            final HttpResponse response = message.getHead();
+                            final String body = message.getBody();
                             System.out.println(requestUri + "->" + response.getCode() + " " + response.getVersion());
                             System.out.println(body);
                             latch.countDown();
