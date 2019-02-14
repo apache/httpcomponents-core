@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.examples;
+package org.apache.hc.core5.http2.examples;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -64,18 +64,18 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class Http2FullDuplexServerExample {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         int port = 8080;
         if (args.length >= 1) {
             port = Integer.parseInt(args[0]);
         }
 
-        IOReactorConfig config = IOReactorConfig.custom()
+        final IOReactorConfig config = IOReactorConfig.custom()
                 .setSoTimeout(15, TimeUnit.SECONDS)
                 .setTcpNoDelay(true)
                 .build();
 
-        H2Config h2Config = H2Config.custom()
+        final H2Config h2Config = H2Config.custom()
                 .setPushEnabled(true)
                 .setMaxConcurrentStreams(100)
                 .build();
@@ -235,8 +235,8 @@ public class Http2FullDuplexServerExample {
         });
 
         server.start();
-        Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
-        ListenerEndpoint listenerEndpoint = future.get();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
+        final ListenerEndpoint listenerEndpoint = future.get();
         System.out.print("Listening on " + listenerEndpoint.getAddress());
         server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));
     }

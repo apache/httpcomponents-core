@@ -24,14 +24,12 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.examples;
+package org.apache.hc.core5.http2.examples;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
-
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.Header;
@@ -44,46 +42,36 @@ import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TlsDetails;
-import org.apache.hc.core5.ssl.SSLContexts;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * This example demonstrates how to execute HTTP/2 requests over TLS connections.
- * <p>
- * It requires Java runtime with ALPN protocol support (such as Oracle JRE 9 or newer).
+ * Example of HTTP/2 concurrent request execution using multiple streams.
  */
-public class Http2TlsAlpnRequestExecutionExample {
+public class Http2MultiStreamExecutionExample {
 
-    public final static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
+
         // Create and start requester
-        H2Config h2Config = H2Config.custom()
+        final IOReactorConfig ioReactorConfig = IOReactorConfig.custom()
+                .setSoTimeout(5, TimeUnit.SECONDS)
+                .build();
+
+        final H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
+                .setMaxConcurrentStreams(100)
                 .build();
 
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
+                .setIOReactorConfig(ioReactorConfig)
+                .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
                 .setH2Config(h2Config)
-                .setTlsStrategy(new H2ClientTlsStrategy(SSLContexts.createSystemDefault(), new SSLSessionVerifier() {
-
-                    @Override
-                    public TlsDetails verify(final NamedEndpoint endpoint, final SSLEngine sslEngine) throws SSLException {
-                        // IMPORTANT uncomment the following line when running Java 9 or older
-                        // in order to avoid the illegal reflective access operation warning
-                        // ====
-                        // return new TlsDetails(sslEngine.getSession(), sslEngine.getApplicationProtocol());
-                        // ====
-                        return null;
-                    }
-
-                }))
                 .setStreamListener(new Http2StreamListener() {
 
                     @Override
@@ -127,13 +115,14 @@ public class Http2TlsAlpnRequestExecutionExample {
         });
         requester.start();
 
-        HttpHost target = new HttpHost("https", "nghttp2.org", 443);
-        String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
+        final HttpHost target = new HttpHost("nghttp2.org");
+        final String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
+
+        final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
+        final AsyncClientEndpoint clientEndpoint = future.get();
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
-            final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
-            final AsyncClientEndpoint clientEndpoint = future.get();
             clientEndpoint.execute(
                     new BasicRequestProducer("GET", target, requestUri),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
@@ -141,32 +130,33 @@ public class Http2TlsAlpnRequestExecutionExample {
 
                         @Override
                         public void completed(final Message<HttpResponse, String> message) {
-                            clientEndpoint.releaseAndReuse();
-                            HttpResponse response = message.getHead();
-                            String body = message.getBody();
-                            System.out.println(requestUri + "->" + response.getCode() + " " + response.getVersion());
-                            System.out.println(body);
                             latch.countDown();
+                            final HttpResponse response = message.getHead();
+                            final String body = message.getBody();
+                            System.out.println(requestUri + "->" + response.getCode());
+                            System.out.println(body);
                         }
 
                         @Override
                         public void failed(final Exception ex) {
-                            clientEndpoint.releaseAndDiscard();
-                            System.out.println(requestUri + "->" + ex);
                             latch.countDown();
+                            System.out.println(requestUri + "->" + ex);
                         }
 
                         @Override
                         public void cancelled() {
-                            clientEndpoint.releaseAndDiscard();
-                            System.out.println(requestUri + " cancelled");
                             latch.countDown();
+                            System.out.println(requestUri + " cancelled");
                         }
 
                     });
         }
 
         latch.await();
+
+        // Manually release client endpoint when done !!!
+        clientEndpoint.releaseAndDiscard();
+
         System.out.println("Shutting down I/O reactor");
         requester.initiateShutdown();
     }

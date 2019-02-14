@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -39,13 +38,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
@@ -55,21 +53,19 @@ import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.frame.RawFrame;
-import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
+import org.apache.hc.core5.http.protocol.HttpDateGenerator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
- * Example of asynchronous embedded HTTP/2 file server.
+ * Example of asynchronous embedded HTTP/1.1 file server.
  */
-public class Http2FileServerExample {
+public class AsyncFileServerExample {
 
-    public static void main(String[] args) throws Exception {
+    /** Example command line args: {@code "c:\temp" 8080} */
+    public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
             System.err.println("Please specify document root directory");
             System.exit(1);
@@ -81,47 +77,13 @@ public class Http2FileServerExample {
             port = Integer.parseInt(args[1]);
         }
 
-        IOReactorConfig config = IOReactorConfig.custom()
+        final IOReactorConfig config = IOReactorConfig.custom()
                 .setSoTimeout(15, TimeUnit.SECONDS)
                 .setTcpNoDelay(true)
                 .build();
 
-        final HttpAsyncServer server = H2ServerBootstrap.bootstrap()
+        final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
                 .setIOReactorConfig(config)
-                .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
-                .setStreamListener(new Http2StreamListener() {
-
-                    @Override
-                    public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + headers.get(i));
-                        }
-                    }
-
-                    @Override
-                    public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + headers.get(i));
-                        }
-                    }
-
-                    @Override
-                    public void onFrameInput(final HttpConnection connection, final int streamId, final RawFrame frame) {
-                    }
-
-                    @Override
-                    public void onFrameOutput(final HttpConnection connection, final int streamId, final RawFrame frame) {
-                    }
-
-                    @Override
-                    public void onInputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
-                    }
-
-                    @Override
-                    public void onOutputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
-                    }
-
-                })
                 .register("*", new AsyncServerRequestHandler<Message<HttpRequest, Void>>() {
 
                     @Override
@@ -137,27 +99,27 @@ public class Http2FileServerExample {
                             final Message<HttpRequest, Void> message,
                             final ResponseTrigger responseTrigger,
                             final HttpContext context) throws HttpException, IOException {
-                        HttpRequest request = message.getHead();
-                        URI requestUri;
+                        final HttpRequest request = message.getHead();
+                        final URI requestUri;
                         try {
                             requestUri = request.getUri();
-                        } catch (URISyntaxException ex) {
+                        } catch (final URISyntaxException ex) {
                             throw new ProtocolException(ex.getMessage(), ex);
                         }
-                        String path = requestUri.getPath();
+                        final String path = requestUri.getPath();
                         final File file = new File(docRoot, path);
                         if (!file.exists()) {
 
-                            System.out.println("File " + file.getPath() + " not found");
+                            println("File " + file.getPath() + " not found");
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_NOT_FOUND,
-                                    "<html><body><h1>File" + file.getPath() +
+                                    "<html><body><h1>File " + file.getPath() +
                                             " not found</h1></body></html>",
                                     ContentType.TEXT_HTML), context);
 
                         } else if (!file.canRead() || file.isDirectory()) {
 
-                            System.out.println("Cannot read file " + file.getPath());
+                            println("Cannot read file " + file.getPath());
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_FORBIDDEN,
                                     "<html><body><h1>Access denied</h1></body></html>",
@@ -177,9 +139,11 @@ public class Http2FileServerExample {
                                 contentType = ContentType.DEFAULT_BINARY;
                             }
 
-                            HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                            EndpointDetails endpoint = coreContext.getEndpointDetails();
-                            System.out.println(endpoint + ": serving file " + file.getPath());
+                            final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
+                            final EndpointDetails endpoint = coreContext.getEndpointDetails();
+
+                            println(endpoint + " | serving file " + file.getPath());
+
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_OK, new FileEntityProducer(file, contentType)), context);
                         }
@@ -191,16 +155,20 @@ public class Http2FileServerExample {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                System.out.println("HTTP server shutting down");
+                println("HTTP server shutting down");
                 server.close(CloseMode.GRACEFUL);
             }
         });
 
         server.start();
-        Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
-        ListenerEndpoint listenerEndpoint = future.get();
-        System.out.print("Listening on " + listenerEndpoint.getAddress());
-        server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
+        final ListenerEndpoint listenerEndpoint = future.get();
+        println("Listening on " + listenerEndpoint.getAddress());
+        server.awaitShutdown(TimeValue.MAX_VALUE);
+    }
+
+    static final void println(final String msg) {
+        System.out.println(HttpDateGenerator.INSTANCE.getCurrentDate() + " | " + msg);
     }
 
 }

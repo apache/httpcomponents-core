@@ -325,7 +325,7 @@ public class AsyncReverseProxyExample {
 
                     try {
                         responseChannel.sendResponse(outgoingResponse, exEntityDetails, httpContext);
-                    } catch (HttpException | IOException ignore) {
+                    } catch (final HttpException | IOException ignore) {
                         // ignore
                     }
                 }
@@ -667,7 +667,7 @@ public class AsyncReverseProxyExample {
                     try {
                         final EntityDetails entityDetails = new BasicEntityDetails(contentLen, ContentType.TEXT_PLAIN);
                         exchangeState.responseMessageChannel.sendResponse(outgoingResponse, entityDetails, null);
-                    } catch (HttpException | IOException ignore) {
+                    } catch (final HttpException | IOException ignore) {
                         // ignore
                     }
                 } else {
