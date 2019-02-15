@@ -46,7 +46,7 @@ import org.apache.hc.core5.util.TextUtils;
 /**
  * Builder for {@link URI} instances.
  *
- * @since 4.2
+ * @since 5.0
  */
 public class URIBuilder {
 
@@ -55,8 +55,6 @@ public class URIBuilder {
      *
      * @return a new builder.
      * @throws UnknownHostException if the local host name could not be resolved into an address.
-     *
-     * @since 4.6
      */
     public static URIBuilder localhost() throws UnknownHostException {
         return new URIBuilder().setHost(InetAddress.getLocalHost());
@@ -64,8 +62,6 @@ public class URIBuilder {
 
     /**
      * Creates a new builder for the host {@link InetAddress#getLoopbackAddress()}.
-     *
-     * @since 5.0
      */
     public static URIBuilder loopbackAddress() {
         return new URIBuilder().setHost(InetAddress.getLoopbackAddress());
@@ -115,17 +111,11 @@ public class URIBuilder {
         digestURI(uri);
     }
 
-    /**
-     * @since 4.4
-     */
     public URIBuilder setCharset(final Charset charset) {
         this.charset = charset;
         return this;
     }
 
-    /**
-     * @since 4.4
-     */
     public Charset getCharset() {
         return charset;
     }
@@ -222,7 +212,7 @@ public class URIBuilder {
         this.encodedUserInfo = uri.getRawUserInfo();
         this.userInfo = uri.getUserInfo();
         this.encodedPath = uri.getRawPath();
-        this.pathSegments = parsePath(uri.getPath(), this.charset != null ? this.charset : StandardCharsets.UTF_8);
+        this.pathSegments = parsePath(uri.getRawPath(), this.charset != null ? this.charset : StandardCharsets.UTF_8);
         this.encodedQuery = uri.getRawQuery();
         this.queryParams = parseQuery(uri.getRawQuery(), this.charset != null ? this.charset : StandardCharsets.UTF_8);
         this.encodedFragment = uri.getRawFragment();
@@ -283,7 +273,6 @@ public class URIBuilder {
      * Sets URI host.
      *
      * @return this.
-     * @since 4.6
      */
     public URIBuilder setHost(final InetAddress host) {
         this.host = host != null ? host.getHostAddress() : null;
@@ -335,7 +324,16 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder setPath(final String path) {
-        this.pathSegments = path != null ? URLEncodedUtils.splitPathSegments(path) : null;
+        return setPathSegments(path != null ? URLEncodedUtils.splitPathSegments(path) : null);
+    }
+
+    /**
+     * Sets URI path. The value is expected to be unescaped and may contain non ASCII characters.
+     *
+     * @return this.
+     */
+    public URIBuilder setPathSegments(final String... pathSegments) {
+        this.pathSegments = pathSegments.length > 0 ? Arrays.asList(pathSegments) : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedPath = null;
         return this;
@@ -346,8 +344,8 @@ public class URIBuilder {
      *
      * @return this.
      */
-    public URIBuilder setPathSegments(final String... pathSegments) {
-        this.pathSegments = pathSegments.length > 0 ? Arrays.asList(pathSegments) : null;
+    public URIBuilder setPathSegments(final List<String> pathSegments) {
+        this.pathSegments = pathSegments != null && pathSegments.size() > 0 ? new ArrayList<>(pathSegments) : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedPath = null;
         return this;
@@ -375,7 +373,6 @@ public class URIBuilder {
      * </p>
      *
      * @return this.
-     * @since 4.3
      */
     public URIBuilder setParameters(final List <NameValuePair> nvps) {
         if (this.queryParams == null) {
@@ -399,7 +396,6 @@ public class URIBuilder {
      * </p>
      *
      * @return this.
-     * @since 4.3
      */
     public URIBuilder addParameters(final List <NameValuePair> nvps) {
         if (this.queryParams == null) {
@@ -421,7 +417,6 @@ public class URIBuilder {
      * </p>
      *
      * @return this.
-     * @since 4.3
      */
     public URIBuilder setParameters(final NameValuePair... nvps) {
         if (this.queryParams == null) {
@@ -492,7 +487,6 @@ public class URIBuilder {
      * Clears URI query parameters.
      *
      * @return this.
-     * @since 4.3
      */
     public URIBuilder clearParameters() {
         this.queryParams = null;
@@ -510,7 +504,6 @@ public class URIBuilder {
      * </p>
      *
      * @return this.
-     * @since 4.3
      */
     public URIBuilder setCustomQuery(final String query) {
         this.query = !TextUtils.isBlank(query) ? query : null;
@@ -532,18 +525,12 @@ public class URIBuilder {
         return this;
     }
 
-    /**
-     * @since 4.3
-     */
     public boolean isAbsolute() {
         return this.scheme != null;
     }
 
-    /**
-     * @since 4.3
-     */
     public boolean isOpaque() {
-        return this.pathSegments == null || this.pathSegments.isEmpty();
+        return isPathEmpty();
     }
 
     public String getScheme() {
@@ -562,6 +549,10 @@ public class URIBuilder {
         return this.port;
     }
 
+    public boolean isPathEmpty() {
+        return (this.pathSegments == null || this.pathSegments.isEmpty()) && this.encodedPath == null;
+    }
+
     public List<String> getPathSegments() {
         return this.pathSegments != null ? new ArrayList<>(this.pathSegments) : Collections.<String>emptyList();
     }
@@ -575,6 +566,10 @@ public class URIBuilder {
             result.append('/').append(segment);
         }
         return result.toString();
+    }
+
+    public boolean isQueryEmpty() {
+        return (this.queryParams == null || this.queryParams.isEmpty()) && this.encodedQuery == null;
     }
 
     public List<NameValuePair> getQueryParams() {
