@@ -77,7 +77,7 @@ public class AsyncServerBootstrap {
     private final List<HandlerEntry<Supplier<AsyncServerExchangeHandler>>> handlerList;
     private final List<FilterEntry<AsyncFilterHandler>> filters;
     private String canonicalHostName;
-    private LookupRegistry<AsyncServerExchangeHandler> lookupRegistry;
+    private LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry;
     private IOReactorConfig ioReactorConfig;
     private H1Config h1Config;
     private CharCodingConfig charCodingConfig;
@@ -184,7 +184,7 @@ public class AsyncServerBootstrap {
      * @return this
      * @since 5.0
      */
-    public final AsyncServerBootstrap setLookupRegistry(final LookupRegistry<AsyncServerExchangeHandler> lookupRegistry) {
+    public final AsyncServerBootstrap setLookupRegistry(final LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry) {
         this.lookupRegistry = lookupRegistry;
         return this;
     }
@@ -328,11 +328,12 @@ public class AsyncServerBootstrap {
     public HttpAsyncServer create() {
         final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
-                new Supplier() {
+                new Supplier<LookupRegistry<Supplier<AsyncServerExchangeHandler>>>() {
 
                     @Override
-                    public LookupRegistry get() {
-                        return lookupRegistry != null ? lookupRegistry : UriPatternType.newMatcher(UriPatternType.URI_PATTERN);
+                    public LookupRegistry<Supplier<AsyncServerExchangeHandler>> get() {
+                        return lookupRegistry != null ? lookupRegistry :
+                                UriPatternType.<Supplier<AsyncServerExchangeHandler>>newMatcher(UriPatternType.URI_PATTERN);
                     }
 
                 });
