@@ -88,9 +88,11 @@ import org.apache.hc.core5.util.Timeout;
  */
 public class AsyncReverseProxyExample {
 
+    private static boolean quiet;
+
     public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
-            System.out.println("Usage: <hostname[:port]> [listener port]");
+            System.out.println("Usage: <hostname[:port]> [listener port] [--quiet]");
             System.exit(1);
         }
         // Target host
@@ -98,6 +100,12 @@ public class AsyncReverseProxyExample {
         int port = 8080;
         if (args.length > 1) {
             port = Integer.parseInt(args[1]);
+        }
+        for (final String s : args) {
+            if ("--quiet".equalsIgnoreCase(s)) {
+                quiet = true;
+                break;
+            }
         }
 
         println("Reverse proxy to " + targetHost);
@@ -689,6 +697,8 @@ public class AsyncReverseProxyExample {
     }
 
     static final void println(final String msg) {
-        System.out.println(HttpDateGenerator.INSTANCE.getCurrentDate() + " | " + msg);
+        if (!quiet) {
+            System.out.println(HttpDateGenerator.INSTANCE.getCurrentDate() + " | " + msg);
+        }
     }
 }
