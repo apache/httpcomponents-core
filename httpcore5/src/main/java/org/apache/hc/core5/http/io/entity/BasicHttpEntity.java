@@ -30,88 +30,75 @@ package org.apache.hc.core5.http.io.entity;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 import org.apache.hc.core5.io.Closer;
-import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.Args;
 
 /**
- * A generic streamed, non-repeatable entity that obtains its content
- * from an {@link InputStream}.
+ * A generic streamed, non-repeatable entity that obtains its content from an {@link InputStream}.
  *
  * @since 4.0
  */
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class BasicHttpEntity extends AbstractHttpEntity {
 
-    private InputStream content;
-    private long length;
+    private final InputStream content;
+    private final long length;
 
-    /**
-     * Creates a new basic entity.
-     * The content is initially missing, the content length
-     * is set to a negative number.
-     */
-    public BasicHttpEntity() {
-        super();
-        this.length = -1;
+    public BasicHttpEntity(
+            final InputStream content, final long length, final ContentType contentType, final String contentEncoding,
+            final boolean chunked) {
+        super(contentType, contentEncoding, chunked);
+        this.content = Args.notNull(content, "Content stream");
+        this.length = length;
+    }
+
+    public BasicHttpEntity(
+            final InputStream content, final long length, final ContentType contentType, final String contentEncoding) {
+        this(content, length, contentType, contentEncoding, false);
+    }
+
+    public BasicHttpEntity(final InputStream content, final long length, final ContentType contentType) {
+        this(content, length, contentType, null);
+    }
+
+    public BasicHttpEntity(final InputStream content, final ContentType contentType, final String contentEncoding) {
+        this(content, -1, contentType, contentEncoding);
+    }
+
+    public BasicHttpEntity(final InputStream content, final ContentType contentType) {
+        this(content, -1, contentType, null);
+    }
+
+    public BasicHttpEntity(final InputStream content, final ContentType contentType, final boolean chunked) {
+        this(content, -1, contentType, null, chunked);
     }
 
     @Override
-    public long getContentLength() {
+    public final long getContentLength() {
         return this.length;
     }
 
-    /**
-     * Obtains the content, once only.
-     *
-     * @return  the content, if this is the first call to this method
-     *          since {@link #setContent setContent} has been called
-     *
-     * @throws IllegalStateException
-     *          if the content has not been provided
-     */
     @Override
-    public InputStream getContent() throws IllegalStateException {
-        Asserts.check(this.content != null, "Content has not been provided");
+    public final InputStream getContent() throws IllegalStateException {
         return this.content;
     }
 
-    /**
-     * Tells that this entity is not repeatable.
-     *
-     * @return {@code false}
-     */
     @Override
-    public boolean isRepeatable() {
+    public final boolean isRepeatable() {
         return false;
     }
 
-    /**
-     * Specifies the length of the content.
-     *
-     * @param len       the number of bytes in the content, or
-     *                  a negative number to indicate an unknown length
-     */
-    public void setContentLength(final long len) {
-        this.length = len;
-    }
-
-    /**
-     * Specifies the content.
-     *
-     * @param inStream          the stream to return with the next call to
-     *                          {@link #getContent getContent}
-     */
-    public void setContent(final InputStream inStream) {
-        this.content = inStream;
-    }
-
     @Override
-    public boolean isStreaming() {
+    public final boolean isStreaming() {
         return this.content != null && this.content != EmptyInputStream.INSTANCE;
     }
 
     @Override
-    public void close() throws IOException {
+    public final void close() throws IOException {
         Closer.close(content);
     }
 

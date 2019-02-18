@@ -29,10 +29,7 @@ package org.apache.hc.core5.http.io.entity;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.WritableByteChannel;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
@@ -43,76 +40,60 @@ import org.apache.hc.core5.util.Args;
 public class ByteBufferEntity extends AbstractHttpEntity {
 
     private final ByteBuffer buffer;
+    private final long length;
 
-    private class ByteBufferInputStream extends InputStream {
-
-        ByteBufferInputStream() {
-            buffer.position(0);
-        }
-
-        @Override
-        public int read() throws IOException {
-            if (!buffer.hasRemaining()) {
-                return -1;
-            }
-            return buffer.get() & 0xFF;
-        }
-
-        @Override
-        public int read(final byte[] bytes, final int off, final int len) throws IOException {
-            if (!buffer.hasRemaining()) {
-                return -1;
-            }
-
-            final int chunk = Math.min(len, buffer.remaining());
-            buffer.get(bytes, off, chunk);
-            return chunk;
-        }
+    public ByteBufferEntity(final ByteBuffer buffer, final ContentType contentType, final String contentEncoding) {
+        super(contentType, contentEncoding);
+        Args.notNull(buffer, "Source byte buffer");
+        this.buffer = buffer;
+        this.length = buffer.remaining();
     }
 
     public ByteBufferEntity(final ByteBuffer buffer, final ContentType contentType) {
-        super();
-        Args.notNull(buffer, "Source byte buffer");
-        this.buffer = buffer;
-        if (contentType != null) {
-            setContentType(contentType.toString());
-        }
-    }
-
-    public ByteBufferEntity(final ByteBuffer buffer) {
-        this(buffer, null);
+        this(buffer, contentType, null);
     }
 
     @Override
-    public boolean isRepeatable() {
-        return true;
-    }
-
-    @Override
-    public long getContentLength() {
-        return buffer.capacity();
-    }
-
-    @Override
-    public InputStream getContent() throws IOException, UnsupportedOperationException {
-        return new ByteBufferInputStream();
-    }
-
-    @Override
-    public void writeTo(final OutputStream outStream) throws IOException {
-        Args.notNull(outStream, "Output stream");
-        final WritableByteChannel channel = Channels.newChannel(outStream);
-        channel.write(buffer);
-        outStream.flush();
-    }
-
-    @Override
-    public boolean isStreaming() {
+    public final boolean isRepeatable() {
         return false;
     }
 
     @Override
-    public void close() throws IOException {
+    public final long getContentLength() {
+        return length;
+    }
+
+    @Override
+    public final InputStream getContent() throws IOException, UnsupportedOperationException {
+        return new InputStream() {
+
+            @Override
+            public int read() throws IOException {
+                if (!buffer.hasRemaining()) {
+                    return -1;
+                }
+                return buffer.get() & 0xFF;
+            }
+
+            @Override
+            public int read(final byte[] bytes, final int off, final int len) throws IOException {
+                if (!buffer.hasRemaining()) {
+                    return -1;
+                }
+                final int chunk = Math.min(len, buffer.remaining());
+                buffer.get(bytes, off, chunk);
+                return chunk;
+            }
+        };
+    }
+
+    @Override
+    public final boolean isStreaming() {
+        return false;
+    }
+
+    @Override
+    public final void close() throws IOException {
     }
 
 }

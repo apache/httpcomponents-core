@@ -29,9 +29,10 @@ package org.apache.hc.core5.http.io.entity;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,12 +44,8 @@ public class TestBasicHttpEntity {
 
     @Test
     public void testBasics() throws Exception {
-
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        final InputStream content = new ByteArrayInputStream(bytes);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(content);
-        httpentity.setContentLength(bytes.length);
+        final BasicHttpEntity httpentity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length, null);
 
         Assert.assertEquals(bytes.length, httpentity.getContentLength());
         Assert.assertFalse(httpentity.isRepeatable());
@@ -57,67 +54,25 @@ public class TestBasicHttpEntity {
 
     @Test
     public void testToString() throws Exception {
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContentType("blah");
-        httpentity.setContentEncoding("yada");
-        httpentity.setContentLength(10);
-        httpentity.setChunked(true);
-        Assert.assertEquals("[Content-Type: blah,Content-Encoding: yada,Content-Length: 10,Chunked: true]",
+        final BasicHttpEntity httpentity = new BasicHttpEntity(EmptyInputStream.INSTANCE, 10,
+                ContentType.parseLenient("blah"), "yada", true);
+        Assert.assertEquals("[Entity-Class: BasicHttpEntity, Content-Type: blah, Content-Encoding: yada, chunked: true]",
                 httpentity.toString());
-    }
-
-    @Test
-    public void testContent() throws Exception {
-        final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        final InputStream content = new ByteArrayInputStream(bytes);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        try {
-            httpentity.getContent();
-            Assert.fail("IllegalStateException should have been thrown");
-        } catch (final IllegalStateException ex) {
-            // expected
-        }
-        httpentity.setContent(content);
-        Assert.assertEquals(content, httpentity.getContent());
-
-        httpentity.setContent(null);
-        try {
-            httpentity.getContent();
-            Assert.fail("IllegalStateException should have been thrown");
-        } catch (final IllegalStateException ex) {
-            // expected
-        }
     }
 
     @Test
     public void testWriteTo() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        final InputStream content = new ByteArrayInputStream(bytes);
-        final BasicHttpEntity httpentity = new BasicHttpEntity();
-        httpentity.setContent(content);
+        final BasicHttpEntity httpentity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length,
+                ContentType.TEXT_PLAIN);
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         final byte[] bytes2 = out.toByteArray();
         Assert.assertNotNull(bytes2);
         Assert.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
             Assert.assertEquals(bytes[i], bytes2[i]);
-        }
-        httpentity.setContent(null);
-        out = new ByteArrayOutputStream();
-        try {
-            httpentity.writeTo(out);
-            Assert.fail("IllegalStateException should have been thrown");
-        } catch (final IllegalStateException ex) {
-            // expected
-        }
-
-        try {
-            httpentity.writeTo(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
         }
     }
 

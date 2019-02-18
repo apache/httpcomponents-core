@@ -243,7 +243,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("GET /stuff HTTP/1.1\r\nUser-Agent: test\r\n\r\n", s);
     }
 
@@ -266,7 +266,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: 3\r\n\r\n123", s);
     }
 
@@ -289,7 +289,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nTransfer-Encoding: " +
                 "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n", s);
     }
@@ -328,7 +328,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\n\r\n", s);
     }
 
@@ -344,8 +344,8 @@ public class TestDefaultBHttpClientConnection {
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/stuff");
         request.addHeader("User-Agent", "test");
         request.addHeader("Transfer-Encoding", "chunked");
-        final StringEntity entity = new StringEntity("123", ContentType.TEXT_PLAIN);
-        entity.setChunked(true);
+        final StringEntity entity = new StringEntity("123", ContentType.TEXT_PLAIN, true);
+
         request.setEntity(entity);
 
         conn.sendRequestHeader(request);
@@ -353,7 +353,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nTransfer-Encoding: " +
                 "chunked\r\n\r\n0\r\n\r\n", s);
         Assert.assertTrue(conn.isConsistent());
@@ -371,8 +371,7 @@ public class TestDefaultBHttpClientConnection {
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/stuff");
         request.addHeader("User-Agent", "test");
         request.addHeader("Content-Length", "3");
-        final StringEntity entity = new StringEntity("123", ContentType.TEXT_PLAIN);
-        entity.setChunked(false);
+        final StringEntity entity = new StringEntity("123", ContentType.TEXT_PLAIN, true);
         request.setEntity(entity);
 
         conn.sendRequestHeader(request);
@@ -380,7 +379,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: " +
                 "3\r\n\r\n123", s);
         Assert.assertTrue(conn.isConsistent());
@@ -398,8 +397,7 @@ public class TestDefaultBHttpClientConnection {
         final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", "/stuff");
         request.addHeader("User-Agent", "test");
         request.addHeader("Content-Length", "3000");
-        final ByteArrayEntity entity = new ByteArrayEntity(new byte[3000], ContentType.TEXT_PLAIN);
-        entity.setChunked(false);
+        final ByteArrayEntity entity = new ByteArrayEntity(new byte[3000], ContentType.TEXT_PLAIN, true);
         request.setEntity(entity);
 
         conn.sendRequestHeader(request);
@@ -407,7 +405,7 @@ public class TestDefaultBHttpClientConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nContent-Length: " +
                 "3000\r\n\r\n", s);
         Assert.assertFalse(conn.isConsistent());

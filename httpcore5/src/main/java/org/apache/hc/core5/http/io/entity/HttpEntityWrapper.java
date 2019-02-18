@@ -33,9 +33,11 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -47,6 +49,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 4.0
  */
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class HttpEntityWrapper implements HttpEntity {
 
     /** The wrapped entity. */

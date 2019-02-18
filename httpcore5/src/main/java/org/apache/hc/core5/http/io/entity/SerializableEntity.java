@@ -35,103 +35,69 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
 
 /**
  * A streamed entity that obtains its content from a {@link Serializable}.
- * The content obtained from the {@link Serializable} instance can
- * optionally be buffered in a byte array in order to make the
- * entity self-contained and repeatable.
  *
  * @since 4.0
  */
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class SerializableEntity extends AbstractHttpEntity {
 
-    private byte[] objSer;
-
-    private Serializable objRef;
+    private final Serializable serializable;
 
     /**
      * Creates new instance of this class.
      *
-     * @param ser input
-     * @param bufferize tells whether the content should be
-     *        stored in an internal buffer
+     * @param serializable the serializable.
      * @throws IOException in case of an I/O error
      */
-    public SerializableEntity(final Serializable ser, final boolean bufferize) throws IOException {
-        super();
-        Args.notNull(ser, "Source object");
-        if (bufferize) {
-            createBytes(ser);
-        } else {
-            this.objRef = ser;
-        }
+    public SerializableEntity(
+            final Serializable serializable, final ContentType contentType, final String contentEncoding) {
+        super(contentType, contentEncoding);
+        this.serializable = Args.notNull(serializable, "Source object");
     }
 
-    /**
-     * Creates new instance of this class.
-     *
-     * @param serializable The object to serialize.
-     *
-     * @since 4.3
-     */
-    public SerializableEntity(final Serializable serializable) {
-        super();
-        Args.notNull(serializable, "Source object");
-        this.objRef = serializable;
-    }
-
-    private void createBytes(final Serializable ser) throws IOException {
-        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        final ObjectOutputStream out = new ObjectOutputStream(baos);
-        out.writeObject(ser);
-        out.flush();
-        this.objSer = baos.toByteArray();
+    public SerializableEntity(final Serializable serializable, final ContentType contentType) {
+        this(serializable, contentType, null);
     }
 
     @Override
-    public InputStream getContent() throws IOException, IllegalStateException {
-        if (this.objSer == null) {
-            createBytes(this.objRef);
-        }
-        return new ByteArrayInputStream(this.objSer);
+    public final InputStream getContent() throws IOException, IllegalStateException {
+        final ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        writeTo(buf);
+        return new ByteArrayInputStream(buf.toByteArray());
     }
 
     @Override
-    public long getContentLength() {
-        if (this.objSer ==  null) {
-            return -1;
-        }
-        return this.objSer.length;
+    public final long getContentLength() {
+        return -1;
     }
 
     @Override
-    public boolean isRepeatable() {
+    public final boolean isRepeatable() {
         return true;
     }
 
     @Override
-    public boolean isStreaming() {
-        return this.objSer == null;
+    public final boolean isStreaming() {
+        return false;
     }
 
     @Override
-    public void writeTo(final OutputStream outStream) throws IOException {
+    public final void writeTo(final OutputStream outStream) throws IOException {
         Args.notNull(outStream, "Output stream");
-        if (this.objSer == null) {
-            final ObjectOutputStream out = new ObjectOutputStream(outStream);
-            out.writeObject(this.objRef);
-            out.flush();
-        } else {
-            outStream.write(this.objSer);
-            outStream.flush();
-        }
+        final ObjectOutputStream out = new ObjectOutputStream(outStream);
+        out.writeObject(this.serializable);
+        out.flush();
     }
 
     @Override
-    public void close() throws IOException {
-        // do nothing.
+    public final void close() throws IOException {
     }
 
 }

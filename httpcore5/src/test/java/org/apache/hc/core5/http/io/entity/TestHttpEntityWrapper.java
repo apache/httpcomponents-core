@@ -42,17 +42,15 @@ public class TestHttpEntityWrapper {
 
     @Test
     public void testBasics() throws Exception {
-        final String s = "Message content";
-        final StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN);
-        httpentity.setContentEncoding("blah");
-        final HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
+        final StringEntity entity = new StringEntity("Message content", ContentType.TEXT_PLAIN, "blah", false);
+        final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity);
 
-        Assert.assertEquals(httpentity.getContentLength(), wrapped.getContentLength());
-        Assert.assertEquals(httpentity.getContentType(), wrapped.getContentType());
-        Assert.assertEquals(httpentity.getContentEncoding(), wrapped.getContentEncoding());
-        Assert.assertEquals(httpentity.isChunked(), wrapped.isChunked());
-        Assert.assertEquals(httpentity.isRepeatable(), wrapped.isRepeatable());
-        Assert.assertEquals(httpentity.isStreaming(), wrapped.isStreaming());
+        Assert.assertEquals(entity.getContentLength(), wrapped.getContentLength());
+        Assert.assertEquals(entity.getContentType(), wrapped.getContentType());
+        Assert.assertEquals(entity.getContentEncoding(), wrapped.getContentEncoding());
+        Assert.assertEquals(entity.isChunked(), wrapped.isChunked());
+        Assert.assertEquals(entity.isRepeatable(), wrapped.isRepeatable());
+        Assert.assertEquals(entity.isStreaming(), wrapped.isStreaming());
         Assert.assertNotNull(wrapped.getContent());
     }
 
@@ -70,8 +68,8 @@ public class TestHttpEntityWrapper {
     public void testWriteTo() throws Exception {
         final String s = "Message content";
         final byte[] bytes = s.getBytes(StandardCharsets.ISO_8859_1);
-        final StringEntity httpentity = new StringEntity(s);
-        final HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
+        final StringEntity entity = new StringEntity(s);
+        final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         wrapped.writeTo(out);
@@ -102,8 +100,8 @@ public class TestHttpEntityWrapper {
     @Test
     public void testConsumeContent() throws Exception {
         final String s = "Message content";
-        final StringEntity httpentity = new StringEntity(s);
-        final HttpEntityWrapper wrapped = new HttpEntityWrapper(httpentity);
+        final StringEntity entity = new StringEntity(s);
+        final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity);
         EntityUtils.consume(wrapped);
         EntityUtils.consume(wrapped);
     }

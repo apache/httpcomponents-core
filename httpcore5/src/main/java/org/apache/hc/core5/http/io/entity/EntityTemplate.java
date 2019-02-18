@@ -27,56 +27,66 @@
 
 package org.apache.hc.core5.http.io.entity;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Abstract base class for immutable entities.
+ * Entity that delegates the process of content generation to a {@link HttpContentProducer}.
  *
- * @since 5.0
+ * @since 4.0
  */
-public abstract class AbstractImmutableHttpEntity implements HttpEntity {
+@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
+public final class EntityTemplate extends AbstractHttpEntity {
 
-    static final int OUTPUT_BUFFER_SIZE = 4096;
+    private final long contentLength;
+    private final HttpContentProducer contentProducer;
+
+    public EntityTemplate(
+            final long contentLength, final ContentType contentType, final String contentEncoding,
+            final HttpContentProducer contentProducer) {
+        super(contentType, contentEncoding);
+        this.contentLength = contentLength;
+        this.contentProducer = Args.notNull(contentProducer, "Content producer");
+    }
+
+    @Override
+    public long getContentLength() {
+        return contentLength;
+    }
+
+    @Override
+    public InputStream getContent() throws IOException {
+        final ByteArrayOutputStream buf = new ByteArrayOutputStream();
+        writeTo(buf);
+        return new ByteArrayInputStream(buf.toByteArray());
+    }
+
+    @Override
+    public boolean isRepeatable() {
+        return true;
+    }
 
     @Override
     public void writeTo(final OutputStream outStream) throws IOException {
         Args.notNull(outStream, "Output stream");
-        try (final InputStream inStream = getContent()) {
-            if (inStream != null) {
-                int count;
-                final byte[] tmp = new byte[OUTPUT_BUFFER_SIZE];
-                while ((count = inStream.read(tmp)) != -1) {
-                    outStream.write(tmp, 0, count);
-                }
-            }
-        }
+        this.contentProducer.writeTo(outStream);
     }
 
     @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append('[');
-        sb.append("Content-Type: ");
-        sb.append(getContentType());
-        sb.append(',');
-        sb.append("Content-Encoding: ");
-        sb.append(getContentEncoding());
-        sb.append(',');
-        final long len = getContentLength();
-        if (len >= 0) {
-            sb.append("Content-Length: ");
-            sb.append(len);
-            sb.append(',');
-        }
-        sb.append("Chunked: ");
-        sb.append(isChunked());
-        sb.append(']');
-        return sb.toString();
+    public boolean isStreaming() {
+        return false;
+    }
+
+    @Override
+    public void close() throws IOException {
     }
 
 }

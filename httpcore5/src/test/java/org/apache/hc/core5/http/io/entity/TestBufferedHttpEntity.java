@@ -43,23 +43,22 @@ public class TestBufferedHttpEntity {
     @Test
     public void testBufferingEntity() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        final InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
-        final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
-        Assert.assertEquals(bytes.length, bufentity.getContentLength());
-        Assert.assertTrue(bufentity.isRepeatable());
-        Assert.assertFalse(bufentity.isChunked());
-        Assert.assertFalse(bufentity.isStreaming());
+        final BufferedHttpEntity entity = new BufferedHttpEntity(
+                new InputStreamEntity(new ByteArrayInputStream(bytes), -1, null));
+        Assert.assertEquals(bytes.length, entity.getContentLength());
+        Assert.assertTrue(entity.isRepeatable());
+        Assert.assertFalse(entity.isChunked());
+        Assert.assertFalse(entity.isStreaming());
 
         // test if we can obtain contain multiple times
-        Assert.assertNotNull(bufentity.getContent ());
-        Assert.assertNotNull(bufentity.getContent ());
+        Assert.assertNotNull(entity.getContent ());
+        Assert.assertNotNull(entity.getContent ());
     }
 
     @Test
     public void testWrappingEntity() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        final ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
-        httpentity.setChunked(true);
+        final ByteArrayEntity httpentity = new ByteArrayEntity(bytes, null, true);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
         Assert.assertEquals(bytes.length, bufentity.getContentLength());
         Assert.assertTrue(bufentity.isRepeatable());
@@ -84,7 +83,7 @@ public class TestBufferedHttpEntity {
     @Test
     public void testWriteToBuffered() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        final InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1);
+        final InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1, null);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -116,7 +115,7 @@ public class TestBufferedHttpEntity {
     @Test
     public void testWriteToWrapped() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        final ByteArrayEntity httpentity = new ByteArrayEntity(bytes);
+        final ByteArrayEntity httpentity = new ByteArrayEntity(bytes, null);
         final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();

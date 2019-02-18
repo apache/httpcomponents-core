@@ -32,6 +32,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -44,26 +46,23 @@ public class TestInputStreamEntity {
     @Test
     public void testBasics() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
-        final InputStream inStream = new ByteArrayInputStream(bytes);
-        final InputStreamEntity httpentity = new InputStreamEntity(inStream, bytes.length);
+        final InputStreamEntity entity = new InputStreamEntity(new ByteArrayInputStream(bytes), bytes.length, null);
 
-        Assert.assertEquals(bytes.length, httpentity.getContentLength());
-        Assert.assertEquals(inStream, httpentity.getContent());
-        Assert.assertNotNull(httpentity.getContent());
-        Assert.assertFalse(httpentity.isRepeatable());
-        Assert.assertTrue(httpentity.isStreaming());
+        Assert.assertEquals(bytes.length, entity.getContentLength());
+        Assert.assertNotNull(entity.getContent());
+        Assert.assertFalse(entity.isRepeatable());
+        Assert.assertTrue(entity.isStreaming());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testIllegalConstructor() throws Exception {
-        new InputStreamEntity(null, 0);
+        new InputStreamEntity(null, 0, null);
     }
 
     @Test
     public void testUnknownLengthConstructor() throws Exception {
-        final InputStream inStream = new ByteArrayInputStream(new byte[0]);
-        final InputStreamEntity httpentity = new InputStreamEntity(inStream);
-        Assert.assertEquals(-1, httpentity.getContentLength());
+        final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, null);
+        Assert.assertEquals(-1, entity.getContentLength());
     }
 
     @Test
@@ -71,10 +70,11 @@ public class TestInputStreamEntity {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
         final InputStream inStream = new ByteArrayInputStream(bytes);
-        final InputStreamEntity httpentity = new InputStreamEntity(inStream, bytes.length);
+        final InputStreamEntity entity = new InputStreamEntity(inStream, bytes.length,
+                ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1));
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        httpentity.writeTo(out);
+        entity.writeTo(out);
         final byte[] writtenBytes = out.toByteArray();
         Assert.assertNotNull(writtenBytes);
         Assert.assertEquals(bytes.length, writtenBytes.length);
@@ -89,10 +89,11 @@ public class TestInputStreamEntity {
         final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
         final InputStream inStream = new ByteArrayInputStream(bytes);
         final int contentLength = 7;
-        final InputStreamEntity httpentity = new InputStreamEntity(inStream, contentLength);
+        final InputStreamEntity entity = new InputStreamEntity(inStream, contentLength,
+                ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1));
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        httpentity.writeTo(out);
+        entity.writeTo(out);
         final byte[] writtenBytes = out.toByteArray();
         Assert.assertNotNull(writtenBytes);
         Assert.assertEquals(contentLength, writtenBytes.length);
@@ -105,11 +106,11 @@ public class TestInputStreamEntity {
     public void testWriteToUnknownLength() throws Exception {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
-        final InputStream inStream = new ByteArrayInputStream(bytes);
-        final InputStreamEntity httpentity = new InputStreamEntity(inStream);
+        final InputStreamEntity entity = new InputStreamEntity(new ByteArrayInputStream(bytes),
+                ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1));
 
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        httpentity.writeTo(out);
+        entity.writeTo(out);
         final byte[] writtenBytes = out.toByteArray();
         Assert.assertNotNull(writtenBytes);
         Assert.assertEquals(bytes.length, writtenBytes.length);
@@ -120,8 +121,7 @@ public class TestInputStreamEntity {
 
     @Test(expected = IllegalArgumentException.class)
     public void testWriteToNull() throws Exception {
-        final InputStream inStream = new ByteArrayInputStream(new byte[0]);
-        final InputStreamEntity httpentity = new InputStreamEntity(inStream, 0);
-        httpentity.writeTo(null);
+        final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, 0, null);
+        entity.writeTo(null);
     }
 }
