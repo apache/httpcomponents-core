@@ -61,7 +61,6 @@ import org.apache.hc.core5.http.io.support.HttpServerExpectationFilter;
 import org.apache.hc.core5.http.io.support.HttpServerFilterChainElement;
 import org.apache.hc.core5.http.io.support.HttpServerFilterChainRequestHandler;
 import org.apache.hc.core5.http.io.support.TerminalServerFilter;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.LookupRegistry;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
@@ -79,7 +78,7 @@ public class ServerBootstrap {
     private final List<HandlerEntry<HttpRequestHandler>> handlerList;
     private final List<FilterEntry<HttpFilterHandler>> filters;
     private String canonicalHostName;
-    private LookupRegistry<AsyncServerExchangeHandler> lookupRegistry;
+    private LookupRegistry<HttpRequestHandler> lookupRegistry;
     private int listenerPort;
     private InetAddress localAddress;
     private SocketConfig socketConfig;
@@ -184,7 +183,7 @@ public class ServerBootstrap {
      * @return this
      * @since 5.0
      */
-    public final ServerBootstrap setLookupRegistry(final LookupRegistry<AsyncServerExchangeHandler> lookupRegistry) {
+    public final ServerBootstrap setLookupRegistry(final LookupRegistry<HttpRequestHandler> lookupRegistry) {
         this.lookupRegistry = lookupRegistry;
         return this;
     }
@@ -326,11 +325,12 @@ public class ServerBootstrap {
     public HttpServer create() {
         final RequestHandlerRegistry<HttpRequestHandler> handlerRegistry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
-                new Supplier() {
+                new Supplier<LookupRegistry<HttpRequestHandler>>() {
 
                     @Override
-                    public LookupRegistry get() {
-                        return lookupRegistry != null ? lookupRegistry : UriPatternType.newMatcher(UriPatternType.URI_PATTERN);
+                    public LookupRegistry<HttpRequestHandler> get() {
+                        return lookupRegistry != null ? lookupRegistry :
+                                UriPatternType.<HttpRequestHandler>newMatcher(UriPatternType.URI_PATTERN);
                     }
 
                 });

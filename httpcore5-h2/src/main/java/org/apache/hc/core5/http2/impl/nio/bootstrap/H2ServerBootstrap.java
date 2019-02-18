@@ -84,7 +84,7 @@ public class H2ServerBootstrap {
     private final List<HandlerEntry<Supplier<AsyncServerExchangeHandler>>> handlerList;
     private final List<FilterEntry<AsyncFilterHandler>> filters;
     private String canonicalHostName;
-    private LookupRegistry<AsyncServerExchangeHandler> lookupRegistry;
+    private LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry;
     private IOReactorConfig ioReactorConfig;
     private HttpProcessor httpProcessor;
     private CharCodingConfig charCodingConfig;
@@ -216,7 +216,7 @@ public class H2ServerBootstrap {
      * @return this
      * @since 5.0
      */
-    public final H2ServerBootstrap setLookupRegistry(final LookupRegistry<AsyncServerExchangeHandler> lookupRegistry) {
+    public final H2ServerBootstrap setLookupRegistry(final LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry) {
         this.lookupRegistry = lookupRegistry;
         return this;
     }
@@ -350,11 +350,12 @@ public class H2ServerBootstrap {
     public HttpAsyncServer create() {
         final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
-                new Supplier() {
+                new Supplier<LookupRegistry<Supplier<AsyncServerExchangeHandler>>>() {
 
                     @Override
-                    public LookupRegistry get() {
-                        return lookupRegistry != null ? lookupRegistry : UriPatternType.newMatcher(UriPatternType.URI_PATTERN);
+                    public LookupRegistry<Supplier<AsyncServerExchangeHandler>> get() {
+                        return lookupRegistry != null ? lookupRegistry :
+                                UriPatternType.<Supplier<AsyncServerExchangeHandler>>newMatcher(UriPatternType.URI_PATTERN);
                     }
 
                 });

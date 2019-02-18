@@ -114,7 +114,7 @@ public class Http1ServerAndRequesterTest {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             server = AsyncServerBootstrap.bootstrap()
-                    .setLookupRegistry(new UriPatternMatcher<AsyncServerExchangeHandler>()) // same as the default
+                    .setLookupRegistry(new UriPatternMatcher<Supplier<AsyncServerExchangeHandler>>())
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
