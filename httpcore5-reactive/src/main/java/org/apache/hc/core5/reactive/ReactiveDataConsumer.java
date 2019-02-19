@@ -54,10 +54,7 @@ import org.reactivestreams.Subscription;
 @Contract(threading = ThreadingBehavior.SAFE)
 final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuffer> {
 
-    static final int MAX_BUFFER = 1024 * 1024;
-
     private final AtomicLong requests = new AtomicLong(0);
-    private final AtomicInteger remainingBufferSpace = new AtomicInteger(MAX_BUFFER);
 
     private final BlockingQueue<ByteBuffer> buffers = new LinkedBlockingQueue<>();
     private final AtomicBoolean flushInProgress = new AtomicBoolean(false);
@@ -77,6 +74,14 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         throwIfCancelled();
         this.capacityChannel = capacityChannel;
+        signalCapacity(capacityChannel);
+    }
+
+    private void signalCapacity(final CapacityChannel channel) throws IOException {
+        final int increment = windowScalingIncrement.getAndSet(0);
+        if (increment > 0) {
+            channel.update(increment);
+        }
     }
 
     private void throwIfCancelled() throws IOException {
@@ -94,7 +99,6 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
 
         final byte[] copy = new byte[byteBuffer.remaining()];
         byteBuffer.get(copy);
-        remainingBufferSpace.addAndGet(-copy.length);
         buffers.add(ByteBuffer.wrap(copy));
 
         flushToSubscriber();
@@ -128,20 +132,18 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
             ByteBuffer next;
             while (requests.get() > 0 && ((next = buffers.poll()) != null)) {
                 final int bytesFreed = next.remaining();
-                remainingBufferSpace.addAndGet(bytesFreed);
                 s.onNext(next);
                 requests.decrementAndGet();
                 windowScalingIncrement.addAndGet(bytesFreed);
             }
-            if (capacityChannel != null) {
-                final int increment = windowScalingIncrement.getAndSet(0);
-                if (increment > 0) {
-                    try {
-                        capacityChannel.update(increment);
-                    } catch (final IOException ex) {
-                        failed(ex);
-                        return;
-                    }
+            final CapacityChannel localChannel = capacityChannel;
+            if (localChannel != null) {
+                try {
+                    signalCapacity(localChannel);
+                } catch (final IOException e) {
+                    exception = e;
+                    s.onError(e);
+                    return;
                 }
             }
             if (completed && buffers.isEmpty()) {
