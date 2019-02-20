@@ -98,6 +98,8 @@ import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 
+import static java.lang.String.format;
+
 @RunWith(Parameterized.class)
 public class ReactiveClientTest {
 
@@ -313,6 +315,58 @@ public class ReactiveClientTest {
     }
 
     @Test
+    public void testManySmallBuffers() throws Exception {
+        // This test is not flaky. If it starts randomly failing, then there is a problem with how
+        // ReactiveDataConsumer signals capacity with its capacity channel. The situations in which
+        // this kind of bug manifests depend on the ordering of several events on different threads
+        // so it's unlikely to consistently occur.
+        final InetSocketAddress address = startClientAndServer();
+        for (int i = 0; i < 10; i++) {
+            final AtomicLong requestLength = new AtomicLong(0L);
+            final AtomicReference<MessageDigest> requestDigest = new AtomicReference<>(newDigest());
+            final Publisher<ByteBuffer> publisher = Flowable.rangeLong(1, 1_000)
+                .map(new Function<Long, ByteBuffer>() {
+                    @Override
+                    public ByteBuffer apply(final Long seed) {
+                        final Random random = new Random(seed);
+                        final byte[] bytes = new byte[1024];
+                        requestLength.addAndGet(bytes.length);
+                        random.nextBytes(bytes);
+                        return ByteBuffer.wrap(bytes);
+                    }
+                })
+                .doOnNext(new Consumer<ByteBuffer>() {
+                    @Override
+                    public void accept(final ByteBuffer byteBuffer) {
+                        requestDigest.get().update(byteBuffer.duplicate());
+                    }
+                });
+            final ReactiveEntityProducer producer = new ReactiveEntityProducer(publisher, -1, null, null);
+            final BasicRequestProducer request = getRequestProducer(address, producer);
+
+            final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
+            requester.execute(request, consumer, SOCKET_TIMEOUT, null);
+            final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
+                .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
+
+            final AtomicLong responseLength = new AtomicLong(0);
+            final AtomicReference<MessageDigest> responseDigest = new AtomicReference<>(newDigest());
+            Flowable.fromPublisher(response.getBody())
+                .doOnNext(new Consumer<ByteBuffer>() {
+                    @Override
+                    public void accept(final ByteBuffer byteBuffer) {
+                        responseLength.addAndGet(byteBuffer.remaining());
+                        responseDigest.get().update(byteBuffer);
+                    }
+                })
+                .blockingLast(); // This requests Long.MAX_VALUE objects and guarantees we won't call request again
+
+            Assert.assertEquals(requestLength.get(), responseLength.get());
+            Assert.assertArrayEquals(requestDigest.get().digest(), responseDigest.get().digest());
+        }
+    }
+
+    @Test
     public void testRequestError() throws Exception {
         final InetSocketAddress address = startClientAndServer();
         final RuntimeException exceptionThrown = new RuntimeException("Test");
@@ -360,7 +414,7 @@ public class ReactiveClientTest {
                 Assert.assertTrue("Expected SocketTimeoutException, but got " + cause.getClass().getName(),
                     cause instanceof SocketTimeoutException);
             } else if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_2) {
-                Assert.assertTrue(String.format("Expected RST_STREAM, but %s was thrown", cause.getClass().getName()),
+                Assert.assertTrue(format("Expected RST_STREAM, but %s was thrown", cause.getClass().getName()),
                     cause instanceof HttpStreamResetException);
             } else {
                 Assert.fail("Unknown HttpVersionPolicy: " + versionPolicy);
