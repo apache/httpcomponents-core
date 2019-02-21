@@ -71,6 +71,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
@@ -93,13 +94,13 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     private final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
-    private final AtomicInteger inputWindow;
     private final ByteBuffer contentBuffer;
     private final AtomicInteger outputRequests;
 
     private volatile Message<IncomingMessage, ContentDecoder> incomingMessage;
     private volatile Message<OutgoingMessage, ContentEncoder> outgoingMessage;
     private volatile ConnectionState connState;
+    private volatile CapacityWindow capacityWindow;
 
     private volatile ProtocolVersion version;
     private volatile EndpointDetails endpointDetails;
@@ -129,7 +130,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
-        this.inputWindow = new AtomicInteger(0);
         this.contentBuffer = ByteBuffer.allocate(this.h1Config.getBufferSize());
         this.outputRequests = new AtomicInteger(0);
         this.connState = ConnectionState.READY;
@@ -237,19 +237,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         processCommands();
     }
 
-    private int updateWindow(final AtomicInteger window, final int delta) throws ArithmeticException {
-        for (;;) {
-            final int current = window.get();
-            final long newValue = (long) current + delta;
-            if (Math.abs(newValue) > 0x7fffffffL) {
-                throw new ArithmeticException("Update causes flow control window to exceed " + Integer.MAX_VALUE);
-            }
-            if (window.compareAndSet(current, (int) newValue)) {
-                return (int) newValue;
-            }
-        }
-    }
-
     public final void onInput() throws HttpException, IOException {
         while (connState.compareTo(ConnectionState.SHUTDOWN) < 0) {
             int totalBytesRead = 0;
@@ -285,7 +272,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                             consumeHeader(messageHead, null);
                             contentDecoder = null;
                         }
-                        inputWindow.set(h1Config.getInitialWindowSize());
+                        capacityWindow = new CapacityWindow(h1Config.getInitialWindowSize(), ioSession);
                         if (contentDecoder != null) {
                             incomingMessage = new Message<>(messageHead, contentDecoder);
                             break;
@@ -322,30 +309,17 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     contentBuffer.flip();
                     consumeData(contentBuffer);
                     contentBuffer.clear();
-                    final int capacity = updateWindow(inputWindow, -bytesRead);
+                    final int capacity = capacityWindow.removeCapacity(bytesRead);
                     if (capacity <= 0) {
                         if (!contentDecoder.isCompleted()) {
-                            ioSession.clearEvent(SelectionKey.OP_READ);
-                            updateCapacity(new CapacityChannel() {
-
-                                @Override
-                                public void update(final int increment) throws IOException {
-                                    if (increment > 0) {
-                                        final int capacity = inputWindow.get();
-                                        final int remaining = capacity > 0 ? Integer.MAX_VALUE - capacity : Integer.MAX_VALUE;
-                                        final int chunk = Math.min(increment, remaining);
-                                        updateWindow(inputWindow, chunk);
-                                        requestSessionInput();
-                                    }
-                                }
-
-                            });
+                            updateCapacity(capacityWindow);
                         }
                         break;
                     }
                 }
                 if (contentDecoder.isCompleted()) {
                     dataEnd(contentDecoder.getTrailers());
+                    capacityWindow.close();
                     incomingMessage = null;
                     ioSession.setEvent(SelectionKey.OP_READ);
                     inputEnd();
@@ -627,7 +601,62 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         buf.append("connState=").append(connState)
                 .append(", inbuf=").append(inbuf)
                 .append(", outbuf=").append(outbuf)
-                .append(", inputWindow=").append(inputWindow);
+                .append(", inputWindow=").append(capacityWindow != null ? capacityWindow.getWindow() : 0);
     }
 
+    static class CapacityWindow implements CapacityChannel {
+        private final IOSession ioSession;
+        private int window;
+        private boolean closed;
+
+        CapacityWindow(final int window, final IOSession ioSession) {
+            this.window = window;
+            this.ioSession = ioSession;
+        }
+
+        @Override
+        public synchronized void update(final int increment) throws IOException {
+            if (closed) {
+                return;
+            }
+            if (increment > 0) {
+                updateWindow(increment);
+                ioSession.setEvent(SelectionKey.OP_READ);
+            }
+        }
+
+        /**
+         * Internal method for removing capacity. We don't need to check
+         * if this channel is closed in it.
+         */
+        synchronized int removeCapacity(final int delta) {
+            updateWindow(-delta);
+            if (window <= 0) {
+                ioSession.clearEvent(SelectionKey.OP_READ);
+            }
+            return window;
+        }
+
+        private void updateWindow(final int delta) {
+            int newValue = window + delta;
+            // Math.addExact
+            if (((window ^ newValue) & (delta ^ newValue)) < 0) {
+                newValue = delta < 0 ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+            }
+            window = newValue;
+        }
+
+        /**
+         * Closes the capacity channel, preventing user code from accidentally requesting
+         * read events outside of the context of the request the channel was created for
+         */
+        synchronized void close() {
+            closed = true;
+        }
+
+        // visible for testing
+        int getWindow() {
+            return window;
+        }
+    }
 }
