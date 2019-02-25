@@ -61,6 +61,10 @@ Change Log
 * SSLIOSession: Add `connectTimeout` constructor param
   Contributed by Ryan Schmitt <rschmitt at apache.org>
 
+* Update RxJava from 2.1.9 to 2.2.7.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+
 Release 5.0-BETA6
 -------------------
 
