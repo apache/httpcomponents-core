@@ -2,13 +2,31 @@ Release 5.0-BETA7
 -------------------
 
 This BETA release adds support for SOCKS version 5, improves support for TLS
-handshake timeout configuration, and fixes various defects.
+handshake timeout configuration, improves URI builder, and fixes various defects.
 
 Please note that the following interfaces have changed: TlsStrategy, IOSession,
 TransportSecurityLayer.
 
 Change Log
 -------------------
+
+* Add a thread-safe capacity channel to AbstractHttp1StreamDuplexer
+  Contributed by Richard Hernandez <riher at amazon.com>
+
+* HTTPCORE-568: Signal capacity in ReactiveDataConsumer whenever possible (fixes a race condition)
+  Contributed by Richard Hernandez <riher at amazon.com>
+
+* Made standard HttpEntity implementations immutable / conditionally immutable
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-1968: URIBuilder to split path component into path segments when digesting a URI
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-1968: added utility methods to parse and format URI path segments
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Added SOCKS proxy support to classic (blocking) HTTP requester
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Made AbstractBinAsyncEntityProducer and AbstractCharAsyncEntityProducer conditionally threading-safe
   Contributed by Oleg Kalnichevski <olegk at apache.org>
@@ -42,6 +60,10 @@ Change Log
 
 * SSLIOSession: Add `connectTimeout` constructor param
   Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Update RxJava from 2.1.9 to 2.2.7.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
 
 Release 5.0-BETA6
 -------------------

@@ -32,10 +32,11 @@
  * of channels and event handlers. The channels act as conduits
  * for asynchronous data output. They are generally expected to
  * be thread-safe and could be used by multiple threads concurrently.
- * The event handlers react to as asynchronous signal or event and
- * handle them. Event handlers can be specialized as data producers,
+ * The event handlers react to asynchronous signals or events and
+ * communicate with the opposite endpoint through available channels.
+ * Event handlers can be specialized as data producers,
  * data consumers or can be both. Generally event handlers can only
- * be used by a signle thread at a time and do not require synchronization
+ * be used by a single thread at a time and do not require synchronization
  * as long as they do not interact with event handlers run by separate
  * threads.
  * </p>

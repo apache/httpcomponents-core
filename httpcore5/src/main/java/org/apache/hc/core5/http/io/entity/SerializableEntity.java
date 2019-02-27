@@ -53,8 +53,9 @@ public class SerializableEntity extends AbstractHttpEntity {
     /**
      * Creates new instance of this class.
      *
-     * @param serializable the serializable.
-     * @throws IOException in case of an I/O error
+     * @param serializable the serializable object.
+     * @param contentType the content type.
+     * @param contentEncoding the content encoding.
      */
     public SerializableEntity(
             final Serializable serializable, final ContentType contentType, final String contentEncoding) {
@@ -62,6 +63,12 @@ public class SerializableEntity extends AbstractHttpEntity {
         this.serializable = Args.notNull(serializable, "Source object");
     }
 
+    /**
+     * Creates new instance of this class.
+     *
+     * @param serializable the serializable object.
+     * @param contentType the content type.
+     */
     public SerializableEntity(final Serializable serializable, final ContentType contentType) {
         this(serializable, contentType, null);
     }

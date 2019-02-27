@@ -81,6 +81,7 @@
     <mockito.version>2.23.0</mockito.version>
     <slf4j.version>1.7.25</slf4j.version>
     <log4j.version>2.8.2</log4j.version>
+    <rxjava.version>2.2.7</rxjava.version>
   </properties>
 
   <dependencyManagement>
