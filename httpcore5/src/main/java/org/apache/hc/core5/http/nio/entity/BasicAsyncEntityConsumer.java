@@ -79,6 +79,7 @@ public class BasicAsyncEntityConsumer extends AbstractBinAsyncEntityConsumer<byt
 
     @Override
     public void releaseResources() {
+        buffer.clear();
     }
 
 }

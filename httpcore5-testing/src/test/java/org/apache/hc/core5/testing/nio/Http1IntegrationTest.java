@@ -1425,7 +1425,14 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final AsyncRequestProducer requestProducer = new BasicRequestProducer("GET", createRequestURI(serverEndpoint, "/hello"));
-        final StringAsyncEntityConsumer entityConsumer = new StringAsyncEntityConsumer();
+        final StringAsyncEntityConsumer entityConsumer = new StringAsyncEntityConsumer() {
+
+            @Override
+            public void releaseResources() {
+                // Do not clear internal content buffer
+            }
+
+        };
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(entityConsumer);
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(requestProducer, responseConsumer, null);
         try {

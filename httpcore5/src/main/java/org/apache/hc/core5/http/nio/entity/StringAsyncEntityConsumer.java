@@ -80,6 +80,7 @@ public class StringAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<S
 
     @Override
     public void releaseResources() {
+        content.clear();
     }
 
 }
