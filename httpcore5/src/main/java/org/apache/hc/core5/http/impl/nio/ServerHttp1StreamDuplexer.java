@@ -368,8 +368,9 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
     @Override
     void produceOutput() throws HttpException, IOException {
-        Asserts.notNull(outgoing, "Response stream handler");
-        outgoing.produceOutput();
+        if (outgoing != null) {
+            outgoing.produceOutput();
+        }
     }
 
     @Override
