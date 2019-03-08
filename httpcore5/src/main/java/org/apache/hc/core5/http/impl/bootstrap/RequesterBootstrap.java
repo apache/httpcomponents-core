@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http.impl.bootstrap;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.hc.core5.annotation.Experimental;
@@ -104,6 +105,11 @@ public class RequesterBootstrap {
 
     public final RequesterBootstrap setConnectionFactory(final HttpConnectionFactory<? extends HttpClientConnection> connectFactory) {
         this.connectFactory = connectFactory;
+        return this;
+    }
+
+    public final RequesterBootstrap setSslContext(final SSLContext sslContext) {
+        this.sslSocketFactory = sslContext != null ? sslContext.getSocketFactory() : null;
         return this;
     }
 

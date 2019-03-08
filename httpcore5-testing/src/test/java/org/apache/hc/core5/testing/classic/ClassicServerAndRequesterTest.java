@@ -28,6 +28,8 @@
 package org.apache.hc.core5.testing.classic;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -37,7 +39,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
@@ -45,28 +47,46 @@ import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
 import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpFilterHandler;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.Timeout;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+@RunWith(Parameterized.class)
 public class ClassicServerAndRequesterTest {
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> protocols() {
+        return Arrays.asList(new Object[][]{
+                { URIScheme.HTTP },
+                { URIScheme.HTTPS }
+        });
+    }
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
+    private final URIScheme scheme;
     private HttpServer server;
+
+    public ClassicServerAndRequesterTest(final URIScheme scheme) {
+        this.scheme = scheme;
+    }
 
     @Rule
     public ExternalResource serverResource = new ExternalResource() {
@@ -75,10 +95,10 @@ public class ClassicServerAndRequesterTest {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             server = ServerBootstrap.bootstrap()
-                    .setSocketConfig(
-                            SocketConfig.custom()
-                                    .setSoTimeout(TIMEOUT)
-                                    .build())
+                    .setSslContext(scheme == URIScheme.HTTPS  ? SSLTestContexts.createServerSSLContext() : null)
+                    .setSocketConfig(SocketConfig.custom()
+                            .setSoTimeout(TIMEOUT)
+                            .build())
                     .register("*", new EchoHandler())
                     .addFilterBefore(StandardFilters.MAIN_HANDLER.name(), "no-keep-alive", new HttpFilterHandler() {
 
@@ -136,6 +156,7 @@ public class ClassicServerAndRequesterTest {
         protected void before() throws Throwable {
             log.debug("Starting up test client");
             requester = RequesterBootstrap.bootstrap()
+                    .setSslContext(scheme == URIScheme.HTTPS  ? SSLTestContexts.createServerSSLContext() : null)
                     .setSocketConfig(SocketConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
@@ -162,7 +183,7 @@ public class ClassicServerAndRequesterTest {
     @Test
     public void testSequentialRequests() throws Exception {
         server.start();
-        final HttpHost target = new HttpHost("localhost", server.getLocalPort());
+        final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest("POST", "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
@@ -190,7 +211,7 @@ public class ClassicServerAndRequesterTest {
     @Test
     public void testSequentialRequestsNonPersistentConnection() throws Exception {
         server.start();
-        final HttpHost target = new HttpHost("localhost", server.getLocalPort());
+        final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest("POST", "/no-keep-alive/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
