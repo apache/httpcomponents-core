@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.ssl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -342,6 +343,32 @@ public final class TlsCiphers {
             }
         }
         return false;
+    }
+
+    public static String[] excludeH2Blacklisted(final String... ciphers) {
+        if (ciphers == null) {
+            return null;
+        }
+        final List<String> enabledCiphers = new ArrayList<>();
+        for (final String cipher: ciphers) {
+            if (!TlsCiphers.isH2Blacklisted(cipher)) {
+                enabledCiphers.add(cipher);
+            }
+        }
+        return !enabledCiphers.isEmpty() ? enabledCiphers.toArray(new String[0]) : ciphers;
+    }
+
+    public static String[] excludeWeak(final String... ciphers) {
+        if (ciphers == null) {
+            return null;
+        }
+        final List<String> enabledCiphers = new ArrayList<>();
+        for (final String cipher: ciphers) {
+            if (!TlsCiphers.isWeak(cipher)) {
+                enabledCiphers.add(cipher);
+            }
+        }
+        return !enabledCiphers.isEmpty() ? enabledCiphers.toArray(new String[0]) : ciphers;
     }
 
 }

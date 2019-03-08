@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.io.ssl.DefaultTlsSetupHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.LaxConnPool;
@@ -197,7 +198,7 @@ public class RequesterBootstrap {
                 connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
                         H1Config.DEFAULT, CharCodingConfig.DEFAULT),
                 sslSocketFactory,
-                sslSetupHandler,
+                sslSetupHandler != null ? sslSetupHandler : new DefaultTlsSetupHandler(),
                 DefaultAddressResolver.INSTANCE);
     }
 

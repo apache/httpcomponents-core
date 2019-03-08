@@ -27,6 +27,9 @@
 
 package org.apache.hc.core5.http.ssl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.ParserCursor;
@@ -73,6 +76,22 @@ public enum TLS {
         }
         final ParserCursor cursor = new ParserCursor(0, s.length());
         return TlsVersionParser.INSTANCE.parse(s, cursor, null);
+    }
+
+    public static String[] excludeWeak(final String... protocols) {
+        if (protocols == null) {
+            return null;
+        }
+        final List<String> enabledProtocols = new ArrayList<>();
+        for (final String protocol: protocols) {
+            if (!protocol.startsWith("SSL") && !protocol.equals(V_1_0.ident) && !protocol.equals(V_1_1.ident)) {
+                enabledProtocols.add(protocol);
+            }
+        }
+        if (enabledProtocols.isEmpty()) {
+            enabledProtocols.add(V_1_2.ident);
+        }
+        return enabledProtocols.toArray(new String[0]);
     }
 
 }

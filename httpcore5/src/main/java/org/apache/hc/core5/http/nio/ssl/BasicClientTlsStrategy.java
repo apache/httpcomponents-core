@@ -96,7 +96,8 @@ public class BasicClientTlsStrategy implements TlsStrategy {
             final Timeout handshakeTimeout) {
         final String scheme = host != null ? host.getSchemeName() : null;
         if (URIScheme.HTTPS.same(scheme)) {
-            tlsSession.startTls(sslContext, host, sslBufferMode, initializer, verifier, handshakeTimeout);
+            tlsSession.startTls(sslContext, host, sslBufferMode,
+                    TlsSupport.enforceStrongSecurity(initializer), verifier, handshakeTimeout);
             return true;
         }
         return false;

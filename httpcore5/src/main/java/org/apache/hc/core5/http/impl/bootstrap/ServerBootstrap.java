@@ -57,6 +57,7 @@ import org.apache.hc.core5.http.io.HttpFilterHandler;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.io.ssl.DefaultTlsSetupHandler;
 import org.apache.hc.core5.http.io.support.BasicHttpServerExpectationDecorator;
 import org.apache.hc.core5.http.io.support.BasicHttpServerRequestHandler;
 import org.apache.hc.core5.http.io.support.HttpServerExpectationFilter;
@@ -413,7 +414,7 @@ public class ServerBootstrap {
                 this.socketConfig != null ? this.socketConfig : SocketConfig.DEFAULT,
                 serverSocketFactoryCopy,
                 connectionFactoryCopy,
-                this.sslSetupHandler,
+                sslSetupHandler != null ? sslSetupHandler : new DefaultTlsSetupHandler(),
                 this.exceptionListener != null ? this.exceptionListener : ExceptionListener.NO_OP);
     }
 
