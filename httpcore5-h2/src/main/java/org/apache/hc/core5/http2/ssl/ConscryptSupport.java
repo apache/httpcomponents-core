@@ -64,7 +64,7 @@ public final class ConscryptSupport {
                     sslEngine.setSSLParameters(sslParameters);
                 }
                 if (initializer != null) {
-                    initialize(endpoint, sslEngine);
+                    initializer.initialize(endpoint, sslEngine);
                 }
             }
 
