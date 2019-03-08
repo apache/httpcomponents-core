@@ -39,9 +39,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Resolver;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -92,6 +95,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
     private final SocketConfig socketConfig;
     private final HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
     private final SSLSocketFactory sslSocketFactory;
+    private final Callback<SSLParameters> sslSetupHandler;
     private final Resolver<HttpHost, InetSocketAddress> addressResolver;
 
     /**
@@ -105,6 +109,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
             final SocketConfig socketConfig,
             final HttpConnectionFactory<? extends HttpClientConnection> connectFactory,
             final SSLSocketFactory sslSocketFactory,
+            final Callback<SSLParameters> sslSetupHandler,
             final Resolver<HttpHost, InetSocketAddress> addressResolver) {
         this.requestExecutor = Args.notNull(requestExecutor, "Request executor");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
@@ -113,6 +118,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         this.connectFactory = connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
                 H1Config.DEFAULT, CharCodingConfig.DEFAULT);
         this.sslSocketFactory = sslSocketFactory != null ? sslSocketFactory : (SSLSocketFactory) SSLSocketFactory.getDefault();
+        this.sslSetupHandler = sslSetupHandler;
         this.addressResolver = addressResolver != null ? addressResolver : DefaultAddressResolver.INSTANCE;
     }
 
@@ -251,7 +257,14 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         final InetSocketAddress targetAddress = addressResolver.resolve(targetHost);
         sock.connect(targetAddress, socketConfig.getSoTimeout().toMillisIntBound());
         if (URIScheme.HTTPS.same(targetHost.getSchemeName())) {
-            return sslSocketFactory.createSocket(sock, targetHost.getHostName(), targetAddress.getPort(), true);
+            final SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(
+                    sock, targetHost.getHostName(), targetAddress.getPort(), true);
+            if (this.sslSetupHandler != null) {
+                final SSLParameters sslParameters = sslSocket.getSSLParameters();
+                this.sslSetupHandler.execute(sslParameters);
+                sslSocket.setSSLParameters(sslParameters);
+            }
+            return sslSocket;
         }
         return sock;
     }

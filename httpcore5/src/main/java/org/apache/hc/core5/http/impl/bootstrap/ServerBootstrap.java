@@ -32,8 +32,10 @@ import java.util.List;
 
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocketFactory;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
@@ -89,7 +91,7 @@ public class ServerBootstrap {
     private HttpResponseFactory<ClassicHttpResponse> responseFactory;
     private ServerSocketFactory serverSocketFactory;
     private SSLContext sslContext;
-    private SSLServerSetupHandler sslSetupHandler;
+    private Callback<SSLParameters> sslSetupHandler;
     private HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
     private ExceptionListener exceptionListener;
     private Http1StreamListener streamListener;
@@ -228,14 +230,6 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link SSLServerSetupHandler} instance.
-     */
-    public final ServerBootstrap setSslSetupHandler(final SSLServerSetupHandler sslSetupHandler) {
-        this.sslSetupHandler = sslSetupHandler;
-        return this;
-    }
-
-    /**
      * Assigns {@link javax.net.ServerSocketFactory} instance.
      */
     public final ServerBootstrap setServerSocketFactory(final ServerSocketFactory serverSocketFactory) {
@@ -251,6 +245,14 @@ public class ServerBootstrap {
      */
     public final ServerBootstrap setSslContext(final SSLContext sslContext) {
         this.sslContext = sslContext;
+        return this;
+    }
+
+    /**
+     * Assigns {@link Callback} for {@link SSLParameters}.
+     */
+    public final ServerBootstrap setSslSetupHandler(final Callback<SSLParameters> sslSetupHandler) {
+        this.sslSetupHandler = sslSetupHandler;
         return this;
     }
 

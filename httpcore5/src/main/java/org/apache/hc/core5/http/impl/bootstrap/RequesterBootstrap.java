@@ -27,9 +27,11 @@
 package org.apache.hc.core5.http.impl.bootstrap;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.hc.core5.annotation.Experimental;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
@@ -64,6 +66,7 @@ public class RequesterBootstrap {
     private SocketConfig socketConfig;
     private HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
     private SSLSocketFactory sslSocketFactory;
+    private Callback<SSLParameters> sslSetupHandler;
     private int defaultMaxPerRoute;
     private int maxTotal;
     private Timeout timeToLive;
@@ -115,6 +118,14 @@ public class RequesterBootstrap {
 
     public final RequesterBootstrap setSslSocketFactory(final SSLSocketFactory sslSocketFactory) {
         this.sslSocketFactory = sslSocketFactory;
+        return this;
+    }
+
+    /**
+     * Assigns {@link Callback} for {@link SSLParameters}.
+     */
+    public final RequesterBootstrap setSslSetupHandler(final Callback<SSLParameters> sslSetupHandler) {
+        this.sslSetupHandler = sslSetupHandler;
         return this;
     }
 
@@ -186,6 +197,7 @@ public class RequesterBootstrap {
                 connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
                         H1Config.DEFAULT, CharCodingConfig.DEFAULT),
                 sslSocketFactory,
+                sslSetupHandler,
                 DefaultAddressResolver.INSTANCE);
     }
 

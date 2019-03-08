@@ -36,11 +36,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
@@ -71,7 +73,7 @@ public class HttpServer implements ModalCloseable {
     private final ServerSocketFactory serverSocketFactory;
     private final HttpService httpService;
     private final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
-    private final SSLServerSetupHandler sslSetupHandler;
+    private final Callback<SSLParameters> sslSetupHandler;
     private final ExceptionListener exceptionListener;
     private final ThreadPoolExecutor listenerExecutorService;
     private final ThreadGroup workerThreads;
@@ -89,7 +91,7 @@ public class HttpServer implements ModalCloseable {
             final SocketConfig socketConfig,
             final ServerSocketFactory serverSocketFactory,
             final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory,
-            final SSLServerSetupHandler sslSetupHandler,
+            final Callback<SSLParameters> sslSetupHandler,
             final ExceptionListener exceptionListener) {
         this.port = Args.notNegative(port, "Port value is negative");
         this.httpService = Args.notNull(httpService, "HTTP service");
@@ -139,7 +141,10 @@ public class HttpServer implements ModalCloseable {
                 this.serverSocket.setReceiveBufferSize(this.socketConfig.getRcvBufSize());
             }
             if (this.sslSetupHandler != null && this.serverSocket instanceof SSLServerSocket) {
-                this.sslSetupHandler.initialize((SSLServerSocket) this.serverSocket);
+                final SSLServerSocket sslServerSocket = (SSLServerSocket) this.serverSocket;
+                final SSLParameters sslParameters = sslServerSocket.getSSLParameters();
+                this.sslSetupHandler.execute(sslParameters);
+                sslServerSocket.setSSLParameters(sslParameters);
             }
             this.requestListener = new RequestListener(
                     this.socketConfig,
