@@ -81,7 +81,8 @@ public class SSLIOSession implements IOSession {
     private final ByteChannel channel;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
-    private final Callback<SSLIOSession> callback;
+    private final Callback<SSLIOSession> connectedCallback;
+    private final Callback<SSLIOSession> disconnectedCallback;
     private final AtomicLong bytesReadCount;
 
     private int appEventMask;
@@ -92,29 +93,6 @@ public class SSLIOSession implements IOSession {
     private volatile boolean initialized;
     private volatile Timeout socketTimeout;
     private TlsDetails tlsDetails;
-
-    /**
-     * Creates new instance of {@code SSLIOSession} class with static SSL buffers.
-     *
-     * @param targetEndpoint target endpoint (applicable in client mode only). May be {@code null}.
-     * @param session I/O session to be decorated with the TLS/SSL capabilities.
-     * @param sslMode SSL mode (client or server)
-     * @param sslContext SSL context to use for this I/O session.
-     * @param initializer optional SSL session initializer. May be {@code null}.
-     * @param verifier optional SSL session verifier. May be {@code null}.
-     *
-     * @since 5.0
-     */
-    public SSLIOSession(
-            final NamedEndpoint targetEndpoint,
-            final IOSession session,
-            final SSLMode sslMode,
-            final SSLContext sslContext,
-            final SSLSessionInitializer initializer,
-            final SSLSessionVerifier verifier,
-            final Callback<SSLIOSession> callback) {
-        this(targetEndpoint, session, sslMode, sslContext, SSLBufferMode.STATIC, initializer, verifier, callback, null);
-    }
 
     /**
      * Creates new instance of {@code SSLIOSession} class.
@@ -138,7 +116,8 @@ public class SSLIOSession implements IOSession {
             final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier,
-            final Callback<SSLIOSession> callback,
+            final Callback<SSLIOSession> connectedCallback,
+            final Callback<SSLIOSession> disconnectedCallback,
             final Timeout connectTimeout) {
         super();
         Args.notNull(session, "IO session");
@@ -148,7 +127,8 @@ public class SSLIOSession implements IOSession {
         this.sslMode = sslMode;
         this.initializer = initializer;
         this.verifier = verifier;
-        this.callback = callback;
+        this.connectedCallback = connectedCallback;
+        this.disconnectedCallback = disconnectedCallback;
 
         this.appEventMask = session.getEventMask();
         if (this.sslMode == SSLMode.CLIENT && targetEndpoint != null) {
@@ -376,8 +356,8 @@ public class SSLIOSession implements IOSession {
                 final String applicationProtocol = ReflectionUtils.callGetter(this.sslEngine, "ApplicationProtocol", String.class);
                 this.tlsDetails = new TlsDetails(sslSession, applicationProtocol);
             }
-            if (this.callback != null) {
-                this.callback.execute(this);
+            if (this.connectedCallback != null) {
+                this.connectedCallback.execute(this);
             }
         }
     }
@@ -402,6 +382,9 @@ public class SSLIOSession implements IOSession {
         }
         if (this.status == CLOSED) {
             this.session.close();
+            if (disconnectedCallback != null) {
+                disconnectedCallback.execute(this);
+            }
             return;
         }
         // Need to toggle the event mask for this channel?

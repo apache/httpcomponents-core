@@ -249,6 +249,16 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                     }
 
                 },
+                new Callback<SSLIOSession>() {
+
+                    @Override
+                    public void execute(final SSLIOSession sslSession) {
+                        if (closed.compareAndSet(false, true)) {
+                            closedSessions.add(InternalDataChannel.this);
+                        }
+                    }
+
+                },
                 handshakeTimeout))) {
             throw new IllegalStateException("TLS already activated");
         }
