@@ -35,6 +35,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -53,6 +55,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
@@ -72,22 +75,42 @@ import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.testing.SSLTestContexts;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class ClassicIntegrationTest {
 
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> protocols() {
+        return Arrays.asList(new Object[][]{
+                { URIScheme.HTTP },
+                { URIScheme.HTTPS }
+        });
+    }
+
+    private final URIScheme scheme;
     private ClassicTestServer server;
+
+    public ClassicIntegrationTest(final URIScheme scheme) {
+        this.scheme = scheme;
+    }
 
     @Rule
     public ExternalResource serverResource = new ExternalResource() {
 
         @Override
         protected void before() throws Throwable {
-            server = new ClassicTestServer(SocketConfig.custom()
-                    .setSoTimeout(5, TimeUnit.SECONDS).build());
+            server = new ClassicTestServer(
+                    scheme == URIScheme.HTTPS  ? SSLTestContexts.createServerSSLContext() : null,
+                    SocketConfig.custom()
+                            .setSoTimeout(5, TimeUnit.SECONDS)
+                            .build());
         }
 
         @Override
@@ -110,8 +133,11 @@ public class ClassicIntegrationTest {
 
         @Override
         protected void before() throws Throwable {
-            client = new ClassicTestClient(SocketConfig.custom()
-                    .setSoTimeout(5, TimeUnit.SECONDS).build());
+            client = new ClassicTestClient(
+                    scheme == URIScheme.HTTPS  ? SSLTestContexts.createClientSSLContext() : null,
+                    SocketConfig.custom()
+                            .setSoTimeout(5, TimeUnit.SECONDS)
+                            .build());
         }
 
         @Override
@@ -171,7 +197,7 @@ public class ClassicIntegrationTest {
         this.client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest get = new BasicClassicHttpRequest("GET", "/?" + r);
@@ -229,7 +255,7 @@ public class ClassicIntegrationTest {
         this.client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
@@ -290,7 +316,7 @@ public class ClassicIntegrationTest {
         this.client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
@@ -353,7 +379,7 @@ public class ClassicIntegrationTest {
         this.client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             // Set protocol level to HTTP/1.0
@@ -420,7 +446,7 @@ public class ClassicIntegrationTest {
         this.client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
@@ -496,7 +522,7 @@ public class ClassicIntegrationTest {
         this.client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
@@ -636,7 +662,7 @@ public class ClassicIntegrationTest {
         this.client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (final String pattern : patterns) {
             for (int n = 1000; n < 1020; n++) {
@@ -691,7 +717,7 @@ public class ClassicIntegrationTest {
         this.client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
         post.setEntity(null);
@@ -730,7 +756,7 @@ public class ClassicIntegrationTest {
                 new RequestExpectContinue()));
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
         post.setEntity(null);
@@ -780,7 +806,7 @@ public class ClassicIntegrationTest {
                 new RequestExpectContinue()));
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         final BasicClassicHttpRequest post = new BasicClassicHttpRequest("POST", "/");
         post.setEntity(null);
@@ -812,7 +838,7 @@ public class ClassicIntegrationTest {
         this.client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest get = new BasicClassicHttpRequest("GET", "/?" + r);
@@ -842,7 +868,7 @@ public class ClassicIntegrationTest {
         this.client.start(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()));
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost("localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         final BasicClassicHttpRequest get1 = new BasicClassicHttpRequest("GET", "/");
         get1.setVersion(HttpVersion.HTTP_1_0);

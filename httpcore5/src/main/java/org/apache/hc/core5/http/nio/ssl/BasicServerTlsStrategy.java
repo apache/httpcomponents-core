@@ -99,7 +99,8 @@ public class BasicServerTlsStrategy implements TlsStrategy {
             final Object attachment,
             final Timeout handshakeTimeout) {
         if (securePortStrategy != null && securePortStrategy.isSecure(localAddress)) {
-            tlsSession.startTls(sslContext, host, sslBufferMode, initializer, verifier, handshakeTimeout);
+            tlsSession.startTls(sslContext, host, sslBufferMode,
+                    TlsSupport.enforceStrongSecurity(initializer), verifier, handshakeTimeout);
             return true;
         }
         return false;

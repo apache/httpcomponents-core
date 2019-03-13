@@ -24,22 +24,26 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.bootstrap;
 
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLServerSocket;
+package org.apache.hc.core5.http.io.ssl;
+
+import javax.net.ssl.SSLParameters;
+
+import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.http.ssl.TLS;
+import org.apache.hc.core5.http.ssl.TlsCiphers;
 
 /**
- * Server SSL setup handler. Custom implementations of this interface can be used to
- * configure various SSL protocol aspects such as supported protocol versions, cypher suites,
- * and mandatory / optional client authentication.
+ * Default TLS session setup handler.
  *
- * @see javax.net.ssl.SSLServerSocket
- * @see javax.net.ssl.SSLSession
- * @since 4.4
+ * @since 5.0
  */
-public interface SSLServerSetupHandler {
+public final class DefaultTlsSetupHandler implements Callback<SSLParameters> {
 
-    void initialize(SSLServerSocket socket) throws SSLException;
+    @Override
+    public void execute(final SSLParameters sslParameters) {
+        sslParameters.setProtocols(TLS.excludeWeak(sslParameters.getProtocols()));
+        sslParameters.setCipherSuites(TlsCiphers.excludeWeak(sslParameters.getCipherSuites()));
+    }
 
 }
