@@ -255,6 +255,73 @@ public class TestIdentityDecoder {
     }
 
     @Test
+    public void testDecodingFileWithLimit() throws Exception {
+        final ReadableByteChannel channel = new ReadableByteChannelMock(
+                new String[] {"stuff; more stuff; ", "a lot more stuff!"}, StandardCharsets.US_ASCII);
+
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.US_ASCII);
+        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
+        final IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
+
+        final int i = inbuf.fill(channel);
+        Assert.assertEquals(19, i);
+
+        createTempFile();
+        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
+        try {
+            final FileChannel fchannel = testfile.getChannel();
+            long pos = 0;
+
+            // transferred from buffer
+            long bytesRead = decoder.transfer(fchannel, pos, 1);
+            Assert.assertEquals(1, bytesRead);
+            Assert.assertFalse(decoder.isCompleted());
+            Assert.assertEquals(0, metrics.getBytesTransferred());
+            pos += bytesRead;
+
+            bytesRead = decoder.transfer(fchannel, pos, 2);
+            Assert.assertEquals(2, bytesRead);
+            Assert.assertFalse(decoder.isCompleted());
+            Assert.assertEquals(0, metrics.getBytesTransferred());
+            pos += bytesRead;
+
+            bytesRead = decoder.transfer(fchannel, pos, 17);
+            Assert.assertEquals(16, bytesRead);
+            Assert.assertFalse(decoder.isCompleted());
+            Assert.assertEquals(0, metrics.getBytesTransferred());
+            pos += bytesRead;
+
+            // transferred from channel
+            bytesRead = decoder.transfer(fchannel, pos, 1);
+            Assert.assertEquals(1, bytesRead);
+            Assert.assertFalse(decoder.isCompleted());
+            Assert.assertEquals(1, metrics.getBytesTransferred());
+            pos += bytesRead;
+
+            bytesRead = decoder.transfer(fchannel, pos, 2);
+            Assert.assertEquals(2, bytesRead);
+            Assert.assertFalse(decoder.isCompleted());
+            Assert.assertEquals(3, metrics.getBytesTransferred());
+            pos += bytesRead;
+
+            bytesRead = decoder.transfer(fchannel, pos, 15);
+            Assert.assertEquals(14, bytesRead);
+            Assert.assertFalse(decoder.isCompleted());
+            Assert.assertEquals(17, metrics.getBytesTransferred());
+            pos += bytesRead;
+
+            bytesRead = decoder.transfer(fchannel, pos, 1);
+            Assert.assertEquals(-1, bytesRead);
+            Assert.assertTrue(decoder.isCompleted());
+            Assert.assertEquals(17, metrics.getBytesTransferred());
+        } finally {
+            testfile.close();
+        }
+        Assert.assertEquals("stuff; more stuff; a lot more stuff!",
+                CodecTestUtils.readFromFile(this.tmpfile));
+    }
+
+    @Test
     public void testWriteBeyondFileSize() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"a"}, StandardCharsets.US_ASCII);

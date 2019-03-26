@@ -119,7 +119,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
         if (this.buffer.hasData()) {
             final int maxLen = Math.min(chunk, this.buffer.length());
             dst.position(position);
-            bytesRead = this.buffer.read(dst, maxLen);
+            bytesRead = this.buffer.read(dst, count < maxLen ? (int)count : maxLen);
         } else {
             if (this.channel.isOpen()) {
                 if (position > dst.size()) {
