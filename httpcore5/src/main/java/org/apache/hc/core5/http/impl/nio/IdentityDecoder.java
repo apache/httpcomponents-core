@@ -92,8 +92,9 @@ public class IdentityDecoder extends AbstractContentDecoder implements FileConte
 
         long bytesRead;
         if (this.buffer.hasData()) {
+            final int maxLen = this.buffer.length();
             dst.position(position);
-            bytesRead = this.buffer.read(dst);
+            bytesRead = this.buffer.read(dst, count < maxLen ? (int)count : maxLen);
         } else {
             if (this.channel.isOpen()) {
                 if (position > dst.size()) {
