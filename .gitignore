@@ -7,3 +7,4 @@ target
 maven-eclipse.xml
 .idea
 *.iml
+*.checkstyle
