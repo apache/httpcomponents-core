@@ -312,4 +312,44 @@ public class TestByteArrayBuffer {
         Assert.assertEquals(3, data[2]);
     }
 
+    @Test
+    public void testControlCharFiltering() throws Exception {
+        final char[] chars = new char[256];
+        for (char i = 0; i < 256; i++) {
+            chars[i] = i;
+        }
+
+        final byte[] bytes = asByteArray(chars);
+
+        Assert.assertEquals(
+            "????????????????????????????????"
+                + " !\"#$%&'()*+,-./0123456789:;<=>?"
+                + "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
+                + "`abcdefghijklmnopqrstuvwxyz"
+                + "{|}~???????????????????????"
+                + "??????????\u00A0¡¢£¤¥¦§¨©ª«¬\u00AD®¯"
+                + "°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ"
+                + "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîï"
+                + "ðñòóôõö÷øùúûüýþÿ",
+            new String(bytes, StandardCharsets.ISO_8859_1));
+    }
+
+    @Test
+    public void testUnicodeFiltering() throws Exception {
+        // Various languages
+        Assert.assertEquals("?????", new String(asByteArray("буквы".toCharArray()), StandardCharsets.ISO_8859_1));
+        Assert.assertEquals("????", new String(asByteArray("四字熟語".toCharArray()), StandardCharsets.ISO_8859_1));
+
+        // Unicode snowman
+        Assert.assertEquals("?", new String(asByteArray("☃".toCharArray()), StandardCharsets.ISO_8859_1));
+
+        // Emoji (surrogate pair)
+        Assert.assertEquals("??", new String(asByteArray("\uD83D\uDE00".toCharArray()), StandardCharsets.ISO_8859_1));
+    }
+
+    private static byte[] asByteArray(final char[] chars) {
+        final ByteArrayBuffer byteArrayBuffer = new ByteArrayBuffer(chars.length);
+        byteArrayBuffer.append(chars, 0, chars.length);
+        return byteArrayBuffer.toByteArray();
+    }
 }
