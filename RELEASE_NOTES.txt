@@ -1,3 +1,10 @@
+Release 5.0-BETA8
+-------------------
+
+* conscrypt-openjdk-uber 1.4.1 -> 1.4.2.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+
 Release 5.0-BETA7
 -------------------
 
