@@ -87,8 +87,8 @@ public final class TerminalAsyncServerFilter implements AsyncFilterHandler {
                     responseTrigger.submitResponse(response, entityDetails != null ? new AsyncEntityProducer() {
 
                         @Override
-                        public void failed(final Exception cause) {
-                            exchangeHandler.failed(cause);
+                        public void failed(final String message, final Exception cause) {
+                            exchangeHandler.failed(message, cause);
                         }
 
                         @Override

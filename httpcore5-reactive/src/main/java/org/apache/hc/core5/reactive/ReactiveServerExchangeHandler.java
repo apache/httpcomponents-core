@@ -88,7 +88,7 @@ public final class ReactiveServerExchangeHandler implements AsyncServerExchangeH
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         requestConsumer.failed(cause);
         final ReactiveDataProducer p = responseProducer.get();
         if (p != null) {

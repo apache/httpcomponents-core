@@ -99,7 +99,7 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
             writePreface(session);
         } catch (final Exception ex) {
             session.close(CloseMode.IMMEDIATE);
-            exception(session, ex);
+            exception(session, null, ex);
         }
     }
 
@@ -131,17 +131,17 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
             }
         } catch (final IOException ex) {
             session.close(CloseMode.IMMEDIATE);
-            exception(session, ex);
+            exception(session, null, ex);
         }
     }
 
     @Override
     public void timeout(final IOSession session, final Timeout timeout) {
-        exception(session, SocketTimeoutExceptionFactory.create(timeout));
+        exception(session, null, SocketTimeoutExceptionFactory.create(timeout));
     }
 
     @Override
-    public void exception(final IOSession session, final Exception cause) {
+    public void exception(final IOSession session, final String message, final Exception cause) {
         try {
             for (;;) {
                 final Command command = ioSession.poll();
@@ -149,7 +149,7 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
                     if (command instanceof RequestExecutionCommand) {
                         final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
                         final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                        exchangeHandler.failed(cause);
+                        exchangeHandler.failed(message, cause);
                         exchangeHandler.releaseResources();
                     } else {
                         command.cancel();
@@ -171,7 +171,7 @@ public class Http2OnlyClientProtocolNegotiator implements HttpConnectionEventHan
                 if (command instanceof RequestExecutionCommand) {
                     final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
                     final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                    exchangeHandler.failed(new ConnectionClosedException());
+                    exchangeHandler.failed(null, new ConnectionClosedException());
                     exchangeHandler.releaseResources();
                 } else {
                     command.cancel();

@@ -159,7 +159,7 @@ class BenchmarkWorker implements ResourceHolder {
             }
 
             @Override
-            public void failed(final Exception cause) {
+            public void failed(final String message, final Exception cause) {
                 stats.incFailureCount();
                 if (config.getVerbosity() >= 1) {
                     System.out.println("Failed HTTP request : " + cause.getMessage());
@@ -259,11 +259,11 @@ class BenchmarkWorker implements ResourceHolder {
             }
 
             @Override
-            public void failed(final Exception cause) {
+            public void failed(final String message, final Exception cause) {
                 stats.incFailureCount();
                 final FutureCallback<Void> resultCallback = resultCallbackRef.getAndSet(null);
                 if (resultCallback != null) {
-                    resultCallback.failed(cause);
+                    resultCallback.failed(message, cause);
                 }
                 if (config.getVerbosity() >= 1) {
                     System.out.println("HTTP response error: " + cause.getMessage());
@@ -302,7 +302,7 @@ class BenchmarkWorker implements ResourceHolder {
                                     }
 
                                     @Override
-                                    public void failed(final Exception cause) {
+                                    public void failed(final String message, final Exception cause) {
                                         execute();
                                     }
 
@@ -315,7 +315,7 @@ class BenchmarkWorker implements ResourceHolder {
                     }
 
                     @Override
-                    public void failed(final Exception cause) {
+                    public void failed(final String message, final Exception cause) {
                         stats.incFailureCount();
                         if (config.getVerbosity() >= 1) {
                             System.out.println("Connect error: " + cause.getMessage());
@@ -342,7 +342,7 @@ class BenchmarkWorker implements ResourceHolder {
                             }
 
                             @Override
-                            public void failed(final Exception cause) {
+                            public void failed(final String message, final Exception cause) {
                                 execute();
                             }
 

@@ -94,8 +94,8 @@ public class DigestingEntityConsumer<T> implements AsyncEntityConsumer<T> {
     }
 
     @Override
-    public void failed(final Exception cause) {
-        wrapped.failed(cause);
+    public void failed(final String message, final Exception cause) {
+        wrapped.failed(message, cause);
     }
 
     @Override

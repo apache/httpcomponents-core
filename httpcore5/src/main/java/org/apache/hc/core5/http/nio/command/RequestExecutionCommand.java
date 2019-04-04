@@ -90,9 +90,9 @@ public final class RequestExecutionCommand extends ExecutableCommand {
     }
 
     @Override
-    public void failed(final Exception ex) {
+    public void failed(final String message, final Exception ex) {
         try {
-            exchangeHandler.failed(ex);
+            exchangeHandler.failed(message, ex);
         } finally {
             exchangeHandler.releaseResources();
         }

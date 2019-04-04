@@ -138,7 +138,7 @@ public class Http2CompatibilityTest {
                         @Override
                         protected void handleError(
                                 final HttpRequest promise,
-                                final Exception cause) {
+                                final String message, final Exception cause) {
                             resultQueue.add(new RequestResult(promise, null, cause));
                         }
                     };
@@ -159,7 +159,7 @@ public class Http2CompatibilityTest {
                         }
 
                         @Override
-                        public void failed(final Exception ex) {
+                        public void failed(final String message, final Exception ex) {
                             resultQueue.add(new RequestResult(request, null, ex));
                         }
 

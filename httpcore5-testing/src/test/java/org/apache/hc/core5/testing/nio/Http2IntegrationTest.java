@@ -676,9 +676,9 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                                 context, new BasicPushProducer(new BasicAsyncEntityProducer("Pushing all sorts of stuff")) {
 
                             @Override
-                            public void failed(final Exception cause) {
+                            public void failed(final String message, final Exception cause) {
                                 pushResultQueue.add(cause);
-                                super.failed(cause);
+                                super.failed(message, cause);
                             }
 
                         });
@@ -687,9 +687,9 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                                 context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)) {
 
                             @Override
-                            public void failed(final Exception cause) {
+                            public void failed(final String message, final Exception cause) {
                                 pushResultQueue.add(cause);
-                                super.failed(cause);
+                                super.failed(message, cause);
                             }
 
                         });
@@ -889,7 +889,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                     }
 
                     @Override
-                    public void failed(final Exception cause) {
+                    public void failed(final String message, final Exception cause) {
                     }
 
                     @Override

@@ -102,8 +102,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
     @Override
     public void close(final CloseMode closeMode) {
         if (isShutDown.compareAndSet(false, true)) {
-            for (final Iterator<PerRoutePool<T, C>> it = routeToPool.values().iterator(); it.hasNext(); ) {
-                final PerRoutePool<T, C> routePool = it.next();
+            for (final PerRoutePool<T, C> routePool : routeToPool.values()) {
                 routePool.shutdown(closeMode);
             }
             routeToPool.clear();
@@ -326,8 +325,8 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             future.completed(result);
         }
 
-        public void failed(final Exception ex) {
-            future.failed(ex);
+        public void failed(final String message, final Exception ex) {
+            future.failed(message, ex);
         }
 
         @Override
@@ -466,7 +465,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 final Deadline deadline = leaseRequest.getDeadline();
 
                 if (deadline.isExpired()) {
-                    leaseRequest.failed(DeadlineTimeoutException.from(deadline));
+                    leaseRequest.failed(null, DeadlineTimeoutException.from(deadline));
                 } else {
                     final PoolEntry<T, C> availableEntry = getAvailableEntry(state);
                     if (availableEntry != null) {
@@ -492,7 +491,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 } else {
                     final Deadline deadline = request.getDeadline();
                     if (deadline.isExpired()) {
-                        request.failed(DeadlineTimeoutException.from(deadline));
+                        request.failed(null, DeadlineTimeoutException.from(deadline));
                     }
                     if (request.isDone()) {
                         it.remove();

@@ -166,7 +166,7 @@ public class HttpServer implements ModalCloseable {
                 try {
                     local.terminate();
                 } catch (final IOException ex) {
-                    this.exceptionListener.onError(ex);
+                    this.exceptionListener.onError(null, null, ex);
                 }
             }
             this.workerThreads.interrupt();

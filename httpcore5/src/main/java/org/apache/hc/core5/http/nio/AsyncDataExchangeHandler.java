@@ -37,8 +37,9 @@ public interface AsyncDataExchangeHandler extends AsyncDataConsumer, AsyncDataPr
     /**
      * Triggered to signal a failure in data processing.
      *
+     * @param message the description of the failure if different from the cause's message.
      * @param cause the cause of the failure.
      */
-    void failed(Exception cause);
+    void failed(String message, Exception cause);
 
 }

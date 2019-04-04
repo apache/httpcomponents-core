@@ -81,8 +81,7 @@ public final class TextUtils {
             return null;
         }
         final StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < bytes.length; i++) {
-            final byte b = bytes[i];
+        for (final byte b : bytes) {
             if (b < 16) {
                 buffer.append('0');
             }

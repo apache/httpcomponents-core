@@ -64,7 +64,7 @@ class Worker implements Runnable {
             }
             this.conn.close();
         } catch (final Exception ex) {
-            this.exceptionListener.onError(this.conn, ex);
+            this.exceptionListener.onError(this.conn, null, ex);
         } finally {
             this.conn.close(CloseMode.IMMEDIATE);
         }

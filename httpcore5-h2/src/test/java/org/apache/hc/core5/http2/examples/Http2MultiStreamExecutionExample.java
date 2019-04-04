@@ -138,7 +138,7 @@ public class Http2MultiStreamExecutionExample {
                         }
 
                         @Override
-                        public void failed(final Exception ex) {
+                        public void failed(final String message, final Exception ex) {
                             latch.countDown();
                             System.out.println(requestUri + "->" + ex);
                         }

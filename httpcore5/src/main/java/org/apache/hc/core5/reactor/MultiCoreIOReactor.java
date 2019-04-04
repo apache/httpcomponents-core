@@ -62,8 +62,8 @@ class MultiCoreIOReactor implements IOReactor {
      */
     public final void start() {
         if (this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.ACTIVE)) {
-            for (int i = 0; i < this.threads.length; i++) {
-                this.threads[i].start();
+            for (final Thread thread : this.threads) {
+                thread.start();
             }
         }
     }
@@ -71,8 +71,7 @@ class MultiCoreIOReactor implements IOReactor {
     @Override
     public final void initiateShutdown() {
         if (this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)) {
-            for (int i = 0; i < this.ioReactors.length; i++) {
-                final IOReactor ioReactor = this.ioReactors[i];
+            for (final IOReactor ioReactor : this.ioReactors) {
                 ioReactor.initiateShutdown();
             }
         }
@@ -83,8 +82,7 @@ class MultiCoreIOReactor implements IOReactor {
         Args.notNull(waitTime, "Wait time");
         final long deadline = System.currentTimeMillis() + waitTime.toMillis();
         long remaining = waitTime.toMillis();
-        for (int i = 0; i < this.ioReactors.length; i++) {
-            final IOReactor ioReactor = this.ioReactors[i];
+        for (final IOReactor ioReactor : this.ioReactors) {
             if (ioReactor.getStatus().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
                 ioReactor.awaitShutdown(TimeValue.of(remaining, TimeUnit.MILLISECONDS));
                 remaining = deadline - System.currentTimeMillis();
@@ -93,8 +91,7 @@ class MultiCoreIOReactor implements IOReactor {
                 }
             }
         }
-        for (int i = 0; i < this.threads.length; i++) {
-            final Thread thread = this.threads[i];
+        for (final Thread thread : this.threads) {
             thread.join(remaining);
             remaining = deadline - System.currentTimeMillis();
             if (remaining <= 0) {
@@ -118,11 +115,11 @@ class MultiCoreIOReactor implements IOReactor {
             }
         } else {
             this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN);
-            for (int i = 0; i < this.ioReactors.length; i++) {
-                Closer.close(this.ioReactors[i], CloseMode.IMMEDIATE);
+            for (final IOReactor ioReactor : this.ioReactors) {
+                Closer.close(ioReactor, CloseMode.IMMEDIATE);
             }
-            for (int i = 0; i < this.threads.length; i++) {
-                this.threads[i].interrupt();
+            for (final Thread thread : this.threads) {
+                thread.interrupt();
             }
         }
         this.status.set(IOReactorStatus.SHUT_DOWN);

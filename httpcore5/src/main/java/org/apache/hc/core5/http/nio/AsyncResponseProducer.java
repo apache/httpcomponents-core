@@ -51,9 +51,9 @@ public interface AsyncResponseProducer extends AsyncDataProducer {
 
     /**
      * Triggered to signal a failure in data generation.
-     *
+     * @param message TODO
      * @param cause the cause of the failure.
      */
-    void failed(Exception cause);
+    void failed(String message, Exception cause);
 
 }

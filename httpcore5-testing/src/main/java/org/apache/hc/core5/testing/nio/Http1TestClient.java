@@ -89,8 +89,8 @@ public class Http1TestClient extends AsyncRequester  {
             }
 
             @Override
-            public void failed(final Exception cause) {
-                future.failed(cause);
+            public void failed(final String message, final Exception cause) {
+                future.failed(message, cause);
             }
 
             @Override

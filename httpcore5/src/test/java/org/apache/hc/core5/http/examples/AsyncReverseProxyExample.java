@@ -316,7 +316,7 @@ public class AsyncReverseProxyExample {
                 }
 
                 @Override
-                public void failed(final Exception cause) {
+                public void failed(final String message, final Exception cause) {
                     final HttpResponse outgoingResponse = new BasicHttpResponse(HttpStatus.SC_SERVICE_UNAVAILABLE);
                     outgoingResponse.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
                     final ByteBuffer msg = StandardCharsets.US_ASCII.encode(CharBuffer.wrap(cause.getMessage()));
@@ -340,7 +340,7 @@ public class AsyncReverseProxyExample {
 
                 @Override
                 public void cancelled() {
-                    failed(new InterruptedIOException());
+                    failed(null, new InterruptedIOException());
                 }
 
             });
@@ -440,7 +440,7 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
-        public void failed(final Exception cause) {
+        public void failed(final String message, final Exception cause) {
             println("[client<-proxy] " + exchangeState.id + " " + cause.getMessage());
             if (!(cause instanceof ConnectionClosedException)) {
                 cause.printStackTrace(System.out);
@@ -652,7 +652,7 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
-        public void failed(final Exception cause) {
+        public void failed(final String message, final Exception cause) {
             println("[client<-proxy] " + exchangeState.id + " " + cause.getMessage());
             if (!(cause instanceof ConnectionClosedException)) {
                 cause.printStackTrace(System.out);

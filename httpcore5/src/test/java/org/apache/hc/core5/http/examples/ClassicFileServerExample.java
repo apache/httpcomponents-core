@@ -104,12 +104,12 @@ public class ClassicFileServerExample {
                 .setExceptionListener(new ExceptionListener() {
 
                     @Override
-                    public void onError(final Exception ex) {
+                    public void onError(final String message, final Exception ex) {
                         ex.printStackTrace();
                     }
 
                     @Override
-                    public void onError(final HttpConnection conn, final Exception ex) {
+                    public void onError(final HttpConnection conn, final String message, final Exception ex) {
                         if (ex instanceof SocketTimeoutException) {
                             System.err.println("Connection timed out");
                         } else if (ex instanceof ConnectionClosedException) {

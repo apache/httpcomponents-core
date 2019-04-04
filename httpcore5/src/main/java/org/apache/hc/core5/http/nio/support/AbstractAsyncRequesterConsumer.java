@@ -88,13 +88,13 @@ public abstract class AbstractAsyncRequesterConsumer<T, E> implements AsyncReque
                         result = buildResult(request, entity, contentType);
                         resultCallback.completed(result);
                     } catch (final UnsupportedCharsetException ex) {
-                        resultCallback.failed(ex);
+                        resultCallback.failed(null, ex);
                     }
                 }
 
                 @Override
-                public void failed(final Exception ex) {
-                    resultCallback.failed(ex);
+                public void failed(final String message, final Exception ex) {
+                    resultCallback.failed(message, ex);
                 }
 
                 @Override
@@ -131,7 +131,7 @@ public abstract class AbstractAsyncRequesterConsumer<T, E> implements AsyncReque
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public final void failed(final String message, final Exception cause) {
         releaseResources();
     }
 

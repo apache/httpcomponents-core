@@ -78,7 +78,7 @@ public class TestDefaultListeningIOReactor {
                 }
 
                 @Override
-                public void exception(final IOSession session, final Exception cause) {
+                public void exception(final IOSession session, final String message, final Exception cause) {
                 }
 
                 @Override

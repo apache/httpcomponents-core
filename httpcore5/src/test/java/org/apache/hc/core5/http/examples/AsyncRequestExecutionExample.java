@@ -115,7 +115,7 @@ public class AsyncRequestExecutionExample {
                         }
 
                         @Override
-                        public void failed(final Exception ex) {
+                        public void failed(final String message, final Exception ex) {
                             System.out.println(requestUri + "->" + ex);
                             latch.countDown();
                         }

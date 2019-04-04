@@ -75,8 +75,9 @@ public interface IOEventHandler {
      * Triggered when the given session throws a exception.
      *
      * @param session the I/O session.
+     * @param message TODO
      */
-    void exception(IOSession session, Exception cause);
+    void exception(IOSession session, String message, Exception cause);
 
     /**
      * Triggered when the given session has been terminated.

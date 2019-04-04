@@ -142,16 +142,16 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
                         responseTrigger.submitResponse(
                                 new BasicResponseProducer(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage()), context);
                     } catch (final HttpException | IOException ex2) {
-                        failed(ex2);
+                        failed(null, ex2);
                     }
                 } catch (final IOException ex) {
-                    failed(ex);
+                    failed(null, ex);
                 }
             }
 
             @Override
-            public void failed(final Exception ex) {
-                AbstractServerExchangeHandler.this.failed(ex);
+            public void failed(final String message, final Exception ex) {
+                AbstractServerExchangeHandler.this.failed(message, ex);
             }
 
             @Override
@@ -198,15 +198,15 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public final void failed(final String message, final Exception cause) {
         try {
             final AsyncRequestConsumer<T> requestConsumer = requestConsumerRef.get();
             if (requestConsumer != null) {
-                requestConsumer.failed(cause);
+                requestConsumer.failed(message, cause);
             }
             final AsyncResponseProducer dataProducer = responseProducerRef.get();
             if (dataProducer != null) {
-                dataProducer.failed(cause);
+                dataProducer.failed(message, cause);
             }
         } finally {
             releaseResources();

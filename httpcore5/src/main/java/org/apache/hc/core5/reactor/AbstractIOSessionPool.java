@@ -148,8 +148,8 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                                 }
 
                                 @Override
-                                public void failed(final Exception ex) {
-                                    future.failed(ex);
+                                public void failed(final String message, final Exception ex) {
+                                    future.failed(message, ex);
                                 }
 
                                 @Override
@@ -165,8 +165,8 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
             }
 
             @Override
-            public void failed(final Exception ex) {
-                future.failed(ex);
+            public void failed(final String message, final Exception ex) {
+                future.failed(message, ex);
             }
 
             @Override
@@ -219,14 +219,14 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                                 }
 
                                 @Override
-                                public void failed(final Exception ex) {
+                                public void failed(final String message, final Exception ex) {
                                     synchronized (poolEntry) {
                                         poolEntry.session = null;
                                         poolEntry.sessionFuture = null;
                                         for (;;) {
                                             final FutureCallback<IOSession> callback = poolEntry.requestQueue.poll();
                                             if (callback != null) {
-                                                callback.failed(ex);
+                                                callback.failed(message, ex);
                                             } else {
                                                 break;
                                             }
@@ -236,7 +236,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
 
                                 @Override
                                 public void cancelled() {
-                                    failed(new ConnectionClosedException("Connection request cancelled"));
+                                    failed(null, new ConnectionClosedException("Connection request cancelled"));
                                 }
 
                             });

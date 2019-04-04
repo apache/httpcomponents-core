@@ -168,7 +168,7 @@ public class TestAbstractIOSessionPool {
 
                     @Override
                     public boolean matches(final FutureCallback<IOSession> callback) {
-                        callback.failed(new Exception("Boom"));
+                        callback.failed(null, new Exception("Boom"));
                         return true;
                     }
 

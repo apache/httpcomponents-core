@@ -52,6 +52,6 @@ interface Http2StreamHandler extends ResourceHolder {
 
     HandlerFactory<AsyncPushConsumer> getPushHandlerFactory();
 
-    void failed(Exception cause);
+    void failed(String message, Exception cause);
 
 }

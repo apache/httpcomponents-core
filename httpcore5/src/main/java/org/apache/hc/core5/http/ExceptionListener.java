@@ -38,12 +38,12 @@ public interface ExceptionListener {
     ExceptionListener NO_OP = new ExceptionListener() {
 
         @Override
-        public void onError(final Exception ex) {
+        public void onError(final String message, final Exception ex) {
             // no-op
         }
 
         @Override
-        public void onError(final HttpConnection connection, final Exception ex) {
+        public void onError(final HttpConnection connection, final String message, final Exception ex) {
             // no-op
         }
 
@@ -52,19 +52,19 @@ public interface ExceptionListener {
     ExceptionListener STD_ERR = new ExceptionListener() {
 
         @Override
-        public void onError(final Exception ex) {
+        public void onError(final String message, final Exception ex) {
             ex.printStackTrace();
         }
 
         @Override
-        public void onError(final HttpConnection connection, final Exception ex) {
+        public void onError(final HttpConnection connection, final String message, final Exception ex) {
             ex.printStackTrace();
         }
 
     };
 
-    void onError(Exception ex);
+    void onError(String message, Exception ex);
 
-    void onError(HttpConnection connection, Exception ex);
+    void onError(HttpConnection connection, String message, Exception ex);
 
 }

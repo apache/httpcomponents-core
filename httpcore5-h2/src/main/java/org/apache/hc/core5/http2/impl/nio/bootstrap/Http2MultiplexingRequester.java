@@ -216,16 +216,16 @@ public class Http2MultiplexingRequester extends AsyncRequester{
                                 }
 
                                 @Override
-                                public void failed(final Exception cause) {
-                                    exchangeHandler.failed(cause);
+                                public void failed(final String message, final Exception cause) {
+                                    exchangeHandler.failed(message, cause);
                                 }
 
                             }, pushHandlerFactory, cancellableDependency, context), Command.Priority.NORMAL);
                         }
 
                         @Override
-                        public void failed(final Exception ex) {
-                            exchangeHandler.failed(ex);
+                        public void failed(final String message, final Exception ex) {
+                            exchangeHandler.failed(message, ex);
                         }
 
                         @Override
@@ -239,7 +239,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
 
             }, context);
         } catch (final IOException | HttpException ex) {
-            exchangeHandler.failed(ex);
+            exchangeHandler.failed(null, ex);
         }
     }
 
@@ -262,8 +262,8 @@ public class Http2MultiplexingRequester extends AsyncRequester{
             }
 
             @Override
-            public void failed(final Exception ex) {
-                future.failed(ex);
+            public void failed(final String message, final Exception ex) {
+                future.failed(message, ex);
             }
 
             @Override

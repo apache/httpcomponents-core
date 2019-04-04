@@ -287,7 +287,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public final void failed(final String message, final Exception cause) {
         exception.compareAndSet(null, cause);
         releaseResources();
     }

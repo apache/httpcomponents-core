@@ -42,7 +42,7 @@ public class LoggingExceptionListener implements ExceptionListener {
     private final Logger connLog = LoggerFactory.getLogger("org.apache.hc.core5.http.connection");
 
     @Override
-    public void onError(final Exception ex) {
+    public void onError(final String message, final Exception ex) {
         if (ex instanceof SocketException) {
             connLog.debug(ex.getMessage());
         } else {
@@ -51,7 +51,7 @@ public class LoggingExceptionListener implements ExceptionListener {
     }
 
     @Override
-    public void onError(final HttpConnection conn, final Exception ex) {
+    public void onError(final HttpConnection conn, final String message, final Exception ex) {
         if (ex instanceof ConnectionClosedException) {
             connLog.debug(ex.getMessage());
         } else if (ex instanceof SocketException) {

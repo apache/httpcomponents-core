@@ -180,19 +180,19 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     @Override
     void terminate(final Exception exception) {
         if (incoming != null) {
-            incoming.failed(exception);
+            incoming.failed(null, exception);
             incoming.releaseResources();
             incoming = null;
         }
         if (outgoing != null) {
-            outgoing.failed(exception);
+            outgoing.failed(null, exception);
             outgoing.releaseResources();
             outgoing = null;
         }
         for (;;) {
             final ClientHttp1StreamHandler handler = pipeline.poll();
             if (handler != null) {
-                handler.failed(exception);
+                handler.failed(null, exception);
                 handler.releaseResources();
             } else {
                 break;
@@ -204,14 +204,14 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     void disconnected() {
         if (incoming != null) {
             if (!incoming.isCompleted()) {
-                incoming.failed(new ConnectionClosedException());
+                incoming.failed(null, new ConnectionClosedException());
             }
             incoming.releaseResources();
             incoming = null;
         }
         if (outgoing != null) {
             if (!outgoing.isCompleted()) {
-                outgoing.failed(new ConnectionClosedException());
+                outgoing.failed(null, new ConnectionClosedException());
             }
             outgoing.releaseResources();
             outgoing = null;
@@ -219,7 +219,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         for (;;) {
             final ClientHttp1StreamHandler handler = pipeline.poll();
             if (handler != null) {
-                handler.failed(new ConnectionClosedException());
+                handler.failed(null, new ConnectionClosedException());
                 handler.releaseResources();
             } else {
                 break;

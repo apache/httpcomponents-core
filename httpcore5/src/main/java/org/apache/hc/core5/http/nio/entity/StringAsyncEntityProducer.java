@@ -89,7 +89,7 @@ public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         if (exception.compareAndSet(null, cause)) {
             releaseResources();
         }

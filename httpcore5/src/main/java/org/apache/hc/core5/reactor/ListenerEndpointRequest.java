@@ -48,9 +48,9 @@ final class ListenerEndpointRequest implements Closeable {
         }
     }
 
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         if (future != null) {
-            future.failed(cause);
+            future.failed(message, cause);
         }
     }
 

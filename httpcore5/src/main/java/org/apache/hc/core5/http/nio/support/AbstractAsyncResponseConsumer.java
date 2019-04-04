@@ -96,16 +96,16 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
                     } catch (final UnsupportedCharsetException ex) {
                         exceptionRef.compareAndSet(null, ex);
                         if (resultCallback != null) {
-                            resultCallback.failed(ex);
+                            resultCallback.failed(null, ex);
                         }
                     }
                 }
 
                 @Override
-                public void failed(final Exception ex) {
+                public void failed(final String message, final Exception ex) {
                     exceptionRef.compareAndSet(null, ex);
                     if (resultCallback != null) {
-                        resultCallback.failed(ex);
+                        resultCallback.failed(message, ex);
                     }
                 }
 
@@ -153,7 +153,7 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public final void failed(final String message, final Exception cause) {
         exceptionRef.compareAndSet(null, cause);
         releaseResources();
     }

@@ -74,8 +74,8 @@ final class IOSessionRequest implements Future<IOSession> {
         closeableRef.set(null);
     }
 
-    public void failed(final Exception cause) {
-        future.failed(cause);
+    public void failed(final String message, final Exception cause) {
+        future.failed(message, cause);
         closeableRef.set(null);
     }
 

@@ -77,7 +77,7 @@ public class BasicPushProducer implements AsyncPushProducer {
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         releaseResources();
     }
 

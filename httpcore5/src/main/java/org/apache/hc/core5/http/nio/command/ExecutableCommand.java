@@ -43,6 +43,6 @@ public abstract class ExecutableCommand implements Command {
 
     public abstract CancellableDependency getCancellableDependency();
 
-    public abstract void failed(Exception ex);
+    public abstract void failed(String message, Exception ex);
 
 }

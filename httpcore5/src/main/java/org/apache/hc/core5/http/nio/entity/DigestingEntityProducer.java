@@ -149,8 +149,8 @@ public class DigestingEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
-    public void failed(final Exception cause) {
-        wrapped.failed(cause);
+    public void failed(final String message, final Exception cause) {
+        wrapped.failed(message, cause);
     }
 
     @Override

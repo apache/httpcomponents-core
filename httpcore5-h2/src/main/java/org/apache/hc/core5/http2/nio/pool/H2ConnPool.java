@@ -120,8 +120,8 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             }
 
             @Override
-            public void failed(final Exception ex) {
-                callback.failed(ex);
+            public void failed(final String message, final Exception ex) {
+                callback.failed(message, ex);
             }
 
             @Override

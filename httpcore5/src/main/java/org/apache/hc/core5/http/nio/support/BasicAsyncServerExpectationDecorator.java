@@ -133,12 +133,12 @@ public class BasicAsyncServerExpectationDecorator implements AsyncServerExchange
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public final void failed(final String message, final Exception cause) {
         try {
-            handler.failed(cause);
+            handler.failed(message, cause);
             final AsyncResponseProducer dataProducer = responseProducerRef.getAndSet(null);
             if (dataProducer != null) {
-                dataProducer.failed(cause);
+                dataProducer.failed(message, cause);
             }
         } finally {
             releaseResources();

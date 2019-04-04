@@ -93,7 +93,7 @@ public final class ReactiveEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         releaseResources();
     }
 

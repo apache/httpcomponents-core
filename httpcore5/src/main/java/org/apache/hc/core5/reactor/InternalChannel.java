@@ -40,7 +40,7 @@ abstract class InternalChannel implements ModalCloseable {
 
     abstract void onTimeout(Timeout timeout) throws IOException;
 
-    abstract void onException(final Exception cause);
+    abstract void onException(String message, final Exception cause);
 
     abstract Timeout getTimeout();
 
@@ -52,7 +52,7 @@ abstract class InternalChannel implements ModalCloseable {
         } catch (final CancelledKeyException ex) {
             close(CloseMode.GRACEFUL);
         } catch (final Exception ex) {
-            onException(ex);
+            onException(null, ex);
             close(CloseMode.IMMEDIATE);
         }
     }
@@ -68,7 +68,7 @@ abstract class InternalChannel implements ModalCloseable {
                 } catch (final CancelledKeyException ex) {
                     close(CloseMode.GRACEFUL);
                 } catch (final Exception ex) {
-                    onException(ex);
+                    onException(null, ex);
                     close(CloseMode.IMMEDIATE);
                 }
                 return false;

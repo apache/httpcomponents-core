@@ -111,10 +111,10 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
             }
 
             @Override
-            public void failed(final Exception ex) {
+            public void failed(final String message, final Exception ex) {
                 releaseResources();
                 if (resultCallback != null) {
-                    resultCallback.failed(ex);
+                    resultCallback.failed(message, ex);
                 }
             }
 
@@ -153,20 +153,20 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         try {
-            requestProducer.failed(cause);
-            responseConsumer.failed(cause);
+            requestProducer.failed(message, cause);
+            responseConsumer.failed(message, cause);
         } finally {
             releaseResources();
             if (resultCallback != null) {
-                resultCallback.failed(cause);
+                resultCallback.failed(message, cause);
             }
         }
     }
 
     @Override
-    public final void releaseResources() {
+    public void releaseResources() {
         requestProducer.releaseResources();
         responseConsumer.releaseResources();
     }

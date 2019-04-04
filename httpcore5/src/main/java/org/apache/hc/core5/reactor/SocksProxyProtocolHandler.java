@@ -71,7 +71,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     private static final byte ATYP_IPV6 = 4;
 
-    private static enum State {
+    private enum State {
         SEND_AUTH, RECEIVE_AUTH_METHOD, SEND_USERNAME_PASSWORD, RECEIVE_AUTH, SEND_CONNECT, RECEIVE_RESPONSE_CODE, RECEIVE_ADDRESS_TYPE, RECEIVE_ADDRESS, COMPLETE
     }
 
@@ -305,13 +305,13 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     @Override
     public void timeout(final IOSession session, final Timeout timeout) throws IOException {
-        exception(session, SocketTimeoutExceptionFactory.create(timeout));
+        exception(session, null, SocketTimeoutExceptionFactory.create(timeout));
     }
 
     @Override
-    public void exception(final IOSession session, final Exception cause) {
+    public void exception(final IOSession session, final String message, final Exception cause) {
         try {
-            cleanupRequests(cause);
+            cleanupRequests(null, cause);
         } finally {
             session.close(CloseMode.IMMEDIATE);
         }
@@ -319,17 +319,17 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     @Override
     public void disconnected(final IOSession session) {
-        cleanupRequests(new ConnectionClosedException());
+        cleanupRequests(null, new ConnectionClosedException());
     }
 
-    private void cleanupRequests(final Exception cause) {
+    private void cleanupRequests(final String message, final Exception cause) {
         while (true) {
             final Command command = ioSession.poll();
             if (command != null) {
                 if (command instanceof RequestExecutionCommand) {
                     final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
                     final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                    exchangeHandler.failed(cause);
+                    exchangeHandler.failed(message, cause);
                     exchangeHandler.releaseResources();
                 } else {
                     command.cancel();

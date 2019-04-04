@@ -151,7 +151,7 @@ public class ClassicReverseProxyExample {
                 .setExceptionListener(new ExceptionListener() {
 
                     @Override
-                    public void onError(final Exception ex) {
+                    public void onError(final String message, final Exception ex) {
                         if (ex instanceof SocketException) {
                             System.out.println("[client->proxy] " + Thread.currentThread() + " " + ex.getMessage());
                         } else {
@@ -161,7 +161,7 @@ public class ClassicReverseProxyExample {
                     }
 
                     @Override
-                    public void onError(final HttpConnection connection, final Exception ex) {
+                    public void onError(final HttpConnection connection, final String message, final Exception ex) {
                         if (ex instanceof SocketTimeoutException) {
                             System.out.println("[client->proxy] " + Thread.currentThread() + " time out");
                         } else if (ex instanceof SocketException || ex instanceof ConnectionClosedException) {

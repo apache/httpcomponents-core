@@ -47,7 +47,7 @@ public class TestBasicFuture {
         final Object result = new Object();
         final Exception boom = new Exception();
         future.completed(result);
-        future.failed(boom);
+        future.failed(null, boom);
         Assert.assertTrue(callback.isCompleted());
         Assert.assertSame(result, callback.getResult());
         Assert.assertFalse(callback.isFailed());
@@ -70,7 +70,7 @@ public class TestBasicFuture {
         final Object result = new Object();
         final Exception boom = new Exception();
         future.completed(result);
-        future.failed(boom);
+        future.failed(null, boom);
         Assert.assertTrue(callback.isCompleted());
         Assert.assertSame(result, callback.getResult());
         Assert.assertFalse(callback.isFailed());
@@ -88,7 +88,7 @@ public class TestBasicFuture {
         final BasicFuture<Object> future = new BasicFuture<>(callback);
         final Object result = new Object();
         final Exception boom = new Exception();
-        future.failed(boom);
+        future.failed(null, boom);
         future.completed(result);
         Assert.assertFalse(callback.isCompleted());
         Assert.assertNull(callback.getResult());
@@ -112,7 +112,7 @@ public class TestBasicFuture {
         final Object result = new Object();
         final Exception boom = new Exception();
         future.cancel(true);
-        future.failed(boom);
+        future.failed(null, boom);
         future.completed(result);
         Assert.assertFalse(callback.isCompleted());
         Assert.assertNull(callback.getResult());
@@ -164,7 +164,7 @@ public class TestBasicFuture {
             public void run() {
                 try {
                     Thread.sleep(100);
-                    future.failed(boom);
+                    future.failed(null, boom);
                 } catch (final InterruptedException ex) {
                 }
             }

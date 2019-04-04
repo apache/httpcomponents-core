@@ -139,7 +139,7 @@ public class Http2ConscriptRequestExecutionExample {
                         }
 
                         @Override
-                        public void failed(final Exception ex) {
+                        public void failed(final String message, final Exception ex) {
                             clientEndpoint.releaseAndDiscard();
                             System.out.println(requestUri + "->" + ex);
                             latch.countDown();

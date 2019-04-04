@@ -386,7 +386,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             if (command != null) {
                 if (command instanceof RequestExecutionCommand) {
                     final AsyncClientExchangeHandler exchangeHandler = ((RequestExecutionCommand) command).getExchangeHandler();
-                    exchangeHandler.failed(ex);
+                    exchangeHandler.failed(null, ex);
                     exchangeHandler.releaseResources();
                 } else {
                     command.cancel();
@@ -404,7 +404,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             if (command != null) {
                 if (command instanceof RequestExecutionCommand) {
                     final AsyncClientExchangeHandler exchangeHandler = ((RequestExecutionCommand) command).getExchangeHandler();
-                    exchangeHandler.failed(new ConnectionClosedException());
+                    exchangeHandler.failed(null, new ConnectionClosedException());
                     exchangeHandler.releaseResources();
                 } else {
                     command.cancel();

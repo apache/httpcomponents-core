@@ -105,10 +105,10 @@ public final class AsyncServerFilterChainExchangeHandlerFactory implements Handl
             }
 
             @Override
-            public void failed(final Exception cause) {
+            public void failed(final String message, final Exception cause) {
                 final AsyncResponseProducer handler = responseProducerRef.get();
                 if (handler != null) {
-                    handler.failed(cause);
+                    handler.failed(message, cause);
                 }
             }
 

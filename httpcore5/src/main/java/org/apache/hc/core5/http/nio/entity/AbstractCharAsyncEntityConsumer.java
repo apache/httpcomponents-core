@@ -94,9 +94,9 @@ public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDat
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public final void failed(final String message, final Exception cause) {
         if (resultCallback != null) {
-            resultCallback.failed(cause);
+            resultCallback.failed(message, cause);
         }
         releaseResources();
     }

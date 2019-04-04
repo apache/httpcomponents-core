@@ -76,7 +76,7 @@ public class MultiLineEntityProducer extends AbstractCharAsyncEntityProducer {
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
     }
 
     @Override

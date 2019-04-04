@@ -86,7 +86,7 @@ class RequestListener implements Runnable {
                 this.executorService.execute(worker);
             }
         } catch (final Exception ex) {
-            this.exceptionListener.onError(ex);
+            this.exceptionListener.onError(null, null, ex);
         }
     }
 

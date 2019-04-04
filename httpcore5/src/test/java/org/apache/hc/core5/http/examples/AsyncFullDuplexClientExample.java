@@ -142,7 +142,7 @@ public class AsyncFullDuplexClientExample {
             }
 
             @Override
-            public void failed(final Exception cause) {
+            public void failed(final String message, final Exception cause) {
                 System.out.println(requestUri + "->" + cause);
             }
 

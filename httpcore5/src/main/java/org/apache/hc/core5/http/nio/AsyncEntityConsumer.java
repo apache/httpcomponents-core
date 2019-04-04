@@ -51,10 +51,10 @@ public interface AsyncEntityConsumer<T> extends AsyncDataConsumer {
 
     /**
      * Triggered to signal a failure in data processing.
-     *
+     * @param message TODO
      * @param cause the cause of the failure.
      */
-    void failed(Exception cause);
+    void failed(String message, Exception cause);
 
     /**
      * Returns the result of entity processing when it becomes available or {@code null}

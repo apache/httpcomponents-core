@@ -50,7 +50,7 @@ class BasicFutureCallback<T> implements FutureCallback<T> {
     }
 
     @Override
-    public void failed(final Exception ex) {
+    public void failed(final String message, final Exception ex) {
         this.ex = ex;
         this.failed = true;
     }

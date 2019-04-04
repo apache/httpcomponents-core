@@ -250,11 +250,11 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         try {
             if (failed.compareAndSet(false, true)) {
                 if (exchangeHandler != null) {
-                    exchangeHandler.failed(cause);
+                    exchangeHandler.failed(message, cause);
                 }
             }
         } finally {

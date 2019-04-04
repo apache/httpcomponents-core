@@ -54,7 +54,7 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
         try {
             streamMultiplexer.onConnect(null);
         } catch (final HttpException ex) {
-            streamMultiplexer.onException(ex);
+            streamMultiplexer.onException(null, ex);
         }
     }
 
@@ -63,7 +63,7 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
         try {
             streamMultiplexer.onInput();
         } catch (final HttpException ex) {
-            streamMultiplexer.onException(ex);
+            streamMultiplexer.onException(null, ex);
         }
     }
 
@@ -72,7 +72,7 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
         try {
             streamMultiplexer.onOutput();
         } catch (final HttpException ex) {
-            streamMultiplexer.onException(ex);
+            streamMultiplexer.onException(null, ex);
         }
     }
 
@@ -81,13 +81,13 @@ class AbstractHttp2IOEventHandler implements HttpConnectionEventHandler {
         try {
             streamMultiplexer.onTimeout(timeout);
         } catch (final HttpException ex) {
-            streamMultiplexer.onException(ex);
+            streamMultiplexer.onException(null, ex);
         }
     }
 
     @Override
-    public void exception(final IOSession session, final Exception cause) {
-        streamMultiplexer.onException(cause);
+    public void exception(final IOSession session, final String message, final Exception cause) {
+        streamMultiplexer.onException(message, cause);
     }
 
     @Override

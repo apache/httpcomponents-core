@@ -865,7 +865,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     }
 
                     @Override
-                    public void failed(final Exception cause) {
+                    public void failed(final String message, final Exception cause) {
                     }
 
                     @Override
@@ -954,7 +954,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     }
 
                     @Override
-                    public void failed(final Exception cause) {
+                    public void failed(final String message, final Exception cause) {
                     }
 
                     @Override
@@ -1700,7 +1700,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     }
 
                     @Override
-                    public void failed(final Exception cause) {
+                    public void failed(final String message, final Exception cause) {
                         releaseResources();
                     }
 

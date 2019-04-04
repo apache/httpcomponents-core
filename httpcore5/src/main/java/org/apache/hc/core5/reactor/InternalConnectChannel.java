@@ -90,13 +90,13 @@ final class InternalConnectChannel extends InternalChannel {
 
     @Override
     void onTimeout(final Timeout timeout) throws IOException {
-        sessionRequest.failed(SocketTimeoutExceptionFactory.create(timeout));
+        sessionRequest.failed(null, SocketTimeoutExceptionFactory.create(timeout));
         close();
     }
 
     @Override
-    void onException(final Exception cause) {
-        sessionRequest.failed(cause);
+    void onException(final String message, final Exception cause) {
+        sessionRequest.failed(message, cause);
     }
 
     @Override

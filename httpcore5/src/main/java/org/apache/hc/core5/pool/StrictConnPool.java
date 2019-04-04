@@ -348,7 +348,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             final PoolEntry<T, C> result = request.getResult();
             boolean successfullyCompleted = false;
             if (ex != null) {
-                future.failed(ex);
+                future.failed(null, ex);
             } else if (result != null) {
                 if (future.completed(result)) {
                     successfullyCompleted = true;

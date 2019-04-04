@@ -70,9 +70,10 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
      * Triggered to handle the exception thrown while processing a push response.
      *
      * @param promise the promised request message.
+     * @param message TODO
      * @param cause the cause of error.
      */
-    protected void handleError(final HttpRequest promise, final Exception cause) {
+    protected void handleError(final HttpRequest promise, final String message, final Exception cause) {
     }
 
     @Override
@@ -88,13 +89,13 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
                 try {
                     handleResponse(promise, result);
                 } catch (final Exception ex) {
-                    failed(ex);
+                    failed(null, ex);
                 }
             }
 
             @Override
-            public void failed(final Exception cause) {
-                handleError(promise, cause);
+            public void failed(final String message, final Exception cause) {
+                handleError(promise, message, cause);
                 releaseResources();
             }
 
@@ -122,8 +123,8 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
     }
 
     @Override
-    public final void failed(final Exception cause) {
-        responseConsumer.failed(cause);
+    public final void failed(final String message, final Exception cause) {
+        responseConsumer.failed(message, cause);
         releaseResources();
     }
 

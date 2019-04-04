@@ -300,9 +300,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         exchangeHandler.streamEnd(trailers);
     }
 
-    void failed(final Exception cause) {
+    void failed(final String message, final Exception cause) {
         if (!done.get()) {
-            exchangeHandler.failed(cause);
+            exchangeHandler.failed(message, cause);
         }
     }
 

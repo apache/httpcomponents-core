@@ -99,7 +99,7 @@ public class TestAbstractBinAsyncEntityConsumer {
             }
 
             @Override
-            public void failed(final Exception ex) {
+            public void failed(final String message, final Exception ex) {
                 count.incrementAndGet();
             }
 

@@ -133,11 +133,11 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         reactiveDataConsumer.failed(cause);
-        responseFuture.failed(cause);
+        responseFuture.failed(message, cause);
         if (responseCompletion != null) {
-            responseCompletion.failed(cause);
+            responseCompletion.failed(message, cause);
         }
     }
 

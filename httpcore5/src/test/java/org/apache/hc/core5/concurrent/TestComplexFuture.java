@@ -81,8 +81,8 @@ public class TestComplexFuture {
             }
 
             @Override
-            public void failed(final Exception ex) {
-                future.failed(ex);
+            public void failed(final String message, final Exception ex) {
+                future.failed(message, ex);
             }
 
             @Override

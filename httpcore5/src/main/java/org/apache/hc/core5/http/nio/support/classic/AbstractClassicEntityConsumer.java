@@ -104,7 +104,7 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
                         resultCallback.completed(result);
                     } catch (final Exception ex) {
                         buffer.abort();
-                        resultCallback.failed(ex);
+                        resultCallback.failed(null, ex);
                     } finally {
                         state.set(State.COMPLETED);
                     }
@@ -125,7 +125,7 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public final void failed(final String message, final Exception cause) {
         if (exceptionRef.compareAndSet(null, cause)) {
             releaseResources();
         }

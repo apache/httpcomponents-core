@@ -76,9 +76,9 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
                 }
 
                 @Override
-                public void failed(final Exception ex) {
+                public void failed(final String message, final Exception ex) {
                     if (resultCallback != null) {
-                        resultCallback.failed(ex);
+                        resultCallback.failed(message, ex);
                     }
                 }
 
@@ -119,7 +119,7 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         releaseResources();
     }
 

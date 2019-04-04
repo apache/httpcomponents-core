@@ -77,9 +77,9 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
                 }
 
                 @Override
-                public void failed(final Exception ex) {
+                public void failed(final String message, final Exception ex) {
                     if (resultCallback != null) {
-                        resultCallback.failed(ex);
+                        resultCallback.failed(message, ex);
                     }
                     dataConsumer.releaseResources();
                 }
@@ -121,7 +121,7 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         releaseResources();
     }
 

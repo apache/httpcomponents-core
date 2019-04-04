@@ -111,7 +111,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     break;
             }
         } catch (final Exception ex) {
-            exception(session, ex);
+            exception(session, null, ex);
         }
     }
 
@@ -158,7 +158,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 }
             }
         } catch (final Exception ex) {
-            exception(session, ex);
+            exception(session, null, ex);
         }
     }
 
@@ -168,11 +168,11 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void timeout(final IOSession session, final Timeout timeout) {
-        exception(session, SocketTimeoutExceptionFactory.create(timeout));
+        exception(session, null, SocketTimeoutExceptionFactory.create(timeout));
     }
 
     @Override
-    public void exception(final IOSession session, final Exception cause) {
+    public void exception(final IOSession session, final String message, final Exception cause) {
         session.close(CloseMode.IMMEDIATE);
     }
 

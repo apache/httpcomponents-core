@@ -38,7 +38,7 @@ import org.apache.hc.core5.util.TimeoutValueException;
 /**
  * Basic implementation of the {@link Future} interface. {@code BasicFuture}
  * can be put into a completed state by invoking any of the following methods:
- * {@link #cancel()}, {@link #failed(Exception)}, or {@link #completed(Object)}.
+ * {@link #cancel()}, {@link #failed(String, Exception)}, or {@link #completed(Object)}.
  *
  * @param <T> the future result type of an asynchronous operation.
  * @since 4.2
@@ -51,6 +51,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
     private volatile boolean cancelled;
     private volatile T result;
     private volatile Exception ex;
+    private volatile String exMessage;
 
     public BasicFuture(final FutureCallback<T> callback) {
         super();
@@ -69,7 +70,8 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
 
     private T getResult() throws ExecutionException {
         if (this.ex != null) {
-            throw new ExecutionException(this.ex);
+            throw exMessage == null ? new ExecutionException(this.ex)
+                    : new ExecutionException(this.exMessage, this.ex);
         }
         if (cancelled) {
             throw new CancellationException();
@@ -125,17 +127,18 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
         return true;
     }
 
-    public boolean failed(final Exception exception) {
+    public boolean failed(final String message, final Exception exception) {
         synchronized(this) {
             if (this.completed) {
                 return false;
             }
             this.completed = true;
             this.ex = exception;
+            this.exMessage = message;
             notifyAll();
         }
         if (this.callback != null) {
-            this.callback.failed(exception);
+            this.callback.failed(message, exception);
         }
         return true;
     }

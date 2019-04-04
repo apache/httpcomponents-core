@@ -140,7 +140,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         if (exception.compareAndSet(null, cause)) {
             releaseResources();
         }

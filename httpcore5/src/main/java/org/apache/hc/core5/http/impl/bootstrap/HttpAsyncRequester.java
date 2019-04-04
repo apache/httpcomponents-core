@@ -194,9 +194,9 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                         }
 
                         @Override
-                        public void failed(final Exception cause) {
+                        public void failed(final String message, final Exception cause) {
                             try {
-                                resultFuture.failed(cause);
+                                resultFuture.failed(message, cause);
                             } finally {
                                 endpoint.releaseAndDiscard();
                             }
@@ -217,8 +217,8 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             }
 
             @Override
-            public void failed(final Exception ex) {
-                resultFuture.failed(ex);
+            public void failed(final String message, final Exception ex) {
+                resultFuture.failed(message, ex);
             }
 
             @Override
@@ -269,9 +269,9 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                                 }
 
                                 @Override
-                                public void failed(final Exception cause) {
+                                public void failed(final String message, final Exception cause) {
                                     endpoint.releaseAndDiscard();
-                                    exchangeHandler.failed(cause);
+                                    exchangeHandler.failed(message, cause);
                                 }
 
                                 @Override
@@ -330,8 +330,8 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                         }
 
                         @Override
-                        public void failed(final Exception ex) {
-                            exchangeHandler.failed(ex);
+                        public void failed(final String message, final Exception ex) {
+                            exchangeHandler.failed(message, ex);
                         }
 
                         @Override
@@ -346,7 +346,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             }, executeContext);
 
         } catch (final IOException | HttpException ex) {
-            exchangeHandler.failed(ex);
+            exchangeHandler.failed(null, ex);
         }
     }
 
@@ -376,8 +376,8 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             }
 
             @Override
-            public void failed(final Exception ex) {
-                future.failed(ex);
+            public void failed(final String message, final Exception ex) {
+                future.failed(message, ex);
             }
 
             @Override

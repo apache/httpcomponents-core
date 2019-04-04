@@ -87,9 +87,9 @@ public abstract class AbstractBinAsyncEntityConsumer<T> extends AbstractBinDataC
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public final void failed(final String message, final Exception cause) {
         if (resultCallback != null) {
-            resultCallback.failed(cause);
+            resultCallback.failed(message, cause);
         }
         releaseResources();
     }

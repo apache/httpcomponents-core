@@ -77,7 +77,7 @@ public class TestAbstractBinAsyncEntityProducer {
         }
 
         @Override
-        public void failed(final Exception cause) {
+        public void failed(final String message, final Exception cause) {
         }
 
     }

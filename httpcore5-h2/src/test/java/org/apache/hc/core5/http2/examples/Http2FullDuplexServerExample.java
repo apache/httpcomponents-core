@@ -210,7 +210,7 @@ public class Http2FullDuplexServerExample {
                             }
 
                             @Override
-                            public void failed(final Exception cause) {
+                            public void failed(final String message, final Exception cause) {
                                 if (!(cause instanceof SocketException)) {
                                     cause.printStackTrace(System.out);
                                 }

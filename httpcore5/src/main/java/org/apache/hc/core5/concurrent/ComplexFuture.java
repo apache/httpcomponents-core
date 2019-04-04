@@ -82,8 +82,8 @@ public final class ComplexFuture<T> extends BasicFuture<T> implements Cancellabl
     }
 
     @Override
-    public boolean failed(final Exception exception) {
-        final boolean failed = super.failed(exception);
+    public boolean failed(final String message, final Exception exception) {
+        final boolean failed = super.failed(message, exception);
         dependencyRef.set(null);
         return failed;
     }

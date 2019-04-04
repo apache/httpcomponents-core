@@ -90,10 +90,10 @@ public class BasicRequestProducer implements AsyncRequestProducer {
     }
 
     @Override
-    public void failed(final Exception cause) {
+    public void failed(final String message, final Exception cause) {
         try {
             if (dataProducer != null) {
-                dataProducer.failed(cause);
+                dataProducer.failed(message, cause);
             }
         } finally {
             releaseResources();
