@@ -28,6 +28,7 @@
 package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.SocketAddress;
 import java.nio.channels.CancelledKeyException;
@@ -160,7 +161,16 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
                     socket.setReceiveBufferSize(this.reactorConfig.getRcvBufSize());
                 }
                 serverChannel.configureBlocking(false);
-                socket.bind(address, this.reactorConfig.getBacklogSize());
+
+                try {
+                    socket.bind(address, this.reactorConfig.getBacklogSize());
+                } catch (final BindException ex) {
+                    final BindException detailedEx = new BindException(
+                            String.format("Socket bind failure for socket %s, address=%s, BacklogSize=%,d: %s", socket,
+                                    address, this.reactorConfig.getBacklogSize(), ex));
+                    detailedEx.setStackTrace(ex.getStackTrace());
+                    throw detailedEx;
+                }
 
                 final SelectionKey key = serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
                 key.attach(request);
