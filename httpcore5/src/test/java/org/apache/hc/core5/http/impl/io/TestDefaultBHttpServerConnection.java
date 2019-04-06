@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.config.H1Config;
@@ -86,7 +87,7 @@ public class TestDefaultBHttpServerConnection {
         final ClassicHttpRequest request = conn.receiveRequestHeader();
         Assert.assertNotNull(request);
         Assert.assertEquals("/", request.getPath());
-        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals(Methods.GET.name(), request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
     }
@@ -105,7 +106,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertNotNull(request);
         Assert.assertEquals("/", request.getPath());
-        Assert.assertEquals("POST", request.getMethod());
+        Assert.assertEquals(Methods.POST.name(), request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
@@ -136,7 +137,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertNotNull(request);
         Assert.assertEquals("/stuff", request.getPath());
-        Assert.assertEquals("POST", request.getMethod());
+        Assert.assertEquals(Methods.POST.name(), request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
@@ -168,7 +169,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertNotNull(request);
         Assert.assertEquals("/stuff", request.getPath());
-        Assert.assertEquals("POST", request.getMethod());
+        Assert.assertEquals(Methods.POST.name(), request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
@@ -190,7 +191,7 @@ public class TestDefaultBHttpServerConnection {
 
         Assert.assertNotNull(request);
         Assert.assertEquals("/stuff", request.getPath());
-        Assert.assertEquals("POST", request.getMethod());
+        Assert.assertEquals(Methods.POST.name(), request.getMethod());
         Assert.assertTrue(request.containsHeader("User-Agent"));
         Assert.assertNull(request.getEntity());
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());

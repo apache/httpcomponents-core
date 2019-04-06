@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
@@ -147,7 +148,7 @@ public class Http2CompatibilityTest {
             });
         }
         for (final String requestUri: REQUEST_URIS) {
-            final HttpRequest request = new BasicHttpRequest("GET", target, requestUri);
+            final HttpRequest request = new BasicHttpRequest(Methods.GET, target, requestUri);
             clientEndpoint.execute(
                     new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),

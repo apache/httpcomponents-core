@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
@@ -122,7 +123,7 @@ public class AsyncFullDuplexClientExample {
 
         final URI requestUri = new URI("http://httpbin.org/post");
         final BasicRequestProducer requestProducer = new BasicRequestProducer(
-                "POST", requestUri, new BasicAsyncEntityProducer("stuff", ContentType.TEXT_PLAIN));
+                Methods.POST.name(), requestUri, new BasicAsyncEntityProducer("stuff", ContentType.TEXT_PLAIN));
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(
                 new StringAsyncEntityConsumer());
 

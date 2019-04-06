@@ -46,6 +46,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
@@ -94,7 +95,7 @@ class BenchmarkWorker implements ResourceHolder {
     private AsyncRequestProducer createRequestProducer() {
         String method = config.getMethod();
         if (method == null) {
-            method = config.isHeadInsteadOfGet() ? "HEAD" : "GET";
+            method = config.isHeadInsteadOfGet() ? Methods.HEAD.name() : Methods.GET.name();
         }
 
         final BasicHttpRequest request = new BasicHttpRequest(method, config.getUri());

@@ -35,6 +35,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -214,7 +215,7 @@ public class CommandLineUtils {
         if (cmd.hasOption('m')) {
             builder.setMethod(cmd.getOptionValue('m'));
         } else if (cmd.hasOption('p')) {
-            builder.setMethod("POST");
+            builder.setMethod(Methods.POST.name());
         }
 
         if (cmd.hasOption('u')) {

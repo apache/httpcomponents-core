@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.testing.reactive;
 
+import static java.lang.String.format;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -56,6 +58,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
@@ -97,8 +100,6 @@ import io.reactivex.Observable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
-
-import static java.lang.String.format;
 
 @RunWith(Parameterized.class)
 public class ReactiveClientTest {
@@ -264,8 +265,7 @@ public class ReactiveClientTest {
     }
 
     private BasicRequestProducer getRequestProducer(final InetSocketAddress address, final ReactiveEntityProducer producer) {
-        return new BasicRequestProducer("POST",
-            URI.create("http://localhost:" + address.getPort()), producer);
+        return new BasicRequestProducer(Methods.POST, URI.create("http://localhost:" + address.getPort()), producer);
     }
 
     @Test

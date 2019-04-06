@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
@@ -122,7 +123,7 @@ public class ReactiveFullDuplexClientExample {
             ContentType.TEXT_PLAIN, null);
         final URI requestUri = new URI(endpoint);
         final BasicRequestProducer requestProducer = new BasicRequestProducer(
-            "POST", requestUri, reactiveEntityProducer);
+            Methods.POST.name(), requestUri, reactiveEntityProducer);
 
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
         final Future<Void> responseComplete = requester.execute(requestProducer, consumer, Timeout.ofSeconds(30), null);
