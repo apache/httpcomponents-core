@@ -311,6 +311,15 @@ public class TestStandardInterceptors {
         Assert.assertEquals("h1, h2", header2.getValue());
     }
 
+    @Test(expected = ProtocolException.class)
+    public void testRequestContentTraceWithEntity() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Methods.TRACE, "/");
+        request.setEntity(new StringEntity("stuff"));
+        final RequestContent interceptor = new RequestContent();
+        interceptor.process(request, request.getEntity(), context);
+    }
+
     @Test
     public void testRequestExpectContinueGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();

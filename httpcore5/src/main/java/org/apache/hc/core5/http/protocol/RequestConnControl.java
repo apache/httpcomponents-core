@@ -64,7 +64,6 @@ public class RequestConnControl implements HttpRequestInterceptor {
         if (Methods.CONNECT.isSame(method)) {
             return;
         }
-
         if (!request.containsHeader(HttpHeaders.CONNECTION)) {
             // Default policy is to keep connection alive
             // whenever possible

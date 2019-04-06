@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.MessageSupport;
@@ -87,6 +88,10 @@ public class RequestContent implements HttpRequestInterceptor {
     public void process(final HttpRequest request, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
+        final String method = request.getMethod();
+        if (Methods.TRACE.isSame(method) && entity != null) {
+            throw new ProtocolException("TRACE request may not enclose an entity");
+        }
         if (this.overwrite) {
             request.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
             request.removeHeaders(HttpHeaders.CONTENT_LENGTH);

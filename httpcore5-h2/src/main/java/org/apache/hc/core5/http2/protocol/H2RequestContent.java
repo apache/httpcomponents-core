@@ -34,6 +34,8 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -66,6 +68,10 @@ public class H2RequestContent extends RequestContent {
         if (ver.getMajor() < 2) {
             super.process(request, entity, context);
         } else if (entity != null) {
+            final String method = request.getMethod();
+            if (Methods.TRACE.isSame(method)) {
+                throw new ProtocolException("TRACE request may not enclose an entity");
+            }
             MessageSupport.addContentTypeHeader(request, entity);
             MessageSupport.addContentEncodingHeader(request, entity);
             MessageSupport.addTrailerHeader(request, entity);
