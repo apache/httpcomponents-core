@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.io.SocketConfig;
@@ -60,7 +61,7 @@ public class ClassicPostWithTrailersExecutionExample {
         final HttpHost target = new HttpHost("httpbin.org");
 
         final String requestUri = "/post";
-        final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", target, requestUri);
+        final ClassicHttpRequest request = new BasicClassicHttpRequest(Methods.POST, target, requestUri);
         final HttpEntity requestBody = new HttpEntityWithTrailers(
                 new StringEntity("Chunked message with trailers", ContentType.TEXT_PLAIN),
                 new BasicHeader("t1","Hello world"));

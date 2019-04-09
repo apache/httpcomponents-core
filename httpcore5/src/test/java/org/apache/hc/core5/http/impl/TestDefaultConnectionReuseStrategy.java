@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
@@ -231,7 +232,7 @@ public class TestDefaultConnectionReuseStrategy {
 
     @Test
     public void testRequestExplicitClose() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, "/");
         request.addHeader("Connection", "close");
 
         final HttpResponse response = new BasicHttpResponse(200, "OK");
@@ -242,7 +243,7 @@ public class TestDefaultConnectionReuseStrategy {
 
     @Test
     public void testRequestNoExplicitClose() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, "/");
         request.addHeader("Connection", "blah, blah, blah");
 
         final HttpResponse response = new BasicHttpResponse(200, "OK");
@@ -253,7 +254,7 @@ public class TestDefaultConnectionReuseStrategy {
 
     @Test
     public void testRequestExplicitCloseMultipleTokens() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, "/");
         request.addHeader("Connection", "blah, blah, blah");
         request.addHeader("Connection", "keep-alive");
         request.addHeader("Connection", "close");
@@ -266,7 +267,7 @@ public class TestDefaultConnectionReuseStrategy {
 
     @Test
     public void testRequestClose() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", "/");
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, "/");
         request.addHeader("Connection", "close");
 
         final HttpResponse response = new BasicHttpResponse(200, "OK");
@@ -278,7 +279,7 @@ public class TestDefaultConnectionReuseStrategy {
 
     @Test
     public void testHeadRequestWithout() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("HEAD", "/");
+        final HttpRequest request = new BasicHttpRequest(Methods.HEAD, "/");
         final HttpResponse response = new BasicHttpResponse(200, "OK");
 
         Assert.assertTrue(reuseStrategy.keepAlive(request, response, context));

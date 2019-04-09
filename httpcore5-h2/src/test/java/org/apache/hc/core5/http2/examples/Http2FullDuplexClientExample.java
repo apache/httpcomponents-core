@@ -39,6 +39,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
@@ -125,7 +126,7 @@ public class Http2FullDuplexClientExample {
 
         final URI requestUri = new URI("http://nghttp2.org/httpbin/post");
         final BasicRequestProducer requestProducer = new BasicRequestProducer(
-                "POST", requestUri, new BasicAsyncEntityProducer("stuff", ContentType.TEXT_PLAIN));
+                Methods.POST.name(), requestUri, new BasicAsyncEntityProducer("stuff", ContentType.TEXT_PLAIN));
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(
                 new StringAsyncEntityConsumer());
 

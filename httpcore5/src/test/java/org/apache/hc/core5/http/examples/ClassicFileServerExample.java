@@ -33,7 +33,6 @@ import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.SSLContext;
@@ -49,10 +48,11 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
-import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.FileEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -151,8 +151,8 @@ public class ClassicFileServerExample {
                 final ClassicHttpResponse response,
                 final HttpContext context) throws HttpException, IOException {
 
-            final String method = request.getMethod().toUpperCase(Locale.ROOT);
-            if (!method.equals("GET") && !method.equals("HEAD") && !method.equals("POST")) {
+            final String method = request.getMethod();
+            if (!Methods.GET.isSame(method) && !Methods.HEAD.isSame(method) && !Methods.POST.isSame(method)) {
                 throw new MethodNotSupportedException(method + " method not supported");
             }
             final String path = request.getPath();

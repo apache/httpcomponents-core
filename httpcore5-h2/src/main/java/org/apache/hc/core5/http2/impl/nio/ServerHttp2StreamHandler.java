@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingEntityDetails;
@@ -154,7 +155,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
 
             Asserts.notNull(receivedRequest, "Received request");
             final String method = receivedRequest.getMethod();
-            final boolean endStream = responseEntityDetails == null || method.equalsIgnoreCase("HEAD");
+            final boolean endStream = responseEntityDetails == null || Methods.HEAD.isSame(method);
             outputChannel.submit(responseHeaders, endStream);
             connMetrics.incrementResponseCount();
             if (responseEntityDetails == null) {

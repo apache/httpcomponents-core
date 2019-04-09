@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
@@ -100,7 +101,7 @@ public class AsyncRequestExecutionExample {
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
             requester.execute(
-                    new BasicRequestProducer("GET", target, requestUri),
+                    new BasicRequestProducer(Methods.GET, target, requestUri),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                     Timeout.ofSeconds(5),
                     new FutureCallback<Message<HttpResponse, String>>() {

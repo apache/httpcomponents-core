@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
@@ -87,7 +88,7 @@ public class ClassicGetExecutionExample {
 
         for (int i = 0; i < requestUris.length; i++) {
             final String requestUri = requestUris[i];
-            final ClassicHttpRequest request = new BasicClassicHttpRequest("GET", target, requestUri);
+            final ClassicHttpRequest request = new BasicClassicHttpRequest(Methods.GET, target, requestUri);
             try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
                 System.out.println(requestUri + "->" + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));

@@ -33,6 +33,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.net.URIAuthority;
 import org.junit.Assert;
 import org.junit.Test;
@@ -81,12 +82,12 @@ public class TestBasicMessages {
         Assert.assertEquals("WHATEVER", request.getMethod());
         Assert.assertEquals("/", request.getPath());
 
-        request = new BasicHttpRequest("GET", "/");
-        Assert.assertEquals("GET", request.getMethod());
+        request = new BasicHttpRequest(Methods.GET, "/");
+        Assert.assertEquals(Methods.GET.name(), request.getMethod());
         Assert.assertEquals("/", request.getPath());
 
         try {
-            new BasicHttpRequest("GET", (URI) null);
+            new BasicHttpRequest(Methods.GET, (URI) null);
             Assert.fail("IllegalArgumentException should have been thrown");
         } catch (final IllegalArgumentException ex) {
             // expected
@@ -130,8 +131,8 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestBasics() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", "/stuff");
-        Assert.assertEquals("GET", request.getMethod());
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, "/stuff");
+        Assert.assertEquals(Methods.GET.name(), request.getMethod());
         Assert.assertEquals("/stuff", request.getPath());
         Assert.assertEquals(null, request.getAuthority());
         Assert.assertEquals(new URI("/stuff"), request.getUri());
@@ -139,8 +140,8 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestWithRelativeURI() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", new URI("/stuff"));
-        Assert.assertEquals("GET", request.getMethod());
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, new URI("/stuff"));
+        Assert.assertEquals(Methods.GET.name(), request.getMethod());
         Assert.assertEquals("/stuff", request.getPath());
         Assert.assertEquals(null, request.getAuthority());
         Assert.assertEquals(new URI("/stuff"), request.getUri());
@@ -148,8 +149,8 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestWithAbsoluteURI() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", new URI("https://host:9443/stuff?param=value"));
-        Assert.assertEquals("GET", request.getMethod());
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, new URI("https://host:9443/stuff?param=value"));
+        Assert.assertEquals(Methods.GET.name(), request.getMethod());
         Assert.assertEquals("/stuff?param=value", request.getPath());
         Assert.assertEquals(new URIAuthority("host", 9443), request.getAuthority());
         Assert.assertEquals("https", request.getScheme());
@@ -158,8 +159,8 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestWithAbsoluteURIAsPath() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", "https://host:9443/stuff?param=value");
-        Assert.assertEquals("GET", request.getMethod());
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, "https://host:9443/stuff?param=value");
+        Assert.assertEquals(Methods.GET.name(), request.getMethod());
         Assert.assertEquals("/stuff?param=value", request.getPath());
         Assert.assertEquals(new URIAuthority("host", 9443), request.getAuthority());
         Assert.assertEquals("https", request.getScheme());
@@ -168,8 +169,8 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestWithNoPath() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", new URI("http://host"));
-        Assert.assertEquals("GET", request.getMethod());
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, new URI("http://host"));
+        Assert.assertEquals(Methods.GET.name(), request.getMethod());
         Assert.assertEquals("/", request.getPath());
         Assert.assertEquals(new URIAuthority("host"), request.getAuthority());
         Assert.assertEquals("http", request.getScheme());
@@ -178,8 +179,8 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestWithUserInfo() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", new URI("https://user:pwd@host:9443/stuff?param=value"));
-        Assert.assertEquals("GET", request.getMethod());
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, new URI("https://user:pwd@host:9443/stuff?param=value"));
+        Assert.assertEquals(Methods.GET.name(), request.getMethod());
         Assert.assertEquals("/stuff?param=value", request.getPath());
         Assert.assertEquals(new URIAuthority("user:pwd", "host", 9443), request.getAuthority());
         Assert.assertEquals("https", request.getScheme());
@@ -188,8 +189,8 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestWithAuthority() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("http", "somehost", -1), "/stuff");
-        Assert.assertEquals("GET", request.getMethod());
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, new HttpHost("http", "somehost", -1), "/stuff");
+        Assert.assertEquals(Methods.GET.name(), request.getMethod());
         Assert.assertEquals("/stuff", request.getPath());
         Assert.assertEquals(new URIAuthority("somehost"), request.getAuthority());
         Assert.assertEquals(new URI("http://somehost/stuff"), request.getUri());
@@ -197,8 +198,8 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestWithAuthorityRelativePath() throws Exception {
-        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("http", "somehost", -1), "stuff");
-        Assert.assertEquals("GET", request.getMethod());
+        final HttpRequest request = new BasicHttpRequest(Methods.GET, new HttpHost("http", "somehost", -1), "stuff");
+        Assert.assertEquals(Methods.GET.name(), request.getMethod());
         Assert.assertEquals("stuff", request.getPath());
         Assert.assertEquals(new URIAuthority("somehost"), request.getAuthority());
         Assert.assertEquals(new URI("http://somehost/stuff"), request.getUri());

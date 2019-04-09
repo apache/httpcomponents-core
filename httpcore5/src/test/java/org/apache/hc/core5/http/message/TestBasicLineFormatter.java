@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.message;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Before;
@@ -56,7 +57,7 @@ public class TestBasicLineFormatter {
 
     @Test
     public void testRLFormatting() throws Exception {
-        final RequestLine requestline = new RequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        final RequestLine requestline = new RequestLine(Methods.GET.name(), "/stuff", HttpVersion.HTTP_1_1);
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         this.formatter.formatRequestLine(buf, requestline);
         Assert.assertEquals("GET /stuff HTTP/1.1", buf.toString());
@@ -65,7 +66,7 @@ public class TestBasicLineFormatter {
     @Test
     public void testRLFormattingInvalidInput() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
-        final RequestLine requestline = new RequestLine("GET", "/stuff", HttpVersion.HTTP_1_1);
+        final RequestLine requestline = new RequestLine(Methods.GET.name(), "/stuff", HttpVersion.HTTP_1_1);
         try {
             this.formatter.formatRequestLine(null, requestline);
             Assert.fail("IllegalArgumentException should habe been thrown");

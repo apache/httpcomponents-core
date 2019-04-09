@@ -39,6 +39,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
@@ -106,7 +107,7 @@ public class ClassicPostExecutionExample {
 
         final String requestUri = "/post";
         for (int i = 0; i < requestBodies.length; i++) {
-            final ClassicHttpRequest request = new BasicClassicHttpRequest("POST", target,requestUri);
+            final ClassicHttpRequest request = new BasicClassicHttpRequest(Methods.POST, target,requestUri);
             request.setEntity(requestBodies[i]);
             try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
                 System.out.println(requestUri + "->" + response.getCode());

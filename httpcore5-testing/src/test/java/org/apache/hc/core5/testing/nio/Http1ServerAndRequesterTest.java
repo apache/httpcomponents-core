@@ -47,6 +47,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
@@ -245,7 +246,7 @@ public class Http1ServerAndRequesterTest {
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer("POST", target, "/stuff",
+                new BasicRequestProducer(Methods.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -256,7 +257,7 @@ public class Http1ServerAndRequesterTest {
         Assert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
 
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
-                new BasicRequestProducer("POST", target, "/other-stuff",
+                new BasicRequestProducer(Methods.POST, target, "/other-stuff",
                         new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -267,7 +268,7 @@ public class Http1ServerAndRequesterTest {
         Assert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
 
         final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
-                new BasicRequestProducer("POST", target, "/more-stuff",
+                new BasicRequestProducer(Methods.POST, target, "/more-stuff",
                         new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -288,7 +289,7 @@ public class Http1ServerAndRequesterTest {
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer("POST", target, "/no-keep-alive/stuff",
+                new BasicRequestProducer(Methods.POST, target, "/no-keep-alive/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -299,7 +300,7 @@ public class Http1ServerAndRequesterTest {
         Assert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
 
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
-                new BasicRequestProducer("POST", target, "/no-keep-alive/other-stuff",
+                new BasicRequestProducer(Methods.POST, target, "/no-keep-alive/other-stuff",
                         new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -310,7 +311,7 @@ public class Http1ServerAndRequesterTest {
         Assert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
 
         final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
-                new BasicRequestProducer("POST", target, "/no-keep-alive/more-stuff",
+                new BasicRequestProducer(Methods.POST, target, "/no-keep-alive/more-stuff",
                         new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -335,7 +336,7 @@ public class Http1ServerAndRequesterTest {
         try {
 
             final Future<Message<HttpResponse, String>> resultFuture1 = endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/stuff",
+                    new BasicRequestProducer(Methods.POST, target, "/stuff",
                             new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -346,7 +347,7 @@ public class Http1ServerAndRequesterTest {
             Assert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
 
             final Future<Message<HttpResponse, String>> resultFuture2 = endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/other-stuff",
+                    new BasicRequestProducer(Methods.POST, target, "/other-stuff",
                             new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -357,7 +358,7 @@ public class Http1ServerAndRequesterTest {
             Assert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
 
             final Future<Message<HttpResponse, String>> resultFuture3 = endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/more-stuff",
+                    new BasicRequestProducer(Methods.POST, target, "/more-stuff",
                             new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -388,15 +389,15 @@ public class Http1ServerAndRequesterTest {
             final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
 
             queue.add(endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/stuff",
+                    new BasicRequestProducer(Methods.POST, target, "/stuff",
                             new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
             queue.add(endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/other-stuff",
+                    new BasicRequestProducer(Methods.POST, target, "/other-stuff",
                             new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
             queue.add(endpoint.execute(
-                    new BasicRequestProducer("POST", target, "/more-stuff",
+                    new BasicRequestProducer(Methods.POST, target, "/more-stuff",
                             new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
 

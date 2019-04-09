@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.net.URIAuthority;
@@ -100,6 +101,57 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     public BasicHttpRequest(final String method, final URI requestUri) {
         super();
         this.method = Args.notNull(method, "Method name");
+        setUri(Args.notNull(requestUri, "Request URI"));
+    }
+
+    /**
+     * Creates request message with the given method and request path.
+     *
+     * @param method request method.
+     * @param path request path.
+     *
+     * @since 5.0
+     */
+    public BasicHttpRequest(final Methods method, final String path) {
+        super();
+        this.method = Args.notNull(method, "Method").name();
+        if (path != null) {
+            try {
+                setUri(new URI(path));
+            } catch (final URISyntaxException ex) {
+                this.path = path;
+            }
+        }
+    }
+
+    /**
+     * Creates request message with the given method, host and request path.
+     *
+     * @param method request method.
+     * @param host request host.
+     * @param path request path.
+     *
+     * @since 5.0
+     */
+    public BasicHttpRequest(final Methods method, final HttpHost host, final String path) {
+        super();
+        this.method = Args.notNull(method, "Method").name();
+        this.scheme = host != null ? host.getSchemeName() : null;
+        this.authority = host != null ? new URIAuthority(host) : null;
+        this.path = path;
+    }
+
+    /**
+     * Creates request message with the given method, request URI.
+     *
+     * @param method request method.
+     * @param requestUri request URI.
+     *
+     * @since 5.0
+     */
+    public BasicHttpRequest(final Methods method, final URI requestUri) {
+        super();
+        this.method = Args.notNull(method, "Method").name();
         setUri(Args.notNull(requestUri, "Request URI"));
     }
 
