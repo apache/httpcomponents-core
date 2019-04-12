@@ -84,6 +84,7 @@ public class SSLIOSession implements IOSession {
     private final Callback<SSLIOSession> connectedCallback;
     private final Callback<SSLIOSession> disconnectedCallback;
     private final AtomicLong bytesReadCount;
+    private final Timeout connectTimeout;
 
     private int appEventMask;
 
@@ -170,12 +171,7 @@ public class SSLIOSession implements IOSession {
 
         };
         this.bytesReadCount = new AtomicLong(0);
-
-        // Save the initial socketTimeout of the underlying IOSession, to be restored after the handshake is finished
-        this.socketTimeout = this.session.getSocketTimeout();
-        if (connectTimeout != null) {
-            this.session.setSocketTimeout(connectTimeout);
-        }
+        this.connectTimeout = connectTimeout;
     }
 
     @Override
@@ -211,6 +207,13 @@ public class SSLIOSession implements IOSession {
      */
     public void initialize() throws SSLException {
         Asserts.check(!this.initialized, "SSL I/O session already initialized");
+
+        // Save the initial socketTimeout of the underlying IOSession, to be restored after the handshake is finished
+        this.socketTimeout = this.session.getSocketTimeout();
+        if (connectTimeout != null) {
+            this.session.setSocketTimeout(connectTimeout);
+        }
+
         this.session.getLock().lock();
         try {
             if (this.status >= IOSession.CLOSING) {
