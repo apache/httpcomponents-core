@@ -107,7 +107,7 @@ public class Timeout extends TimeValue {
      *
      * @param milliseconds the duration in milliseconds and the given {@code timeUnit}.
      * @return a Timeout
-     * @deprecated Use {@link #ofMicroseconds(long)}
+     * @deprecated Use {@link #ofMilliseconds(long)}
      */
     @Deprecated
     public static Timeout ofMillis(final long milliseconds) {
