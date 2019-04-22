@@ -7,6 +7,8 @@ Release 5.0-BETA8
 * Provide more information when a BindException occurs.
   Contributed by Gary Gregory <garydgregory at gmail.com>
 
+* Refactor ClassicHttpRequest and ClassicHttpResponse interfaces to extend a new interface HttpEntityContainer.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
 
 Release 5.0-BETA7
 -------------------
