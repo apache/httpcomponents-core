@@ -167,21 +167,22 @@ public class ClassicFileServerExample {
             if (!file.exists()) {
 
                 response.setCode(HttpStatus.SC_NOT_FOUND);
+                final String msg = "File " + file.getPath() + " not found";
                 final StringEntity outgoingEntity = new StringEntity(
-                        "<html><body><h1>File " + file.getPath() +
-                        " not found</h1></body></html>",
+                        "<html><body><h1>" + msg + "</h1></body></html>",
                         ContentType.create("text/html", "UTF-8"));
                 response.setEntity(outgoingEntity);
-                System.out.println("File " + file.getPath() + " not found");
+                System.out.println(msg);
 
             } else if (!file.canRead() || file.isDirectory()) {
 
                 response.setCode(HttpStatus.SC_FORBIDDEN);
+                final String msg = "Cannot read file " + file.getPath();
                 final StringEntity outgoingEntity = new StringEntity(
-                        "<html><body><h1>Access denied</h1></body></html>",
+                        "<html><body><h1>" + msg + "</h1></body></html>",
                         ContentType.create("text/html", "UTF-8"));
                 response.setEntity(outgoingEntity);
-                System.out.println("Cannot read file " + file.getPath());
+                System.out.println(msg);
 
             } else {
                 final HttpCoreContext coreContext = HttpCoreContext.adapt(context);

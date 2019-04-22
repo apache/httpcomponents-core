@@ -110,19 +110,20 @@ public class AsyncFileServerExample {
                         final File file = new File(docRoot, path);
                         if (!file.exists()) {
 
-                            println("File " + file.getPath() + " not found");
+                            final String msg = "File " + file.getPath() + " not found";
+                            println(msg);
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_NOT_FOUND,
-                                    "<html><body><h1>File " + file.getPath() +
-                                            " not found</h1></body></html>",
+                                    "<html><body><h1>" + msg + "</h1></body></html>",
                                     ContentType.TEXT_HTML), context);
 
                         } else if (!file.canRead() || file.isDirectory()) {
 
-                            println("Cannot read file " + file.getPath());
+                            final String msg = "Cannot read file " + file.getPath();
+                            println(msg);
                             responseTrigger.submitResponse(new BasicResponseProducer(
                                     HttpStatus.SC_FORBIDDEN,
-                                    "<html><body><h1>Access denied</h1></body></html>",
+                                    "<html><body><h1>" + msg + "</h1></body></html>",
                                     ContentType.TEXT_HTML), context);
 
                         } else {
