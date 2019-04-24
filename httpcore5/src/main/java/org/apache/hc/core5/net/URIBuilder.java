@@ -550,7 +550,8 @@ public class URIBuilder {
     }
 
     public boolean isPathEmpty() {
-        return (this.pathSegments == null || this.pathSegments.isEmpty()) && this.encodedPath == null;
+        return (this.pathSegments == null || this.pathSegments.isEmpty()) &&
+                (this.encodedPath == null || this.encodedPath.isEmpty());
     }
 
     public List<String> getPathSegments() {
