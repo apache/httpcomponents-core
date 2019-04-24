@@ -164,6 +164,12 @@ public class TestURIBuilder {
     }
 
     @Test
+    public void testEmptyPath() throws Exception {
+        final URIBuilder uribuilder = new URIBuilder("http://thathost");
+        Assert.assertTrue(uribuilder.isPathEmpty());
+    }
+
+    @Test
     public void testSetUserInfo() throws Exception {
         final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff", null);
         final URIBuilder uribuilder = new URIBuilder(uri).setUserInfo("user", "password");
