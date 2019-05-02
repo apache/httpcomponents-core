@@ -32,6 +32,7 @@ import java.io.IOException;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
@@ -74,7 +75,7 @@ public class BasicHttpServerExpectationDecorator implements HttpServerRequestHan
             final ResponseTrigger responseTrigger,
             final HttpContext context) throws HttpException, IOException {
         final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-        if (expect != null && "100-continue".equalsIgnoreCase(expect.getValue())) {
+        if (expect != null && HeaderElements.CONTINUE.equalsIgnoreCase(expect.getValue())) {
             final ClassicHttpResponse response = verify(request, context);
             if (response == null) {
                 responseTrigger.sendInformation(new BasicClassicHttpResponse(HttpStatus.SC_CONTINUE));

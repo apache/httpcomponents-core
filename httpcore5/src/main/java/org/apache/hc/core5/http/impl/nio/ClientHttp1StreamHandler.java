@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -162,7 +163,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
                 requestState = MessageState.COMPLETE;
             } else {
                 final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-                final boolean expectContinue = h != null && "100-continue".equalsIgnoreCase(h.getValue());
+                final boolean expectContinue = h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue());
                 outputChannel.submit(request, endStream, expectContinue ? FlushMode.IMMEDIATE : FlushMode.BUFFER);
                 committedRequest = request;
                 if (expectContinue) {

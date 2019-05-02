@@ -34,6 +34,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -127,7 +128,7 @@ public abstract class AbstractAsyncServerAuthFilter<T> implements AsyncFilterHan
 
         final boolean authenticated = authenticate(challengeResponse, authority, requestUri, context);
         final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-        final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+        final boolean expectContinue = expect != null && HeaderElements.CONTINUE.equalsIgnoreCase(expect.getValue());
 
         if (authenticated) {
             if (expectContinue) {

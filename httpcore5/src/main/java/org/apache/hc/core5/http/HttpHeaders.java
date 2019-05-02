@@ -135,6 +135,9 @@ public final class HttpHeaders {
     /** RFC 2616 (HTTP/1.1) Section 14.28 */
     public static final String IF_UNMODIFIED_SINCE = "If-Unmodified-Since";
 
+    /** RFC 2616 (HTTP/1.1) Section 13.5.1 */
+    public static final String KEEP_ALIVE = "Keep-Alive";
+
     /** RFC 1945 (HTTP/1.0) Section 10.10, RFC 2616 (HTTP/1.1) Section 14.29 */
     public static final String LAST_MODIFIED = "Last-Modified";
 

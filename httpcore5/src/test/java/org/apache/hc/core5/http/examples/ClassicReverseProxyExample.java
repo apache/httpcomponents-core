@@ -194,8 +194,8 @@ public class ClassicReverseProxyExample {
             HttpHeaders.CONTENT_LENGTH.toLowerCase(Locale.ROOT),
             HttpHeaders.TRANSFER_ENCODING.toLowerCase(Locale.ROOT),
             HttpHeaders.CONNECTION.toLowerCase(Locale.ROOT),
-            "Keep-Alive".toLowerCase(Locale.ROOT),
-            "Proxy-Authenticate".toLowerCase(Locale.ROOT),
+            HttpHeaders.KEEP_ALIVE.toLowerCase(Locale.ROOT),
+            HttpHeaders.PROXY_AUTHENTICATE.toLowerCase(Locale.ROOT),
             HttpHeaders.TE.toLowerCase(Locale.ROOT),
             HttpHeaders.TRAILER.toLowerCase(Locale.ROOT),
             HttpHeaders.UPGRADE.toLowerCase(Locale.ROOT))));

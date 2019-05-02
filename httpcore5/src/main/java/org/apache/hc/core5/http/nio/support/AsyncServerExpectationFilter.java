@@ -32,6 +32,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -67,7 +68,7 @@ public class AsyncServerExpectationFilter implements AsyncFilterHandler {
             final AsyncFilterChain chain) throws HttpException, IOException {
         if (entityDetails != null) {
             final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-            if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
+            if (h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue())) {
                 final boolean verified = verify(request, context);
                 if (verified) {
                     responseTrigger.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
