@@ -9,6 +9,9 @@ Release 5.0-BETA8
 
 * Refactor ClassicHttpRequest and ClassicHttpResponse interfaces to extend a new interface HttpEntityContainer.
   Contributed by Gary Gregory <garydgregory at gmail.com>
+  
+* Update RxJava from 2.2.7 to 2.2.8.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
 
 Release 5.0-BETA7
 -------------------

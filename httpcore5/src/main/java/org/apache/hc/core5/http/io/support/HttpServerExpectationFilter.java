@@ -33,6 +33,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -83,7 +84,7 @@ public class HttpServerExpectationFilter implements HttpFilterHandler {
             final HttpContext context,
             final HttpFilterChain chain) throws HttpException, IOException {
         final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-        final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+        final boolean expectContinue = expect != null && HeaderElements.CONTINUE.equalsIgnoreCase(expect.getValue());
         if (expectContinue) {
             final boolean verified = verify(request, context);
             if (verified) {
