@@ -53,7 +53,9 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStreamResetException;
@@ -136,7 +138,7 @@ public class ReactiveClientTest {
                 final Publisher<ByteBuffer> requestBody,
                 final Callback<Publisher<ByteBuffer>> responseBodyFuture
         ) throws HttpException, IOException {
-            if (new BasicHeader("Expect", "100-continue").equals(request.getHeader("Expect"))) {
+            if (new BasicHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE).equals(request.getHeader(HttpHeaders.EXPECT))) {
                 responseChannel.sendInformation(new BasicHttpResponse(100), context);
             }
 

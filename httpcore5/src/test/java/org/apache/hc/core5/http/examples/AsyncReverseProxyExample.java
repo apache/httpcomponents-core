@@ -294,7 +294,7 @@ public class AsyncReverseProxyExample {
 
                 if (entityDetails != null) {
                     final Header h = incomingRequest.getFirstHeader(HttpHeaders.EXPECT);
-                    if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
+                    if (h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue())) {
                         responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), httpContext);
                     }
                 }
