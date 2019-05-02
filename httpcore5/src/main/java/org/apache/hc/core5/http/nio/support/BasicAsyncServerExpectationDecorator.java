@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
@@ -77,7 +78,7 @@ public class BasicAsyncServerExpectationDecorator implements AsyncServerExchange
             final HttpContext context) throws HttpException, IOException {
         if (entityDetails != null) {
             final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-            if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
+            if (h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue())) {
                 final AsyncResponseProducer producer = verify(request, context);
                 if (producer != null) {
                     responseProducerRef.set(producer);
