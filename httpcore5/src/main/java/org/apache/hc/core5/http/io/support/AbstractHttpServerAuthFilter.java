@@ -33,6 +33,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -122,7 +123,7 @@ public abstract class AbstractHttpServerAuthFilter<T> implements HttpFilterHandl
 
         final boolean authenticated = authenticate(challengeResponse, authority, requestUri, context);
         final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-        final boolean expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+        final boolean expectContinue = expect != null && HeaderElements.CONTINUE.equalsIgnoreCase(expect.getValue());
 
         if (authenticated) {
             if (expectContinue) {

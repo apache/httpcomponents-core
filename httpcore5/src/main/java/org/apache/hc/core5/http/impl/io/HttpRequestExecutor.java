@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -52,8 +53,8 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.io.Closer;
+import org.apache.hc.core5.util.Args;
 
 /**
  * {@code HttpRequestExecutor} is a client side HTTP protocol handler based
@@ -141,7 +142,7 @@ public class HttpRequestExecutor {
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
                 final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-                expectContinue = expect != null && "100-continue".equalsIgnoreCase(expect.getValue());
+                expectContinue = expect != null && HeaderElements.CONTINUE.equalsIgnoreCase(expect.getValue());
                 if (!expectContinue) {
                     conn.sendRequestEntity(request);
                 }
