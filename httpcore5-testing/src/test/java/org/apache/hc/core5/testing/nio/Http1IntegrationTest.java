@@ -65,6 +65,7 @@ import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
@@ -821,7 +822,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                                 try {
                                     if (entityDetails != null) {
                                         final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-                                        if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
+                                        if (h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue())) {
                                             Thread.sleep(random.nextInt(1000));
                                             responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), context);
                                         }

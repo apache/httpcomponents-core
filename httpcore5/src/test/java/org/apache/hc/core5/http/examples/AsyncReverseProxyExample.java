@@ -294,7 +294,7 @@ public class AsyncReverseProxyExample {
 
                 if (entityDetails != null) {
                     final Header h = incomingRequest.getFirstHeader(HttpHeaders.EXPECT);
-                    if (h != null && "100-continue".equalsIgnoreCase(h.getValue())) {
+                    if (h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue())) {
                         responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), httpContext);
                     }
                 }
@@ -470,8 +470,8 @@ public class AsyncReverseProxyExample {
                         HttpHeaders.CONTENT_LENGTH.toLowerCase(Locale.ROOT),
                         HttpHeaders.TRANSFER_ENCODING.toLowerCase(Locale.ROOT),
                         HttpHeaders.CONNECTION.toLowerCase(Locale.ROOT),
-                        "Keep-Alive".toLowerCase(Locale.ROOT),
-                        "Proxy-Authenticate".toLowerCase(Locale.ROOT),
+                        HttpHeaders.KEEP_ALIVE.toLowerCase(Locale.ROOT),
+                        HttpHeaders.PROXY_AUTHENTICATE.toLowerCase(Locale.ROOT),
                         HttpHeaders.TE.toLowerCase(Locale.ROOT),
                         HttpHeaders.TRAILER.toLowerCase(Locale.ROOT),
                         HttpHeaders.UPGRADE.toLowerCase(Locale.ROOT))));
