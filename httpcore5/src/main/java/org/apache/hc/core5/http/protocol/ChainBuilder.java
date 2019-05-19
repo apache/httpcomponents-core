@@ -86,7 +86,8 @@ final class ChainBuilder<E> {
         return this;
     }
 
-    public ChainBuilder<E> addAllFirst(final E... c) {
+    @SafeVarargs
+    public final ChainBuilder<E> addAllFirst(final E... c) {
         if (c == null) {
             return this;
         }
@@ -106,7 +107,8 @@ final class ChainBuilder<E> {
         return this;
     }
 
-    public ChainBuilder<E> addAllLast(final E... c) {
+    @SafeVarargs
+    public final ChainBuilder<E> addAllLast(final E... c) {
         if (c == null) {
             return this;
         }
