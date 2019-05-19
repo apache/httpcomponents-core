@@ -50,7 +50,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
 
     private static final long serialVersionUID = 2608834160639271617L;
 
-    private final Header[] EMPTY = new Header[] {};
+    private static final Header[] EMPTY = new Header[0];
 
     /** The list of headers for this group, in the order in which they were added */
     private final List<Header> headers;
