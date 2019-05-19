@@ -118,7 +118,7 @@ public class TestHeaderGroup {
         final Header header2 = new BasicHeader("name2", "value2");
         final Header header3 = new BasicHeader("name3", "value3");
         headergroup.addHeader(header1);
-        headergroup.setHeaders(new Header[] { header2, header3 });
+        headergroup.setHeaders(header2, header3);
         Assert.assertEquals(2, headergroup.getHeaders().length);
         Assert.assertEquals(0, headergroup.getHeaders("name1").length);
         Assert.assertFalse(headergroup.containsHeader("name1"));
@@ -126,7 +126,7 @@ public class TestHeaderGroup {
         Assert.assertTrue(headergroup.containsHeader("name2"));
         Assert.assertEquals(1, headergroup.getHeaders("name3").length);
         Assert.assertTrue(headergroup.containsHeader("name3"));
-        headergroup.setHeaders(null);
+        headergroup.setHeaders();
         Assert.assertEquals(0, headergroup.getHeaders().length);
     }
 
@@ -136,7 +136,7 @@ public class TestHeaderGroup {
         final Header header1 = new BasicHeader("name", "value1");
         final Header header2 = new BasicHeader("name", "value2");
         final Header header3 = new BasicHeader("name", "value3");
-        headergroup.setHeaders(new Header[] { header1, header2, header3 });
+        headergroup.setHeaders(header1, header2, header3);
 
         Assert.assertNull(headergroup.getFirstHeader("whatever"));
         Assert.assertNull(headergroup.getLastHeader("whatever"));
@@ -153,11 +153,11 @@ public class TestHeaderGroup {
         final Header header1 = new BasicHeader("name", "value1");
         final Header header2 = new BasicHeader("name", "value2");
         final Header header3 = new BasicHeader("name", "value3");
-        headergroup.setHeaders(new Header[] { header1, header2, header3 });
+        headergroup.setHeaders(header1, header2, header3);
 
         Assert.assertEquals("value1, value2, value3", headergroup.getCondensedHeader("name").getValue());
 
-        headergroup.setHeaders(new Header[] { header1 });
+        headergroup.setHeaders(header1);
         Assert.assertEquals(header1, headergroup.getCondensedHeader("name"));
     }
 
@@ -175,7 +175,7 @@ public class TestHeaderGroup {
         final Header header1 = new BasicHeader("name", "value1");
         final Header header2 = new BasicHeader("name", "value2");
         final Header header3 = new BasicHeader("name", "value3");
-        headergroup.setHeaders(new Header[] { header1, header2, header3 });
+        headergroup.setHeaders(header1, header2, header3);
         final Iterator<Header> i = headergroup.headerIterator();
         Assert.assertNotNull(i);
         Assert.assertTrue(i.hasNext());
@@ -197,7 +197,7 @@ public class TestHeaderGroup {
         final Header header1 = new BasicHeader("name", "value1");
         final Header header2 = new BasicHeader("name", "value2");
         final Header header3 = new BasicHeader("name", "value3");
-        orig.setHeaders(new Header[] { header1, header2, header3 });
+        orig.setHeaders(header1, header2, header3);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
         final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
         outStream.writeObject(orig);
