@@ -28,11 +28,12 @@
 package org.apache.hc.core5.testing.nio;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.testing.classic.LoggingSupport;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LoggingIOSessionListener implements IOSessionListener {
 
@@ -46,49 +47,49 @@ public class LoggingIOSessionListener implements IOSessionListener {
     @Override
     public void tlsStarted(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(LoggingSupport.getId(session) + " TLS session started: " + session);
+            connLog.debug(LoggingSupport.getId(session) + " TLS session started: " + formatSession(session));
         }
     }
 
     @Override
     public void tlsInbound(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(LoggingSupport.getId(session) + " TLS inbound: " + session);
+            connLog.debug(LoggingSupport.getId(session) + " TLS inbound: " + formatSession(session));
         }
     }
 
     @Override
     public void tlsOutbound(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(LoggingSupport.getId(session) + " TLS outbound: " + session);
+            connLog.debug(LoggingSupport.getId(session) + " TLS outbound: " + formatSession(session));
         }
     }
 
     @Override
     public void connected(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(LoggingSupport.getId(session) + " connected: " + session);
+            connLog.debug(LoggingSupport.getId(session) + " connected: " + formatSession(session));
         }
     }
 
     @Override
     public void inputReady(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(LoggingSupport.getId(session) + " input ready: " + session);
+            connLog.debug(LoggingSupport.getId(session) + " input ready: " + formatSession(session));
         }
     }
 
     @Override
     public void outputReady(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(LoggingSupport.getId(session) + " output ready: " + session);
+            connLog.debug(LoggingSupport.getId(session) + " output ready: " + formatSession(session));
         }
     }
 
     @Override
     public void timeout(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(LoggingSupport.getId(session) + " timeout: " + session);
+            connLog.debug(LoggingSupport.getId(session) + " timeout: " + formatSession(session));
         }
     }
 
@@ -103,8 +104,20 @@ public class LoggingIOSessionListener implements IOSessionListener {
     @Override
     public void disconnected(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(LoggingSupport.getId(session) + " disconnected: " + session);
+            connLog.debug(LoggingSupport.getId(session) + " disconnected");
         }
+    }
+
+    private static String formatSession(final IOSession session) {
+        final StringBuilder buffer = new StringBuilder(90);
+        if (session.isClosed()) {
+            buffer.append("closed");
+        } else {
+            InetAddressUtils.formatAddress(buffer, session.getLocalAddress());
+            buffer.append("<->");
+            InetAddressUtils.formatAddress(buffer, session.getRemoteAddress());
+        }
+        return buffer.toString();
     }
 
 }
