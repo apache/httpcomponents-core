@@ -12,6 +12,10 @@ Release 5.0-BETA8
   
 * Update RxJava from 2.2.7 to 2.2.8.
   Contributed by Gary Gregory <garydgregory at gmail.com>
+  
+* [HTTPCORE-578] Incorrect serialization of HeaderGroup #127
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+  
 
 Release 5.0-BETA7
 -------------------
