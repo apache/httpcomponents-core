@@ -29,8 +29,10 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -48,12 +50,23 @@ import org.apache.hc.core5.util.Args;
  */
 public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<HttpResponse, T>> {
 
-    private final AsyncEntityConsumer<T> dataConsumer;
+    private final Supplier<AsyncEntityConsumer<T>> dataConsumerSupplier;
+    private final AtomicReference<AsyncEntityConsumer<T>> dataConsumerRef;
 
-    private volatile Message<HttpResponse, T> result;
+    public BasicResponseConsumer(final Supplier<AsyncEntityConsumer<T>> dataConsumerSupplier) {
+        this.dataConsumerSupplier = Args.notNull(dataConsumerSupplier, "Data consumer supplier");
+        this.dataConsumerRef = new AtomicReference<>(null);
+    }
 
     public BasicResponseConsumer(final AsyncEntityConsumer<T> dataConsumer) {
-        this.dataConsumer = Args.notNull(dataConsumer, "Consumer");
+        this(new Supplier<AsyncEntityConsumer<T>>() {
+
+            @Override
+            public AsyncEntityConsumer<T> get() {
+                return dataConsumer;
+            }
+
+        });
     }
 
     @Override
@@ -64,15 +77,19 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
         Args.notNull(response, "Response");
 
         if (entityDetails != null) {
+            final AsyncEntityConsumer<T> dataConsumer = dataConsumerSupplier.get();
+            if (dataConsumer == null) {
+                throw new HttpException("Supplied data consumer is null");
+            }
+            dataConsumerRef.set(dataConsumer);
             dataConsumer.streamStart(entityDetails, new FutureCallback<T>() {
 
                 @Override
                 public void completed(final T body) {
-                    result = new Message<>(response, body);
+                    final Message<HttpResponse, T> result = new Message<>(response, body);
                     if (resultCallback != null) {
                         resultCallback.completed(result);
                     }
-                    dataConsumer.releaseResources();
                 }
 
                 @Override
@@ -91,11 +108,10 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
 
             });
         } else {
-            result = new Message<>(response, null);
+            final Message<HttpResponse, T> result = new Message<>(response, null);
             if (resultCallback != null) {
                 resultCallback.completed(result);
             }
-            dataConsumer.releaseResources();
         }
     }
 
@@ -105,16 +121,19 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
 
     @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+        final AsyncEntityConsumer<T> dataConsumer = dataConsumerRef.get();
         dataConsumer.updateCapacity(capacityChannel);
     }
 
     @Override
     public void consume(final ByteBuffer src) throws IOException {
+        final AsyncEntityConsumer<T> dataConsumer = dataConsumerRef.get();
         dataConsumer.consume(src);
     }
 
     @Override
     public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+        final AsyncEntityConsumer<T> dataConsumer = dataConsumerRef.get();
         dataConsumer.streamEnd(trailers);
     }
 
@@ -124,13 +143,11 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     }
 
     @Override
-    public Message<HttpResponse, T> getResult() {
-        return result;
-    }
-
-    @Override
     public void releaseResources() {
-        dataConsumer.releaseResources();
+        final AsyncEntityConsumer<T> dataConsumer = dataConsumerRef.getAndSet(null);
+        if (dataConsumer != null) {
+            dataConsumer.releaseResources();
+        }
     }
 
 }

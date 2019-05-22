@@ -255,11 +255,6 @@ class BenchmarkWorker implements ResourceHolder {
             }
 
             @Override
-            public Void getResult() {
-                return null;
-            }
-
-            @Override
             public void failed(final Exception cause) {
                 stats.incFailureCount();
                 final FutureCallback<Void> resultCallback = resultCallbackRef.getAndSet(null);

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -55,15 +56,23 @@ import org.apache.hc.core5.util.Args;
  */
 public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncResponseConsumer<T> {
 
-    private final AsyncEntityConsumer<E> entityConsumer;
-    private final AtomicReference<T> resultRef;
-    private final AtomicReference<Exception> exceptionRef;
+    private final Supplier<AsyncEntityConsumer<E>> dataConsumerSupplier;
+    private final AtomicReference<AsyncEntityConsumer<E>> dataConsumerRef;
 
-    public AbstractAsyncResponseConsumer(final AsyncEntityConsumer<E> entityConsumer) {
-        Args.notNull(entityConsumer, "Entity consumer");
-        this.entityConsumer = entityConsumer;
-        this.resultRef = new AtomicReference<>(null);
-        this.exceptionRef = new AtomicReference<>(null);
+    public AbstractAsyncResponseConsumer(final Supplier<AsyncEntityConsumer<E>> dataConsumerSupplier) {
+        this.dataConsumerSupplier = Args.notNull(dataConsumerSupplier, "Data consumer supplier");
+        this.dataConsumerRef = new AtomicReference<>(null);
+    }
+
+    public AbstractAsyncResponseConsumer(final AsyncEntityConsumer<E> dataConsumer) {
+        this(new Supplier<AsyncEntityConsumer<E>>() {
+
+            @Override
+            public AsyncEntityConsumer<E> get() {
+                return dataConsumer;
+            }
+
+        });
     }
 
     /**
@@ -81,7 +90,12 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
             final EntityDetails entityDetails,
             final HttpContext httpContext, final FutureCallback<T> resultCallback) throws HttpException, IOException {
         if (entityDetails != null) {
-            entityConsumer.streamStart(entityDetails, new FutureCallback<E>() {
+            final AsyncEntityConsumer<E> dataConsumer = dataConsumerSupplier.get();
+            if (dataConsumer == null) {
+                throw new HttpException("Supplied data consumer is null");
+            }
+            dataConsumerRef.set(dataConsumer);
+            dataConsumer.streamStart(entityDetails, new FutureCallback<E>() {
 
                 @Override
                 public void completed(final E entity) {
@@ -89,12 +103,10 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
                     try {
                         contentType = ContentType.parse(entityDetails.getContentType());
                         final T result = buildResult(response, entity, contentType);
-                        resultRef.compareAndSet(null, result);
                         if (resultCallback != null) {
                             resultCallback.completed(result);
                         }
                     } catch (final UnsupportedCharsetException ex) {
-                        exceptionRef.compareAndSet(null, ex);
                         if (resultCallback != null) {
                             resultCallback.failed(ex);
                         }
@@ -103,7 +115,6 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
 
                 @Override
                 public void failed(final Exception ex) {
-                    exceptionRef.compareAndSet(null, ex);
                     if (resultCallback != null) {
                         resultCallback.failed(ex);
                     }
@@ -119,48 +130,42 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
             });
         } else {
             final T result = buildResult(response, null, null);
-            resultRef.compareAndSet(null, result);
             if (resultCallback != null) {
                 resultCallback.completed(result);
             }
-            entityConsumer.releaseResources();
         }
 
     }
 
     @Override
     public final void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-        entityConsumer.updateCapacity(capacityChannel);
+        final AsyncEntityConsumer<E> dataConsumer = dataConsumerRef.get();
+        dataConsumer.updateCapacity(capacityChannel);
     }
 
     @Override
     public final void consume(final ByteBuffer src) throws IOException {
-        entityConsumer.consume(src);
+        final AsyncEntityConsumer<E> dataConsumer = dataConsumerRef.get();
+        dataConsumer.consume(src);
     }
 
     @Override
     public final void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-        entityConsumer.streamEnd(trailers);
-    }
-
-    @Override
-    public T getResult() {
-        return resultRef.get();
-    }
-
-    public Exception getException() {
-        return exceptionRef.get();
+        final AsyncEntityConsumer<E> dataConsumer = dataConsumerRef.get();
+        dataConsumer.streamEnd(trailers);
     }
 
     @Override
     public final void failed(final Exception cause) {
-        exceptionRef.compareAndSet(null, cause);
         releaseResources();
     }
 
     @Override
     public final void releaseResources() {
-        entityConsumer.releaseResources();
+        final AsyncEntityConsumer<E> dataConsumer = dataConsumerRef.getAndSet(null);
+        if (dataConsumer != null) {
+            dataConsumer.releaseResources();
+        }
     }
 
 }

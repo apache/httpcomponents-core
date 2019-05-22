@@ -29,8 +29,10 @@ package org.apache.hc.core5.http.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -38,7 +40,6 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
 
 /**
  * Basic implementation of {@link AsyncRequestConsumer} that represents the request message as
@@ -48,12 +49,23 @@ import org.apache.hc.core5.util.Asserts;
  */
 public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<HttpRequest, T>> {
 
-    private final AsyncEntityConsumer<T> dataConsumer;
+    private final Supplier<AsyncEntityConsumer<T>> dataConsumerSupplier;
+    private final AtomicReference<AsyncEntityConsumer<T>> dataConsumerRef;
 
-    private volatile Message<HttpRequest, T> result;
+    public BasicRequestConsumer(final Supplier<AsyncEntityConsumer<T>> dataConsumerSupplier) {
+        this.dataConsumerSupplier = Args.notNull(dataConsumerSupplier, "Data consumer supplier");
+        this.dataConsumerRef = new AtomicReference<>(null);
+    }
 
     public BasicRequestConsumer(final AsyncEntityConsumer<T> dataConsumer) {
-        this.dataConsumer = dataConsumer;
+        this(new Supplier<AsyncEntityConsumer<T>>() {
+
+            @Override
+            public AsyncEntityConsumer<T> get() {
+                return dataConsumer;
+            }
+
+        });
     }
 
     @Override
@@ -64,16 +76,20 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
             final FutureCallback<Message<HttpRequest, T>> resultCallback) throws HttpException, IOException {
         Args.notNull(request, "Request");
         if (entityDetails != null) {
-            Asserts.notNull(dataConsumer, "Data consumer");
+            final AsyncEntityConsumer<T> dataConsumer = dataConsumerSupplier.get();
+            if (dataConsumer == null) {
+                throw new HttpException("Supplied data consumer is null");
+            }
+            dataConsumerRef.set(dataConsumer);
+
             dataConsumer.streamStart(entityDetails, new FutureCallback<T>() {
 
                 @Override
                 public void completed(final T body) {
-                    result = new Message<>(request, body);
+                    final Message<HttpRequest, T> result = new Message<>(request, body);
                     if (resultCallback != null) {
                         resultCallback.completed(result);
                     }
-                    dataConsumer.releaseResources();
                 }
 
                 @Override
@@ -81,7 +97,6 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
                     if (resultCallback != null) {
                         resultCallback.failed(ex);
                     }
-                    dataConsumer.releaseResources();
                 }
 
                 @Override
@@ -89,34 +104,32 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
                     if (resultCallback != null) {
                         resultCallback.cancelled();
                     }
-                    dataConsumer.releaseResources();
                 }
 
             });
         } else {
-            result = new Message<>(request, null);
+            final Message<HttpRequest, T> result = new Message<>(request, null);
             if (resultCallback != null) {
                 resultCallback.completed(result);
             }
-            releaseResources();
         }
     }
 
     @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-        Asserts.notNull(dataConsumer, "Data consumer");
+        final AsyncEntityConsumer<T> dataConsumer = dataConsumerRef.get();
         dataConsumer.updateCapacity(capacityChannel);
     }
 
     @Override
     public void consume(final ByteBuffer src) throws IOException {
-        Asserts.notNull(dataConsumer, "Data consumer");
+        final AsyncEntityConsumer<T> dataConsumer = dataConsumerRef.get();
         dataConsumer.consume(src);
     }
 
     @Override
     public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-        Asserts.notNull(dataConsumer, "Data consumer");
+        final AsyncEntityConsumer<T> dataConsumer = dataConsumerRef.get();
         dataConsumer.streamEnd(trailers);
     }
 
@@ -126,12 +139,8 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
     }
 
     @Override
-    public Message<HttpRequest, T> getResult() {
-        return result;
-    }
-
-    @Override
     public void releaseResources() {
+        final AsyncEntityConsumer<T> dataConsumer = dataConsumerRef.getAndSet(null);
         if (dataConsumer != null) {
             dataConsumer.releaseResources();
         }

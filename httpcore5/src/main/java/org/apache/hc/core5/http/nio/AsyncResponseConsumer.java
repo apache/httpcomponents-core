@@ -71,12 +71,4 @@ public interface AsyncResponseConsumer<T> extends AsyncDataConsumer {
      */
     void failed(Exception cause);
 
-    /**
-     * Returns the result of response processing when it becomes available or {@code null}
-     * if the response is still being received.
-     *
-     * @return the response processing result.
-     */
-    T getResult();
-
 }

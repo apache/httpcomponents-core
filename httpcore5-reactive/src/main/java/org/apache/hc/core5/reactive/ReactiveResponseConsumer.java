@@ -142,11 +142,6 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     }
 
     @Override
-    public Void getResult() {
-        return null;
-    }
-
-    @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         reactiveDataConsumer.updateCapacity(capacityChannel);
     }

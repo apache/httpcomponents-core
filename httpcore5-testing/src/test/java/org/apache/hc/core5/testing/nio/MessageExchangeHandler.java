@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.testing.nio;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -46,6 +47,10 @@ public abstract class MessageExchangeHandler<T> extends AbstractServerExchangeHa
     public MessageExchangeHandler(final AsyncRequestConsumer<Message<HttpRequest, T>> requestConsumer) {
         super();
         this.requestConsumer = requestConsumer;
+    }
+
+    public MessageExchangeHandler(final Supplier<AsyncEntityConsumer<T>> dataConsumerSupplier) {
+        this(new BasicRequestConsumer<>(dataConsumerSupplier));
     }
 
     public MessageExchangeHandler(final AsyncEntityConsumer<T> entityConsumer) {
