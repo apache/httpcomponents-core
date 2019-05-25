@@ -28,7 +28,7 @@
 package org.apache.hc.core5.reactor;
 
 /**
- * Signals the I/O reator has been shut down or is in the process of shutting down.
+ * Signals the I/O reactor has been shut down or is in the process of shutting down.
  *
  * @since 5.0
  */
