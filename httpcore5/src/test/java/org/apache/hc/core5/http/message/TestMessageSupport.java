@@ -32,10 +32,10 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.io.entity.HttpEntityWithTrailers;
-import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -103,8 +103,7 @@ public class TestMessageSupport {
 
     @Test
     public void testAddContentHeaders() throws Exception {
-        final HttpEntityWithTrailers entity = new HttpEntityWithTrailers(
-                new StringEntity("some stuff with trailers", StandardCharsets.US_ASCII),
+        final HttpEntity entity = HttpEntities.create("some stuff with trailers", StandardCharsets.US_ASCII,
                 new BasicHeader("z", "this"), new BasicHeader("b", "that"), new BasicHeader("a", "this and that"));
         final HttpMessage message = new BasicHttpResponse(200);
         MessageSupport.addTrailerHeader(message, entity);
@@ -121,8 +120,7 @@ public class TestMessageSupport {
 
     @Test
     public void testContentHeadersAlreadyPresent() throws Exception {
-        final HttpEntityWithTrailers entity = new HttpEntityWithTrailers(
-                new StringEntity("some stuff with trailers", StandardCharsets.US_ASCII),
+        final HttpEntity entity = HttpEntities.create("some stuff with trailers", StandardCharsets.US_ASCII,
                 new BasicHeader("z", "this"), new BasicHeader("b", "that"), new BasicHeader("a", "this and that"));
         final HttpMessage message = new BasicHttpResponse(200);
         message.addHeader(HttpHeaders.TRAILER, "a, a, a");

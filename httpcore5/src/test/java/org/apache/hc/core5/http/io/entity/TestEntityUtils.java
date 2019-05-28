@@ -230,7 +230,7 @@ public class TestEntityUtils {
         Assert.assertEquals("russian=%D0%92%D1%81%D0%B5%D0%BC_%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82" +
                 "&swiss=Gr%C3%BCezi_z%C3%A4m%C3%A4", s);
         final StringEntity entity = new StringEntity(s,
-                ContentType.create(URLEncodedUtils.CONTENT_TYPE, StandardCharsets.UTF_8));
+                ContentType.APPLICATION_FORM_URLENCODED.withCharset(StandardCharsets.UTF_8));
         final List<NameValuePair> result = EntityUtils.parse(entity);
         Assert.assertEquals(2, result.size());
         assertNameValuePair(result.get(0), "russian", ru_hello);

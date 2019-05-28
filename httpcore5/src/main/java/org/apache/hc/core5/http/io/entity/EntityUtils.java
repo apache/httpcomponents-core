@@ -244,7 +244,7 @@ public final class EntityUtils {
     public static List<NameValuePair> parse(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "HTTP entity");
         final ContentType contentType = ContentType.parse(entity.getContentType());
-        if (contentType == null || !contentType.getMimeType().equalsIgnoreCase(URLEncodedUtils.CONTENT_TYPE)) {
+        if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {
             return Collections.emptyList();
         }
         final long len = entity.getContentLength();

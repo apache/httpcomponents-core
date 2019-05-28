@@ -47,7 +47,7 @@ import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncFilterChain;
 import org.apache.hc.core5.http.nio.AsyncFilterHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.net.URIAuthority;
 
@@ -110,7 +110,7 @@ public abstract class AbstractAsyncServerAuthFilter<T> implements AsyncFilterHan
      * @return the response content entity.
      */
     protected AsyncEntityProducer generateResponseContent(final HttpResponse unauthorized) {
-        return new BasicAsyncEntityProducer("Unauthorized");
+        return AsyncEntityProducers.create("Unauthorized");
     }
 
     @Override

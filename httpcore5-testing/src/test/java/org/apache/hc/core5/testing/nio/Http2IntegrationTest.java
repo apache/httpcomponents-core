@@ -94,7 +94,7 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResponseChannel;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityProducer;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
@@ -594,7 +594,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                                 context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)));
                         responseTrigger.submitResponse(new BasicResponseProducer(
                                 HttpStatus.SC_OK,
-                                new BasicAsyncEntityProducer("Hi there")), context);
+                                AsyncEntityProducers.create("Hi there")), context);
                     }
                 };
             }
@@ -674,7 +674,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
 
                         responseTrigger.pushPromise(
                                 new BasicHttpRequest(Methods.GET, createRequestURI(serverEndpoint, "/stuff")),
-                                context, new BasicPushProducer(new BasicAsyncEntityProducer("Pushing all sorts of stuff")) {
+                                context, new BasicPushProducer(AsyncEntityProducers.create("Pushing all sorts of stuff")) {
 
                             @Override
                             public void failed(final Exception cause) {
@@ -694,9 +694,9 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                             }
 
                         });
-                        responseTrigger.submitResponse(new BasicResponseProducer(
-                                HttpStatus.SC_OK,
-                                new BasicAsyncEntityProducer("Hi there")), context);
+                        responseTrigger.submitResponse(
+                                new BasicResponseProducer(HttpStatus.SC_OK, AsyncEntityProducers.create("Hi there")),
+                                context);
                     }
                 };
             }

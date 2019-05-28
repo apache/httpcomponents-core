@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -43,7 +42,7 @@ import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
@@ -63,7 +62,7 @@ public final class ImmediateResponseExchangeHandler implements AsyncServerExchan
     }
 
     public ImmediateResponseExchangeHandler(final HttpResponse response, final String message) {
-        this(new BasicResponseProducer(response, new BasicAsyncEntityProducer(message, ContentType.TEXT_PLAIN)));
+        this(new BasicResponseProducer(response, AsyncEntityProducers.create(message)));
     }
 
     public ImmediateResponseExchangeHandler(final int status, final String message) {

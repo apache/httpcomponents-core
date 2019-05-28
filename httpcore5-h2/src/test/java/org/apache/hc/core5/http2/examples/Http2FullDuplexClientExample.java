@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
@@ -47,7 +46,7 @@ import org.apache.hc.core5.http.nio.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -126,7 +125,7 @@ public class Http2FullDuplexClientExample {
 
         final URI requestUri = new URI("http://nghttp2.org/httpbin/post");
         final BasicRequestProducer requestProducer = new BasicRequestProducer(
-                Methods.POST.name(), requestUri, new BasicAsyncEntityProducer("stuff", ContentType.TEXT_PLAIN));
+                Methods.POST.name(), requestUri, AsyncEntityProducers.create("stuff"));
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(
                 new StringAsyncEntityConsumer());
 

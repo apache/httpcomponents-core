@@ -31,7 +31,6 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -51,7 +50,7 @@ import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncServerAuthFilter;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -124,7 +123,7 @@ public class AsyncServerFilterExample {
                         if (request.getRequestUri().equals("/back-door")) {
                             responseTrigger.submitResponse(
                                     new BasicHttpResponse(HttpStatus.SC_OK),
-                                    new BasicAsyncEntityProducer("Welcome", ContentType.TEXT_PLAIN));
+                                    AsyncEntityProducers.create("Welcome"));
                             return null;
                         }
                         return chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
@@ -171,9 +170,9 @@ public class AsyncServerFilterExample {
                             final ResponseTrigger responseTrigger,
                             final HttpContext context) throws HttpException, IOException {
                         // do something useful
-                        responseTrigger.submitResponse(new BasicResponseProducer(
-                                HttpStatus.SC_OK,
-                                new BasicAsyncEntityProducer("Hello", ContentType.TEXT_PLAIN)), context);
+                        responseTrigger.submitResponse(
+                                new BasicResponseProducer(HttpStatus.SC_OK, AsyncEntityProducers.create("Hello")),
+                                context);
                     }
                 })
                 .create();

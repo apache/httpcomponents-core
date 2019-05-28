@@ -36,10 +36,12 @@ import java.io.OutputStream;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.io.IOCallback;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Entity that delegates the process of content generation to a {@link HttpContentProducer}.
+ * Entity that delegates the process of content generation to a {@link IOCallback}
+ * with {@link OutputStream} as output sink.
  *
  * @since 4.0
  */
@@ -47,14 +49,14 @@ import org.apache.hc.core5.util.Args;
 public final class EntityTemplate extends AbstractHttpEntity {
 
     private final long contentLength;
-    private final HttpContentProducer contentProducer;
+    private final IOCallback<OutputStream> callback;
 
     public EntityTemplate(
             final long contentLength, final ContentType contentType, final String contentEncoding,
-            final HttpContentProducer contentProducer) {
+            final IOCallback<OutputStream> callback) {
         super(contentType, contentEncoding);
         this.contentLength = contentLength;
-        this.contentProducer = Args.notNull(contentProducer, "Content producer");
+        this.callback = Args.notNull(callback, "I/O callback");
     }
 
     @Override
@@ -77,7 +79,7 @@ public final class EntityTemplate extends AbstractHttpEntity {
     @Override
     public void writeTo(final OutputStream outStream) throws IOException {
         Args.notNull(outStream, "Output stream");
-        this.contentProducer.writeTo(outStream);
+        this.callback.execute(outStream);
     }
 
     @Override

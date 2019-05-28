@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.BasicResponseProducer;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -61,7 +61,7 @@ public class SingleLineResponseHandler extends BasicServerExchangeHandler<Messag
                           final ResponseTrigger responseTrigger,
                           final HttpContext context) throws HttpException, IOException {
                       responseTrigger.submitResponse(new BasicResponseProducer(
-                              HttpStatus.SC_OK, new BasicAsyncEntityProducer(message)), context);
+                              HttpStatus.SC_OK, AsyncEntityProducers.create(message)), context);
                   }
               }
         );

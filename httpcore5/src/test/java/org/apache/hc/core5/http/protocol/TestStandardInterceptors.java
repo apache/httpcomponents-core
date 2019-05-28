@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 import org.apache.hc.core5.http.io.entity.BasicHttpEntity;
-import org.apache.hc.core5.http.io.entity.HttpEntityWithTrailers;
+import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
@@ -299,7 +299,7 @@ public class TestStandardInterceptors {
     public void testRequestContentEntityWithTrailers() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Methods.POST, "/");
-        request.setEntity(new HttpEntityWithTrailers(new StringEntity("whatever", StandardCharsets.US_ASCII),
+        request.setEntity(HttpEntities.create("whatever", StandardCharsets.US_ASCII,
                 new BasicHeader("h1", "this"), new BasicHeader("h1", "that"), new BasicHeader("h2", "this and that")));
 
         final RequestContent interceptor = new RequestContent();
@@ -888,7 +888,7 @@ public class TestStandardInterceptors {
     public void testResponseContentEntityWithTrailers() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
-        response.setEntity(new HttpEntityWithTrailers(new StringEntity("whatever", StandardCharsets.US_ASCII),
+        response.setEntity(HttpEntities.create("whatever", StandardCharsets.US_ASCII,
                 new BasicHeader("h1", "this"), new BasicHeader("h1", "that"), new BasicHeader("h2", "this and that")));
 
         final ResponseContent interceptor = new ResponseContent();

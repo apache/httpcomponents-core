@@ -25,20 +25,17 @@
  *
  */
 
-package org.apache.hc.core5.http.io.entity;
+package org.apache.hc.core5.io;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 /**
- * An abstract entity content producer.
- *<p>Content producers are expected to be able to produce their
- * content multiple times</p>
+ * Abstract I/O callback.
  *
  * @since 5.0
  */
-public interface HttpContentProducer {
+public interface IOCallback<T> {
 
-    void writeTo(OutputStream outStream) throws IOException;
+    void execute(T object) throws IOException;
 
 }

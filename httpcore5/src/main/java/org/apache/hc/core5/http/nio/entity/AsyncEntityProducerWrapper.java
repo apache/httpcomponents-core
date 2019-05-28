@@ -25,107 +25,87 @@
  *
  */
 
-package org.apache.hc.core5.http.io.entity;
+package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.nio.AsyncEntityProducer;
+import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Wrapping entity that also includes trailers.
+ * Base class for wrapping entity producers that delegates all calls to the wrapped producer.
+ * Implementations can derive from this class and override only those methods that
+ * should not be delegated to the wrapped producer.
  *
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-public class HttpEntityWithTrailers implements HttpEntity {
+public class AsyncEntityProducerWrapper implements AsyncEntityProducer {
 
-    private final HttpEntity wrappedEntity;
-    private final List<Header> trailers;
+    private final AsyncEntityProducer wrappedEntityProducer;
 
-    /**
-     * Creates a new entity wrapper.
-     */
-    public HttpEntityWithTrailers(final HttpEntity wrappedEntity, final Header... trailers) {
+    public AsyncEntityProducerWrapper(final AsyncEntityProducer wrappedEntityProducer) {
         super();
-        this.wrappedEntity = Args.notNull(wrappedEntity, "Wrapped entity");
-        this.trailers = Arrays.asList(trailers);
+        this.wrappedEntityProducer = Args.notNull(wrappedEntityProducer, "Wrapped entity producer");
     }
 
     @Override
     public boolean isRepeatable() {
-        return wrappedEntity.isRepeatable();
+        return wrappedEntityProducer.isRepeatable();
     }
 
     @Override
     public boolean isChunked() {
-        return true;
+        return wrappedEntityProducer.isChunked();
     }
 
     @Override
     public long getContentLength() {
-        return wrappedEntity.getContentLength();
+        return wrappedEntityProducer.getContentLength();
     }
 
     @Override
     public String getContentType() {
-        return wrappedEntity.getContentType();
+        return wrappedEntityProducer.getContentType();
     }
 
     @Override
     public String getContentEncoding() {
-        return wrappedEntity.getContentEncoding();
-    }
-
-    @Override
-    public InputStream getContent()
-        throws IOException {
-        return wrappedEntity.getContent();
-    }
-
-    @Override
-    public void writeTo(final OutputStream outStream)
-        throws IOException {
-        wrappedEntity.writeTo(outStream);
-    }
-
-    @Override
-    public boolean isStreaming() {
-        return wrappedEntity.isStreaming();
-    }
-
-    @Override
-    public Supplier<List<? extends Header>> getTrailers() {
-        return new Supplier<List<? extends Header>>() {
-            @Override
-            public List<? extends Header> get() {
-                return trailers;
-            }
-        };
+        return wrappedEntityProducer.getContentEncoding();
     }
 
     @Override
     public Set<String> getTrailerNames() {
-        final Set<String> names = new LinkedHashSet<>();
-        for (final Header trailer: trailers) {
-            names.add(trailer.getName());
-        }
-        return names;
+        return wrappedEntityProducer.getTrailerNames();
     }
 
     @Override
-    public void close() throws IOException {
-        wrappedEntity.close();
+    public int available() {
+        return wrappedEntityProducer.available();
+    }
+
+    @Override
+    public void produce(final DataStreamChannel channel) throws IOException {
+        wrappedEntityProducer.produce(channel);
+    }
+
+    @Override
+    public void failed(final Exception cause) {
+        wrappedEntityProducer.failed(cause);
+    }
+
+    @Override
+    public void releaseResources() {
+        wrappedEntityProducer.releaseResources();
+    }
+
+    @Override
+    public String toString() {
+        return "Wrapper [" + wrappedEntityProducer + "]";
     }
 
 }

@@ -41,10 +41,8 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Base class for wrapping entities.
- * Keeps a {@link #wrappedEntity wrappedEntity} and delegates all
- * calls to it. Implementations of wrapping entities can derive
- * from this class and need to override only those methods that
+ * Base class for wrapping entities that delegates all calls to the wrapped entity.
+ * Implementations can derive from this class and override only those methods that
  * should not be delegated to the wrapped entity.
  *
  * @since 4.0
@@ -124,7 +122,7 @@ public class HttpEntityWrapper implements HttpEntity {
 
     @Override
     public String toString() {
-        return super.toString() + "[" + wrappedEntity + "]";
+        return "Wrapper [" + wrappedEntity + "]";
     }
 
 }

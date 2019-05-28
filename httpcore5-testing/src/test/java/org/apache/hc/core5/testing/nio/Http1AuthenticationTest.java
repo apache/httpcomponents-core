@@ -55,7 +55,7 @@ import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.BasicResponseConsumer;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncServerAuthFilter;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -145,7 +145,7 @@ public class Http1AuthenticationTest {
 
                         @Override
                         protected AsyncEntityProducer generateResponseContent(final HttpResponse unauthorized) {
-                            return new BasicAsyncEntityProducer("You shall not pass!!!");
+                            return AsyncEntityProducers.create("You shall not pass!!!");
                         }
                     })
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
@@ -251,7 +251,7 @@ public class Http1AuthenticationTest {
         }
         final HttpRequest request1 = new BasicHttpRequest(Methods.POST, target, "/stuff");
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(request1, new BasicAsyncEntityProducer(stuff, ContentType.TEXT_PLAIN)),
+                new BasicRequestProducer(request1, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assert.assertThat(message1, CoreMatchers.notNullValue());
@@ -263,7 +263,7 @@ public class Http1AuthenticationTest {
         final HttpRequest request2 = new BasicHttpRequest(Methods.POST, target, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
-                new BasicRequestProducer(request2, new BasicAsyncEntityProducer(stuff, ContentType.TEXT_PLAIN)),
+                new BasicRequestProducer(request2, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assert.assertThat(message2, CoreMatchers.notNullValue());
@@ -291,7 +291,7 @@ public class Http1AuthenticationTest {
         final HttpRequest request1 = new BasicHttpRequest(Methods.POST, target, "/stuff");
         request1.setVersion(HttpVersion.HTTP_1_0);
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(request1, new BasicAsyncEntityProducer(stuff, ContentType.TEXT_PLAIN)),
+                new BasicRequestProducer(request1, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assert.assertThat(message1, CoreMatchers.notNullValue());
@@ -304,7 +304,7 @@ public class Http1AuthenticationTest {
         request2.setVersion(HttpVersion.HTTP_1_0);
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
-                new BasicRequestProducer(request2, new BasicAsyncEntityProducer(stuff, ContentType.TEXT_PLAIN)),
+                new BasicRequestProducer(request2, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assert.assertThat(message2, CoreMatchers.notNullValue());

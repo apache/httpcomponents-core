@@ -51,11 +51,6 @@ import org.apache.hc.core5.util.Args;
  */
 public class URLEncodedUtils {
 
-    /**
-     * The default HTML form content type.
-     */
-    public static final String CONTENT_TYPE = "application/x-www-form-urlencoded";
-
     private static final char QP_SEP_A = '&';
     private static final char QP_SEP_S = ';';
     private static final String NAME_VALUE_SEPARATOR = "=";

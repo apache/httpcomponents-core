@@ -106,7 +106,7 @@ import org.apache.hc.core5.http.nio.NHttpMessageParser;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
@@ -401,7 +401,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         for (int i = 0; i < 5; i++) {
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(Methods.POST, createRequestURI(serverEndpoint, "/hello"),
-                            new BasicAsyncEntityProducer("Hi there")),
+                            AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assert.assertNotNull(result);
@@ -434,7 +434,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         for (int i = 0; i < 5; i++) {
             queue.add(streamEndpoint.execute(
                     new BasicRequestProducer(Methods.POST, createRequestURI(serverEndpoint, "/hello"),
-                            new BasicAsyncEntityProducer("Hi there")),
+                            AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
         }
         while (!queue.isEmpty()) {
@@ -470,7 +470,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             final HttpRequest request = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/hello"));
             request.setVersion(HttpVersion.HTTP_1_0);
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(request, new BasicAsyncEntityProducer("Hi there")),
+                    new BasicRequestProducer(request, AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assert.assertNotNull(result);
@@ -571,7 +571,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         for (int i = 0; i < 2; i++) {
             queue.add(streamEndpoint.execute(
                     new BasicRequestProducer(Methods.POST, createRequestURI(serverEndpoint, "/"),
-                            new BasicAsyncEntityProducer("Hi there")),
+                            AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
         }
         while (!queue.isEmpty()) {
@@ -785,7 +785,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
         final HttpRequest request4 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
-                new BasicRequestProducer(request4, new BasicAsyncEntityProducer("blah")),
+                new BasicRequestProducer(request4, AsyncEntityProducers.create("blah")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result4 = future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assert.assertNotNull(result4);
@@ -806,7 +806,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 return new AsyncServerExchangeHandler() {
 
                     private final Random random = new Random(System.currentTimeMillis());
-                    private final AsyncEntityProducer entityProducer = new BasicAsyncEntityProducer(
+                    private final AsyncEntityProducer entityProducer = AsyncEntityProducers.create(
                             "All is well");
 
                     @Override
@@ -889,7 +889,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         for (int i = 0; i < 5; i++) {
             queue.add(streamEndpoint.execute(
                     new BasicRequestProducer(Methods.POST, createRequestURI(serverEndpoint, "/"),
-                            new BasicAsyncEntityProducer("Some important message")),
+                            AsyncEntityProducers.create("Some important message")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
         }
         while (!queue.isEmpty()) {
@@ -1205,17 +1205,17 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(Methods.POST, createRequestURI(serverEndpoint, "/hello-1"),
-                        new BasicAsyncEntityProducer("Hi there")),
+                        AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final HttpRequest request2 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/hello-2"));
         request2.addHeader(HttpHeaders.CONNECTION, "close");
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2,
-                        new BasicAsyncEntityProducer("Hi there")),
+                        AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Future<Message<HttpResponse, String>> future3 = streamEndpoint.execute(
                 new BasicRequestProducer(Methods.POST, createRequestURI(serverEndpoint, "/hello-3"),
-                        new BasicAsyncEntityProducer("Hi there")),
+                        AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -1242,7 +1242,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
         final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
                 new BasicRequestProducer(Methods.POST, createRequestURI(serverEndpoint, "/hello-3"),
-                        new BasicAsyncEntityProducer("Hi there")),
+                        AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         try {
             future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -1272,17 +1272,17 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(Methods.POST, createRequestURI(serverEndpoint, "/hello-1"),
-                        new BasicAsyncEntityProducer("Hi there")),
+                        AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final HttpRequest request2 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/hello-2"));
         request2.addHeader(HttpHeaders.HOST, "blah:blah");
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2,
-                        new BasicAsyncEntityProducer("Hi there")),
+                        AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Future<Message<HttpResponse, String>> future3 = streamEndpoint.execute(
                 new BasicRequestProducer(Methods.POST, createRequestURI(serverEndpoint, "/hello-3"),
-                        new BasicAsyncEntityProducer("Hi there")),
+                        AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());

@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.examples;
 
-import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
@@ -44,14 +45,14 @@ import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.io.SocketConfig;
-import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.InputStreamEntity;
-import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.io.IOCallback;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -92,17 +93,26 @@ public class ClassicPostExecutionExample {
         final HttpHost target = new HttpHost("httpbin.org");
 
         final HttpEntity[] requestBodies = {
-                new StringEntity(
+                HttpEntities.create(
                         "This is the first test request",
-                        ContentType.create("text/plain", StandardCharsets.UTF_8)),
-                new ByteArrayEntity(
+                        ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8)),
+                HttpEntities.create(
                         "This is the second test request".getBytes(StandardCharsets.UTF_8),
                         ContentType.APPLICATION_OCTET_STREAM),
-                new InputStreamEntity(
-                        new ByteArrayInputStream(
-                                "This is the third test request (will be chunked)"
-                                        .getBytes(StandardCharsets.UTF_8)),
-                        ContentType.APPLICATION_OCTET_STREAM)
+                HttpEntities.create(new IOCallback<OutputStream>() {
+
+                    @Override
+                    public void execute(final OutputStream outStream) throws IOException {
+                        outStream.write(("This is the third test request " +
+                                "(streaming)").getBytes(StandardCharsets.UTF_8));
+                    }
+
+                }, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8)),
+                HttpEntities.create(
+                        "This is the fourth test request " +
+                                "(streaming with trailers)",
+                        ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8),
+                        new BasicHeader("trailer1","And goodbye"))
         };
 
         final String requestUri = "/post";

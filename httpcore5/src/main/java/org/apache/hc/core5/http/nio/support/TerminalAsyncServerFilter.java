@@ -46,7 +46,7 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResponseChannel;
-import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
@@ -147,7 +147,7 @@ public final class TerminalAsyncServerFilter implements AsyncFilterHandler {
             }, context);
             return exchangeHandler;
         }
-        responseTrigger.submitResponse(new BasicHttpResponse(HttpStatus.SC_NOT_FOUND), new BasicAsyncEntityProducer("Not found"));
+        responseTrigger.submitResponse(new BasicHttpResponse(HttpStatus.SC_NOT_FOUND), AsyncEntityProducers.create("Not found"));
         return null;
     }
 
