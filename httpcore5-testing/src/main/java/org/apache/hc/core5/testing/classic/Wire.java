@@ -30,6 +30,7 @@ package org.apache.hc.core5.testing.classic;
 import java.nio.ByteBuffer;
 
 import org.slf4j.Logger;
+
 public class Wire {
 
     private final Logger log;
@@ -48,11 +49,11 @@ public class Wire {
             if (ch == 13) {
                 buffer.append("[\\r]");
             } else if (ch == 10) {
-                    buffer.append("[\\n]\"");
-                    buffer.insert(0, "\"");
-                    buffer.insert(0, header);
-                    this.log.debug(this.id + " " + buffer.toString());
-                    buffer.setLength(0);
+                buffer.append("[\\n]\"");
+                buffer.insert(0, "\"");
+                buffer.insert(0, header);
+                this.log.debug(this.id + " " + buffer.toString());
+                buffer.setLength(0);
             } else if ((ch < 32) || (ch > 127)) {
                 buffer.append("[0x");
                 buffer.append(Integer.toHexString(ch));
