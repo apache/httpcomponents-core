@@ -40,14 +40,13 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
-import org.apache.hc.core5.http.nio.AsyncEntityProducer;
-import org.apache.hc.core5.http.nio.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.AsyncRequestProducer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactive.ReactiveEntityProducer;
 import org.apache.hc.core5.reactive.ReactiveResponseConsumer;
@@ -119,11 +118,9 @@ public class ReactiveFullDuplexClientExample {
                     return ByteBuffer.wrap(str.getBytes(UTF_8));
                 }
             });
-        final AsyncEntityProducer reactiveEntityProducer = new ReactiveEntityProducer(publisher, -1,
-            ContentType.TEXT_PLAIN, null);
-        final URI requestUri = new URI(endpoint);
-        final BasicRequestProducer requestProducer = new BasicRequestProducer(
-            Methods.POST.name(), requestUri, reactiveEntityProducer);
+        final AsyncRequestProducer requestProducer = AsyncRequestBuilder.post(new URI(endpoint))
+                .setEntity(new ReactiveEntityProducer(publisher, -1, ContentType.TEXT_PLAIN, null))
+                .build();
 
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
         final Future<Void> responseComplete = requester.execute(requestProducer, consumer, Timeout.ofSeconds(30), null);

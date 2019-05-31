@@ -48,11 +48,11 @@ import org.apache.hc.core5.http.nio.AsyncFilterHandler;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.BasicRequestConsumer;
-import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncServerAuthFilter;
+import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
+import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
@@ -171,7 +171,9 @@ public class AsyncServerFilterExample {
                             final HttpContext context) throws HttpException, IOException {
                         // do something useful
                         responseTrigger.submitResponse(
-                                new BasicResponseProducer(HttpStatus.SC_OK, AsyncEntityProducers.create("Hello")),
+                                AsyncResponseBuilder.create(HttpStatus.SC_OK)
+                                        .setEntity("Hello")
+                                        .build(),
                                 context);
                     }
                 })

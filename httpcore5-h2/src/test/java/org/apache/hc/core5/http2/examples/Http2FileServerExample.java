@@ -49,10 +49,10 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.BasicRequestConsumer;
-import org.apache.hc.core5.http.nio.BasicResponseProducer;
-import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
+import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
@@ -149,19 +149,21 @@ public class Http2FileServerExample {
                         if (!file.exists()) {
 
                             System.out.println("File " + file.getPath() + " not found");
-                            responseTrigger.submitResponse(new BasicResponseProducer(
-                                    HttpStatus.SC_NOT_FOUND,
-                                    "<html><body><h1>File" + file.getPath() +
-                                            " not found</h1></body></html>",
-                                    ContentType.TEXT_HTML), context);
+                            responseTrigger.submitResponse(
+                                    AsyncResponseBuilder.create(HttpStatus.SC_NOT_FOUND)
+                                            .setEntity("<html><body><h1>File" + file.getPath() +
+                                                    " not found</h1></body></html>", ContentType.TEXT_HTML)
+                                            .build(),
+                                    context);
 
                         } else if (!file.canRead() || file.isDirectory()) {
 
                             System.out.println("Cannot read file " + file.getPath());
-                            responseTrigger.submitResponse(new BasicResponseProducer(
-                                    HttpStatus.SC_FORBIDDEN,
-                                    "<html><body><h1>Access denied</h1></body></html>",
-                                    ContentType.TEXT_HTML), context);
+                            responseTrigger.submitResponse(
+                                    AsyncResponseBuilder.create(HttpStatus.SC_FORBIDDEN)
+                                            .setEntity("<html><body><h1>Access denied</h1></body></html>", ContentType.TEXT_HTML)
+                                            .build(),
+                                    context);
 
                         } else {
 
@@ -180,8 +182,11 @@ public class Http2FileServerExample {
                             final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
                             final EndpointDetails endpoint = coreContext.getEndpointDetails();
                             System.out.println(endpoint + ": serving file " + file.getPath());
-                            responseTrigger.submitResponse(new BasicResponseProducer(
-                                    HttpStatus.SC_OK, new FileEntityProducer(file, contentType)), context);
+                            responseTrigger.submitResponse(
+                                    AsyncResponseBuilder.create(HttpStatus.SC_OK)
+                                            .setEntity(AsyncEntityProducers.create(file, contentType))
+                                            .build(),
+                                    context);
                         }
                     }
 

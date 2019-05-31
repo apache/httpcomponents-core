@@ -47,10 +47,10 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.BasicRequestConsumer;
-import org.apache.hc.core5.http.nio.BasicResponseProducer;
-import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
+import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpDateGenerator;
@@ -64,7 +64,9 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class AsyncFileServerExample {
 
-    /** Example command line args: {@code "c:\temp" 8080} */
+    /**
+     * Example command line args: {@code "c:\temp" 8080}
+     */
     public static void main(final String[] args) throws Exception {
         if (args.length < 1) {
             System.err.println("Please specify document root directory");
@@ -112,19 +114,20 @@ public class AsyncFileServerExample {
 
                             final String msg = "File " + file.getPath() + " not found";
                             println(msg);
-                            responseTrigger.submitResponse(new BasicResponseProducer(
-                                    HttpStatus.SC_NOT_FOUND,
-                                    "<html><body><h1>" + msg + "</h1></body></html>",
-                                    ContentType.TEXT_HTML), context);
+                            responseTrigger.submitResponse(
+                                    AsyncResponseBuilder.create(HttpStatus.SC_NOT_FOUND)
+                                            .setEntity("<html><body><h1>" + msg + "</h1></body></html>", ContentType.TEXT_HTML)
+                                            .build(),
+                                    context);
 
                         } else if (!file.canRead() || file.isDirectory()) {
 
                             final String msg = "Cannot read file " + file.getPath();
                             println(msg);
-                            responseTrigger.submitResponse(new BasicResponseProducer(
-                                    HttpStatus.SC_FORBIDDEN,
-                                    "<html><body><h1>" + msg + "</h1></body></html>",
-                                    ContentType.TEXT_HTML), context);
+                            responseTrigger.submitResponse(AsyncResponseBuilder.create(HttpStatus.SC_FORBIDDEN)
+                                            .setEntity("<html><body><h1>" + msg + "</h1></body></html>", ContentType.TEXT_HTML)
+                                            .build(),
+                                    context);
 
                         } else {
 
@@ -145,8 +148,11 @@ public class AsyncFileServerExample {
 
                             println(endpoint + " | serving file " + file.getPath());
 
-                            responseTrigger.submitResponse(new BasicResponseProducer(
-                                    HttpStatus.SC_OK, new FileEntityProducer(file, contentType)), context);
+                            responseTrigger.submitResponse(
+                                    AsyncResponseBuilder.create(HttpStatus.SC_OK)
+                                            .setEntity(AsyncEntityProducers.create(file, contentType))
+                                            .build(),
+                                    context);
                         }
                     }
 

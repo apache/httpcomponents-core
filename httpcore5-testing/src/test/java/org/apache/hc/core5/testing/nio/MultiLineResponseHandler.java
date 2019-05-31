@@ -31,15 +31,13 @@ import java.io.IOException;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.BasicRequestConsumer;
-import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
+import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
@@ -61,10 +59,11 @@ public class MultiLineResponseHandler extends BasicServerExchangeHandler<Message
                           final Message<HttpRequest, String> requestMessage,
                           final ResponseTrigger responseTrigger,
                           final HttpContext context) throws HttpException, IOException {
-                      final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
-                      responseTrigger.submitResponse(new BasicResponseProducer(
-                              response,
-                              new MultiLineEntityProducer(message, count)), context);
+                      responseTrigger.submitResponse(
+                              AsyncResponseBuilder.create(HttpStatus.SC_OK)
+                                      .setEntity(new MultiLineEntityProducer(message, count))
+                                      .build(),
+                              context);
                   }
               }
         );

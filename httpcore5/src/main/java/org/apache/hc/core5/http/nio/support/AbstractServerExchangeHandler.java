@@ -43,7 +43,6 @@ import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
@@ -140,7 +139,10 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
                 } catch (final HttpException ex) {
                     try {
                         responseTrigger.submitResponse(
-                                new BasicResponseProducer(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage()), context);
+                                AsyncResponseBuilder.create(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                                        .setEntity(ex.getMessage())
+                                        .build(),
+                                context);
                     } catch (final HttpException | IOException ex2) {
                         failed(ex2);
                     }

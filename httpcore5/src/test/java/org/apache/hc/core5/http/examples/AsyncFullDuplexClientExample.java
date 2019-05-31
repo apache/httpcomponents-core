@@ -41,7 +41,6 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
@@ -49,13 +48,13 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
-import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
@@ -121,8 +120,9 @@ public class AsyncFullDuplexClientExample {
         requester.start();
 
         final URI requestUri = new URI("http://httpbin.org/post");
-        final BasicRequestProducer requestProducer = new BasicRequestProducer(
-                Methods.POST.name(), requestUri, AsyncEntityProducers.create("stuff"));
+        final AsyncRequestProducer requestProducer = AsyncRequestBuilder.post(requestUri)
+                .setEntity("stuff")
+                .build();
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(
                 new StringAsyncEntityConsumer());
 

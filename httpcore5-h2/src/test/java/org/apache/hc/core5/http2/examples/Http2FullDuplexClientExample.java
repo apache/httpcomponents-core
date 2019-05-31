@@ -38,16 +38,15 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
-import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
+import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
@@ -124,8 +123,9 @@ public class Http2FullDuplexClientExample {
         requester.start();
 
         final URI requestUri = new URI("http://nghttp2.org/httpbin/post");
-        final BasicRequestProducer requestProducer = new BasicRequestProducer(
-                Methods.POST.name(), requestUri, AsyncEntityProducers.create("stuff"));
+        final AsyncRequestProducer requestProducer = AsyncRequestBuilder.post(requestUri)
+                .setEntity("stuff")
+                .build();
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(
                 new StringAsyncEntityConsumer());
 

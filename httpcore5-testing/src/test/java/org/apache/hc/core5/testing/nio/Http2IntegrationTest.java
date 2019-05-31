@@ -85,11 +85,12 @@ import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.BasicPushProducer;
-import org.apache.hc.core5.http.nio.BasicRequestConsumer;
-import org.apache.hc.core5.http.nio.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.BasicResponseConsumer;
-import org.apache.hc.core5.http.nio.BasicResponseProducer;
+import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
+import org.apache.hc.core5.http.nio.support.BasicPushProducer;
+import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
+import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -591,10 +592,11 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                             final HttpContext context) throws IOException, HttpException {
                         responseTrigger.pushPromise(
                                 new BasicHttpRequest(Methods.GET, createRequestURI(serverEndpoint, "/stuff")),
-                                context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)));
-                        responseTrigger.submitResponse(new BasicResponseProducer(
-                                HttpStatus.SC_OK,
-                                AsyncEntityProducers.create("Hi there")), context);
+                                context,
+                                new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)));
+                        responseTrigger.submitResponse(
+                                AsyncResponseBuilder.create(HttpStatus.SC_OK).setEntity("Hi there", ContentType.TEXT_PLAIN).build(),
+                                context);
                     }
                 };
             }

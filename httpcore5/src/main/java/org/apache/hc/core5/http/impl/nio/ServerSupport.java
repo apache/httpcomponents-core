@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
-import org.apache.hc.core5.http.nio.BasicResponseProducer;
+import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 
 /**
  * HTTP Server support methods.

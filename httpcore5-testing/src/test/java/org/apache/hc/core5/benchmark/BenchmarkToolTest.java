@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -44,9 +43,9 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.BasicRequestConsumer;
-import org.apache.hc.core5.http.nio.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
+import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
+import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
@@ -98,7 +97,10 @@ public class BenchmarkToolTest {
                             final ResponseTrigger responseTrigger,
                             final HttpContext context) throws HttpException, IOException {
                         responseTrigger.submitResponse(
-                                new BasicResponseProducer(HttpStatus.SC_OK, "0123456789ABCDEF", ContentType.TEXT_PLAIN), context);
+                                AsyncResponseBuilder.create(HttpStatus.SC_OK)
+                                        .setEntity("0123456789ABCDEF")
+                                        .build(),
+                                context);
                     }
 
                 })
