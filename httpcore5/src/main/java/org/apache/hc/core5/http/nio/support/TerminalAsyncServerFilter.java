@@ -140,7 +140,7 @@ public final class TerminalAsyncServerFilter implements AsyncFilterHandler {
                 }
 
                 @Override
-                public void pushPromise(final HttpRequest promise, final HttpContext httpContext, final AsyncPushProducer pushProducer) throws HttpException, IOException {
+                public void pushPromise(final HttpRequest promise, final AsyncPushProducer pushProducer, final HttpContext httpContext) throws HttpException, IOException {
                     responseTrigger.pushPromise(promise, pushProducer);
                 }
 

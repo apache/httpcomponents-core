@@ -121,7 +121,7 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
             @Override
             public void pushPromise(
                     final HttpRequest promise, final HttpContext httpContext, final AsyncPushProducer pushProducer) throws HttpException, IOException {
-                responseChannel.pushPromise(promise, httpContext, pushProducer);
+                responseChannel.pushPromise(promise, pushProducer, httpContext);
             }
 
             @Override

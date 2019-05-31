@@ -71,9 +71,9 @@ public interface ResponseChannel {
      * a response message.
      *
      * @param promise the request message header used as a promise.
-     * @param context the actual execution context.
      * @param responseProducer the push response message producer.
+     * @param context the actual execution context.
      */
-    void pushPromise(HttpRequest promise, HttpContext context, AsyncPushProducer responseProducer) throws HttpException, IOException;
+    void pushPromise(HttpRequest promise, AsyncPushProducer responseProducer, HttpContext context) throws HttpException, IOException;
 
 }

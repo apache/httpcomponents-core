@@ -215,7 +215,7 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
 
                     @Override
                     public void pushPromise(
-                            final HttpRequest promise, final HttpContext httpContext, final AsyncPushProducer pushProducer) throws HttpException, IOException {
+                            final HttpRequest promise, final AsyncPushProducer pushProducer, final HttpContext httpContext) throws HttpException, IOException {
                         commitPromise(promise, pushProducer);
                     }
 

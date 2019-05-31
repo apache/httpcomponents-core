@@ -97,7 +97,7 @@ public final class AsyncServerFilterChainExchangeHandlerFactory implements Handl
 
                     @Override
                     public void pushPromise(final HttpRequest promise, final AsyncPushProducer responseProducer) throws HttpException, IOException {
-                        responseChannel.pushPromise(promise, context, responseProducer);
+                        responseChannel.pushPromise(promise, responseProducer, context);
                     }
 
                 }));
