@@ -1,21 +1,83 @@
 Release 5.0-BETA8
 -------------------
 
+This BETA fixes a number of defects found since the last release and adds several
+convenience factory and builder classes, mainly for TLS configuration and HTTP
+message construction.
+
+As of this version all server and requester implementations exclude weak TLS protocol
+versions and ciphers.
+
+Please note that the following interfaces have changed: ResponseChannel,
+AsyncRequestConsumer, AsyncResponseConsumer, HttpContentProducer, SSLServerSetupHandler.
+
+IMPORTANT: This release is expected to be the last BETA version. If no major
+design flaws are found the actual 5.0 API will be frozen and the next version will be
+promoted to GA.
+
+
+Change Log
+-------------------
+
+* Classic and async message builders.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improved classic and async entity factory methods.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-578: Incorrect serialization of HeaderGroup.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+* HTTPCORE-577: Server side HTTP protocol negotiator to propagate exceptions
+  to the i/o event handler associated with the i/o session.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-1986: URIBuilder#isPathEmpty method to verify if encodedPath
+  is an empty string.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* SSLIOSession: Improve connectTimeout implementation.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* HTTPCLIENT-1981: Disallow TRACE requests with an enclosed entity.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-1978: Filter characters before byte conversion.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* HTTPCORE-573: FileContentDecoder don't always enforce the maximum number of
+  bytes to transfer.
+  Contributed by Julien Coloos <julien.coloos at gmail.com>
+
+* All server and requester implementation to exclude weak TLS protocol versions
+  and ciphers.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improved SSL setup handling for classic requester and server.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Common TLS support methods migrated from HttpClient.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: non-blocking SSL I/O sessions fail to fire session disconnected event.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: basic entity consumers to clear buffered content when releasing resources.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 * conscrypt-openjdk-uber 1.4.1 -> 1.4.2.
   Contributed by Gary Gregory <garydgregory at gmail.com>
 
 * Provide more information when a BindException occurs.
   Contributed by Gary Gregory <garydgregory at gmail.com>
 
-* Refactor ClassicHttpRequest and ClassicHttpResponse interfaces to extend a new interface HttpEntityContainer.
+* Refactor ClassicHttpRequest and ClassicHttpResponse interfaces to extend
+  a new interface HttpEntityContainer.
   Contributed by Gary Gregory <garydgregory at gmail.com>
   
 * Update RxJava from 2.2.7 to 2.2.8.
   Contributed by Gary Gregory <garydgregory at gmail.com>
-  
-* [HTTPCORE-578] Incorrect serialization of HeaderGroup #127
-  Contributed by Gary Gregory <garydgregory at gmail.com>
-  
+
 
 Release 5.0-BETA7
 -------------------
@@ -25,6 +87,7 @@ handshake timeout configuration, improves URI builder, and fixes various defects
 
 Please note that the following interfaces have changed: TlsStrategy, IOSession,
 TransportSecurityLayer.
+
 
 Change Log
 -------------------
