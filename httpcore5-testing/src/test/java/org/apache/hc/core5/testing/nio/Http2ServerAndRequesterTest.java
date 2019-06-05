@@ -47,10 +47,10 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
@@ -107,7 +107,7 @@ public class Http2ServerAndRequesterTest {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             server = H2ServerBootstrap.bootstrap()
-                    .setLookupRegistry(new UriPatternMatcher())
+                    .setLookupRegistry(new UriPatternMatcher<Supplier<AsyncServerExchangeHandler>>())
                     .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
