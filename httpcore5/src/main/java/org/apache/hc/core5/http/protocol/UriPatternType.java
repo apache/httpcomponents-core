@@ -32,12 +32,6 @@ package org.apache.hc.core5.http.protocol;
  */
 public enum UriPatternType {
 
-    /**
-     * @deprecated Use {@link #URI_PATTERN}.
-     */
-    @Deprecated
-    BASIC,
-
     REGEX, URI_PATTERN, URI_PATTERN_IN_ORDER;
 
     public static <T> LookupRegistry<T> newMatcher(final UriPatternType type) {

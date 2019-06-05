@@ -276,11 +276,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         return ioSession.getLock();
     }
 
-    @Override
-    public Lock lock() {
-        return ioSession.getLock();
-    }
-
     private IOSession getSessionImpl() {
         final SSLIOSession tlsSession = tlsSessionRef.get();
         return tlsSession != null ? tlsSession : ioSession;

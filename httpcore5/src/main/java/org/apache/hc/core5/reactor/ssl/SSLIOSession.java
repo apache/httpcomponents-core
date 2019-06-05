@@ -184,11 +184,6 @@ public class SSLIOSession implements IOSession {
         return this.session.getLock();
     }
 
-    @Override
-    public Lock lock() {
-        return this.session.getLock();
-    }
-
     /**
      * Returns {@code true} is the session has been fully initialized,
      * {@code false} otherwise.

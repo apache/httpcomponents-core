@@ -189,11 +189,6 @@ public class HttpBenchmark {
                             }
 
                             @Override
-                            public Lock lock() {
-                                return ioSession.getLock();
-                            }
-
-                            @Override
                             public void enqueue(final Command command, final Command.Priority priority) {
                                 ioSession.enqueue(command, priority);
                             }

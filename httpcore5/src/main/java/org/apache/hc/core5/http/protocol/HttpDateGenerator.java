@@ -59,11 +59,7 @@ public class HttpDateGenerator {
     private long dateAsMillis = 0L;
     private String dateAsText = null;
 
-    /**
-     * @deprecated Use {@link #INSTANCE}.
-     */
-    @Deprecated
-    public HttpDateGenerator() {
+    HttpDateGenerator() {
         super();
         this.dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
         this.dateformat.setTimeZone(GMT);

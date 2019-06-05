@@ -90,11 +90,6 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public Lock lock() {
-        return lock;
-    }
-
-    @Override
     public void enqueue(final Command command, final Command.Priority priority) {
         if (priority == Command.Priority.IMMEDIATE) {
             commandQueue.addFirst(command);

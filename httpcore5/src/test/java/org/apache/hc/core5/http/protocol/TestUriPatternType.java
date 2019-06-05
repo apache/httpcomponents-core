@@ -33,13 +33,6 @@ import org.junit.Test;
 public class TestUriPatternType {
 
     @Test
-    public void testBasic() {
-        @SuppressWarnings("deprecation")
-        final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.BASIC);
-        Assert.assertTrue(matcher instanceof UriPatternMatcher);
-    }
-
-    @Test
     public void testRegex() {
         final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.REGEX);
         Assert.assertTrue(matcher instanceof UriRegexMatcher);

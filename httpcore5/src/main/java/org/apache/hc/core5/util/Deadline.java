@@ -142,17 +142,6 @@ public class Deadline {
         setLastCheck();
     }
 
-    /**
-     * Returns the difference in milliseconds between the deadline and now.
-     *
-     * @return the different in milliseconds between the deadline and now.
-     * @deprecated Use {@link #remaining()}
-     */
-    @Deprecated
-    public long difference() {
-        return remaining();
-    }
-
     @Override
     public boolean equals(final Object obj) {
         // Only take into account the deadline value.

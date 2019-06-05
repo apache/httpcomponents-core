@@ -71,11 +71,6 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
-    public Lock lock() {
-        return this.session.getLock();
-    }
-
-    @Override
     public void enqueue(final Command command, final Command.Priority priority) {
         this.session.enqueue(command, priority);
         if (this.log.isDebugEnabled()) {

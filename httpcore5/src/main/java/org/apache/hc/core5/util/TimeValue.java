@@ -161,14 +161,6 @@ public class TimeValue {
         return of(microseconds, TimeUnit.MICROSECONDS);
     }
 
-    /**
-     * @deprecated Use {@link #ofMilliseconds(long)}.
-     */
-    @Deprecated
-    public static TimeValue ofMillis(final long millis) {
-        return of(millis, TimeUnit.MILLISECONDS);
-    }
-
     public static TimeValue ofMilliseconds(final long millis) {
         return of(millis, TimeUnit.MILLISECONDS);
     }
