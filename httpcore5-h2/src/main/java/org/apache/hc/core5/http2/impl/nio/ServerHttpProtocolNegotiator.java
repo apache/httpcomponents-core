@@ -30,6 +30,7 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLSession;
 
@@ -47,7 +48,6 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
-import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
@@ -71,6 +71,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private final ServerHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
     private final ByteBuffer bytebuf;
+    private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
 
     private volatile boolean expectValidH2Preface;
 
@@ -84,6 +85,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.bytebuf = ByteBuffer.allocate(1024);
+        this.protocolHandlerRef = new AtomicReference<>(null);
     }
 
     @Override
@@ -107,7 +109,9 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(
                             tlsDetails != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
                             ioSession);
-                    ioSession.upgrade(new ServerHttp1IOEventHandler(http1StreamHandler));
+                    final HttpConnectionEventHandler protocolHandler = new ServerHttp1IOEventHandler(http1StreamHandler);
+                    ioSession.upgrade(protocolHandler);
+                    protocolHandlerRef.set(protocolHandler);
                     http1StreamHandler.onConnect(null);
                     break;
             }
@@ -140,7 +144,9 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 }
                 if (validH2Preface) {
                     final ServerHttp2StreamMultiplexer http2StreamHandler = http2StreamHandlerFactory.create(ioSession);
-                    ioSession.upgrade(new ServerHttp2IOEventHandler(http2StreamHandler));
+                    final HttpConnectionEventHandler protocolHandler = new ServerHttp2IOEventHandler(http2StreamHandler);
+                    ioSession.upgrade(protocolHandler);
+                    protocolHandlerRef.set(protocolHandler);
                     http2StreamHandler.onConnect(bytebuf.hasRemaining() ? bytebuf : null);
                     http2StreamHandler.onInput();
                 } else {
@@ -148,7 +154,9 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(
                             tlsDetails != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
                             ioSession);
-                    ioSession.upgrade(new ServerHttp1IOEventHandler(http1StreamHandler));
+                    final HttpConnectionEventHandler protocolHandler = new ServerHttp1IOEventHandler(http1StreamHandler);
+                    ioSession.upgrade(protocolHandler);
+                    protocolHandlerRef.set(protocolHandler);
                     bytebuf.rewind();
                     http1StreamHandler.onConnect(bytebuf);
                     http1StreamHandler.onInput();
@@ -174,15 +182,19 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void exception(final IOSession session, final Exception cause) {
-        final IOEventHandler sessionHandler = ioSession.getHandler();
-        if (sessionHandler != null) {
-            sessionHandler.exception(session, cause);
+        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
+        if (protocolHandler != null) {
+            protocolHandler.exception(session, cause);
         }
         session.close(CloseMode.IMMEDIATE);
     }
 
     @Override
     public void disconnected(final IOSession session) {
+        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.getAndSet(null);
+        if (protocolHandler != null) {
+            protocolHandler.disconnected(ioSession);
+        }
     }
 
     @Override
@@ -193,7 +205,8 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public EndpointDetails getEndpointDetails() {
-        return null;
+        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
+        return protocolHandler != null ? protocolHandler.getEndpointDetails() : null;
     }
 
     @Override
@@ -208,7 +221,8 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public ProtocolVersion getProtocolVersion() {
-        return null;
+        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
+        return protocolHandler != null ? protocolHandler.getProtocolVersion() : null;
     }
 
     @Override

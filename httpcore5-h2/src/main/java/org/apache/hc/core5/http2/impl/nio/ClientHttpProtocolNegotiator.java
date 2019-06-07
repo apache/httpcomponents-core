@@ -32,25 +32,21 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexer;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
-import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
-import org.apache.hc.core5.reactor.Command;
-import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
@@ -77,6 +73,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
     private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
+    private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
 
     private volatile ByteBuffer preface;
 
@@ -89,28 +86,31 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
+        this.protocolHandlerRef = new AtomicReference<>(null);
     }
 
     private void startHttp1(final IOSession session) {
         final ClientHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(ioSession);
-        final ClientHttp1IOEventHandler newHandler = new ClientHttp1IOEventHandler(http1StreamHandler);
+        final HttpConnectionEventHandler protocolHandler = new ClientHttp1IOEventHandler(http1StreamHandler);
         try {
-            ioSession.upgrade(newHandler);
-            newHandler.connected(session);
+            ioSession.upgrade(protocolHandler);
+            protocolHandlerRef.set(protocolHandler);
+            protocolHandler.connected(session);
         } catch (final Exception ex) {
-            newHandler.exception(session, ex);
+            protocolHandler.exception(session, ex);
             session.close(CloseMode.IMMEDIATE);
         }
     }
 
     private void startHttp2(final IOSession session) {
         final ClientHttp2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
-        final IOEventHandler newHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
+        final HttpConnectionEventHandler protocolHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
         try {
-            ioSession.upgrade(newHandler);
-            newHandler.connected(session);
+            ioSession.upgrade(protocolHandler);
+            protocolHandlerRef.set(protocolHandler);
+            protocolHandler.connected(session);
         } catch (final Exception ex) {
-            newHandler.exception(session, ex);
+            protocolHandler.exception(session, ex);
             session.close(CloseMode.IMMEDIATE);
         }
     }
@@ -172,43 +172,18 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void exception(final IOSession session, final Exception cause) {
-        try {
-            for (;;) {
-                final Command command = ioSession.poll();
-                if (command != null) {
-                    if (command instanceof RequestExecutionCommand) {
-                        final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
-                        final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                        exchangeHandler.failed(cause);
-                        exchangeHandler.releaseResources();
-                    } else {
-                        command.cancel();
-                    }
-                } else {
-                    break;
-                }
-            }
-        } finally {
-            session.close(CloseMode.IMMEDIATE);
+        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
+        if (protocolHandler != null) {
+            protocolHandler.exception(session, cause);
         }
+        session.close(CloseMode.IMMEDIATE);
     }
 
     @Override
     public void disconnected(final IOSession session) {
-        for (;;) {
-            final Command command = ioSession.poll();
-            if (command != null) {
-                if (command instanceof RequestExecutionCommand) {
-                    final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
-                    final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                    exchangeHandler.failed(new ConnectionClosedException());
-                    exchangeHandler.releaseResources();
-                } else {
-                    command.cancel();
-                }
-            } else {
-                break;
-            }
+        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.getAndSet(null);
+        if (protocolHandler != null) {
+            protocolHandler.disconnected(ioSession);
         }
     }
 
@@ -220,7 +195,8 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public EndpointDetails getEndpointDetails() {
-        return null;
+        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
+        return protocolHandler != null ? protocolHandler.getEndpointDetails() : null;
     }
 
     @Override
@@ -235,7 +211,8 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public ProtocolVersion getProtocolVersion() {
-        return null;
+        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
+        return protocolHandler != null ? protocolHandler.getProtocolVersion() : null;
     }
 
     @Override
