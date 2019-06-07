@@ -69,9 +69,15 @@ import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
 import org.apache.hc.core5.http2.protocol.H2RequestContent;
 import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.Command;
+import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
+import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
+import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
+import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.ssl.TrustStrategy;
@@ -172,11 +178,11 @@ public class HttpBenchmark {
                 .setHttpProcessor(builder.build())
                 .setTlsStrategy(new BasicClientTlsStrategy(sslContext))
                 .setVersionPolicy(versionPolicy)
-                .setIOSessionDecorator(new Decorator<IOSession>() {
+                .setIOSessionDecorator(new Decorator<ProtocolIOSession>() {
 
                     @Override
-                    public IOSession decorate(final IOSession ioSession) {
-                        return new IOSession() {
+                    public ProtocolIOSession decorate(final ProtocolIOSession ioSession) {
+                        return new ProtocolIOSession() {
 
                             @Override
                             public String getId() {
@@ -317,6 +323,36 @@ public class HttpBenchmark {
                                 ioSession.close(closeMode);
                             }
 
+                            @Override
+                            public NamedEndpoint getInitialEndpoint() {
+                                return ioSession.getInitialEndpoint();
+                            }
+
+                            @Override
+                            public IOEventHandler getHandler() {
+                                return ioSession.getHandler();
+                            }
+
+                            @Override
+                            public void upgrade(final IOEventHandler handler) {
+                                ioSession.upgrade(handler);
+                            }
+
+                            @Override
+                            public void startTls(final SSLContext sslContext,
+                                                 final NamedEndpoint endpoint,
+                                                 final SSLBufferMode sslBufferMode,
+                                                 final SSLSessionInitializer initializer,
+                                                 final SSLSessionVerifier verifier,
+                                                 final Timeout handshakeTimeout) throws UnsupportedOperationException {
+                                ioSession.startTls(
+                                        sslContext, endpoint, sslBufferMode, initializer, verifier, handshakeTimeout);
+                            }
+
+                            @Override
+                            public TlsDetails getTlsDetails() {
+                                return ioSession.getTlsDetails();
+                            }
                         };
                     }
 

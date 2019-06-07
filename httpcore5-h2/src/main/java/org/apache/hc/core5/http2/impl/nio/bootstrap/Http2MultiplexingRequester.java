@@ -71,6 +71,7 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -91,7 +92,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
     public Http2MultiplexingRequester(
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,
-            final Decorator<IOSession> ioSessionDecorator,
+            final Decorator<ProtocolIOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
             final Resolver<HttpHost, InetSocketAddress> addressResolver,
             final TlsStrategy tlsStrategy) {

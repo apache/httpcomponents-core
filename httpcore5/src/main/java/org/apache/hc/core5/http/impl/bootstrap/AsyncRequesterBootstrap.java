@@ -49,6 +49,7 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -70,7 +71,7 @@ public class AsyncRequesterBootstrap {
     private PoolConcurrencyPolicy poolConcurrencyPolicy;
     private TlsStrategy tlsStrategy;
     private Timeout handshakeTimeout;
-    private Decorator<IOSession> ioSessionDecorator;
+    private Decorator<ProtocolIOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
@@ -168,9 +169,9 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link IOSession} {@link Decorator} instance.
+     * Assigns {@link ProtocolIOSession} {@link Decorator} instance.
      */
-    public final AsyncRequesterBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
+    public final AsyncRequesterBootstrap setIOSessionDecorator(final Decorator<ProtocolIOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
         return this;
     }

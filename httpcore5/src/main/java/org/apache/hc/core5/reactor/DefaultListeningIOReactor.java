@@ -83,7 +83,7 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory dispatchThreadFactory,
             final ThreadFactory listenerThreadFactory,
-            final Decorator<IOSession> ioSessionDecorator,
+            final Decorator<ProtocolIOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");

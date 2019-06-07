@@ -65,7 +65,7 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory threadFactory,
-            final Decorator<IOSession> ioSessionDecorator,
+            final Decorator<ProtocolIOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");

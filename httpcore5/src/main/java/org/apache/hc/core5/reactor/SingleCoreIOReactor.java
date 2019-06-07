@@ -45,7 +45,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
@@ -57,7 +56,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     private final IOEventHandlerFactory eventHandlerFactory;
     private final IOReactorConfig reactorConfig;
-    private final Decorator<IOSession> ioSessionDecorator;
+    private final Decorator<ProtocolIOSession> ioSessionDecorator;
     private final IOSessionListener sessionListener;
     private final Callback<IOSession> sessionShutdownCallback;
     private final Queue<InternalDataChannel> closedSessions;
@@ -71,7 +70,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             final Queue<ExceptionEvent> auditLog,
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig reactorConfig,
-            final Decorator<IOSession> ioSessionDecorator,
+            final Decorator<ProtocolIOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         super(auditLog);
@@ -170,11 +169,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private void processEvents(final Set<SelectionKey> selectedKeys) {
         for (final SelectionKey key : selectedKeys) {
             final InternalChannel channel = (InternalChannel) key.attachment();
-            try {
-                channel.handleIOEvent(key.readyOps());
-            } catch (final CancelledKeyException ex) {
-                channel.close(CloseMode.GRACEFUL);
-            }
+            channel.handleIOEvent(key.readyOps());
         }
         selectedKeys.clear();
     }
@@ -200,12 +195,10 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             } catch (final ClosedChannelException ex) {
                 return;
             }
-            IOSession ioSession = new IOSessionImpl(key, socketChannel);
-            if (ioSessionDecorator != null) {
-                ioSession = ioSessionDecorator.decorate(ioSession);
-            }
+            final IOSession ioSession = new IOSessionImpl(key, socketChannel);
             final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, null, sessionListener, closedSessions);
-            dataChannel.upgrade(this.eventHandlerFactory.createHandler(dataChannel, null));
+            final ProtocolIOSession protocolSession = ioSessionDecorator != null ? ioSessionDecorator.decorate(dataChannel) : dataChannel;
+            dataChannel.upgrade(this.eventHandlerFactory.createHandler(protocolSession, null));
             dataChannel.setSocketTimeout(this.reactorConfig.getSoTimeout());
             key.attach(dataChannel);
             dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
@@ -337,12 +330,10 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                     final SocketChannel socketChannel,
                     final NamedEndpoint namedEndpoint,
                     final Object attachment) {
-                IOSession ioSession = new IOSessionImpl(key, socketChannel);
-                if (ioSessionDecorator != null) {
-                    ioSession = ioSessionDecorator.decorate(ioSession);
-                }
+                final IOSession ioSession = new IOSessionImpl(key, socketChannel);
                 final InternalDataChannel dataChannel = new InternalDataChannel(ioSession, namedEndpoint, sessionListener, closedSessions);
-                dataChannel.upgrade(eventHandlerFactory.createHandler(dataChannel, attachment));
+                final ProtocolIOSession protocolSession = ioSessionDecorator != null ? ioSessionDecorator.decorate(dataChannel) : dataChannel;
+                dataChannel.upgrade(eventHandlerFactory.createHandler(protocolSession, attachment));
                 dataChannel.setSocketTimeout(reactorConfig.getSoTimeout());
                 return dataChannel;
             }

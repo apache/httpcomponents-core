@@ -62,8 +62,8 @@ import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
@@ -85,7 +85,7 @@ public class AsyncServerBootstrap {
     private ConnectionReuseStrategy connStrategy;
     private TlsStrategy tlsStrategy;
     private Timeout handshakeTimeout;
-    private Decorator<IOSession> ioSessionDecorator;
+    private Decorator<ProtocolIOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
 
@@ -163,9 +163,9 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link IOSession} {@link Decorator} instance.
+     * Assigns {@link ProtocolIOSession} {@link Decorator} instance.
      */
-    public final AsyncServerBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
+    public final AsyncServerBootstrap setIOSessionDecorator(final Decorator<ProtocolIOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
         return this;
     }
