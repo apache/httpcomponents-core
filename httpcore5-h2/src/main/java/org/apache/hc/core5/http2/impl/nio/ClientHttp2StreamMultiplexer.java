@@ -38,9 +38,9 @@ import org.apache.hc.core5.http.nio.command.ExecutableCommand;
 import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.Http2ConnectionException;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.config.Http2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
@@ -63,7 +63,7 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final FrameFactory frameFactory,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final H2Config h2Config,
+            final Http2Config h2Config,
             final CharCodingConfig charCodingConfig,
             final Http2StreamListener streamListener) {
         super(ioSession, frameFactory, StreamIdGenerator.ODD, httpProcessor, charCodingConfig, h2Config, streamListener);
@@ -74,7 +74,7 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final ProtocolIOSession ioSession,
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-            final H2Config h2Config,
+            final Http2Config h2Config,
             final CharCodingConfig charCodingConfig) {
         this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, pushHandlerFactory, h2Config, charCodingConfig, null);
     }
@@ -82,23 +82,23 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
     public ClientHttp2StreamMultiplexer(
             final ProtocolIOSession ioSession,
             final HttpProcessor httpProcessor,
-            final H2Config h2Config,
+            final Http2Config h2Config,
             final CharCodingConfig charCodingConfig) {
         this(ioSession, httpProcessor, null, h2Config, charCodingConfig);
     }
 
     @Override
-    void acceptHeaderFrame() throws H2ConnectionException {
-        throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Illegal HEADERS frame");
+    void acceptHeaderFrame() throws Http2ConnectionException {
+        throw new Http2ConnectionException(Http2Error.PROTOCOL_ERROR, "Illegal HEADERS frame");
     }
 
     @Override
-    void acceptPushFrame() throws H2ConnectionException {
+    void acceptPushFrame() throws Http2ConnectionException {
     }
 
     @Override
-    void acceptPushRequest() throws H2ConnectionException {
-        throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to push a response");
+    void acceptPushRequest() throws Http2ConnectionException {
+        throw new Http2ConnectionException(Http2Error.INTERNAL_ERROR, "Illegal attempt to push a response");
     }
 
     @Override
@@ -118,7 +118,7 @@ public class ClientHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
                     pushHandlerFactory != null ? pushHandlerFactory : this.pushHandlerFactory,
                     context);
         }
-        throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Unexpected executable command");
+        throw new Http2ConnectionException(Http2Error.INTERNAL_ERROR, "Unexpected executable command");
     }
 
     @Override

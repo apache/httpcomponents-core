@@ -59,8 +59,8 @@ import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
+import org.apache.hc.core5.http2.config.Http2Config;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URLEncodedUtils;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -91,8 +91,8 @@ public class Http2GreetingServer {
             port = Integer.parseInt(args[0]);
         }
 
-        final HttpAsyncServer server = H2ServerBootstrap.bootstrap()
-                .setH2Config(H2Config.DEFAULT)
+        final HttpAsyncServer server = Http2ServerBootstrap.bootstrap()
+                .setHttp2Config(Http2Config.DEFAULT)
                 .setIOReactorConfig(IOReactorConfig.DEFAULT)
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE) // fallback to HTTP/1 as needed
 

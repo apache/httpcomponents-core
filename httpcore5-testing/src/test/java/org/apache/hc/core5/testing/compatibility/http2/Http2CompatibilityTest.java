@@ -55,7 +55,7 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncPushHandler;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.config.Http2Config;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.nio.ClientSessionEndpoint;
 import org.apache.hc.core5.testing.nio.Http2TestClient;
@@ -67,7 +67,7 @@ public class Http2CompatibilityTest {
     enum ServerType { DEFAULT, APACHE_HTTPD, NGINX }
 
     private final HttpHost target;
-    private final H2Config h2Config;
+    private final Http2Config h2Config;
     private final Http2TestClient client;
 
     public static void main(final String... args) throws Exception {
@@ -75,20 +75,20 @@ public class Http2CompatibilityTest {
         final HttpHost target = args.length > 0 ? HttpHost.create(args[0]) : new HttpHost("localhost", 8080);
         final ServerType serverType = args.length > 1 ? ServerType.valueOf(args[1].toUpperCase(Locale.ROOT)) : ServerType.DEFAULT;
 
-        final H2Config h2Config;
+        final Http2Config h2Config;
         switch (serverType) {
             case APACHE_HTTPD:
-                h2Config = H2Config.custom()
+                h2Config = Http2Config.custom()
                         .setPushEnabled(true)
                         .build();
                 break;
             case NGINX:
-                h2Config = H2Config.custom()
+                h2Config = Http2Config.custom()
                         .setPushEnabled(true)
                         .build();
                 break;
              default:
-                 h2Config = H2Config.DEFAULT;
+                 h2Config = Http2Config.DEFAULT;
         }
 
         final Http2CompatibilityTest test = new Http2CompatibilityTest(target, h2Config);
@@ -100,7 +100,7 @@ public class Http2CompatibilityTest {
         }
     }
 
-    Http2CompatibilityTest(final HttpHost target, final H2Config h2Config) throws Exception {
+    Http2CompatibilityTest(final HttpHost target, final Http2Config h2Config) throws Exception {
         this.target = target;
         this.h2Config = h2Config;
         this.client = new Http2TestClient(IOReactorConfig.DEFAULT, null);

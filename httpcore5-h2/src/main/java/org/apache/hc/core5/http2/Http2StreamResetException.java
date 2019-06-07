@@ -24,34 +24,34 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http2;
 
-package org.apache.hc.core5.http2.impl;
-
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
-import org.apache.hc.core5.http2.H2TransportMetrics;
+import org.apache.hc.core5.http.HttpStreamResetException;
+import org.apache.hc.core5.util.Args;
 
 /**
- * Default implementation of {@link H2TransportMetrics}.
+ * Signals HTTP/2 protocol error that renders the actual HTTP/2 data stream
+ * unreliable.
  *
  * @since 5.0
  */
-public class BasicH2TransportMetrics extends BasicHttpTransportMetrics implements H2TransportMetrics {
+public class Http2StreamResetException extends HttpStreamResetException {
 
-    private final AtomicLong framesTransferred;
+    private final int code;
 
-    public BasicH2TransportMetrics() {
-        this.framesTransferred = new AtomicLong(0);
+    public Http2StreamResetException(final Http2Error error, final String message) {
+        super(message);
+        Args.notNull(error, "HTTP/2 Error code may not be null");
+        this.code = error.getCode();
     }
 
-    @Override
-    public long getFramesTransferred() {
-        return framesTransferred.get();
+    public Http2StreamResetException(final int code, final String message) {
+        super(message);
+        this.code = code;
     }
 
-    public void incrementFramesTransferred() {
-        framesTransferred.incrementAndGet();
+    public int getCode() {
+        return code;
     }
 
 }

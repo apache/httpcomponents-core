@@ -24,19 +24,37 @@
  * <http://www.apache.org/>.
  *
  */
-
 package org.apache.hc.core5.http2;
 
+import java.io.IOException;
+
+import org.apache.hc.core5.util.Args;
+
 /**
- * Request pseudo HTTP headers defined by the HTTP/2 specification.
+ * Signals fatal HTTP/2 protocol violation that renders the actual
+ * HTTP/2 connection unreliable.
  *
  * @since 5.0
  */
-public final class H2PseudoRequestHeaders {
+public class Http2ConnectionException extends IOException {
 
-    public static final String METHOD    = ":method";
-    public static final String SCHEME    = ":scheme";
-    public static final String AUTHORITY = ":authority";
-    public static final String PATH      = ":path";
+    private static final long serialVersionUID = -2014204317155428658L;
+
+    private final int code;
+
+    public Http2ConnectionException(final Http2Error error, final String message) {
+        super(message);
+        Args.notNull(error, "HTTP/2 Error code may not be null");
+        this.code = error.getCode();
+    }
+
+    public Http2ConnectionException(final int code, final String message) {
+        super(message);
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
 
 }

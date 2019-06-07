@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
  */
 public final class TlsCiphers {
 
-    private final static Set<String> H2_BLACKLISTED =
+    private final static Set<String> HTTP_2_BLACKLISTED =
             Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
                     "TLS_NULL_WITH_NULL_NULL",
                     "TLS_RSA_WITH_NULL_MD5",
@@ -322,8 +322,8 @@ public final class TlsCiphers {
                     "TLS_PSK_WITH_AES_256_CCM_8"
             )));
 
-    public static boolean isH2Blacklisted(final String cipherSuite) {
-        return H2_BLACKLISTED.contains(cipherSuite);
+    public static boolean isHttp2Blacklisted(final String cipherSuite) {
+        return HTTP_2_BLACKLISTED.contains(cipherSuite);
     }
 
     private static final String WEAK_KEY_EXCHANGES
@@ -345,13 +345,13 @@ public final class TlsCiphers {
         return false;
     }
 
-    public static String[] excludeH2Blacklisted(final String... ciphers) {
+    public static String[] excludeHttp2Blacklisted(final String... ciphers) {
         if (ciphers == null) {
             return null;
         }
         final List<String> enabledCiphers = new ArrayList<>();
         for (final String cipher: ciphers) {
-            if (!TlsCiphers.isH2Blacklisted(cipher)) {
+            if (!TlsCiphers.isHttp2Blacklisted(cipher)) {
                 enabledCiphers.add(cipher);
             }
         }

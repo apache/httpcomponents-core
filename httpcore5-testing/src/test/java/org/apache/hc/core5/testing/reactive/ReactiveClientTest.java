@@ -71,8 +71,8 @@ import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2RequesterBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactive.ReactiveEntityProducer;
 import org.apache.hc.core5.reactive.ReactiveRequestProcessor;
@@ -156,7 +156,7 @@ public class ReactiveClientTest {
         @Override
         protected void before() throws Throwable {
             log.debug("Starting up test server");
-            server = H2ServerBootstrap.bootstrap()
+            server = Http2ServerBootstrap.bootstrap()
                 .setVersionPolicy(versionPolicy)
                 .setIOReactorConfig(
                     IOReactorConfig.custom()
@@ -206,7 +206,7 @@ public class ReactiveClientTest {
         @Override
         protected void before() throws Throwable {
             log.debug("Starting up test client");
-            requester = H2RequesterBootstrap.bootstrap()
+            requester = Http2RequesterBootstrap.bootstrap()
                 .setVersionPolicy(versionPolicy)
                 .setIOReactorConfig(IOReactorConfig.custom()
                     .setSoTimeout(SOCKET_TIMEOUT)

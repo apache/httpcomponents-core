@@ -31,7 +31,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LazyLaxLineParser;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
@@ -47,21 +47,21 @@ public class DefaultHttpResponseParserFactory implements NHttpMessageParserFacto
 
     public static final DefaultHttpResponseParserFactory INSTANCE = new DefaultHttpResponseParserFactory();
 
-    private final H1Config h1Config;
+    private final Http1Config h1Config;
     private final HttpResponseFactory<HttpResponse> responseFactory;
     private final LineParser lineParser;
 
     public DefaultHttpResponseParserFactory(
-            final H1Config h1Config,
+            final Http1Config h1Config,
             final HttpResponseFactory<HttpResponse> responseFactory,
             final LineParser lineParser) {
         super();
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.h1Config = h1Config != null ? h1Config : Http1Config.DEFAULT;
         this.responseFactory = responseFactory != null ? responseFactory : DefaultHttpResponseFactory.INSTANCE;
         this.lineParser = lineParser != null ? lineParser : LazyLaxLineParser.INSTANCE;
     }
 
-    public DefaultHttpResponseParserFactory(final H1Config h1Config) {
+    public DefaultHttpResponseParserFactory(final Http1Config h1Config) {
         this(h1Config, null, null);
     }
 

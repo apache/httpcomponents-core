@@ -73,7 +73,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private final ByteBuffer bytebuf;
     private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
 
-    private volatile boolean expectValidH2Preface;
+    private volatile boolean expectValidHttp2Preface;
 
     public ServerHttpProtocolNegotiator(
             final ProtocolIOSession ioSession,
@@ -96,13 +96,13 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 case NEGOTIATE:
                     if (tlsDetails != null &&
                             ApplicationProtocols.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
-                        expectValidH2Preface = true;
+                        expectValidHttp2Preface = true;
                     }
                     break;
                 case FORCE_HTTP_2:
                     if (tlsDetails == null ||
                             !ApplicationProtocols.HTTP_1_1.id.equals(tlsDetails.getApplicationProtocol())) {
-                        expectValidH2Preface = true;
+                        expectValidHttp2Preface = true;
                     }
                     break;
                 case FORCE_HTTP_1:
@@ -133,16 +133,16 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
             if (bytebuf.position() >= PREFACE.length) {
                 bytebuf.flip();
 
-                boolean validH2Preface = true;
+                boolean validHttp2Preface = true;
                 for (int i = 0; i < PREFACE.length; i++) {
                     if (bytebuf.get() != PREFACE[i]) {
-                        if (expectValidH2Preface) {
+                        if (expectValidHttp2Preface) {
                             throw new HttpException("Unexpected HTTP/2 preface");
                         }
-                        validH2Preface = false;
+                        validHttp2Preface = false;
                     }
                 }
-                if (validH2Preface) {
+                if (validHttp2Preface) {
                     final ServerHttp2StreamMultiplexer http2StreamHandler = http2StreamHandlerFactory.create(ioSession);
                     final HttpConnectionEventHandler protocolHandler = new ServerHttp2IOEventHandler(http2StreamHandler);
                     ioSession.upgrade(protocolHandler);
@@ -254,7 +254,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     public String toString() {
         return "[" +
                 "versionPolicy=" + versionPolicy +
-                ", expectValidH2Preface=" + expectValidH2Preface +
+                ", expectValidHttp2Preface=" + expectValidHttp2Preface +
                 ']';
     }
 

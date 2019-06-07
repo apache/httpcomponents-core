@@ -55,14 +55,14 @@ public final class ConscryptSupport {
             public void initialize(final NamedEndpoint endpoint, final SSLEngine sslEngine) {
                 final SSLParameters sslParameters = sslEngine.getSSLParameters();
                 sslParameters.setProtocols(TLS.excludeWeak(sslParameters.getProtocols()));
-                sslParameters.setCipherSuites(TlsCiphers.excludeH2Blacklisted(sslParameters.getCipherSuites()));
-                H2TlsSupport.setEnableRetransmissions(sslParameters, false);
-                final String[] appProtocols = H2TlsSupport.selectApplicationProtocols(attachment);
+                sslParameters.setCipherSuites(TlsCiphers.excludeHttp2Blacklisted(sslParameters.getCipherSuites()));
+                Http2TlsSupport.setEnableRetransmissions(sslParameters, false);
+                final String[] appProtocols = Http2TlsSupport.selectApplicationProtocols(attachment);
                 if (Conscrypt.isConscrypt(sslEngine)) {
                     sslEngine.setSSLParameters(sslParameters);
                     Conscrypt.setApplicationProtocols(sslEngine, appProtocols);
                 } else {
-                    H2TlsSupport.setApplicationProtocols(sslParameters, appProtocols);
+                    Http2TlsSupport.setApplicationProtocols(sslParameters, appProtocols);
                     sslEngine.setSSLParameters(sslParameters);
                 }
                 if (initializer != null) {

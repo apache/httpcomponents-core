@@ -108,9 +108,9 @@ import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityConsume
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.H2StreamResetException;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.Http2StreamResetException;
+import org.apache.hc.core5.http2.config.Http2Config;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.reactor.Command;
@@ -387,7 +387,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H2Config.custom().setInitialWindowSize(16).build());
+        client.start(Http2Config.custom().setInitialWindowSize(16).build());
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
@@ -551,7 +551,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H2Config.custom()
+        client.start(Http2Config.custom()
                 .setInitialWindowSize(512)
                 .build());
 
@@ -603,7 +603,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
 
         });
 
-        client.start(H2Config.custom().setPushEnabled(true).build());
+        client.start(Http2Config.custom().setPushEnabled(true).build());
 
         final BlockingQueue<Message<HttpResponse, String>> pushMessageQueue = new LinkedBlockingDeque<>();
 
@@ -705,7 +705,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
 
         });
 
-        client.start(H2Config.custom().setPushEnabled(true).build());
+        client.start(Http2Config.custom().setPushEnabled(true).build());
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -724,13 +724,13 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
 
         final Object result2 = pushResultQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNotNull(result2);
-        Assert.assertTrue(result2 instanceof H2StreamResetException);
-        Assert.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result2).getCode());
+        Assert.assertTrue(result2 instanceof Http2StreamResetException);
+        Assert.assertEquals(Http2Error.REFUSED_STREAM.getCode(), ((Http2StreamResetException) result2).getCode());
 
         final Object result3 = pushResultQueue.poll(5, TimeUnit.SECONDS);
         Assert.assertNotNull(result3);
-        Assert.assertTrue(result3 instanceof H2StreamResetException);
-        Assert.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result3).getCode());
+        Assert.assertTrue(result3 instanceof Http2StreamResetException);
+        Assert.assertEquals(Http2Error.REFUSED_STREAM.getCode(), ((Http2StreamResetException) result3).getCode());
     }
 
     @Test
@@ -743,9 +743,9 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
             }
 
         });
-        final InetSocketAddress serverEndpoint = server.start(H2Config.custom().setMaxConcurrentStreams(20).build());
+        final InetSocketAddress serverEndpoint = server.start(Http2Config.custom().setMaxConcurrentStreams(20).build());
 
-        client.start(H2Config.custom().setMaxConcurrentStreams(20).build());
+        client.start(Http2Config.custom().setMaxConcurrentStreams(20).build());
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
@@ -808,7 +808,7 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
                 };
 
             }
-        }, H2Config.DEFAULT);
+        }, Http2Config.DEFAULT);
 
         client.start();
         final Future<ClientSessionEndpoint> connectFuture = client.connect(

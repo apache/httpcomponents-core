@@ -30,8 +30,8 @@ package org.apache.hc.core5.http2.frame;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.config.H2Setting;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.config.Http2Setting;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -42,9 +42,9 @@ import org.apache.hc.core5.util.Args;
  */
 public abstract class FrameFactory {
 
-    public RawFrame createSettings(final H2Setting... settings) {
+    public RawFrame createSettings(final Http2Setting... settings) {
         final ByteBuffer payload = ByteBuffer.allocate(settings.length * 12);
-        for (final H2Setting setting: settings) {
+        for (final Http2Setting setting: settings) {
             payload.putShort((short) setting.getCode());
             payload.putInt(setting.getValue());
         }
@@ -56,7 +56,7 @@ public abstract class FrameFactory {
         return new RawFrame(FrameType.SETTINGS.getValue(), FrameFlag.ACK.getValue(), 0, null);
     }
 
-    public RawFrame createResetStream(final int streamId, final H2Error error) {
+    public RawFrame createResetStream(final int streamId, final Http2Error error) {
         Args.notNull(error, "Error");
         return createResetStream(streamId, error.getCode());
     }
@@ -81,7 +81,7 @@ public abstract class FrameFactory {
         return new RawFrame(FrameType.PING.getValue(), FrameFlag.ACK.value, 0, opaqueData);
     }
 
-    public RawFrame createGoAway(final int lastStream, final H2Error error, final String message) {
+    public RawFrame createGoAway(final int lastStream, final Http2Error error, final String message) {
         Args.notNegative(lastStream, "Last stream id");
         final byte[] debugData = message != null ? message.getBytes(StandardCharsets.US_ASCII) : null;
         final ByteBuffer payload = ByteBuffer.allocate(8 + (debugData != null ? debugData.length : 0));

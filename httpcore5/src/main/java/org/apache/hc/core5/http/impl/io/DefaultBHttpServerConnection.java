@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.io.HttpMessageParser;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
@@ -69,7 +69,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
      *
      * @param scheme protocol scheme
      * @param h1Config Message h1Config. If {@code null}
-     *   {@link H1Config#DEFAULT} will be used.
+     *   {@link Http1Config#DEFAULT} will be used.
      * @param charDecoder decoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
      * @param charEncoder encoder to be used for encoding HTTP protocol elements.
@@ -85,7 +85,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
      */
     public DefaultBHttpServerConnection(
             final String scheme,
-            final H1Config h1Config,
+            final Http1Config h1Config,
             final CharsetDecoder charDecoder,
             final CharsetEncoder charEncoder,
             final ContentLengthStrategy incomingContentStrategy,
@@ -106,7 +106,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
 
     public DefaultBHttpServerConnection(
             final String scheme,
-            final H1Config h1Config,
+            final Http1Config h1Config,
             final CharsetDecoder charDecoder,
             final CharsetEncoder charEncoder) {
         this(scheme, h1Config, charDecoder, charEncoder, null, null, null, null);
@@ -114,7 +114,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
 
     public DefaultBHttpServerConnection(
             final String scheme,
-            final H1Config h1Config) {
+            final Http1Config h1Config) {
         this(scheme, h1Config, null, null);
     }
 

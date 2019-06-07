@@ -48,14 +48,14 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 5.0
  */
-public class H2ClientTlsStrategy implements TlsStrategy {
+public class Http2ClientTlsStrategy implements TlsStrategy {
 
     private final SSLContext sslContext;
     private final SSLBufferMode sslBufferMode;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
 
-    public H2ClientTlsStrategy(
+    public Http2ClientTlsStrategy(
             final SSLContext sslContext,
             final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
@@ -66,24 +66,24 @@ public class H2ClientTlsStrategy implements TlsStrategy {
         this.verifier = verifier;
     }
 
-    public H2ClientTlsStrategy(
+    public Http2ClientTlsStrategy(
             final SSLContext sslContext,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
         this(sslContext, null, initializer, verifier);
     }
 
-    public H2ClientTlsStrategy(
+    public Http2ClientTlsStrategy(
             final SSLContext sslContext,
             final SSLSessionVerifier verifier) {
         this(sslContext, null, null, verifier);
     }
 
-    public H2ClientTlsStrategy(final SSLContext sslContext) {
+    public Http2ClientTlsStrategy(final SSLContext sslContext) {
         this(sslContext, null, null, null);
     }
 
-    public H2ClientTlsStrategy() {
+    public Http2ClientTlsStrategy() {
         this(SSLContexts.createSystemDefault());
     }
 
@@ -101,7 +101,7 @@ public class H2ClientTlsStrategy implements TlsStrategy {
                     sslContext,
                     host,
                     sslBufferMode,
-                    H2TlsSupport.enforceRequirements(attachment, initializer),
+                    Http2TlsSupport.enforceRequirements(attachment, initializer),
                     verifier,
                     handshakeTimeout);
             return true;

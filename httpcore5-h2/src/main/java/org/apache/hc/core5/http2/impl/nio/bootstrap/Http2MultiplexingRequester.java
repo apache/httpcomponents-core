@@ -64,7 +64,7 @@ import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http2.nio.pool.H2ConnPool;
+import org.apache.hc.core5.http2.nio.pool.Http2ConnectionPool;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -83,7 +83,7 @@ import org.apache.hc.core5.util.Timeout;
  */
 public class Http2MultiplexingRequester extends AsyncRequester{
 
-    private final H2ConnPool connPool;
+    private final Http2ConnectionPool connPool;
 
     /**
      * Use {@link Http2MultiplexingRequesterBootstrap} to create instances of this class.
@@ -98,7 +98,7 @@ public class Http2MultiplexingRequester extends AsyncRequester{
             final TlsStrategy tlsStrategy) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener,
                         ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
-        this.connPool = new H2ConnPool(this, addressResolver, tlsStrategy);
+        this.connPool = new Http2ConnectionPool(this, addressResolver, tlsStrategy);
     }
 
     public void closeIdle(final TimeValue idleTime) {

@@ -33,8 +33,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.config.H2Param;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.config.Http2Param;
 
 @Internal
 public final class FramePrinter {
@@ -103,7 +103,7 @@ public final class FramePrinter {
                     if ((buf.remaining() % 6) == 0) {
                         while (buf.hasRemaining()) {
                             final int code = buf.getShort();
-                            final H2Param param = H2Param.valueOf(code);
+                            final Http2Param param = Http2Param.valueOf(code);
                             final int value = buf.getInt();
                             if (param != null) {
                                 appendable.append(param.name());
@@ -120,7 +120,7 @@ public final class FramePrinter {
                     if (buf.remaining() == 4) {
                         appendable.append("Code ");
                         final int code = buf.getInt();
-                        final H2Error error = H2Error.getByCode(code);
+                        final Http2Error error = Http2Error.getByCode(code);
                         if (error != null) {
                             appendable.append(error.name());
                         } else {
@@ -137,7 +137,7 @@ public final class FramePrinter {
                         appendable.append("Last stream ").append(Integer.toString(lastStream)).append("\r\n");
                         appendable.append("Code ");
                         final int code2 = buf.getInt();
-                        final H2Error error2 = H2Error.getByCode(code2);
+                        final Http2Error error2 = Http2Error.getByCode(code2);
                         if (error2 != null) {
                             appendable.append(error2.name());
                         } else {

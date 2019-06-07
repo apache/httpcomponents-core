@@ -48,11 +48,11 @@ import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2RequesterBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2ServerBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2AsyncRequester;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
-import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
+import org.apache.hc.core5.http2.ssl.Http2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.Http2ServerTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -86,14 +86,14 @@ public class Http2ProtocolNegotiationTest {
         @Override
         protected void before() throws Throwable {
             log.debug("Starting up test server");
-            server = H2ServerBootstrap.bootstrap()
-                    .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(), SecureAllPortsStrategy.INSTANCE))
+            server = Http2ServerBootstrap.bootstrap()
+                    .setTlsStrategy(new Http2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(), SecureAllPortsStrategy.INSTANCE))
                     .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
-                    .setTlsStrategy(new H2ServerTlsStrategy(
+                    .setTlsStrategy(new Http2ServerTlsStrategy(
                             SSLTestContexts.createServerSSLContext(),
                             SecureAllPortsStrategy.INSTANCE))
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
@@ -140,13 +140,13 @@ public class Http2ProtocolNegotiationTest {
         @Override
         protected void before() throws Throwable {
             log.debug("Starting up test client");
-            requester = H2RequesterBootstrap.bootstrap()
-                    .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+            requester = Http2RequesterBootstrap.bootstrap()
+                    .setTlsStrategy(new Http2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                     .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
                     .setIOReactorConfig(IOReactorConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
-                    .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+                    .setTlsStrategy(new Http2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)

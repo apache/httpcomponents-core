@@ -36,7 +36,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
@@ -46,7 +46,7 @@ import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerF
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.config.Http2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -91,7 +91,7 @@ public class Http2TestServer extends AsyncServer {
     public InetSocketAddress start(
             final HttpProcessor httpProcessor,
             final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
-            final H2Config h2Config) throws Exception {
+            final Http2Config h2Config) throws Exception {
         start(new InternalServerHttp2EventHandlerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
@@ -106,7 +106,7 @@ public class Http2TestServer extends AsyncServer {
                         }),
                 HttpVersionPolicy.FORCE_HTTP_2,
                 h2Config,
-                H1Config.DEFAULT,
+                Http1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
                 sslContext));
         final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
@@ -117,7 +117,7 @@ public class Http2TestServer extends AsyncServer {
     public InetSocketAddress start(
             final HttpProcessor httpProcessor,
             final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
-            final H1Config h1Config) throws Exception {
+            final Http1Config h1Config) throws Exception {
         start(new InternalServerHttp2EventHandlerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
@@ -131,7 +131,7 @@ public class Http2TestServer extends AsyncServer {
 
                 }),
                 HttpVersionPolicy.FORCE_HTTP_1,
-                H2Config.DEFAULT,
+                Http2Config.DEFAULT,
                 h1Config,
                 CharCodingConfig.DEFAULT,
                 sslContext));
@@ -140,16 +140,16 @@ public class Http2TestServer extends AsyncServer {
         return (InetSocketAddress) listener.getAddress();
     }
 
-    public InetSocketAddress start(final H2Config h2Config) throws Exception {
+    public InetSocketAddress start(final Http2Config h2Config) throws Exception {
         return start(null, null, h2Config);
     }
 
-    public InetSocketAddress start(final H1Config h1Config) throws Exception {
+    public InetSocketAddress start(final Http1Config h1Config) throws Exception {
         return start(null, null, h1Config);
     }
 
     public InetSocketAddress start() throws Exception {
-        return start(H2Config.DEFAULT);
+        return start(Http2Config.DEFAULT);
     }
 
 }

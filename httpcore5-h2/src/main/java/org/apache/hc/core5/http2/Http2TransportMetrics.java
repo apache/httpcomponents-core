@@ -24,38 +24,18 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.config;
 
-import org.apache.hc.core5.util.Args;
+package org.apache.hc.core5.http2;
+
+import org.apache.hc.core5.http.io.HttpTransportMetrics;
 
 /**
- * HTTP/2 protocol settings.
+ * The point of access to connection statistics.
  *
  * @since 5.0
  */
-public final class H2Setting {
+public interface Http2TransportMetrics extends HttpTransportMetrics {
 
-    private final H2Param param;
-    private final int value;
+    long getFramesTransferred();
 
-    public H2Setting(final H2Param param, final int value) {
-        Args.notNull(param, "Setting parameter");
-        Args.notNegative(value, "Setting value must be a non-negative value");
-        this.param = param;
-        this.value = value;
-    }
-
-    public int getCode() {
-        return param.code;
-    }
-
-    public int getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder().append(param).append(": ").append(value);
-        return sb.toString();
-    }
 }

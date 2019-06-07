@@ -30,7 +30,7 @@ package org.apache.hc.core5.testing.classic;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 
 public class LoggingBHttpClientConnectionFactory implements HttpConnectionFactory<LoggingBHttpClientConnection> {
@@ -39,7 +39,7 @@ public class LoggingBHttpClientConnectionFactory implements HttpConnectionFactor
 
     @Override
     public LoggingBHttpClientConnection createConnection(final Socket socket) throws IOException {
-        final LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(H1Config.DEFAULT);
+        final LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(Http1Config.DEFAULT);
         conn.bind(socket);
         return conn;
     }

@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
 import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
@@ -80,7 +80,7 @@ public class BenchmarkToolTest {
 
     @Before
     public void setup() throws Exception {
-        server = H2ServerBootstrap.bootstrap()
+        server = Http2ServerBootstrap.bootstrap()
                 .register("/", new AsyncServerRequestHandler<Message<HttpRequest, Void>>() {
 
                     @Override

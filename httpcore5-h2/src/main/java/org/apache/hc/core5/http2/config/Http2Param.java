@@ -24,21 +24,51 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2;
-
-import java.io.IOException;
+package org.apache.hc.core5.http2.config;
 
 /**
- * Signals corrupt HTTP/2 frame.
+ * HTTP/2 protocol parameters.
  *
  * @since 5.0
  */
-public class H2CorruptFrameException extends IOException {
+public enum Http2Param {
 
-    private static final long serialVersionUID = 1L;
+    HEADER_TABLE_SIZE      (0x1),
+    ENABLE_PUSH            (0x2),
+    MAX_CONCURRENT_STREAMS (0x3),
+    INITIAL_WINDOW_SIZE    (0x4),
+    MAX_FRAME_SIZE         (0x5),
+    MAX_HEADER_LIST_SIZE   (0x6);
 
-    public H2CorruptFrameException(final String message) {
-        super(message);
+    int code;
+
+    Http2Param(final int code) {
+        this.code = code;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    private static final Http2Param[] LOOKUP_TABLE = new Http2Param[6];
+    static {
+        for (final Http2Param param: Http2Param.values()) {
+            LOOKUP_TABLE[param.code - 1] = param;
+        }
+    }
+
+    public static Http2Param valueOf(final int code) {
+        if (code < 1 || code > LOOKUP_TABLE.length) {
+            return null;
+        }
+        return LOOKUP_TABLE[code - 1];
+    }
+
+    public static String toString(final int code) {
+        if (code < 1 || code > LOOKUP_TABLE.length) {
+            return Integer.toString(code);
+        }
+        return LOOKUP_TABLE[code - 1].name();
     }
 
 }

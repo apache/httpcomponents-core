@@ -31,14 +31,14 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2CorruptFrameException;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.H2TransportMetrics;
+import org.apache.hc.core5.http2.Http2ConnectionException;
+import org.apache.hc.core5.http2.Http2CorruptFrameException;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.Http2TransportMetrics;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.RawFrame;
-import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
+import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -50,7 +50,7 @@ public final class FrameInputBuffer {
 
     enum State { HEAD_EXPECTED, PAYLOAD_EXPECTED }
 
-    private final BasicH2TransportMetrics metrics;
+    private final BasicHttp2TransportMetrics metrics;
     private final int maxFramePayloadSize;
     private final byte[] bytes;
     private final ByteBuffer buffer;
@@ -61,7 +61,7 @@ public final class FrameInputBuffer {
     private int flags;
     private int streamId;
 
-    FrameInputBuffer(final BasicH2TransportMetrics metrics, final int bufferLen, final int maxFramePayloadSize) {
+    FrameInputBuffer(final BasicHttp2TransportMetrics metrics, final int bufferLen, final int maxFramePayloadSize) {
         Args.notNull(metrics, "HTTP2 transport metrcis");
         Args.positive(maxFramePayloadSize, "Maximum payload size");
         this.metrics = metrics;
@@ -72,12 +72,12 @@ public final class FrameInputBuffer {
         this.state = State.HEAD_EXPECTED;
     }
 
-    public FrameInputBuffer(final BasicH2TransportMetrics metrics, final int maxFramePayloadSize) {
+    public FrameInputBuffer(final BasicHttp2TransportMetrics metrics, final int maxFramePayloadSize) {
         this(metrics, FrameConsts.HEAD_LEN + maxFramePayloadSize, maxFramePayloadSize);
     }
 
     public FrameInputBuffer(final int maxFramePayloadSize) {
-        this(new BasicH2TransportMetrics(), maxFramePayloadSize);
+        this(new BasicHttp2TransportMetrics(), maxFramePayloadSize);
     }
 
     public void put(final ByteBuffer src) {
@@ -98,7 +98,7 @@ public final class FrameInputBuffer {
                         final int lengthAndType = buffer.getInt();
                         payloadLen = lengthAndType >> 8;
                         if (payloadLen > maxFramePayloadSize) {
-                            throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Frame size exceeds maximum");
+                            throw new Http2ConnectionException(Http2Error.FRAME_SIZE_ERROR, "Frame size exceeds maximum");
                         }
                         type = lengthAndType & 0xff;
                         flags = buffer.get();
@@ -111,12 +111,12 @@ public final class FrameInputBuffer {
                     if (buffer.remaining() >= payloadLen) {
                         if ((flags & FrameFlag.PADDED.getValue()) > 0) {
                             if (payloadLen == 0) {
-                                throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Inconsistent padding");
+                                throw new Http2ConnectionException(Http2Error.PROTOCOL_ERROR, "Inconsistent padding");
                             }
                             buffer.mark();
                             final int padding = buffer.get();
                             if (payloadLen < padding + 1) {
-                                throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Inconsistent padding");
+                                throw new Http2ConnectionException(Http2Error.PROTOCOL_ERROR, "Inconsistent padding");
                             }
                             buffer.reset();
                         }
@@ -141,7 +141,7 @@ public final class FrameInputBuffer {
                 break;
             } else if (bytesRead < 0) {
                 if (state != State.HEAD_EXPECTED || buffer.hasRemaining()) {
-                    throw new H2CorruptFrameException("Corrupt or incomplete HTTP2 frame");
+                    throw new Http2CorruptFrameException("Corrupt or incomplete HTTP2 frame");
                 } else {
                     throw new ConnectionClosedException();
                 }
@@ -155,7 +155,7 @@ public final class FrameInputBuffer {
         state = State.HEAD_EXPECTED;
     }
 
-    public H2TransportMetrics getMetrics() {
+    public Http2TransportMetrics getMetrics() {
         return metrics;
     }
 

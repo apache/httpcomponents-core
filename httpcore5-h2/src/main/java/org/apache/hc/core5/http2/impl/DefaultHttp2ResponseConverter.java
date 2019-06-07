@@ -40,17 +40,17 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
-import org.apache.hc.core5.http2.H2MessageConverter;
-import org.apache.hc.core5.http2.H2PseudoResponseHeaders;
+import org.apache.hc.core5.http2.Http2MessageConverter;
+import org.apache.hc.core5.http2.Http2PseudoResponseHeaders;
 
 /**
  * HTTP/2 response converter.
  *
  * @since 5.0
  */
-public class DefaultH2ResponseConverter implements H2MessageConverter<HttpResponse> {
+public class DefaultHttp2ResponseConverter implements Http2MessageConverter<HttpResponse> {
 
-    public final static DefaultH2ResponseConverter INSTANCE = new DefaultH2ResponseConverter();
+    public final static DefaultHttp2ResponseConverter INSTANCE = new DefaultHttp2ResponseConverter();
 
     @Override
     public HttpResponse convert(final List<Header> headers) throws HttpException {
@@ -73,7 +73,7 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
                 if (!messageHeaders.isEmpty()) {
                     throw new ProtocolException("Invalid sequence of headers (pseudo-headers must precede message headers)");
                 }
-                if (name.equals(H2PseudoResponseHeaders.STATUS)) {
+                if (name.equals(Http2PseudoResponseHeaders.STATUS)) {
                     if (statusText != null) {
                         throw new ProtocolException("Multiple '%s' response headers are illegal", name);
                     }
@@ -114,7 +114,7 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
             throw new ProtocolException("Response status %s is invalid", code);
         }
         final List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader(H2PseudoResponseHeaders.STATUS, Integer.toString(code), false));
+        headers.add(new BasicHeader(Http2PseudoResponseHeaders.STATUS, Integer.toString(code), false));
 
         for (final Iterator<Header> it = message.headerIterator(); it.hasNext(); ) {
             final Header header = it.next();

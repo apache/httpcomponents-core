@@ -43,10 +43,10 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.config.Http2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2RequesterBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
 
@@ -58,12 +58,12 @@ public class Http2RequestExecutionExample {
     public static void main(final String[] args) throws Exception {
 
         // Create and start requester
-        final H2Config h2Config = H2Config.custom()
+        final Http2Config h2Config = Http2Config.custom()
                 .setPushEnabled(false)
                 .build();
 
-        final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
-                .setH2Config(h2Config)
+        final HttpAsyncRequester requester = Http2RequesterBootstrap.bootstrap()
+                .setHttp2Config(h2Config)
                 .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
                 .setStreamListener(new Http2StreamListener() {
 

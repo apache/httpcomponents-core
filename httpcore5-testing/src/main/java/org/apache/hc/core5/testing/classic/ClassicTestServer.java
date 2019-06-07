@@ -37,7 +37,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -116,7 +116,7 @@ public class ClassicTestServer {
                     sslContext != null ? sslContext.getServerSocketFactory() : ServerSocketFactory.getDefault(),
                     new DefaultBHttpServerConnectionFactory(
                             sslContext != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
-                            H1Config.DEFAULT,
+                            Http1Config.DEFAULT,
                             CharCodingConfig.DEFAULT),
                     null,
                     LoggingExceptionListener.INSTANCE);

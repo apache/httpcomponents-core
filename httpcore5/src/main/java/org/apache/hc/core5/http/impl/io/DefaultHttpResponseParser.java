@@ -33,7 +33,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.NoHttpResponseException;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -56,14 +56,14 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<ClassicHttp
      * @param responseFactory the response factory. If {@code null}
      *   {@link DefaultClassicHttpResponseFactory#INSTANCE} will be used.
      * @param h1Config the message h1Config. If {@code null}
-     *   {@link H1Config#DEFAULT} will be used.
+     *   {@link Http1Config#DEFAULT} will be used.
      *
      * @since 4.3
      */
     public DefaultHttpResponseParser(
             final LineParser lineParser,
             final HttpResponseFactory<ClassicHttpResponse> responseFactory,
-            final H1Config h1Config) {
+            final Http1Config h1Config) {
         super(lineParser, h1Config);
         this.responseFactory = responseFactory != null ? responseFactory : DefaultClassicHttpResponseFactory.INSTANCE;
     }
@@ -71,7 +71,7 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<ClassicHttp
     /**
      * @since 4.3
      */
-    public DefaultHttpResponseParser(final H1Config h1Config) {
+    public DefaultHttpResponseParser(final Http1Config h1Config) {
         this(null, null, h1Config);
     }
 
@@ -79,7 +79,7 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<ClassicHttp
      * @since 4.3
      */
     public DefaultHttpResponseParser() {
-        this(H1Config.DEFAULT);
+        this(Http1Config.DEFAULT);
     }
 
     @Override

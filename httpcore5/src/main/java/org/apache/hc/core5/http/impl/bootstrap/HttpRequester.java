@@ -55,7 +55,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpRequestExecutor;
@@ -116,7 +116,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         this.connPool = Args.notNull(connPool, "Connection pool");
         this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
         this.connectFactory = connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
-                H1Config.DEFAULT, CharCodingConfig.DEFAULT);
+                Http1Config.DEFAULT, CharCodingConfig.DEFAULT);
         this.sslSocketFactory = sslSocketFactory != null ? sslSocketFactory : (SSLSocketFactory) SSLSocketFactory.getDefault();
         this.sslSetupHandler = sslSetupHandler;
         this.addressResolver = addressResolver != null ? addressResolver : DefaultAddressResolver.INSTANCE;

@@ -45,7 +45,7 @@ import org.apache.hc.core5.util.Args;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class H2RequestConnControl extends RequestConnControl {
+public class Http2RequestConnControl extends RequestConnControl {
 
     @Override
     public void process(

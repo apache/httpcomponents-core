@@ -135,7 +135,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 final TlsDetails tlsDetails = ioSession.getTlsDetails();
                 if (tlsDetails != null) {
                     if (ApplicationProtocols.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
-                        // Proceed with the H2 preface
+                        // Proceed with the HTTP 2 preface
                         preface = ByteBuffer.wrap(PREFACE);
                     }
                 }

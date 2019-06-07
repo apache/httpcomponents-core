@@ -50,10 +50,10 @@ import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.config.Http2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2RequesterBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.util.Timeout;
@@ -70,13 +70,13 @@ public class Http2FullDuplexClientExample {
                 .build();
 
         // Create and start requester
-        final H2Config h2Config = H2Config.custom()
+        final Http2Config h2Config = Http2Config.custom()
                 .setPushEnabled(false)
                 .setMaxConcurrentStreams(100)
                 .build();
-        final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
+        final HttpAsyncRequester requester = Http2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(ioReactorConfig)
-                .setH2Config(h2Config)
+                .setHttp2Config(h2Config)
                 .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
                 .setStreamListener(new Http2StreamListener() {
 

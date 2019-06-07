@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.TruncatedChunkException;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -69,7 +69,7 @@ public class ChunkedInputStream extends InputStream {
     private final SessionInputBuffer buffer;
     private final InputStream inputStream;
     private final CharArrayBuffer lineBuffer;
-    private final H1Config h1Config;
+    private final Http1Config h1Config;
 
     private State state;
 
@@ -92,17 +92,17 @@ public class ChunkedInputStream extends InputStream {
      *
      * @param buffer Session input buffer
      * @param inputStream Input stream
-     * @param h1Config Message h1Config. If {@code null} {@link H1Config#DEFAULT} will be used.
+     * @param h1Config Message h1Config. If {@code null} {@link Http1Config#DEFAULT} will be used.
      *
      * @since 4.4
      */
-    public ChunkedInputStream(final SessionInputBuffer buffer, final InputStream inputStream, final H1Config h1Config) {
+    public ChunkedInputStream(final SessionInputBuffer buffer, final InputStream inputStream, final Http1Config h1Config) {
         super();
         this.buffer = Args.notNull(buffer, "Session input buffer");
         this.inputStream = Args.notNull(inputStream, "Input stream");
         this.pos = 0L;
         this.lineBuffer = new CharArrayBuffer(16);
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.h1Config = h1Config != null ? h1Config : Http1Config.DEFAULT;
         this.state = State.CHUNK_LEN;
     }
 

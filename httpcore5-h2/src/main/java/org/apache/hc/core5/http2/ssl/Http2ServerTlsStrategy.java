@@ -49,7 +49,7 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 5.0
  */
-public class H2ServerTlsStrategy implements TlsStrategy {
+public class Http2ServerTlsStrategy implements TlsStrategy {
 
     private final SSLContext sslContext;
     private final SecurePortStrategy securePortStrategy;
@@ -57,7 +57,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
 
-    public H2ServerTlsStrategy(
+    public Http2ServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
             final SSLBufferMode sslBufferMode,
@@ -70,7 +70,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
         this.verifier = verifier;
     }
 
-    public H2ServerTlsStrategy(
+    public Http2ServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
             final SSLSessionInitializer initializer,
@@ -78,18 +78,18 @@ public class H2ServerTlsStrategy implements TlsStrategy {
         this(sslContext, securePortStrategy, null, initializer, verifier);
     }
 
-    public H2ServerTlsStrategy(
+    public Http2ServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
             final SSLSessionVerifier verifier) {
         this(sslContext, securePortStrategy, null, null, verifier);
     }
 
-    public H2ServerTlsStrategy(final SSLContext sslContext, final SecurePortStrategy securePortStrategy) {
+    public Http2ServerTlsStrategy(final SSLContext sslContext, final SecurePortStrategy securePortStrategy) {
         this(sslContext, securePortStrategy, null, null, null);
     }
 
-    public H2ServerTlsStrategy(final int... securePorts) {
+    public Http2ServerTlsStrategy(final int... securePorts) {
         this(SSLContexts.createSystemDefault(), new FixedPortStrategy(securePorts));
     }
 
@@ -106,7 +106,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
                     sslContext,
                     host,
                     sslBufferMode,
-                    H2TlsSupport.enforceRequirements(attachment, initializer),
+                    Http2TlsSupport.enforceRequirements(attachment, initializer),
                     verifier,
                     handshakeTimeout);
             return true;

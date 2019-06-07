@@ -31,7 +31,7 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandlerFactory;
@@ -60,7 +60,7 @@ import org.apache.hc.core5.util.Timeout;
 public class AsyncRequesterBootstrap {
 
     private IOReactorConfig ioReactorConfig;
-    private H1Config h1Config;
+    private Http1Config h1Config;
     private CharCodingConfig charCodingConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
@@ -94,7 +94,7 @@ public class AsyncRequesterBootstrap {
     /**
      * Sets HTTP/1.1 protocol parameters
      */
-    public final AsyncRequesterBootstrap setH1Config(final H1Config h1Config) {
+    public final AsyncRequesterBootstrap setH1Config(final Http1Config h1Config) {
         this.h1Config = h1Config;
         return this;
     }
@@ -222,7 +222,7 @@ public class AsyncRequesterBootstrap {
         }
         final ClientHttp1StreamDuplexerFactory streamDuplexerFactory = new ClientHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
-                h1Config != null ? h1Config : H1Config.DEFAULT,
+                h1Config != null ? h1Config : Http1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 connStrategy,
                 null,

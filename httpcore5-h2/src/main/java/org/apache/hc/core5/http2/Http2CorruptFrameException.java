@@ -24,16 +24,21 @@
  * <http://www.apache.org/>.
  *
  */
-
 package org.apache.hc.core5.http2;
 
+import java.io.IOException;
+
 /**
- * Response pseudo HTTP headers defined by the HTTP/2 specification.
+ * Signals corrupt HTTP/2 frame.
  *
  * @since 5.0
  */
-public final class H2PseudoResponseHeaders {
+public class Http2CorruptFrameException extends IOException {
 
-    public static final String STATUS    = ":status";
+    private static final long serialVersionUID = 1L;
+
+    public Http2CorruptFrameException(final String message) {
+        super(message);
+    }
 
 }

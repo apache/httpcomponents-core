@@ -25,37 +25,41 @@
  *
  */
 
-package org.apache.hc.core5.http2.protocol;
+package org.apache.hc.core5.http2;
 
-import java.io.IOException;
+import java.util.List;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.http.protocol.ResponseConnControl;
-import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.http.HttpMessage;
 
 /**
- * HTTP/2 compatible extension of {@link ResponseConnControl}.
+ * Abstract message converter intended to convert from a list of HTTP/2 headers to object
+ * representing an HTTP message and from an object representing an HTTP message to a list
+ * of HTTP/2 headers.
+ *
+ * @param <T> represents {@link HttpMessage}
  *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class H2ResponseConnControl extends ResponseConnControl {
+public interface Http2MessageConverter<T extends HttpMessage> {
 
-    @Override
-    public void process(
-            final HttpResponse response,
-            final EntityDetails entity,
-            final HttpContext context) throws HttpException, IOException {
-        Args.notNull(context, "HTTP context");
-        final ProtocolVersion ver = context.getProtocolVersion();
-        if (ver.getMajor() < 2) {
-            super.process(response, entity, context);
-        }
-    }
+    /**
+     * Converts given list of HTTP/2 headers to a {@link HttpMessage}.
+     *
+     * @param headers list of HTTP/2 headers
+     * @return HTTP message
+     * @throws HttpException in case of HTTP protocol violation
+     */
+    T convert(List<Header> headers) throws HttpException;
+
+    /**
+     * Converts given {@link HttpMessage} to a list of HTTP/2 headers.
+     *
+     * @param message HTTP message
+     * @return list of HTTP/2 headers
+     * @throws HttpException in case of HTTP protocol violation
+     */
+    List<Header> convert(T message) throws HttpException;
+
 }

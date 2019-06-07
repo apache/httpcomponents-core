@@ -55,11 +55,11 @@ import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.H2StreamResetException;
-import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
-import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
+import org.apache.hc.core5.http2.Http2ConnectionException;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.Http2StreamResetException;
+import org.apache.hc.core5.http2.impl.DefaultHttp2RequestConverter;
+import org.apache.hc.core5.http2.impl.DefaultHttp2ResponseConverter;
 import org.apache.hc.core5.util.Asserts;
 
 public class ServerHttp2StreamHandler implements Http2StreamHandler {
@@ -129,13 +129,13 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
 
     private void commitInformation(final HttpResponse response) throws IOException, HttpException {
         if (responseCommitted.get()) {
-            throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Response already committed");
+            throw new Http2ConnectionException(Http2Error.INTERNAL_ERROR, "Response already committed");
         }
         final int status = response.getCode();
         if (status < HttpStatus.SC_INFORMATIONAL || status >= HttpStatus.SC_SUCCESS) {
             throw new HttpException("Invalid intermediate response: " + status);
         }
-        final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
+        final List<Header> responseHeaders = DefaultHttp2ResponseConverter.INSTANCE.convert(response);
         outputChannel.submit(responseHeaders, false);
     }
 
@@ -151,7 +151,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             httpProcessor.process(response, responseEntityDetails, context);
 
-            final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
+            final List<Header> responseHeaders = DefaultHttp2ResponseConverter.INSTANCE.convert(response);
 
             Asserts.notNull(receivedRequest, "Received request");
             final String method = receivedRequest.getMethod();
@@ -165,7 +165,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
                 exchangeHandler.produce(outputChannel);
             }
         } else {
-            throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Response already committed");
+            throw new Http2ConnectionException(Http2Error.INTERNAL_ERROR, "Response already committed");
         }
     }
 
@@ -175,7 +175,7 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
 
         httpProcessor.process(promise, null, context);
 
-        final List<Header> promiseHeaders = DefaultH2RequestConverter.INSTANCE.convert(promise);
+        final List<Header> promiseHeaders = DefaultHttp2RequestConverter.INSTANCE.convert(promise);
         outputChannel.push(promiseHeaders, pushProducer);
         connMetrics.incrementRequestCount();
     }
@@ -194,17 +194,17 @@ public class ServerHttp2StreamHandler implements Http2StreamHandler {
             case HEADERS:
                 requestState = endStream ? MessageState.COMPLETE : MessageState.BODY;
 
-                final HttpRequest request = DefaultH2RequestConverter.INSTANCE.convert(headers);
+                final HttpRequest request = DefaultHttp2RequestConverter.INSTANCE.convert(headers);
                 final EntityDetails requestEntityDetails = endStream ? null : new IncomingEntityDetails(request, -1);
 
                 final AsyncServerExchangeHandler handler;
                 try {
                     handler = exchangeHandlerFactory != null ? exchangeHandlerFactory.create(request, context) : null;
                 } catch (final ProtocolException ex) {
-                    throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+                    throw new Http2StreamResetException(Http2Error.PROTOCOL_ERROR, ex.getMessage());
                 }
                 if (handler == null) {
-                    throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
+                    throw new Http2StreamResetException(Http2Error.REFUSED_STREAM, "Stream refused");
                 }
                 exchangeHandler = handler;
 

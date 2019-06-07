@@ -42,8 +42,8 @@ import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http2.H2MessageConverter;
-import org.apache.hc.core5.http2.H2PseudoRequestHeaders;
+import org.apache.hc.core5.http2.Http2MessageConverter;
+import org.apache.hc.core5.http2.Http2PseudoRequestHeaders;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.TextUtils;
 
@@ -52,9 +52,9 @@ import org.apache.hc.core5.util.TextUtils;
  *
  * @since 5.0
  */
-public final class DefaultH2RequestConverter implements H2MessageConverter<HttpRequest> {
+public final class DefaultHttp2RequestConverter implements Http2MessageConverter<HttpRequest> {
 
-    public final static DefaultH2RequestConverter INSTANCE = new DefaultH2RequestConverter();
+    public final static DefaultHttp2RequestConverter INSTANCE = new DefaultHttp2RequestConverter();
 
     @Override
     public HttpRequest convert(final List<Header> headers) throws HttpException {
@@ -81,22 +81,22 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
                     throw new ProtocolException("Invalid sequence of headers (pseudo-headers must precede message headers)");
                 }
 
-                if (name.equals(H2PseudoRequestHeaders.METHOD)) {
+                if (name.equals(Http2PseudoRequestHeaders.METHOD)) {
                     if (method != null) {
                         throw new ProtocolException("Multiple '%s' request headers are illegal", name);
                     }
                     method = value;
-                } else if (name.equals(H2PseudoRequestHeaders.SCHEME)) {
+                } else if (name.equals(Http2PseudoRequestHeaders.SCHEME)) {
                     if (scheme != null) {
                         throw new ProtocolException("Multiple '%s' request headers are illegal", name);
                     }
                     scheme = value;
-                } else if (name.equals(H2PseudoRequestHeaders.PATH)) {
+                } else if (name.equals(Http2PseudoRequestHeaders.PATH)) {
                     if (path != null) {
                         throw new ProtocolException("Multiple '%s' request headers are illegal", name);
                     }
                     path = value;
-                } else if (name.equals(H2PseudoRequestHeaders.AUTHORITY)) {
+                } else if (name.equals(Http2PseudoRequestHeaders.AUTHORITY)) {
                     authority = value;
                 } else {
                     throw new ProtocolException("Unsupported request header '%s'", name);
@@ -167,15 +167,15 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             }
         }
         final List<Header> headers = new ArrayList<>();
-        headers.add(new BasicHeader(H2PseudoRequestHeaders.METHOD, message.getMethod(), false));
+        headers.add(new BasicHeader(Http2PseudoRequestHeaders.METHOD, message.getMethod(), false));
         if (optionMethod) {
-            headers.add(new BasicHeader(H2PseudoRequestHeaders.AUTHORITY, message.getAuthority(), false));
+            headers.add(new BasicHeader(Http2PseudoRequestHeaders.AUTHORITY, message.getAuthority(), false));
         }  else {
-            headers.add(new BasicHeader(H2PseudoRequestHeaders.SCHEME, message.getScheme(), false));
+            headers.add(new BasicHeader(Http2PseudoRequestHeaders.SCHEME, message.getScheme(), false));
             if (message.getAuthority() != null) {
-                headers.add(new BasicHeader(H2PseudoRequestHeaders.AUTHORITY, message.getAuthority(), false));
+                headers.add(new BasicHeader(Http2PseudoRequestHeaders.AUTHORITY, message.getAuthority(), false));
             }
-            headers.add(new BasicHeader(H2PseudoRequestHeaders.PATH, message.getPath(), false));
+            headers.add(new BasicHeader(Http2PseudoRequestHeaders.PATH, message.getPath(), false));
         }
 
         for (final Iterator<Header> it = message.headerIterator(); it.hasNext(); ) {

@@ -42,7 +42,7 @@ import org.apache.hc.core5.util.ReflectionUtils;
  *
  * @since 5.0
  */
-public final class H2TlsSupport {
+public final class Http2TlsSupport {
 
     public static void setEnableRetransmissions(final SSLParameters sslParameters, final boolean value) {
         ReflectionUtils.callSetter(sslParameters, "EnableRetransmissions", Boolean.TYPE, value);
@@ -74,7 +74,7 @@ public final class H2TlsSupport {
             public void initialize(final NamedEndpoint endpoint, final SSLEngine sslEngine) {
                 final SSLParameters sslParameters = sslEngine.getSSLParameters();
                 sslParameters.setProtocols(TLS.excludeWeak(sslParameters.getProtocols()));
-                sslParameters.setCipherSuites(TlsCiphers.excludeH2Blacklisted(sslParameters.getCipherSuites()));
+                sslParameters.setCipherSuites(TlsCiphers.excludeHttp2Blacklisted(sslParameters.getCipherSuites()));
                 setEnableRetransmissions(sslParameters, false);
                 setApplicationProtocols(sslParameters, selectApplicationProtocols(attachment));
                 sslEngine.setSSLParameters(sslParameters);

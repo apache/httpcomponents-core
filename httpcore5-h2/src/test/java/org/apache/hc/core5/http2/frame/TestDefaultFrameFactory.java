@@ -29,9 +29,9 @@ package org.apache.hc.core5.http2.frame;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.config.H2Param;
-import org.apache.hc.core5.http2.config.H2Setting;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.config.Http2Param;
+import org.apache.hc.core5.http2.config.Http2Setting;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,8 +55,8 @@ public class TestDefaultFrameFactory {
 
         final FrameFactory frameFactory = new DefaultFrameFactory();
         final Frame<ByteBuffer> settingsFrame = frameFactory.createSettings(
-                new H2Setting(H2Param.HEADER_TABLE_SIZE, 1024),
-                new H2Setting(H2Param.MAX_CONCURRENT_STREAMS, 1));
+                new Http2Setting(Http2Param.HEADER_TABLE_SIZE, 1024),
+                new Http2Setting(Http2Param.MAX_CONCURRENT_STREAMS, 1));
 
         Assert.assertEquals(FrameType.SETTINGS.value, settingsFrame.getType());
         Assert.assertEquals(0, settingsFrame.getStreamId());
@@ -70,7 +70,7 @@ public class TestDefaultFrameFactory {
     public void testResetStreamFrame() throws Exception {
 
         final FrameFactory frameFactory = new DefaultFrameFactory();
-        final Frame<ByteBuffer> rstStreamFrame = frameFactory.createResetStream(12, H2Error.INTERNAL_ERROR);
+        final Frame<ByteBuffer> rstStreamFrame = frameFactory.createResetStream(12, Http2Error.INTERNAL_ERROR);
 
         Assert.assertEquals(FrameType.RST_STREAM.value, rstStreamFrame.getType());
         Assert.assertEquals(12, rstStreamFrame.getStreamId());
@@ -78,14 +78,14 @@ public class TestDefaultFrameFactory {
         final ByteBuffer payload = rstStreamFrame.getPayload();
         Assert.assertNotNull(payload);
         Assert.assertEquals(4, payload.remaining());
-        Assert.assertEquals(H2Error.INTERNAL_ERROR.getCode(), payload.getInt());
+        Assert.assertEquals(Http2Error.INTERNAL_ERROR.getCode(), payload.getInt());
     }
 
     @Test
     public void testGoAwayFrame() throws Exception {
 
         final FrameFactory frameFactory = new DefaultFrameFactory();
-        final Frame<ByteBuffer> goAwayFrame = frameFactory.createGoAway(13, H2Error.INTERNAL_ERROR, "Oopsie");
+        final Frame<ByteBuffer> goAwayFrame = frameFactory.createGoAway(13, Http2Error.INTERNAL_ERROR, "Oopsie");
 
         Assert.assertEquals(FrameType.GOAWAY.value, goAwayFrame.getType());
         Assert.assertEquals(0, goAwayFrame.getStreamId());
@@ -93,7 +93,7 @@ public class TestDefaultFrameFactory {
         final ByteBuffer payload = goAwayFrame.getPayload();
         Assert.assertNotNull(payload);
         Assert.assertEquals(13, payload.getInt());
-        Assert.assertEquals(H2Error.INTERNAL_ERROR.getCode(), payload.getInt());
+        Assert.assertEquals(Http2Error.INTERNAL_ERROR.getCode(), payload.getInt());
         final byte[] tmp = new byte[payload.remaining()];
         payload.get(tmp);
         Assert.assertEquals("Oopsie", new String(tmp, StandardCharsets.US_ASCII));

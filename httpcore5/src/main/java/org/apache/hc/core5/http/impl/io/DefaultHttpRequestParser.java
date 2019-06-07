@@ -33,7 +33,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequestFactory;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -56,14 +56,14 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<ClassicHttpR
      * @param requestFactory the response factory. If {@code null}
      *   {@link DefaultClassicHttpRequestFactory#INSTANCE} will be used.
      * @param h1Config the message h1Config. If {@code null}
-     *   {@link H1Config#DEFAULT} will be used.
+     *   {@link Http1Config#DEFAULT} will be used.
      *
      * @since 4.3
      */
     public DefaultHttpRequestParser(
             final LineParser lineParser,
             final HttpRequestFactory<ClassicHttpRequest> requestFactory,
-            final H1Config h1Config) {
+            final Http1Config h1Config) {
         super(lineParser, h1Config);
         this.requestFactory = requestFactory != null ? requestFactory : DefaultClassicHttpRequestFactory.INSTANCE;
     }
@@ -71,7 +71,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<ClassicHttpR
     /**
      * @since 4.3
      */
-    public DefaultHttpRequestParser(final H1Config h1Config) {
+    public DefaultHttpRequestParser(final Http1Config h1Config) {
         this(null, null, h1Config);
     }
 
@@ -79,7 +79,7 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<ClassicHttpR
      * @since 4.3
      */
     public DefaultHttpRequestParser() {
-        this(H1Config.DEFAULT);
+        this(Http1Config.DEFAULT);
     }
 
     @Override

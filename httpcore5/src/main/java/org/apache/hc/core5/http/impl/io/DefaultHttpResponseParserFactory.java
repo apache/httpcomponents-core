@@ -31,7 +31,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.HttpMessageParser;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.message.LazyLaxLineParser;
@@ -62,7 +62,7 @@ public class DefaultHttpResponseParserFactory implements HttpMessageParserFactor
     }
 
     @Override
-    public HttpMessageParser<ClassicHttpResponse> create(final H1Config h1Config) {
+    public HttpMessageParser<ClassicHttpResponse> create(final Http1Config h1Config) {
         return new DefaultHttpResponseParser(this.lineParser, this.responseFactory, h1Config);
     }
 

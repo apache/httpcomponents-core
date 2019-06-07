@@ -33,7 +33,7 @@ import java.net.Socket;
 import javax.net.ssl.SSLSocket;
 
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 
 public class LoggingBHttpServerConnectionFactory implements HttpConnectionFactory<LoggingBHttpServerConnection> {
@@ -44,7 +44,7 @@ public class LoggingBHttpServerConnectionFactory implements HttpConnectionFactor
     public LoggingBHttpServerConnection createConnection(final Socket socket) throws IOException {
         final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(
                 socket instanceof SSLSocket ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
-                H1Config.DEFAULT);
+                Http1Config.DEFAULT);
         conn.bind(socket);
         return conn;
     }

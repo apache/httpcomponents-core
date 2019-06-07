@@ -45,11 +45,11 @@ import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.H2StreamResetException;
-import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
-import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
+import org.apache.hc.core5.http2.Http2ConnectionException;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.Http2StreamResetException;
+import org.apache.hc.core5.http2.impl.DefaultHttp2RequestConverter;
+import org.apache.hc.core5.http2.impl.DefaultHttp2ResponseConverter;
 import org.apache.hc.core5.util.Asserts;
 
 class ClientPushHttp2StreamHandler implements Http2StreamHandler {
@@ -102,16 +102,16 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
     public void consumePromise(final List<Header> headers) throws HttpException, IOException {
         if (requestState == MessageState.HEADERS) {
 
-            request = DefaultH2RequestConverter.INSTANCE.convert(headers);
+            request = DefaultHttp2RequestConverter.INSTANCE.convert(headers);
 
             final AsyncPushConsumer handler;
             try {
                 handler = pushHandlerFactory != null ? pushHandlerFactory.create(request, context) : null;
             } catch (final ProtocolException ex) {
-                throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
+                throw new Http2StreamResetException(Http2Error.PROTOCOL_ERROR, ex.getMessage());
             }
             if (handler == null) {
-                throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
+                throw new Http2StreamResetException(Http2Error.REFUSED_STREAM, "Stream refused");
             }
             exchangeHandler = handler;
 
@@ -122,7 +122,7 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
             connMetrics.incrementRequestCount();
             this.requestState = MessageState.COMPLETE;
         } else {
-            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected promise");
+            throw new Http2ConnectionException(Http2Error.PROTOCOL_ERROR, "Unexpected promise");
         }
     }
 
@@ -132,7 +132,7 @@ class ClientPushHttp2StreamHandler implements Http2StreamHandler {
             Asserts.notNull(request, "Request");
             Asserts.notNull(exchangeHandler, "Exchange handler");
 
-            final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
+            final HttpResponse response = DefaultHttp2ResponseConverter.INSTANCE.convert(headers);
             final EntityDetails entityDetails = endStream ? null : new IncomingEntityDetails(request, -1);
 
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);

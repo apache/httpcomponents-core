@@ -24,37 +24,39 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2;
+
+package org.apache.hc.core5.http2.protocol;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Signals fatal HTTP/2 protocol violation that renders the actual
- * HTTP/2 connection unreliable.
+ * HTTP/2 compatible extension of {@link RequestTargetHost}.
  *
  * @since 5.0
  */
-public class H2ConnectionException extends IOException {
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
+public class Http2RequestTargetHost extends RequestTargetHost {
 
-    private static final long serialVersionUID = -2014204317155428658L;
-
-    private final int code;
-
-    public H2ConnectionException(final H2Error error, final String message) {
-        super(message);
-        Args.notNull(error, "H2 Error code may not be null");
-        this.code = error.getCode();
-    }
-
-    public H2ConnectionException(final int code, final String message) {
-        super(message);
-        this.code = code;
-    }
-
-    public int getCode() {
-        return code;
+    @Override
+    public void process(
+            final HttpRequest request,
+            final EntityDetails entity,
+            final HttpContext context) throws HttpException, IOException {
+        Args.notNull(context, "HTTP context");
+        final ProtocolVersion ver = context.getProtocolVersion();
+        if (ver.getMajor() < 2) {
+            super.process(request, entity, context);
+        }
     }
 
 }

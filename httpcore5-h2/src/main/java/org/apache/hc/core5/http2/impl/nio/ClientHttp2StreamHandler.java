@@ -53,10 +53,10 @@ import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
-import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
+import org.apache.hc.core5.http2.Http2ConnectionException;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.impl.DefaultHttp2RequestConverter;
+import org.apache.hc.core5.http2.impl.DefaultHttp2ResponseConverter;
 
 class ClientHttp2StreamHandler implements Http2StreamHandler {
 
@@ -143,7 +143,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
 
             httpProcessor.process(request, entityDetails, context);
 
-            final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(request);
+            final List<Header> headers = DefaultHttp2RequestConverter.INSTANCE.convert(request);
             outputChannel.submit(headers, entityDetails == null);
             connMetrics.incrementRequestCount();
 
@@ -160,7 +160,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
                 }
             }
         } else {
-            throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Request already committed");
+            throw new Http2ConnectionException(Http2Error.INTERNAL_ERROR, "Request already committed");
         }
     }
 
@@ -196,7 +196,7 @@ class ClientHttp2StreamHandler implements Http2StreamHandler {
         }
         switch (responseState) {
             case HEADERS:
-                final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
+                final HttpResponse response = DefaultHttp2ResponseConverter.INSTANCE.convert(headers);
                 final int status = response.getCode();
                 if (status < HttpStatus.SC_INFORMATIONAL) {
                     throw new ProtocolException("Invalid response: " + new StatusLine(response));

@@ -24,51 +24,19 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.config;
+
+package org.apache.hc.core5.http2;
 
 /**
- * HTTP/2 protocol parameters.
+ * Request pseudo HTTP headers defined by the HTTP/2 specification.
  *
  * @since 5.0
  */
-public enum H2Param {
+public final class Http2PseudoRequestHeaders {
 
-    HEADER_TABLE_SIZE      (0x1),
-    ENABLE_PUSH            (0x2),
-    MAX_CONCURRENT_STREAMS (0x3),
-    INITIAL_WINDOW_SIZE    (0x4),
-    MAX_FRAME_SIZE         (0x5),
-    MAX_HEADER_LIST_SIZE   (0x6);
-
-    int code;
-
-    H2Param(final int code) {
-        this.code = code;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    private static final H2Param[] LOOKUP_TABLE = new H2Param[6];
-    static {
-        for (final H2Param param: H2Param.values()) {
-            LOOKUP_TABLE[param.code - 1] = param;
-        }
-    }
-
-    public static H2Param valueOf(final int code) {
-        if (code < 1 || code > LOOKUP_TABLE.length) {
-            return null;
-        }
-        return LOOKUP_TABLE[code - 1];
-    }
-
-    public static String toString(final int code) {
-        if (code < 1 || code > LOOKUP_TABLE.length) {
-            return Integer.toString(code);
-        }
-        return LOOKUP_TABLE[code - 1].name();
-    }
+    public static final String METHOD    = ":method";
+    public static final String SCHEME    = ":scheme";
+    public static final String AUTHORITY = ":authority";
+    public static final String PATH      = ":path";
 
 }

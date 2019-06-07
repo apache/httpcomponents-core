@@ -48,10 +48,10 @@ import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2ServerBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequester;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequesterBootstrap;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.Http2ClientTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -85,7 +85,7 @@ public class Http2AlpnTest {
         @Override
         protected void before() throws Throwable {
             log.debug("Starting up test server");
-            server = H2ServerBootstrap.bootstrap()
+            server = Http2ServerBootstrap.bootstrap()
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
@@ -176,7 +176,7 @@ public class Http2AlpnTest {
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
-                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+                .setTlsStrategy(new Http2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                 .setStrictALPNHandshake(false)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
@@ -213,7 +213,7 @@ public class Http2AlpnTest {
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
-                .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+                .setTlsStrategy(new Http2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                 .setStrictALPNHandshake(true)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)

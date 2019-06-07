@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.config.NamedElementChain;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -85,7 +85,7 @@ public class ServerBootstrap {
     private int listenerPort;
     private InetAddress localAddress;
     private SocketConfig socketConfig;
-    private H1Config h1Config;
+    private Http1Config h1Config;
     private CharCodingConfig charCodingConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
@@ -143,7 +143,7 @@ public class ServerBootstrap {
     /**
      * Sets connection configuration.
      */
-    public final ServerBootstrap setH1Config(final H1Config h1Config) {
+    public final ServerBootstrap setH1Config(final Http1Config h1Config) {
         this.h1Config = h1Config;
         return this;
     }

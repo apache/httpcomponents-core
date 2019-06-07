@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
@@ -97,7 +97,7 @@ public class ClassicTestClient {
                     httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                     connPool,
                     socketConfig,
-                    new DefaultBHttpClientConnectionFactory(H1Config.DEFAULT, CharCodingConfig.DEFAULT),
+                    new DefaultBHttpClientConnectionFactory(Http1Config.DEFAULT, CharCodingConfig.DEFAULT),
                     sslContext != null ? sslContext.getSocketFactory() : null,
                     null,
                     DefaultAddressResolver.INSTANCE);

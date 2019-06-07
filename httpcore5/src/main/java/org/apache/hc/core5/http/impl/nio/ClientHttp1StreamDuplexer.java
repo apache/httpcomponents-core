@@ -46,7 +46,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.LengthRequiredException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
@@ -81,7 +81,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
     private final HttpProcessor httpProcessor;
     private final ConnectionReuseStrategy connectionReuseStrategy;
-    private final H1Config h1Config;
+    private final Http1Config h1Config;
     private final Http1StreamListener streamListener;
     private final Queue<ClientHttp1StreamHandler> pipeline;
     private final Http1StreamChannel<HttpRequest> outputChannel;
@@ -92,7 +92,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     public ClientHttp1StreamDuplexer(
             final ProtocolIOSession ioSession,
             final HttpProcessor httpProcessor,
-            final H1Config h1Config,
+            final Http1Config h1Config,
             final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParser<HttpResponse> incomingMessageParser,
@@ -102,7 +102,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final Http1StreamListener streamListener) {
         super(ioSession, h1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter, incomingContentStrategy, outgoingContentStrategy);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.h1Config = h1Config != null ? h1Config : Http1Config.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.streamListener = streamListener;

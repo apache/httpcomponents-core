@@ -46,7 +46,7 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpService;
@@ -100,7 +100,7 @@ public class HttpServer implements ModalCloseable {
         this.serverSocketFactory = serverSocketFactory != null ? serverSocketFactory : ServerSocketFactory.getDefault();
         this.connectionFactory = connectionFactory != null ? connectionFactory : new DefaultBHttpServerConnectionFactory(
                 this.serverSocketFactory instanceof SSLServerSocketFactory ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
-                H1Config.DEFAULT,
+                Http1Config.DEFAULT,
                 CharCodingConfig.DEFAULT);
         this.sslSetupHandler = sslSetupHandler;
         this.exceptionListener = exceptionListener != null ? exceptionListener : ExceptionListener.NO_OP;

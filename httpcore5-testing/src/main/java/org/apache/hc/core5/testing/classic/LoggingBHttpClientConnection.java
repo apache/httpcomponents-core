@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnection;
 import org.apache.hc.core5.http.impl.io.SocketHolder;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
@@ -59,7 +59,7 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection i
     private final Wire wire;
 
     public LoggingBHttpClientConnection(
-            final H1Config h1Config,
+            final Http1Config h1Config,
             final CharsetDecoder charDecoder,
             final CharsetEncoder charEncoder,
             final ContentLengthStrategy incomingContentStrategy,
@@ -75,7 +75,7 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection i
         this.wire = new Wire(LoggerFactory.getLogger("org.apache.hc.core5.http.wire"), this.id);
     }
 
-    public LoggingBHttpClientConnection(final H1Config h1Config) {
+    public LoggingBHttpClientConnection(final Http1Config h1Config) {
         this(h1Config, null, null, null, null, null, null);
     }
 

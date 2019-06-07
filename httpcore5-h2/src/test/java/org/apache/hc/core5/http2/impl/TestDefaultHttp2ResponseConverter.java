@@ -40,7 +40,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TestDefaultH2ResponseConverter {
+public class TestDefaultHttp2ResponseConverter {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -53,7 +53,7 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value"));
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         final HttpResponse response = converter.convert(headers);
         Assert.assertNotNull(response );
         Assert.assertEquals(200, response .getCode());
@@ -76,7 +76,7 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value"));
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         converter.convert(headers);
     }
 
@@ -91,7 +91,7 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value"));
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         converter.convert(headers);
     }
 
@@ -106,7 +106,7 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("connection", "keep-alive"));
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         converter.convert(headers);
     }
 
@@ -120,7 +120,7 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         converter.convert(headers);
     }
 
@@ -136,7 +136,7 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom1", "value"));
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         converter.convert(headers);
     }
 
@@ -152,7 +152,7 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom1", "value"));
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         converter.convert(headers);
     }
 
@@ -162,7 +162,7 @@ public class TestDefaultH2ResponseConverter {
         final HttpResponse response = new BasicHttpResponse(200);
         response.addHeader("custom123", "Value");
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         final List<Header> headers = converter.convert(response);
 
         Assert.assertNotNull(headers);
@@ -184,7 +184,7 @@ public class TestDefaultH2ResponseConverter {
         final HttpResponse response = new BasicHttpResponse(99);
         response.addHeader("Custom123", "Value");
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         converter.convert(response);
     }
 
@@ -197,7 +197,7 @@ public class TestDefaultH2ResponseConverter {
         final HttpResponse response = new BasicHttpResponse(200);
         response.addHeader("Connection", "Keep-Alive");
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         converter.convert(response);
     }
 
@@ -210,7 +210,7 @@ public class TestDefaultH2ResponseConverter {
         final HttpResponse response = new BasicHttpResponse(200);
         response.addHeader(":custom", "stuff");
 
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        final DefaultHttp2ResponseConverter converter = new DefaultHttp2ResponseConverter();
         converter.convert(response);
     }
 

@@ -34,7 +34,7 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
@@ -44,13 +44,13 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.config.Http2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.http2.impl.nio.ClientHttp2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiatorFactory;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.Http2ClientTlsStrategy;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.LaxConnPool;
 import org.apache.hc.core5.pool.ManagedConnPool;
@@ -71,7 +71,7 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 5.0
  */
-public class H2RequesterBootstrap {
+public class Http2RequesterBootstrap {
 
     private final List<HandlerEntry<Supplier<AsyncPushConsumer>>> pushConsumerList;
     private UriPatternType uriPatternType;
@@ -79,8 +79,8 @@ public class H2RequesterBootstrap {
     private HttpProcessor httpProcessor;
     private CharCodingConfig charCodingConfig;
     private HttpVersionPolicy versionPolicy;
-    private H2Config h2Config;
-    private H1Config h1Config;
+    private Http2Config http2Config;
+    private Http1Config http1Config;
     private int defaultMaxPerRoute;
     private int maxTotal;
     private TimeValue timeToLive;
@@ -94,18 +94,18 @@ public class H2RequesterBootstrap {
     private Http1StreamListener http1StreamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
 
-    private H2RequesterBootstrap() {
+    private Http2RequesterBootstrap() {
         this.pushConsumerList = new ArrayList<>();
     }
 
-    public static H2RequesterBootstrap bootstrap() {
-        return new H2RequesterBootstrap();
+    public static Http2RequesterBootstrap bootstrap() {
+        return new Http2RequesterBootstrap();
     }
 
     /**
      * Sets I/O reactor configuration.
      */
-    public final H2RequesterBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
+    public final Http2RequesterBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
         this.ioReactorConfig = ioReactorConfig;
         return this;
     }
@@ -113,7 +113,7 @@ public class H2RequesterBootstrap {
     /**
      * Assigns {@link HttpProcessor} instance.
      */
-    public final H2RequesterBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
+    public final Http2RequesterBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
         return this;
     }
@@ -121,7 +121,7 @@ public class H2RequesterBootstrap {
     /**
      * Sets HTTP protocol version policy
      */
-    public final H2RequesterBootstrap setVersionPolicy(final HttpVersionPolicy versionPolicy) {
+    public final Http2RequesterBootstrap setVersionPolicy(final HttpVersionPolicy versionPolicy) {
         this.versionPolicy = versionPolicy;
         return this;
     }
@@ -129,38 +129,38 @@ public class H2RequesterBootstrap {
     /**
      * Sets HTTP/2 protocol parameters
      */
-    public final H2RequesterBootstrap setH2Config(final H2Config h2Config) {
-        this.h2Config = h2Config;
+    public final Http2RequesterBootstrap setHttp2Config(final Http2Config h2Config) {
+        this.http2Config = h2Config;
         return this;
     }
 
     /**
      * Sets HTTP/1.1 protocol parameters
      */
-    public final H2RequesterBootstrap setH1Config(final H1Config h1Config) {
-        this.h1Config = h1Config;
+    public final Http2RequesterBootstrap setHttp1Config(final Http1Config h1Config) {
+        this.http1Config = h1Config;
         return this;
     }
 
     /**
      * Sets message char coding.
      */
-    public final H2RequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
+    public final Http2RequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
         this.charCodingConfig = charCodingConfig;
         return this;
     }
 
-    public final H2RequesterBootstrap setDefaultMaxPerRoute(final int defaultMaxPerRoute) {
+    public final Http2RequesterBootstrap setDefaultMaxPerRoute(final int defaultMaxPerRoute) {
         this.defaultMaxPerRoute = defaultMaxPerRoute;
         return this;
     }
 
-    public final H2RequesterBootstrap setMaxTotal(final int maxTotal) {
+    public final Http2RequesterBootstrap setMaxTotal(final int maxTotal) {
         this.maxTotal = maxTotal;
         return this;
     }
 
-    public final H2RequesterBootstrap setTimeToLive(final TimeValue timeToLive) {
+    public final Http2RequesterBootstrap setTimeToLive(final TimeValue timeToLive) {
         this.timeToLive = timeToLive;
         return this;
     }
@@ -168,7 +168,7 @@ public class H2RequesterBootstrap {
     /**
      * Assigns {@link PoolReusePolicy} instance.
      */
-    public final H2RequesterBootstrap setPoolReusePolicy(final PoolReusePolicy poolReusePolicy) {
+    public final Http2RequesterBootstrap setPoolReusePolicy(final PoolReusePolicy poolReusePolicy) {
         this.poolReusePolicy = poolReusePolicy;
         return this;
     }
@@ -177,7 +177,7 @@ public class H2RequesterBootstrap {
      * Assigns {@link PoolConcurrencyPolicy} instance.
      */
     @Experimental
-    public final H2RequesterBootstrap setPoolConcurrencyPolicy(final PoolConcurrencyPolicy poolConcurrencyPolicy) {
+    public final Http2RequesterBootstrap setPoolConcurrencyPolicy(final PoolConcurrencyPolicy poolConcurrencyPolicy) {
         this.poolConcurrencyPolicy = poolConcurrencyPolicy;
         return this;
     }
@@ -185,12 +185,12 @@ public class H2RequesterBootstrap {
     /**
      * Assigns {@link TlsStrategy} instance.
      */
-    public final H2RequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
+    public final Http2RequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
         return this;
     }
 
-    public final H2RequesterBootstrap setHandshakeTimeout(final Timeout handshakeTimeout) {
+    public final Http2RequesterBootstrap setHandshakeTimeout(final Timeout handshakeTimeout) {
         this.handshakeTimeout = handshakeTimeout;
         return this;
     }
@@ -198,7 +198,7 @@ public class H2RequesterBootstrap {
     /**
      * Assigns {@link ProtocolIOSession} {@link Decorator} instance.
      */
-    public final H2RequesterBootstrap setIOSessionDecorator(final Decorator<ProtocolIOSession> ioSessionDecorator) {
+    public final Http2RequesterBootstrap setIOSessionDecorator(final Decorator<ProtocolIOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
         return this;
     }
@@ -206,7 +206,7 @@ public class H2RequesterBootstrap {
     /**
      * Assigns {@link IOSessionListener} instance.
      */
-    public final H2RequesterBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
+    public final Http2RequesterBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
         this.sessionListener = sessionListener;
         return this;
     }
@@ -214,7 +214,7 @@ public class H2RequesterBootstrap {
     /**
      * Assigns {@link Http2StreamListener} instance.
      */
-    public final H2RequesterBootstrap setStreamListener(final Http2StreamListener streamListener) {
+    public final Http2RequesterBootstrap setStreamListener(final Http2StreamListener streamListener) {
         this.streamListener = streamListener;
         return this;
     }
@@ -222,7 +222,7 @@ public class H2RequesterBootstrap {
     /**
      * Assigns {@link Http1StreamListener} instance.
      */
-    public final H2RequesterBootstrap setStreamListener(final Http1StreamListener http1StreamListener) {
+    public final Http2RequesterBootstrap setStreamListener(final Http1StreamListener http1StreamListener) {
         this.http1StreamListener = http1StreamListener;
         return this;
     }
@@ -230,7 +230,7 @@ public class H2RequesterBootstrap {
     /**
      * Assigns {@link ConnPoolListener} instance.
      */
-    public final H2RequesterBootstrap setConnPoolListener(final ConnPoolListener<HttpHost> connPoolListener) {
+    public final Http2RequesterBootstrap setConnPoolListener(final ConnPoolListener<HttpHost> connPoolListener) {
         this.connPoolListener = connPoolListener;
         return this;
     }
@@ -238,7 +238,7 @@ public class H2RequesterBootstrap {
     /**
      * Assigns {@link UriPatternType} for handler registration.
      */
-    public final H2RequesterBootstrap setUriPatternType(final UriPatternType uriPatternType) {
+    public final Http2RequesterBootstrap setUriPatternType(final UriPatternType uriPatternType) {
         this.uriPatternType = uriPatternType;
         return this;
     }
@@ -250,7 +250,7 @@ public class H2RequesterBootstrap {
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
      */
-    public final H2RequesterBootstrap register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
+    public final Http2RequesterBootstrap register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
         pushConsumerList.add(new HandlerEntry<>(null, uriPattern, supplier));
@@ -265,7 +265,7 @@ public class H2RequesterBootstrap {
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
      */
-    public final H2RequesterBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
+    public final Http2RequesterBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
         Args.notNull(supplier, "Supplier");
@@ -299,20 +299,20 @@ public class H2RequesterBootstrap {
         }
         final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ClientHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
-                h1Config != null ? h1Config : H1Config.DEFAULT,
+                http1Config != null ? http1Config : Http1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 http1StreamListener);
         final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.client(),
                 new DefaultAsyncPushConsumerFactory(registry),
-                h2Config != null ? h2Config : H2Config.DEFAULT,
+                http2Config != null ? http2Config : Http2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 streamListener);
         final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiatorFactory(
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
-                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
+                tlsStrategy != null ? tlsStrategy : new Http2ClientTlsStrategy(),
                 handshakeTimeout);
         return new Http2AsyncRequester(
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,

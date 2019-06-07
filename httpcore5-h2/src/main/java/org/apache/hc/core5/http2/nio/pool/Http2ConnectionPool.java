@@ -57,7 +57,7 @@ import org.apache.hc.core5.util.Timeout;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
+public final class Http2ConnectionPool extends AbstractIOSessionPool<HttpHost> {
 
     private final ConnectionInitiator connectionInitiator;
     private final Resolver<HttpHost, InetSocketAddress> addressResolver;
@@ -65,7 +65,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
 
     private volatile TimeValue validateAfterInactivity;
 
-    public H2ConnPool(
+    public Http2ConnectionPool(
             final ConnectionInitiator connectionInitiator,
             final Resolver<HttpHost, InetSocketAddress> addressResolver,
             final TlsStrategy tlsStrategy) {

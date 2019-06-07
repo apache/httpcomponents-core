@@ -49,10 +49,10 @@ import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
-import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
+import org.apache.hc.core5.http2.Http2ConnectionException;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.impl.DefaultHttp2RequestConverter;
+import org.apache.hc.core5.http2.impl.DefaultHttp2ResponseConverter;
 
 class ServerPushHttp2StreamHandler implements Http2StreamHandler {
 
@@ -150,13 +150,13 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
 
     private void commitInformation(final HttpResponse response) throws IOException, HttpException {
         if (responseCommitted.get()) {
-            throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Response already committed");
+            throw new Http2ConnectionException(Http2Error.INTERNAL_ERROR, "Response already committed");
         }
         final int status = response.getCode();
         if (status < HttpStatus.SC_INFORMATIONAL || status >= HttpStatus.SC_SUCCESS) {
             throw new HttpException("Invalid intermediate response: " + status);
         }
-        final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
+        final List<Header> responseHeaders = DefaultHttp2ResponseConverter.INSTANCE.convert(response);
         outputChannel.submit(responseHeaders, false);
     }
 
@@ -169,7 +169,7 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             httpProcessor.process(response, responseEntityDetails, context);
 
-            final List<Header> headers = DefaultH2ResponseConverter.INSTANCE.convert(response);
+            final List<Header> headers = DefaultHttp2ResponseConverter.INSTANCE.convert(response);
             outputChannel.submit(headers, responseEntityDetails == null);
             connMetrics.incrementResponseCount();
             if (responseEntityDetails == null) {
@@ -189,7 +189,7 @@ class ServerPushHttp2StreamHandler implements Http2StreamHandler {
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, promise);
         httpProcessor.process(promise, null, context);
 
-        final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(promise);
+        final List<Header> headers = DefaultHttp2RequestConverter.INSTANCE.convert(promise);
 
         outputChannel.push(headers, pushProducer);
         connMetrics.incrementRequestCount();

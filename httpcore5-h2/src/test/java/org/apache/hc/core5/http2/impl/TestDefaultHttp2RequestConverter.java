@@ -42,7 +42,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class TestDefaultH2RequestConverter {
+public class TestDefaultHttp2RequestConverter {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -57,7 +57,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"),
                 new BasicHeader("custom123", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         final HttpRequest request = converter.convert(headers);
         Assert.assertNotNull(request);
         Assert.assertEquals("GET", request.getMethod());
@@ -83,7 +83,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":Path", "/"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -100,7 +100,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"),
                 new BasicHeader("connection", "keep-alive"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -117,7 +117,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":authority", "www.example.com"),
                 new BasicHeader(":path", "/"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -133,7 +133,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -149,7 +149,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -165,7 +165,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":authority", "www.example.com"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -182,7 +182,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"),
                 new BasicHeader(":custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -200,7 +200,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -218,7 +218,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -236,7 +236,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -248,7 +248,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":authority", "www.example.com"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -262,7 +262,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -278,7 +278,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":authority", "www.example.com"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -294,7 +294,7 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"),
                 new BasicHeader("custom", "value"));
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(headers);
     }
 
@@ -304,7 +304,7 @@ public class TestDefaultH2RequestConverter {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("custom123", "Value");
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         final List<Header> headers = converter.convert(request);
 
         Assert.assertNotNull(headers);
@@ -336,7 +336,7 @@ public class TestDefaultH2RequestConverter {
         request.addHeader("Custom123", "Value");
         request.setScheme(null);
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(request);
     }
 
@@ -350,7 +350,7 @@ public class TestDefaultH2RequestConverter {
         request.addHeader("Custom123", "Value");
         request.setPath(null);
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(request);
     }
 
@@ -360,7 +360,7 @@ public class TestDefaultH2RequestConverter {
         final HttpRequest request = new BasicHttpRequest("CONNECT", new HttpHost("host:80"), null);
         request.addHeader("custom123", "Value");
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         final List<Header> headers = converter.convert(request);
 
         Assert.assertNotNull(headers);
@@ -385,7 +385,7 @@ public class TestDefaultH2RequestConverter {
         final HttpRequest request = new BasicHttpRequest("CONNECT", null, null);
         request.addHeader("Custom123", "Value");
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(request);
     }
 
@@ -399,7 +399,7 @@ public class TestDefaultH2RequestConverter {
         request.setAuthority(new URIAuthority("host"));
         request.addHeader("Custom123", "Value");
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(request);
     }
 
@@ -412,7 +412,7 @@ public class TestDefaultH2RequestConverter {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Connection", "Keep-Alive");
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(request);
     }
 
@@ -425,7 +425,7 @@ public class TestDefaultH2RequestConverter {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader(":custom", "stuff");
 
-        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final DefaultHttp2RequestConverter converter = new DefaultHttp2RequestConverter();
         converter.convert(request);
     }
 

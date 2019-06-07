@@ -37,9 +37,9 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.command.ExecutableCommand;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.Http2ConnectionException;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.config.Http2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
@@ -64,7 +64,7 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final CharCodingConfig charCodingConfig,
-            final H2Config h2Config,
+            final Http2Config h2Config,
             final Http2StreamListener streamListener) {
         super(ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charCodingConfig, h2Config, streamListener);
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Handler factory");
@@ -75,21 +75,21 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final CharCodingConfig charCodingConfig,
-            final H2Config h2Config) {
+            final Http2Config h2Config) {
         this(ioSession, DefaultFrameFactory.INSTANCE, httpProcessor, exchangeHandlerFactory, charCodingConfig, h2Config, null);
     }
 
     @Override
-    void acceptHeaderFrame() throws H2ConnectionException {
+    void acceptHeaderFrame() throws Http2ConnectionException {
     }
 
     @Override
-    void acceptPushRequest() throws H2ConnectionException {
+    void acceptPushRequest() throws Http2ConnectionException {
     }
 
     @Override
-    void acceptPushFrame() throws H2ConnectionException {
-        throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Push not supported");
+    void acceptPushFrame() throws Http2ConnectionException {
+        throw new Http2ConnectionException(Http2Error.PROTOCOL_ERROR, "Push not supported");
     }
 
     @Override
@@ -110,7 +110,7 @@ public class ServerHttp2StreamMultiplexer extends AbstractHttp2StreamMultiplexer
             final Http2StreamChannel channel,
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics) throws IOException {
-        throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to execute a request");
+        throw new Http2ConnectionException(Http2Error.INTERNAL_ERROR, "Illegal attempt to execute a request");
     }
 
     @Override

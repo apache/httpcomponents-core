@@ -33,12 +33,12 @@ import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http.protocol.ResponseDate;
 import org.apache.hc.core5.http.protocol.ResponseServer;
-import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
-import org.apache.hc.core5.http2.protocol.H2RequestContent;
-import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
-import org.apache.hc.core5.http2.protocol.H2RequestValidateHost;
-import org.apache.hc.core5.http2.protocol.H2ResponseConnControl;
-import org.apache.hc.core5.http2.protocol.H2ResponseContent;
+import org.apache.hc.core5.http2.protocol.Http2RequestConnControl;
+import org.apache.hc.core5.http2.protocol.Http2RequestContent;
+import org.apache.hc.core5.http2.protocol.Http2RequestTargetHost;
+import org.apache.hc.core5.http2.protocol.Http2RequestValidateHost;
+import org.apache.hc.core5.http2.protocol.Http2ResponseConnControl;
+import org.apache.hc.core5.http2.protocol.Http2ResponseContent;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.VersionInfo;
 
@@ -55,10 +55,10 @@ public final class Http2Processors {
                         new ResponseDate(),
                         new ResponseServer(!TextUtils.isBlank(serverInfo) ? serverInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", Http2Processors.class)),
-                        new H2ResponseContent(),
-                        new H2ResponseConnControl())
+                        new Http2ResponseContent(),
+                        new Http2ResponseConnControl())
                 .addAll(
-                        new H2RequestValidateHost());
+                        new Http2RequestValidateHost());
     }
 
     public static HttpProcessor server(final String serverInfo) {
@@ -72,9 +72,9 @@ public final class Http2Processors {
     public static HttpProcessorBuilder customClient(final String agentInfo) {
         return HttpProcessorBuilder.create()
                 .addAll(
-                        new H2RequestContent(),
-                        new H2RequestTargetHost(),
-                        new H2RequestConnControl(),
+                        new Http2RequestContent(),
+                        new Http2RequestTargetHost(),
+                        new Http2RequestConnControl(),
                         new RequestUserAgent(!TextUtils.isBlank(agentInfo) ? agentInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", HttpProcessors.class)),
                         new RequestExpectContinue());

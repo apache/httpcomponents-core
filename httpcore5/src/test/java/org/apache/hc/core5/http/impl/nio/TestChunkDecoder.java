@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.ReadableByteChannelMock;
 import org.apache.hc.core5.http.TruncatedChunkException;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.junit.Assert;
@@ -491,7 +491,7 @@ public class TestChunkDecoder {
         Assert.assertNotNull(trailers);
         Assert.assertEquals(1, trailers.size());
 
-        final H1Config h1Config = H1Config.custom()
+        final Http1Config h1Config = Http1Config.custom()
                 .setMaxLineLength(25)
                 .build();
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
@@ -527,7 +527,7 @@ public class TestChunkDecoder {
         Assert.assertNotNull(trailers);
         Assert.assertEquals(4, trailers.size());
 
-        final H1Config h1Config = H1Config.custom()
+        final Http1Config h1Config = Http1Config.custom()
                 .setMaxHeaderCount(3).build();
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);

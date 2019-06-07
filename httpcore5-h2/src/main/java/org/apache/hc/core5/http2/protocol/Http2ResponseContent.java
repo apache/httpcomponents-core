@@ -46,13 +46,13 @@ import org.apache.hc.core5.util.Args;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class H2ResponseContent extends ResponseContent {
+public class Http2ResponseContent extends ResponseContent {
 
-    public H2ResponseContent() {
+    public Http2ResponseContent() {
         super();
     }
 
-    public H2ResponseContent(final boolean overwrite) {
+    public Http2ResponseContent(final boolean overwrite) {
         super(overwrite);
     }
 

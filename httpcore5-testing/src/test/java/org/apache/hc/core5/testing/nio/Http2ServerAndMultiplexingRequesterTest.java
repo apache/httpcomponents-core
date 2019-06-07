@@ -54,11 +54,11 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2ServerBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequester;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequesterBootstrap;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
-import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
+import org.apache.hc.core5.http2.ssl.Http2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.Http2ServerTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -108,12 +108,12 @@ public class Http2ServerAndMultiplexingRequesterTest {
         @Override
         protected void before() throws Throwable {
             log.debug("Starting up test server");
-            server = H2ServerBootstrap.bootstrap()
+            server = Http2ServerBootstrap.bootstrap()
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
-                    .setTlsStrategy(scheme == URIScheme.HTTPS  ? new H2ServerTlsStrategy(
+                    .setTlsStrategy(scheme == URIScheme.HTTPS  ? new Http2ServerTlsStrategy(
                             SSLTestContexts.createServerSSLContext(),
                             SecureAllPortsStrategy.INSTANCE) : null)
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
@@ -163,7 +163,7 @@ public class Http2ServerAndMultiplexingRequesterTest {
                     .setIOReactorConfig(IOReactorConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
-                    .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+                    .setTlsStrategy(new Http2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)

@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.TruncatedChunkException;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.message.BufferedHeader;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
@@ -66,7 +66,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
     private long chunkSize;
     private long pos;
 
-    private final H1Config h1Config;
+    private final Http1Config h1Config;
     private final List<CharArrayBuffer> trailerBufs;
     private final List<Header> trailers;
 
@@ -76,7 +76,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
     public ChunkDecoder(
             final ReadableByteChannel channel,
             final SessionInputBuffer buffer,
-            final H1Config h1Config,
+            final Http1Config h1Config,
             final BasicHttpTransportMetrics metrics) {
         super(channel, buffer, metrics);
         this.state = State.READ_CONTENT;
@@ -84,7 +84,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         this.pos = 0L;
         this.endOfChunk = false;
         this.endOfStream = false;
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.h1Config = h1Config != null ? h1Config : Http1Config.DEFAULT;
         this.trailerBufs = new ArrayList<>();
         this.trailers = new ArrayList<>();
     }

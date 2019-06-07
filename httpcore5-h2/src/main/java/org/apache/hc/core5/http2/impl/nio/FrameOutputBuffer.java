@@ -31,12 +31,12 @@ import java.nio.ByteBuffer;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
-import org.apache.hc.core5.http2.H2TransportMetrics;
+import org.apache.hc.core5.http2.Http2ConnectionException;
+import org.apache.hc.core5.http2.Http2Error;
+import org.apache.hc.core5.http2.Http2TransportMetrics;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.RawFrame;
-import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
+import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -46,11 +46,11 @@ import org.apache.hc.core5.util.Args;
  */
 public final class FrameOutputBuffer {
 
-    private final BasicH2TransportMetrics metrics;
+    private final BasicHttp2TransportMetrics metrics;
     private final int maxFramePayloadSize;
     private final ByteBuffer buffer;
 
-    public FrameOutputBuffer(final BasicH2TransportMetrics metrics, final int maxFramePayloadSize) {
+    public FrameOutputBuffer(final BasicHttp2TransportMetrics metrics, final int maxFramePayloadSize) {
         Args.notNull(metrics, "HTTP2 transport metrcis");
         Args.positive(maxFramePayloadSize, "Maximum payload size");
         this.metrics = metrics;
@@ -59,7 +59,7 @@ public final class FrameOutputBuffer {
     }
 
     public FrameOutputBuffer(final int maxFramePayloadSize) {
-        this(new BasicH2TransportMetrics(), maxFramePayloadSize);
+        this(new BasicHttp2TransportMetrics(), maxFramePayloadSize);
     }
 
     public void write(final RawFrame frame, final WritableByteChannel channel) throws IOException {
@@ -67,7 +67,7 @@ public final class FrameOutputBuffer {
 
         final ByteBuffer payload = frame.getPayload();
         if (payload != null && payload.remaining() > maxFramePayloadSize) {
-            throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Frame size exceeds maximum");
+            throw new Http2ConnectionException(Http2Error.FRAME_SIZE_ERROR, "Frame size exceeds maximum");
         }
 
         buffer.putInt((payload != null ? payload.remaining() << 8 : 0) | (frame.getType() & 0xff));
@@ -110,7 +110,7 @@ public final class FrameOutputBuffer {
         return buffer.position() == 0;
     }
 
-    public H2TransportMetrics getMetrics() {
+    public Http2TransportMetrics getMetrics() {
         return metrics;
     }
 

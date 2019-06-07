@@ -64,10 +64,10 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.frame.FramePrinter;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
-import org.apache.hc.core5.http2.protocol.H2RequestContent;
-import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2RequesterBootstrap;
+import org.apache.hc.core5.http2.protocol.Http2RequestConnControl;
+import org.apache.hc.core5.http2.protocol.Http2RequestContent;
+import org.apache.hc.core5.http2.protocol.Http2RequestTargetHost;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.Command;
@@ -124,9 +124,9 @@ public class HttpBenchmark {
     public Results execute() throws Exception {
         final HttpProcessorBuilder builder = HttpProcessorBuilder.create()
                 .addAll(
-                        new H2RequestContent(),
-                        new H2RequestTargetHost(),
-                        new H2RequestConnControl(),
+                        new Http2RequestContent(),
+                        new Http2RequestTargetHost(),
+                        new Http2RequestConnControl(),
                         new RequestUserAgent("HttpCore-AB/5.0"));
         if (this.config.isUseExpectContinue()) {
             builder.add(new RequestExpectContinue());
@@ -174,7 +174,7 @@ public class HttpBenchmark {
         }
 
         final Stats stats = new Stats();
-        try (final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
+        try (final HttpAsyncRequester requester = Http2RequesterBootstrap.bootstrap()
                 .setHttpProcessor(builder.build())
                 .setTlsStrategy(new BasicClientTlsStrategy(sslContext))
                 .setVersionPolicy(versionPolicy)

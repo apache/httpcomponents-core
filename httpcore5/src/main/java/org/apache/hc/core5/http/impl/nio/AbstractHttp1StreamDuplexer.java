@@ -50,7 +50,7 @@ import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -84,7 +84,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     private enum ConnectionState { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
 
     private final ProtocolIOSession ioSession;
-    private final H1Config h1Config;
+    private final Http1Config h1Config;
     private final SessionInputBufferImpl inbuf;
     private final SessionOutputBufferImpl outbuf;
     private final BasicHttpTransportMetrics inTransportMetrics;
@@ -107,14 +107,14 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     AbstractHttp1StreamDuplexer(
             final ProtocolIOSession ioSession,
-            final H1Config h1Config,
+            final Http1Config h1Config,
             final CharCodingConfig charCodingConfig,
             final NHttpMessageParser<IncomingMessage> incomingMessageParser,
             final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.h1Config = h1Config != null ? h1Config : Http1Config.DEFAULT;
         final int bufferSize = this.h1Config.getBufferSize();
         this.inbuf = new SessionInputBufferImpl(bufferSize, bufferSize < 512 ? bufferSize : 512,
                 this.h1Config.getMaxLineLength(),

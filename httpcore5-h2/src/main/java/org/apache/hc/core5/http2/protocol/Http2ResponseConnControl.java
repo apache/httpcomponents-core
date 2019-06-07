@@ -24,35 +24,38 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.frame;
 
-import org.apache.hc.core5.http2.config.H2Param;
-import org.apache.hc.core5.http2.config.H2Setting;
-import org.junit.Assert;
-import org.junit.Test;
+package org.apache.hc.core5.http2.protocol;
 
-public class TestH2Settings {
+import java.io.IOException;
 
-    @Test
-    public void testH2ParamBasics() throws Exception {
-        for (final H2Param param: H2Param.values()) {
-            Assert.assertEquals(param, H2Param.valueOf(param.getCode()));
-            Assert.assertEquals(param.name(), H2Param.toString(param.getCode()));
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.ResponseConnControl;
+import org.apache.hc.core5.util.Args;
+
+/**
+ * HTTP/2 compatible extension of {@link ResponseConnControl}.
+ *
+ * @since 5.0
+ */
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
+public class Http2ResponseConnControl extends ResponseConnControl {
+
+    @Override
+    public void process(
+            final HttpResponse response,
+            final EntityDetails entity,
+            final HttpContext context) throws HttpException, IOException {
+        Args.notNull(context, "HTTP context");
+        final ProtocolVersion ver = context.getProtocolVersion();
+        if (ver.getMajor() < 2) {
+            super.process(response, entity, context);
         }
-        Assert.assertEquals(null, H2Param.valueOf(0));
-        Assert.assertEquals(null, H2Param.valueOf(10));
-        Assert.assertEquals("0", H2Param.toString(0));
-        Assert.assertEquals("10", H2Param.toString(10));
     }
-
-    @Test
-    public void testH2SettingBasics() throws Exception {
-
-        final H2Setting setting1 = new H2Setting(H2Param.ENABLE_PUSH, 0);
-        final H2Setting setting2 = new H2Setting(H2Param.INITIAL_WINDOW_SIZE, 1024);
-
-        Assert.assertEquals("ENABLE_PUSH: 0", setting1.toString());
-        Assert.assertEquals("INITIAL_WINDOW_SIZE: 1024", setting2.toString());
-    }
-
 }

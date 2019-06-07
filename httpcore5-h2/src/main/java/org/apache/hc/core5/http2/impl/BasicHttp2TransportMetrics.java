@@ -25,18 +25,33 @@
  *
  */
 
-package org.apache.hc.core5.http.io;
+package org.apache.hc.core5.http2.impl;
 
-import org.apache.hc.core5.http.MessageHeaders;
-import org.apache.hc.core5.http.config.Http1Config;
+import java.util.concurrent.atomic.AtomicLong;
+
+import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
+import org.apache.hc.core5.http2.Http2TransportMetrics;
 
 /**
- * Factory for {@link HttpMessageParser} instances.
+ * Default implementation of {@link Http2TransportMetrics}.
  *
- * @since 4.3
+ * @since 5.0
  */
-public interface HttpMessageParserFactory<T extends MessageHeaders> {
+public class BasicHttp2TransportMetrics extends BasicHttpTransportMetrics implements Http2TransportMetrics {
 
-    HttpMessageParser<T> create(Http1Config h1Config);
+    private final AtomicLong framesTransferred;
+
+    public BasicHttp2TransportMetrics() {
+        this.framesTransferred = new AtomicLong(0);
+    }
+
+    @Override
+    public long getFramesTransferred() {
+        return framesTransferred.get();
+    }
+
+    public void incrementFramesTransferred() {
+        framesTransferred.incrementAndGet();
+    }
 
 }

@@ -38,7 +38,7 @@ import java.net.SocketTimeoutException;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
@@ -60,7 +60,7 @@ public class TestBHttpConnectionBase {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        conn = new BHttpConnectionBase(H1Config.DEFAULT, null, null);
+        conn = new BHttpConnectionBase(Http1Config.DEFAULT, null, null);
     }
 
     @Test

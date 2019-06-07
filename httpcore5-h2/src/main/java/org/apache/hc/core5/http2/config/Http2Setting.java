@@ -24,42 +24,38 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http2.config;
 
-package org.apache.hc.core5.http2;
-
-import java.util.List;
-
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.util.Args;
 
 /**
- * Abstract message converter intended to convert from a list of HTTP/2 headers to object
- * representing an HTTP message and from an object representing an HTTP message to a list
- * of HTTP/2 headers.
- *
- * @param <T> represents {@link HttpMessage}
+ * HTTP/2 protocol settings.
  *
  * @since 5.0
  */
-public interface H2MessageConverter<T extends HttpMessage> {
+public final class Http2Setting {
 
-    /**
-     * Converts given list of HTTP/2 headers to a {@link HttpMessage}.
-     *
-     * @param headers list of HTTP/2 headers
-     * @return HTTP message
-     * @throws HttpException in case of HTTP protocol violation
-     */
-    T convert(List<Header> headers) throws HttpException;
+    private final Http2Param param;
+    private final int value;
 
-    /**
-     * Converts given {@link HttpMessage} to a list of HTTP/2 headers.
-     *
-     * @param message HTTP message
-     * @return list of HTTP/2 headers
-     * @throws HttpException in case of HTTP protocol violation
-     */
-    List<Header> convert(T message) throws HttpException;
+    public Http2Setting(final Http2Param param, final int value) {
+        Args.notNull(param, "Setting parameter");
+        Args.notNegative(value, "Setting value must be a non-negative value");
+        this.param = param;
+        this.value = value;
+    }
 
+    public int getCode() {
+        return param.code;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder().append(param).append(": ").append(value);
+        return sb.toString();
+    }
 }

@@ -55,7 +55,7 @@ public class Http2AsyncRequester extends HttpAsyncRequester {
     private final HttpVersionPolicy versionPolicy;
 
     /**
-     * Use {@link H2RequesterBootstrap} to create instances of this class.
+     * Use {@link Http2RequesterBootstrap} to create instances of this class.
      */
     @Internal
     public Http2AsyncRequester(

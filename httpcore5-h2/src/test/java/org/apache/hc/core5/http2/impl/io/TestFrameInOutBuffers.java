@@ -32,13 +32,13 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2CorruptFrameException;
+import org.apache.hc.core5.http2.Http2ConnectionException;
+import org.apache.hc.core5.http2.Http2CorruptFrameException;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.FrameFlag;
 import org.apache.hc.core5.http2.frame.FrameType;
 import org.apache.hc.core5.http2.frame.RawFrame;
-import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
+import org.apache.hc.core5.http2.impl.BasicHttp2TransportMetrics;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -119,7 +119,7 @@ public class TestFrameInOutBuffers {
 
     @Test
     public void testReadFrameMultipleSmallBuffer() throws Exception {
-        final FrameInputBuffer inBuffer = new FrameInputBuffer(new BasicH2TransportMetrics(), 20, 10);
+        final FrameInputBuffer inBuffer = new FrameInputBuffer(new BasicHttp2TransportMetrics(), 20, 10);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(
                 new byte[] {
                         0,0,10,0,8,0,0,0,8,4,1,1,1,1,1,0,0,0,0,
@@ -217,7 +217,7 @@ public class TestFrameInOutBuffers {
         inBuffer.read(inputStream);
     }
 
-    @Test(expected = H2CorruptFrameException.class)
+    @Test(expected = Http2CorruptFrameException.class)
     public void testReadFrameCorruptFrame() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {0,0});
@@ -225,7 +225,7 @@ public class TestFrameInOutBuffers {
         inBuffer.read(inputStream);
     }
 
-    @Test(expected = H2ConnectionException.class)
+    @Test(expected = Http2ConnectionException.class)
     public void testWriteFrameExceedingLimit() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(1024);
@@ -235,7 +235,7 @@ public class TestFrameInOutBuffers {
         outbuffer.write(frame, outputStream);
     }
 
-    @Test(expected = H2ConnectionException.class)
+    @Test(expected = Http2ConnectionException.class)
     public void testReadFrameExceedingLimit() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(

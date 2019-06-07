@@ -34,7 +34,7 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @since 5.0
  */
-public enum H2Error {
+public enum Http2Error {
 
     /**
      * Graceful shutdown
@@ -138,7 +138,7 @@ public enum H2Error {
 
     int code;
 
-    H2Error(final int code) {
+    Http2Error(final int code) {
         this.code = code;
     }
 
@@ -146,15 +146,15 @@ public enum H2Error {
         return code;
     }
 
-    private static final ConcurrentMap<Integer, H2Error> MAP_BY_CODE;
+    private static final ConcurrentMap<Integer, Http2Error> MAP_BY_CODE;
     static {
         MAP_BY_CODE = new ConcurrentHashMap<>();
-        for (final H2Error error: values()) {
+        for (final Http2Error error: values()) {
             MAP_BY_CODE.putIfAbsent(error.code, error);
         }
     }
 
-    public static H2Error getByCode(final int code) {
+    public static Http2Error getByCode(final int code) {
         return MAP_BY_CODE.get(code);
     }
 

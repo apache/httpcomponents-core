@@ -38,13 +38,13 @@ import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
-import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.config.Http2Config;
 import org.apache.hc.core5.http2.impl.Http2Processors;
 import org.apache.hc.core5.http2.impl.nio.ClientHttp2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.Http2OnlyClientProtocolNegotiator;
 import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.Http2ClientTlsStrategy;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -64,7 +64,7 @@ public class Http2MultiplexingRequesterBootstrap {
     private IOReactorConfig ioReactorConfig;
     private HttpProcessor httpProcessor;
     private CharCodingConfig charCodingConfig;
-    private H2Config h2Config;
+    private Http2Config http2Config;
     private TlsStrategy tlsStrategy;
     private boolean strictALPNHandshake;
     private Decorator<ProtocolIOSession> ioSessionDecorator;
@@ -98,8 +98,8 @@ public class Http2MultiplexingRequesterBootstrap {
     /**
      * Sets HTTP/2 protocol parameters
      */
-    public final Http2MultiplexingRequesterBootstrap setH2Config(final H2Config h2Config) {
-        this.h2Config = h2Config;
+    public final Http2MultiplexingRequesterBootstrap setHttp2Config(final Http2Config h2Config) {
+        this.http2Config = h2Config;
         return this;
     }
 
@@ -194,7 +194,7 @@ public class Http2MultiplexingRequesterBootstrap {
         final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : Http2Processors.client(),
                 new DefaultAsyncPushConsumerFactory(registry),
-                h2Config != null ? h2Config : H2Config.DEFAULT,
+                http2Config != null ? http2Config : Http2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 streamListener);
         return new Http2MultiplexingRequester(
@@ -210,7 +210,7 @@ public class Http2MultiplexingRequesterBootstrap {
                 ioSessionDecorator,
                 sessionListener,
                 DefaultAddressResolver.INSTANCE,
-                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());
+                tlsStrategy != null ? tlsStrategy : new Http2ClientTlsStrategy());
     }
 
 }

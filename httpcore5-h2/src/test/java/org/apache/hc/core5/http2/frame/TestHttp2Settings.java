@@ -24,18 +24,35 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http2.frame;
 
-package org.apache.hc.core5.http2;
+import org.apache.hc.core5.http2.config.Http2Param;
+import org.apache.hc.core5.http2.config.Http2Setting;
+import org.junit.Assert;
+import org.junit.Test;
 
-import org.apache.hc.core5.http.io.HttpTransportMetrics;
+public class TestHttp2Settings {
 
-/**
- * The point of access to connection statistics.
- *
- * @since 5.0
- */
-public interface H2TransportMetrics extends HttpTransportMetrics {
+    @Test
+    public void testHttp2ParamBasics() throws Exception {
+        for (final Http2Param param: Http2Param.values()) {
+            Assert.assertEquals(param, Http2Param.valueOf(param.getCode()));
+            Assert.assertEquals(param.name(), Http2Param.toString(param.getCode()));
+        }
+        Assert.assertEquals(null, Http2Param.valueOf(0));
+        Assert.assertEquals(null, Http2Param.valueOf(10));
+        Assert.assertEquals("0", Http2Param.toString(0));
+        Assert.assertEquals("10", Http2Param.toString(10));
+    }
 
-    long getFramesTransferred();
+    @Test
+    public void testHttp2SettingBasics() throws Exception {
+
+        final Http2Setting setting1 = new Http2Setting(Http2Param.ENABLE_PUSH, 0);
+        final Http2Setting setting2 = new Http2Setting(Http2Param.INITIAL_WINDOW_SIZE, 1024);
+
+        Assert.assertEquals("ENABLE_PUSH: 0", setting1.toString());
+        Assert.assertEquals("INITIAL_WINDOW_SIZE: 1024", setting2.toString());
+    }
 
 }

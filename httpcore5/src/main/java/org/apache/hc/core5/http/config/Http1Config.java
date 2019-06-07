@@ -39,10 +39,11 @@ import org.apache.hc.core5.util.Timeout;
  * </p>
  *
  * @since 4.3
+ * @since 5.0 renamed H1Config to Http1Config.
  */
-public class H1Config {
+public class Http1Config {
 
-    public static final H1Config DEFAULT = new Builder().build();
+    public static final Http1Config DEFAULT = new Builder().build();
 
     private final int bufferSize;
     private final int chunkSizeHint;
@@ -52,7 +53,7 @@ public class H1Config {
     private final int maxEmptyLineCount;
     private final int initialWindowSize;
 
-    H1Config(final int bufferSize, final int chunkSizeHint, final Timeout waitForContinueTimeout,
+    Http1Config(final int bufferSize, final int chunkSizeHint, final Timeout waitForContinueTimeout,
              final int maxLineLength, final int maxHeaderCount, final int maxEmptyLineCount,
              final int initialWindowSize) {
         super();
@@ -107,11 +108,11 @@ public class H1Config {
         return builder.toString();
     }
 
-    public static H1Config.Builder custom() {
+    public static Http1Config.Builder custom() {
         return new Builder();
     }
 
-    public static H1Config.Builder copy(final H1Config config) {
+    public static Http1Config.Builder copy(final Http1Config config) {
         Args.notNull(config, "Config");
         return new Builder()
                 .setBufferSize(config.getBufferSize())
@@ -177,8 +178,8 @@ public class H1Config {
             return this;
         }
 
-        public H1Config build() {
-            return new H1Config(
+        public Http1Config build() {
+            return new Http1Config(
                     bufferSize > 0 ? bufferSize : 8192,
                     chunkSizeHint,
                     waitForContinueTimeout != null ? waitForContinueTimeout : Timeout.ofSeconds(3),

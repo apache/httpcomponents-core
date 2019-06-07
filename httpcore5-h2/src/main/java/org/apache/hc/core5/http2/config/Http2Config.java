@@ -38,9 +38,9 @@ import org.apache.hc.core5.util.Args;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class H2Config {
+public class Http2Config {
 
-    public static final H2Config DEFAULT = new Builder().build();
+    public static final Http2Config DEFAULT = new Builder().build();
 
     private final int headerTableSize;
     private final boolean pushEnabled;
@@ -49,7 +49,7 @@ public class H2Config {
     private final int maxFrameSize;
     private final int maxHeaderListSize;
 
-    H2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
+    Http2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
              final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize) {
         super();
         this.headerTableSize = headerTableSize;
@@ -97,11 +97,11 @@ public class H2Config {
         return builder.toString();
     }
 
-    public static H2Config.Builder custom() {
+    public static Http2Config.Builder custom() {
         return new Builder();
     }
 
-    public static H2Config.Builder copy(final H2Config config) {
+    public static Http2Config.Builder copy(final Http2Config config) {
         Args.notNull(config, "Connection config");
         return new Builder()
                 .setHeaderTableSize(config.getHeaderTableSize())
@@ -165,8 +165,8 @@ public class H2Config {
             return this;
         }
 
-        public H2Config build() {
-            return new H2Config(
+        public Http2Config build() {
+            return new Http2Config(
                     headerTableSize,
                     pushEnabled,
                     maxConcurrentStreams,
