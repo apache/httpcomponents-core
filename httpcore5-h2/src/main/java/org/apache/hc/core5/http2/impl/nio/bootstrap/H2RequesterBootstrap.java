@@ -45,10 +45,10 @@ import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.impl.Http2Processors;
-import org.apache.hc.core5.http2.impl.nio.ClientHttp2StreamMultiplexerFactory;
+import org.apache.hc.core5.http2.impl.H2Processors;
+import org.apache.hc.core5.http2.impl.nio.ClientH2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiatorFactory;
-import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
+import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.pool.ConnPoolListener;
@@ -67,7 +67,7 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * {@link Http2AsyncRequester} bootstrap.
+ * {@link H2AsyncRequester} bootstrap.
  *
  * @since 5.0
  */
@@ -90,7 +90,7 @@ public class H2RequesterBootstrap {
     private Timeout handshakeTimeout;
     private Decorator<ProtocolIOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
-    private Http2StreamListener streamListener;
+    private H2StreamListener streamListener;
     private Http1StreamListener http1StreamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
 
@@ -212,9 +212,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link Http2StreamListener} instance.
+     * Assigns {@link H2StreamListener} instance.
      */
-    public final H2RequesterBootstrap setStreamListener(final Http2StreamListener streamListener) {
+    public final H2RequesterBootstrap setStreamListener(final H2StreamListener streamListener) {
         this.streamListener = streamListener;
         return this;
     }
@@ -273,7 +273,7 @@ public class H2RequesterBootstrap {
         return this;
     }
 
-    public Http2AsyncRequester create() {
+    public H2AsyncRequester create() {
         final ManagedConnPool<HttpHost, IOSession> connPool;
         switch (poolConcurrencyPolicy != null ? poolConcurrencyPolicy : PoolConcurrencyPolicy.STRICT) {
             case LAX:
@@ -302,8 +302,8 @@ public class H2RequesterBootstrap {
                 h1Config != null ? h1Config : H1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 http1StreamListener);
-        final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(
-                httpProcessor != null ? httpProcessor : Http2Processors.client(),
+        final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientH2StreamMultiplexerFactory(
+                httpProcessor != null ? httpProcessor : H2Processors.client(),
                 new DefaultAsyncPushConsumerFactory(registry),
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
@@ -314,7 +314,7 @@ public class H2RequesterBootstrap {
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
                 handshakeTimeout);
-        return new Http2AsyncRequester(
+        return new H2AsyncRequester(
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 ioReactorConfig,
                 ioEventHandlerFactory,

@@ -83,7 +83,7 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
-import org.apache.hc.core5.testing.nio.LoggingHttp2StreamListener;
+import org.apache.hc.core5.testing.nio.LoggingH2StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
 import org.apache.hc.core5.util.Timeout;
@@ -164,7 +164,7 @@ public class ReactiveClientTest {
                         .build())
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
-                .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
+                .setStreamListener(LoggingH2StreamListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
@@ -213,7 +213,7 @@ public class ReactiveClientTest {
                     .build())
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
-                .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
+                .setStreamListener(LoggingH2StreamListener.INSTANCE)
                 .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .create();

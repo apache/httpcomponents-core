@@ -61,9 +61,9 @@ import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
-import org.apache.hc.core5.http2.impl.Http2Processors;
-import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
-import org.apache.hc.core5.http2.impl.nio.ServerHttp2StreamMultiplexerFactory;
+import org.apache.hc.core5.http2.impl.H2Processors;
+import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
+import org.apache.hc.core5.http2.impl.nio.ServerH2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiatorFactory;
 import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.net.InetAddressUtils;
@@ -95,7 +95,7 @@ public class H2ServerBootstrap {
     private Timeout handshakeTimeout;
     private Decorator<ProtocolIOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
-    private Http2StreamListener http2StreamListener;
+    private H2StreamListener h2StreamListener;
     private Http1StreamListener http1StreamListener;
 
     private H2ServerBootstrap() {
@@ -195,10 +195,10 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link Http2StreamListener} instance.
+     * Assigns {@link H2StreamListener} instance.
      */
-    public final H2ServerBootstrap setStreamListener(final Http2StreamListener http2StreamListener) {
-        this.http2StreamListener = http2StreamListener;
+    public final H2ServerBootstrap setStreamListener(final H2StreamListener h2StreamListener) {
+        this.h2StreamListener = h2StreamListener;
         return this;
     }
 
@@ -412,12 +412,12 @@ public class H2ServerBootstrap {
             });
         }
 
-        final ServerHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ServerHttp2StreamMultiplexerFactory(
-                httpProcessor != null ? httpProcessor : Http2Processors.server(),
+        final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory = new ServerH2StreamMultiplexerFactory(
+                httpProcessor != null ? httpProcessor : H2Processors.server(),
                 handlerFactory,
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
-                http2StreamListener);
+                h2StreamListener);
         final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 handlerFactory,
