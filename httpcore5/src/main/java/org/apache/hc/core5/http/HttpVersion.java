@@ -70,7 +70,27 @@ public final class HttpVersion extends ProtocolVersion {
     public static final HttpVersion[] ALL = {HTTP_0_9, HTTP_1_0, HTTP_1_1, HTTP_2_0};
 
     /**
-     * Create an HTTP protocol version designator.
+     * Gets a specific instance or creates a new one.
+     *
+     * @param major     the major version
+     * @param minor     the minor version
+     *
+     * @return an instance of {@link HttpVersion} with the argument version, never null.
+     * @throws IllegalArgumentException if either major or minor version number is negative
+     * @since 5.0
+     */
+    public static HttpVersion get(final int major, final int minor) {
+        for (int i = 0; i < ALL.length; i++) {
+            if (ALL[i].equals(major, minor)) {
+                return ALL[i];
+            }
+        }
+        // argument checking is done in the constructor
+        return new HttpVersion(major, minor);
+    }
+
+    /**
+     * Creates an HTTP protocol version designator.
      *
      * @param major   the major version number of the HTTP protocol
      * @param minor   the minor version number of the HTTP protocol
@@ -79,38 +99,6 @@ public final class HttpVersion extends ProtocolVersion {
      */
     public HttpVersion(final int major, final int minor) {
         super(HTTP, major, minor);
-    }
-
-
-    /**
-     * Obtains a specific HTTP version.
-     *
-     * @param major     the major version
-     * @param minor     the minor version
-     *
-     * @return  an instance of {@link HttpVersion} with the argument version
-     */
-    @Override
-    public ProtocolVersion forVersion(final int major, final int minor) {
-
-        if ((major == getMajor()) && (minor == getMinor())) {
-            return this;
-        }
-
-        if (major == 1) {
-            if (minor == 0) {
-                return HTTP_1_0;
-            }
-            if (minor == 1) {
-                return HTTP_1_1;
-            }
-        }
-        if ((major == 0) && (minor == 9)) {
-            return HTTP_0_9;
-        }
-
-        // argument checking is done in the constructor
-        return new HttpVersion(major, minor);
     }
 
 }
