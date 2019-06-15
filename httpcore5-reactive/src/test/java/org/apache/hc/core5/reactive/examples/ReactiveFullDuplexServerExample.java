@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.message.BasicHeader;
@@ -79,7 +79,7 @@ public class ReactiveFullDuplexServerExample {
 
         final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
             .setIOReactorConfig(config)
-            .setStreamListener(new Http1StreamListener() {
+            .setStreamListener(new H1StreamListener() {
                 @Override
                 public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
                     System.out.println(connection.getRemoteAddress() + " " + new RequestLine(request));

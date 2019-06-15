@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.NamedElementChain;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
@@ -96,7 +96,7 @@ public class H2ServerBootstrap {
     private Decorator<ProtocolIOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
     private H2StreamListener h2StreamListener;
-    private Http1StreamListener http1StreamListener;
+    private H1StreamListener h1StreamListener;
 
     private H2ServerBootstrap() {
         this.handlerList = new ArrayList<>();
@@ -203,10 +203,10 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link Http1StreamListener} instance.
+     * Assigns {@link H1StreamListener} instance.
      */
-    public final H2ServerBootstrap setStreamListener(final Http1StreamListener http1StreamListener) {
-        this.http1StreamListener = http1StreamListener;
+    public final H2ServerBootstrap setStreamListener(final H1StreamListener h1StreamListener) {
+        this.h1StreamListener = h1StreamListener;
         return this;
     }
 
@@ -428,7 +428,7 @@ public class H2ServerBootstrap {
                 DefaultHttpResponseWriterFactory.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                http1StreamListener);
+                h1StreamListener);
         final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttpProtocolNegotiatorFactory(
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,

@@ -35,7 +35,7 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -91,7 +91,7 @@ public class H2RequesterBootstrap {
     private Decorator<ProtocolIOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
     private H2StreamListener streamListener;
-    private Http1StreamListener http1StreamListener;
+    private H1StreamListener h1StreamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
 
     private H2RequesterBootstrap() {
@@ -220,10 +220,10 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link Http1StreamListener} instance.
+     * Assigns {@link H1StreamListener} instance.
      */
-    public final H2RequesterBootstrap setStreamListener(final Http1StreamListener http1StreamListener) {
-        this.http1StreamListener = http1StreamListener;
+    public final H2RequesterBootstrap setStreamListener(final H1StreamListener h1StreamListener) {
+        this.h1StreamListener = h1StreamListener;
         return this;
     }
 
@@ -301,7 +301,7 @@ public class H2RequesterBootstrap {
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 h1Config != null ? h1Config : H1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
-                http1StreamListener);
+                h1StreamListener);
         final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientH2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : H2Processors.client(),
                 new DefaultAsyncPushConsumerFactory(registry),

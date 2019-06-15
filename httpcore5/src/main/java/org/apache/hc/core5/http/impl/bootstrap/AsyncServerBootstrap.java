@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.config.NamedElementChain;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestParserFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseWriterFactory;
@@ -87,7 +87,7 @@ public class AsyncServerBootstrap {
     private Timeout handshakeTimeout;
     private Decorator<ProtocolIOSession> ioSessionDecorator;
     private IOSessionListener sessionListener;
-    private Http1StreamListener streamListener;
+    private H1StreamListener streamListener;
 
     private AsyncServerBootstrap() {
         this.handlerList = new ArrayList<>();
@@ -190,11 +190,11 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link Http1StreamListener} instance.
+     * Assigns {@link H1StreamListener} instance.
      *
      * @since 5.0
      */
-    public final AsyncServerBootstrap setStreamListener(final Http1StreamListener streamListener) {
+    public final AsyncServerBootstrap setStreamListener(final H1StreamListener streamListener) {
         this.streamListener = streamListener;
         return this;
     }

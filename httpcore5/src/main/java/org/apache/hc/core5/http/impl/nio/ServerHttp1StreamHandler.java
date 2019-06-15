@@ -60,7 +60,7 @@ import org.apache.hc.core5.util.Asserts;
 
 class ServerHttp1StreamHandler implements ResourceHolder {
 
-    private final Http1StreamChannel<HttpResponse> outputChannel;
+    private final H1StreamChannel<HttpResponse> outputChannel;
     private final DataStreamChannel internalDataChannel;
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
@@ -76,7 +76,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     private volatile MessageState responseState;
 
     ServerHttp1StreamHandler(
-            final Http1StreamChannel<HttpResponse> outputChannel,
+            final H1StreamChannel<HttpResponse> outputChannel,
             final HttpProcessor httpProcessor,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,

@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -62,7 +62,7 @@ public final class ClientHttp1StreamDuplexerFactory {
     private final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
-    private final Http1StreamListener streamListener;
+    private final H1StreamListener streamListener;
 
     public ClientHttp1StreamDuplexerFactory(
             final HttpProcessor httpProcessor,
@@ -73,7 +73,7 @@ public final class ClientHttp1StreamDuplexerFactory {
             final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final Http1StreamListener streamListener) {
+            final H1StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
         this.charCodingConfig = charCodingConfig !=  null ? charCodingConfig : CharCodingConfig.DEFAULT;
@@ -97,7 +97,7 @@ public final class ClientHttp1StreamDuplexerFactory {
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParserFactory<HttpResponse> responseParserFactory,
             final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory,
-            final Http1StreamListener streamListener) {
+            final H1StreamListener streamListener) {
         this(httpProcessor, h1Config, charCodingConfig, connectionReuseStrategy,
                 responseParserFactory, requestWriterFactory, null, null, streamListener);
     }
@@ -106,7 +106,7 @@ public final class ClientHttp1StreamDuplexerFactory {
             final HttpProcessor httpProcessor,
             final H1Config h1Config,
             final CharCodingConfig charCodingConfig,
-            final Http1StreamListener streamListener) {
+            final H1StreamListener streamListener) {
         this(httpProcessor, h1Config, charCodingConfig, null, null, null, streamListener);
     }
 

@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
 import org.apache.hc.core5.http.message.MessageSupport;
@@ -76,7 +76,7 @@ public class HttpRequestExecutor {
 
     private final int waitForContinue;
     private final ConnectionReuseStrategy connReuseStrategy;
-    private final Http1StreamListener streamListener;
+    private final H1StreamListener streamListener;
 
     /**
      * Creates new instance of HttpRequestExecutor.
@@ -86,7 +86,7 @@ public class HttpRequestExecutor {
     public HttpRequestExecutor(
             final int waitForContinue,
             final ConnectionReuseStrategy connReuseStrategy,
-            final Http1StreamListener streamListener) {
+            final H1StreamListener streamListener) {
         super();
         this.waitForContinue = Args.positive(waitForContinue, "Wait for continue time");
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy : DefaultConnectionReuseStrategy.INSTANCE;

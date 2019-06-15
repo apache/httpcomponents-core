@@ -44,16 +44,16 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Timeout;
 
-public class Http1TestClient extends AsyncRequester  {
+public class H1TestClient extends AsyncRequester  {
 
     private final SSLContext sslContext;
 
-    public Http1TestClient(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
+    public H1TestClient(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig);
         this.sslContext = sslContext;
     }
 
-    public Http1TestClient() throws IOException {
+    public H1TestClient() throws IOException {
         this(IOReactorConfig.DEFAULT, null);
     }
 

@@ -24,28 +24,44 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpResponse;
+package org.apache.hc.core5.testing.nio;
 
-/**
- * HTTP/1.1 stream event listener.
- *
- * @since 5.0
- */
-@Contract(threading = ThreadingBehavior.STATELESS)
-@Internal
-public interface Http1StreamListener {
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.testing.SocksProxy;
+import org.apache.hc.core5.util.TimeValue;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 
-    void onRequestHead(HttpConnection connection, HttpRequest request);
+public class H1SocksProxyIntegrationTest extends H1IntegrationTest {
 
-    void onResponseHead(HttpConnection connection, HttpResponse response);
+    protected static SocksProxy PROXY;
 
-    void onExchangeComplete(HttpConnection connection, boolean keepAlive);
+    @BeforeClass
+    public static void before() throws Throwable {
+        PROXY = new SocksProxy();
+        PROXY.start();
+    }
+
+    @AfterClass
+    public static void after() {
+        if (PROXY != null) {
+            try {
+                PROXY.shutdown(TimeValue.ofSeconds(5));
+            } catch (final Exception ignore) {
+            }
+            PROXY = null;
+        }
+    }
+
+    public H1SocksProxyIntegrationTest(final URIScheme scheme) {
+        super(scheme);
+    }
+
+    @Override
+    protected IOReactorConfig buildReactorConfig() {
+        return IOReactorConfig.custom().setSocksProxyAddress(PROXY.getProxyAddress()).build();
+    }
 
 }

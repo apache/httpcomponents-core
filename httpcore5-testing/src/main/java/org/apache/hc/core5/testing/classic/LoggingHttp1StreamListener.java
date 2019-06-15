@@ -30,11 +30,11 @@ package org.apache.hc.core5.testing.classic;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
-public class LoggingHttp1StreamListener implements Http1StreamListener {
+public class LoggingHttp1StreamListener implements H1StreamListener {
 
     public static final LoggingHttp1StreamListener INSTANCE = new LoggingHttp1StreamListener();
 

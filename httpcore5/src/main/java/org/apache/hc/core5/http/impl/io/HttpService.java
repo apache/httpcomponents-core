@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
@@ -85,7 +85,7 @@ public class HttpService {
     private final HttpProcessor processor;
     private final HttpServerRequestHandler requestHandler;
     private final ConnectionReuseStrategy connReuseStrategy;
-    private final Http1StreamListener streamListener;
+    private final H1StreamListener streamListener;
 
     /**
      * Create a new HTTP service.
@@ -103,7 +103,7 @@ public class HttpService {
             final HttpRequestMapper<HttpRequestHandler> handlerMapper,
             final ConnectionReuseStrategy connReuseStrategy,
             final HttpResponseFactory<ClassicHttpResponse> responseFactory,
-            final Http1StreamListener streamListener) {
+            final H1StreamListener streamListener) {
         this(processor,
                 new BasicHttpServerExpectationDecorator(new BasicHttpServerRequestHandler(handlerMapper, responseFactory)),
                 connReuseStrategy,
@@ -141,7 +141,7 @@ public class HttpService {
             final HttpProcessor processor,
             final HttpServerRequestHandler requestHandler,
             final ConnectionReuseStrategy connReuseStrategy,
-            final Http1StreamListener streamListener) {
+            final H1StreamListener streamListener) {
         super();
         this.processor =  Args.notNull(processor, "HTTP processor");
         this.requestHandler =  Args.notNull(requestHandler, "Request handler");

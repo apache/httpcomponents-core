@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Methods;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.io.SocketConfig;
@@ -62,7 +62,7 @@ public class ClassicPostExecutionExample {
 
     public static void main(final String[] args) throws Exception {
         final HttpRequester httpRequester = RequesterBootstrap.bootstrap()
-                .setStreamListener(new Http1StreamListener() {
+                .setStreamListener(new H1StreamListener() {
 
                     @Override
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {

@@ -50,7 +50,7 @@ import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
@@ -82,9 +82,9 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     private final HttpProcessor httpProcessor;
     private final ConnectionReuseStrategy connectionReuseStrategy;
     private final H1Config h1Config;
-    private final Http1StreamListener streamListener;
+    private final H1StreamListener streamListener;
     private final Queue<ClientHttp1StreamHandler> pipeline;
-    private final Http1StreamChannel<HttpRequest> outputChannel;
+    private final H1StreamChannel<HttpRequest> outputChannel;
 
     private volatile ClientHttp1StreamHandler outgoing;
     private volatile ClientHttp1StreamHandler incoming;
@@ -99,7 +99,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final NHttpMessageWriter<HttpRequest> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final Http1StreamListener streamListener) {
+            final H1StreamListener streamListener) {
         super(ioSession, h1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter, incomingContentStrategy, outgoingContentStrategy);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
@@ -107,7 +107,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.streamListener = streamListener;
         this.pipeline = new ConcurrentLinkedQueue<>();
-        this.outputChannel = new Http1StreamChannel<HttpRequest>() {
+        this.outputChannel = new H1StreamChannel<HttpRequest>() {
 
             @Override
             public void close() {

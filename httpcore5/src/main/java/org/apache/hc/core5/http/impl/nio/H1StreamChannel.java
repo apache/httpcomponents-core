@@ -24,44 +24,31 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.http.impl.nio;
 
-package org.apache.hc.core5.testing.nio;
+import java.io.IOException;
 
-import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.testing.SocksProxy;
-import org.apache.hc.core5.util.TimeValue;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.nio.ContentEncoder;
+import org.apache.hc.core5.util.Timeout;
 
-public class Http1SocksProxyIntegrationTest extends Http1IntegrationTest {
+interface H1StreamChannel<OutgoingMessage extends HttpMessage> extends ContentEncoder {
 
-    protected static SocksProxy PROXY;
+    void close();
 
-    @BeforeClass
-    public static void before() throws Throwable {
-        PROXY = new SocksProxy();
-        PROXY.start();
-    }
+    void activate() throws HttpException, IOException;
 
-    @AfterClass
-    public static void after() {
-        if (PROXY != null) {
-            try {
-                PROXY.shutdown(TimeValue.ofSeconds(5));
-            } catch (final Exception ignore) {
-            }
-            PROXY = null;
-        }
-    }
+    void submit(OutgoingMessage messageHead, boolean endStream, final FlushMode flushMode) throws HttpException, IOException;
 
-    public Http1SocksProxyIntegrationTest(final URIScheme scheme) {
-        super(scheme);
-    }
+    void requestOutput();
 
-    @Override
-    protected IOReactorConfig buildReactorConfig() {
-        return IOReactorConfig.custom().setSocksProxyAddress(PROXY.getProxyAddress()).build();
-    }
+    void suspendOutput() throws IOException;
+
+    boolean abortGracefully() throws IOException;
+
+    Timeout getSocketTimeout();
+
+    void setSocketTimeout(Timeout timeout);
 
 }

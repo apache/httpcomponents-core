@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
@@ -83,7 +83,7 @@ public class ClassicReverseProxyExample {
         System.out.println("Reverse proxy to " + targetHost);
 
         final HttpRequester requester = RequesterBootstrap.bootstrap()
-                .setStreamListener(new Http1StreamListener() {
+                .setStreamListener(new H1StreamListener() {
 
                     @Override
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
@@ -128,7 +128,7 @@ public class ClassicReverseProxyExample {
 
         final HttpServer server = ServerBootstrap.bootstrap()
                 .setListenerPort(port)
-                .setStreamListener(new Http1StreamListener() {
+                .setStreamListener(new H1StreamListener() {
 
                     @Override
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {

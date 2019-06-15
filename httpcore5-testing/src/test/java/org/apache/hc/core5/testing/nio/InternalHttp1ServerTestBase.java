@@ -53,7 +53,7 @@ public abstract class InternalHttp1ServerTestBase {
         this(URIScheme.HTTP);
     }
 
-    protected Http1TestServer server;
+    protected H1TestServer server;
 
     @Rule
     public ExternalResource serverResource = new ExternalResource() {
@@ -61,7 +61,7 @@ public abstract class InternalHttp1ServerTestBase {
         @Override
         protected void before() throws Throwable {
             log.debug("Starting up test server");
-            server = new Http1TestServer(
+            server = new H1TestServer(
                     IOReactorConfig.DEFAULT,
                     scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null);
         }

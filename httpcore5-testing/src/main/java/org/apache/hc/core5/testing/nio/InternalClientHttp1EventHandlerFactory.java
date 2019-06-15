@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexer;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestWriterFactory;
@@ -94,7 +94,7 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
             final NHttpMessageWriter<HttpRequest> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final Http1StreamListener streamListener) {
+            final H1StreamListener streamListener) {
         return new ClientHttp1StreamDuplexer(ioSession, httpProcessor, h1Config, charCodingConfig,
                 connectionReuseStrategy, incomingMessageParser, outgoingMessageWriter,
                 incomingContentStrategy, outgoingContentStrategy, streamListener);

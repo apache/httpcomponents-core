@@ -58,7 +58,7 @@ import org.apache.hc.core5.util.Timeout;
 
 class ClientHttp1StreamHandler implements ResourceHolder {
 
-    private final Http1StreamChannel<HttpRequest> outputChannel;
+    private final H1StreamChannel<HttpRequest> outputChannel;
     private final DataStreamChannel internalDataChannel;
     private final HttpProcessor httpProcessor;
     private final H1Config h1Config;
@@ -75,7 +75,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     private volatile MessageState responseState;
 
     ClientHttp1StreamHandler(
-            final Http1StreamChannel<HttpRequest> outputChannel,
+            final H1StreamChannel<HttpRequest> outputChannel,
             final HttpProcessor httpProcessor,
             final H1Config h1Config,
             final ConnectionReuseStrategy connectionReuseStrategy,

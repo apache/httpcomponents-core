@@ -82,7 +82,7 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.AbstractContentEncoder;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
@@ -141,7 +141,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
-public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
+public class H1IntegrationTest extends InternalHttp1ServerTestBase {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -153,19 +153,19 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         });
     }
 
-    public Http1IntegrationTest(final URIScheme scheme) {
+    public H1IntegrationTest(final URIScheme scheme) {
         super(scheme);
     }
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
     private static final Timeout LONG_TIMEOUT = Timeout.ofSeconds(60);
 
-    private Http1TestClient client;
+    private H1TestClient client;
 
     @Before
     public void setup() throws Exception {
         log.debug("Starting up test client");
-        client = new Http1TestClient(
+        client = new H1TestClient(
                 buildReactorConfig(),
                 scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
     }
@@ -1395,7 +1395,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     final NHttpMessageWriter<HttpResponse> outgoingMessageWriter,
                     final ContentLengthStrategy incomingContentStrategy,
                     final ContentLengthStrategy outgoingContentStrategy,
-                    final Http1StreamListener streamListener) {
+                    final H1StreamListener streamListener) {
                 return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
                         scheme.id,
                         h1Config, connectionConfig, connectionReuseStrategy,

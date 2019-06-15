@@ -76,7 +76,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
-public class Http1AuthenticationTest {
+public class H1AuthenticationTest {
 
     @Parameterized.Parameters(name = "respond immediately on auth failure: {0}")
     public static Collection<Object[]> data() {
@@ -93,7 +93,7 @@ public class Http1AuthenticationTest {
     private final boolean respondImmediately;
     private HttpAsyncServer server;
 
-    public Http1AuthenticationTest(final Boolean respondImmediately) {
+    public H1AuthenticationTest(final Boolean respondImmediately) {
         this.respondImmediately = respondImmediately;
     }
 

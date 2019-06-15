@@ -50,18 +50,18 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 
-public class Http1TestServer extends AsyncServer {
+public class H1TestServer extends AsyncServer {
 
     private final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry;
     private final SSLContext sslContext;
 
-    public Http1TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
+    public H1TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
         super(ioReactorConfig);
         this.registry = new RequestHandlerRegistry<>();
         this.sslContext = sslContext;
     }
 
-    public Http1TestServer() throws IOException {
+    public H1TestServer() throws IOException {
         this(IOReactorConfig.DEFAULT, null);
     }
 

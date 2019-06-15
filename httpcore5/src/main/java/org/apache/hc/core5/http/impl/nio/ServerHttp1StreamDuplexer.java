@@ -49,7 +49,7 @@ import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.ContentDecoder;
@@ -83,9 +83,9 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final H1Config h1Config;
     private final ConnectionReuseStrategy connectionReuseStrategy;
-    private final Http1StreamListener streamListener;
+    private final H1StreamListener streamListener;
     private final Queue<ServerHttp1StreamHandler> pipeline;
-    private final Http1StreamChannel<HttpResponse> outputChannel;
+    private final H1StreamChannel<HttpResponse> outputChannel;
 
     private volatile ServerHttp1StreamHandler outgoing;
     private volatile ServerHttp1StreamHandler incoming;
@@ -102,7 +102,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final NHttpMessageWriter<HttpResponse> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final Http1StreamListener streamListener) {
+            final H1StreamListener streamListener) {
         super(ioSession, h1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter, incomingContentStrategy, outgoingContentStrategy);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
@@ -112,7 +112,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.streamListener = streamListener;
         this.pipeline = new ConcurrentLinkedQueue<>();
-        this.outputChannel = new Http1StreamChannel<HttpResponse>() {
+        this.outputChannel = new H1StreamChannel<HttpResponse>() {
 
             @Override
             public void close() {
@@ -178,7 +178,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
             @Override
             public String toString() {
-                return "Http1StreamChannel[" + ServerHttp1StreamDuplexer.this.toString() + "]";
+                return "H1StreamChannel[" + ServerHttp1StreamDuplexer.this.toString() + "]";
             }
 
         };
@@ -425,15 +425,15 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         return buf.toString();
     }
 
-    private static class DelayedOutputChannel implements Http1StreamChannel<HttpResponse> {
+    private static class DelayedOutputChannel implements H1StreamChannel<HttpResponse> {
 
-        private final Http1StreamChannel<HttpResponse> channel;
+        private final H1StreamChannel<HttpResponse> channel;
 
         private volatile boolean direct;
         private volatile HttpResponse delayedResponse;
         private volatile boolean completed;
 
-        private DelayedOutputChannel(final Http1StreamChannel<HttpResponse> channel) {
+        private DelayedOutputChannel(final H1StreamChannel<HttpResponse> channel) {
             this.channel = channel;
         }
 

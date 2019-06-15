@@ -87,7 +87,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
-public class Http1ServerAndRequesterTest {
+public class H1ServerAndRequesterTest {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -102,7 +102,7 @@ public class Http1ServerAndRequesterTest {
 
     private final URIScheme scheme;
 
-    public Http1ServerAndRequesterTest(final URIScheme scheme) {
+    public H1ServerAndRequesterTest(final URIScheme scheme) {
         this.scheme = scheme;
     }
 

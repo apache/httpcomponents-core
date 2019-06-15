@@ -53,7 +53,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -357,7 +357,7 @@ public class HttpBenchmark {
                     }
 
                 })
-                .setStreamListener(new Http1StreamListener() {
+                .setStreamListener(new H1StreamListener() {
 
                     @Override
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {

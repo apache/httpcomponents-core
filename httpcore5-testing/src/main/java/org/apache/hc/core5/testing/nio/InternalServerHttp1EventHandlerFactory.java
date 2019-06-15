@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.H1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
-import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.H1StreamListener;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestParserFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseWriterFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
@@ -101,7 +101,7 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
             final NHttpMessageWriter<HttpResponse> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final Http1StreamListener streamListener) {
+            final H1StreamListener streamListener) {
         return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
                 sslContext != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id, h1Config,
                 charCodingConfig, connectionReuseStrategy, incomingMessageParser, outgoingMessageWriter,

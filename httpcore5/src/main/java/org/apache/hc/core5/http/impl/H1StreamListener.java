@@ -24,31 +24,28 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio;
+package org.apache.hc.core5.http.impl;
 
-import java.io.IOException;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpMessage;
-import org.apache.hc.core5.http.nio.ContentEncoder;
-import org.apache.hc.core5.util.Timeout;
+/**
+ * HTTP/1.1 stream event listener.
+ *
+ * @since 5.0
+ */
+@Contract(threading = ThreadingBehavior.STATELESS)
+@Internal
+public interface H1StreamListener {
 
-interface Http1StreamChannel<OutgoingMessage extends HttpMessage> extends ContentEncoder {
+    void onRequestHead(HttpConnection connection, HttpRequest request);
 
-    void close();
+    void onResponseHead(HttpConnection connection, HttpResponse response);
 
-    void activate() throws HttpException, IOException;
-
-    void submit(OutgoingMessage messageHead, boolean endStream, final FlushMode flushMode) throws HttpException, IOException;
-
-    void requestOutput();
-
-    void suspendOutput() throws IOException;
-
-    boolean abortGracefully() throws IOException;
-
-    Timeout getSocketTimeout();
-
-    void setSocketTimeout(Timeout timeout);
+    void onExchangeComplete(HttpConnection connection, boolean keepAlive);
 
 }
