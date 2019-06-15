@@ -49,11 +49,7 @@ public class BasicLineFormatter implements LineFormatter {
     }
 
     void formatProtocolVersion(final CharArrayBuffer buffer, final ProtocolVersion version) {
-        buffer.append(version.getProtocol());
-        buffer.append('/');
-        buffer.append(Integer.toString(version.getMajor()));
-        buffer.append('.');
-        buffer.append(Integer.toString(version.getMinor()));
+        buffer.append(version.format());
     }
 
     @Override
@@ -68,15 +64,15 @@ public class BasicLineFormatter implements LineFormatter {
     }
 
     @Override
-    public void formatStatusLine(final CharArrayBuffer buffer, final StatusLine statline) {
+    public void formatStatusLine(final CharArrayBuffer buffer, final StatusLine statusLine) {
         Args.notNull(buffer, "Char array buffer");
-        Args.notNull(statline, "Status line");
+        Args.notNull(statusLine, "Status line");
 
-        formatProtocolVersion(buffer, statline.getProtocolVersion());
+        formatProtocolVersion(buffer, statusLine.getProtocolVersion());
         buffer.append(' ');
-        buffer.append(Integer.toString(statline.getStatusCode()));
+        buffer.append(Integer.toString(statusLine.getStatusCode()));
         buffer.append(' '); // keep whitespace even if reason phrase is empty
-        final String reasonPhrase = statline.getReasonPhrase();
+        final String reasonPhrase = statusLine.getReasonPhrase();
         if (reasonPhrase != null) {
             buffer.append(reasonPhrase);
         }
