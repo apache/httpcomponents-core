@@ -38,6 +38,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.Cancellable;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
@@ -48,11 +49,11 @@ import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
+import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequester;
@@ -348,19 +349,31 @@ public class Http2ServerAndMultiplexingRequesterTest {
             final Cancellable cancellable = requester.execute(
                     new BasicClientExchangeHandler<>(new BasicRequestProducer(Methods.POST, target, "/stuff",
                             new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
-                            new BasicResponseConsumer<>(new StringAsyncEntityConsumer() {
+                            new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                            new FutureCallback<Message<HttpResponse, String>>() {
 
                                 @Override
-                                public void releaseResources() {
-                                    super.releaseResources();
+                                public void completed(final Message<HttpResponse, String> result) {
                                     countDownLatch.countDown();
                                 }
-                            }), null), TIMEOUT, HttpCoreContext.create());
+
+                                @Override
+                                public void failed(final Exception ex) {
+                                    countDownLatch.countDown();
+                                }
+
+                                @Override
+                                public void cancelled() {
+                                    countDownLatch.countDown();
+                                }
+
+                            }),
+                    TIMEOUT,
+                    HttpCoreContext.create());
             Thread.sleep(random.nextInt(10));
             cancellable.cancel();
         }
         Assert.assertThat(countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()), CoreMatchers.equalTo(true));
-        Thread.sleep(1500);
     }
 
 }
