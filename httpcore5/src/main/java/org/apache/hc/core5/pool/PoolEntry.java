@@ -52,13 +52,13 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     private final T route;
     private final TimeValue timeToLive;
     private final AtomicReference<C> connRef;
+    private final Supplier<Long> currentTimeSupplier;
 
     private volatile Object state;
     private volatile long created;
     private volatile long updated;
     private volatile Deadline expiryDeadline = Deadline.MIN_VALUE;
     private volatile Deadline validityDeadline = Deadline.MIN_VALUE;
-    private Supplier<Long> currentTimeSupplier;
 
     PoolEntry(final T route, final TimeValue timeToLive, final Supplier<Long> currentTimeSupplier) {
         super();
@@ -96,8 +96,7 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     }
 
     /**
-     * @since 4.4
-     * @since 5.0 return value is Deadline.
+     * @since 5.0
      */
     public Deadline getValidityDeadline() {
         return this.validityDeadline;
