@@ -41,6 +41,35 @@ import org.junit.Test;
 public class TestHttpVersion {
 
     @Test
+    public void testEqualsMajorMinor() {
+        Assert.assertTrue(HttpVersion.HTTP_0_9.equals(0, 9));
+        Assert.assertTrue(HttpVersion.HTTP_1_0.equals(1, 0));
+        Assert.assertTrue(HttpVersion.HTTP_1_1.equals(1, 1));
+        Assert.assertTrue(HttpVersion.HTTP_2.equals(2, 0));
+        Assert.assertTrue(HttpVersion.HTTP_2_0.equals(2, 0));
+        //
+        Assert.assertFalse(HttpVersion.HTTP_0_9.equals(2, 0));
+    }
+
+    @Test
+    public void testGet() {
+        Assert.assertEquals(HttpVersion.HTTP_0_9, HttpVersion.get(0, 9));
+        Assert.assertEquals(HttpVersion.HTTP_1_0, HttpVersion.get(1, 0));
+        Assert.assertEquals(HttpVersion.HTTP_1_1, HttpVersion.get(1, 1));
+        Assert.assertEquals(HttpVersion.HTTP_2_0, HttpVersion.get(2, 0));
+        Assert.assertEquals(HttpVersion.HTTP_2, HttpVersion.get(2, 0));
+        Assert.assertNotEquals(HttpVersion.HTTP_2_0, HttpVersion.get(2, 1));
+        //
+        Assert.assertSame(HttpVersion.HTTP_0_9, HttpVersion.get(0, 9));
+        Assert.assertSame(HttpVersion.HTTP_1_0, HttpVersion.get(1, 0));
+        Assert.assertSame(HttpVersion.HTTP_1_1, HttpVersion.get(1, 1));
+        Assert.assertSame(HttpVersion.HTTP_2_0, HttpVersion.get(2, 0));
+        Assert.assertSame(HttpVersion.HTTP_2, HttpVersion.get(2, 0));
+        Assert.assertNotSame(HttpVersion.HTTP_2_0, HttpVersion.get(2, 1));
+    }
+
+    @SuppressWarnings("unused")
+    @Test
     public void testHttpVersionInvalidConstructorInput() throws Exception {
         try {
             new HttpVersion(-1, -1);
@@ -108,14 +137,15 @@ public class TestHttpVersion {
     public void testSerialization() throws Exception {
         final HttpVersion orig = HttpVersion.HTTP_1_1;
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
-        outStream.writeObject(orig);
-        outStream.close();
-        final byte[] raw = outbuffer.toByteArray();
-        final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
-        final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
-        final HttpVersion clone = (HttpVersion) inStream.readObject();
-        Assert.assertEquals(orig, clone);
+        try (final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer)) {
+            outStream.writeObject(orig);
+            outStream.close();
+            final byte[] raw = outbuffer.toByteArray();
+            final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
+            final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
+            final HttpVersion clone = (HttpVersion) inStream.readObject();
+            Assert.assertEquals(orig, clone);
+        }
     }
 
 }

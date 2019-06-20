@@ -102,33 +102,6 @@ public class ProtocolVersion implements Serializable {
 
 
     /**
-     * Obtains a specific version of this protocol.
-     * This can be used by derived classes to instantiate themselves instead
-     * of the base class, and to define constants for commonly used versions.
-     * <p>
-     * The default implementation in this class returns {@code this}
-     * if the version matches, and creates a new {@link ProtocolVersion}
-     * otherwise.
-     * </p>
-     *
-     * @param major     the major version
-     * @param minor     the minor version
-     *
-     * @return  a protocol version with the same protocol name
-     *          and the argument version
-     */
-    public ProtocolVersion forVersion(final int major, final int minor) {
-
-        if ((major == this.major) && (minor == this.minor)) {
-            return this;
-        }
-
-        // argument checking is done in the constructor
-        return new ProtocolVersion(this.protocol, major, minor);
-    }
-
-
-    /**
      * Obtains a hash code consistent with {@link #equals}.
      *
      * @return  the hashcode of this protocol version
@@ -138,10 +111,21 @@ public class ProtocolVersion implements Serializable {
         return this.protocol.hashCode() ^ (this.major * 100000) ^ this.minor;
     }
 
+    /**
+     * Checks whether this instance has the same major and minor version as the arguments.
+     *
+     * @param major the major version to check.
+     * @param minor the minor version to check.
+     * @return whether this instance has the same major and minor version as the arguments.
+     * @since 5.0
+     */
+    public final boolean equals(final int major, final int minor) {
+        return this.major == major && this.minor == minor;
+    }
 
     /**
      * Checks equality of this protocol version with an object.
-     * The object is equal if it is a protocl version with the same
+     * The object is equal if it is a protocol version with the same
      * protocol name, major version number, and minor version number.
      * The specific class of the object is <i>not</i> relevant,
      * instances of derived classes with identical attributes are
@@ -167,6 +151,21 @@ public class ProtocolVersion implements Serializable {
                (this.minor == that.minor));
     }
 
+    /**
+     * Formats this protocol version as a string.
+     *
+     * @return a protocol version string, like "HTTP/1.1"
+     * @since 5.0
+     */
+    public String format() {
+        final StringBuilder buffer = new StringBuilder();
+        buffer.append(this.protocol);
+        buffer.append('/');
+        buffer.append(Integer.toString(this.major));
+        buffer.append('.');
+        buffer.append(Integer.toString(this.minor));
+        return buffer.toString();
+    }
 
     /**
      * Checks whether this protocol can be compared to another one.
@@ -248,13 +247,7 @@ public class ProtocolVersion implements Serializable {
      */
     @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append(this.protocol);
-        buffer.append('/');
-        buffer.append(Integer.toString(this.major));
-        buffer.append('.');
-        buffer.append(Integer.toString(this.minor));
-        return buffer.toString();
+        return format();
     }
 
 }

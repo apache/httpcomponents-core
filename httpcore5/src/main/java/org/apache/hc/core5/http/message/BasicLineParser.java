@@ -133,7 +133,7 @@ public class BasicLineParser implements LineParser {
             throw new ParseException("Invalid protocol minor version number",
                     buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
         }
-        return new HttpVersion(major, minor);
+        return HttpVersion.get(major, minor);
     }
 
     /**
