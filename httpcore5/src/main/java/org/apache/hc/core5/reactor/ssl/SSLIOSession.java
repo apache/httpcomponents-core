@@ -824,6 +824,11 @@ public class SSLIOSession implements IOSession {
         return this.session.getLastWriteTime();
     }
 
+    @Override
+    public long getLastEventTime() {
+        return this.session.getLastEventTime();
+    }
+
     private static void formatOps(final StringBuilder buffer, final int ops) {
         if ((ops & SelectionKey.OP_READ) > 0) {
             buffer.append('r');

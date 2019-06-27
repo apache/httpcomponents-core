@@ -309,6 +309,11 @@ public class HttpBenchmark {
                             }
 
                             @Override
+                            public long getLastEventTime() {
+                                return ioSession.getLastEventTime();
+                            }
+
+                            @Override
                             public void updateReadTime() {
                                 ioSession.updateReadTime();
                             }

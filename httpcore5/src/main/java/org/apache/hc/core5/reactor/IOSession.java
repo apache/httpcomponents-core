@@ -178,6 +178,10 @@ public interface IOSession extends ModalCloseable, Identifiable {
     /**
      * Sets value of the socket timeout in milliseconds. The value of
      * {@code 0} signifies the session cannot time out.
+     * <p>
+     * Please note this operation may affect the last event time.
+     *
+     * @see #getLastEventTime()
      *
      * @param timeout socket timeout.
      */
@@ -196,6 +200,15 @@ public interface IOSession extends ModalCloseable, Identifiable {
      * @return timestamp.
      */
     long getLastWriteTime();
+
+    /**
+     * Returns timestamp of the last I/O event including socket timeout reset.
+     *
+     * @see #getSocketTimeout()
+     *
+     * @return timestamp.
+     */
+    long getLastEventTime();
 
     /**
      * Updates the timestamp of the last read event

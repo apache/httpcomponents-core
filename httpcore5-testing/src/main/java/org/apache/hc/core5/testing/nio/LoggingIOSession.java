@@ -219,6 +219,11 @@ public class LoggingIOSession implements ProtocolIOSession {
     }
 
     @Override
+    public long getLastEventTime() {
+        return this.session.getLastEventTime();
+    }
+
+    @Override
     public NamedEndpoint getInitialEndpoint() {
         return this.session.getInitialEndpoint();
     }

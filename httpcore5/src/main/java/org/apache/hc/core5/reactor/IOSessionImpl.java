@@ -58,6 +58,7 @@ class IOSessionImpl implements IOSession {
     private volatile Timeout socketTimeout;
     private volatile long lastReadTime;
     private volatile long lastWriteTime;
+    private volatile long lastEventTime;
 
     /**
      * Creates new instance of IOSessionImpl.
@@ -77,6 +78,7 @@ class IOSessionImpl implements IOSession {
         final long currentTimeMillis = System.currentTimeMillis();
         this.lastReadTime = currentTimeMillis;
         this.lastWriteTime = currentTimeMillis;
+        this.lastEventTime = currentTimeMillis;
     }
 
     @Override
@@ -174,16 +176,19 @@ class IOSessionImpl implements IOSession {
     @Override
     public void setSocketTimeout(final Timeout timeout) {
         this.socketTimeout = Timeout.defaultsToDisabled(timeout);
+        this.lastEventTime = System.currentTimeMillis();
     }
 
     @Override
     public void updateReadTime() {
         lastReadTime = System.currentTimeMillis();
+        lastEventTime = lastReadTime;
     }
 
     @Override
     public void updateWriteTime() {
         lastWriteTime = System.currentTimeMillis();
+        lastEventTime = lastWriteTime;
     }
 
     @Override
@@ -194,6 +199,11 @@ class IOSessionImpl implements IOSession {
     @Override
     public long getLastWriteTime() {
         return lastWriteTime;
+    }
+
+    @Override
+    public long getLastEventTime() {
+        return lastEventTime;
     }
 
     @Override

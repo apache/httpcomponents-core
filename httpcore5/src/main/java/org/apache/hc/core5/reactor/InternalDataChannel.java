@@ -394,6 +394,11 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
+    public long getLastEventTime() {
+        return ioSession.getLastEventTime();
+    }
+
+    @Override
     public String toString() {
         final SSLIOSession tlsSession = tlsSessionRef.get();
         if (tlsSession != null) {

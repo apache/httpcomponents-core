@@ -84,7 +84,7 @@ final class InternalConnectChannel extends InternalChannel {
     }
 
     @Override
-    long getLastReadTime() {
+    long getLastEventTime() {
         return creationTimeMillis;
     }
 
