@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
@@ -42,7 +41,6 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ConnectionAcceptor;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
-import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorService;
@@ -65,6 +63,7 @@ public class AsyncServer extends AbstractConnectionInitiatorBase implements IORe
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         this.ioReactor = new DefaultListeningIOReactor(
@@ -73,6 +72,7 @@ public class AsyncServer extends AbstractConnectionInitiatorBase implements IORe
                 new DefaultThreadFactory("server-dispatch", true),
                 new DefaultThreadFactory("server-listener", true),
                 ioSessionDecorator,
+                exceptionCallback,
                 sessionListener,
                 sessionShutdownCallback);
     }
@@ -114,11 +114,6 @@ public class AsyncServer extends AbstractConnectionInitiatorBase implements IORe
     @Override
     public IOReactorStatus getStatus() {
         return ioReactor.getStatus();
-    }
-
-    @Override
-    public List<ExceptionEvent> getExceptionLog() {
-        return ioReactor.getExceptionLog();
     }
 
     @Override

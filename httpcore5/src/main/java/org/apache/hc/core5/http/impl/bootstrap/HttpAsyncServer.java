@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http.impl.bootstrap;
 
 import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -49,8 +50,9 @@ public class HttpAsyncServer extends AsyncServer {
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener,
+        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
                         ShutdownCommand.GRACEFUL_NORMAL_CALLBACK);
     }
 

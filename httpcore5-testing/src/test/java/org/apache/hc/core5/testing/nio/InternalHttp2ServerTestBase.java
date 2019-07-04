@@ -27,17 +27,14 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import java.util.List;
-
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TimeValue;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.junit.Rule;
 import org.junit.rules.ExternalResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class InternalHttp2ServerTestBase {
 
@@ -69,18 +66,7 @@ public abstract class InternalHttp2ServerTestBase {
         protected void after() {
             log.debug("Shutting down test server");
             if (server != null) {
-                try {
-                    server.shutdown(TimeValue.ofSeconds(5));
-                    final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
-                    server = null;
-                    if (!exceptionLog.isEmpty()) {
-                        for (final ExceptionEvent event: exceptionLog) {
-                            final Throwable cause = event.getCause();
-                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
-                        }
-                    }
-                } catch (final Exception ignore) {
-                }
+                server.shutdown(TimeValue.ofSeconds(5));
             }
         }
 

@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
@@ -68,6 +69,7 @@ public class Http2MultiplexingRequesterBootstrap {
     private TlsStrategy tlsStrategy;
     private boolean strictALPNHandshake;
     private Decorator<ProtocolIOSession> ioSessionDecorator;
+    private Callback<Exception> exceptionCallback;
     private IOSessionListener sessionListener;
     private Http2StreamListener streamListener;
 
@@ -129,6 +131,14 @@ public class Http2MultiplexingRequesterBootstrap {
      */
     public final Http2MultiplexingRequesterBootstrap setIOSessionDecorator(final Decorator<ProtocolIOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
+        return this;
+    }
+
+    /**
+     * Assigns {@link Exception} {@link Callback} instance.
+     */
+    public final Http2MultiplexingRequesterBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
+        this.exceptionCallback = exceptionCallback;
         return this;
     }
 
@@ -208,6 +218,7 @@ public class Http2MultiplexingRequesterBootstrap {
 
                 },
                 ioSessionDecorator,
+                exceptionCallback,
                 sessionListener,
                 DefaultAddressResolver.INSTANCE,
                 tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());

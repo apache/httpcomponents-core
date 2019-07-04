@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
@@ -63,9 +64,10 @@ public class Http2AsyncRequester extends HttpAsyncRequester {
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,
             final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final ManagedConnPool<HttpHost, IOSession> connPool) {
-        super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, sessionListener, connPool);
+        super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool);
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
     }
 

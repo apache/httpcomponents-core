@@ -58,8 +58,14 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory threadFactory,
             final Callback<IOSession> sessionShutdownCallback) throws IOException {
-        return new DefaultConnectingIOReactor(ioEventHandlerFactory, ioReactorConfig, threadFactory,
-                LoggingIOSessionDecorator.INSTANCE, LoggingIOSessionListener.INSTANCE, sessionShutdownCallback);
+        return new DefaultConnectingIOReactor(
+                ioEventHandlerFactory,
+                ioReactorConfig,
+                threadFactory,
+                LoggingIOSessionDecorator.INSTANCE,
+                LoggingExceptionCallback.INSTANCE,
+                LoggingIOSessionListener.INSTANCE,
+                sessionShutdownCallback);
     }
 
     private InetSocketAddress toSocketAddress(final HttpHost host) {

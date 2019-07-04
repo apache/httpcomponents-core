@@ -30,12 +30,7 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
@@ -61,7 +56,6 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
     private final static ThreadFactory DISPATCH_THREAD_FACTORY = new DefaultThreadFactory("I/O server dispatch", true);
     private final static ThreadFactory LISTENER_THREAD_FACTORY = new DefaultThreadFactory("I/O listener", true);
 
-    private final Deque<ExceptionEvent> auditLog;
     private final int workerCount;
     private final SingleCoreIOReactor[] workers;
     private final SingleCoreListeningIOReactor listener;
@@ -84,16 +78,16 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
             final ThreadFactory dispatchThreadFactory,
             final ThreadFactory listenerThreadFactory,
             final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
-        this.auditLog = new ConcurrentLinkedDeque<>();
         this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
         this.workers = new SingleCoreIOReactor[workerCount];
         final Thread[] threads = new Thread[workerCount + 1];
         for (int i = 0; i < this.workers.length; i++) {
             final SingleCoreIOReactor dispatcher = new SingleCoreIOReactor(
-                    auditLog,
+                    exceptionCallback,
                     eventHandlerFactory,
                     ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT,
                     ioSessionDecorator,
@@ -104,7 +98,7 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
         }
         final IOReactor[] ioReactors = new IOReactor[this.workerCount + 1];
         System.arraycopy(this.workers, 0, ioReactors, 1, this.workerCount);
-        this.listener = new SingleCoreListeningIOReactor(auditLog, ioReactorConfig, new Callback<SocketChannel>() {
+        this.listener = new SingleCoreListeningIOReactor(exceptionCallback, ioReactorConfig, new Callback<SocketChannel>() {
 
             @Override
             public void execute(final SocketChannel channel) {
@@ -133,7 +127,7 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
             final Callback<IOSession> sessionShutdownCallback) {
-        this(eventHandlerFactory, config, null, null, null, null, sessionShutdownCallback);
+        this(eventHandlerFactory, config, null, null, null, null, null, sessionShutdownCallback);
     }
 
     /**
@@ -184,11 +178,6 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
     @Override
     IOWorkers.Selector getWorkerSelector() {
         return workerSelector;
-    }
-
-    @Override
-    public List<ExceptionEvent> getExceptionLog() {
-        return auditLog.isEmpty() ? Collections.<ExceptionEvent>emptyList() : new ArrayList<>(auditLog);
     }
 
     private void enqueueChannel(final SocketChannel socketChannel) {

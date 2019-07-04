@@ -32,11 +32,10 @@ import java.io.IOException;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.util.Date;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
@@ -44,15 +43,15 @@ import org.apache.hc.core5.util.TimeValue;
 
 abstract class AbstractSingleCoreIOReactor implements IOReactor {
 
-    private final Queue<ExceptionEvent> auditLog;
+    private final Callback<Exception> exceptionCallback;
     private final AtomicReference<IOReactorStatus> status;
     private final Object shutdownMutex;
 
     final Selector selector;
 
-    AbstractSingleCoreIOReactor(final Queue<ExceptionEvent> auditLog) {
+    AbstractSingleCoreIOReactor(final Callback<Exception> exceptionCallback) {
         super();
-        this.auditLog = auditLog;
+        this.exceptionCallback = exceptionCallback;
         this.shutdownMutex = new Object();
         this.status = new AtomicReference<>(IOReactorStatus.INACTIVE);
         try {
@@ -67,8 +66,10 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
         return this.status.get();
     }
 
-    void addExceptionEvent(final Throwable ex) {
-        this.auditLog.add(new ExceptionEvent(ex, new Date()));
+    void logException(final Exception ex) {
+        if (exceptionCallback != null) {
+            exceptionCallback.execute(ex);
+        }
     }
 
     abstract void doExecute() throws IOException;
@@ -82,7 +83,7 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
             } catch (final ClosedSelectorException ignore) {
                 // ignore
             } catch (final Exception ex) {
-                addExceptionEvent(ex);
+                logException(ex);
             } finally {
                 try {
                     doTerminate();
@@ -91,17 +92,17 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
                         try {
                             Closer.close((Closeable) key.attachment());
                         } catch (final IOException ex) {
-                            addExceptionEvent(ex);
+                            logException(ex);
                         }
                         key.channel().close();
                     }
                     try {
                         this.selector.close();
                     } catch (final IOException ex) {
-                        addExceptionEvent(ex);
+                        logException(ex);
                     }
                 } catch (final Exception ex) {
-                    addExceptionEvent(ex);
+                    logException(ex);
                 } finally {
                     this.status.set(IOReactorStatus.SHUT_DOWN);
                     synchronized (this.shutdownMutex) {

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hc.core5.annotation.Experimental;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
@@ -89,6 +90,7 @@ public class H2RequesterBootstrap {
     private TlsStrategy tlsStrategy;
     private Timeout handshakeTimeout;
     private Decorator<ProtocolIOSession> ioSessionDecorator;
+    private Callback<Exception> exceptionCallback;
     private IOSessionListener sessionListener;
     private Http2StreamListener streamListener;
     private Http1StreamListener http1StreamListener;
@@ -200,6 +202,14 @@ public class H2RequesterBootstrap {
      */
     public final H2RequesterBootstrap setIOSessionDecorator(final Decorator<ProtocolIOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
+        return this;
+    }
+
+    /**
+     * Assigns {@link Exception} {@link Callback} instance.
+     */
+    public final H2RequesterBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
+        this.exceptionCallback = exceptionCallback;
         return this;
     }
 
@@ -319,6 +329,7 @@ public class H2RequesterBootstrap {
                 ioReactorConfig,
                 ioEventHandlerFactory,
                 ioSessionDecorator,
+                exceptionCallback,
                 sessionListener,
                 connPool);
     }

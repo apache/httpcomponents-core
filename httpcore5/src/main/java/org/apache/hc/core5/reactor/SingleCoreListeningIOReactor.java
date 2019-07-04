@@ -60,10 +60,10 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
     private final long selectTimeoutMillis;
 
     SingleCoreListeningIOReactor(
-            final Queue<ExceptionEvent> auditLog,
+            final Callback<Exception> exceptionCallback,
             final IOReactorConfig ioReactorConfig,
             final Callback<SocketChannel> callback) {
-        super(auditLog);
+        super(exceptionCallback);
         this.reactorConfig = ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT;
         this.callback = callback;
         this.requestQueue = new ConcurrentLinkedQueue<>();

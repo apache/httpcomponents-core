@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.function.Supplier;
@@ -43,10 +42,10 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
@@ -54,7 +53,6 @@ import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2AsyncRequester;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
@@ -104,10 +102,11 @@ public class Http2ProtocolNegotiationTest {
                         }
 
                     })
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
+                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .create();
         }
 
@@ -115,18 +114,7 @@ public class Http2ProtocolNegotiationTest {
         protected void after() {
             log.debug("Shutting down test server");
             if (server != null) {
-                try {
-                    server.close(CloseMode.GRACEFUL);
-                    final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
-                    server = null;
-                    if (!exceptionLog.isEmpty()) {
-                        for (final ExceptionEvent event: exceptionLog) {
-                            final Throwable cause = event.getCause();
-                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
-                        }
-                    }
-                } catch (final Exception ignore) {
-                }
+                server.close(CloseMode.GRACEFUL);
             }
         }
 
@@ -147,11 +135,12 @@ public class Http2ProtocolNegotiationTest {
                             .setSoTimeout(TIMEOUT)
                             .build())
                     .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                     .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
+                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .create();
         }
 
@@ -159,18 +148,7 @@ public class Http2ProtocolNegotiationTest {
         protected void after() {
             log.debug("Shutting down test client");
             if (requester != null) {
-                try {
-                    requester.close(CloseMode.GRACEFUL);
-                    final List<ExceptionEvent> exceptionLog = requester.getExceptionLog();
-                    requester = null;
-                    if (!exceptionLog.isEmpty()) {
-                        for (final ExceptionEvent event: exceptionLog) {
-                            final Throwable cause = event.getCause();
-                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
-                        }
-                    }
-                } catch (final Exception ignore) {
-                }
+                requester.close(CloseMode.GRACEFUL);
             }
         }
 

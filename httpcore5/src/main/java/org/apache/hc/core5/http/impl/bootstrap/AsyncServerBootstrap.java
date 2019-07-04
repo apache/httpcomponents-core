@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
@@ -86,6 +87,7 @@ public class AsyncServerBootstrap {
     private TlsStrategy tlsStrategy;
     private Timeout handshakeTimeout;
     private Decorator<ProtocolIOSession> ioSessionDecorator;
+    private Callback<Exception> exceptionCallback;
     private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
 
@@ -171,6 +173,14 @@ public class AsyncServerBootstrap {
     }
 
     /**
+     * Assigns {@link Exception} {@link Callback} instance.
+     */
+    public final AsyncServerBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
+        this.exceptionCallback = exceptionCallback;
+        return this;
+    }
+
+    /**
      * Assigns {@link IOSessionListener} instance.
      */
     public final AsyncServerBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
@@ -180,9 +190,6 @@ public class AsyncServerBootstrap {
 
     /**
      * Assigns {@link LookupRegistry} instance.
-     *
-     * @return this
-     * @since 5.0
      */
     public final AsyncServerBootstrap setLookupRegistry(final LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry) {
         this.lookupRegistry = lookupRegistry;
@@ -405,7 +412,8 @@ public class AsyncServerBootstrap {
                 streamHandlerFactory,
                 tlsStrategy,
                 handshakeTimeout);
-        return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener);
+        return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback,
+                sessionListener);
     }
 
 }

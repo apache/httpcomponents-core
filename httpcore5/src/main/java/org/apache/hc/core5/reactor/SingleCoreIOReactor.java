@@ -67,13 +67,13 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private volatile long lastTimeoutCheckMillis;
 
     SingleCoreIOReactor(
-            final Queue<ExceptionEvent> auditLog,
+            final Callback<Exception> exceptionCallback,
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig reactorConfig,
             final Decorator<ProtocolIOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
-        super(auditLog);
+        super(exceptionCallback);
         this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
         this.reactorConfig = Args.notNull(reactorConfig, "I/O reactor config");
         this.ioSessionDecorator = ioSessionDecorator;
@@ -181,11 +181,11 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 prepareSocket(socketChannel.socket());
                 socketChannel.configureBlocking(false);
             } catch (final IOException ex) {
-                addExceptionEvent(ex);
+                logException(ex);
                 try {
                     socketChannel.close();
                 } catch (final IOException ex2) {
-                    addExceptionEvent(ex2);
+                    logException(ex2);
                 }
                 throw ex;
             }
@@ -353,7 +353,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             try {
                 socketChannel.close();
             } catch (final IOException ex) {
-                addExceptionEvent(ex);
+                logException(ex);
             }
         }
     }

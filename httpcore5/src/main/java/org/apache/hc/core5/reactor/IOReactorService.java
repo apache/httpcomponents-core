@@ -27,8 +27,6 @@
 
 package org.apache.hc.core5.reactor;
 
-import java.util.List;
-
 /**
  * {@link IOReactor} running as a service.
  *
@@ -40,12 +38,5 @@ public interface IOReactorService extends IOReactor {
      * Starts I/O reactor.
      */
     void start();
-
-    /**
-     * Returns the list of internal exceptions occurred during
-     * I/O reactor shutdown process.
-     * @return list of internal exceptions.
-     */
-    List<ExceptionEvent> getExceptionLog();
 
 }

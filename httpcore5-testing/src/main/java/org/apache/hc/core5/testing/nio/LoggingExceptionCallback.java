@@ -25,53 +25,24 @@
  *
  */
 
-package org.apache.hc.core5.reactor;
+package org.apache.hc.core5.testing.nio;
 
-import java.util.Date;
+import org.apache.hc.core5.function.Callback;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
+public class LoggingExceptionCallback implements Callback<Exception> {
 
-/**
- * A {@link Throwable} instance along with a time stamp.
- *
- * @since 4.0
- */
-@Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class ExceptionEvent {
+    public final static LoggingExceptionCallback INSTANCE = new LoggingExceptionCallback();
 
-    private final Throwable ex;
-    private final long time;
+    private final Logger log = LoggerFactory.getLogger("org.apache.hc.core5.reactor");
 
-    public ExceptionEvent(final Throwable ex, final Date timestamp) {
-        super();
-        this.ex = ex;
-        if (timestamp != null) {
-            this.time = timestamp.getTime();
-        } else {
-            this.time = 0;
-        }
-    }
-
-    public ExceptionEvent(final Exception ex) {
-        this(ex, new Date());
-    }
-
-    public Throwable getCause() {
-        return ex;
-    }
-
-    public Date getTimestamp() {
-        return new Date(this.time);
+    private LoggingExceptionCallback() {
     }
 
     @Override
-    public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append(new Date(this.time));
-        buffer.append(" ");
-        buffer.append(this.ex);
-        return buffer.toString();
+    public void execute(final Exception ex) {
+        log.error(ex.getMessage(), ex);
     }
 
 }

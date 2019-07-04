@@ -32,7 +32,6 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.Future;
 
@@ -61,16 +60,15 @@ import org.apache.hc.core5.http.nio.AsyncFilterChain;
 import org.apache.hc.core5.http.nio.AsyncFilterHandler;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
+import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
@@ -168,9 +166,10 @@ public class Http1ServerAndRequesterTest {
                     .setTlsStrategy(scheme == URIScheme.HTTPS  ? new BasicServerTlsStrategy(
                             SSLTestContexts.createServerSSLContext(),
                             SecureAllPortsStrategy.INSTANCE) : null)
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
+                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .create();
         }
 
@@ -178,18 +177,7 @@ public class Http1ServerAndRequesterTest {
         protected void after() {
             log.debug("Shutting down test server");
             if (server != null) {
-                try {
-                    server.close(CloseMode.GRACEFUL);
-                    final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
-                    server = null;
-                    if (!exceptionLog.isEmpty()) {
-                        for (final ExceptionEvent event: exceptionLog) {
-                            final Throwable cause = event.getCause();
-                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
-                        }
-                    }
-                } catch (final Exception ignore) {
-                }
+                server.close(CloseMode.GRACEFUL);
             }
         }
 
@@ -208,10 +196,11 @@ public class Http1ServerAndRequesterTest {
                             .setSoTimeout(TIMEOUT)
                             .build())
                     .setTlsStrategy(new BasicClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                     .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
+                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .create();
         }
 
@@ -219,18 +208,7 @@ public class Http1ServerAndRequesterTest {
         protected void after() {
             log.debug("Shutting down test client");
             if (requester != null) {
-                try {
-                    requester.close(CloseMode.GRACEFUL);
-                    final List<ExceptionEvent> exceptionLog = requester.getExceptionLog();
-                    requester = null;
-                    if (!exceptionLog.isEmpty()) {
-                        for (final ExceptionEvent event: exceptionLog) {
-                            final Throwable cause = event.getCause();
-                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
-                        }
-                    }
-                } catch (final Exception ignore) {
-                }
+                requester.close(CloseMode.GRACEFUL);
             }
         }
 

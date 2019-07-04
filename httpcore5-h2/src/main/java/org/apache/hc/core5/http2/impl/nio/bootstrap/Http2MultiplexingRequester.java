@@ -39,6 +39,7 @@ import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.concurrent.CancellableDependency;
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Resolver;
 import org.apache.hc.core5.http.EntityDetails;
@@ -93,10 +94,11 @@ public class Http2MultiplexingRequester extends AsyncRequester{
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,
             final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Resolver<HttpHost, InetSocketAddress> addressResolver,
             final TlsStrategy tlsStrategy) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener,
+        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
                         ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
         this.connPool = new H2ConnPool(this, addressResolver, tlsStrategy);
     }

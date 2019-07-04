@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
@@ -94,6 +95,7 @@ public class H2ServerBootstrap {
     private TlsStrategy tlsStrategy;
     private Timeout handshakeTimeout;
     private Decorator<ProtocolIOSession> ioSessionDecorator;
+    private Callback<Exception> exceptionCallback;
     private IOSessionListener sessionListener;
     private Http2StreamListener http2StreamListener;
     private Http1StreamListener http1StreamListener;
@@ -187,6 +189,14 @@ public class H2ServerBootstrap {
     }
 
     /**
+     * Assigns {@link Exception} {@link Callback} instance.
+     */
+    public final H2ServerBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
+        this.exceptionCallback = exceptionCallback;
+        return this;
+    }
+
+    /**
      * Assigns {@link IOSessionListener} instance.
      */
     public final H2ServerBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
@@ -212,9 +222,6 @@ public class H2ServerBootstrap {
 
     /**
      * Assigns {@link LookupRegistry} instance.
-     *
-     * @return this
-     * @since 5.0
      */
     public final H2ServerBootstrap setLookupRegistry(final LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry) {
         this.lookupRegistry = lookupRegistry;
@@ -435,7 +442,8 @@ public class H2ServerBootstrap {
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy(443, 8443),
                 handshakeTimeout);
-        return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener);
+        return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback,
+                sessionListener);
     }
 
 }

@@ -28,11 +28,6 @@
 package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.List;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadFactory;
 
 import org.apache.hc.core5.concurrent.DefaultThreadFactory;
@@ -53,7 +48,6 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
 
-    private final Deque<ExceptionEvent> auditLog;
     private final int workerCount;
     private final SingleCoreIOReactor[] workers;
     private final MultiCoreIOReactor ioReactor;
@@ -66,16 +60,16 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory threadFactory,
             final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
-        this.auditLog = new ConcurrentLinkedDeque<>();
         this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
         this.workers = new SingleCoreIOReactor[workerCount];
         final Thread[] threads = new Thread[workerCount];
         for (int i = 0; i < this.workers.length; i++) {
             final SingleCoreIOReactor dispatcher = new SingleCoreIOReactor(
-                    auditLog,
+                    exceptionCallback,
                     eventHandlerFactory,
                     ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT,
                     ioSessionDecorator,
@@ -92,7 +86,7 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig config,
             final Callback<IOSession> sessionShutdownCallback) {
-        this(eventHandlerFactory, config, null, null, null, sessionShutdownCallback);
+        this(eventHandlerFactory, config, null, null, null, null, sessionShutdownCallback);
     }
 
     /**
@@ -117,11 +111,6 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
     @Override
     IOWorkers.Selector getWorkerSelector() {
         return workerSelector;
-    }
-
-    @Override
-    public List<ExceptionEvent> getExceptionLog() {
-        return auditLog.isEmpty() ? Collections.<ExceptionEvent>emptyList() : new ArrayList<>(auditLog);
     }
 
     @Override

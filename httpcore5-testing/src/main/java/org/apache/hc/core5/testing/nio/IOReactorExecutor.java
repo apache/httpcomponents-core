@@ -28,15 +28,12 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorService;
@@ -97,11 +94,6 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
     public IOReactorStatus getStatus() {
         final T ioReactor = ioReactorRef.get();
         return ioReactor != null ? ioReactor.getStatus() : IOReactorStatus.INACTIVE;
-    }
-
-    public List<ExceptionEvent> getExceptionLog() {
-        final T ioReactor = ioReactorRef.get();
-        return ioReactor != null ? ioReactor.getExceptionLog() : Collections.<ExceptionEvent>emptyList();
     }
 
     public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {

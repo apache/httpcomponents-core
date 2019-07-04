@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Internal;
@@ -43,7 +42,6 @@ import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
-import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorService;
@@ -70,6 +68,7 @@ public class AsyncRequester extends AbstractConnectionInitiatorBase implements I
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback,
             final Resolver<HttpHost, InetSocketAddress> addressResolver) {
@@ -78,6 +77,7 @@ public class AsyncRequester extends AbstractConnectionInitiatorBase implements I
                 ioReactorConfig,
                 new DefaultThreadFactory("requester-dispatch", true),
                 ioSessionDecorator,
+                exceptionCallback,
                 sessionListener,
                 sessionShutdownCallback);
         this.addressResolver = addressResolver != null ? addressResolver : DefaultAddressResolver.INSTANCE;
@@ -106,11 +106,6 @@ public class AsyncRequester extends AbstractConnectionInitiatorBase implements I
     @Override
     public IOReactorStatus getStatus() {
         return ioReactor.getStatus();
-    }
-
-    @Override
-    public List<ExceptionEvent> getExceptionLog() {
-        return ioReactor.getExceptionLog();
     }
 
     @Override

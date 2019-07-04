@@ -85,12 +85,6 @@ import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
-import org.apache.hc.core5.http.nio.support.BasicPushProducer;
-import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
-import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -103,7 +97,13 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncPushHandler;
 import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
+import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
 import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
+import org.apache.hc.core5.http.nio.support.BasicPushProducer;
+import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
+import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityConsumer;
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicServerExchangeHandler;
@@ -114,7 +114,6 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
 import org.apache.hc.core5.reactor.Command;
-import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -170,13 +169,6 @@ public class Http2IntegrationTest extends InternalHttp2ServerTestBase {
         log.debug("Shutting down test client");
         if (client != null) {
             client.shutdown(TimeValue.ofSeconds(5));
-            final List<ExceptionEvent> exceptionLog = client.getExceptionLog();
-            if (!exceptionLog.isEmpty()) {
-                for (final ExceptionEvent event: exceptionLog) {
-                    final Throwable cause = event.getCause();
-                    log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
-                }
-            }
         }
     }
 

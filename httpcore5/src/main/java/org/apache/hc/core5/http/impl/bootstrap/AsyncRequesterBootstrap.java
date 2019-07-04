@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http.impl.bootstrap;
 
 import org.apache.hc.core5.annotation.Experimental;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HttpHost;
@@ -72,6 +73,7 @@ public class AsyncRequesterBootstrap {
     private TlsStrategy tlsStrategy;
     private Timeout handshakeTimeout;
     private Decorator<ProtocolIOSession> ioSessionDecorator;
+    private Callback<Exception> exceptionCallback;
     private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
@@ -177,6 +179,14 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
+     * Assigns {@link Exception} {@link Callback} instance.
+     */
+    public final AsyncRequesterBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
+        this.exceptionCallback = exceptionCallback;
+        return this;
+    }
+
+    /**
      * Assigns {@link IOSessionListener} instance.
      */
     public final AsyncRequesterBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
@@ -236,6 +246,7 @@ public class AsyncRequesterBootstrap {
                 ioReactorConfig,
                 ioEventHandlerFactory,
                 ioSessionDecorator,
+                exceptionCallback,
                 sessionListener,
                 connPool);
     }

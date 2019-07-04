@@ -38,6 +38,7 @@ import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -94,9 +95,10 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final IOReactorConfig ioReactorConfig,
             final IOEventHandlerFactory eventHandlerFactory,
             final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final ManagedConnPool<HttpHost, IOSession> connPool) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, sessionListener,
+        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
                         ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
         this.connPool = Args.notNull(connPool, "Connection pool");
     }

@@ -67,8 +67,8 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
@@ -78,10 +78,10 @@ import org.apache.hc.core5.reactive.ReactiveEntityProducer;
 import org.apache.hc.core5.reactive.ReactiveRequestProcessor;
 import org.apache.hc.core5.reactive.ReactiveResponseConsumer;
 import org.apache.hc.core5.reactive.ReactiveServerExchangeHandler;
-import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
+import org.apache.hc.core5.testing.nio.LoggingExceptionCallback;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingHttp2StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
@@ -162,10 +162,11 @@ public class ReactiveClientTest {
                     IOReactorConfig.custom()
                         .setSoTimeout(SOCKET_TIMEOUT)
                         .build())
-                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                 .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
+                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
                     @Override
@@ -181,18 +182,7 @@ public class ReactiveClientTest {
         protected void after() {
             log.debug("Shutting down test server");
             if (server != null) {
-                try {
-                    server.close(CloseMode.GRACEFUL);
-                    final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
-                    server = null;
-                    if (!exceptionLog.isEmpty()) {
-                        for (final ExceptionEvent event: exceptionLog) {
-                            final Throwable cause = event.getCause();
-                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
-                        }
-                    }
-                } catch (final Exception ignore) {
-                }
+                server.close(CloseMode.GRACEFUL);
             }
         }
 
@@ -211,11 +201,12 @@ public class ReactiveClientTest {
                 .setIOReactorConfig(IOReactorConfig.custom()
                     .setSoTimeout(SOCKET_TIMEOUT)
                     .build())
-                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                 .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                 .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
+                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .create();
         }
 
@@ -223,18 +214,7 @@ public class ReactiveClientTest {
         protected void after() {
             log.debug("Shutting down test client");
             if (requester != null) {
-                try {
-                    requester.close(CloseMode.GRACEFUL);
-                    final List<ExceptionEvent> exceptionLog = requester.getExceptionLog();
-                    requester = null;
-                    if (!exceptionLog.isEmpty()) {
-                        for (final ExceptionEvent event: exceptionLog) {
-                            final Throwable cause = event.getCause();
-                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
-                        }
-                    }
-                } catch (final Exception ignore) {
-                }
+                requester.close(CloseMode.GRACEFUL);
             }
         }
 

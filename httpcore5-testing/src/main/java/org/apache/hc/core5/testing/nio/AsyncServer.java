@@ -52,8 +52,15 @@ public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory threadFactory,
             final Callback<IOSession> sessionShutdownCallback) throws IOException {
-        return new DefaultListeningIOReactor(ioEventHandlerFactory, ioReactorConfig, threadFactory, threadFactory,
-                LoggingIOSessionDecorator.INSTANCE, LoggingIOSessionListener.INSTANCE, sessionShutdownCallback);
+        return new DefaultListeningIOReactor(
+                ioEventHandlerFactory,
+                ioReactorConfig,
+                threadFactory,
+                threadFactory,
+                LoggingIOSessionDecorator.INSTANCE,
+                LoggingExceptionCallback.INSTANCE,
+                LoggingIOSessionListener.INSTANCE,
+                sessionShutdownCallback);
     }
 
     public Future<ListenerEndpoint> listen(final InetSocketAddress address) {

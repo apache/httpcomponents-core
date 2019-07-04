@@ -182,9 +182,6 @@ public class ServerBootstrap {
 
     /**
      * Assigns {@link LookupRegistry} instance.
-     *
-     * @return this
-     * @since 5.0
      */
     public final ServerBootstrap setLookupRegistry(final LookupRegistry<HttpRequestHandler> lookupRegistry) {
         this.lookupRegistry = lookupRegistry;

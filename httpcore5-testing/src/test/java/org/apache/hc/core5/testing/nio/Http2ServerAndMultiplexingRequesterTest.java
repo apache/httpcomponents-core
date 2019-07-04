@@ -31,7 +31,6 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -61,7 +60,6 @@ import org.apache.hc.core5.http2.impl.nio.bootstrap.Http2MultiplexingRequesterBo
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.reactor.ExceptionEvent;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
@@ -119,6 +117,7 @@ public class Http2ServerAndMultiplexingRequesterTest {
                             SecureAllPortsStrategy.INSTANCE) : null)
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
@@ -135,18 +134,7 @@ public class Http2ServerAndMultiplexingRequesterTest {
         protected void after() {
             log.debug("Shutting down test server");
             if (server != null) {
-                try {
-                    server.close(CloseMode.GRACEFUL);
-                    final List<ExceptionEvent> exceptionLog = server.getExceptionLog();
-                    server = null;
-                    if (!exceptionLog.isEmpty()) {
-                        for (final ExceptionEvent event: exceptionLog) {
-                            final Throwable cause = event.getCause();
-                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
-                        }
-                    }
-                } catch (final Exception ignore) {
-                }
+                server.close(CloseMode.GRACEFUL);
             }
         }
 
@@ -167,6 +155,7 @@ public class Http2ServerAndMultiplexingRequesterTest {
                     .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                     .setStreamListener(LoggingHttp2StreamListener.INSTANCE)
                     .create();
         }
@@ -175,18 +164,7 @@ public class Http2ServerAndMultiplexingRequesterTest {
         protected void after() {
             log.debug("Shutting down test client");
             if (requester != null) {
-                try {
-                    requester.close(CloseMode.GRACEFUL);
-                    final List<ExceptionEvent> exceptionLog = requester.getExceptionLog();
-                    requester = null;
-                    if (!exceptionLog.isEmpty()) {
-                        for (final ExceptionEvent event: exceptionLog) {
-                            final Throwable cause = event.getCause();
-                            log.error("Unexpected " + cause.getClass() + " at " + event.getTimestamp(), cause);
-                        }
-                    }
-                } catch (final Exception ignore) {
-                }
+                requester.close(CloseMode.GRACEFUL);
             }
         }
 
