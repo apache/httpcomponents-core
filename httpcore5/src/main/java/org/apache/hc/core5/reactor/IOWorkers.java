@@ -46,6 +46,12 @@ final class IOWorkers {
         return (val & -val) == val;
     }
 
+    private static void validate(final SingleCoreIOReactor dispatcher) {
+        if (dispatcher.getStatus() == IOReactorStatus.SHUT_DOWN) {
+            throw new IOReactorShutdownException("I/O reactor has been shut down");
+        }
+    }
+
     private static final class PowerOfTwoSelector implements Selector {
 
         private final AtomicInteger idx = new AtomicInteger(0);
@@ -57,7 +63,9 @@ final class IOWorkers {
 
         @Override
         public SingleCoreIOReactor next() {
-            return dispatchers[idx.getAndIncrement() & (dispatchers.length - 1)];
+            final SingleCoreIOReactor dispatcher = dispatchers[idx.getAndIncrement() & (dispatchers.length - 1)];
+            validate(dispatcher);
+            return dispatcher;
         }
     }
 
@@ -72,7 +80,9 @@ final class IOWorkers {
 
         @Override
         public SingleCoreIOReactor next() {
-            return dispatchers[idx.getAndIncrement() % dispatchers.length];
+            final SingleCoreIOReactor dispatcher = dispatchers[idx.getAndIncrement() % dispatchers.length];
+            validate(dispatcher);
+            return dispatcher;
         }
     }
 
