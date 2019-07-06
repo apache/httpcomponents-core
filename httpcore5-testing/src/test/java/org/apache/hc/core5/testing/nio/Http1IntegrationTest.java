@@ -79,7 +79,7 @@ import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -231,7 +231,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
         });
         final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
-        final InetSocketAddress serverEndpoint = server.start(httpProcessor, H1Config.DEFAULT);
+        final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
 
         client.start();
         final Future<ClientSessionEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -726,7 +726,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 };
 
             }
-        }, H1Config.DEFAULT);
+        }, Http1Config.DEFAULT);
 
         client.start();
         final Future<IOSession> sessionFuture = client.requestSession(
@@ -872,7 +872,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H1Config.custom().setWaitForContinueTimeout(Timeout.ofMilliseconds(100)).build());
+        client.start(Http1Config.custom().setWaitForContinueTimeout(Timeout.ofMilliseconds(100)).build());
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
@@ -989,7 +989,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H1Config.custom().setBufferSize(256).build());
+        client.start(Http1Config.custom().setBufferSize(256).build());
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -1155,7 +1155,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H1Config.custom().setBufferSize(256).build());
+        client.start(Http1Config.custom().setBufferSize(256).build());
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -1370,7 +1370,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     }
 
                 },
-                H1Config.DEFAULT,
+                Http1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null) {
@@ -1380,7 +1380,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     final ProtocolIOSession ioSession,
                     final HttpProcessor httpProcessor,
                     final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-                    final H1Config h1Config,
+                    final Http1Config http1Config,
                     final CharCodingConfig connectionConfig,
                     final ConnectionReuseStrategy connectionReuseStrategy,
                     final NHttpMessageParser<HttpRequest> incomingMessageParser,
@@ -1390,7 +1390,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     final Http1StreamListener streamListener) {
                 return new ServerHttp1StreamDuplexer(ioSession, httpProcessor, exchangeHandlerFactory,
                         scheme.id,
-                        h1Config, connectionConfig, connectionReuseStrategy,
+                        http1Config, connectionConfig, connectionReuseStrategy,
                         incomingMessageParser, outgoingMessageWriter,
                         incomingContentStrategy, outgoingContentStrategy,
                         streamListener) {
@@ -1548,7 +1548,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()), H1Config.DEFAULT);
+        client.start(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()), Http1Config.DEFAULT);
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);

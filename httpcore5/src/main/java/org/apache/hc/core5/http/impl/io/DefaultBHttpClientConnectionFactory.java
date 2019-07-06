@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
@@ -51,7 +51,7 @@ import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 public class DefaultBHttpClientConnectionFactory
         implements HttpConnectionFactory<DefaultBHttpClientConnection> {
 
-    private final H1Config h1Config;
+    private final Http1Config http1Config;
     private final CharCodingConfig charCodingConfig;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
@@ -59,14 +59,14 @@ public class DefaultBHttpClientConnectionFactory
     private final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory;
 
     public DefaultBHttpClientConnectionFactory(
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharCodingConfig charCodingConfig,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
         super();
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.incomingContentStrategy = incomingContentStrategy;
         this.outgoingContentStrategy = outgoingContentStrategy;
@@ -75,17 +75,17 @@ public class DefaultBHttpClientConnectionFactory
     }
 
     public DefaultBHttpClientConnectionFactory(
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharCodingConfig charCodingConfig,
             final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
-        this(h1Config, charCodingConfig, null, null, requestWriterFactory, responseParserFactory);
+        this(http1Config, charCodingConfig, null, null, requestWriterFactory, responseParserFactory);
     }
 
     public DefaultBHttpClientConnectionFactory(
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharCodingConfig charCodingConfig) {
-        this(h1Config, charCodingConfig, null, null, null, null);
+        this(http1Config, charCodingConfig, null, null, null, null);
     }
 
     public DefaultBHttpClientConnectionFactory() {
@@ -95,7 +95,7 @@ public class DefaultBHttpClientConnectionFactory
     @Override
     public DefaultBHttpClientConnection createConnection(final Socket socket) throws IOException {
         final DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(
-                this.h1Config,
+                this.http1Config,
                 CharCodingSupport.createDecoder(this.charCodingConfig),
                 CharCodingSupport.createEncoder(this.charCodingConfig),
                 this.incomingContentStrategy,

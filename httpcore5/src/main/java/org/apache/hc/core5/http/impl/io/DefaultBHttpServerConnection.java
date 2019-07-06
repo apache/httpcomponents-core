@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.io.HttpMessageParser;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
@@ -68,8 +68,8 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
      * Creates new instance of DefaultBHttpServerConnection.
      *
      * @param scheme protocol scheme
-     * @param h1Config Message h1Config. If {@code null}
-     *   {@link H1Config#DEFAULT} will be used.
+     * @param http1Config Message http1Config. If {@code null}
+     *   {@link Http1Config#DEFAULT} will be used.
      * @param charDecoder decoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
      * @param charEncoder encoder to be used for encoding HTTP protocol elements.
@@ -85,17 +85,17 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
      */
     public DefaultBHttpServerConnection(
             final String scheme,
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharsetDecoder charDecoder,
             final CharsetEncoder charEncoder,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
-        super(h1Config, charDecoder, charEncoder);
+        super(http1Config, charDecoder, charEncoder);
         this.scheme = scheme;
         this.requestParser = (requestParserFactory != null ? requestParserFactory :
-            DefaultHttpRequestParserFactory.INSTANCE).create(h1Config);
+            DefaultHttpRequestParserFactory.INSTANCE).create(http1Config);
         this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :
             DefaultHttpResponseWriterFactory.INSTANCE).create();
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
@@ -106,16 +106,16 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
 
     public DefaultBHttpServerConnection(
             final String scheme,
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharsetDecoder charDecoder,
             final CharsetEncoder charEncoder) {
-        this(scheme, h1Config, charDecoder, charEncoder, null, null, null, null);
+        this(scheme, http1Config, charDecoder, charEncoder, null, null, null, null);
     }
 
     public DefaultBHttpServerConnection(
             final String scheme,
-            final H1Config h1Config) {
-        this(scheme, h1Config, null, null);
+            final Http1Config http1Config) {
+        this(scheme, http1Config, null, null);
     }
 
     protected void onRequestReceived(final ClassicHttpRequest request) {

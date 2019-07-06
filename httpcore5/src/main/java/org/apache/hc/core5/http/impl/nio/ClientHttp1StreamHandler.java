@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
@@ -61,7 +61,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     private final Http1StreamChannel<HttpRequest> outputChannel;
     private final DataStreamChannel internalDataChannel;
     private final HttpProcessor httpProcessor;
-    private final H1Config h1Config;
+    private final Http1Config http1Config;
     private final ConnectionReuseStrategy connectionReuseStrategy;
     private final AsyncClientExchangeHandler exchangeHandler;
     private final HttpCoreContext context;
@@ -77,7 +77,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     ClientHttp1StreamHandler(
             final Http1StreamChannel<HttpRequest> outputChannel,
             final HttpProcessor httpProcessor,
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final AsyncClientExchangeHandler exchangeHandler,
             final HttpCoreContext context) {
@@ -108,7 +108,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         };
 
         this.httpProcessor = httpProcessor;
-        this.h1Config = h1Config;
+        this.http1Config = http1Config;
         this.connectionReuseStrategy = connectionReuseStrategy;
         this.exchangeHandler = exchangeHandler;
         this.context = context;
@@ -169,7 +169,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
                 if (expectContinue) {
                     requestState = MessageState.ACK;
                     timeout = outputChannel.getSocketTimeout();
-                    outputChannel.setSocketTimeout(h1Config.getWaitForContinueTimeout());
+                    outputChannel.setSocketTimeout(http1Config.getWaitForContinueTimeout());
                 } else {
                     requestState = MessageState.BODY;
                     exchangeHandler.produce(internalDataChannel);

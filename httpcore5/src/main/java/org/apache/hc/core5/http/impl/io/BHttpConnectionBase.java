@@ -51,7 +51,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -66,7 +66,7 @@ import org.apache.hc.core5.util.Timeout;
 
 class BHttpConnectionBase implements BHttpConnection {
 
-    final H1Config h1Config;
+    final Http1Config http1Config;
     final SessionInputBufferImpl inBuffer;
     final SessionOutputBufferImpl outbuffer;
     final BasicHttpConnectionMetrics connMetrics;
@@ -76,18 +76,18 @@ class BHttpConnectionBase implements BHttpConnection {
     volatile EndpointDetails endpointDetails;
 
     BHttpConnectionBase(
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharsetDecoder charDecoder,
             final CharsetEncoder charEncoder) {
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         final BasicHttpTransportMetrics inTransportMetrics = new BasicHttpTransportMetrics();
         final BasicHttpTransportMetrics outTransportMetrics = new BasicHttpTransportMetrics();
         this.inBuffer = new SessionInputBufferImpl(inTransportMetrics,
-                this.h1Config.getBufferSize(), -1,
-                this.h1Config.getMaxLineLength(), charDecoder);
+                this.http1Config.getBufferSize(), -1,
+                this.http1Config.getMaxLineLength(), charDecoder);
         this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics,
-                this.h1Config.getBufferSize(),
-                this.h1Config.getChunkSizeHint(), charEncoder);
+                this.http1Config.getBufferSize(),
+                this.http1Config.getChunkSizeHint(), charEncoder);
         this.connMetrics = new BasicHttpConnectionMetrics(inTransportMetrics, outTransportMetrics);
         this.socketHolderRef = new AtomicReference<>();
     }
@@ -146,7 +146,7 @@ class BHttpConnectionBase implements BHttpConnection {
         if (len >= 0) {
             return new ContentLengthOutputStream(buffer, outputStream, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            final int chunkSizeHint = h1Config.getChunkSizeHint() >= 0 ? h1Config.getChunkSizeHint() : 2048;
+            final int chunkSizeHint = http1Config.getChunkSizeHint() >= 0 ? http1Config.getChunkSizeHint() : 2048;
             return new ChunkedOutputStream(buffer, outputStream, chunkSizeHint, trailers);
         } else {
             return new IdentityOutputStream(buffer, outputStream);
@@ -162,7 +162,7 @@ class BHttpConnectionBase implements BHttpConnection {
         } else if (len == 0) {
             return EmptyInputStream.INSTANCE;
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkedInputStream(buffer, inputStream, this.h1Config);
+            return new ChunkedInputStream(buffer, inputStream, this.http1Config);
         } else {
             return new IdentityInputStream(buffer, inputStream);
         }

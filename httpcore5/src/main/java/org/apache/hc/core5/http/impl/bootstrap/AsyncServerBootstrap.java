@@ -34,7 +34,7 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.config.NamedElementChain;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
@@ -80,7 +80,7 @@ public class AsyncServerBootstrap {
     private String canonicalHostName;
     private LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry;
     private IOReactorConfig ioReactorConfig;
-    private H1Config h1Config;
+    private Http1Config http1Config;
     private CharCodingConfig charCodingConfig;
     private HttpProcessor httpProcessor;
     private ConnectionReuseStrategy connStrategy;
@@ -119,8 +119,8 @@ public class AsyncServerBootstrap {
     /**
      * Sets HTTP/1.1 protocol parameters.
      */
-    public final AsyncServerBootstrap setH1Config(final H1Config h1Config) {
-        this.h1Config = h1Config;
+    public final AsyncServerBootstrap sethttp1Config(final Http1Config http1Config) {
+        this.http1Config = http1Config;
         return this;
     }
 
@@ -400,7 +400,7 @@ public class AsyncServerBootstrap {
         final ServerHttp1StreamDuplexerFactory streamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 handlerFactory,
-                h1Config != null ? h1Config : H1Config.DEFAULT,
+                http1Config != null ? http1Config : Http1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 connStrategy != null ? connStrategy : DefaultConnectionReuseStrategy.INSTANCE,
                 DefaultHttpRequestParserFactory.INSTANCE,

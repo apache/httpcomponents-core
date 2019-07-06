@@ -35,7 +35,7 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
@@ -81,7 +81,7 @@ public class H2RequesterBootstrap {
     private CharCodingConfig charCodingConfig;
     private HttpVersionPolicy versionPolicy;
     private H2Config h2Config;
-    private H1Config h1Config;
+    private Http1Config http1Config;
     private int defaultMaxPerRoute;
     private int maxTotal;
     private TimeValue timeToLive;
@@ -139,8 +139,8 @@ public class H2RequesterBootstrap {
     /**
      * Sets HTTP/1.1 protocol parameters
      */
-    public final H2RequesterBootstrap setH1Config(final H1Config h1Config) {
-        this.h1Config = h1Config;
+    public final H2RequesterBootstrap sethttp1Config(final Http1Config http1Config) {
+        this.http1Config = http1Config;
         return this;
     }
 
@@ -309,7 +309,7 @@ public class H2RequesterBootstrap {
         }
         final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ClientHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
-                h1Config != null ? h1Config : H1Config.DEFAULT,
+                http1Config != null ? http1Config : Http1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 http1StreamListener);
         final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(

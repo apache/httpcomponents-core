@@ -30,7 +30,7 @@ package org.apache.hc.core5.testing.nio;
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -52,7 +52,7 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
     private final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
     private final H2Config h2Config;
-    private final H1Config h1Config;
+    private final Http1Config http1Config;
     private final CharCodingConfig charCodingConfig;
     private final SSLContext sslContext;
 
@@ -61,14 +61,14 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
             final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory,
             final HttpVersionPolicy versionPolicy,
             final H2Config h2Config,
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharCodingConfig charCodingConfig,
             final SSLContext sslContext) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = exchangeHandlerFactory;
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.sslContext = sslContext;
     }
@@ -80,7 +80,7 @@ class InternalClientHttp2EventHandlerFactory implements IOEventHandlerFactory {
         }
         final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ClientHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.client(),
-                h1Config,
+                http1Config,
                 charCodingConfig,
                 LoggingHttp1StreamListener.INSTANCE_CLIENT);
         final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientHttp2StreamMultiplexerFactory(

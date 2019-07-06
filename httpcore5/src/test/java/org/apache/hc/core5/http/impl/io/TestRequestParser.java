@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.Methods;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -86,7 +86,7 @@ public class TestRequestParser {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
-                H1Config.custom().setMaxEmptyLineCount(3).build());
+                Http1Config.custom().setMaxEmptyLineCount(3).build());
         final ClassicHttpRequest httprequest = parser.parse(inBuffer, inputStream);
 
         Assert.assertEquals(Methods.GET.name(), httprequest.getMethod());
@@ -108,7 +108,7 @@ public class TestRequestParser {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
-                H1Config.custom().setMaxEmptyLineCount(3).build());
+                Http1Config.custom().setMaxEmptyLineCount(3).build());
         parser.parse(inBuffer, inputStream);
     }
 

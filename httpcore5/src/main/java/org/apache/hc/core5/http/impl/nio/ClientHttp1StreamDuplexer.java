@@ -46,7 +46,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.LengthRequiredException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
@@ -81,7 +81,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
     private final HttpProcessor httpProcessor;
     private final ConnectionReuseStrategy connectionReuseStrategy;
-    private final H1Config h1Config;
+    private final Http1Config http1Config;
     private final Http1StreamListener streamListener;
     private final Queue<ClientHttp1StreamHandler> pipeline;
     private final Http1StreamChannel<HttpRequest> outputChannel;
@@ -92,7 +92,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     public ClientHttp1StreamDuplexer(
             final ProtocolIOSession ioSession,
             final HttpProcessor httpProcessor,
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParser<HttpResponse> incomingMessageParser,
@@ -100,9 +100,9 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final Http1StreamListener streamListener) {
-        super(ioSession, h1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter, incomingContentStrategy, outgoingContentStrategy);
+        super(ioSession, http1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter, incomingContentStrategy, outgoingContentStrategy);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.streamListener = streamListener;
@@ -261,7 +261,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         if (len >= 0) {
             return new LengthDelimitedDecoder(channel, buffer, metrics, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            return new ChunkDecoder(channel, buffer, h1Config, metrics);
+            return new ChunkDecoder(channel, buffer, http1Config, metrics);
         } else {
             return new IdentityDecoder(channel, buffer, metrics);
         }
@@ -278,7 +278,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final WritableByteChannel channel,
             final SessionOutputBuffer buffer,
             final BasicHttpTransportMetrics metrics) throws HttpException {
-        final int chunkSizeHint = h1Config.getChunkSizeHint() >= 0 ? h1Config.getChunkSizeHint() : 2048;
+        final int chunkSizeHint = http1Config.getChunkSizeHint() >= 0 ? http1Config.getChunkSizeHint() : 2048;
         if (len >= 0) {
             return new LengthDelimitedEncoder(channel, buffer, metrics, len, chunkSizeHint);
         } else if (len == ContentLengthStrategy.CHUNKED) {
@@ -317,7 +317,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         final ClientHttp1StreamHandler handler = new ClientHttp1StreamHandler(
                 outputChannel,
                 httpProcessor,
-                h1Config,
+                http1Config,
                 connectionReuseStrategy,
                 exchangeHandler,
                 context);

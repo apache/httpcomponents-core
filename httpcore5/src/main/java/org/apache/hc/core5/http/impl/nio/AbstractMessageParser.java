@@ -34,7 +34,7 @@ import java.util.List;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LazyLineParser;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
@@ -62,7 +62,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     private int emptyLineCount;
 
     private final LineParser lineParser;
-    private final H1Config messageConstraints;
+    private final Http1Config messageConstraints;
 
     /**
      * Creates an instance of AbstractMessageParser.
@@ -70,14 +70,14 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
      * @param lineParser the line parser. If {@code null}
      *   {@link org.apache.hc.core5.http.message.LazyLineParser#INSTANCE} will be used.
      * @param messageConstraints Message constraints. If {@code null}
-     *   {@link H1Config#DEFAULT} will be used.
+     *   {@link Http1Config#DEFAULT} will be used.
      *
      * @since 4.3
      */
-    public AbstractMessageParser(final LineParser lineParser, final H1Config messageConstraints) {
+    public AbstractMessageParser(final LineParser lineParser, final Http1Config messageConstraints) {
         super();
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
-        this.messageConstraints = messageConstraints != null ? messageConstraints : H1Config.DEFAULT;
+        this.messageConstraints = messageConstraints != null ? messageConstraints : Http1Config.DEFAULT;
         this.headerBufs = new ArrayList<>();
         this.state = State.READ_HEAD_LINE;
     }

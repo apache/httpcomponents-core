@@ -33,7 +33,7 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.config.NamedElementChain;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
@@ -91,7 +91,7 @@ public class H2ServerBootstrap {
     private CharCodingConfig charCodingConfig;
     private HttpVersionPolicy versionPolicy;
     private H2Config h2Config;
-    private H1Config h1Config;
+    private Http1Config http1Config;
     private TlsStrategy tlsStrategy;
     private Timeout handshakeTimeout;
     private Decorator<ProtocolIOSession> ioSessionDecorator;
@@ -154,8 +154,8 @@ public class H2ServerBootstrap {
     /**
      * Sets HTTP/1.1 protocol parameters
      */
-    public final H2ServerBootstrap setH1Config(final H1Config h1Config) {
-        this.h1Config = h1Config;
+    public final H2ServerBootstrap sethttp1Config(final Http1Config http1Config) {
+        this.http1Config = http1Config;
         return this;
     }
 
@@ -428,7 +428,7 @@ public class H2ServerBootstrap {
         final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 handlerFactory,
-                h1Config != null ? h1Config : H1Config.DEFAULT,
+                http1Config != null ? http1Config : Http1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 DefaultHttpRequestParserFactory.INSTANCE,

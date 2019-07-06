@@ -36,7 +36,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
@@ -106,7 +106,7 @@ public class Http2TestServer extends AsyncServer {
                         }),
                 HttpVersionPolicy.FORCE_HTTP_2,
                 h2Config,
-                H1Config.DEFAULT,
+                Http1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
                 sslContext));
         final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
@@ -117,7 +117,7 @@ public class Http2TestServer extends AsyncServer {
     public InetSocketAddress start(
             final HttpProcessor httpProcessor,
             final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
-            final H1Config h1Config) throws Exception {
+            final Http1Config http1Config) throws Exception {
         start(new InternalServerHttp2EventHandlerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
@@ -132,7 +132,7 @@ public class Http2TestServer extends AsyncServer {
                 }),
                 HttpVersionPolicy.FORCE_HTTP_1,
                 H2Config.DEFAULT,
-                h1Config,
+                http1Config,
                 CharCodingConfig.DEFAULT,
                 sslContext));
         final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
@@ -144,8 +144,8 @@ public class Http2TestServer extends AsyncServer {
         return start(null, null, h2Config);
     }
 
-    public InetSocketAddress start(final H1Config h1Config) throws Exception {
-        return start(null, null, h1Config);
+    public InetSocketAddress start(final Http1Config http1Config) throws Exception {
+        return start(null, null, http1Config);
     }
 
     public InetSocketAddress start() throws Exception {

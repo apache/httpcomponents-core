@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.impl.io.SocketHolder;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
@@ -59,14 +59,14 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
 
     public LoggingBHttpServerConnection(
             final String scheme,
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharsetDecoder charDecoder,
             final CharsetEncoder charEncoder,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
-        super(scheme, h1Config, charDecoder, charEncoder,
+        super(scheme, http1Config, charDecoder, charEncoder,
                 incomingContentStrategy, outgoingContentStrategy,
                 requestParserFactory, responseWriterFactory);
         this.id = "http-incoming-" + COUNT.incrementAndGet();
@@ -80,8 +80,8 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
         return id;
     }
 
-    public LoggingBHttpServerConnection(final String scheme, final H1Config h1Config) {
-        this(scheme, h1Config, null, null, null, null, null, null);
+    public LoggingBHttpServerConnection(final String scheme, final Http1Config http1Config) {
+        this(scheme, http1Config, null, null, null, null, null, null);
     }
 
     @Override

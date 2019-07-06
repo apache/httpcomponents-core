@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -61,7 +61,7 @@ import org.apache.hc.core5.util.Args;
 class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
 
     private final HttpProcessor httpProcessor;
-    private final H1Config h1Config;
+    private final Http1Config http1Config;
     private final CharCodingConfig charCodingConfig;
     private final ConnectionReuseStrategy connectionReuseStrategy;
     private final SSLContext sslContext;
@@ -70,24 +70,24 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
 
     InternalClientHttp1EventHandlerFactory(
             final HttpProcessor httpProcessor,
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final SSLContext sslContext) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.sslContext = sslContext;
-        this.responseParserFactory = new DefaultHttpResponseParserFactory(this.h1Config);
+        this.responseParserFactory = new DefaultHttpResponseParserFactory(this.http1Config);
         this.requestWriterFactory = DefaultHttpRequestWriterFactory.INSTANCE;
     }
 
     protected ClientHttp1StreamDuplexer createClientHttp1StreamDuplexer(
             final ProtocolIOSession ioSession,
             final HttpProcessor httpProcessor,
-            final H1Config h1Config,
+            final Http1Config http1Config,
             final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final NHttpMessageParser<HttpResponse> incomingMessageParser,
@@ -95,7 +95,7 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final Http1StreamListener streamListener) {
-        return new ClientHttp1StreamDuplexer(ioSession, httpProcessor, h1Config, charCodingConfig,
+        return new ClientHttp1StreamDuplexer(ioSession, httpProcessor, http1Config, charCodingConfig,
                 connectionReuseStrategy, incomingMessageParser, outgoingMessageWriter,
                 incomingContentStrategy, outgoingContentStrategy, streamListener);
     }
@@ -108,7 +108,7 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
         final ClientHttp1StreamDuplexer streamDuplexer = createClientHttp1StreamDuplexer(
                 ioSession,
                 httpProcessor,
-                h1Config,
+                http1Config,
                 charCodingConfig,
                 connectionReuseStrategy,
                 responseParserFactory.create(),

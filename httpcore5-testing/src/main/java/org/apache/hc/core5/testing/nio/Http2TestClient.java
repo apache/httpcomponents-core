@@ -37,7 +37,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
@@ -82,18 +82,18 @@ public class Http2TestClient extends AsyncRequester {
                 new DefaultAsyncPushConsumerFactory(registry),
                 HttpVersionPolicy.FORCE_HTTP_2,
                 h2Config,
-                H1Config.DEFAULT,
+                Http1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
                 sslContext));
     }
 
-    public void start(final HttpProcessor httpProcessor, final H1Config h1Config) throws IOException {
+    public void start(final HttpProcessor httpProcessor, final Http1Config http1Config) throws IOException {
         start(new InternalClientHttp2EventHandlerFactory(
                 httpProcessor,
                 new DefaultAsyncPushConsumerFactory(registry),
                 HttpVersionPolicy.FORCE_HTTP_1,
                 H2Config.DEFAULT,
-                h1Config,
+                http1Config,
                 CharCodingConfig.DEFAULT,
                 sslContext));
     }
@@ -102,8 +102,8 @@ public class Http2TestClient extends AsyncRequester {
         start(Http2Processors.client(), h2Config);
     }
 
-    public void start(final H1Config h1Config) throws IOException {
-        start(Http2Processors.client(), h1Config);
+    public void start(final Http1Config http1Config) throws IOException {
+        start(Http2Processors.client(), http1Config);
     }
 
     public void start() throws Exception {

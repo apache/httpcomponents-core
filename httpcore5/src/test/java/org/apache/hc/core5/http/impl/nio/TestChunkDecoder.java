@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.ReadableByteChannelMock;
 import org.apache.hc.core5.http.TruncatedChunkException;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.junit.Assert;
@@ -491,14 +491,14 @@ public class TestChunkDecoder {
         Assert.assertNotNull(trailers);
         Assert.assertEquals(1, trailers.size());
 
-        final H1Config h1Config = H1Config.custom()
+        final Http1Config http1Config = Http1Config.custom()
                 .setMaxLineLength(25)
                 .build();
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,0, StandardCharsets.US_ASCII);
         final BasicHttpTransportMetrics metrics2 = new BasicHttpTransportMetrics();
-        final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, h1Config, metrics2);
+        final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, http1Config, metrics2);
 
         dst.clear();
         try {
@@ -527,14 +527,14 @@ public class TestChunkDecoder {
         Assert.assertNotNull(trailers);
         Assert.assertEquals(4, trailers.size());
 
-        final H1Config h1Config = H1Config.custom()
+        final Http1Config http1Config = Http1Config.custom()
                 .setMaxHeaderCount(3).build();
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(1024, 256,
                 0, StandardCharsets.US_ASCII);
         final BasicHttpTransportMetrics metrics2 = new BasicHttpTransportMetrics();
-        final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, h1Config, metrics2);
+        final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, http1Config, metrics2);
 
         dst.clear();
         try {

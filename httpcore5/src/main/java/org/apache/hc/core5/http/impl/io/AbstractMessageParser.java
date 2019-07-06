@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.config.H1Config;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.HttpMessageParser;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.message.LazyLineParser;
@@ -55,7 +55,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
     private static final int HEAD_LINE    = 0;
     private static final int HEADERS      = 1;
 
-    private final H1Config h1Config;
+    private final Http1Config http1Config;
     private final List<CharArrayBuffer> headerLines;
     private final CharArrayBuffer headLine;
     private final LineParser lineParser;
@@ -68,15 +68,15 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      *
      * @param lineParser the line parser. If {@code null}
      *   {@link org.apache.hc.core5.http.message.LazyLineParser#INSTANCE} will be used.
-     * @param h1Config the message h1Config. If {@code null}
-     *   {@link H1Config#DEFAULT} will be used.
+     * @param http1Config the message http1Config. If {@code null}
+     *   {@link Http1Config#DEFAULT} will be used.
      *
      * @since 4.3
      */
-    public AbstractMessageParser(final LineParser lineParser, final H1Config h1Config) {
+    public AbstractMessageParser(final LineParser lineParser, final Http1Config http1Config) {
         super();
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
-        this.h1Config = h1Config != null ? h1Config : H1Config.DEFAULT;
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.headerLines = new ArrayList<>();
         this.headLine = new CharArrayBuffer(128);
         this.state = HEAD_LINE;
@@ -236,7 +236,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         final int st = this.state;
         switch (st) {
         case HEAD_LINE:
-            for (int n = 0; n < this.h1Config.getMaxEmptyLineCount(); n++) {
+            for (int n = 0; n < this.http1Config.getMaxEmptyLineCount(); n++) {
                 this.headLine.clear();
                 final int i = buffer.readLine(this.headLine, inputStream);
                 if (i == -1) {
@@ -258,8 +258,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             final Header[] headers = AbstractMessageParser.parseHeaders(
                     buffer,
                     inputStream,
-                    this.h1Config.getMaxHeaderCount(),
-                    this.h1Config.getMaxLineLength(),
+                    this.http1Config.getMaxHeaderCount(),
+                    this.http1Config.getMaxLineLength(),
                     this.lineParser,
                     this.headerLines);
             this.message.setHeaders(headers);
