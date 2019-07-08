@@ -169,7 +169,9 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private void processEvents(final Set<SelectionKey> selectedKeys) {
         for (final SelectionKey key : selectedKeys) {
             final InternalChannel channel = (InternalChannel) key.attachment();
-            channel.handleIOEvent(key.readyOps());
+            if (channel != null) {
+                channel.handleIOEvent(key.readyOps());
+            }
         }
         selectedKeys.clear();
     }
