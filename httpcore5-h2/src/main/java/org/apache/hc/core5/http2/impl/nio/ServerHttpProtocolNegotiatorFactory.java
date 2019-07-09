@@ -48,14 +48,14 @@ import org.apache.hc.core5.util.Timeout;
 public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactory {
 
     private final ServerHttp1StreamDuplexerFactory http1StreamDuplexerFactory;
-    private final ServerHttp2StreamMultiplexerFactory http2StreamMultiplexerFactory;
+    private final ServerH2StreamMultiplexerFactory http2StreamMultiplexerFactory;
     private final HttpVersionPolicy versionPolicy;
     private final TlsStrategy tlsStrategy;
     private final Timeout handshakeTimeout;
 
     public ServerHttpProtocolNegotiatorFactory(
             final ServerHttp1StreamDuplexerFactory http1StreamDuplexerFactory,
-            final ServerHttp2StreamMultiplexerFactory http2StreamMultiplexerFactory,
+            final ServerH2StreamMultiplexerFactory http2StreamMultiplexerFactory,
             final HttpVersionPolicy versionPolicy,
             final TlsStrategy tlsStrategy,
             final Timeout handshakeTimeout) {

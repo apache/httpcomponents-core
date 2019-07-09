@@ -63,7 +63,7 @@ import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.frame.FramePrinter;
 import org.apache.hc.core5.http2.frame.RawFrame;
-import org.apache.hc.core5.http2.impl.nio.Http2StreamListener;
+import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
 import org.apache.hc.core5.http2.protocol.H2RequestContent;
@@ -396,7 +396,7 @@ public class HttpBenchmark {
                     }
 
                 })
-                .setStreamListener(new Http2StreamListener() {
+                .setStreamListener(new H2StreamListener() {
 
                     private final FramePrinter framePrinter = new FramePrinter();
 

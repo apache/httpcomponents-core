@@ -68,7 +68,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     private final ProtocolIOSession ioSession;
     private final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory;
-    private final ServerHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
+    private final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
     private final ByteBuffer bytebuf;
     private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
@@ -78,7 +78,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     public ServerHttpProtocolNegotiator(
             final ProtocolIOSession ioSession,
             final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory,
-            final ServerHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
+            final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final HttpVersionPolicy versionPolicy) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
@@ -143,8 +143,8 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     }
                 }
                 if (validH2Preface) {
-                    final ServerHttp2StreamMultiplexer http2StreamHandler = http2StreamHandlerFactory.create(ioSession);
-                    final HttpConnectionEventHandler protocolHandler = new ServerHttp2IOEventHandler(http2StreamHandler);
+                    final ServerH2StreamMultiplexer http2StreamHandler = http2StreamHandlerFactory.create(ioSession);
+                    final HttpConnectionEventHandler protocolHandler = new ServerH2IOEventHandler(http2StreamHandler);
                     ioSession.upgrade(protocolHandler);
                     protocolHandlerRef.set(protocolHandler);
                     http2StreamHandler.onConnect(bytebuf.hasRemaining() ? bytebuf : null);

@@ -71,7 +71,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     private final ProtocolIOSession ioSession;
     private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
-    private final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory;
+    private final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
     private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
 
@@ -80,7 +80,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     public ClientHttpProtocolNegotiator(
             final ProtocolIOSession ioSession,
             final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
-            final ClientHttp2StreamMultiplexerFactory http2StreamHandlerFactory,
+            final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final HttpVersionPolicy versionPolicy) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
@@ -103,8 +103,8 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     private void startHttp2(final IOSession session) {
-        final ClientHttp2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
-        final HttpConnectionEventHandler protocolHandler = new ClientHttp2IOEventHandler(streamMultiplexer);
+        final ClientH2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
+        final HttpConnectionEventHandler protocolHandler = new ClientH2IOEventHandler(streamMultiplexer);
         try {
             ioSession.upgrade(protocolHandler);
             protocolHandlerRef.set(protocolHandler);
