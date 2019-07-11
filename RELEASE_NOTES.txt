@@ -19,6 +19,18 @@ promoted to GA.
 Change Log
 -------------------
 
+* HTTPCORE-582: Fixed NPE in SingleCoreIOReactor#processEvents
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Redesign of fatal exception handling by the i/o reactors
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-581: Wrong deadline calculation for non-blocking i/o operations
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Better HttpVersion and ProtocolVersion. (#131)
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
 * Classic and async message builders.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
