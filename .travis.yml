@@ -18,10 +18,14 @@ sudo: false
 
 jdk:
   - openjdk7
-  - openjdk10
-  - openjdk11
   - oraclejdk8
+  - openjdk11
   - oraclejdk11
+  - openjdk-ea
+
+matrix:
+  allow_failures:
+    - jdk: openjdk-ea
 
 after_success:
   - mvn clean cobertura:cobertura coveralls:report
