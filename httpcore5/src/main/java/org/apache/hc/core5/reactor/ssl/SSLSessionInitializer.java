@@ -32,8 +32,7 @@ import javax.net.ssl.SSLEngine;
 import org.apache.hc.core5.net.NamedEndpoint;
 
 /**
- * Callback interface that can be used to customize various aspects of
- * the TLS/SSL protocol.
+ * Callback interface that can be used to customize TLS/SSL session initialization.
  *
  * @since 4.2
  */
