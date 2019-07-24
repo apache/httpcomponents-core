@@ -46,6 +46,7 @@ import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.ssl.DefaultTlsSetupHandler;
+import org.apache.hc.core5.http.io.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.LaxConnPool;
@@ -68,6 +69,7 @@ public class RequesterBootstrap {
     private HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
     private SSLSocketFactory sslSocketFactory;
     private Callback<SSLParameters> sslSetupHandler;
+    private SSLSessionVerifier sslSessionVerifier;
     private int defaultMaxPerRoute;
     private int maxTotal;
     private Timeout timeToLive;
@@ -127,6 +129,14 @@ public class RequesterBootstrap {
      */
     public final RequesterBootstrap setSslSetupHandler(final Callback<SSLParameters> sslSetupHandler) {
         this.sslSetupHandler = sslSetupHandler;
+        return this;
+    }
+
+    /**
+     * Assigns {@link SSLSessionVerifier} instance.
+     */
+    public final RequesterBootstrap setSslSessionVerifier(final SSLSessionVerifier sslSessionVerifier) {
+        this.sslSessionVerifier = sslSessionVerifier;
         return this;
     }
 
@@ -199,6 +209,7 @@ public class RequesterBootstrap {
                         Http1Config.DEFAULT, CharCodingConfig.DEFAULT),
                 sslSocketFactory,
                 sslSetupHandler != null ? sslSetupHandler : new DefaultTlsSetupHandler(),
+                sslSessionVerifier,
                 DefaultAddressResolver.INSTANCE);
     }
 

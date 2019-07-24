@@ -39,7 +39,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -68,6 +70,7 @@ import org.apache.hc.core5.http.io.HttpResponseInformationCallback;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.HttpEntityWrapper;
+import org.apache.hc.core5.http.io.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.CloseMode;
@@ -96,6 +99,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
     private final HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
     private final SSLSocketFactory sslSocketFactory;
     private final Callback<SSLParameters> sslSetupHandler;
+    private final SSLSessionVerifier sslSessionVerifier;
     private final Resolver<HttpHost, InetSocketAddress> addressResolver;
 
     /**
@@ -110,6 +114,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
             final HttpConnectionFactory<? extends HttpClientConnection> connectFactory,
             final SSLSocketFactory sslSocketFactory,
             final Callback<SSLParameters> sslSetupHandler,
+            final SSLSessionVerifier sslSessionVerifier,
             final Resolver<HttpHost, InetSocketAddress> addressResolver) {
         this.requestExecutor = Args.notNull(requestExecutor, "Request executor");
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
@@ -119,6 +124,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
                 Http1Config.DEFAULT, CharCodingConfig.DEFAULT);
         this.sslSocketFactory = sslSocketFactory != null ? sslSocketFactory : (SSLSocketFactory) SSLSocketFactory.getDefault();
         this.sslSetupHandler = sslSetupHandler;
+        this.sslSessionVerifier = sslSessionVerifier;
         this.addressResolver = addressResolver != null ? addressResolver : DefaultAddressResolver.INSTANCE;
     }
 
@@ -263,6 +269,19 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
                 final SSLParameters sslParameters = sslSocket.getSSLParameters();
                 this.sslSetupHandler.execute(sslParameters);
                 sslSocket.setSSLParameters(sslParameters);
+            }
+            try {
+                sslSocket.startHandshake();
+                final SSLSession session = sslSocket.getSession();
+                if (session == null) {
+                    throw new SSLHandshakeException("SSL session not available");
+                }
+                if (sslSessionVerifier != null) {
+                    sslSessionVerifier.verify(targetHost, session);
+                }
+            } catch (final IOException ex) {
+                Closer.closeQuietly(sslSocket);
+                throw ex;
             }
             return sslSocket;
         }

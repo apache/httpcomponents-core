@@ -100,6 +100,7 @@ public class ClassicTestClient {
                     new DefaultBHttpClientConnectionFactory(Http1Config.DEFAULT, CharCodingConfig.DEFAULT),
                     sslContext != null ? sslContext.getSocketFactory() : null,
                     null,
+                    null,
                     DefaultAddressResolver.INSTANCE);
             requesterRef.compareAndSet(null, requester);
         } else {
