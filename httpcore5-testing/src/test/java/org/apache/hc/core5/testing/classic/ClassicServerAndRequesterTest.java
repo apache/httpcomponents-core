@@ -157,7 +157,7 @@ public class ClassicServerAndRequesterTest {
         protected void before() throws Throwable {
             log.debug("Starting up test client");
             requester = RequesterBootstrap.bootstrap()
-                    .setSslContext(scheme == URIScheme.HTTPS  ? SSLTestContexts.createServerSSLContext() : null)
+                    .setSslContext(scheme == URIScheme.HTTPS  ? SSLTestContexts.createClientSSLContext() : null)
                     .setSocketConfig(SocketConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
