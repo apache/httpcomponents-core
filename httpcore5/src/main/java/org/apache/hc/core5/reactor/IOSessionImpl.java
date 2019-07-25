@@ -207,18 +207,6 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public void close() {
-        if (this.status.compareAndSet(ACTIVE, CLOSED)) {
-            this.key.cancel();
-            this.key.attach(null);
-            Closer.closeQuietly(this.key.channel());
-            if (this.key.selector().isOpen()) {
-                this.key.selector().wakeup();
-            }
-        }
-    }
-
-    @Override
     public int getStatus() {
         return this.status.get();
     }
@@ -233,15 +221,27 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
+    public void close() {
+        close(CloseMode.GRACEFUL);
+    }
+
+    @Override
     public void close(final CloseMode closeMode) {
-        if (closeMode == CloseMode.IMMEDIATE) {
-            try {
-                this.channel.socket().setSoLinger(true, 0);
-            } catch (final SocketException e) {
-                // Quietly ignore
+        if (this.status.compareAndSet(ACTIVE, CLOSED)) {
+            if (closeMode == CloseMode.IMMEDIATE) {
+                try {
+                    this.channel.socket().setSoLinger(true, 0);
+                } catch (final SocketException e) {
+                    // Quietly ignore
+                }
+            }
+            this.key.cancel();
+            this.key.attach(null);
+            Closer.closeQuietly(this.key.channel());
+            if (this.key.selector().isOpen()) {
+                this.key.selector().wakeup();
             }
         }
-        close();
     }
 
     private static void formatOps(final StringBuilder buffer, final int ops) {

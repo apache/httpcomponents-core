@@ -107,7 +107,8 @@ final class InternalConnectChannel extends InternalChannel {
 
     @Override
     public void close(final CloseMode closeMode) {
-        Closer.closeQuietly(this);
+        key.cancel();
+        Closer.closeQuietly(socketChannel);
     }
 
     @Override

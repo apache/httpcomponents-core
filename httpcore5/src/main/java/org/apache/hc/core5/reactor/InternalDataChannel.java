@@ -283,22 +283,21 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     public void close() {
-        if (closed.compareAndSet(false, true)) {
-            try {
-                getSessionImpl().close();
-            } finally {
-                closedSessions.add(this);
-            }
-        }
+        close(CloseMode.GRACEFUL);
     }
 
     @Override
     public void close(final CloseMode closeMode) {
-        if (closed.compareAndSet(false, true)) {
-            try {
-                getSessionImpl().close(closeMode);
-            } finally {
-                closedSessions.add(this);
+        if (closeMode == CloseMode.IMMEDIATE) {
+            closed.set(true);
+            getSessionImpl().close(closeMode);
+        } else {
+            if (closed.compareAndSet(false, true)) {
+                try {
+                    getSessionImpl().close(closeMode);
+                } finally {
+                    closedSessions.add(this);
+                }
             }
         }
     }

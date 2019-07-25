@@ -669,38 +669,37 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public void close() {
-        this.session.getLock().lock();
-        try {
-            if (this.status >= CLOSING) {
-                return;
-            }
-            this.status = CLOSING;
-            if (this.session.getSocketTimeout().isDisabled()) {
-                this.session.setSocketTimeout(Timeout.ofMilliseconds(1000));
-            }
-            try {
-                updateEventMask();
-            } catch (final CancelledKeyException ex) {
-                close(CloseMode.GRACEFUL);
-            }
-        } finally {
-            this.session.getLock().unlock();
-        }
+        close(CloseMode.GRACEFUL);
     }
 
     @Override
     public void close(final CloseMode closeMode) {
         this.session.getLock().lock();
         try {
-            if (this.status == CLOSED) {
-                return;
-            }
-            this.inEncrypted.release();
-            this.outEncrypted.release();
-            this.inPlain.release();
+            if (closeMode == CloseMode.GRACEFUL) {
+                if (this.status >= CLOSING) {
+                    return;
+                }
+                this.status = CLOSING;
+                if (this.session.getSocketTimeout().isDisabled()) {
+                    this.session.setSocketTimeout(Timeout.ofMilliseconds(1000));
+                }
+                try {
+                    updateEventMask();
+                } catch (final CancelledKeyException ex) {
+                    close(CloseMode.GRACEFUL);
+                }
+            } else {
+                if (this.status == CLOSED) {
+                    return;
+                }
+                this.inEncrypted.release();
+                this.outEncrypted.release();
+                this.inPlain.release();
 
-            this.status = CLOSED;
-            this.session.close(closeMode);
+                this.status = CLOSED;
+                this.session.close(closeMode);
+            }
         } finally {
             this.session.getLock().unlock();
         }
