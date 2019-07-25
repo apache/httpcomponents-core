@@ -229,7 +229,11 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             break;
         }
         if (this.handler != null) {
-            this.handler.initalize(this.sslEngine);
+            try {
+                this.handler.initalize(this.sslEngine);
+            } catch (final RuntimeException ex) {
+                throw convert(ex);
+            }
         }
         this.initialized = true;
         this.sslEngine.beginHandshake();
