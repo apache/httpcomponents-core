@@ -197,11 +197,13 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     void onException(final Exception cause) {
-        final IOEventHandler handler = ensureHandler();
         if (sessionListener != null) {
             sessionListener.exception(this, cause);
         }
-        handler.exception(this, cause);
+        final IOEventHandler handler = handlerRef.get();
+        if (handler != null) {
+            handler.exception(this, cause);
+        }
     }
 
     void disconnected() {
