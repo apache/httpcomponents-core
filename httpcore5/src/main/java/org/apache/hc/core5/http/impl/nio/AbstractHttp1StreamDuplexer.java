@@ -57,7 +57,6 @@ import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.IncomingEntityDetails;
-import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.ContentEncoder;
@@ -65,6 +64,7 @@ import org.apache.hc.core5.http.nio.NHttpMessageParser;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
+import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.CloseMode;
@@ -381,38 +381,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     public final void onException(final Exception ex) {
         shutdownSession(ex);
-        for (;;) {
-            final Command command = ioSession.poll();
-            if (command != null) {
-                if (command instanceof RequestExecutionCommand) {
-                    final AsyncClientExchangeHandler exchangeHandler = ((RequestExecutionCommand) command).getExchangeHandler();
-                    exchangeHandler.failed(ex);
-                    exchangeHandler.releaseResources();
-                } else {
-                    command.cancel();
-                }
-            } else {
-                break;
-            }
-        }
+        CommandSupport.failCommands(ioSession, ex);
     }
 
     public final void onDisconnect() {
         disconnected();
-        for (;;) {
-            final Command command = ioSession.poll();
-            if (command != null) {
-                if (command instanceof RequestExecutionCommand) {
-                    final AsyncClientExchangeHandler exchangeHandler = ((RequestExecutionCommand) command).getExchangeHandler();
-                    exchangeHandler.failed(new ConnectionClosedException());
-                    exchangeHandler.releaseResources();
-                } else {
-                    command.cancel();
-                }
-            } else {
-                break;
-            }
-        }
+        CommandSupport.cancelCommands(ioSession);
     }
 
     void requestShutdown(final CloseMode closeMode) {

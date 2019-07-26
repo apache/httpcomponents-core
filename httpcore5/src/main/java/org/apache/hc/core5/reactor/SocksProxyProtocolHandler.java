@@ -38,9 +38,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.UnresolvedAddressException;
 import java.nio.charset.StandardCharsets;
 
-import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
+import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.util.Timeout;
@@ -310,34 +308,13 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     @Override
     public void exception(final IOSession session, final Exception cause) {
-        try {
-            cleanupRequests(cause);
-        } finally {
-            session.close(CloseMode.IMMEDIATE);
-        }
+        session.close(CloseMode.IMMEDIATE);
+        CommandSupport.failCommands(session, cause);
     }
 
     @Override
     public void disconnected(final IOSession session) {
-        cleanupRequests(new ConnectionClosedException());
-    }
-
-    private void cleanupRequests(final Exception cause) {
-        while (true) {
-            final Command command = ioSession.poll();
-            if (command != null) {
-                if (command instanceof RequestExecutionCommand) {
-                    final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
-                    final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                    exchangeHandler.failed(cause);
-                    exchangeHandler.releaseResources();
-                } else {
-                    command.cancel();
-                }
-            } else {
-                break;
-            }
-        }
+        CommandSupport.cancelCommands(session);
     }
 
 }

@@ -35,17 +35,14 @@ import java.nio.channels.ByteChannel;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
-import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
-import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
+import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
-import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -143,21 +140,7 @@ public class H2OnlyClientProtocolNegotiator implements HttpConnectionEventHandle
     @Override
     public void exception(final IOSession session, final Exception cause) {
         try {
-            for (;;) {
-                final Command command = ioSession.poll();
-                if (command != null) {
-                    if (command instanceof RequestExecutionCommand) {
-                        final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
-                        final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                        exchangeHandler.failed(cause);
-                        exchangeHandler.releaseResources();
-                    } else {
-                        command.cancel();
-                    }
-                } else {
-                    break;
-                }
-            }
+            CommandSupport.failCommands(session, cause);
         } finally {
             session.close(CloseMode.IMMEDIATE);
         }
@@ -165,21 +148,7 @@ public class H2OnlyClientProtocolNegotiator implements HttpConnectionEventHandle
 
     @Override
     public void disconnected(final IOSession session) {
-        for (;;) {
-            final Command command = ioSession.poll();
-            if (command != null) {
-                if (command instanceof RequestExecutionCommand) {
-                    final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
-                    final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-                    exchangeHandler.failed(new ConnectionClosedException());
-                    exchangeHandler.releaseResources();
-                } else {
-                    command.cancel();
-                }
-            } else {
-                break;
-            }
-        }
+        CommandSupport.cancelCommands(session);
     }
 
     @Override
