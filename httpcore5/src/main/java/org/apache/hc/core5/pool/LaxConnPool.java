@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Experimental;
@@ -345,7 +346,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         private final ConnPoolStats<T> connPoolStats;
         private final ConnPoolListener<T> connPoolListener;
         private final ConcurrentMap<PoolEntry<T, C>, Boolean> leased;
-        private final Deque<PoolEntry<T, C>> available;
+        private final Deque<AtomicMarkableReference<PoolEntry<T, C>>> available;
         private final Deque<LeaseRequest<T, C>> pending;
         private final AtomicBoolean terminated;
 
@@ -373,9 +374,9 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
         public void shutdown(final CloseMode closeMode) {
             if (terminated.compareAndSet(false, true)) {
-                PoolEntry<T, C> availableEntry;
-                while ((availableEntry = available.poll()) != null) {
-                    availableEntry.discardConnection(closeMode);
+                AtomicMarkableReference<PoolEntry<T, C>> entryRef;
+                while ((entryRef = available.poll()) != null) {
+                    entryRef.getReference().discardConnection(closeMode);
                 }
                 for (final PoolEntry<T, C> entry : leased.keySet()) {
                     entry.discardConnection(closeMode);
@@ -406,16 +407,21 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         }
 
         private PoolEntry<T, C> getAvailableEntry(final Object state) {
-            final PoolEntry<T, C> entry = available.poll();
-            if (entry != null) {
-                if (entry.getExpiryDeadline().isExpired()) {
-                    entry.discardConnection(CloseMode.GRACEFUL);
-                }
-                if (!LangUtils.equals(entry.getState(), state)) {
-                    entry.discardConnection(CloseMode.GRACEFUL);
+            for (final Iterator<AtomicMarkableReference<PoolEntry<T, C>>> it = available.iterator(); it.hasNext(); ) {
+                final AtomicMarkableReference<PoolEntry<T, C>> ref = it.next();
+                final PoolEntry<T, C> entry = ref.getReference();
+                if (ref.compareAndSet(entry, entry, false, true)) {
+                    it.remove();
+                    if (entry.getExpiryDeadline().isExpired()) {
+                        entry.discardConnection(CloseMode.GRACEFUL);
+                    }
+                    if (!LangUtils.equals(entry.getState(), state)) {
+                        entry.discardConnection(CloseMode.GRACEFUL);
+                    }
+                    return entry;
                 }
             }
-            return entry;
+            return null;
         }
 
         public Future<PoolEntry<T, C>> lease(
@@ -448,15 +454,19 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             if (releasedEntry.hasConnection()) {
                 switch (policy) {
                     case LIFO:
-                        available.addFirst(releasedEntry);
+                        available.addFirst(new AtomicMarkableReference<>(releasedEntry, false));
                         break;
                     case FIFO:
-                        available.addLast(releasedEntry);
+                        available.addLast(new AtomicMarkableReference<>(releasedEntry, false));
                         break;
                     default:
                         throw new IllegalStateException("Unexpected ConnPoolPolicy value: " + policy);
                 }
             }
+            servicePendingRequest();
+        }
+
+        private void servicePendingRequest() {
             LeaseRequest<T, C> leaseRequest;
             while ((leaseRequest = pending.poll()) != null) {
                 if (leaseRequest.isDone()) {
@@ -526,13 +536,20 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         }
 
         public void enumAvailable(final Callback<PoolEntry<T, C>> callback) {
-            for (final Iterator<PoolEntry<T, C>> it = available.iterator(); it.hasNext(); ) {
-                final PoolEntry<T, C> entry = it.next();
-                callback.execute(entry);
-                if (!entry.hasConnection()) {
-                    it.remove();
+            for (final Iterator<AtomicMarkableReference<PoolEntry<T, C>>> it = available.iterator(); it.hasNext(); ) {
+                final AtomicMarkableReference<PoolEntry<T, C>> ref = it.next();
+                final PoolEntry<T, C> entry = ref.getReference();
+                if (ref.compareAndSet(entry, entry, false, true)) {
+                    callback.execute(entry);
+                    if (!entry.hasConnection()) {
+                        it.remove();
+                    }
+                    else {
+                        ref.set(entry, false);
+                    }
                 }
             }
+            servicePendingRequest();
         }
 
         public void enumLeased(final Callback<PoolEntry<T, C>> callback) {
