@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
+import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
 import org.apache.hc.core5.io.CloseMode;
@@ -182,11 +183,13 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void exception(final IOSession session, final Exception cause) {
+        session.close(CloseMode.IMMEDIATE);
         final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
         if (protocolHandler != null) {
             protocolHandler.exception(session, cause);
+        } else {
+            CommandSupport.failCommands(session, cause);
         }
-        session.close(CloseMode.IMMEDIATE);
     }
 
     @Override
@@ -194,6 +197,8 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
         final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.getAndSet(null);
         if (protocolHandler != null) {
             protocolHandler.disconnected(ioSession);
+        } else {
+            CommandSupport.cancelCommands(session);
         }
     }
 
