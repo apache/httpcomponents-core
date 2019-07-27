@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.message;
 
-import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -60,7 +59,6 @@ public class MessageSupport {
 
     public static void formatTokens(final CharArrayBuffer dst, final String... tokens) {
         Args.notNull(dst, "Destination");
-        Arrays.sort(tokens);
         for (int i = 0; i < tokens.length; i++) {
             final String element = tokens[i];
             if (i > 0) {

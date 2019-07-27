@@ -57,7 +57,7 @@ public class TestMessageSupport {
     public void testTokenSetFormatting() throws Exception {
         final Header header = MessageSupport.format(HttpHeaders.TRAILER, makeSet("z", "b", "a"));
         Assert.assertNotNull(header);
-        Assert.assertEquals("a, b, z", header.getValue());
+        Assert.assertEquals("z, b, a", header.getValue());
     }
 
     @Test
@@ -113,7 +113,7 @@ public class TestMessageSupport {
         final Header h2 = message.getFirstHeader(HttpHeaders.CONTENT_TYPE);
 
         Assert.assertNotNull(h1);
-        Assert.assertEquals("a, b, z", h1.getValue());
+        Assert.assertEquals("z, b, a", h1.getValue());
         Assert.assertNotNull(h2);
         Assert.assertEquals("text/plain; charset=US-ASCII", h2.getValue());
     }
