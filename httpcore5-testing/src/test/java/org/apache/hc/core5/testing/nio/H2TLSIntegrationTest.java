@@ -46,7 +46,6 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Methods;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
@@ -59,6 +58,7 @@ import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.http.ssl.TLS;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -76,7 +76,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
 
-public class Http1TLSIntegrationTest {
+public class H2TLSIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
@@ -140,7 +140,7 @@ public class Http1TLSIntegrationTest {
 
         final AtomicReference<SSLSession> sslSessionRef = new AtomicReference<>(null);
 
-        requester = AsyncRequesterBootstrap.bootstrap()
+        requester = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
@@ -212,7 +212,7 @@ public class Http1TLSIntegrationTest {
                 .create();
         server.start();
 
-        requester = AsyncRequesterBootstrap.bootstrap()
+        requester = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
@@ -278,7 +278,7 @@ public class Http1TLSIntegrationTest {
                 .create();
         server.start();
 
-        requester = AsyncRequesterBootstrap.bootstrap()
+        requester = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
@@ -344,7 +344,7 @@ public class Http1TLSIntegrationTest {
                 .create();
         server.start();
 
-        requester = AsyncRequesterBootstrap.bootstrap()
+        requester = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
@@ -378,7 +378,7 @@ public class Http1TLSIntegrationTest {
 
     @Test
     public void testWeakCiphersDisabledByDefault() throws Exception {
-        requester = AsyncRequesterBootstrap.bootstrap()
+        requester = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
