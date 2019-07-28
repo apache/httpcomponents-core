@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicMarkableReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Experimental;
@@ -349,6 +350,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         private final Deque<AtomicMarkableReference<PoolEntry<T, C>>> available;
         private final Deque<LeaseRequest<T, C>> pending;
         private final AtomicBoolean terminated;
+        private final AtomicInteger allocated;
 
         private volatile int max;
 
@@ -369,6 +371,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             this.available = new ConcurrentLinkedDeque<>();
             this.pending = new ConcurrentLinkedDeque<>();
             this.terminated = new AtomicBoolean(false);
+            this.allocated = new AtomicInteger(0);
             this.max = max;
         }
 
@@ -387,6 +390,20 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                     leaseRequest.cancel();
                 }
             }
+        }
+
+        private boolean allocatePoolEntry() {
+            final int poolmax = max;
+            int prev, next;
+            do {
+                prev = allocated.get();
+                next = (prev<poolmax)? prev+1 : prev;
+            } while (!allocated.compareAndSet(prev, next));
+            return prev < next;
+        }
+
+        private void deallocatePoolEntry() {
+            allocated.decrementAndGet();
         }
 
         private void addLeased(final PoolEntry<T, C> entry) {
@@ -435,7 +452,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 addLeased(availableEntry);
                 future.completed(availableEntry);
             } else {
-                if (pending.isEmpty() && leased.size() < max) {
+                if (pending.isEmpty() && allocatePoolEntry()) {
                     final PoolEntry<T, C> entry = new PoolEntry<>(route, timeToLive);
                     addLeased(entry);
                     future.completed(entry);
@@ -463,6 +480,9 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                         throw new IllegalStateException("Unexpected ConnPoolPolicy value: " + policy);
                 }
             }
+            else {
+                deallocatePoolEntry();
+            }
             servicePendingRequest();
         }
 
@@ -482,7 +502,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                     if (availableEntry != null) {
                         addLeased(availableEntry);
                         leaseRequest.completed(availableEntry);
-                    } else if (leased.size() < max) {
+                    } else if (allocatePoolEntry()) {
                         final PoolEntry<T, C> newEntry = new PoolEntry<>(route, timeToLive);
                         addLeased(newEntry);
                         leaseRequest.completed(newEntry);
@@ -544,6 +564,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 if (ref.compareAndSet(entry, entry, false, true)) {
                     callback.execute(entry);
                     if (!entry.hasConnection()) {
+                        deallocatePoolEntry();
                         it.remove();
                     }
                     else {
@@ -559,6 +580,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 final PoolEntry<T, C> entry = it.next();
                 callback.execute(entry);
                 if (!entry.hasConnection()) {
+                    deallocatePoolEntry();
                     it.remove();
                 }
             }
