@@ -42,6 +42,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Resolver;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -224,6 +225,9 @@ public class H2MultiplexingRequester extends AsyncRequester{
                                 }
 
                             }, pushHandlerFactory, cancellableDependency, context), Command.Priority.NORMAL);
+                            if (ioSession.isClosed()) {
+                                exchangeHandler.failed(new ConnectionClosedException());
+                            }
                         }
 
                         @Override

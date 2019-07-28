@@ -35,6 +35,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
@@ -80,7 +81,10 @@ public final class ClientSessionEndpoint implements ModalCloseable {
             final HttpContext context) {
         Asserts.check(!closed.get(), "Connection is already closed");
         final Command executionCommand = new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context);
-        execute(executionCommand, Command.Priority.NORMAL);
+        ioSession.enqueue(executionCommand, Command.Priority.NORMAL);
+        if (ioSession.isClosed()) {
+            exchangeHandler.failed(new ConnectionClosedException());
+        }
     }
 
     public void execute(

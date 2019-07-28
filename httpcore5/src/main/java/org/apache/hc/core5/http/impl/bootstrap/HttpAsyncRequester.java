@@ -40,6 +40,7 @@ import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -432,6 +433,9 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                 throw new IllegalStateException("I/O session is invalid");
             }
             ioSession.enqueue(new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context), Command.Priority.NORMAL);
+            if (ioSession.isClosed()) {
+                exchangeHandler.failed(new ConnectionClosedException());
+            }
         }
 
         @Override
