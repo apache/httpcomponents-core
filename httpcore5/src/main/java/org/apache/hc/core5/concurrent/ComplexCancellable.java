@@ -26,9 +26,6 @@
  */
 package org.apache.hc.core5.concurrent;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -40,39 +37,35 @@ import org.apache.hc.core5.util.Args;
  */
 public final class ComplexCancellable implements CancellableDependency {
 
-    private final AtomicReference<Cancellable> dependencyRef;
-    private final AtomicBoolean cancelled;
-
-    public ComplexCancellable() {
-        this.dependencyRef = new AtomicReference<>(null);
-        this.cancelled = new AtomicBoolean(false);
-    }
+    private volatile Cancellable dependency;
+    private volatile boolean     cancelled;
 
     @Override
     public boolean isCancelled() {
-        return cancelled.get();
+        return this.cancelled;
     }
 
     @Override
-    public void setDependency(final Cancellable dependency) {
+    public synchronized void setDependency(final Cancellable dependency) {
         Args.notNull(dependency, "dependency");
-        if (!cancelled.get()) {
-            dependencyRef.set(dependency);
+        if (!cancelled) {
+            this.dependency = dependency;
         } else {
             dependency.cancel();
         }
     }
 
     @Override
-    public boolean cancel() {
-        if (cancelled.compareAndSet(false, true)) {
-            final Cancellable dependency = dependencyRef.getAndSet(null);
-            if (dependency != null) {
+    public synchronized boolean cancel() {
+        if (cancelled) {
+            return false;
+        } else {
+            this.cancelled = true;
+            if (this.dependency != null) {
                 dependency.cancel();
+                dependency = null;
             }
             return true;
         }
-        return false;
     }
-
 }
