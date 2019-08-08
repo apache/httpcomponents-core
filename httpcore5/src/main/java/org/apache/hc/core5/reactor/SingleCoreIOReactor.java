@@ -36,6 +36,9 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -48,6 +51,7 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
 class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
@@ -322,7 +326,26 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             targetAddress = sessionRequest.remoteAddress;
             eventHandlerFactory = this.eventHandlerFactory;
         }
-        final boolean connected = socketChannel.connect(targetAddress);
+
+        // Run this under a doPrivileged to support lib users that run under a SecurityManager this allows granting connect permissions
+        // only to this library
+        final boolean connected;
+        try {
+            connected = AccessController.doPrivileged(
+                        new PrivilegedExceptionAction<Boolean>() {
+                            @Override
+                            public Boolean run() throws IOException {
+                                return socketChannel.connect(targetAddress);
+                            };
+                        });
+        } catch (final PrivilegedActionException e) {
+            Asserts.check(e.getCause() instanceof  IOException,
+                    "method contract violation only checked exceptions are wrapped: " + e.getCause());
+            // only checked exceptions are wrapped - error and RTExceptions are rethrown by doPrivileged
+            throw (IOException) e.getCause();
+        }
+
+
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
         final InternalChannel channel = new InternalConnectChannel(key, socketChannel, sessionRequest, new InternalDataChannelFactory() {
 
