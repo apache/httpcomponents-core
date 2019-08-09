@@ -26,8 +26,7 @@
  */
 package org.apache.hc.core5.concurrent;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 
 import org.apache.hc.core5.util.Args;
 
@@ -40,37 +39,36 @@ import org.apache.hc.core5.util.Args;
  */
 public final class ComplexCancellable implements CancellableDependency {
 
-    private final AtomicReference<Cancellable> dependencyRef;
-    private final AtomicBoolean cancelled;
+    private final AtomicMarkableReference<Cancellable> dependencyRef;
 
     public ComplexCancellable() {
-        this.dependencyRef = new AtomicReference<>(null);
-        this.cancelled = new AtomicBoolean(false);
+        this.dependencyRef = new AtomicMarkableReference<>(null, false);
     }
 
     @Override
     public boolean isCancelled() {
-        return cancelled.get();
+        return dependencyRef.isMarked();
     }
 
     @Override
     public void setDependency(final Cancellable dependency) {
         Args.notNull(dependency, "dependency");
-        if (!cancelled.get()) {
-            dependencyRef.set(dependency);
-        } else {
+        final Cancellable actualDependency = dependencyRef.getReference();
+        if (!dependencyRef.compareAndSet(actualDependency, dependency, false, false)) {
             dependency.cancel();
         }
     }
 
     @Override
     public boolean cancel() {
-        if (cancelled.compareAndSet(false, true)) {
-            final Cancellable dependency = dependencyRef.getAndSet(null);
-            if (dependency != null) {
-                dependency.cancel();
+        while (!dependencyRef.isMarked()) {
+            final Cancellable actualDependency = dependencyRef.getReference();
+            if (dependencyRef.compareAndSet(actualDependency, actualDependency, false, true)) {
+                if (actualDependency != null) {
+                    actualDependency.cancel();
+                }
+                return true;
             }
-            return true;
         }
         return false;
     }
