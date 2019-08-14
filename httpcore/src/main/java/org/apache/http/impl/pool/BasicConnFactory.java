@@ -29,6 +29,9 @@ package org.apache.http.impl.pool;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 import javax.net.SocketFactory;
 import javax.net.ssl.SSLSocketFactory;
@@ -47,6 +50,7 @@ import org.apache.http.params.HttpParamConfig;
 import org.apache.http.params.HttpParams;
 import org.apache.http.pool.ConnFactory;
 import org.apache.http.util.Args;
+import org.apache.http.util.Asserts;
 
 /**
  * A very basic {@link ConnFactory} implementation that creates
@@ -178,7 +182,24 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
             socket.setSoLinger(true, linger);
         }
         socket.setKeepAlive(this.sconfig.isSoKeepAlive());
-        socket.connect(new InetSocketAddress(hostname, port), this.connectTimeout);
+        // Run this under a doPrivileged to support lib users that run under a SecurityManager this allows granting connect permissions
+        // only to this library
+        final Socket finalSocket = socket;
+        final InetSocketAddress address = new InetSocketAddress(hostname, port);
+        try {
+            AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
+                @Override
+                public Object run() throws IOException {
+                    finalSocket.connect(address, BasicConnFactory.this.connectTimeout);
+                    return null;
+                }
+            });
+        } catch (final PrivilegedActionException e) {
+            Asserts.check(e.getCause() instanceof IOException,
+                    "method contract violation only checked exceptions are wrapped: " + e.getCause());
+            // only checked exceptions are wrapped - error and RTExceptions are rethrown by doPrivileged
+            throw (IOException) e.getCause();
+        }
         return this.connFactory.createConnection(socket);
     }
 

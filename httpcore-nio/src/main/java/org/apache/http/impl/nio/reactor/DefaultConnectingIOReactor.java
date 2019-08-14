@@ -35,6 +35,9 @@ import java.net.UnknownHostException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.security.AccessController;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -274,7 +277,25 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                     sock.setReuseAddress(this.config.isSoReuseAddress());
                     sock.bind(request.getLocalAddress());
                 }
-                final boolean connected = socketChannel.connect(request.getRemoteAddress());
+
+                final SocketAddress targetAddress = request.getRemoteAddress();
+                // Run this under a doPrivileged to support lib users that run under a SecurityManager this allows granting connect
+                // permissions only to this library
+                final boolean connected;
+                try {
+                    connected = AccessController.doPrivileged(
+                            new PrivilegedExceptionAction<Boolean>() {
+                                @Override
+                                public Boolean run() throws IOException {
+                                    return socketChannel.connect(targetAddress);
+                                };
+                            });
+                } catch (final PrivilegedActionException e) {
+                    Asserts.check(e.getCause() instanceof  IOException,
+                            "method contract violation only checked exceptions are wrapped: " + e.getCause());
+                    // only checked exceptions are wrapped - error and RTExceptions are rethrown by doPrivileged
+                    throw (IOException) e.getCause();
+                }
                 if (connected) {
                     final ChannelEntry entry = new ChannelEntry(socketChannel, request);
                     addChannel(entry);
