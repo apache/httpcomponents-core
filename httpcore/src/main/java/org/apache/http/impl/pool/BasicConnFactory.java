@@ -183,13 +183,12 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
         socket.setKeepAlive(this.sconfig.isSoKeepAlive());
         // Run this under a doPrivileged to support lib users that run under a SecurityManager this allows granting connect permissions
         // only to this library
-        final Socket finalSocket = socket;
         final InetSocketAddress address = new InetSocketAddress(hostname, port);
         try {
             AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
                 @Override
                 public Object run() throws IOException {
-                    finalSocket.connect(address, BasicConnFactory.this.connectTimeout);
+                    socket.connect(address, BasicConnFactory.this.connectTimeout);
                     return null;
                 }
             });
