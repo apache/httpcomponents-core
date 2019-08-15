@@ -39,8 +39,8 @@ import javax.net.ssl.SSLSocketFactory;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpConnectionFactory;
 import org.apache.http.HttpHost;
-import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
+import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.DefaultBHttpClientConnection;
@@ -149,15 +149,14 @@ public class BasicConnFactory implements ConnFactory<HttpHost, HttpClientConnect
     @Override
     public HttpClientConnection create(final HttpHost host) throws IOException {
         final String scheme = host.getSchemeName();
-        Socket socket = null;
+        final Socket socket;
         if ("http".equalsIgnoreCase(scheme)) {
             socket = this.plainfactory != null ? this.plainfactory.createSocket() :
                     new Socket();
-        } if ("https".equalsIgnoreCase(scheme)) {
+        } else if ("https".equalsIgnoreCase(scheme)) {
             socket = (this.sslfactory != null ? this.sslfactory :
                     SSLSocketFactory.getDefault()).createSocket();
-        }
-        if (socket == null) {
+        } else {
             throw new IOException(scheme + " scheme is not supported");
         }
         final String hostname = host.getHostName();
