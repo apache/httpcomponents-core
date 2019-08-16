@@ -325,12 +325,12 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             return this.future.isDone();
         }
 
-        public void completed(final PoolEntry<T, C> result) {
-            future.completed(result);
+        public boolean completed(final PoolEntry<T, C> result) {
+            return future.completed(result);
         }
 
-        public void failed(final Exception ex) {
-            future.failed(ex);
+        public boolean failed(final Exception ex) {
+            return future.failed(ex);
         }
 
         @Override
@@ -517,7 +517,9 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                     }
                     if (entry != null) {
                         addLeased(entry);
-                        leaseRequest.completed(entry);
+                        if (!leaseRequest.completed(entry)) {
+                            release(entry, true);
+                        }
                         if (serviceStrategy == RequestServiceStrategy.FIRST_SUCCESSFUL) {
                             break;
                         }
