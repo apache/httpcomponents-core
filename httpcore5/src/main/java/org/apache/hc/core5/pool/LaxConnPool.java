@@ -160,9 +160,6 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             return;
         }
         final PerRoutePool<T, C> routePool = getPool(entry.getRoute());
-        if (connPoolListener != null) {
-            connPoolListener.onLease(entry.getRoute(), this);
-        }
         routePool.release(entry, reusable);
     }
 
