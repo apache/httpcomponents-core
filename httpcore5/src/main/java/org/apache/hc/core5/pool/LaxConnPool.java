@@ -450,9 +450,12 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             Asserts.check(!terminated.get(), "Connection pool shut down");
             final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<>(callback);
             final long releaseState = releaseSeqNum.get();
-            PoolEntry<T, C> entry = getAvailableEntry(state);
-            if (entry == null && pending.isEmpty()) {
-                entry = createPoolEntry();
+            PoolEntry<T, C> entry = null;
+            if (pending.isEmpty()) {
+                entry = getAvailableEntry(state);
+                if (entry == null) {
+                    entry = createPoolEntry();
+                }
             }
             if (entry != null) {
                 addLeased(entry);
