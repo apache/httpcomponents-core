@@ -56,6 +56,7 @@ public class SessionRequestImpl implements SessionRequest {
 
     private volatile SelectionKey key;
 
+    private volatile boolean terminated;
     private volatile int connectTimeout;
     private volatile IOSession session = null;
     private volatile IOException exception = null;
@@ -92,6 +93,10 @@ public class SessionRequestImpl implements SessionRequest {
     @Override
     public boolean isCompleted() {
         return this.completed.get();
+    }
+
+    boolean isTerminated() {
+        return this.terminated;
     }
 
     protected void setKey(final SelectionKey key) {
@@ -142,6 +147,7 @@ public class SessionRequestImpl implements SessionRequest {
             return;
         }
         if (this.completed.compareAndSet(false, true)) {
+            this.terminated = true;
             final SelectionKey key = this.key;
             if (key != null) {
                 key.cancel();
@@ -162,6 +168,7 @@ public class SessionRequestImpl implements SessionRequest {
 
     public void timeout() {
         if (this.completed.compareAndSet(false, true)) {
+            this.terminated = true;
             final SelectionKey key = this.key;
             if (key != null) {
                 key.cancel();
@@ -199,6 +206,7 @@ public class SessionRequestImpl implements SessionRequest {
     @Override
     public void cancel() {
         if (this.completed.compareAndSet(false, true)) {
+            this.terminated = true;
             final SelectionKey key = this.key;
             if (key != null) {
                 key.cancel();

@@ -419,14 +419,23 @@ public abstract class AbstractIOReactor implements IOReactor {
             }
             try {
                 this.sessions.add(session);
+                key.attach(session);
                 final SessionRequestImpl sessionRequest = entry.getSessionRequest();
                 if (sessionRequest != null) {
-                    sessionRequest.completed(session);
+                    if (!sessionRequest.isTerminated()) {
+                        sessionRequest.completed(session);
+                    }
+                    if (!sessionRequest.isTerminated()) {
+                        sessionCreated(key, session);
+                    }
+                    if (sessionRequest.isTerminated()) {
+                        throw new CancelledKeyException();
+                    }
+                } else {
+                    sessionCreated(key, session);
                 }
-                key.attach(session);
-                sessionCreated(key, session);
             } catch (final CancelledKeyException ex) {
-                queueClosedSession(session);
+                session.close();
                 key.attach(null);
             }
         }
@@ -489,7 +498,12 @@ public abstract class AbstractIOReactor implements IOReactor {
             final int timeout = session.getSocketTimeout();
             if (timeout > 0) {
                 if (session.getLastAccessTime() + timeout < now) {
-                    sessionTimedOut(session);
+                    try {
+                        sessionTimedOut(session);
+                    } catch (final CancelledKeyException ex) {
+                        session.close();
+                        key.attach(null);
+                    }
                 }
             }
         }

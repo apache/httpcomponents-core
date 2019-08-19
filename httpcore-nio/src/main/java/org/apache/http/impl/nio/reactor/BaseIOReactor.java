@@ -169,8 +169,7 @@ public class BaseIOReactor extends AbstractIOReactor {
                 this.bufferingSessions.add(session);
             }
         } catch (final CancelledKeyException ex) {
-            queueClosedSession(session);
-            key.attach(null);
+            throw ex;
         } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
@@ -187,8 +186,7 @@ public class BaseIOReactor extends AbstractIOReactor {
         try {
             this.eventDispatch.outputReady(session);
         } catch (final CancelledKeyException ex) {
-            queueClosedSession(session);
-            key.attach(null);
+            throw ex;
         } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
@@ -230,7 +228,7 @@ public class BaseIOReactor extends AbstractIOReactor {
                     }
                 } catch (final CancelledKeyException ex) {
                     it.remove();
-                    queueClosedSession(session);
+                    session.close();
                 } catch (final RuntimeException ex) {
                     handleRuntimeException(ex);
                 }
@@ -247,7 +245,7 @@ public class BaseIOReactor extends AbstractIOReactor {
         try {
             this.eventDispatch.connected(session);
         } catch (final CancelledKeyException ex) {
-            queueClosedSession(session);
+            throw ex;
         } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
@@ -262,7 +260,7 @@ public class BaseIOReactor extends AbstractIOReactor {
         try {
             this.eventDispatch.timeout(session);
         } catch (final CancelledKeyException ex) {
-            queueClosedSession(session);
+            throw ex;
         } catch (final RuntimeException ex) {
             handleRuntimeException(ex);
         }
