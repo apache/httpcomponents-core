@@ -73,7 +73,7 @@ public final class ContentType implements Serializable {
     public static final ContentType APPLICATION_OCTET_STREAM = create(
             "application/octet-stream", (Charset) null);
     public static final ContentType APPLICATION_SOAP_XML = create(
-            "application/soap+xml", StandardCharsets.ISO_8859_1);
+            "application/soap+xml", StandardCharsets.UTF_8);
     public static final ContentType APPLICATION_SVG_XML = create(
             "application/svg+xml", StandardCharsets.ISO_8859_1);
     public static final ContentType APPLICATION_XHTML_XML = create(
