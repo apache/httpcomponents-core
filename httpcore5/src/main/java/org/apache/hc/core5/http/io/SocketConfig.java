@@ -79,83 +79,42 @@ public class SocketConfig {
     }
 
     /**
-     * Determines the default socket timeout value for blocking I/O operations.
-     * <p>
-     * Default: {@code 0} (no timeout)
-     * </p>
-     *
-     * @return the default socket timeout value for blocking I/O operations.
-     * @see java.net.SocketOptions#SO_TIMEOUT
+     * @see Builder#setSoTimeout(Timeout)
      */
     public Timeout getSoTimeout() {
         return soTimeout;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code false}
-     * </p>
-     *
-     * @return the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter.
-     * @see java.net.SocketOptions#SO_REUSEADDR
+     * @see Builder#setSoReuseAddress(boolean)
      */
     public boolean isSoReuseAddress() {
         return soReuseAddress;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code -1}
-     * </p>
-     *
-     * @return the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter.
-     * @see java.net.SocketOptions#SO_LINGER
+     * @see Builder#setSoLinger(TimeValue)
      */
     public TimeValue getSoLinger() {
         return soLinger;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code false}
-     * </p>
-     *
-     * @return the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter.
-     * @see java.net.SocketOptions#SO_KEEPALIVE
+     * @see Builder#setSoKeepAlive(boolean)
      */
     public boolean isSoKeepAlive() {
         return soKeepAlive;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code false}
-     * </p>
-     *
-     * @return the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter.
-     * @see java.net.SocketOptions#TCP_NODELAY
+     * @see Builder#setTcpNoDelay(boolean)
      */
     public boolean isTcpNoDelay() {
         return tcpNoDelay;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code 0} (system default)
-     * </p>
-     *
-     * @return the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter.
-     * @see java.net.SocketOptions#SO_SNDBUF
+     * @see Builder#setSndBufSize(int)
      * @since 4.4
      */
     public int getSndBufSize() {
@@ -163,14 +122,7 @@ public class SocketConfig {
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code 0} (system default)
-     * </p>
-     *
-     * @return the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter.
-     * @see java.net.SocketOptions#SO_RCVBUF
+     * @see Builder#setRcvBufSize(int)
      * @since 4.4
      */
     public int getRcvBufSize() {
@@ -178,12 +130,7 @@ public class SocketConfig {
     }
 
     /**
-     * Determines the maximum queue length for incoming connection indications
-     * (a request to connect) also known as server socket backlog.
-     * <p>
-     * Default: {@code 0} (system default)
-     * </p>
-     * @return the maximum queue length for incoming connection indications
+     * @see Builder#setBacklogSize(int)
      * @since 4.4
      */
     public int getBacklogSize() {
@@ -191,7 +138,7 @@ public class SocketConfig {
     }
 
     /**
-     * The address of the SOCKS proxy to use.
+     * @see Builder#setSocksProxyAddress(SocketAddress)
      */
     public SocketAddress getSocksProxyAddress() {
         return this.socksProxyAddress;
@@ -255,42 +202,105 @@ public class SocketConfig {
             this.socksProxyAddress = null;
         }
 
+        /**
+         * @see #setSoTimeout(Timeout)
+         */
         public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
             this.soTimeout = Timeout.of(soTimeout, timeUnit);
             return this;
         }
 
+        /**
+         * Determines the default socket timeout value for blocking I/O operations.
+         * <p>
+         * Default: {@code 0} (no timeout)
+         * </p>
+         *
+         * @return the default socket timeout value for blocking I/O operations.
+         * @see java.net.SocketOptions#SO_TIMEOUT
+         */
         public Builder setSoTimeout(final Timeout soTimeout) {
             this.soTimeout = soTimeout;
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code false}
+         * </p>
+         *
+         * @return the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter.
+         * @see java.net.SocketOptions#SO_REUSEADDR
+         */
         public Builder setSoReuseAddress(final boolean soReuseAddress) {
             this.soReuseAddress = soReuseAddress;
             return this;
         }
 
+        /**
+         * @see #setSoLinger(TimeValue)
+         */
         public Builder setSoLinger(final int soLinger, final TimeUnit timeUnit) {
             this.soLinger = Timeout.of(soLinger, timeUnit);
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code -1}
+         * </p>
+         *
+         * @return the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter.
+         * @see java.net.SocketOptions#SO_LINGER
+         */
         public Builder setSoLinger(final TimeValue soLinger) {
             this.soLinger = soLinger;
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code false}
+         * </p>
+         *
+         * @return the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter.
+         * @see java.net.SocketOptions#SO_KEEPALIVE
+         */
         public Builder setSoKeepAlive(final boolean soKeepAlive) {
             this.soKeepAlive = soKeepAlive;
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code false}
+         * </p>
+         *
+         * @return the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter.
+         * @see java.net.SocketOptions#TCP_NODELAY
+         */
         public Builder setTcpNoDelay(final boolean tcpNoDelay) {
             this.tcpNoDelay = tcpNoDelay;
             return this;
         }
 
         /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code 0} (system default)
+         * </p>
+         *
+         * @return the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter.
+         * @see java.net.SocketOptions#SO_SNDBUF
          * @since 4.4
          */
         public Builder setSndBufSize(final int sndBufSize) {
@@ -299,6 +309,14 @@ public class SocketConfig {
         }
 
         /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code 0} (system default)
+         * </p>
+         *
+         * @return the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter.
+         * @see java.net.SocketOptions#SO_RCVBUF
          * @since 4.4
          */
         public Builder setRcvBufSize(final int rcvBufSize) {
@@ -307,6 +325,12 @@ public class SocketConfig {
         }
 
         /**
+         * Determines the maximum queue length for incoming connection indications
+         * (a request to connect) also known as server socket backlog.
+         * <p>
+         * Default: {@code 0} (system default)
+         * </p>
+         * @return the maximum queue length for incoming connection indications
          * @since 4.4
          */
         public Builder setBacklogSize(final int backlogSize) {
@@ -314,6 +338,9 @@ public class SocketConfig {
             return this;
         }
 
+        /**
+         * The address of the SOCKS proxy to use.
+         */
         public Builder setSocksProxyAddress(final SocketAddress socksProxyAddress) {
             this.socksProxyAddress = socksProxyAddress;
             return this;

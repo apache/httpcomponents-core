@@ -91,144 +91,91 @@ public final class IOReactorConfig {
     }
 
     /**
-     * Determines time interval at which the I/O reactor wakes up to check for timed out sessions
-     * and session requests.
-     * <p>
-     * Default: {@code 1000} milliseconds.
-     * </p>
+     * @see Builder#setSelectInterval(TimeValue)
      */
     public TimeValue getSelectInterval() {
         return this.selectInterval;
     }
 
     /**
-     * Determines the number of I/O dispatch threads to be used by the I/O reactor.
-     * <p>
-     * Default: {@code 2}
-     * </p>
+     * @see Builder#setIoThreadCount(int)
      */
     public int getIoThreadCount() {
         return this.ioThreadCount;
     }
 
     /**
-     * Determines the default socket timeout value for non-blocking I/O operations.
-     * <p>
-     * Default: {@code 0} (no timeout)
-     * </p>
-     *
-     * @see java.net.SocketOptions#SO_TIMEOUT
+     * @see Builder#setSoTimeout(Timeout)
      */
     public Timeout getSoTimeout() {
         return soTimeout;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code false}
-     * </p>
-     *
-     * @see java.net.SocketOptions#SO_REUSEADDR
+     * @see Builder#setSoReuseAddress(boolean)
      */
     public boolean isSoReuseAddress() {
         return soReuseAddress;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code -1}
-     * </p>
-     *
-     * @see java.net.SocketOptions#SO_LINGER
+     * @see Builder#setSoLinger(TimeValue)
      */
     public TimeValue getSoLinger() {
         return soLinger;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code -1}
-     * </p>
-     *
-     * @see java.net.SocketOptions#SO_KEEPALIVE
+     * @see Builder#setSoKeepAlive(boolean)
      */
     public boolean isSoKeepalive() {
         return this.soKeepAlive;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code false}
-     * </p>
-     *
-     * @see java.net.SocketOptions#TCP_NODELAY
+     * @see Builder#setTcpNoDelay(boolean)
      */
     public boolean isTcpNoDelay() {
         return tcpNoDelay;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code 0} (system default)
-     * </p>
-     *
-     * @see java.net.SocketOptions#SO_SNDBUF
+     * @see Builder#setSndBufSize(int)
      */
     public int getSndBufSize() {
         return sndBufSize;
     }
 
     /**
-     * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
-     * for newly created sockets.
-     * <p>
-     * Default: {@code 0} (system default)
-     * </p>
-     *
-     * @see java.net.SocketOptions#SO_RCVBUF
+     * @see Builder#setRcvBufSize(int)
      */
     public int getRcvBufSize() {
         return rcvBufSize;
     }
 
     /**
-     * Determines the default backlog size value for server sockets binds.
-     * <p>
-     * Default: {@code 0} (system default)
-     * </p>
-     *
-     * @since 4.4
+     * @see Builder#setBacklogSize(int)
      */
     public int getBacklogSize() {
         return backlogSize;
     }
 
     /**
-     * The address of the SOCKS proxy to use.
+     * @see Builder#setSocksProxyAddress(SocketAddress)
      */
     public SocketAddress getSocksProxyAddress() {
         return this.socksProxyAddress;
     }
 
     /**
-     * The username to provide to the SOCKS proxy for username/password authentication.
+     * @see Builder#setSocksProxyUsername(String)
      */
     public String getSocksProxyUsername() {
         return this.socksProxyUsername;
     }
 
     /**
-     * The password to provide to the SOCKS proxy for username/password authentication.
+     * @see Builder#setSocksProxyAddress(SocketAddress)
      */
     public String getSocksProxyPassword() {
         return this.socksProxyPassword;
@@ -315,76 +262,185 @@ public final class IOReactorConfig {
             this.socksProxyPassword = null;
         }
 
+        /**
+         * Determines time interval at which the I/O reactor wakes up to check for timed out sessions
+         * and session requests.
+         * <p>
+         * Default: {@code 1000} milliseconds.
+         * </p>
+         */
         public Builder setSelectInterval(final TimeValue selectInterval) {
             this.selectInterval = selectInterval;
             return this;
         }
 
+        /**
+         * Determines the number of I/O dispatch threads to be used by the I/O reactor.
+         * <p>
+         * Default: {@code 2}
+         * </p>
+         */
         public Builder setIoThreadCount(final int ioThreadCount) {
             this.ioThreadCount = ioThreadCount;
             return this;
         }
 
+        /**
+         * Determines the default socket timeout value for non-blocking I/O operations.
+         * <p>
+         * Default: {@code 0} (no timeout)
+         * </p>
+         *
+         * @see java.net.SocketOptions#SO_TIMEOUT
+         */
         public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
             this.soTimeout = Timeout.of(soTimeout, timeUnit);
             return this;
         }
 
+        /**
+         * Determines the default socket timeout value for non-blocking I/O operations.
+         * <p>
+         * Default: {@code 0} (no timeout)
+         * </p>
+         *
+         * @see java.net.SocketOptions#SO_TIMEOUT
+         */
         public Builder setSoTimeout(final Timeout soTimeout) {
             this.soTimeout = soTimeout;
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code false}
+         * </p>
+         *
+         * @see java.net.SocketOptions#SO_REUSEADDR
+         */
         public Builder setSoReuseAddress(final boolean soReuseAddress) {
             this.soReuseAddress = soReuseAddress;
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code -1}
+         * </p>
+         *
+         * @see java.net.SocketOptions#SO_LINGER
+         */
         public Builder setSoLinger(final int soLinger, final TimeUnit timeUnit) {
             this.soLinger = TimeValue.of(soLinger, timeUnit);
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code -1}
+         * </p>
+         *
+         * @see java.net.SocketOptions#SO_LINGER
+         */
         public Builder setSoLinger(final TimeValue soLinger) {
             this.soLinger = soLinger;
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code -1}
+         * </p>
+         *
+         * @see java.net.SocketOptions#SO_KEEPALIVE
+         */
         public Builder setSoKeepAlive(final boolean soKeepAlive) {
             this.soKeepAlive = soKeepAlive;
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code false}
+         * </p>
+         *
+         * @see java.net.SocketOptions#TCP_NODELAY
+         */
         public Builder setTcpNoDelay(final boolean tcpNoDelay) {
             this.tcpNoDelay = tcpNoDelay;
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code 0} (system default)
+         * </p>
+         *
+         * @see java.net.SocketOptions#SO_SNDBUF
+         */
         public Builder setSndBufSize(final int sndBufSize) {
             this.sndBufSize = sndBufSize;
             return this;
         }
 
+        /**
+         * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code 0} (system default)
+         * </p>
+         *
+         * @see java.net.SocketOptions#SO_RCVBUF
+         */
         public Builder setRcvBufSize(final int rcvBufSize) {
             this.rcvBufSize = rcvBufSize;
             return this;
         }
 
+        /**
+         * Determines the default backlog size value for server sockets binds.
+         * <p>
+         * Default: {@code 0} (system default)
+         * </p>
+         *
+         * @since 4.4
+         */
         public Builder setBacklogSize(final int backlogSize) {
             this.backlogSize = backlogSize;
             return this;
         }
 
+        /**
+         * The address of the SOCKS proxy to use.
+         */
         public Builder setSocksProxyAddress(final SocketAddress socksProxyAddress) {
             this.socksProxyAddress = socksProxyAddress;
             return this;
         }
 
+        /**
+         * The username to provide to the SOCKS proxy for username/password authentication.
+         */
         public Builder setSocksProxyUsername(final String socksProxyUsername) {
             this.socksProxyUsername = socksProxyUsername;
             return this;
         }
 
+        /**
+         * The password to provide to the SOCKS proxy for username/password authentication.
+         */
         public Builder setSocksProxyPassword(final String socksProxyPassword) {
             this.socksProxyPassword = socksProxyPassword;
             return this;
