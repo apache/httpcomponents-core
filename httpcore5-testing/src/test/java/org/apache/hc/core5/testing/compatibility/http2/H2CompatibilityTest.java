@@ -94,7 +94,14 @@ public class H2CompatibilityTest {
         final H2CompatibilityTest test = new H2CompatibilityTest(target, h2Config);
         try {
             test.start();
+<<<<<<< Updated upstream
             test.execute();
+=======
+            for (final HttpHost h2server : h2servers) {
+                test.executeH2(h2server);
+            }
+            test.executeHttpBin(httpbin);
+>>>>>>> Stashed changes
         } finally {
             test.shutdown();
         }

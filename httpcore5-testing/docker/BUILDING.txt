@@ -9,11 +9,15 @@ Remark: omit sudo command if executing as root
 ---
 cd docker/apache-httpd
 sudo docker build -t hc-tests-httpd .
-sudo docker run --name my-hc-tests-httpd -p 0.0.0.0:8080:8080 -d hc-tests-httpd:latest
+sudo docker run --name my-hc-tests-httpd -p 0.0.0.0:8080:80 -d hc-tests-httpd:latest
 
 cd docker/nginx
 sudo docker build -t hc-tests-nginx .
-sudo docker run --name my-hc-tests-nginx -p 0.0.0.0:8081:8081 -d hc-tests-nginx:latest
+sudo docker run --name my-hc-tests-nginx -p 0.0.0.0:8081:80 -d hc-tests-nginx:latest
+
+cd docker/httpbin
+sudo docker build -t hc-tests-httpbin .
+sudo docker run --name my-hc-tests-httpbin -p 0.0.0.0:8082:80 -d hc-tests-httpbin:latest
 ---
 
 Execute

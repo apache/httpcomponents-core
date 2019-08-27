@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM nginx:1.15
+FROM nginx:1.17
 MAINTAINER dev@hc.apache.org
 
 ENV var_dir /var/nginx

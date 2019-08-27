@@ -27,4 +27,8 @@ RUN svn co --depth immediates http://svn.apache.org/repos/asf/httpcomponents/sit
 RUN svn up --set-depth infinity ${www_dir}/images
 RUN svn up --set-depth infinity ${www_dir}/css
 
-COPY httpd.conf /usr/local/apache2/conf/httpd.conf
+RUN sed -i -E 's/^\s*#\s*(LoadModule\s+http2_module\s+modules\/mod_http2.so)/\1/' conf/httpd.conf
+
+RUN sed -i -E 's/^\s*ServerAdmin.*$/ServerAdmin dev@hc.apache.org/' conf/httpd.conf
+RUN sed -i -E 's/^\s*#\s*(Include\s+conf\/extra\/httpd-vhosts.conf)/\1/' conf/httpd.conf
+COPY httpd-vhosts.conf /usr/local/apache2/conf/extra/httpd-vhosts.conf
