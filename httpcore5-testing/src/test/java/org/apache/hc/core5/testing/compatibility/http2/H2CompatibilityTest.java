@@ -27,222 +27,428 @@
 package org.apache.hc.core5.testing.compatibility.http2;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.CancellationException;
+import java.nio.charset.CodingErrorAction;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.config.CharCodingConfig;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
+import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
+import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
+import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncPushHandler;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.testing.nio.ClientSessionEndpoint;
-import org.apache.hc.core5.testing.nio.H2TestClient;
-import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
+import org.apache.hc.core5.testing.nio.LoggingExceptionCallback;
+import org.apache.hc.core5.testing.nio.LoggingH2StreamListener;
+import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
+import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
+import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
+import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 
 public class H2CompatibilityTest {
 
-    enum ServerType { DEFAULT, APACHE_HTTPD, NGINX }
-
-    private final HttpHost target;
-    private final H2Config h2Config;
-    private final H2TestClient client;
+    private final HttpAsyncRequester client;
 
     public static void main(final String... args) throws Exception {
 
-        final HttpHost target = args.length > 0 ? HttpHost.create(args[0]) : new HttpHost("localhost", 8080);
-        final ServerType serverType = args.length > 1 ? ServerType.valueOf(args[1].toUpperCase(Locale.ROOT)) : ServerType.DEFAULT;
+        final HttpHost[] h2servers = new HttpHost[]{
+                new HttpHost("http", "localhost", 8080),
+                new HttpHost("http", "localhost", 8081)
+        };
 
-        final H2Config h2Config;
-        switch (serverType) {
-            case APACHE_HTTPD:
-                h2Config = H2Config.custom()
-                        .setPushEnabled(true)
-                        .build();
-                break;
-            case NGINX:
-                h2Config = H2Config.custom()
-                        .setPushEnabled(true)
-                        .build();
-                break;
-             default:
-                 h2Config = H2Config.DEFAULT;
-        }
+        final HttpHost httpbin = new HttpHost("http", "localhost", 8082);
 
-        final H2CompatibilityTest test = new H2CompatibilityTest(target, h2Config);
+        final H2CompatibilityTest test = new H2CompatibilityTest();
         try {
             test.start();
-<<<<<<< Updated upstream
-            test.execute();
-=======
             for (final HttpHost h2server : h2servers) {
                 test.executeH2(h2server);
             }
             test.executeHttpBin(httpbin);
->>>>>>> Stashed changes
         } finally {
             test.shutdown();
         }
     }
 
-    H2CompatibilityTest(final HttpHost target, final H2Config h2Config) throws Exception {
-        this.target = target;
-        this.h2Config = h2Config;
-        this.client = new H2TestClient(IOReactorConfig.DEFAULT, null);
+    H2CompatibilityTest() throws Exception {
+        this.client = H2RequesterBootstrap.bootstrap()
+                .setIOReactorConfig(IOReactorConfig.custom()
+                        .setSoTimeout(TIMEOUT)
+                        .build())
+                .setH2Config(H2Config.custom()
+                        .setPushEnabled(true)
+                        .build())
+                .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
+                .setStreamListener(LoggingH2StreamListener.INSTANCE)
+                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
+                .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
+                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
+                .create();
     }
 
     void start() throws Exception {
-        client.start(h2Config);
+        client.start();
     }
 
     void shutdown() throws Exception {
-        client.shutdown(TimeValue.ofSeconds(5));
+        client.close(CloseMode.GRACEFUL);
     }
 
-    private final static String[] REQUEST_URIS = new String[] {"/", "/news.html", "/status.html"};
+    private static final Timeout TIMEOUT = Timeout.ofSeconds(5);
 
-    void execute() throws Exception {
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(target, Timeout.ofSeconds(5));
-        final ClientSessionEndpoint clientEndpoint = connectFuture.get(5, TimeUnit.SECONDS);
+    void executeH2(final HttpHost target) throws Exception {
+        {
+            System.out.println("*** HTTP/2 simple request execution ***");
+            final Future<AsyncClientEndpoint> connectFuture = client.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
+            try {
+                final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
-        final BlockingDeque<RequestResult> resultQueue = new LinkedBlockingDeque<>();
+                final CountDownLatch countDownLatch = new CountDownLatch(1);
+                final HttpRequest httpget = new BasicHttpRequest(Methods.GET, target, "/status.html");
+                endpoint.execute(
+                        new BasicRequestProducer(httpget, null),
+                        new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                        new FutureCallback<Message<HttpResponse, String>>() {
 
-        if (h2Config.isPushEnabled()) {
-            client.register("*", new Supplier<AsyncPushConsumer>() {
+                            @Override
+                            public void completed(final Message<HttpResponse, String> responseMessage) {
+                                final HttpResponse response = responseMessage.getHead();
+                                final int code = response.getCode();
+                                if (code == HttpStatus.SC_OK) {
+                                    logResult(TestResult.OK, target, httpget, response,
+                                            Objects.toString(response.getFirstHeader("server")));
+                                } else {
+                                    logResult(TestResult.NOK, target, httpget, response, "(status " + code + ")");
+                                }
+                                countDownLatch.countDown();
+                            }
 
-                @Override
-                public AsyncPushConsumer get() {
-                    return new AbstractAsyncPushHandler<Message<HttpResponse, Void>>(new BasicResponseConsumer<>(new NoopEntityConsumer())) {
+                            @Override
+                            public void failed(final Exception ex) {
+                                logResult(TestResult.NOK, target, httpget, null, "(" + ex.getMessage() + ")");
+                                countDownLatch.countDown();
+                            }
 
-                        @Override
-                        protected void handleResponse(
-                                final HttpRequest promise,
-                                final Message<HttpResponse, Void> responseMessage) throws IOException, HttpException {
-                            resultQueue.add(new RequestResult(promise, responseMessage.getHead(), null));
-                        }
+                            @Override
+                            public void cancelled() {
+                                logResult(TestResult.NOK, target, httpget, null, "(cancelled)");
+                                countDownLatch.countDown();
+                            }
 
-                        @Override
-                        protected void handleError(
-                                final HttpRequest promise,
-                                final Exception cause) {
-                            resultQueue.add(new RequestResult(promise, null, cause));
-                        }
-                    };
+                        });
+                if (!countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())) {
+                    logResult(TestResult.NOK, target, null, null, "(single request execution failed to complete in time)");
                 }
-
-            });
+            } catch (final ExecutionException ex) {
+                final Throwable cause = ex.getCause();
+                logResult(TestResult.NOK, target, null, null, "(" + cause.getMessage() + ")");
+            } catch (final TimeoutException ex) {
+                logResult(TestResult.NOK, target, null, null, "(time out)");
+            }
         }
-        for (final String requestUri: REQUEST_URIS) {
-            final HttpRequest request = new BasicHttpRequest(Methods.GET, target, requestUri);
-            clientEndpoint.execute(
-                    new BasicRequestProducer(request, null),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                    new FutureCallback<Message<HttpResponse, String>>() {
+        {
+            System.out.println("*** HTTP/2 multiplexed request execution ***");
+            final Future<AsyncClientEndpoint> connectFuture = client.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
+            try {
+                final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
-                        @Override
-                        public void completed(final Message<HttpResponse, String> responseMessage) {
-                            resultQueue.add(new RequestResult(request, responseMessage.getHead(), null));
-                        }
+                final int reqCount = 20;
+                final CountDownLatch countDownLatch = new CountDownLatch(reqCount);
+                for (int i = 0; i < reqCount; i++) {
+                    final HttpRequest httpget = new BasicHttpRequest(Methods.GET, target, "/status.html");
+                    endpoint.execute(
+                            new BasicRequestProducer(httpget, null),
+                            new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                            new FutureCallback<Message<HttpResponse, String>>() {
 
-                        @Override
-                        public void failed(final Exception ex) {
-                            resultQueue.add(new RequestResult(request, null, ex));
-                        }
+                                @Override
+                                public void completed(final Message<HttpResponse, String> responseMessage) {
+                                    final HttpResponse response = responseMessage.getHead();
+                                    final int code = response.getCode();
+                                    if (code == HttpStatus.SC_OK) {
+                                        logResult(TestResult.OK, target, httpget, response,
+                                                "multiplexed / " + response.getFirstHeader("server"));
+                                    } else {
+                                        logResult(TestResult.NOK, target, httpget, response, "(status " + code + ")");
+                                    }
+                                    countDownLatch.countDown();
+                                }
 
-                        @Override
-                        public void cancelled() {
-                            resultQueue.add(new RequestResult(request, null, new CancellationException()));
-                        }
+                                @Override
+                                public void failed(final Exception ex) {
+                                    logResult(TestResult.NOK, target, httpget, null, "(" + ex.getMessage() + ")");
+                                    countDownLatch.countDown();
+                                }
 
-                    });
+                                @Override
+                                public void cancelled() {
+                                    logResult(TestResult.NOK, target, httpget, null, "(cancelled)");
+                                    countDownLatch.countDown();
+                                }
+
+                            });
+                }
+                if (!countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())) {
+                    logResult(TestResult.NOK, target, null, null, "(multiplexed request execution failed to complete in time)");
+                }
+            } catch (final ExecutionException ex) {
+                final Throwable cause = ex.getCause();
+                logResult(TestResult.NOK, target, null, null, "(" + cause.getMessage() + ")");
+            } catch (final TimeoutException ex) {
+                logResult(TestResult.NOK, target, null, null, "(time out)");
+            }
         }
+        {
+            System.out.println("*** HTTP/2 request execution with push ***");
+            final Future<AsyncClientEndpoint> connectFuture = client.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
+            try {
+                final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
-        String serverInfo = null;
-        final Map<String, RequestResult> resultMap = new HashMap<>();
-        for (;;) {
-            final RequestResult entry = resultQueue.poll(3, TimeUnit.SECONDS);
-            if (entry != null) {
-                final HttpRequest request = entry.request;
-                final HttpResponse response = entry.response;
-                if (response != null) {
-                    final Header header = response.getFirstHeader(HttpHeaders.SERVER);
-                    if (header != null) {
-                        serverInfo = header.getValue();
+                final CountDownLatch countDownLatch = new CountDownLatch(5);
+                final HttpRequest httpget = new BasicHttpRequest(Methods.GET, target, "/index.html");
+                final Future<Message<HttpResponse, String>> future = endpoint.execute(
+                        new BasicRequestProducer(httpget, null),
+                        new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                        new HandlerFactory<AsyncPushConsumer>() {
+
+                            @Override
+                            public AsyncPushConsumer create(
+                                    final HttpRequest request, final HttpContext context) throws HttpException {
+                                return new AbstractAsyncPushHandler<Message<HttpResponse, Void>>(new BasicResponseConsumer<>(new NoopEntityConsumer())) {
+
+                                    @Override
+                                    protected void handleResponse(
+                                            final HttpRequest promise,
+                                            final Message<HttpResponse, Void> responseMessage) throws IOException, HttpException {
+                                        final HttpResponse response = responseMessage.getHead();
+                                        logResult(TestResult.OK, target, promise, response,
+                                                "pushed / " + response.getFirstHeader("server"));
+                                        countDownLatch.countDown();
+                                    }
+
+                                    @Override
+                                    protected void handleError(
+                                            final HttpRequest promise,
+                                            final Exception cause) {
+                                        logResult(TestResult.NOK, target, promise, null, "(" + cause.getMessage() + ")");
+                                        countDownLatch.countDown();
+                                    }
+                                };
+                            }
+                        },
+                        null,
+                        null);
+                final Message<HttpResponse, String> message = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                final HttpResponse response = message.getHead();
+                final int code = response.getCode();
+                if (code == HttpStatus.SC_OK) {
+                    logResult(TestResult.OK, target, httpget, response,
+                            Objects.toString(response.getFirstHeader("server")));
+                    if (!countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())) {
+                        logResult(TestResult.NOK, target, null, null, "Push messages not received");
                     }
+                } else {
+                    logResult(TestResult.NOK, target, httpget, response, "(status " + code + ")");
                 }
-                resultMap.put(request.getRequestUri(), entry);
-            } else {
-                break;
-            }
-        }
-        clientEndpoint.close();
-
-        System.out.println("Server info: " + serverInfo);
-        for (final String requestUri: REQUEST_URIS) {
-            final RequestResult entry = resultMap.remove(requestUri);
-            if (entry != null) {
-                final HttpResponse response = entry.response;
-                final Exception exception = entry.exception;
-                if (exception != null) {
-                    System.out.println("NOK: " + requestUri + " -> " + exception.getMessage());
-                } if (response != null) {
-                    System.out.println((response.getCode() == HttpStatus.SC_OK ? "OK: " : "NOK: ") +
-                            requestUri + " -> " + response.getCode());
-                }
-            }
-        }
-        if (h2Config.isPushEnabled() && resultMap.isEmpty()) {
-            System.out.println("NOK: pushed responses expected");
-        }
-
-        for (final Iterator<RequestResult> it = resultMap.values().iterator(); it.hasNext(); ) {
-            final RequestResult entry = it.next();
-            final HttpRequest request = entry.request;
-            final HttpResponse response = entry.response;
-            final Exception exception = entry.exception;
-            if (exception != null) {
-                System.out.println("NOK: " + request.getRequestUri() + " (pushed) -> " + exception.getMessage());
-            } if (response != null) {
-                System.out.println((response.getCode() == HttpStatus.SC_OK ? "OK: " : "NOK: ") +
-                        request.getRequestUri() + " (pushed) -> " + response.getCode());
+            } catch (final ExecutionException ex) {
+                final Throwable cause = ex.getCause();
+                logResult(TestResult.NOK, target, null, null, "(" + cause.getMessage() + ")");
+            } catch (final TimeoutException ex) {
+                logResult(TestResult.NOK, target, null, null, "(time out)");
             }
         }
     }
 
-    static class RequestResult {
+    void executeHttpBin(final HttpHost target) throws Exception {
+        {
+            System.out.println("*** httpbin.org HTTP/1.1 simple request execution ***");
 
-        final HttpRequest request;
-        final HttpResponse response;
-        final Exception exception;
+            final List<Message<HttpRequest, AsyncEntityProducer>> requestMessages = Arrays.asList(
+                    new Message<HttpRequest, AsyncEntityProducer>(
+                            new BasicHttpRequest(Methods.GET, target, "/headers"),
+                            null),
+                    new Message<HttpRequest, AsyncEntityProducer>(
+                            new BasicHttpRequest(Methods.POST, target, "/anything"),
+                            new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
+                    new Message<HttpRequest, AsyncEntityProducer>(
+                            new BasicHttpRequest(Methods.PUT, target, "/anything"),
+                            new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
+                    new Message<HttpRequest, AsyncEntityProducer>(
+                            new BasicHttpRequest(Methods.GET, target, "/drip"),
+                            null),
+                    new Message<HttpRequest, AsyncEntityProducer>(
+                            new BasicHttpRequest(Methods.GET, target, "/bytes/20000"),
+                            null),
+                    new Message<HttpRequest, AsyncEntityProducer>(
+                            new BasicHttpRequest(Methods.GET, target, "/delay/2"),
+                            null),
+                    new Message<HttpRequest, AsyncEntityProducer>(
+                            new BasicHttpRequest(Methods.POST, target, "/delay/2"),
+                            new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
+                    new Message<HttpRequest, AsyncEntityProducer>(
+                            new BasicHttpRequest(Methods.PUT, target, "/delay/2"),
+                            new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN))
+            );
 
-        RequestResult(final HttpRequest request, final HttpResponse response, final Exception exception) {
-            this.request = request;
-            this.response = response;
-            this.exception = exception;
+            for (final Message<HttpRequest, AsyncEntityProducer> message : requestMessages) {
+                final CountDownLatch countDownLatch = new CountDownLatch(1);
+                final HttpRequest request = message.getHead();
+                final AsyncEntityProducer entityProducer = message.getBody();
+                client.execute(
+                        new BasicRequestProducer(request, entityProducer),
+                        new BasicResponseConsumer<>(new StringAsyncEntityConsumer(CharCodingConfig.custom()
+                                .setCharset(StandardCharsets.US_ASCII)
+                                .setMalformedInputAction(CodingErrorAction.IGNORE)
+                                .setUnmappableInputAction(CodingErrorAction.REPLACE)
+                                .build())),
+                        TIMEOUT,
+                        new FutureCallback<Message<HttpResponse, String>>() {
+
+                            @Override
+                            public void completed(final Message<HttpResponse, String> responseMessage) {
+                                final HttpResponse response = responseMessage.getHead();
+                                final int code = response.getCode();
+                                if (code == HttpStatus.SC_OK) {
+                                    logResult(TestResult.OK, target, request, response,
+                                            Objects.toString(response.getFirstHeader("server")));
+                                } else {
+                                    logResult(TestResult.NOK, target, request, response, "(status " + code + ")");
+                                }
+                                countDownLatch.countDown();
+                            }
+
+                            @Override
+                            public void failed(final Exception ex) {
+                                logResult(TestResult.NOK, target, request, null, "(" + ex.getMessage() + ")");
+                                countDownLatch.countDown();
+                            }
+
+                            @Override
+                            public void cancelled() {
+                                logResult(TestResult.NOK, target, request, null, "(cancelled)");
+                                countDownLatch.countDown();
+                            }
+                        });
+                if (!countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())) {
+                    logResult(TestResult.NOK, target, null, null, "(httpbin.org tests failed to complete in time)");
+                }
+            }
         }
+        {
+            System.out.println("*** httpbin.org HTTP/1.1 pipelined request execution ***");
 
+            final Future<AsyncClientEndpoint> connectFuture = client.connect(target, TIMEOUT);
+            final AsyncClientEndpoint streamEndpoint = connectFuture.get();
+
+            final int n = 10;
+            final CountDownLatch countDownLatch = new CountDownLatch(n);
+            for (int i = 0; i < n; i++) {
+
+                final HttpRequest request;
+                final AsyncEntityProducer entityProducer;
+                if (i % 2 == 0) {
+                    request = new BasicHttpRequest(Methods.GET, target, "/headers");
+                    entityProducer = null;
+                } else {
+                    request = new BasicHttpRequest(Methods.POST, target, "/anything");
+                    entityProducer = new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN);
+                }
+
+                streamEndpoint.execute(
+                        new BasicRequestProducer(request, entityProducer),
+                        new BasicResponseConsumer<>(new StringAsyncEntityConsumer(CharCodingConfig.custom()
+                                .setCharset(StandardCharsets.US_ASCII)
+                                .setMalformedInputAction(CodingErrorAction.IGNORE)
+                                .setUnmappableInputAction(CodingErrorAction.REPLACE)
+                                .build())),
+                        new FutureCallback<Message<HttpResponse, String>>() {
+
+                            @Override
+                            public void completed(final Message<HttpResponse, String> responseMessage) {
+                                final HttpResponse response = responseMessage.getHead();
+                                final int code = response.getCode();
+                                if (code == HttpStatus.SC_OK) {
+                                    logResult(TestResult.OK, target, request, response,
+                                            "pipelined / " + response.getFirstHeader("server"));
+                                } else {
+                                    logResult(TestResult.NOK, target, request, response, "(status " + code + ")");
+                                }
+                                countDownLatch.countDown();
+                            }
+
+                            @Override
+                            public void failed(final Exception ex) {
+                                logResult(TestResult.NOK, target, request, null, "(" + ex.getMessage() + ")");
+                                countDownLatch.countDown();
+                            }
+
+                            @Override
+                            public void cancelled() {
+                                logResult(TestResult.NOK, target, request, null, "(cancelled)");
+                                countDownLatch.countDown();
+                            }
+                        });
+            }
+            if (!countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())) {
+                logResult(TestResult.NOK, target, null, null, "(httpbin.org tests failed to complete in time)");
+            }
+        }
+    }
+
+    enum TestResult {OK, NOK}
+
+    private void logResult(
+            final TestResult result,
+            final HttpHost httpHost,
+            final HttpRequest request,
+            final HttpResponse response,
+            final String message) {
+        final StringBuilder buf = new StringBuilder();
+        buf.append(result);
+        if (buf.length() == 2) {
+            buf.append(" ");
+        }
+        buf.append(": ").append(httpHost).append(" ");
+        if (response != null) {
+            buf.append(response.getVersion()).append(" ");
+        }
+        if (request != null) {
+            buf.append(request.getMethod()).append(" ").append(request.getRequestUri());
+        }
+        if (message != null && !TextUtils.isBlank(message)) {
+            buf.append(" -> ").append(message);
+        }
+        System.out.println(buf.toString());
     }
 
 }
