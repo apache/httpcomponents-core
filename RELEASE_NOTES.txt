@@ -1,3 +1,42 @@
+Release 4.4.12
+-------------------
+
+This is a maintenance release that corrects a number of defects discovered since release 4.4.11.
+
+Changelog
+-------------------
+* HTTPASYNC-152: Minimize possibility of a race condition when I/O reactor session request gets
+  cancelled or times out immediately after its creation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Execute Socket[Channel]#connect under doPrivileged.
+  Contributed by Simon Willnauer <simonw at apache.org>
+
+* Bug fix: Ensure consistency of internal buffers in case of I/O or SSL exception (back-ported
+  from master).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Rethrow RuntimeExceptions thrown by SSLSetupHandler#initalize as SSLException
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-578: Incorrect serialization of HeaderGroup.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-370, HTTPCORE-574: Discard non-blocking session request immediately upon timeout.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-1978: Filter characters before byte conversion.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* HTTPCORE-573 FileContentDecoder doesn't always enforce the maximum number of bytes to transfer.
+  Contributed by Julien Coloos <julien.coloos at gmail.com>
+
+* HTTPCORE-567: Fixed race condition that may cause a connection leak when the connection lease
+  request is cancelled from another thread.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 4.4.11
 -------------------
 
