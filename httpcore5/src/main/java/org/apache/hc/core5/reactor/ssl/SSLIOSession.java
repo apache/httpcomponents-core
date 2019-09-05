@@ -683,9 +683,15 @@ public class SSLIOSession implements IOSession {
                     this.session.setSocketTimeout(Timeout.ofMilliseconds(1000));
                 }
                 try {
+                    // Catch all unchecked exceptions in case something goes wrong
+                    // in the JSSE provider. For instance
+                    // com.android.org.conscrypt.NativeCrypto#SSL_get_shutdown can
+                    // throw NPE at this point
                     updateEventMask();
                 } catch (final CancelledKeyException ex) {
-                    close(CloseMode.GRACEFUL);
+                    this.session.close(CloseMode.GRACEFUL);
+                } catch (final Exception ex) {
+                    this.session.close(CloseMode.IMMEDIATE);
                 }
             } else {
                 if (this.status == CLOSED) {
