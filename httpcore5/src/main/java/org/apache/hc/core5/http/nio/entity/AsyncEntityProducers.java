@@ -115,7 +115,7 @@ public final class AsyncEntityProducers {
     public static AsyncEntityProducer createText(
             final Callback<StreamChannel<CharBuffer>> callback,
             final ContentType contentType) {
-        return new AbstractCharAsyncEntityProducer(0, 4096, contentType) {
+        return new AbstractCharAsyncEntityProducer(4096, 2048, contentType) {
 
             @Override
             protected int availableData() {
