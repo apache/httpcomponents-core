@@ -484,7 +484,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         void discardConnection() {
             final PoolEntry<HttpHost, HttpClientConnection> poolEntry = poolEntryRef.getAndSet(null);
             if (poolEntry != null) {
-                poolEntry.discardConnection(CloseMode.IMMEDIATE);
+                poolEntry.discardConnection(CloseMode.GRACEFUL);
                 connPool.release(poolEntry, false);
             }
         }

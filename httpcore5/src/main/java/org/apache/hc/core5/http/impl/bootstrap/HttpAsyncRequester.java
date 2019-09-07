@@ -463,7 +463,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         public void releaseAndDiscard() {
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.getAndSet(null);
             if (poolEntry != null) {
-                poolEntry.discardConnection(CloseMode.IMMEDIATE);
+                poolEntry.discardConnection(CloseMode.GRACEFUL);
                 connPool.release(poolEntry, false);
             }
         }
