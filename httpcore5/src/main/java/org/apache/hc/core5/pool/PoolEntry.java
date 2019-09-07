@@ -52,6 +52,7 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     private final T route;
     private final TimeValue timeToLive;
     private final AtomicReference<C> connRef;
+    private final DisposalCallback<C> disposalCallback;
     private final Supplier<Long> currentTimeSupplier;
 
     private volatile Object state;
@@ -60,16 +61,30 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     private volatile Deadline expiryDeadline = Deadline.MIN_VALUE;
     private volatile Deadline validityDeadline = Deadline.MIN_VALUE;
 
-    PoolEntry(final T route, final TimeValue timeToLive, final Supplier<Long> currentTimeSupplier) {
+    PoolEntry(final T route, final TimeValue timeToLive, final DisposalCallback<C> disposalCallback,
+              final Supplier<Long> currentTimeSupplier) {
         super();
         this.route = Args.notNull(route, "Route");
         this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
         this.connRef = new AtomicReference<>(null);
+        this.disposalCallback = disposalCallback;
         this.currentTimeSupplier = currentTimeSupplier;
     }
 
-    long getCurrentTime() {
-        return currentTimeSupplier != null ? currentTimeSupplier.get() : System.currentTimeMillis();
+    PoolEntry(final T route, final TimeValue timeToLive, final Supplier<Long> currentTimeSupplier) {
+        this(route, timeToLive, null, currentTimeSupplier);
+    }
+
+    /**
+     * Creates new {@code PoolEntry} instance.
+     *
+     * @param route route to the opposite endpoint.
+     * @param timeToLive maximum time to live. May be zero if the connection
+     *   does not have an expiry deadline.
+     * @param disposalCallback callback invoked before connection disposal.
+     */
+    public PoolEntry(final T route, final TimeValue timeToLive, final DisposalCallback<C> disposalCallback) {
+        this(route, timeToLive, disposalCallback, null);
     }
 
     /**
@@ -80,11 +95,15 @@ public final class PoolEntry<T, C extends ModalCloseable> {
      *   does not have an expiry deadline.
      */
     public PoolEntry(final T route, final TimeValue timeToLive) {
-        this(route, timeToLive, null);
+        this(route, timeToLive, null, null);
     }
 
     public PoolEntry(final T route) {
         this(route, null);
+    }
+
+    long getCurrentTime() {
+        return currentTimeSupplier != null ? currentTimeSupplier.get() : System.currentTimeMillis();
     }
 
     public T getRoute() {
@@ -148,7 +167,11 @@ public final class PoolEntry<T, C extends ModalCloseable> {
             this.updated = 0;
             this.expiryDeadline = Deadline.MIN_VALUE;
             this.validityDeadline = Deadline.MIN_VALUE;
-            connection.close(closeMode);
+            if (this.disposalCallback != null) {
+                this.disposalCallback.execute(connection, closeMode);
+            } else {
+                connection.close(closeMode);
+            }
         }
     }
 

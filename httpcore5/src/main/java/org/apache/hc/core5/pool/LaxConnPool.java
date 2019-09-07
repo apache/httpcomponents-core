@@ -35,9 +35,9 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicMarkableReference;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicMarkableReference;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Experimental;
@@ -69,8 +69,9 @@ import org.apache.hc.core5.util.Timeout;
 public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool<T, C> {
 
     private final TimeValue timeToLive;
-    private final ConnPoolListener<T> connPoolListener;
     private final PoolReusePolicy policy;
+    private final DisposalCallback<C> disposalCallback;
+    private final ConnPoolListener<T> connPoolListener;
     private final ConcurrentMap<T, PerRoutePool<T, C>> routeToPool;
     private final AtomicBoolean isShutDown;
 
@@ -83,19 +84,32 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             final int defaultMaxPerRoute,
             final TimeValue timeToLive,
             final PoolReusePolicy policy,
+            final DisposalCallback<C> disposalCallback,
             final ConnPoolListener<T> connPoolListener) {
         super();
         Args.positive(defaultMaxPerRoute, "Max per route value");
         this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
-        this.connPoolListener = connPoolListener;
         this.policy = policy != null ? policy : PoolReusePolicy.LIFO;
+        this.disposalCallback = disposalCallback;
+        this.connPoolListener = connPoolListener;
         this.routeToPool = new ConcurrentHashMap<>();
         this.isShutDown = new AtomicBoolean(false);
         this.defaultMaxPerRoute = defaultMaxPerRoute;
     }
 
+    /**
+     * @since 5.0
+     */
+    public LaxConnPool(
+            final int defaultMaxPerRoute,
+            final TimeValue timeToLive,
+            final PoolReusePolicy policy,
+            final ConnPoolListener<T> connPoolListener) {
+        this(defaultMaxPerRoute, timeToLive, policy, null, connPoolListener);
+    }
+
     public LaxConnPool(final int defaultMaxPerRoute) {
-        this(defaultMaxPerRoute, TimeValue.NEG_ONE_MILLISECONDS, PoolReusePolicy.LIFO, null);
+        this(defaultMaxPerRoute, TimeValue.NEG_ONE_MILLISECONDS, PoolReusePolicy.LIFO, null, null);
     }
 
     public boolean isShutdown() {
@@ -127,6 +141,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                     timeToLive,
                     policy,
                     this,
+                    disposalCallback,
                     connPoolListener);
             routePool = routeToPool.putIfAbsent(route, newRoutePool);
             if (routePool == null) {
@@ -344,8 +359,9 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         private final T route;
         private final TimeValue timeToLive;
         private final PoolReusePolicy policy;
-        private final ConnPoolStats<T> connPoolStats;
+        private final DisposalCallback<C> disposalCallback;
         private final ConnPoolListener<T> connPoolListener;
+        private final ConnPoolStats<T> connPoolStats;
         private final ConcurrentMap<PoolEntry<T, C>, Boolean> leased;
         private final Deque<AtomicMarkableReference<PoolEntry<T, C>>> available;
         private final Deque<LeaseRequest<T, C>> pending;
@@ -361,12 +377,14 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 final TimeValue timeToLive,
                 final PoolReusePolicy policy,
                 final ConnPoolStats<T> connPoolStats,
+                final DisposalCallback<C> disposalCallback,
                 final ConnPoolListener<T> connPoolListener) {
             super();
             this.route = route;
             this.timeToLive = timeToLive;
             this.policy = policy;
             this.connPoolStats = connPoolStats;
+            this.disposalCallback = disposalCallback;
             this.connPoolListener = connPoolListener;
             this.leased = new ConcurrentHashMap<>();
             this.available = new ConcurrentLinkedDeque<>();
@@ -401,7 +419,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 prev = allocated.get();
                 next = (prev<poolmax)? prev+1 : prev;
             } while (!allocated.compareAndSet(prev, next));
-            return (prev < next)? new PoolEntry<T,C>(route, timeToLive) : null;
+            return (prev < next)? new PoolEntry<T,C>(route, timeToLive, disposalCallback) : null;
         }
 
         private void deallocatePoolEntry() {

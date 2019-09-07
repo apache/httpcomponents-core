@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.io.ssl.DefaultTlsSetupHandler;
 import org.apache.hc.core5.http.io.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
+import org.apache.hc.core5.pool.DefaultDisposalCallback;
 import org.apache.hc.core5.pool.LaxConnPool;
 import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
@@ -188,6 +189,7 @@ public class RequesterBootstrap {
                         defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                         timeToLive,
                         poolReusePolicy,
+                        new DefaultDisposalCallback<HttpClientConnection>(),
                         connPoolListener);
                 break;
             case STRICT:
@@ -197,6 +199,7 @@ public class RequesterBootstrap {
                         maxTotal > 0 ? maxTotal : 50,
                         timeToLive,
                         poolReusePolicy,
+                        new DefaultDisposalCallback<HttpClientConnection>(),
                         connPoolListener);
                 break;
         }

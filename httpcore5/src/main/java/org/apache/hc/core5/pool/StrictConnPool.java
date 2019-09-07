@@ -66,8 +66,9 @@ import org.apache.hc.core5.util.Timeout;
 public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnPool<T, C> {
 
     private final TimeValue timeToLive;
-    private final ConnPoolListener<T> connPoolListener;
     private final PoolReusePolicy policy;
+    private final DisposalCallback<C> disposalCallback;
+    private final ConnPoolListener<T> connPoolListener;
     private final Map<T, PerRoutePool<T, C>> routeToPool;
     private final LinkedList<LeaseRequest<T, C>> leasingRequests;
     private final Set<PoolEntry<T, C>> leased;
@@ -88,13 +89,15 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             final int maxTotal,
             final TimeValue timeToLive,
             final PoolReusePolicy policy,
+            final DisposalCallback<C> disposalCallback,
             final ConnPoolListener<T> connPoolListener) {
         super();
         Args.positive(defaultMaxPerRoute, "Max per route value");
         Args.positive(maxTotal, "Max total value");
         this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
-        this.connPoolListener = connPoolListener;
         this.policy = policy != null ? policy : PoolReusePolicy.LIFO;
+        this.disposalCallback = disposalCallback;
+        this.connPoolListener = connPoolListener;
         this.routeToPool = new HashMap<>();
         this.leasingRequests = new LinkedList<>();
         this.leased = new HashSet<>();
@@ -105,6 +108,18 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         this.isShutDown = new AtomicBoolean(false);
         this.defaultMaxPerRoute = defaultMaxPerRoute;
         this.maxTotal = maxTotal;
+    }
+
+    /**
+     * @since 5.0
+     */
+    public StrictConnPool(
+            final int defaultMaxPerRoute,
+            final int maxTotal,
+            final TimeValue timeToLive,
+            final PoolReusePolicy policy,
+            final ConnPoolListener<T> connPoolListener) {
+        this(defaultMaxPerRoute, maxTotal, timeToLive, policy, null, connPoolListener);
     }
 
     public StrictConnPool(final int defaultMaxPerRoute, final int maxTotal) {
@@ -142,7 +157,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     private PerRoutePool<T, C> getPool(final T route) {
         PerRoutePool<T, C> pool = this.routeToPool.get(route);
         if (pool == null) {
-            pool = new PerRoutePool<>(route);
+            pool = new PerRoutePool<>(route, this.disposalCallback);
             this.routeToPool.put(route, pool);
         }
         return pool;
@@ -704,10 +719,12 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         private final T route;
         private final Set<PoolEntry<T, C>> leased;
         private final LinkedList<PoolEntry<T, C>> available;
+        private final DisposalCallback<C> disposalCallback;
 
-        PerRoutePool(final T route) {
+        PerRoutePool(final T route, final DisposalCallback<C> disposalCallback) {
             super();
             this.route = route;
+            this.disposalCallback = disposalCallback;
             this.leased = new HashSet<>();
             this.available = new LinkedList<>();
         }
@@ -771,7 +788,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         }
 
         public PoolEntry<T, C> createEntry(final TimeValue timeToLive) {
-            final PoolEntry<T, C> entry = new PoolEntry<>(this.route, timeToLive);
+            final PoolEntry<T, C> entry = new PoolEntry<>(this.route, timeToLive, disposalCallback);
             this.leased.add(entry);
             return entry;
         }

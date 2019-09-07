@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.pool.ConnPoolListener;
+import org.apache.hc.core5.pool.DefaultDisposalCallback;
 import org.apache.hc.core5.pool.LaxConnPool;
 import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolConcurrencyPolicy;
@@ -226,6 +227,7 @@ public class AsyncRequesterBootstrap {
                         defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                         timeToLive,
                         poolReusePolicy,
+                        new DefaultDisposalCallback<IOSession>(),
                         connPoolListener);
                 break;
             case STRICT:
@@ -235,6 +237,7 @@ public class AsyncRequesterBootstrap {
                         maxTotal > 0 ? maxTotal : 50,
                         timeToLive,
                         poolReusePolicy,
+                        new DefaultDisposalCallback<IOSession>(),
                         connPoolListener);
                 break;
         }
