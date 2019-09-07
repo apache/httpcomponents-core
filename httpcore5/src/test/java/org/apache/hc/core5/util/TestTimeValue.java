@@ -30,6 +30,7 @@ package org.apache.hc.core5.util;
 import java.text.ParseException;
 import java.util.concurrent.TimeUnit;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -260,6 +261,50 @@ public class TestTimeValue {
         Assert.assertEquals(TimeValue.ofSeconds(Long.MAX_VALUE), TimeValue.parse("9,223,372,036,854,775,807\tSeconds"));
         Assert.assertEquals(TimeValue.ZERO_MILLISECONDS, TimeValue.parse("0 MILLISECONDS"));
         Assert.assertEquals(TimeValue.ofMilliseconds(1), TimeValue.parse("1 MILLISECOND"));
+    }
+
+    @Test
+    public void testEqualsAndHashCode() throws ParseException {
+        final TimeValue tv1 = TimeValue.ofMilliseconds(1000L);
+        final TimeValue tv2 = TimeValue.ofMilliseconds(1001L);
+        final TimeValue tv3 = TimeValue.ofMilliseconds(1000L);
+        final TimeValue tv4 = TimeValue.ofSeconds(1L);
+        final TimeValue tv5 = TimeValue.ofSeconds(1000L);
+
+        Assert.assertThat(tv1.equals(tv1), CoreMatchers.equalTo(true));
+        Assert.assertThat(tv1.equals(null), CoreMatchers.equalTo(false));
+        Assert.assertThat(tv1.equals(tv2), CoreMatchers.equalTo(false));
+        Assert.assertThat(tv1.equals(tv3), CoreMatchers.equalTo(true));
+        Assert.assertThat(tv1.equals(tv4), CoreMatchers.equalTo(false));
+        Assert.assertThat(tv1.equals(tv5), CoreMatchers.equalTo(false));
+
+        Assert.assertThat(tv1.hashCode() == tv2.hashCode(), CoreMatchers.equalTo(false));
+        Assert.assertThat(tv1.hashCode() == tv3.hashCode(), CoreMatchers.equalTo(true));
+        Assert.assertThat(tv1.hashCode() == tv4.hashCode(), CoreMatchers.equalTo(false));
+        Assert.assertThat(tv1.hashCode() == tv5.hashCode(), CoreMatchers.equalTo(false));
+    }
+
+    @Test
+    public void testCompareTo() throws ParseException {
+        final TimeValue tv1 = TimeValue.ofMilliseconds(1000L);
+        final TimeValue tv2 = TimeValue.ofMilliseconds(1001L);
+        final TimeValue tv3 = TimeValue.ofMilliseconds(1000L);
+        final TimeValue tv4 = TimeValue.ofSeconds(1L);
+        final TimeValue tv5 = TimeValue.ofSeconds(60L);
+        final TimeValue tv6 = TimeValue.ofMinutes(1L);
+
+        Assert.assertThat(tv1.compareTo(tv1) == 0, CoreMatchers.equalTo(true));
+        Assert.assertThat(tv1.compareTo(tv2) < 0, CoreMatchers.equalTo(true));
+        Assert.assertThat(tv1.compareTo(tv3) == 0, CoreMatchers.equalTo(true));
+        Assert.assertThat(tv1.compareTo(tv4) == 0, CoreMatchers.equalTo(true));
+        Assert.assertThat(tv1.compareTo(tv5) < 0, CoreMatchers.equalTo(true));
+        Assert.assertThat(tv6.compareTo(tv5) == 0, CoreMatchers.equalTo(true));
+        Assert.assertThat(tv6.compareTo(tv4) > 0, CoreMatchers.equalTo(true));
+        try {
+            tv1.compareTo(null);
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
+        }
     }
 
 }
