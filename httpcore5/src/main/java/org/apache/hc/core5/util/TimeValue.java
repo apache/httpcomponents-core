@@ -41,7 +41,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class TimeValue {
+public class TimeValue implements Comparable<TimeValue> {
 
     static final int INT_UNDEFINED = -1;
 
@@ -217,6 +217,7 @@ public class TimeValue {
     }
 
     public long convert(final TimeUnit targetTimeUnit) {
+        Args.notNull(targetTimeUnit, "timeUnit");
         return targetTimeUnit.convert(duration, timeUnit);
     }
 
@@ -278,12 +279,7 @@ public class TimeValue {
     }
 
     public TimeValue min(final TimeValue other) {
-        return isGreaterThan(other) ? other : this;
-    }
-
-    private boolean isGreaterThan(final TimeValue other) {
-        final TimeUnit targetTimeUnit = min(other.getTimeUnit());
-        return convert(targetTimeUnit) > other.convert(targetTimeUnit);
+        return this.compareTo(other) > 0 ? other : this;
     }
 
     private TimeUnit min(final TimeUnit other) {
@@ -369,6 +365,12 @@ public class TimeValue {
 
     public int toSecondsIntBound() {
         return asBoundInt(toSeconds());
+    }
+
+    @Override
+    public int compareTo(final TimeValue other) {
+        final TimeUnit targetTimeUnit = min(other.getTimeUnit());
+        return Long.compare(convert(targetTimeUnit), other.convert(targetTimeUnit));
     }
 
     @Override
