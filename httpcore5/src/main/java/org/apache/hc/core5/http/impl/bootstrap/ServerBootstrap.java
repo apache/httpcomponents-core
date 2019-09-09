@@ -143,9 +143,17 @@ public class ServerBootstrap {
     /**
      * Sets connection configuration.
      */
-    public final ServerBootstrap sethttp1Config(final Http1Config http1Config) {
+    public final ServerBootstrap setHttp1Config(final Http1Config http1Config) {
         this.http1Config = http1Config;
         return this;
+    }
+
+    /**
+     * @deprecated Use {@link #setHttp1Config(Http1Config)}
+     */
+    @Deprecated
+    public final ServerBootstrap sethttp1Config(final Http1Config http1Config) {
+        return setHttp1Config(http1Config);
     }
 
     /**

@@ -96,9 +96,17 @@ public class AsyncRequesterBootstrap {
     /**
      * Sets HTTP/1.1 protocol parameters
      */
-    public final AsyncRequesterBootstrap sethttp1Config(final Http1Config http1Config) {
+    public final AsyncRequesterBootstrap setHttp1Config(final Http1Config http1Config) {
         this.http1Config = http1Config;
         return this;
+    }
+
+    /**
+     * @deprecated Use {@link #setHttp1Config(Http1Config)}
+     */
+    @Deprecated
+    public final AsyncRequesterBootstrap sethttp1Config(final Http1Config http1Config) {
+        return setHttp1Config(http1Config);
     }
 
     /**

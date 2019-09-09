@@ -154,9 +154,17 @@ public class H2ServerBootstrap {
     /**
      * Sets HTTP/1.1 protocol parameters
      */
-    public final H2ServerBootstrap sethttp1Config(final Http1Config http1Config) {
+    public final H2ServerBootstrap setHttp1Config(final Http1Config http1Config) {
         this.http1Config = http1Config;
         return this;
+    }
+
+    /**
+     * @deprecated Use {@link #setHttp1Config(Http1Config)}
+     */
+    @Deprecated
+    public final H2ServerBootstrap sethttp1Config(final Http1Config http1Config) {
+        return setHttp1Config(http1Config);
     }
 
     /**
