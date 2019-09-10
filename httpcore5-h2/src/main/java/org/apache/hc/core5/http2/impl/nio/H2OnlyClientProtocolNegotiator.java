@@ -102,7 +102,7 @@ public class H2OnlyClientProtocolNegotiator implements HttpConnectionEventHandle
 
     private void writePreface(final IOSession session) throws IOException  {
         if (preface.hasRemaining()) {
-            final ByteChannel channel = session.channel();
+            final ByteChannel channel = session;
             channel.write(preface);
         }
         if (!preface.hasRemaining()) {

@@ -96,7 +96,7 @@ public class LoggingIOSession implements ProtocolIOSession {
 
     @Override
     public ByteChannel channel() {
-        return this;
+        return this.session.channel();
     }
 
     @Override

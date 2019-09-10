@@ -250,7 +250,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
                 int bytesRead;
                 do {
-                    bytesRead = inbuf.fill(ioSession.channel());
+                    bytesRead = inbuf.fill(ioSession);
                     if (bytesRead > 0) {
                         totalBytesRead += bytesRead;
                         inTransportMetrics.incrementBytesTransferred(bytesRead);
@@ -266,7 +266,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                         final ContentDecoder contentDecoder;
                         if (handleIncomingMessage(messageHead)) {
                             final long len = incomingContentStrategy.determineLength(messageHead);
-                            contentDecoder = createContentDecoder(len, ioSession.channel(), inbuf, inTransportMetrics);
+                            contentDecoder = createContentDecoder(len, ioSession, inbuf, inTransportMetrics);
                             consumeHeader(messageHead, contentDecoder != null ? new IncomingEntityDetails(messageHead, len) : null);
                         } else {
                             consumeHeader(messageHead, null);
@@ -335,7 +335,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         ioSession.getLock().lock();
         try {
             if (outbuf.hasData()) {
-                final int bytesWritten = outbuf.flush(ioSession.channel());
+                final int bytesWritten = outbuf.flush(ioSession);
                 if (bytesWritten > 0) {
                     outTransportMetrics.incrementBytesTransferred(bytesWritten);
                 }
@@ -415,7 +415,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 final ContentEncoder contentEncoder;
                 if (handleOutgoingMessage(messageHead)) {
                     final long len = outgoingContentStrategy.determineLength(messageHead);
-                    contentEncoder = createContentEncoder(len, ioSession.channel(), outbuf, outTransportMetrics);
+                    contentEncoder = createContentEncoder(len, ioSession, outbuf, outTransportMetrics);
                 } else {
                     contentEncoder = null;
                 }
@@ -425,7 +425,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             }
             outgoingMessageWriter.reset();
             if (flushMode == FlushMode.IMMEDIATE) {
-                outbuf.flush(ioSession.channel());
+                outbuf.flush(ioSession);
             }
             ioSession.setEvent(EventMask.WRITE);
         } finally {
@@ -454,7 +454,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         ioSession.getLock().lock();
         try {
             if (outbuf.hasData()) {
-                outbuf.flush(ioSession.channel());
+                outbuf.flush(ioSession);
             } else {
                 ioSession.clearEvent(SelectionKey.OP_WRITE);
             }

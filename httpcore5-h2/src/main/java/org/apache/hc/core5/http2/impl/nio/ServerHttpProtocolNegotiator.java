@@ -126,7 +126,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
         try {
             boolean endOfStream = false;
             if (bytebuf.position() < PREFACE.length) {
-                final int bytesRead = session.channel().read(bytebuf);
+                final int bytesRead = session.read(bytebuf);
                 if (bytesRead == -1) {
                     endOfStream = true;
                 }

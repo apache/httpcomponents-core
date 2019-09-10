@@ -233,7 +233,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             if (streamListener != null) {
                 streamListener.onFrameOutput(this, frame.getStreamId(), frame);
             }
-            outputBuffer.write(frame, ioSession.channel());
+            outputBuffer.write(frame, ioSession);
         } else {
             outputQueue.addLast(frame);
         }
@@ -331,7 +331,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
         updateOutputWindow(0, connOutputWindow, -chunk);
         updateOutputWindow(streamId, streamOutputWindow, -chunk);
-        outputBuffer.write(dataFrame, ioSession.channel());
+        outputBuffer.write(dataFrame, ioSession);
     }
 
     private int streamData(
@@ -420,7 +420,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             ioSession.clearEvent(SelectionKey.OP_READ);
         } else {
             RawFrame frame;
-            while ((frame = inputBuffer.read(ioSession.channel())) != null) {
+            while ((frame = inputBuffer.read(ioSession)) != null) {
                 if (streamListener != null) {
                     streamListener.onFrameInput(this, frame.getStreamId(), frame);
                 }
@@ -433,7 +433,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         ioSession.getLock().lock();
         try {
             if (!outputBuffer.isEmpty()) {
-                outputBuffer.flush(ioSession.channel());
+                outputBuffer.flush(ioSession);
             }
             while (outputBuffer.isEmpty()) {
                 final RawFrame frame = outputQueue.poll();
@@ -441,7 +441,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     if (streamListener != null) {
                         streamListener.onFrameOutput(this, frame.getStreamId(), frame);
                     }
-                    outputBuffer.write(frame, ioSession.channel());
+                    outputBuffer.write(frame, ioSession);
                 } else {
                     break;
                 }
