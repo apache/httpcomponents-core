@@ -70,7 +70,7 @@ public final class ClientSessionEndpoint implements ModalCloseable {
 
     public void execute(final Command command, final Command.Priority priority) {
         ioSession.enqueue(command, priority);
-        if (ioSession.isClosed()) {
+        if (!ioSession.isOpen()) {
             command.cancel();
         }
     }
@@ -82,7 +82,7 @@ public final class ClientSessionEndpoint implements ModalCloseable {
         Asserts.check(!closed.get(), "Connection is already closed");
         final Command executionCommand = new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context);
         ioSession.enqueue(executionCommand, Command.Priority.NORMAL);
-        if (ioSession.isClosed()) {
+        if (!ioSession.isOpen()) {
             exchangeHandler.failed(new ConnectionClosedException());
         }
     }
@@ -140,7 +140,7 @@ public final class ClientSessionEndpoint implements ModalCloseable {
     }
 
     public boolean isOpen() {
-        return !closed.get() && !ioSession.isClosed();
+        return !closed.get() && ioSession.isOpen();
     }
 
     @Override

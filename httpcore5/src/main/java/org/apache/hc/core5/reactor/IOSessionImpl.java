@@ -27,8 +27,10 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.io.IOException;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
@@ -180,6 +182,16 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
+    public int read(final ByteBuffer dst) throws IOException {
+        return this.channel.read(dst);
+    }
+
+    @Override
+    public int write(final ByteBuffer src) throws IOException {
+        return this.channel.write(src);
+    }
+
+    @Override
     public void updateReadTime() {
         lastReadTime = System.currentTimeMillis();
         lastEventTime = lastReadTime;
@@ -218,6 +230,11 @@ class IOSessionImpl implements IOSession {
 
     private boolean isStatusClosed() {
         return this.status.get() == CLOSED;
+    }
+
+    @Override
+    public boolean isOpen() {
+        return this.status.get() == ACTIVE && this.channel.isOpen();
     }
 
     @Override

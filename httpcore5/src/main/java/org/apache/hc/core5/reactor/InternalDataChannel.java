@@ -29,6 +29,7 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.util.Queue;
@@ -310,6 +311,11 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
+    public boolean isOpen() {
+        return getSessionImpl().isOpen();
+    }
+
+    @Override
     public boolean isClosed() {
         return getSessionImpl().isClosed();
     }
@@ -372,6 +378,16 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     @Override
     public void setSocketTimeout(final Timeout timeout) {
         ioSession.setSocketTimeout(timeout);
+    }
+
+    @Override
+    public int read(final ByteBuffer dst) throws IOException {
+        return getSessionImpl().read(dst);
+    }
+
+    @Override
+    public int write(final ByteBuffer src) throws IOException {
+        return getSessionImpl().write(src);
     }
 
     @Override

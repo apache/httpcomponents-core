@@ -746,7 +746,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(200, response1.getCode());
         Assert.assertNotNull("All is well", result1.getBody());
 
-        Assert.assertFalse(ioSession.isClosed());
+        Assert.assertTrue(ioSession.isOpen());
 
         final HttpRequest request2 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
@@ -759,7 +759,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response2.getCode());
         Assert.assertNotNull("You shall not pass", result2.getBody());
 
-        Assert.assertFalse(ioSession.isClosed());
+        Assert.assertTrue(ioSession.isOpen());
 
         final HttpRequest request3 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/echo"));
         request3.addHeader("password", "secret");
@@ -773,7 +773,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(200, response3.getCode());
         Assert.assertNotNull("All is well", result3.getBody());
 
-        Assert.assertFalse(ioSession.isClosed());
+        Assert.assertTrue(ioSession.isOpen());
 
         final HttpRequest request4 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
@@ -786,7 +786,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response4.getCode());
         Assert.assertNotNull("You shall not pass", result4.getBody());
 
-        Assert.assertTrue(ioSession.isClosed());
+        Assert.assertFalse(ioSession.isOpen());
     }
 
     @Test

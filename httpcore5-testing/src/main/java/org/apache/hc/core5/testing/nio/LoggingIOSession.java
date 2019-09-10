@@ -54,14 +54,12 @@ public class LoggingIOSession implements ProtocolIOSession {
     private final Logger log;
     private final Wire wireLog;
     private final ProtocolIOSession session;
-    private final ByteChannel channel;
 
     public LoggingIOSession(final ProtocolIOSession session, final Logger log, final Logger wireLog) {
         super();
         this.session = session;
         this.log = log;
         this.wireLog = wireLog != null ? new Wire(wireLog, session.getId()) : null;
-        this.channel = wireLog != null ? new LoggingByteChannel() : session.channel();
     }
 
     public LoggingIOSession(final ProtocolIOSession session, final Logger log) {
@@ -98,7 +96,7 @@ public class LoggingIOSession implements ProtocolIOSession {
 
     @Override
     public ByteChannel channel() {
-        return this.channel;
+        return this;
     }
 
     @Override
@@ -178,6 +176,11 @@ public class LoggingIOSession implements ProtocolIOSession {
     }
 
     @Override
+    public boolean isOpen() {
+        return session.isOpen();
+    }
+
+    @Override
     public void close(final CloseMode closeMode) {
         if (this.log.isDebugEnabled()) {
             this.log.debug(this.session + " Shutdown " + closeMode);
@@ -196,6 +199,38 @@ public class LoggingIOSession implements ProtocolIOSession {
             this.log.debug(this.session + " Set timeout " + timeout);
         }
         this.session.setSocketTimeout(timeout);
+    }
+
+    @Override
+    public int read(final ByteBuffer dst) throws IOException {
+        final int bytesRead = session.read(dst);
+        if (log.isDebugEnabled()) {
+            log.debug(session + " " + bytesRead + " bytes read");
+        }
+        if (bytesRead > 0 && wireLog.isEnabled()) {
+            final ByteBuffer b = dst.duplicate();
+            final int p = b.position();
+            b.limit(p);
+            b.position(p - bytesRead);
+            wireLog.input(b);
+        }
+        return bytesRead;
+    }
+
+    @Override
+    public int write(final ByteBuffer src) throws IOException {
+        final int byteWritten = session.write(src);
+        if (log.isDebugEnabled()) {
+            log.debug(session + " " + byteWritten + " bytes written");
+        }
+        if (byteWritten > 0 && wireLog.isEnabled()) {
+            final ByteBuffer b = src.duplicate();
+            final int p = b.position();
+            b.limit(p);
+            b.position(p - byteWritten);
+            wireLog.output(b);
+        }
+        return byteWritten;
     }
 
     @Override
@@ -262,55 +297,6 @@ public class LoggingIOSession implements ProtocolIOSession {
     @Override
     public String toString() {
         return this.session.toString();
-    }
-
-    class LoggingByteChannel implements ByteChannel {
-
-        @Override
-        public int read(final ByteBuffer dst) throws IOException {
-            final int bytesRead = session.channel().read(dst);
-            if (log.isDebugEnabled()) {
-                log.debug(session + " " + bytesRead + " bytes read");
-            }
-            if (bytesRead > 0 && wireLog.isEnabled()) {
-                final ByteBuffer b = dst.duplicate();
-                final int p = b.position();
-                b.limit(p);
-                b.position(p - bytesRead);
-                wireLog.input(b);
-            }
-            return bytesRead;
-        }
-
-        @Override
-        public int write(final ByteBuffer src) throws IOException {
-            final int byteWritten = session.channel().write(src);
-            if (log.isDebugEnabled()) {
-                log.debug(session + " " + byteWritten + " bytes written");
-            }
-            if (byteWritten > 0 && wireLog.isEnabled()) {
-                final ByteBuffer b = src.duplicate();
-                final int p = b.position();
-                b.limit(p);
-                b.position(p - byteWritten);
-                wireLog.output(b);
-            }
-            return byteWritten;
-        }
-
-        @Override
-        public void close() throws IOException {
-            if (log.isDebugEnabled()) {
-                log.debug(session + " Channel close");
-            }
-            session.channel().close();
-        }
-
-        @Override
-        public boolean isOpen() {
-            return session.channel().isOpen();
-        }
-
     }
 
 }

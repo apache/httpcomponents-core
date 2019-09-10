@@ -225,7 +225,7 @@ public class H2MultiplexingRequester extends AsyncRequester{
                                 }
 
                             }, pushHandlerFactory, cancellableDependency, context), Command.Priority.NORMAL);
-                            if (ioSession.isClosed()) {
+                            if (!ioSession.isOpen()) {
                                 exchangeHandler.failed(new ConnectionClosedException());
                             }
                         }

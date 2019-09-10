@@ -211,36 +211,7 @@ public class HttpBenchmark {
 
                             @Override
                             public ByteChannel channel() {
-                                return new ByteChannel() {
-
-                                    @Override
-                                    public int read(final ByteBuffer dst) throws IOException {
-                                        final int bytesRead = ioSession.channel().read(dst);
-                                        if (bytesRead > 0) {
-                                            stats.incTotalBytesRecv(bytesRead);
-                                        }
-                                        return bytesRead;
-                                    }
-
-                                    @Override
-                                    public int write(final ByteBuffer src) throws IOException {
-                                        final int bytesWritten = ioSession.channel().write(src);
-                                        if (bytesWritten > 0) {
-                                            stats.incTotalBytesSent(bytesWritten);
-                                        }
-                                        return bytesWritten;
-                                    }
-
-                                    @Override
-                                    public boolean isOpen() {
-                                        return ioSession.channel().isOpen();
-                                    }
-
-                                    @Override
-                                    public void close() throws IOException {
-                                        ioSession.channel().close();
-                                    }
-                                };
+                                return this;
                             }
 
                             @Override
@@ -281,6 +252,29 @@ public class HttpBenchmark {
                             @Override
                             public int getStatus() {
                                 return ioSession.getStatus();
+                            }
+
+                            @Override
+                            public int read(final ByteBuffer dst) throws IOException {
+                                final int bytesRead = ioSession.read(dst);
+                                if (bytesRead > 0) {
+                                    stats.incTotalBytesRecv(bytesRead);
+                                }
+                                return bytesRead;
+                            }
+
+                            @Override
+                            public int write(final ByteBuffer src) throws IOException {
+                                final int bytesWritten = ioSession.write(src);
+                                if (bytesWritten > 0) {
+                                    stats.incTotalBytesSent(bytesWritten);
+                                }
+                                return bytesWritten;
+                            }
+
+                            @Override
+                            public boolean isOpen() {
+                                return ioSession.isOpen();
                             }
 
                             @Override

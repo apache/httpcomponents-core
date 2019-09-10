@@ -189,7 +189,7 @@ public class H2OnlyClientProtocolNegotiator implements HttpConnectionEventHandle
 
     @Override
     public boolean isOpen() {
-        return !ioSession.isClosed();
+        return ioSession.isOpen();
     }
 
     @Override
