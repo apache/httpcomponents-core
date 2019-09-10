@@ -183,6 +183,9 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public int read(final ByteBuffer dst) throws IOException {
+        if ((this.key.interestOps() & SelectionKey.OP_READ) == 0) {
+            return 0;
+        }
         return this.channel.read(dst);
     }
 
