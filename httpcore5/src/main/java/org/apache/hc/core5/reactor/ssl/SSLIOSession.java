@@ -402,7 +402,7 @@ public class SSLIOSession implements IOSession {
             // This will ensure that tests performed by write() still take place without
             // having to acquire and release an empty buffer (e.g. connection closed,
             // interrupted thread, etc..)
-            return this.session.channel().write(EMPTY_BUFFER);
+            return this.session.write(EMPTY_BUFFER);
         }
 
         // Acquire buffer
@@ -413,7 +413,7 @@ public class SSLIOSession implements IOSession {
         if (outEncryptedBuf.position() > 0) {
             outEncryptedBuf.flip();
             try {
-                bytesWritten = this.session.channel().write(outEncryptedBuf);
+                bytesWritten = this.session.write(outEncryptedBuf);
             } finally {
                 outEncryptedBuf.compact();
             }
@@ -435,7 +435,7 @@ public class SSLIOSession implements IOSession {
         final ByteBuffer inEncryptedBuf = this.inEncrypted.acquire();
 
         // Perform operation
-        final int bytesRead = this.session.channel().read(inEncryptedBuf);
+        final int bytesRead = this.session.read(inEncryptedBuf);
 
         // Release if empty
         if (inEncryptedBuf.position() == 0) {
@@ -725,7 +725,7 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public ByteChannel channel() {
-        return this;
+        return this.session.channel();
     }
 
     @Override

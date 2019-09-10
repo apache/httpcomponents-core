@@ -108,19 +108,19 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
     public void outputReady(final IOSession session) throws IOException {
         switch (this.state) {
             case SEND_AUTH:
-                if (writeAndPrepareRead(session.channel(), 2)) {
+                if (writeAndPrepareRead(session, 2)) {
                     session.setEventMask(SelectionKey.OP_READ);
                     this.state = State.RECEIVE_AUTH_METHOD;
                 }
                 break;
             case SEND_USERNAME_PASSWORD:
-                if (writeAndPrepareRead(session.channel(), 2)) {
+                if (writeAndPrepareRead(session, 2)) {
                     session.setEventMask(SelectionKey.OP_READ);
                     this.state = State.RECEIVE_AUTH;
                 }
                 break;
             case SEND_CONNECT:
-                if (writeAndPrepareRead(session.channel(), 2)) {
+                if (writeAndPrepareRead(session, 2)) {
                     session.setEventMask(SelectionKey.OP_READ);
                     this.state = State.RECEIVE_RESPONSE_CODE;
                 }
@@ -141,7 +141,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
     public void inputReady(final IOSession session) throws IOException {
         switch (this.state) {
             case RECEIVE_AUTH_METHOD:
-                if (fillBuffer(session.channel())) {
+                if (fillBuffer(session)) {
                     this.buffer.flip();
                     final byte serverVersion = this.buffer.get();
                     final byte serverMethod = this.buffer.get();
@@ -168,7 +168,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                 }
                 break;
             case RECEIVE_AUTH:
-                if (fillBuffer(session.channel())) {
+                if (fillBuffer(session)) {
                     this.buffer.flip();
                     this.buffer.get(); // skip server auth version
                     final byte status = this.buffer.get();
@@ -181,7 +181,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                 }
                 break;
             case RECEIVE_RESPONSE_CODE:
-                if (fillBuffer(session.channel())) {
+                if (fillBuffer(session)) {
                     this.buffer.flip();
                     final byte serverVersion = this.buffer.get();
                     final byte responseCode = this.buffer.get();
@@ -199,7 +199,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                     break;
                 }
             case RECEIVE_ADDRESS_TYPE:
-                if (fillBuffer(session.channel())) {
+                if (fillBuffer(session)) {
                     this.buffer.flip();
                     this.buffer.get(); // reserved byte that has no purpose
                     final byte aType = this.buffer.get();
@@ -224,7 +224,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                     break;
                 }
             case RECEIVE_ADDRESS:
-                if (fillBuffer(session.channel())) {
+                if (fillBuffer(session)) {
                     this.buffer.clear();
                     this.state = State.COMPLETE;
                     final IOEventHandler newHandler = this.eventHandlerFactory.createHandler(this.ioSession, this.attachment);

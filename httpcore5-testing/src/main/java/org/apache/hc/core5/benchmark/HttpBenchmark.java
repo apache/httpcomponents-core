@@ -211,7 +211,7 @@ public class HttpBenchmark {
 
                             @Override
                             public ByteChannel channel() {
-                                return this;
+                                return ioSession.channel();
                             }
 
                             @Override
