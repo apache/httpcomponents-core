@@ -78,7 +78,6 @@ public class SSLIOSession implements IOSession {
     private final SSLManagedBuffer inEncrypted;
     private final SSLManagedBuffer outEncrypted;
     private final SSLManagedBuffer inPlain;
-    private final ByteChannel channel;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
     private final Callback<SSLIOSession> connectedCallback;
@@ -147,29 +146,6 @@ public class SSLIOSession implements IOSession {
         // Allocate buffers for application (unencrypted) data
         final int appBufferSize = sslSession.getApplicationBufferSize();
         this.inPlain = SSLManagedBuffer.create(sslBufferMode, appBufferSize);
-        this.channel = new ByteChannel() {
-
-            @Override
-            public int write(final ByteBuffer src) throws IOException {
-                return SSLIOSession.this.writePlain(src);
-            }
-
-            @Override
-            public int read(final ByteBuffer dst) throws IOException {
-                return SSLIOSession.this.readPlain(dst);
-            }
-
-            @Override
-            public void close() throws IOException {
-                SSLIOSession.this.close();
-            }
-
-            @Override
-            public boolean isOpen() {
-                return !SSLIOSession.this.isClosed();
-            }
-
-        };
         this.bytesReadCount = new AtomicLong(0);
         this.connectTimeout = connectTimeout;
     }
@@ -576,7 +552,7 @@ public class SSLIOSession implements IOSession {
     public void outboundTransport() throws IOException {
         this.session.getLock().lock();
         try {
-            if (this.session.isClosed()) {
+            if (!this.session.isOpen()) {
                 return;
             }
             sendEncryptedData();
@@ -601,7 +577,8 @@ public class SSLIOSession implements IOSession {
         return this.sslEngine.isOutboundDone();
     }
 
-    private int writePlain(final ByteBuffer src) throws IOException {
+    @Override
+    public int write(final ByteBuffer src) throws IOException {
         Args.notNull(src, "Byte buffer");
         this.session.getLock().lock();
         try {
@@ -622,7 +599,8 @@ public class SSLIOSession implements IOSession {
         }
     }
 
-    private int readPlain(final ByteBuffer dst) {
+    @Override
+    public int read(final ByteBuffer dst) {
         Args.notNull(dst, "Byte buffer");
         this.session.getLock().lock();
         try {
@@ -663,6 +641,11 @@ public class SSLIOSession implements IOSession {
 
     public long getReadCount() {
         return bytesReadCount.get();
+    }
+
+    @Override
+    public boolean isOpen() {
+        return this.status == ACTIVE && this.session.isOpen();
     }
 
     @Override
@@ -742,7 +725,7 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public ByteChannel channel() {
-        return this.channel;
+        return this;
     }
 
     @Override

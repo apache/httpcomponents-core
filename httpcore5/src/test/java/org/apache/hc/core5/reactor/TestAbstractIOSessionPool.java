@@ -89,6 +89,8 @@ public class TestAbstractIOSessionPool {
 
         }).when(impl).validateSession(ArgumentMatchers.<IOSession>any(), ArgumentMatchers.<Callback<Boolean>>any());
 
+        Mockito.when(ioSession1.isOpen()).thenReturn(true);
+
         final Future<IOSession> future1 = impl.getSession("somehost", Timeout.ofSeconds(123L), null);
         Assert.assertThat(future1, CoreMatchers.notNullValue());
         Assert.assertThat(future1.isDone(), CoreMatchers.equalTo(false));
@@ -250,7 +252,7 @@ public class TestAbstractIOSessionPool {
         Assert.assertThat(entry1, CoreMatchers.notNullValue());
         entry1.session = ioSession1;
 
-        Mockito.when(ioSession1.isClosed()).thenReturn(false);
+        Mockito.when(ioSession1.isOpen()).thenReturn(true);
         Mockito.doAnswer(new Answer() {
 
             @Override
@@ -276,7 +278,7 @@ public class TestAbstractIOSessionPool {
         Assert.assertThat(entry1, CoreMatchers.notNullValue());
         entry1.session = ioSession1;
 
-        Mockito.when(ioSession1.isClosed()).thenReturn(true);
+        Mockito.when(ioSession1.isOpen()).thenReturn(false);
 
         impl.getSession("somehost", Timeout.ofSeconds(123L), null);
 

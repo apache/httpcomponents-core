@@ -242,7 +242,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public boolean isOpen() {
-        return !ioSession.isClosed();
+        return ioSession.isOpen();
     }
 
     @Override

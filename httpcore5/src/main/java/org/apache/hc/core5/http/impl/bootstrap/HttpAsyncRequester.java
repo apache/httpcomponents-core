@@ -182,7 +182,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             public void completed(final PoolEntry<HttpHost, IOSession> poolEntry) {
                 final AsyncClientEndpoint endpoint = new InternalAsyncClientEndpoint(poolEntry);
                 final IOSession ioSession = poolEntry.getConnection();
-                if (ioSession != null && ioSession.isClosed()) {
+                if (ioSession != null && !ioSession.isOpen()) {
                     poolEntry.discardConnection(CloseMode.IMMEDIATE);
                 }
                 if (poolEntry.hasConnection()) {
@@ -433,7 +433,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                 throw new IllegalStateException("I/O session is invalid");
             }
             ioSession.enqueue(new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context), Command.Priority.NORMAL);
-            if (ioSession.isClosed()) {
+            if (!ioSession.isOpen()) {
                 exchangeHandler.failed(new ConnectionClosedException());
             }
         }
@@ -443,7 +443,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.get();
             if (poolEntry != null) {
                 final IOSession ioSession = poolEntry.getConnection();
-                if (ioSession != null && !ioSession.isClosed()) {
+                if (ioSession != null && ioSession.isOpen()) {
                     return true;
                 }
             }
@@ -455,7 +455,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.getAndSet(null);
             if (poolEntry != null) {
                 final IOSession ioSession = poolEntry.getConnection();
-                connPool.release(poolEntry, ioSession != null && !ioSession.isClosed());
+                connPool.release(poolEntry, ioSession != null && ioSession.isOpen());
             }
         }
 

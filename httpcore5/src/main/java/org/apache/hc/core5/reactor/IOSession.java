@@ -51,7 +51,7 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 4.0
  */
-public interface IOSession extends ModalCloseable, Identifiable {
+public interface IOSession extends ByteChannel, ModalCloseable, Identifiable {
 
     int ACTIVE       = 0;
     int CLOSING      = 1;
@@ -164,7 +164,10 @@ public interface IOSession extends ModalCloseable, Identifiable {
      *
      * @return {@code true} if the session has been terminated,
      *   {@code false} otherwise.
+     *
+     * @deprecated Use {@link #isOpen()}
      */
+    @Deprecated
     boolean isClosed();
 
     /**

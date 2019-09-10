@@ -189,7 +189,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                 closeSession(poolEntry.session, CloseMode.GRACEFUL);
                 poolEntry.session = null;
             }
-            if (poolEntry.session != null && poolEntry.session.isClosed()) {
+            if (poolEntry.session != null && !poolEntry.session.isOpen()) {
                 poolEntry.session = null;
             }
             if (poolEntry.session != null) {
@@ -251,7 +251,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                 synchronized (poolEntry) {
                     if (poolEntry.session != null) {
                         callback.execute(poolEntry.session);
-                        if (poolEntry.session.isClosed()) {
+                        if (!poolEntry.session.isOpen()) {
                             poolEntry.session = null;
                         }
                     }

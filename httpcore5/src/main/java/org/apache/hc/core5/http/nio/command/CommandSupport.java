@@ -72,7 +72,7 @@ public final class CommandSupport {
             if (command instanceof RequestExecutionCommand) {
                 final AsyncClientExchangeHandler exchangeHandler = ((RequestExecutionCommand) command).getExchangeHandler();
                 try {
-                    if (ioSession.isClosed()) {
+                    if (!ioSession.isOpen()) {
                         exchangeHandler.failed(new ConnectionClosedException());
                     } else {
                         exchangeHandler.cancel();
