@@ -58,7 +58,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     private final IOSessionListener sessionListener;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final Queue<InternalDataChannel> closedSessions;
-    private final AtomicReference<IOEventHandler> handlerRef;
     private final AtomicBoolean connected;
     private final AtomicBoolean closed;
 
@@ -72,7 +71,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         this.closedSessions = closedSessions;
         this.sessionListener = sessionListener;
         this.tlsSessionRef = new AtomicReference<>(null);
-        this.handlerRef = new AtomicReference<>(null);
         this.connected = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
     }
@@ -83,22 +81,22 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    public IOEventHandler getHandler() {
-        return handlerRef.get();
-    }
-
-    @Override
     public NamedEndpoint getInitialEndpoint() {
         return initialEndpoint;
     }
 
     @Override
-    public void upgrade(final IOEventHandler handler) {
-        handlerRef.set(handler);
+    public IOEventHandler getHandler() {
+        return ioSession.getHandler();
     }
 
-    private IOEventHandler ensureHandler() {
-        final IOEventHandler handler = handlerRef.get();
+    @Override
+    public void upgrade(final IOEventHandler handler) {
+        ioSession.upgrade(handler);
+    }
+
+    private IOEventHandler ensureHandler(final IOSession session) {
+        final IOEventHandler handler = session.getHandler();
         Asserts.notNull(handler, "IO event handler");
         return handler;
     }
@@ -106,75 +104,33 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     @Override
     void onIOEvent(final int readyOps) throws IOException {
         final SSLIOSession tlsSession = tlsSessionRef.get();
-        if (tlsSession != null) {
-            if (!tlsSession.isInitialized()) {
-                tlsSession.initialize();
+        final IOSession currentSession = tlsSession != null ? tlsSession : ioSession;
+        if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
+            currentSession.clearEvent(SelectionKey.OP_CONNECT);
+            if (tlsSession == null && connected.compareAndSet(false, true)) {
                 if (sessionListener != null) {
-                    sessionListener.tlsStarted(tlsSession);
+                    sessionListener.connected(this);
                 }
+                final IOEventHandler handler = ensureHandler(currentSession);
+                handler.connected(this);
             }
-            if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
-                tlsSession.clearEvent(SelectionKey.OP_CONNECT);
+        }
+        if ((readyOps & SelectionKey.OP_READ) != 0) {
+            currentSession.updateReadTime();
+            if (sessionListener != null) {
+                sessionListener.inputReady(this);
             }
-            if ((readyOps & SelectionKey.OP_READ) != 0) {
-                ioSession.updateReadTime();
-                do {
-                    tlsSession.resetReadCount();
-                    if (tlsSession.isAppInputReady()) {
-                        if (sessionListener != null) {
-                            sessionListener.inputReady(this);
-                        }
-                        final IOEventHandler handler = ensureHandler();
-                        handler.inputReady(this);
-                    }
-                    tlsSession.inboundTransport();
-                    if (sessionListener != null) {
-                        sessionListener.tlsInbound(tlsSession);
-                    }
-                } while (tlsSession.getReadCount() > 0);
+            final IOEventHandler handler = ensureHandler(currentSession);
+            handler.inputReady(this);
+        }
+        if ((readyOps & SelectionKey.OP_WRITE) != 0
+                || (ioSession.getEventMask() & SelectionKey.OP_WRITE) != 0) {
+            currentSession.updateWriteTime();
+            if (sessionListener != null) {
+                sessionListener.outputReady(this);
             }
-            if ((readyOps & SelectionKey.OP_WRITE) != 0
-                    || (ioSession.getEventMask() & SelectionKey.OP_WRITE) != 0) {
-                ioSession.updateWriteTime();
-                if (tlsSession.isAppOutputReady()) {
-                    if (sessionListener != null) {
-                        sessionListener.outputReady(this);
-                    }
-                    final IOEventHandler handler = ensureHandler();
-                    handler.outputReady(this);
-                }
-                tlsSession.outboundTransport();
-                if (sessionListener != null) {
-                    sessionListener.tlsOutbound(tlsSession);
-                }
-            }
-        } else {
-            if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
-                ioSession.clearEvent(SelectionKey.OP_CONNECT);
-                if (connected.compareAndSet(false, true)) {
-                    if (sessionListener != null) {
-                        sessionListener.connected(this);
-                    }
-                    final IOEventHandler handler = ensureHandler();
-                    handler.connected(this);
-                }
-            }
-            if ((readyOps & SelectionKey.OP_READ) != 0) {
-                ioSession.updateReadTime();
-                if (sessionListener != null) {
-                    sessionListener.inputReady(this);
-                }
-                final IOEventHandler handler = ensureHandler();
-                handler.inputReady(this);
-            }
-            if ((readyOps & SelectionKey.OP_WRITE) != 0) {
-                ioSession.updateWriteTime();
-                if (sessionListener != null) {
-                    sessionListener.outputReady(this);
-                }
-                final IOEventHandler handler = ensureHandler();
-                handler.outputReady(this);
-            }
+            final IOEventHandler handler = ensureHandler(currentSession);
+            handler.outputReady(this);
         }
     }
 
@@ -185,15 +141,13 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     void onTimeout(final Timeout timeout) throws IOException {
-        final IOEventHandler handler = ensureHandler();
-        handler.timeout(this, timeout);
-        final SSLIOSession tlsSession = tlsSessionRef.get();
-        if (tlsSession != null) {
-            if (tlsSession.isOutboundDone() && !tlsSession.isInboundDone()) {
-                // The session failed to terminate cleanly
-                tlsSession.close(CloseMode.IMMEDIATE);
-            }
+        if (sessionListener != null) {
+            sessionListener.timeout(this);
         }
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        final IOSession currentSession = tlsSession != null ? tlsSession : ioSession;
+        final IOEventHandler handler = ensureHandler(currentSession);
+        handler.timeout(this, timeout);
     }
 
     @Override
@@ -201,7 +155,9 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (sessionListener != null) {
             sessionListener.exception(this, cause);
         }
-        final IOEventHandler handler = handlerRef.get();
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        final IOSession currentSession = tlsSession != null ? tlsSession : ioSession;
+        final IOEventHandler handler = currentSession.getHandler();
         if (handler != null) {
             handler.exception(this, cause);
         }
@@ -211,8 +167,12 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (sessionListener != null) {
             sessionListener.disconnected(this);
         }
-        final IOEventHandler handler = ensureHandler();
-        handler.disconnected(this);
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        final IOSession currentSession = tlsSession != null ? tlsSession : ioSession;
+        final IOEventHandler handler = currentSession.getHandler();
+        if (handler != null) {
+            handler.disconnected(this);
+        }
     }
 
     @Override
@@ -236,7 +196,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                     @Override
                     public void execute(final SSLIOSession sslSession) {
                         if (connected.compareAndSet(false, true)) {
-                            final IOEventHandler handler = ensureHandler();
+                            final IOEventHandler handler = ensureHandler(ioSession);
                             try {
                                 if (sessionListener != null) {
                                     sessionListener.connected(InternalDataChannel.this);

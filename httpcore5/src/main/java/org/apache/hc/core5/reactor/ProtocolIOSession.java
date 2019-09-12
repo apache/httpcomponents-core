@@ -35,7 +35,7 @@ import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
  *
  * @since 5.0
  */
-public interface ProtocolIOSession extends IOSession, ProtocolLayer, TransportSecurityLayer {
+public interface ProtocolIOSession extends IOSession, TransportSecurityLayer {
 
     NamedEndpoint getInitialEndpoint();
 

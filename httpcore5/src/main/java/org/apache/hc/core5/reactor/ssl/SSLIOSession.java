@@ -54,6 +54,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
+import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
@@ -157,6 +158,83 @@ public class SSLIOSession implements IOSession {
         return session.getId();
     }
 
+    private IOEventHandler ensureHandler() {
+        final IOEventHandler handler = session.getHandler();
+        Asserts.notNull(handler, "IO event handler");
+        return handler;
+    }
+
+    @Override
+    public IOEventHandler getHandler() {
+        return new IOEventHandler() {
+
+            private void ensureInitialized() throws IOException {
+                if (!isInitialized()) {
+                    initialize();
+                }
+            }
+
+            @Override
+            public void connected(final IOSession protocolSession) throws IOException {
+                ensureInitialized();
+            }
+
+            @Override
+            public void inputReady(final IOSession protocolSession) throws IOException {
+                ensureInitialized();
+                do {
+                    bytesReadCount.set(0L);
+                    if (isAppInputReady()) {
+                        final IOEventHandler handler = ensureHandler();
+                        handler.inputReady(protocolSession);
+                    }
+                    inboundTransport();
+                } while (bytesReadCount.get() > 0);
+            }
+
+            @Override
+            public void outputReady(final IOSession protocolSession) throws IOException {
+                ensureInitialized();
+                if (isAppOutputReady()) {
+                    final IOEventHandler handler = ensureHandler();
+                    handler.outputReady(protocolSession);
+                }
+                outboundTransport();
+            }
+
+            @Override
+            public void timeout(final IOSession protocolSession, final Timeout timeout) throws IOException {
+                if (isOutboundDone() && !isInboundDone()) {
+                    // The session failed to terminate cleanly
+                    close(CloseMode.IMMEDIATE);
+                }
+                ensureHandler().timeout(protocolSession, timeout);
+            }
+
+            @Override
+            public void exception(final IOSession protocolSession, final Exception cause) {
+                final IOEventHandler handler = session.getHandler();
+                if (handler != null) {
+                    handler.exception(protocolSession, cause);
+                }
+            }
+
+            @Override
+            public void disconnected(final IOSession protocolSession) {
+                final IOEventHandler handler = session.getHandler();
+                if (handler != null) {
+                    handler.disconnected(protocolSession);
+                }
+            }
+
+        };
+    }
+
+    @Override
+    public void upgrade(final IOEventHandler handler) {
+        this.session.upgrade(handler);
+    }
+
     @Override
     public Lock getLock() {
         return this.session.getLock();
@@ -166,7 +244,7 @@ public class SSLIOSession implements IOSession {
      * Returns {@code true} is the session has been fully initialized,
      * {@code false} otherwise.
      */
-    public boolean isInitialized() {
+     private boolean isInitialized() {
         return this.initialized;
     }
 
@@ -178,7 +256,7 @@ public class SSLIOSession implements IOSession {
      * @throws SSLException in case of a SSL protocol exception.
      * @throws IllegalStateException if the session has already been initialized.
      */
-    public void initialize() throws SSLException {
+    private void initialize() throws SSLException {
         Asserts.check(!this.initialized, "SSL I/O session already initialized");
 
         // Save the initial socketTimeout of the underlying IOSession, to be restored after the handshake is finished
@@ -507,7 +585,7 @@ public class SSLIOSession implements IOSession {
      *
      * @throws IOException in case of an I/O error.
      */
-    public boolean isAppInputReady() throws IOException {
+    private boolean isAppInputReady() throws IOException {
         this.session.getLock().lock();
         try {
             do {
@@ -531,7 +609,7 @@ public class SSLIOSession implements IOSession {
      *
      * @throws IOException - not thrown currently
      */
-    public boolean isAppOutputReady() throws IOException {
+    private boolean isAppOutputReady() throws IOException {
         this.session.getLock().lock();
         try {
             return (this.appEventMask & SelectionKey.OP_WRITE) > 0
@@ -547,7 +625,7 @@ public class SSLIOSession implements IOSession {
      *
      * @throws IOException - not thrown currently
      */
-    public void inboundTransport() throws IOException {
+    private void inboundTransport() throws IOException {
         this.session.getLock().lock();
         try {
             updateEventMask();
@@ -561,7 +639,7 @@ public class SSLIOSession implements IOSession {
      *
      * @throws IOException in case of an I/O error.
      */
-    public void outboundTransport() throws IOException {
+    private void outboundTransport() throws IOException {
         this.session.getLock().lock();
         try {
             if (!this.session.isOpen()) {
@@ -578,14 +656,14 @@ public class SSLIOSession implements IOSession {
     /**
      * Returns whether the session will produce any more inbound data.
      */
-    public boolean isInboundDone() {
+    private boolean isInboundDone() {
         return this.sslEngine.isInboundDone();
     }
 
     /**
      * Returns whether the session will accept any more outbound data.
      */
-    public boolean isOutboundDone() {
+    private boolean isOutboundDone() {
         return this.sslEngine.isOutboundDone();
     }
 
@@ -645,14 +723,6 @@ public class SSLIOSession implements IOSession {
         } finally {
             this.session.getLock().unlock();
         }
-    }
-
-    public void resetReadCount() {
-        bytesReadCount.set(0L);
-    }
-
-    public long getReadCount() {
-        return bytesReadCount.get();
     }
 
     @Override

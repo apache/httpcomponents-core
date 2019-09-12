@@ -38,6 +38,7 @@ import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -55,6 +56,7 @@ class IOSessionImpl implements IOSession {
     private final Deque<Command> commandQueue;
     private final Lock lock;
     private final String id;
+    private final AtomicReference<IOEventHandler> handlerRef;
     private final AtomicInteger status;
 
     private volatile Timeout socketTimeout;
@@ -76,6 +78,7 @@ class IOSessionImpl implements IOSession {
         this.lock = new ReentrantLock();
         this.socketTimeout = Timeout.DISABLED;
         this.id = String.format("i/o-%08X", COUNT.getAndIncrement());
+        this.handlerRef = new AtomicReference<>();
         this.status = new AtomicInteger(ACTIVE);
         final long currentTimeMillis = System.currentTimeMillis();
         this.lastReadTime = currentTimeMillis;
@@ -86,6 +89,16 @@ class IOSessionImpl implements IOSession {
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public IOEventHandler getHandler() {
+        return handlerRef.get();
+    }
+
+    @Override
+    public void upgrade(final IOEventHandler handler) {
+        handlerRef.set(handler);
     }
 
     @Override

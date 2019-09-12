@@ -58,6 +58,20 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
     int CLOSED       = Integer.MAX_VALUE;
 
     /**
+     * Returns event handler associated with the session.
+     *
+     * @since 5.0
+     */
+    IOEventHandler getHandler();
+
+    /**
+     * Upgrades event handler associated with the session.
+     *
+     * @since 5.0
+     */
+    void upgrade(IOEventHandler handler);
+
+    /**
      * Returns session lock that should be used by I/O event handlers
      * to synchronize access to the session.
      *

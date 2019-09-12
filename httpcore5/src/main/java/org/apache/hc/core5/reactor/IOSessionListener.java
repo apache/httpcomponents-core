@@ -34,12 +34,6 @@ package org.apache.hc.core5.reactor;
  */
 public interface IOSessionListener {
 
-    void tlsStarted(IOSession session);
-
-    void tlsInbound(IOSession session);
-
-    void tlsOutbound(IOSession session);
-
     void connected(IOSession session);
 
     void inputReady(IOSession session);
