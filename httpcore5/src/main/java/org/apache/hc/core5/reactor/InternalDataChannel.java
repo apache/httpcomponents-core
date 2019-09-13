@@ -121,7 +121,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                 sessionListener.inputReady(this);
             }
             final IOEventHandler handler = ensureHandler(currentSession);
-            handler.inputReady(this);
+            handler.inputReady(this, null);
         }
         if ((readyOps & SelectionKey.OP_WRITE) != 0
                 || (ioSession.getEventMask() & SelectionKey.OP_WRITE) != 0) {

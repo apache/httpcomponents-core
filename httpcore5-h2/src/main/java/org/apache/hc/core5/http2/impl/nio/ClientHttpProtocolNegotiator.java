@@ -153,7 +153,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void inputReady(final IOSession session) throws IOException  {
+    public void inputReady(final IOSession session, final ByteBuffer src) throws IOException  {
         outputReady(session);
     }
 

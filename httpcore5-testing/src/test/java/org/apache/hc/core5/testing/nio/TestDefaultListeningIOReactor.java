@@ -28,6 +28,7 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -66,7 +67,7 @@ public class TestDefaultListeningIOReactor {
                 }
 
                 @Override
-                public void inputReady(final IOSession session) {
+                public void inputReady(final IOSession session, final ByteBuffer src) {
                 }
 
                 @Override

@@ -180,13 +180,13 @@ public class SSLIOSession implements IOSession {
             }
 
             @Override
-            public void inputReady(final IOSession protocolSession) throws IOException {
+            public void inputReady(final IOSession protocolSession, final ByteBuffer src) throws IOException {
                 ensureInitialized();
                 do {
                     bytesReadCount.set(0L);
                     if (isAppInputReady()) {
                         final IOEventHandler handler = ensureHandler();
-                        handler.inputReady(protocolSession);
+                        handler.inputReady(protocolSession, src);
                     }
                     inboundTransport();
                 } while (bytesReadCount.get() > 0);
@@ -286,7 +286,6 @@ public class SSLIOSession implements IOSession {
 
             this.inEncrypted.release();
             this.outEncrypted.release();
-            this.inPlain.release();
             doHandshake();
         } finally {
             this.session.getLock().unlock();
