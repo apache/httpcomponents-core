@@ -32,6 +32,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
@@ -138,7 +139,14 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
     }
 
     @Override
-    public void inputReady(final IOSession session) throws IOException {
+    public void inputReady(final IOSession session, final ByteBuffer src) throws IOException {
+        if (src != null) {
+            try {
+                this.buffer.put(src);
+            } catch (final BufferOverflowException ex) {
+                throw new IOException("Unexpected input data");
+            }
+        }
         switch (this.state) {
             case RECEIVE_AUTH_METHOD:
                 if (fillBuffer(session)) {

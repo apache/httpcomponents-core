@@ -229,15 +229,15 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
     }
 
-    public final void onConnect(final ByteBuffer prefeed) throws HttpException, IOException {
-        if (prefeed != null) {
-            inbuf.put(prefeed);
-        }
+    public final void onConnect() throws HttpException, IOException {
         connState = ConnectionState.ACTIVE;
         processCommands();
     }
 
-    public final void onInput() throws HttpException, IOException {
+    public final void onInput(final ByteBuffer src) throws HttpException, IOException {
+        if (src != null) {
+            inbuf.put(src);
+        }
         while (connState.compareTo(ConnectionState.SHUTDOWN) < 0) {
             int totalBytesRead = 0;
             int messagesReceived = 0;

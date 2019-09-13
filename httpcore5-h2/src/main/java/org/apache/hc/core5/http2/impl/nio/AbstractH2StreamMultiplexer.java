@@ -398,10 +398,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
     }
 
-    public final void onConnect(final ByteBuffer prefeed) throws HttpException, IOException {
-        if (prefeed != null) {
-            inputBuffer.put(prefeed);
-        }
+    public final void onConnect() throws HttpException, IOException {
         connState = ConnectionHandshake.ACTIVE;
         final RawFrame settingsFrame = frameFactory.createSettings(
                 new H2Setting(H2Param.HEADER_TABLE_SIZE, localConfig.getHeaderTableSize()),
@@ -415,10 +412,13 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         localSettingState = SettingsHandshake.TRANSMITTED;
     }
 
-    public final void onInput() throws HttpException, IOException {
+    public final void onInput(final ByteBuffer src) throws HttpException, IOException {
         if (connState == ConnectionHandshake.SHUTDOWN) {
             ioSession.clearEvent(SelectionKey.OP_READ);
         } else {
+            if (src != null) {
+                inputBuffer.put(src);
+            }
             RawFrame frame;
             while ((frame = inputBuffer.read(ioSession)) != null) {
                 if (streamListener != null) {

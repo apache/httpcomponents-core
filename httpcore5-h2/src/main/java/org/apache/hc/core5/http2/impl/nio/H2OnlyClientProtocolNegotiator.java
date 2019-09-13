@@ -114,7 +114,7 @@ public class H2OnlyClientProtocolNegotiator implements HttpConnectionEventHandle
     }
 
     @Override
-    public void inputReady(final IOSession session) {
+    public void inputReady(final IOSession session, final ByteBuffer src) {
         outputReady(session);
     }
 

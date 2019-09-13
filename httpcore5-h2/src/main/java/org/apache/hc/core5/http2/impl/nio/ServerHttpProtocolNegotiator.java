@@ -113,7 +113,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     final HttpConnectionEventHandler protocolHandler = new ServerHttp1IOEventHandler(http1StreamHandler);
                     ioSession.upgrade(protocolHandler);
                     protocolHandlerRef.set(protocolHandler);
-                    http1StreamHandler.onConnect(null);
+                    http1StreamHandler.onConnect();
                     break;
             }
         } catch (final Exception ex) {
@@ -122,7 +122,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     }
 
     @Override
-    public void inputReady(final IOSession session) {
+    public void inputReady(final IOSession session, final ByteBuffer src) {
         try {
             boolean endOfStream = false;
             if (bytebuf.position() < PREFACE.length) {
@@ -148,8 +148,8 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     final HttpConnectionEventHandler protocolHandler = new ServerH2IOEventHandler(http2StreamHandler);
                     ioSession.upgrade(protocolHandler);
                     protocolHandlerRef.set(protocolHandler);
-                    http2StreamHandler.onConnect(bytebuf.hasRemaining() ? bytebuf : null);
-                    http2StreamHandler.onInput();
+                    http2StreamHandler.onConnect();
+                    http2StreamHandler.onInput(bytebuf.hasRemaining() ? bytebuf : null);
                 } else {
                     final TlsDetails tlsDetails = ioSession.getTlsDetails();
                     final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(
@@ -159,8 +159,8 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     ioSession.upgrade(protocolHandler);
                     protocolHandlerRef.set(protocolHandler);
                     bytebuf.rewind();
-                    http1StreamHandler.onConnect(bytebuf);
-                    http1StreamHandler.onInput();
+                    http1StreamHandler.onConnect();
+                    http1StreamHandler.onInput(bytebuf);
                 }
             } else {
                 if (endOfStream) {

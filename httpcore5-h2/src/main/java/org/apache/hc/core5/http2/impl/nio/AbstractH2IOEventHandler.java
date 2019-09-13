@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 
 import javax.net.ssl.SSLSession;
 
@@ -52,16 +53,16 @@ class AbstractH2IOEventHandler implements HttpConnectionEventHandler {
     @Override
     public void connected(final IOSession session) throws IOException {
         try {
-            streamMultiplexer.onConnect(null);
+            streamMultiplexer.onConnect();
         } catch (final HttpException ex) {
             streamMultiplexer.onException(ex);
         }
     }
 
     @Override
-    public void inputReady(final IOSession session) throws IOException {
+    public void inputReady(final IOSession session, final ByteBuffer src) throws IOException {
         try {
-            streamMultiplexer.onInput();
+            streamMultiplexer.onInput(src);
         } catch (final HttpException ex) {
             streamMultiplexer.onException(ex);
         }
