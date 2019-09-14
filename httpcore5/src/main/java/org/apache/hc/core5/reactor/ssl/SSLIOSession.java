@@ -381,7 +381,7 @@ public class SSLIOSession implements IOSession {
             break;
         }
 
-        if (this.endOfStream) {
+        if (this.endOfStream && !this.inPlain.hasData()) {
             newMask = newMask & ~EventMask.READ;
         }
 
