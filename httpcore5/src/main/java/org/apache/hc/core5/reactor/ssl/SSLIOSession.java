@@ -34,6 +34,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 
@@ -85,7 +86,7 @@ public class SSLIOSession implements IOSession {
     private final AtomicLong bytesReadCount;
     private final Timeout connectTimeout;
     private final SSLMode sslMode;
-
+    private final AtomicInteger outboundClosedCount;
     private int appEventMask;
 
     private boolean endOfStream;
@@ -146,6 +147,7 @@ public class SSLIOSession implements IOSession {
         // Allocate buffers for application (unencrypted) data
         final int appBufferSize = sslSession.getApplicationBufferSize();
         this.inPlain = SSLManagedBuffer.create(sslBufferMode, appBufferSize);
+        this.outboundClosedCount = new AtomicInteger(0);
         this.bytesReadCount = new AtomicLong(0);
         this.connectTimeout = connectTimeout;
     }
@@ -262,7 +264,16 @@ public class SSLIOSession implements IOSession {
 
         SSLEngineResult result = null;
         while (handshaking) {
-            switch (this.sslEngine.getHandshakeStatus()) {
+             HandshakeStatus handshakeStatus = this.sslEngine.getHandshakeStatus();
+
+            // Work-around for what appears to be a bug in Conscrypt SSLEngine that does not
+            // transition into the handshaking state upon #closeOutbound() call but still
+            // has some handshake data stuck in its internal buffer.
+            if (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING && outboundClosedCount.get() > 0) {
+                handshakeStatus = HandshakeStatus.NEED_WRAP;
+            }
+
+            switch (handshakeStatus) {
             case NEED_WRAP:
                 // Generate outgoing handshake data
 
@@ -345,6 +356,7 @@ public class SSLIOSession implements IOSession {
         }
         if (this.status == CLOSING && !this.outEncrypted.hasData()) {
             this.sslEngine.closeOutbound();
+            this.outboundClosedCount.incrementAndGet();
         }
         if (this.status == CLOSING && this.sslEngine.isOutboundDone()
                 && (this.endOfStream || this.sslEngine.isInboundDone())) {
