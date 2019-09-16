@@ -46,13 +46,24 @@ public final class StatusLine implements Serializable {
 
     private static final long serialVersionUID = -2443303766890459269L;
 
-    /** The protocol version. */
+    /**
+     * The protocol version.
+     */
     private final ProtocolVersion protoVersion;
 
-    /** The status code. */
+    /**
+     * The status code.
+     */
     private final int statusCode;
 
-    /** The reason phrase. */
+    /**
+     * The status code class.
+     */
+    private final StatusClass statusClass;
+
+    /**
+     * The reason phrase.
+     */
     private final String reasonPhrase;
 
     public StatusLine(final HttpResponse response) {
@@ -60,26 +71,33 @@ public final class StatusLine implements Serializable {
         Args.notNull(response, "Response");
         this.protoVersion = response.getVersion() != null ? response.getVersion() : HttpVersion.HTTP_1_1;
         this.statusCode = response.getCode();
+        this.statusClass = StatusClass.from(this.statusCode);
         this.reasonPhrase = response.getReasonPhrase();
     }
+
     /**
      * Creates a new status line with the given version, status, and reason.
      *
-     * @param version           the protocol version of the response
-     * @param statusCode        the status code of the response
-     * @param reasonPhrase      the reason phrase to the status code, or
-     *                          {@code null}
+     * @param version      the protocol version of the response
+     * @param statusCode   the status code of the response
+     * @param reasonPhrase the reason phrase to the status code, or
+     *                     {@code null}
      */
     public StatusLine(final ProtocolVersion version, final int statusCode,
                       final String reasonPhrase) {
         super();
         this.statusCode = Args.notNegative(statusCode, "Status code");
+        this.statusClass = StatusClass.from(this.statusCode);
         this.protoVersion = version != null ? version : HttpVersion.HTTP_1_1;
         this.reasonPhrase = reasonPhrase;
     }
 
     public int getStatusCode() {
         return this.statusCode;
+    }
+
+    public StatusClass getStatusClass() {
+        return this.statusClass;
     }
 
     public ProtocolVersion getProtocolVersion() {
@@ -100,4 +118,84 @@ public final class StatusLine implements Serializable {
         return buf.toString();
     }
 
+    /**
+     * Standard classes of HTTP status codes, plus {@code OTHER} for non-standard codes.
+     *
+     * @see <a href="https://tools.ietf.org/html/rfc2616#section-10">HTTP/1.1, Section 10</a>
+     */
+    public enum StatusClass {
+
+        /**
+         * Informational {@code 1xx} HTTP status codes.
+         *
+         * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.1">HTTP/1.1, Section 10.1</a>
+         */
+        INFORMATIONAL,
+
+        /**
+         * Successful {@code 2xx} HTTP status codes.
+         *
+         * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.2">HTTP/1.1, Section 10.2</a>
+         */
+        SUCCESSFUL,
+
+        /**
+         * Redirection {@code 3xx} HTTP status codes.
+         *
+         * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.3">HTTP/1.1, Section 10.3</a>
+         */
+        REDIRECTION,
+
+        /**
+         * Client Error {@code 4xx} HTTP status codes.
+         *
+         * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.4">HTTP/1.1, Section 10.4</a>
+         */
+        CLIENT_ERROR,
+
+        /**
+         * {@code 5xx} HTTP status codes.
+         *
+         * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.5">HTTP/1.1, Section 10.5</a>
+         */
+        SERVER_ERROR,
+
+        /**
+         * Any other HTTP status codes (e.g. non-standard status codes).
+         */
+        OTHER;
+
+        /**
+         * Gets the response status class for the given status code.
+         *
+         * @param statusCode response status code to get the class for.
+         * @return class of the response status code.
+         */
+        public static StatusClass from(final int statusCode) {
+            final StatusClass statusClass;
+
+            switch (statusCode / 100) {
+                case 1:
+                    statusClass = INFORMATIONAL;
+                    break;
+                case 2:
+                    statusClass = SUCCESSFUL;
+                    break;
+                case 3:
+                    statusClass = REDIRECTION;
+                    break;
+                case 4:
+                    statusClass = CLIENT_ERROR;
+                    break;
+                case 5:
+                    statusClass = SERVER_ERROR;
+                    break;
+                default:
+                    statusClass = OTHER;
+                    break;
+            }
+
+            return statusClass;
+        }
+    }
 }
