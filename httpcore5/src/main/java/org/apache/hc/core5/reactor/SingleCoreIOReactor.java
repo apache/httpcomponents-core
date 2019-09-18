@@ -48,6 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
+import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
@@ -174,7 +175,11 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         for (final SelectionKey key : selectedKeys) {
             final InternalChannel channel = (InternalChannel) key.attachment();
             if (channel != null) {
-                channel.handleIOEvent(key.readyOps());
+                try {
+                    channel.handleIOEvent(key.readyOps());
+                } catch (final CancelledKeyException ex) {
+                    close(CloseMode.GRACEFUL);
+                }
             }
         }
         selectedKeys.clear();
