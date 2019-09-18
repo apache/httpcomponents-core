@@ -105,6 +105,9 @@ public class BasicResponseProducer implements AsyncResponseProducer {
 
     @Override
     public void failed(final Exception cause) {
+        if (dataProducer != null) {
+            dataProducer.failed(cause);
+        }
         releaseResources();
     }
 
