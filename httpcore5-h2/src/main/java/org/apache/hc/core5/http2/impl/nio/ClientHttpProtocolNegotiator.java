@@ -39,6 +39,7 @@ import javax.net.ssl.SSLSession;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexer;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
@@ -77,6 +78,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
 
     private volatile ByteBuffer preface;
+    private volatile BufferedData inBuf;
 
     public ClientHttpProtocolNegotiator(
             final ProtocolIOSession ioSession,
@@ -97,6 +99,10 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             ioSession.upgrade(protocolHandler);
             protocolHandlerRef.set(protocolHandler);
             protocolHandler.connected(session);
+            if (inBuf != null) {
+                protocolHandler.inputReady(session, inBuf.data());
+                inBuf.clear();
+            }
         } catch (final Exception ex) {
             protocolHandler.exception(session, ex);
             session.close(CloseMode.IMMEDIATE);
@@ -110,6 +116,10 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             ioSession.upgrade(protocolHandler);
             protocolHandlerRef.set(protocolHandler);
             protocolHandler.connected(session);
+            if (inBuf != null) {
+                protocolHandler.inputReady(session, inBuf.data());
+                inBuf.clear();
+            }
         } catch (final Exception ex) {
             protocolHandler.exception(session, ex);
             session.close(CloseMode.IMMEDIATE);
@@ -154,6 +164,12 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
 
     @Override
     public void inputReady(final IOSession session, final ByteBuffer src) throws IOException  {
+        if (src != null) {
+            if (inBuf == null) {
+                inBuf = BufferedData.allocate(src.remaining());
+            }
+            inBuf.put(src);
+        }
         outputReady(session);
     }
 

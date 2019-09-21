@@ -27,7 +27,10 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 
 import org.apache.hc.core5.util.Args;
 
@@ -75,6 +78,23 @@ public class BufferedData extends ExpandableBuffer {
         final int requiredCapacity = buffer().position() + src.remaining();
         ensureCapacity(requiredCapacity);
         buffer().put(src);
+    }
+
+    public final int readFrom(final ReadableByteChannel channel) throws IOException {
+        Args.notNull(channel, "Channel");
+        setInputMode();
+        if (!buffer().hasRemaining()) {
+            expand();
+        }
+        return channel.read(buffer());
+    }
+
+    public final int writeTo(final WritableByteChannel dst) throws IOException {
+        if (dst == null) {
+            return 0;
+        }
+        setOutputMode();
+        return dst.write(buffer());
     }
 
     public final ByteBuffer data() {
