@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
@@ -71,7 +72,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     private final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory;
     private final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
-    private final ByteBuffer bytebuf;
+    private final BufferedData inBuf;
     private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
 
     private volatile boolean expectValidH2Preface;
@@ -85,7 +86,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
-        this.bytebuf = ByteBuffer.allocate(1024);
+        this.inBuf = BufferedData.allocate(1024);
         this.protocolHandlerRef = new AtomicReference<>(null);
     }
 
@@ -124,19 +125,21 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
     @Override
     public void inputReady(final IOSession session, final ByteBuffer src) {
         try {
+            if (src != null) {
+                inBuf.put(src);
+            }
             boolean endOfStream = false;
-            if (bytebuf.position() < PREFACE.length) {
-                final int bytesRead = session.read(bytebuf);
+            if (inBuf.length() < PREFACE.length) {
+                final int bytesRead = inBuf.readFrom(session);
                 if (bytesRead == -1) {
                     endOfStream = true;
                 }
             }
-            if (bytebuf.position() >= PREFACE.length) {
-                bytebuf.flip();
-
+            final ByteBuffer data = inBuf.data();
+            if (data.remaining() >= PREFACE.length) {
                 boolean validH2Preface = true;
                 for (int i = 0; i < PREFACE.length; i++) {
-                    if (bytebuf.get() != PREFACE[i]) {
+                    if (data.get() != PREFACE[i]) {
                         if (expectValidH2Preface) {
                             throw new HttpException("Unexpected HTTP/2 preface");
                         }
@@ -149,7 +152,7 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     ioSession.upgrade(protocolHandler);
                     protocolHandlerRef.set(protocolHandler);
                     http2StreamHandler.onConnect();
-                    http2StreamHandler.onInput(bytebuf.hasRemaining() ? bytebuf : null);
+                    http2StreamHandler.onInput(data.hasRemaining() ? data : null);
                 } else {
                     final TlsDetails tlsDetails = ioSession.getTlsDetails();
                     final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(
@@ -158,15 +161,16 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
                     final HttpConnectionEventHandler protocolHandler = new ServerHttp1IOEventHandler(http1StreamHandler);
                     ioSession.upgrade(protocolHandler);
                     protocolHandlerRef.set(protocolHandler);
-                    bytebuf.rewind();
+                    data.rewind();
                     http1StreamHandler.onConnect();
-                    http1StreamHandler.onInput(bytebuf);
+                    http1StreamHandler.onInput(data);
                 }
             } else {
                 if (endOfStream) {
                     throw new ConnectionClosedException();
                 }
             }
+            data.clear();
         } catch (final Exception ex) {
             exception(session, ex);
         }
