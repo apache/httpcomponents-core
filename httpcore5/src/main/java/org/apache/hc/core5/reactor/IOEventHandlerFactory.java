@@ -27,11 +27,14 @@
 
 package org.apache.hc.core5.reactor;
 
+import org.apache.hc.core5.annotation.Internal;
+
 /**
  * Factory interface to create {@link IOEventHandler} instances for the given connected endpoints.
  *
  * @since 5.0
  */
+@Internal
 public interface IOEventHandlerFactory {
 
     IOEventHandler createHandler(ProtocolIOSession ioSession, Object attachment);

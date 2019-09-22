@@ -29,6 +29,7 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -40,6 +41,7 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 5.0
  */
+@Internal
 public interface IOEventHandler {
 
     /**

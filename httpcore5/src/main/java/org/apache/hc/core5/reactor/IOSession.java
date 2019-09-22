@@ -31,6 +31,7 @@ import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
 import java.util.concurrent.locks.Lock;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.SocketModalCloseable;
 import org.apache.hc.core5.util.Identifiable;
 import org.apache.hc.core5.util.Timeout;
@@ -51,6 +52,7 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 4.0
  */
+@Internal
 public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiable {
 
     int ACTIVE       = 0;
