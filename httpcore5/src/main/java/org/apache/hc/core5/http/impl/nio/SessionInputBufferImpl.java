@@ -42,13 +42,7 @@ import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
-/**
- * Default implementation of {@link SessionInputBuffer} based on
- * the {@link ExpandableBuffer} class.
- *
- * @since 4.0
- */
-public class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
+class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
 
     private final CharsetDecoder charDecoder;
     private final int lineBuffersize;
@@ -114,6 +108,21 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
      */
     public SessionInputBufferImpl(final int bufferSize) {
         this(bufferSize, 256);
+    }
+
+    @Override
+    public int length() {
+        return super.length();
+    }
+
+    @Override
+    public boolean hasData() {
+        return super.hasData();
+    }
+
+    @Override
+    public int capacity() {
+        return super.capacity();
     }
 
     public void put(final ByteBuffer src) {

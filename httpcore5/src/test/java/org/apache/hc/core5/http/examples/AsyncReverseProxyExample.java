@@ -62,7 +62,7 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.impl.nio.ExpandableBuffer;
+import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
@@ -210,17 +210,10 @@ public class AsyncReverseProxyExample {
         server.awaitShutdown(TimeValue.MAX_VALUE);
     }
 
-    private static class ProxyBuffer extends ExpandableBuffer {
+    private static class ProxyBuffer extends BufferedData {
 
         ProxyBuffer(final int bufferSize) {
             super(bufferSize);
-        }
-
-        void put(final ByteBuffer src) {
-            setInputMode();
-            final int requiredCapacity = buffer().position() + src.remaining();
-            ensureCapacity(requiredCapacity);
-            buffer().put(src);
         }
 
         int write(final DataStreamChannel channel) throws IOException {

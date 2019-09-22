@@ -30,6 +30,8 @@ package org.apache.hc.core5.http.impl.nio;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 
+import org.apache.hc.core5.annotation.Internal;
+
 /**
  * A buffer that expand its capacity on demand. Internally, this class is backed
  * by an instance of {@link ByteBuffer}.
@@ -38,6 +40,7 @@ import java.nio.ByteBuffer;
  * </p>
  * @since 4.0
  */
+@Internal
 public class ExpandableBuffer {
 
     public enum Mode {
@@ -70,11 +73,11 @@ public class ExpandableBuffer {
      *
      * @return current input/output mode.
      */
-    public Mode mode() {
+    protected Mode mode() {
         return this.mode;
     }
 
-    public ByteBuffer buffer() {
+    protected ByteBuffer buffer() {
         return this.buffer;
     }
 
@@ -158,7 +161,7 @@ public class ExpandableBuffer {
      * @return {@code true} if there is data in the buffer,
      *   {@code false} otherwise.
      */
-    public boolean hasData() {
+    protected boolean hasData() {
         setOutputMode();
         return this.buffer.hasRemaining();
     }
@@ -171,7 +174,7 @@ public class ExpandableBuffer {
      *
      * @return buffer length.
      */
-    public int length() {
+    protected int length() {
         setOutputMode();
         return this.buffer.remaining();
     }
@@ -181,7 +184,7 @@ public class ExpandableBuffer {
      *
      * @return buffer length.
      */
-    public int capacity() {
+    protected int capacity() {
         setInputMode();
         return this.buffer.remaining();
     }

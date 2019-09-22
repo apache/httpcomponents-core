@@ -42,13 +42,7 @@ import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
-/**
- * Default implementation of {@link SessionOutputBuffer} based on
- * the {@link ExpandableBuffer} class.
- *
- * @since 4.0
- */
-public class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
+class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
 
     private static final byte[] CRLF = new byte[] {Chars.CR, Chars.LF};
 
@@ -101,6 +95,21 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
      */
     public SessionOutputBufferImpl(final int bufferSize) {
         this(bufferSize, 256);
+    }
+
+    @Override
+    public int length() {
+        return super.length();
+    }
+
+    @Override
+    public boolean hasData() {
+        return super.hasData();
+    }
+
+    @Override
+    public int capacity() {
+        return super.capacity();
     }
 
     @Override
