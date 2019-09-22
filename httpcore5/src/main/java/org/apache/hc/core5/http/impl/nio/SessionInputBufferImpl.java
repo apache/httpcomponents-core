@@ -128,7 +128,7 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
     public void put(final ByteBuffer src) {
         if (src != null && src.hasRemaining()) {
             setInputMode();
-            ensureCapacity(src.remaining());
+            ensureCapacity(buffer().remaining() + src.remaining());
             buffer().put(src);
         }
     }
