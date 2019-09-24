@@ -238,61 +238,51 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         if (src != null) {
             inbuf.put(src);
         }
-        while (connState.compareTo(ConnectionState.SHUTDOWN) < 0) {
-            int totalBytesRead = 0;
-            int messagesReceived = 0;
+
+        if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && inbuf.hasData() && inputIdle()) {
+            ioSession.clearEvent(SelectionKey.OP_READ);
+            return;
+        }
+
+        boolean endOfStream = false;
+        if (incomingMessage == null) {
+            final int bytesRead = inbuf.fill(ioSession);
+            if (bytesRead > 0) {
+                inTransportMetrics.incrementBytesTransferred(bytesRead);
+            }
+            endOfStream = bytesRead == -1;
+        }
+
+        do {
             if (incomingMessage == null) {
 
-                if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && inputIdle()) {
-                    ioSession.clearEvent(SelectionKey.OP_READ);
-                    return;
-                }
+                final IncomingMessage messageHead = incomingMessageParser.parse(inbuf, endOfStream);
+                if (messageHead != null) {
+                    incomingMessageParser.reset();
 
-                int bytesRead;
-                do {
-                    bytesRead = inbuf.fill(ioSession);
-                    if (bytesRead > 0) {
-                        totalBytesRead += bytesRead;
-                        inTransportMetrics.incrementBytesTransferred(bytesRead);
+                    this.version = messageHead.getVersion();
+
+                    updateInputMetrics(messageHead, connMetrics);
+                    final ContentDecoder contentDecoder;
+                    if (handleIncomingMessage(messageHead)) {
+                        final long len = incomingContentStrategy.determineLength(messageHead);
+                        contentDecoder = createContentDecoder(len, ioSession, inbuf, inTransportMetrics);
+                        consumeHeader(messageHead, contentDecoder != null ? new IncomingEntityDetails(messageHead, len) : null);
+                    } else {
+                        consumeHeader(messageHead, null);
+                        contentDecoder = null;
                     }
-                    final IncomingMessage messageHead = incomingMessageParser.parse(inbuf, bytesRead == -1);
-                    if (messageHead != null) {
-                        messagesReceived++;
-                        incomingMessageParser.reset();
-
-                        this.version = messageHead.getVersion();
-
-                        updateInputMetrics(messageHead, connMetrics);
-                        final ContentDecoder contentDecoder;
-                        if (handleIncomingMessage(messageHead)) {
-                            final long len = incomingContentStrategy.determineLength(messageHead);
-                            contentDecoder = createContentDecoder(len, ioSession, inbuf, inTransportMetrics);
-                            consumeHeader(messageHead, contentDecoder != null ? new IncomingEntityDetails(messageHead, len) : null);
-                        } else {
-                            consumeHeader(messageHead, null);
-                            contentDecoder = null;
-                        }
-                        capacityWindow = new CapacityWindow(http1Config.getInitialWindowSize(), ioSession);
-                        if (contentDecoder != null) {
-                            incomingMessage = new Message<>(messageHead, contentDecoder);
-                            break;
-                        }
+                    capacityWindow = new CapacityWindow(http1Config.getInitialWindowSize(), ioSession);
+                    if (contentDecoder != null) {
+                        incomingMessage = new Message<>(messageHead, contentDecoder);
+                    } else {
                         inputEnd();
                         if (connState.compareTo(ConnectionState.ACTIVE) == 0) {
                             ioSession.setEvent(SelectionKey.OP_READ);
-                        } else {
-                            break;
                         }
                     }
-                } while (bytesRead > 0);
-
-                if (bytesRead == -1 && !inbuf.hasData()) {
-                    if (outputIdle() && inputIdle()) {
-                        requestShutdown(CloseMode.GRACEFUL);
-                    } else {
-                        shutdownSession(new ConnectionClosedException("Connection closed by peer"));
-                    }
-                    return;
+                } else {
+                    break;
                 }
             }
 
@@ -303,9 +293,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 // over its declared capacity in order to avoid having
                 // unprocessed message body content stuck in the session
                 // input buffer
-                int bytesRead;
-                while ((bytesRead = contentDecoder.read(contentBuffer)) > 0) {
-                    totalBytesRead += bytesRead;
+                final int bytesRead = contentDecoder.read(contentBuffer);
+                if (bytesRead > 0) {
                     contentBuffer.flip();
                     consumeData(contentBuffer);
                     contentBuffer.clear();
@@ -314,7 +303,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                         if (!contentDecoder.isCompleted()) {
                             updateCapacity(capacityWindow);
                         }
-                        break;
                     }
                 }
                 if (contentDecoder.isCompleted()) {
@@ -324,9 +312,17 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     ioSession.setEvent(SelectionKey.OP_READ);
                     inputEnd();
                 }
+                if (bytesRead == 0) {
+                    break;
+                }
             }
-            if (totalBytesRead == 0 && messagesReceived == 0) {
-                break;
+        } while (inbuf.hasData());
+
+        if (endOfStream && !inbuf.hasData()) {
+            if (outputIdle() && inputIdle()) {
+                requestShutdown(CloseMode.GRACEFUL);
+            } else {
+                shutdownSession(new ConnectionClosedException("Connection closed by peer"));
             }
         }
     }
