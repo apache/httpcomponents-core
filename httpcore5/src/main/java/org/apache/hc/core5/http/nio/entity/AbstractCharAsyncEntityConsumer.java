@@ -28,14 +28,13 @@ package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.util.Args;
 
@@ -50,6 +49,13 @@ public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDat
 
     private volatile FutureCallback<T> resultCallback;
     private volatile T content;
+
+    protected AbstractCharAsyncEntityConsumer(final int bufSize, final CharCodingConfig charCodingConfig) {
+        super(bufSize, charCodingConfig);
+    }
+
+    public AbstractCharAsyncEntityConsumer() {
+    }
 
     /**
      * Triggered to signal beginning of entity content stream.
@@ -73,11 +79,7 @@ public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDat
         this.resultCallback = resultCallback;
         try {
             final ContentType contentType = entityDetails != null ? ContentType.parse(entityDetails.getContentType()) : null;
-            Charset charset = contentType != null ? contentType.getCharset() : null;
-            if (charset == null) {
-                charset = StandardCharsets.US_ASCII;
-            }
-            setCharset(charset);
+            setCharset(contentType != null ? contentType.getCharset() : null);
             streamStart(contentType);
         } catch (final UnsupportedCharsetException ex) {
             throw new UnsupportedEncodingException(ex.getMessage());

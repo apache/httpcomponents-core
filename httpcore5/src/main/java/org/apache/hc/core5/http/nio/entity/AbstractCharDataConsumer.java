@@ -37,8 +37,10 @@ import java.util.List;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.nio.AsyncDataConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
+import org.apache.hc.core5.util.Args;
 
 /**
  * Abstract text data consumer.
@@ -47,13 +49,23 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
  */
 public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
 
+    protected static final int DEF_BUF_SIZE = 8192;
     private static final ByteBuffer EMPTY_BIN = ByteBuffer.wrap(new byte[0]);
 
-    private final CharBuffer charbuf = CharBuffer.allocate(8192);
+    private final CharBuffer charbuf;
+    private final CharCodingConfig charCodingConfig;
 
-    private volatile Charset charset = StandardCharsets.US_ASCII;
+    private volatile Charset charset;
     private volatile CharsetDecoder charsetDecoder;
 
+    protected AbstractCharDataConsumer(final int bufSize, final CharCodingConfig charCodingConfig) {
+        this.charbuf = CharBuffer.allocate(Args.positive(bufSize, "Buffer size"));
+        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
+    }
+
+    public AbstractCharDataConsumer() {
+        this(DEF_BUF_SIZE, CharCodingConfig.DEFAULT);
+    }
     /**
      * Triggered to obtain the capacity increment.
      *
@@ -76,7 +88,7 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
     protected abstract void completed() throws IOException;
 
     protected final void setCharset(final Charset charset) {
-        this.charset = charset != null ? charset : StandardCharsets.US_ASCII;
+        this.charset = charset != null ? charset : charCodingConfig.getCharset();
         this.charsetDecoder = null;
     }
 
@@ -99,7 +111,20 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
 
     private CharsetDecoder getCharsetDecoder() {
         if (charsetDecoder == null) {
-            charsetDecoder = charset != null ? charset.newDecoder() : StandardCharsets.US_ASCII.newDecoder();
+            Charset charset = this.charset;
+            if (charset == null) {
+                charset = charCodingConfig.getCharset();
+            }
+            if (charset == null) {
+                charset = StandardCharsets.US_ASCII;
+            }
+            charsetDecoder = charset.newDecoder();
+            if (charCodingConfig.getMalformedInputAction() != null) {
+                charsetDecoder.onMalformedInput(charCodingConfig.getMalformedInputAction());
+            }
+            if (charCodingConfig.getUnmappableInputAction() != null) {
+                charsetDecoder.onUnmappableCharacter(charCodingConfig.getUnmappableInputAction());
+            }
         }
         return charsetDecoder;
     }

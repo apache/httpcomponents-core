@@ -31,6 +31,7 @@ import java.nio.CharBuffer;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -45,10 +46,18 @@ public class StringAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<S
     private final int capacityIncrement;
     private final CharArrayBuffer content;
 
-    public StringAsyncEntityConsumer(final int capacityIncrement) {
-        Args.positive(capacityIncrement, "Capacity increment");
-        this.capacityIncrement = capacityIncrement;
+    public StringAsyncEntityConsumer(final int bufSize, final int capacityIncrement, final CharCodingConfig charCodingConfig) {
+        super(bufSize, charCodingConfig);
+        this.capacityIncrement = Args.positive(capacityIncrement, "Capacity increment");
         this.content = new CharArrayBuffer(1024);
+    }
+
+    public StringAsyncEntityConsumer(final int capacityIncrement) {
+        this(DEF_BUF_SIZE, capacityIncrement, CharCodingConfig.DEFAULT);
+    }
+
+    public StringAsyncEntityConsumer(final CharCodingConfig charCodingConfig) {
+        this(DEF_BUF_SIZE, Integer.MAX_VALUE, charCodingConfig);
     }
 
     public StringAsyncEntityConsumer() {
