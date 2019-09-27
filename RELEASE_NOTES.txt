@@ -1,3 +1,131 @@
+Release 5.0-BETA9
+-------------------
+
+This BETA fixes a number of defects found since the last release, improves behavior
+of the lax (concurrent) connection pools (special thanks to Linton Miller), simplifies
+and improves input event handling of SSL/TLS sessions and the HTTP/1.1 protocol event
+handler.
+
+Please note that the following interfaces have marked as internal as of this release:
+IOSession, IOEventHandler, IOEventHandlerFactory.
+
+IMPORTANT: This release is expected to be the last BETA version. If no major
+design flaws are found, the actual 5.0 API will be frozen and the next version will be
+promoted to GA.
+
+
+Change Log
+-------------------
+
+* HTTPCORE-604: async HTTP/1.1 protocol handler must close the i/o session if it cannot 
+  be kept alive before passing control to the message exchange hanlder.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Simplification of HTTP/1.1 read event handling logic.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Redesign of SSL/TLS async I/O event handling.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-2016 (regression): Tab chars are replaced by question marks in header values.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Fixed capacity calculation in SessionInputBufferImpl#put.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Marked IOSession, IOEventHandler and IOEventHandlerFactory interfaces as internal.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Propagate BasicResponse{Consumer,Producer}#failed() to data{Consumer,Producer}.
+  Contributed by Roy Hashimoto <roy at shoestringresearch.com>
+
+* Regression: Fixed regression in SingleCoreIOReactor leading to unhandled CancelledKeyException
+  and causing abnormal I/O reactor termination.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-601: Work-around for SSL session spin on outbound session closure with Conscrypt 2.2.1.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-600: SSLIOSession incorrectly disables input interest when there is still decrypted data
+  available in the session input buffer.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Added statusClass property to StatusLine.
+  Contributed by Behrang <18451+behrangsa at users.noreply.github.com>
+
+* HTTPCORE-596: Connection pools to use an optional callback to close out disposed connections.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Connection pools to close connections gracefully in case of an ordinary connection disposal.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-599: I/O sessions to stop reading from the underlying network channel of READ interest
+  is disabled.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* TimeValue to implement Comparable.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-597: AsyncEntityProducers#createText always throws IllegalArgumentException.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-595: Tolerate NPE thrown by com.android.org.conscrypt.NativeCrypto#SSL_get_shutdown
+  in Android Conscrypt.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Set accessibility flag on reflected methods in ReflectionUtils.
+  Contributed by Richard Hernandez <riher at amazon.com>
+
+* Restore original socket timeout after finishing SSL/TLS handshake.
+  Contributed by Richard Hernandez <riher at amazon.com>
+
+* Add SOAP XML content type.
+  Contributed by Raihaan Shouhell <raihaanhimself at gmail.com>
+
+* HTTPCORE-593, HTTPCORE-592, HTTPCORE-590, HTTPCORE-589: LaxConnPool improvements.
+  Contributed by Linton Miller <linton.miller at coxautoinc.com>
+
+* HTTPCORE-588: Race condition in ComplexCancellable that can lead to operational dependency
+  not being correctly cancelled.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Execute Socket[Channel]#connect under doPrivileged.
+  Contributed by Simon Willnauer <simonw at apache.org>
+
+* Fail request execution immediately after submission if the I/O session has already been closed.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Fixed regression in the HTTP protocol negotiators.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: MessageSupport#formatTokens no longer modifies the array of tokens passed to it
+  as a parameter.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-586: Improve LaxConnPool max pool size management.
+  Contributed by Linton Miller <linton.miller at coxautoinc.com>
+
+* HTTPCORE-585: Fix LaxConnPool#servicePendingRequest to avoid losing pending lease requests
+  it can't fulfill.
+  Contributed by Linton Miller <linton.miller at coxautoinc.com>
+
+* Possible fix for iteration thread-safety issue.
+  Contributed by Linton Miller <linton.miller at coxautoinc.com>
+
+* SSL session verifier for classic HTTP requester.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: non-blocking I/O event handler may be null in case of an unexpected exception.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Corrected immediate termination of non-blocking I/O sessions.
+Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Ensure consistency of internal buffers in case of I/O or SSL exception.
+Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 5.0-BETA8
 -------------------
 
@@ -22,10 +150,10 @@ Change Log
 * HTTPCORE-582: Fixed NPE in SingleCoreIOReactor#processEvents
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Redesign of fatal exception handling by the i/o reactors
+* Redesign of fatal exception handling by the I/O reactors
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* HTTPCORE-581: Wrong deadline calculation for non-blocking i/o operations
+* HTTPCORE-581: Wrong deadline calculation for non-blocking I/O operations
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Better HttpVersion and ProtocolVersion. (#131)
@@ -41,7 +169,7 @@ Change Log
   Contributed by Gary Gregory <garydgregory at gmail.com>
 
 * HTTPCORE-577: Server side HTTP protocol negotiator to propagate exceptions
-  to the i/o event handler associated with the i/o session.
+  to the I/O event handler associated with the I/O session.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCLIENT-1986: URIBuilder#isPathEmpty method to verify if encodedPath
@@ -143,7 +271,7 @@ Change Log
 * HTTPCORE-563: client support for SOCKS version 5
   Contributed by David Maplesden <david at maplesden.co.nz>
 
-* Delay i/o operations on non-blocking SSL sessions until fully initialized
+* Delay I/O operations on non-blocking SSL sessions until fully initialized
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Add `handshakeTimeout` support throughout
@@ -476,7 +604,7 @@ Change Log
   input buffer.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Bug fix: incorrect handing of premature i/o session termination by the server side application protocol
+* Bug fix: incorrect handing of premature I/O session termination by the server side application protocol
   negotiator.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -883,7 +1011,7 @@ Change Log
 * HTTPCORE-434: Corrected handling of HEAD responses without payload headers.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* HTTPCORE-427: SSL i/o sessions to use a finite timeout for SSL shutdown handshake when closing.
+* HTTPCORE-427: SSL I/O sessions to use a finite timeout for SSL shutdown handshake when closing.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * HTTPCORE-422: HttpAsyncResponseConsumer#onEntityEnclosed is triggered for HEAD responses.
