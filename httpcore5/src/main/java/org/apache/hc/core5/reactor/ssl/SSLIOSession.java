@@ -466,6 +466,12 @@ public class SSLIOSession implements IOSession {
             // Acquire buffer
             final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
 
+            // Clear output buffer if the session has been closed
+            // in case there is still `close_notify` data stuck in it
+            if (this.status == CLOSED) {
+                outEncryptedBuf.clear();
+            }
+
             // Perform operation
             int bytesWritten = 0;
             if (outEncryptedBuf.position() > 0) {
