@@ -27,12 +27,14 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.reactor.ProtocolIOSession;
+import org.apache.hc.core5.reactor.IOSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoggingIOSessionDecorator implements Decorator<ProtocolIOSession> {
+@Internal
+public class LoggingIOSessionDecorator implements Decorator<IOSession> {
 
     public final static LoggingIOSessionDecorator INSTANCE = new LoggingIOSessionDecorator();
 
@@ -42,7 +44,7 @@ public class LoggingIOSessionDecorator implements Decorator<ProtocolIOSession> {
     }
 
     @Override
-    public ProtocolIOSession decorate(final ProtocolIOSession ioSession) {
+    public IOSession decorate(final IOSession ioSession) {
         final Logger sessionLog = LoggerFactory.getLogger(ioSession.getClass());
         return new LoggingIOSession(ioSession, sessionLog, wireLog);
     }

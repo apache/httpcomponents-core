@@ -49,6 +49,7 @@ import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
@@ -68,7 +69,7 @@ public class H2MultiplexingRequesterBootstrap {
     private H2Config h2Config;
     private TlsStrategy tlsStrategy;
     private boolean strictALPNHandshake;
-    private Decorator<ProtocolIOSession> ioSessionDecorator;
+    private Decorator<IOSession> ioSessionDecorator;
     private Callback<Exception> exceptionCallback;
     private IOSessionListener sessionListener;
     private H2StreamListener streamListener;
@@ -127,9 +128,9 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link ProtocolIOSession} {@link Decorator} instance.
+     * Assigns {@link IOSession} {@link Decorator} instance.
      */
-    public final H2MultiplexingRequesterBootstrap setIOSessionDecorator(final Decorator<ProtocolIOSession> ioSessionDecorator) {
+    public final H2MultiplexingRequesterBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
         return this;
     }

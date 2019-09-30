@@ -48,7 +48,6 @@ import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
@@ -62,7 +61,7 @@ public class AsyncServer extends AbstractConnectionInitiatorBase implements IORe
     public AsyncServer(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
-            final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {

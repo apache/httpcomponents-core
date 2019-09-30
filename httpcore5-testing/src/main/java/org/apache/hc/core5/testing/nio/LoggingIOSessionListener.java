@@ -50,6 +50,13 @@ public class LoggingIOSessionListener implements IOSessionListener {
     }
 
     @Override
+    public void startTls(final IOSession session) {
+        if (connLog.isDebugEnabled()) {
+            connLog.debug(session + " TLS started");
+        }
+    }
+
+    @Override
     public void inputReady(final IOSession session) {
         if (connLog.isDebugEnabled()) {
             connLog.debug(session + " input ready");

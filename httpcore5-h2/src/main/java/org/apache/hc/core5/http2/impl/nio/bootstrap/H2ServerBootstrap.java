@@ -70,8 +70,8 @@ import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
@@ -94,7 +94,7 @@ public class H2ServerBootstrap {
     private Http1Config http1Config;
     private TlsStrategy tlsStrategy;
     private Timeout handshakeTimeout;
-    private Decorator<ProtocolIOSession> ioSessionDecorator;
+    private Decorator<IOSession> ioSessionDecorator;
     private Callback<Exception> exceptionCallback;
     private IOSessionListener sessionListener;
     private H2StreamListener h2StreamListener;
@@ -189,9 +189,9 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link ProtocolIOSession} {@link Decorator} instance.
+     * Assigns {@link IOSession} {@link Decorator} instance.
      */
-    public final H2ServerBootstrap setIOSessionDecorator(final Decorator<ProtocolIOSession> ioSessionDecorator) {
+    public final H2ServerBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
         return this;
     }

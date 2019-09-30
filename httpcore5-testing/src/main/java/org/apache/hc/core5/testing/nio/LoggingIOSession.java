@@ -34,28 +34,24 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.locks.Lock;
 
-import javax.net.ssl.SSLContext;
-
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandler;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
-import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
-import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.testing.classic.Wire;
 import org.apache.hc.core5.util.Timeout;
 import org.slf4j.Logger;
 
-public class LoggingIOSession implements ProtocolIOSession {
+@Internal
+public class LoggingIOSession implements IOSession {
 
     private final Logger log;
     private final Wire wireLog;
-    private final ProtocolIOSession session;
+    private final IOSession session;
 
-    public LoggingIOSession(final ProtocolIOSession session, final Logger log, final Logger wireLog) {
+    public LoggingIOSession(final IOSession session, final Logger log, final Logger wireLog) {
         super();
         this.session = session;
         this.log = log;
@@ -80,7 +76,7 @@ public class LoggingIOSession implements ProtocolIOSession {
     public void enqueue(final Command command, final Command.Priority priority) {
         this.session.enqueue(command, priority);
         if (this.log.isDebugEnabled()) {
-            this.log.debug("Enqueued " + command.getClass().getSimpleName() + " with priority " + priority);
+            this.log.debug(this.session + " Enqueued " + command.getClass().getSimpleName() + " with priority " + priority);
         }
     }
 
@@ -259,11 +255,6 @@ public class LoggingIOSession implements ProtocolIOSession {
     }
 
     @Override
-    public NamedEndpoint getInitialEndpoint() {
-        return this.session.getInitialEndpoint();
-    }
-
-    @Override
     public IOEventHandler getHandler() {
         return this.session.getHandler();
     }
@@ -274,24 +265,6 @@ public class LoggingIOSession implements ProtocolIOSession {
             this.log.debug(this.session + " Protocol upgrade: " + (handler != null ? handler.getClass() : null));
         }
         this.session.upgrade(handler);
-    }
-
-    @Override
-    public void startTls(final SSLContext sslContext,
-                         final NamedEndpoint endpoint,
-                         final SSLBufferMode sslBufferMode,
-                         final SSLSessionInitializer initializer,
-                         final SSLSessionVerifier verifier,
-                         final Timeout handshakeTimeout) throws UnsupportedOperationException {
-        if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Start TLS");
-        }
-        this.session.startTls(sslContext, endpoint, sslBufferMode, initializer, verifier, handshakeTimeout);
-    }
-
-    @Override
-    public TlsDetails getTlsDetails() {
-        return this.session.getTlsDetails();
     }
 
     @Override

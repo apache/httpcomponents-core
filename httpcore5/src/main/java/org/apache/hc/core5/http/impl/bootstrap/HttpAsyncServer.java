@@ -32,8 +32,8 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.reactor.ProtocolIOSession;
 
 /**
  * HTTP/1.1 server side message exchange handler.
@@ -49,7 +49,7 @@ public class HttpAsyncServer extends AsyncServer {
     public HttpAsyncServer(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
-            final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,

@@ -77,7 +77,7 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory dispatchThreadFactory,
             final ThreadFactory listenerThreadFactory,
-            final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {

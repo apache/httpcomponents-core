@@ -59,7 +59,7 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
             final ThreadFactory threadFactory,
-            final Decorator<ProtocolIOSession> ioSessionDecorator,
+            final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
