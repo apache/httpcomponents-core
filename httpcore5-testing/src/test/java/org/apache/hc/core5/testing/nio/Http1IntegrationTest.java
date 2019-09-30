@@ -108,6 +108,7 @@ import org.apache.hc.core5.http.nio.entity.DigestingEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
 import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
@@ -217,6 +218,40 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             Assert.assertNotNull(response1);
             Assert.assertEquals(200, response1.getCode());
             Assert.assertEquals("Hi there", entity1);
+        }
+    }
+
+    @Test
+    public void testSimpleGetConnectionClose() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new SingleLineResponseHandler("Hi there");
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+        final URI requestURI = createRequestURI(serverEndpoint, "/hello");
+        for (int i = 0; i < 5; i++) {
+            final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                    "localhost", serverEndpoint.getPort(), TIMEOUT);
+            try (final ClientSessionEndpoint streamEndpoint = connectFuture.get()) {
+                final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                        AsyncRequestBuilder.get(requestURI)
+                                .addHeader(HttpHeaders.CONNECTION, "close")
+                                .build(),
+                        new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+                final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                Assert.assertNotNull(result);
+                final HttpResponse response1 = result.getHead();
+                final String entity1 = result.getBody();
+                Assert.assertNotNull(response1);
+                Assert.assertEquals(200, response1.getCode());
+                Assert.assertEquals("Hi there", entity1);
+            }
         }
     }
 
@@ -650,6 +685,39 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             Assert.assertNotNull(response1);
             Assert.assertEquals(200, response1.getCode());
             Assert.assertNull(result.getBody());
+        }
+    }
+
+    @Test
+    public void testSimpleHeadConnectionClose() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new SingleLineResponseHandler("Hi there");
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+        final URI requestURI = createRequestURI(serverEndpoint, "/hello");
+        for (int i = 0; i < 5; i++) {
+            final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                    "localhost", serverEndpoint.getPort(), TIMEOUT);
+            try (final ClientSessionEndpoint streamEndpoint = connectFuture.get()) {
+                final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                        AsyncRequestBuilder.head(requestURI)
+                                .addHeader(HttpHeaders.CONNECTION, "close")
+                                .build(),
+                        new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+                final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                Assert.assertNotNull(result);
+                final HttpResponse response1 = result.getHead();
+                Assert.assertNotNull(response1);
+                Assert.assertEquals(200, response1.getCode());
+                Assert.assertNull(result.getBody());
+            }
         }
     }
 

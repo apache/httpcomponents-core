@@ -53,6 +53,7 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
+import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncDataConsumer;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
@@ -391,6 +392,34 @@ public class Http1ServerAndRequesterTest {
 
         } finally {
             endpoint.releaseAndReuse();
+        }
+    }
+
+    @Test
+    public void testNonPersistentHeads() throws Exception {
+        server.start();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
+        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+        requester.start();
+
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+
+        for (int i = 0; i < 20; i++) {
+            final HttpRequest head = new BasicHttpRequest(Methods.HEAD, target, "/no-keep-alive/stuff?p=" + i);
+            queue.add(requester.execute(
+                    new BasicRequestProducer(head, null),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null));
+        }
+
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> resultFuture = queue.remove();
+            final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.assertThat(message, CoreMatchers.notNullValue());
+            final HttpResponse response = message.getHead();
+            Assert.assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            Assert.assertThat(message.getBody(), CoreMatchers.nullValue());
         }
     }
 

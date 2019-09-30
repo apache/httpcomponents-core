@@ -247,11 +247,12 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         httpProcessor.process(response, entityDetails, context);
 
+        if (entityDetails == null && !keepAlive) {
+            outputChannel.close();
+        }
+
         exchangeHandler.consumeResponse(response, entityDetails, context);
         if (entityDetails == null) {
-            if (!keepAlive) {
-                outputChannel.close();
-            }
             responseState = MessageState.COMPLETE;
         } else {
             responseState = MessageState.BODY;
