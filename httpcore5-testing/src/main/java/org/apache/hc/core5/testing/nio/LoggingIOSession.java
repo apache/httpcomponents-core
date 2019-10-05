@@ -167,11 +167,6 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
-    public boolean isClosed() {
-        return this.session.isClosed();
-    }
-
-    @Override
     public boolean isOpen() {
         return session.isOpen();
     }

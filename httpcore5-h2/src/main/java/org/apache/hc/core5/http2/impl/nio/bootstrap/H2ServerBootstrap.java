@@ -160,14 +160,6 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * @deprecated Use {@link #setHttp1Config(Http1Config)}
-     */
-    @Deprecated
-    public final H2ServerBootstrap sethttp1Config(final Http1Config http1Config) {
-        return setHttp1Config(http1Config);
-    }
-
-    /**
      * Sets message char coding.
      */
     public final H2ServerBootstrap setCharset(final CharCodingConfig charCodingConfig) {

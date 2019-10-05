@@ -236,11 +236,6 @@ class IOSessionImpl implements IOSession {
         return this.status.get();
     }
 
-    @Override
-    public boolean isClosed() {
-        return isStatusClosed() || !this.channel.isOpen();
-    }
-
     private boolean isStatusClosed() {
         return this.status.get() == CLOSED;
     }

@@ -273,11 +273,6 @@ public class HttpBenchmark {
                             }
 
                             @Override
-                            public boolean isClosed() {
-                                return ioSession.isClosed();
-                            }
-
-                            @Override
                             public Timeout getSocketTimeout() {
                                 return ioSession.getSocketTimeout();
                             }

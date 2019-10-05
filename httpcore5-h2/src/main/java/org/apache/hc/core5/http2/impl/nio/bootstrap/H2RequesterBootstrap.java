@@ -145,14 +145,6 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * @deprecated Use {@link #setHttp1Config(Http1Config)}
-     */
-    @Deprecated
-    public final H2RequesterBootstrap sethttp1Config(final Http1Config http1Config) {
-        return setHttp1Config(http1Config);
-    }
-
-    /**
      * Sets message char coding.
      */
     public final H2RequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {

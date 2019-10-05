@@ -280,11 +280,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    public boolean isClosed() {
-        return getSessionImpl().isClosed();
-    }
-
-    @Override
     public void enqueue(final Command command, final Command.Priority priority) {
         getSessionImpl().enqueue(command, priority);
     }

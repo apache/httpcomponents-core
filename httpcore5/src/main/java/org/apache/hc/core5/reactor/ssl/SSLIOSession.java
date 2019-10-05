@@ -672,11 +672,6 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public boolean isClosed() {
-        return this.status >= CLOSING || this.session.isClosed();
-    }
-
-    @Override
     public void enqueue(final Command command, final Command.Priority priority) {
         this.session.getLock().lock();
         try {

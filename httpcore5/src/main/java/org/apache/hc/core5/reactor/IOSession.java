@@ -176,17 +176,6 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
     int getStatus();
 
     /**
-     * Determines if the session has been terminated.
-     *
-     * @return {@code true} if the session has been terminated,
-     *   {@code false} otherwise.
-     *
-     * @deprecated Use {@link #isOpen()}
-     */
-    @Deprecated
-    boolean isClosed();
-
-    /**
      * Returns value of the socket timeout in milliseconds. The value of
      * {@code 0} signifies the session cannot time out.
      *

@@ -149,14 +149,6 @@ public class ServerBootstrap {
     }
 
     /**
-     * @deprecated Use {@link #setHttp1Config(Http1Config)}
-     */
-    @Deprecated
-    public final ServerBootstrap sethttp1Config(final Http1Config http1Config) {
-        return setHttp1Config(http1Config);
-    }
-
-    /**
      * Sets connection configuration.
      */
     public final ServerBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
