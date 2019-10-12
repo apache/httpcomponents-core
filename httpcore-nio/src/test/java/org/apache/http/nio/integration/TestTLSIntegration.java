@@ -125,7 +125,8 @@ public class TestTLSIntegration {
             return SSLContextBuilder.create()
                     .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
                     .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
-                    .build();        }
+                    .build();
+        }
     }
 
     private static SSLContext createClientSSLContext() throws Exception {

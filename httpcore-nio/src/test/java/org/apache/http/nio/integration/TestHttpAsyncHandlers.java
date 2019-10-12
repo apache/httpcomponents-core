@@ -37,6 +37,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.http.HttpException;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpRequestInterceptor;
@@ -67,6 +68,7 @@ import org.apache.http.protocol.RequestConnControl;
 import org.apache.http.protocol.RequestExpectContinue;
 import org.apache.http.protocol.RequestTargetHost;
 import org.apache.http.protocol.RequestUserAgent;
+import org.apache.http.protocol.ResponseServer;
 import org.apache.http.util.EntityUtils;
 import org.junit.After;
 import org.junit.Assert;
@@ -82,6 +84,7 @@ import org.junit.runners.Parameterized;
 public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
 
     private final static long RESULT_TIMEOUT_SEC = 30;
+    private final static int REQ_NUM = 25;
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> protocols() {
@@ -144,7 +147,65 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < REQ_NUM; i++) {
+            final BasicHttpRequest request = new BasicHttpRequest("GET", createRequestUri(pattern, count));
+            final Future<HttpResponse> future = this.client.execute(target, request);
+            queue.add(future);
+        }
+
+        while (!queue.isEmpty()) {
+            final Future<HttpResponse> future = queue.remove();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
+            Assert.assertNotNull(response);
+            Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
+        }
+    }
+
+    @Test
+    public void testHttpGetsCloseConnection() throws Exception {
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        final HttpHost target = start();
+
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
+
+        final String pattern = RndTestPatternGenerator.generateText();
+        final int count = RndTestPatternGenerator.generateCount(1000);
+
+        final String expectedPattern = createExpectedString(pattern, count);
+
+        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < REQ_NUM; i++) {
+            final BasicHttpRequest request = new BasicHttpRequest("GET", createRequestUri(pattern, count));
+            request.addHeader(HttpHeaders.CONNECTION, "Close");
+            final Future<HttpResponse> future = this.client.execute(target, request);
+            queue.add(future);
+        }
+
+        while (!queue.isEmpty()) {
+            final Future<HttpResponse> future = queue.remove();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
+            Assert.assertNotNull(response);
+            Assert.assertEquals(expectedPattern, EntityUtils.toString(response.getEntity()));
+        }
+    }
+
+    @Test
+    public void testHttpGetIdentityTransfer() throws Exception {
+        this.server.setHttpProcessor(new ImmutableHttpProcessor(new ResponseServer("TEST-SERVER/1.1")));
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        final HttpHost target = start();
+
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
+
+        final String pattern = RndTestPatternGenerator.generateText();
+        final int count = RndTestPatternGenerator.generateCount(1000);
+
+        final String expectedPattern = createExpectedString(pattern, count);
+
+        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < REQ_NUM; i++) {
             final BasicHttpRequest request = new BasicHttpRequest("GET", createRequestUri(pattern, count));
             final Future<HttpResponse> future = this.client.execute(target, request);
             queue.add(future);
@@ -170,7 +231,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final int count = RndTestPatternGenerator.generateCount(1000);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < REQ_NUM; i++) {
             final BasicHttpRequest request = new BasicHttpRequest("HEAD", createRequestUri(pattern, count));
             final Future<HttpResponse> future = this.client.execute(target, request);
             queue.add(future);
@@ -181,6 +242,34 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
             final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
             Assert.assertNotNull(response);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+        }
+    }
+
+    @Test
+    public void testHttpHeadsCloseConnection() throws Exception {
+        this.server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
+        final HttpHost target = start();
+
+        this.client.setMaxPerRoute(3);
+        this.client.setMaxTotal(3);
+
+        final String pattern = RndTestPatternGenerator.generateText();
+        final int count = RndTestPatternGenerator.generateCount(1000);
+
+        final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
+        for (int i = 0; i < REQ_NUM; i++) {
+            final BasicHttpRequest request = new BasicHttpRequest("HEAD", createRequestUri(pattern, count));
+            request.addHeader(HttpHeaders.CONNECTION, "Close");
+            final Future<HttpResponse> future = this.client.execute(target, request);
+            queue.add(future);
+        }
+
+        while (!queue.isEmpty()) {
+            final Future<HttpResponse> future = queue.remove();
+            final HttpResponse response = future.get(RESULT_TIMEOUT_SEC, TimeUnit.SECONDS);
+            Assert.assertNotNull(response);
+            Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
+            Assert.assertNull(response.getEntity());
         }
     }
 
@@ -198,7 +287,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < REQ_NUM; i++) {
             final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                     "POST", createRequestUri(pattern, count));
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
@@ -229,7 +318,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < REQ_NUM; i++) {
             final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                     "POST", createRequestUri(pattern, count));
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
@@ -261,7 +350,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < REQ_NUM; i++) {
             final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                     "POST", createRequestUri(pattern, count), HttpVersion.HTTP_1_0);
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
@@ -290,7 +379,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final int count = RndTestPatternGenerator.generateCount(1000);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < REQ_NUM; i++) {
             final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                     "POST", createRequestUri(pattern, count));
             request.setEntity(null);
@@ -388,7 +477,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final String expectedPattern = createExpectedString(pattern, count);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < REQ_NUM; i++) {
             final BasicHttpEntityEnclosingRequest request = new BasicHttpEntityEnclosingRequest(
                     "POST", createRequestUri(pattern, count));
             final NStringEntity entity = new NStringEntity(expectedPattern, ContentType.DEFAULT_TEXT);
@@ -525,7 +614,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final int count = RndTestPatternGenerator.generateCount(1000);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < REQ_NUM; i++) {
             final BasicHttpRequest request = new BasicHttpRequest("HEAD", createRequestUri(pattern, count));
             final Future<HttpResponse> future = this.client.execute(target, request);
             queue.add(future);
@@ -671,7 +760,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         final int count = RndTestPatternGenerator.generateCount(1000);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < REQ_NUM; i++) {
             final BasicHttpRequest request = new BasicHttpRequest("GET", createRequestUri(pattern, count));
             final Future<HttpResponse> future = this.client.execute(target, request);
             queue.add(future);
@@ -704,7 +793,7 @@ public class TestHttpAsyncHandlers extends HttpCoreNIOTestBase {
         this.client.setMaxTotal(3);
 
         final Queue<Future<HttpResponse>> queue = new ConcurrentLinkedQueue<Future<HttpResponse>>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < REQ_NUM; i++) {
             final BasicHttpRequest request = new BasicHttpRequest("GET", "/");
             final Future<HttpResponse> future = this.client.execute(target, request);
             queue.add(future);
