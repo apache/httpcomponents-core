@@ -36,18 +36,20 @@ import org.apache.hc.core5.ssl.SSLContextBuilder;
 public final class SSLTestContexts {
 
     public static SSLContext createServerSSLContext() throws Exception {
-        final URL keyStoreURL = SSLTestContexts.class.getResource("/test.keystore");
+        final URL keyStoreURL = SSLTestContexts.class.getResource("/test.p12");
         final String storePassword = "nopassword";
         return SSLContextBuilder.create()
+                .setKeyStoreType("pkcs12")
                 .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
                 .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
                 .build();
     }
 
     public static SSLContext createClientSSLContext() throws Exception {
-        final URL keyStoreURL = SSLTestContexts.class.getResource("/test.keystore");
+        final URL keyStoreURL = SSLTestContexts.class.getResource("/test.p12");
         final String storePassword = "nopassword";
         return SSLContextBuilder.create()
+                .setKeyStoreType("pkcs12")
                 .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
                 .build();
     }

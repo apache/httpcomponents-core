@@ -247,6 +247,7 @@
             <exclude>maven-eclipse.xml</exclude>
             <exclude>src/docbkx/resources/**</exclude>
             <exclude>src/test/resources/*.truststore</exclude>
+            <exclude>src/test/resources/*.p12</exclude>
             <exclude>**/.dockerignore</exclude>
             <!-- Eclipse can leave some file in 'bin' when an imported project misconfigured. -->
             <exclude>bin/**</exclude>
