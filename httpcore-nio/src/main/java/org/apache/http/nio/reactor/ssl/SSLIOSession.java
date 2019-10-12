@@ -638,7 +638,6 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         if (this.session.getSocketTimeout() == 0) {
             this.session.setSocketTimeout(1000);
         }
-        this.sslEngine.closeOutbound();
         try {
             updateEventMask();
         } catch (final CancelledKeyException ex) {
