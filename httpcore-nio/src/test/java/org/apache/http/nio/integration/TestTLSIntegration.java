@@ -203,7 +203,7 @@ public class TestTLSIntegration {
         server.registerHandler("*", new BasicAsyncRequestHandler(new SimpleRequestHandler()));
         server.start();
 
-        this.client = new HttpClientNio(new BasicNIOConnFactory(SSLContexts.createDefault(), null, ConnectionConfig.DEFAULT));
+        client = new HttpClientNio(new BasicNIOConnFactory(SSLContexts.createDefault(), null, ConnectionConfig.DEFAULT));
         client.setTimeout(5000);
         client.start();
 
