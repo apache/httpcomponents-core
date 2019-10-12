@@ -314,6 +314,7 @@
             <exclude>**/.checkstyle</exclude>
             <exclude>src/docbkx/resources/**</exclude>
             <exclude>src/test/resources/*.truststore</exclude>
+            <exclude>src/test/resources/*.p12</exclude>
           </excludes>
         </configuration>
       </plugin>

@@ -32,6 +32,7 @@ import java.net.URL;
 import javax.net.ssl.SSLContext;
 
 import org.apache.http.impl.nio.pool.BasicNIOConnFactory;
+import org.apache.http.nio.util.TestingSupport;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.junit.After;
 
@@ -40,6 +41,8 @@ import org.junit.After;
  *
  */
 public abstract class HttpCoreNIOTestBase {
+
+    private static int JRE_LEVEL = TestingSupport.determineJRELevel();
 
     public enum ProtocolScheme { http, https }
 
@@ -61,20 +64,39 @@ public abstract class HttpCoreNIOTestBase {
     }
 
     protected SSLContext createServerSSLContext() throws Exception {
-        final URL keyStoreURL = getClass().getResource("/test.keystore");
-        final String storePassword = "nopassword";
-        return SSLContextBuilder.create()
-                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
-                .build();
+        if (JRE_LEVEL >= 8) {
+            final URL keyStoreURL = getClass().getResource("/test-server.p12");
+            final String storePassword = "nopassword";
+            return SSLContextBuilder.create()
+                    .setKeyStoreType("pkcs12")
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
+                    .build();
+        } else {
+            final URL keyStoreURL = getClass().getResource("/test.keystore");
+            final String storePassword = "nopassword";
+            return SSLContextBuilder.create()
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
+                    .build();
+        }
     }
 
     protected SSLContext createClientSSLContext() throws Exception {
-        final URL keyStoreURL = getClass().getResource("/test.keystore");
-        final String storePassword = "nopassword";
-        return SSLContextBuilder.create()
-                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                .build();
+        if (JRE_LEVEL >= 8) {
+            final URL keyStoreURL = getClass().getResource("/test-client.p12");
+            final String storePassword = "nopassword";
+            return SSLContextBuilder.create()
+                    .setKeyStoreType("pkcs12")
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .build();
+        } else {
+            final URL keyStoreURL = getClass().getResource("/test.keystore");
+            final String storePassword = "nopassword";
+            return SSLContextBuilder.create()
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .build();
+        }
     }
 
     protected ServerConnectionFactory createServerConnectionFactory() throws Exception {

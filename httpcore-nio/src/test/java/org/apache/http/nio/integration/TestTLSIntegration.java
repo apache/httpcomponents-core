@@ -58,6 +58,7 @@ import org.apache.http.nio.testserver.ClientConnectionFactory;
 import org.apache.http.nio.testserver.HttpClientNio;
 import org.apache.http.nio.testserver.HttpServerNio;
 import org.apache.http.nio.testserver.ServerConnectionFactory;
+import org.apache.http.nio.util.TestingSupport;
 import org.apache.http.protocol.HttpContext;
 import org.apache.http.protocol.HttpCoreContext;
 import org.apache.http.protocol.HttpRequestHandler;
@@ -72,6 +73,8 @@ import org.junit.rules.ExternalResource;
 public class TestTLSIntegration {
 
     private final static long RESULT_TIMEOUT_SEC = 30;
+
+    private static int JRE_LEVEL = TestingSupport.determineJRELevel();
 
     private HttpServerNio server;
 
@@ -108,21 +111,38 @@ public class TestTLSIntegration {
     };
 
     private static SSLContext createServerSSLContext() throws Exception {
-        final URL keyStoreURL = TestTLSIntegration.class.getResource("/test.keystore");
-        final String storePassword = "nopassword";
-        return SSLContextBuilder.create()
-                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
-                .build();
-
+        if (JRE_LEVEL >= 8) {
+            final URL keyStoreURL = TestTLSIntegration.class.getResource("/test-server.p12");
+            final String storePassword = "nopassword";
+            return SSLContextBuilder.create()
+                    .setKeyStoreType("pkcs12")
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
+                    .build();
+        } else {
+            final URL keyStoreURL = TestTLSIntegration.class.getResource("/test.keystore");
+            final String storePassword = "nopassword";
+            return SSLContextBuilder.create()
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
+                    .build();        }
     }
 
     private static SSLContext createClientSSLContext() throws Exception {
-        final URL keyStoreURL = TestTLSIntegration.class.getResource("/test.keystore");
-        final String storePassword = "nopassword";
-        return SSLContextBuilder.create()
-                .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
-                .build();
+        if (JRE_LEVEL >= 8) {
+            final URL keyStoreURL = TestTLSIntegration.class.getResource("/test-client.p12");
+            final String storePassword = "nopassword";
+            return SSLContextBuilder.create()
+                    .setKeyStoreType("pkcs12")
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .build();
+        } else {
+            final URL keyStoreURL = TestTLSIntegration.class.getResource("/test.keystore");
+            final String storePassword = "nopassword";
+            return SSLContextBuilder.create()
+                    .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
+                    .build();
+        }
     }
 
     @Test
@@ -165,8 +185,13 @@ public class TestTLSIntegration {
         Assert.assertThat(response.getStatusLine().getStatusCode(), CoreMatchers.equalTo(200));
 
         final SSLSession sslSession = sslSessionRef.getAndSet(null);
-        Assert.assertThat(sslSession.getPeerPrincipal().getName(),
-                CoreMatchers.equalTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation"));
+        if (JRE_LEVEL >= 8) {
+            Assert.assertThat(sslSession.getPeerPrincipal().getName(),
+                    CoreMatchers.equalTo("CN=Test Server,OU=HttpComponents Project,O=Apache Software Foundation"));
+        } else {
+            Assert.assertThat(sslSession.getPeerPrincipal().getName(),
+                    CoreMatchers.equalTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation"));
+        }
     }
 
     @Test

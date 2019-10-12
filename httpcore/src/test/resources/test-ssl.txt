@@ -22,11 +22,14 @@
 # information on the Apache Software Foundation, please see
 # <http://www.apache.org/>.
 
+
+*** Use Java 11 or older ***
+
 == generate test key store with a self signed key
 
 ---
 keytool -genkey \
-  -keystore test.keystore -storepass nopassword \
+  -keystore test.p12 -storepass nopassword \
   -keyalg RSA -keysize 2048 \
   -alias simple-http-server \
   -validity 100000 \
@@ -38,7 +41,7 @@ keytool -genkey \
 
 ---
 keytool -genkey \
-  -keystore test-keypasswd.keystore -storepass nopassword \
+  -keystore test-keypasswd.p12 -storepass nopassword \
   -keyalg RSA -keysize 2048 -keypass password \
   -alias simple-http-server \
   -validity 100000 \
@@ -50,7 +53,7 @@ keytool -genkey \
 
 ---
 keytool -genkeypair \
-  -keystore ca.keystore -storepass nopassword \
+  -keystore ca.p12 -storepass nopassword \
   -keyalg RSA -keysize 2048 -keypass password \
   -alias ca \
   -validity 100000 \
@@ -64,7 +67,7 @@ keytool -genkeypair \
 
 ---
 keytool -export \
-  -keystore ca.keystore -storepass nopassword -keypass password \
+  -keystore ca.p12 -storepass nopassword -keypass password \
   -alias ca \
   -file test-ca.crt \
   -rfc
@@ -74,7 +77,7 @@ keytool -export \
 
 ---
 keytool -genkeypair \
-  -keystore test-server.keystore -storepass nopassword \
+  -keystore test-server.p12 -storepass nopassword \
   -keyalg RSA -keysize 2048 \
   -alias server \
   -validity 100000 \
@@ -85,7 +88,7 @@ keytool -genkeypair \
 
 ---
 keytool -certreq \
-  -keystore test-server.keystore -storepass nopassword \
+  -keystore test-server.p12 -storepass nopassword \
   -alias server \
   -file server.csr
 ---
@@ -94,7 +97,7 @@ keytool -certreq \
 
 ---
 keytool -gencert \
-  -keystore ca.keystore -storepass nopassword -keypass password \
+  -keystore ca.p12 -storepass nopassword -keypass password \
   -alias ca \
   -validity 100000 \
   -infile server.csr \
@@ -109,12 +112,12 @@ keytool -gencert \
 
 ---
 keytool -importcert \
-  -keystore test-server.keystore -storepass nopassword \
+  -keystore test-server.p12 -storepass nopassword \
   -file test-ca.crt \
   -alias caroot
 ---
 keytool -importcert \
-  -keystore test-server.keystore -storepass nopassword \
+  -keystore test-server.p12 -storepass nopassword \
   -file server.crt \
   -alias server
 ---
@@ -123,14 +126,14 @@ keytool -importcert \
 
 ---
 keytool -genkeypair \
-  -keystore test-client.keystore -storepass nopassword \
+  -keystore test-client.p12 -storepass nopassword \
   -keyalg RSA -keysize 2048 \
   -alias client1 \
   -validity 100000 \
   -dname "CN=Test Client 1, OU=HttpComponents Project, O=Apache Software Foundation"
 ---
 keytool -genkeypair \
-  -keystore test-client.keystore -storepass nopassword \
+  -keystore test-client.p12 -storepass nopassword \
   -keyalg RSA -keysize 2048 \
   -alias client2 \
   -validity 100000 \
@@ -141,12 +144,12 @@ keytool -genkeypair \
 
 ---
 keytool -certreq \
-  -keystore test-client.keystore -storepass nopassword \
+  -keystore test-client.p12 -storepass nopassword \
   -alias client1 \
   -file client1.csr
 ---
 keytool -certreq \
-  -keystore test-client.keystore -storepass nopassword \
+  -keystore test-client.p12 -storepass nopassword \
   -alias client2 \
   -file client2.csr
 ---
@@ -155,7 +158,7 @@ keytool -certreq \
 
 ---
 keytool -gencert \
-  -keystore ca.keystore -storepass nopassword -keypass password \
+  -keystore ca.p12 -storepass nopassword -keypass password \
   -alias ca \
   -validity 100000 \
   -infile client1.csr \
@@ -165,7 +168,7 @@ keytool -gencert \
   -rfc
 ---
 keytool -gencert \
-  -keystore ca.keystore -storepass nopassword -keypass password \
+  -keystore ca.p12 -storepass nopassword -keypass password \
   -alias ca \
   -validity 100000 \
   -infile client2.csr \
@@ -179,17 +182,17 @@ keytool -gencert \
 
 ---
 keytool -importcert \
-  -keystore test-client.keystore -storepass nopassword \
+  -keystore test-client.p12 -storepass nopassword \
   -file test-ca.crt \
   -alias caroot
 ---
 keytool -importcert \
-  -keystore test-client.keystore -storepass nopassword \
+  -keystore test-client.p12 -storepass nopassword \
   -file client1.crt \
   -alias client1
 ---
 keytool -importcert \
-  -keystore test-client.keystore -storepass nopassword \
+  -keystore test-client.p12 -storepass nopassword \
   -file client2.crt \
   -alias client2
 ---
