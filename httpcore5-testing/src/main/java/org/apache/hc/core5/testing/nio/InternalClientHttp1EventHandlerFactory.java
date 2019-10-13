@@ -52,6 +52,8 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
+import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
+import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -65,6 +67,8 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
     private final CharCodingConfig charCodingConfig;
     private final ConnectionReuseStrategy connectionReuseStrategy;
     private final SSLContext sslContext;
+    private final SSLSessionInitializer sslSessionInitializer;
+    private final SSLSessionVerifier sslSessionVerifier;
     private final NHttpMessageParserFactory<HttpResponse> responseParserFactory;
     private final NHttpMessageWriterFactory<HttpRequest> requestWriterFactory;
 
@@ -73,7 +77,9 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
             final Http1Config http1Config,
             final CharCodingConfig charCodingConfig,
             final ConnectionReuseStrategy connectionReuseStrategy,
-            final SSLContext sslContext) {
+            final SSLContext sslContext,
+            final SSLSessionInitializer sslSessionInitializer,
+            final SSLSessionVerifier sslSessionVerifier) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
@@ -82,6 +88,8 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
         this.sslContext = sslContext;
         this.responseParserFactory = new DefaultHttpResponseParserFactory(this.http1Config);
         this.requestWriterFactory = DefaultHttpRequestWriterFactory.INSTANCE;
+        this.sslSessionInitializer = sslSessionInitializer;
+        this.sslSessionVerifier = sslSessionVerifier;
     }
 
     protected ClientHttp1StreamDuplexer createClientHttp1StreamDuplexer(
@@ -103,7 +111,7 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
     @Override
     public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
         if (sslContext != null) {
-            ioSession.startTls(sslContext, null, null ,null, null, null);
+            ioSession.startTls(sslContext, null, null, sslSessionInitializer, sslSessionVerifier, null);
         }
         final ClientHttp1StreamDuplexer streamDuplexer = createClientHttp1StreamDuplexer(
                 ioSession,

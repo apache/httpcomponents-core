@@ -59,7 +59,7 @@ public abstract class InternalH2ServerTestBase {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             server = new H2TestServer(IOReactorConfig.DEFAULT,
-                    scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null);
+                    scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null, null, null);
         }
 
         @Override

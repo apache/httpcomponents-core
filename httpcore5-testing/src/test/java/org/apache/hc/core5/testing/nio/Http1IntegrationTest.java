@@ -167,7 +167,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         log.debug("Starting up test client");
         client = new Http1TestClient(
                 buildReactorConfig(),
-                scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
+                scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null, null, null);
     }
 
     protected IOReactorConfig buildReactorConfig() {
@@ -1441,7 +1441,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 Http1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
-                scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null) {
+                scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null, null, null) {
 
             @Override
             protected ServerHttp1StreamDuplexer createServerHttp1StreamDuplexer(

@@ -42,19 +42,29 @@ import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
+import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.util.Timeout;
 
 public class Http1TestClient extends AsyncRequester  {
 
     private final SSLContext sslContext;
+    private final SSLSessionInitializer sslSessionInitializer;
+    private final SSLSessionVerifier sslSessionVerifier;
 
-    public Http1TestClient(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
+    public Http1TestClient(
+            final IOReactorConfig ioReactorConfig,
+            final SSLContext sslContext,
+            final SSLSessionInitializer sslSessionInitializer,
+            final SSLSessionVerifier sslSessionVerifier) throws IOException {
         super(ioReactorConfig);
         this.sslContext = sslContext;
+        this.sslSessionInitializer = sslSessionInitializer;
+        this.sslSessionVerifier = sslSessionVerifier;
     }
 
     public Http1TestClient() throws IOException {
-        this(IOReactorConfig.DEFAULT, null);
+        this(IOReactorConfig.DEFAULT, null, null, null);
     }
 
     public void start(
@@ -65,7 +75,9 @@ public class Http1TestClient extends AsyncRequester  {
                 http1Config,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
-                sslContext));
+                sslContext,
+                sslSessionInitializer,
+                sslSessionVerifier));
     }
 
     public void start(final Http1Config http1Config) throws IOException {

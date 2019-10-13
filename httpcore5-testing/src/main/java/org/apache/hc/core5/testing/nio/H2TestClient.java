@@ -48,22 +48,32 @@ import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
+import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
+import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 public class H2TestClient extends AsyncRequester {
 
     private final SSLContext sslContext;
+    private final SSLSessionInitializer sslSessionInitializer;
+    private final SSLSessionVerifier sslSessionVerifier;
     private final RequestHandlerRegistry<Supplier<AsyncPushConsumer>> registry;
 
-    public H2TestClient(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
+    public H2TestClient(
+            final IOReactorConfig ioReactorConfig,
+            final SSLContext sslContext,
+            final SSLSessionInitializer sslSessionInitializer,
+            final SSLSessionVerifier sslSessionVerifier) throws IOException {
         super(ioReactorConfig);
         this.sslContext = sslContext;
+        this.sslSessionInitializer = sslSessionInitializer;
+        this.sslSessionVerifier = sslSessionVerifier;
         this.registry = new RequestHandlerRegistry<>();
     }
 
     public H2TestClient() throws IOException {
-        this(IOReactorConfig.DEFAULT, null);
+        this(IOReactorConfig.DEFAULT, null, null, null);
     }
 
     public void register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
@@ -84,7 +94,9 @@ public class H2TestClient extends AsyncRequester {
                 h2Config,
                 Http1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
-                sslContext));
+                sslContext,
+                sslSessionInitializer,
+                sslSessionVerifier));
     }
 
     public void start(final HttpProcessor httpProcessor, final Http1Config http1Config) throws IOException {
@@ -95,7 +107,9 @@ public class H2TestClient extends AsyncRequester {
                 H2Config.DEFAULT,
                 http1Config,
                 CharCodingConfig.DEFAULT,
-                sslContext));
+                sslContext,
+                sslSessionInitializer,
+                sslSessionVerifier));
     }
 
     public void start(final H2Config h2Config) throws IOException {

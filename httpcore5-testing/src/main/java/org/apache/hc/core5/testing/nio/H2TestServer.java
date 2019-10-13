@@ -51,20 +51,30 @@ import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
+import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 
 public class H2TestServer extends AsyncServer {
 
     private final SSLContext sslContext;
+    private final SSLSessionInitializer sslSessionInitializer;
+    private final SSLSessionVerifier sslSessionVerifier;
     private final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry;
 
-    public H2TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
+    public H2TestServer(
+            final IOReactorConfig ioReactorConfig,
+            final SSLContext sslContext,
+            final SSLSessionInitializer sslSessionInitializer,
+            final SSLSessionVerifier sslSessionVerifier) throws IOException {
         super(ioReactorConfig);
         this.sslContext = sslContext;
+        this.sslSessionInitializer = sslSessionInitializer;
+        this.sslSessionVerifier = sslSessionVerifier;
         this.registry = new RequestHandlerRegistry<>();
     }
 
     public H2TestServer() throws IOException {
-        this(IOReactorConfig.DEFAULT, null);
+        this(IOReactorConfig.DEFAULT, null, null, null);
     }
 
     public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
@@ -108,7 +118,9 @@ public class H2TestServer extends AsyncServer {
                 h2Config,
                 Http1Config.DEFAULT,
                 CharCodingConfig.DEFAULT,
-                sslContext));
+                sslContext,
+                sslSessionInitializer,
+                sslSessionVerifier));
         final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         return (InetSocketAddress) listener.getAddress();
@@ -134,7 +146,9 @@ public class H2TestServer extends AsyncServer {
                 H2Config.DEFAULT,
                 http1Config,
                 CharCodingConfig.DEFAULT,
-                sslContext));
+                sslContext,
+                sslSessionInitializer,
+                sslSessionVerifier));
         final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
         final ListenerEndpoint listener = future.get();
         return (InetSocketAddress) listener.getAddress();

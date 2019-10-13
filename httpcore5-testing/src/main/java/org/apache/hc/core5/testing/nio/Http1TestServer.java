@@ -49,20 +49,30 @@ import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
+import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 
 public class Http1TestServer extends AsyncServer {
 
     private final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry;
     private final SSLContext sslContext;
+    private final SSLSessionInitializer sslSessionInitializer;
+    private final SSLSessionVerifier sslSessionVerifier;
 
-    public Http1TestServer(final IOReactorConfig ioReactorConfig, final SSLContext sslContext) throws IOException {
+    public Http1TestServer(
+            final IOReactorConfig ioReactorConfig,
+            final SSLContext sslContext,
+            final SSLSessionInitializer sslSessionInitializer,
+            final SSLSessionVerifier sslSessionVerifier) throws IOException {
         super(ioReactorConfig);
         this.registry = new RequestHandlerRegistry<>();
         this.sslContext = sslContext;
+        this.sslSessionInitializer = sslSessionInitializer;
+        this.sslSessionVerifier = sslSessionVerifier;
     }
 
     public Http1TestServer() throws IOException {
-        this(IOReactorConfig.DEFAULT, null);
+        this(IOReactorConfig.DEFAULT, null, null, null);
     }
 
     public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
@@ -108,7 +118,9 @@ public class Http1TestServer extends AsyncServer {
                 http1Config,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
-                sslContext));
+                sslContext,
+                sslSessionInitializer,
+                sslSessionVerifier));
     }
 
     public InetSocketAddress start(final HttpProcessor httpProcessor, final Http1Config http1Config) throws Exception {

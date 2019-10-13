@@ -157,7 +157,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
     public void setup() throws Exception {
         log.debug("Starting up test client");
         client = new H2TestClient(buildReactorConfig(),
-                scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null);
+                scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null, null, null);
     }
 
     protected IOReactorConfig buildReactorConfig() {

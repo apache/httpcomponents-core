@@ -60,7 +60,7 @@ public abstract class InternalHttp1ServerTestBase {
             log.debug("Starting up test server");
             server = new Http1TestServer(
                     IOReactorConfig.DEFAULT,
-                    scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null);
+                    scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null, null, null);
         }
 
         @Override
