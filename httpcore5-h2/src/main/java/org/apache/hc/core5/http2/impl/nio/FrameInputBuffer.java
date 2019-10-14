@@ -65,7 +65,7 @@ public final class FrameInputBuffer {
         Args.notNull(metrics, "HTTP2 transport metrcis");
         Args.positive(maxFramePayloadSize, "Maximum payload size");
         this.metrics = metrics;
-        this.maxFramePayloadSize = maxFramePayloadSize;
+        this.maxFramePayloadSize = Math.max(maxFramePayloadSize, FrameConsts.MIN_FRAME_SIZE);
         this.bytes = new byte[bufferLen];
         this.buffer = ByteBuffer.wrap(bytes);
         this.buffer.flip();

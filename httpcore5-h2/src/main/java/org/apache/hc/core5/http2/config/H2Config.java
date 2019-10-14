@@ -40,7 +40,8 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class H2Config {
 
-    public static final H2Config DEFAULT = new Builder().build();
+    public static final H2Config DEFAULT = custom().build();
+    public static final H2Config INIT = initial().build();
 
     private final int headerTableSize;
     private final boolean pushEnabled;
@@ -101,6 +102,21 @@ public class H2Config {
         return new Builder();
     }
 
+    private static final int      INIT_HEADER_TABLE_SIZE   = 4096;
+    private static final boolean  INIT_ENABLE_PUSH         = true;
+    private static final int      INIT_MAX_FRAME_SIZE      = FrameConsts.MIN_FRAME_SIZE;
+    private static final int      INIT_WINDOW_SIZE         = 65535;
+
+    public static H2Config.Builder initial() {
+        return new Builder()
+                .setHeaderTableSize(INIT_HEADER_TABLE_SIZE)
+                .setPushEnabled(INIT_ENABLE_PUSH)
+                .setMaxConcurrentStreams(Integer.MAX_VALUE) // no limit
+                .setMaxFrameSize(INIT_MAX_FRAME_SIZE)
+                .setInitialWindowSize(INIT_WINDOW_SIZE)
+                .setHeaderTableSize(Integer.MAX_VALUE); // unlimited
+    }
+
     public static H2Config.Builder copy(final H2Config config) {
         Args.notNull(config, "Connection config");
         return new Builder()
@@ -122,10 +138,10 @@ public class H2Config {
         private int maxHeaderListSize;
 
         Builder() {
-            this.headerTableSize = 8192;
-            this.pushEnabled = false;
-            this.maxConcurrentStreams = 100;
-            this.initialWindowSize = 65535;
+            this.headerTableSize = INIT_HEADER_TABLE_SIZE * 2;
+            this.pushEnabled = INIT_ENABLE_PUSH;
+            this.maxConcurrentStreams = 250;
+            this.initialWindowSize = INIT_WINDOW_SIZE;
             this.maxFrameSize  = FrameConsts.MIN_FRAME_SIZE * 4;
             this.maxHeaderListSize = FrameConsts.MAX_FRAME_SIZE;
         }
@@ -170,7 +186,7 @@ public class H2Config {
                     headerTableSize,
                     pushEnabled,
                     maxConcurrentStreams,
-                    initialWindowSize > 0 ? initialWindowSize : 65535,
+                    initialWindowSize,
                     maxFrameSize,
                     maxHeaderListSize);
         }
