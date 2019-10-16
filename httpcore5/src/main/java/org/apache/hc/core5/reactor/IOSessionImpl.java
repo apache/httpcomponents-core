@@ -64,20 +64,14 @@ class IOSessionImpl implements IOSession {
     private volatile long lastWriteTime;
     private volatile long lastEventTime;
 
-    /**
-     * Creates new instance of IOSessionImpl.
-     *
-     * @param key the selection key.
-     * @param socketChannel the socket channel
-     */
-    public IOSessionImpl(final SelectionKey key, final SocketChannel socketChannel) {
+    public IOSessionImpl(final String type, final SelectionKey key, final SocketChannel socketChannel) {
         super();
         this.key = Args.notNull(key, "Selection key");
         this.channel = Args.notNull(socketChannel, "Socket channel");
         this.commandQueue = new ConcurrentLinkedDeque<>();
         this.lock = new ReentrantLock();
         this.socketTimeout = Timeout.DISABLED;
-        this.id = String.format("i/o-%08X", COUNT.getAndIncrement());
+        this.id = String.format(type + "-%08X", COUNT.getAndIncrement());
         this.handlerRef = new AtomicReference<>();
         this.status = new AtomicInteger(ACTIVE);
         final long currentTimeMillis = System.currentTimeMillis();

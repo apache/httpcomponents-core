@@ -128,14 +128,14 @@ public class LoggingH2StreamListener implements H2StreamListener {
     @Override
     public void onInputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
         if (flowCtrlLog.isDebugEnabled()) {
-            logFlowControl(LoggingSupport.getId(connection) + " <<", streamId, delta, actualSize);
+            logFlowControl(LoggingSupport.getId(connection) + "  in", streamId, delta, actualSize);
         }
     }
 
     @Override
     public void onOutputFlowControl(final HttpConnection connection, final int streamId, final int delta, final int actualSize) {
         if (flowCtrlLog.isDebugEnabled()) {
-            logFlowControl(LoggingSupport.getId(connection) + " >>", streamId, delta, actualSize);
+            logFlowControl(LoggingSupport.getId(connection) + " out", streamId, delta, actualSize);
         }
     }
 

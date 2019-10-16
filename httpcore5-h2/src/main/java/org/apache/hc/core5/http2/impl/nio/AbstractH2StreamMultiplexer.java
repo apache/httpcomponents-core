@@ -410,6 +410,13 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         commitFrame(settingsFrame);
         localSettingState = SettingsHandshake.TRANSMITTED;
+
+        if (streamListener != null) {
+            final int initInputWindow = connInputWindow.get();
+            streamListener.onInputFlowControl(this, 0, initInputWindow, initInputWindow);
+            final int initOutputWindow = connOutputWindow.get();
+            streamListener.onOutputFlowControl(this, 0, initOutputWindow, initOutputWindow);
+        }
     }
 
     public final void onInput(final ByteBuffer src) throws HttpException, IOException {
@@ -612,6 +619,13 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
                 final H2Stream stream = new H2Stream(channel, streamHandler, false);
                 streamMap.put(streamId, stream);
+
+                if (streamListener != null) {
+                    final int initInputWindow = stream.getInputWindow().get();
+                    streamListener.onInputFlowControl(this, streamId, initInputWindow, initInputWindow);
+                    final int initOutputWindow = stream.getOutputWindow().get();
+                    streamListener.onOutputFlowControl(this, streamId, initOutputWindow, initOutputWindow);
+                }
 
                 if (stream.isOutputReady()) {
                     stream.produceOutput();

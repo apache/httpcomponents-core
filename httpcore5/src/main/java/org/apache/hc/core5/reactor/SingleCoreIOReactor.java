@@ -206,7 +206,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             } catch (final ClosedChannelException ex) {
                 return;
             }
-            final IOSession ioSession = new IOSessionImpl(key, socketChannel);
+            final IOSession ioSession = new IOSessionImpl("a", key, socketChannel);
             final InternalDataChannel dataChannel = new InternalDataChannel(
                     ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession,
                     null,
@@ -363,7 +363,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                     final SocketChannel socketChannel,
                     final NamedEndpoint namedEndpoint,
                     final Object attachment) {
-                final IOSession ioSession = new IOSessionImpl(key, socketChannel);
+                final IOSession ioSession = new IOSessionImpl("c", key, socketChannel);
                 final InternalDataChannel dataChannel = new InternalDataChannel(
                         ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession,
                         namedEndpoint,
