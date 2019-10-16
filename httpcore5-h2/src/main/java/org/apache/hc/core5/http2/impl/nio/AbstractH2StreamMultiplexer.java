@@ -370,9 +370,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final int streamWinSize = inputWindow.get();
             final int remainingCapacity = Integer.MAX_VALUE - streamWinSize;
             final int chunk = Math.min(inputCapacity, remainingCapacity);
-            final RawFrame windowUpdateFrame = frameFactory.createWindowUpdate(streamId, chunk);
-            commitFrame(windowUpdateFrame);
-            updateInputWindow(streamId, inputWindow, chunk);
+            if (chunk != 0) {
+                final RawFrame windowUpdateFrame = frameFactory.createWindowUpdate(streamId, chunk);
+                commitFrame(windowUpdateFrame);
+                updateInputWindow(streamId, inputWindow, chunk);
+            }
         }
     }
 
@@ -1379,6 +1381,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             if (remoteEndStream) {
                 return;
             }
+            incrementInputCapacity(0, connInputWindow, increment);
             incrementInputCapacity(id, inputWindow, increment);
         }
 
