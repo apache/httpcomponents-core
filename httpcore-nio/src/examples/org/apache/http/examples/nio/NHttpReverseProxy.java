@@ -29,6 +29,7 @@ package org.apache.http.examples.nio;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.InetSocketAddress;
+import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.security.cert.CertificateException;
@@ -43,9 +44,7 @@ import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.HttpVersion;
 import org.apache.http.config.ConnectionConfig;
@@ -71,9 +70,10 @@ import org.apache.http.nio.IOControl;
 import org.apache.http.nio.NHttpClientConnection;
 import org.apache.http.nio.NHttpConnection;
 import org.apache.http.nio.NHttpServerConnection;
+import org.apache.http.nio.NHttpServerEventHandler;
 import org.apache.http.nio.entity.NStringEntity;
 import org.apache.http.nio.pool.NIOConnFactory;
-import org.apache.http.nio.protocol.BasicAsyncResponseProducer;
+import org.apache.http.nio.protocol.ErrorResponseProducer;
 import org.apache.http.nio.protocol.HttpAsyncExchange;
 import org.apache.http.nio.protocol.HttpAsyncRequestConsumer;
 import org.apache.http.nio.protocol.HttpAsyncRequestExecutor;
@@ -143,32 +143,30 @@ public class NHttpReverseProxy {
 
         System.out.println("Reverse proxy to " + targetHost);
 
-        final IOReactorConfig config = IOReactorConfig.custom()
-            .setIoThreadCount(1)
-            .setSoTimeout(3000)
-            .setConnectTimeout(3000)
-            .build();
-        final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(config);
-        final ListeningIOReactor listeningIOReactor = new DefaultListeningIOReactor(config);
+        final ConnectingIOReactor connectingIOReactor = new DefaultConnectingIOReactor(IOReactorConfig.custom()
+                .setIoThreadCount(1)
+                .setSoTimeout(5000)
+                .setConnectTimeout(5000)
+                .build());
+        final ListeningIOReactor listeningIOReactor = new DefaultListeningIOReactor(IOReactorConfig.custom()
+                .setIoThreadCount(1)
+                .setSoTimeout(30000)
+                .build());
 
         // Set up HTTP protocol processor for incoming connections
         final HttpProcessor inhttpproc = new ImmutableHttpProcessor(
-                new HttpResponseInterceptor[] {
-                        new ResponseDate(),
-                        new ResponseServer("Test/1.1"),
-                        new ResponseContent(),
-                        new ResponseConnControl()
-         });
+                new ResponseDate(),
+                new ResponseServer("Test/1.1"),
+                new ResponseContent(),
+                new ResponseConnControl());
 
         // Set up HTTP protocol processor for outgoing connections
         final HttpProcessor outhttpproc = new ImmutableHttpProcessor(
-                new HttpRequestInterceptor[] {
-                        new RequestContent(),
-                        new RequestTargetHost(),
-                        new RequestConnControl(),
-                        new RequestUserAgent("Test/1.1"),
-                        new RequestExpectContinue(true)
-        });
+                new RequestContent(),
+                new RequestTargetHost(),
+                new RequestConnControl(),
+                new RequestUserAgent("Test/1.1"),
+                new RequestExpectContinue(true));
 
         final ProxyClientProtocolHandler clientHandler = new ProxyClientProtocolHandler();
         final HttpAsyncRequester executor = new HttpAsyncRequester(
@@ -193,7 +191,7 @@ public class NHttpReverseProxy {
         final IOEventDispatch connectingEventDispatch = DefaultHttpClientIODispatch.create(
                 clientHandler, sslContext, ConnectionConfig.DEFAULT);
 
-        final IOEventDispatch listeningEventDispatch = new DefaultHttpServerIODispatch(
+        final IOEventDispatch listeningEventDispatch = new DefaultHttpServerIODispatch<NHttpServerEventHandler>(
                 serviceHandler, ConnectionConfig.DEFAULT);
 
         final Thread t = new Thread(new Runnable() {
@@ -403,14 +401,14 @@ public class NHttpReverseProxy {
                 if (ex != null) {
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " " + ex);
                     final int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
+                    final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, status,
                             EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
                     String message = ex.getMessage();
                     if (message == null) {
                         message = "Unexpected error";
                     }
-                    response.setEntity(new NStringEntity(message, ContentType.DEFAULT_TEXT));
-                    responseTrigger.submitResponse(new BasicAsyncResponseProducer(response));
+                    responseTrigger.submitResponse(new ErrorResponseProducer(response,
+                            new NStringEntity(message, ContentType.DEFAULT_TEXT), false));
                     System.out.println("[client<-proxy] " + httpExchange.getId() + " error response triggered");
                 }
                 final HttpResponse response = httpExchange.getResponse();
@@ -679,15 +677,16 @@ public class NHttpReverseProxy {
                 final HttpAsyncExchange responseTrigger = this.httpExchange.getResponseTrigger();
                 if (responseTrigger != null && !responseTrigger.isCompleted()) {
                     System.out.println("[client<-proxy] " + this.httpExchange.getId() + " " + ex);
-                    final int status = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-                    final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_0, status,
+                    final int status = ex instanceof SocketTimeoutException ?
+                            HttpStatus.SC_GATEWAY_TIMEOUT : HttpStatus.SC_INTERNAL_SERVER_ERROR;
+                    final HttpResponse response = new BasicHttpResponse(HttpVersion.HTTP_1_1, status,
                             EnglishReasonPhraseCatalog.INSTANCE.getReason(status, Locale.US));
                     String message = ex.getMessage();
                     if (message == null) {
                         message = "Unexpected error";
                     }
-                    response.setEntity(new NStringEntity(message, ContentType.DEFAULT_TEXT));
-                    responseTrigger.submitResponse(new BasicAsyncResponseProducer(response));
+                    responseTrigger.submitResponse(new ErrorResponseProducer(response,
+                            new NStringEntity(message, ContentType.DEFAULT_TEXT), false));
                 }
             }
         }
