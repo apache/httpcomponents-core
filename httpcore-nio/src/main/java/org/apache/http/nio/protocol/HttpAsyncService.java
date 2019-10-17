@@ -28,6 +28,7 @@
 package org.apache.http.nio.protocol;
 
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -285,37 +286,65 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         }
         state.setTerminated();
         closeHandlers(state, cause);
-        final Cancellable cancellable = state.getCancellable();
-        if (cancellable != null) {
-            cancellable.cancel();
-        }
-        final Queue<PipelineEntry> pipeline = state.getPipeline();
-        if (!pipeline.isEmpty()
-                || conn.isResponseSubmitted()
-                || state.getResponseState().compareTo(MessageState.INIT) > 0) {
-            // There is not much that we can do if a response
-            // has already been submitted or pipelining is being used.
-            shutdownConnection(conn);
-        } else {
-            try {
+        try {
+            final Cancellable cancellable = state.getCancellable();
+            if (cancellable != null) {
+                cancellable.cancel();
+            }
+            if (cause instanceof SocketException) {
+                // Transport layer is likely unreliable.
+                conn.shutdown();
+                return;
+            }
+            if (cause instanceof SocketTimeoutException) {
+                // Connection timed out due to inactivity.
+                conn.close();
+                return;
+            }
+
+            if (conn.isResponseSubmitted() || state.getResponseState().compareTo(MessageState.INIT) > 0) {
+                // There is not much that we can do if a response has already been submitted.
+                conn.close();
+                return;
+            }
+            HttpRequest request = conn.getHttpRequest();
+            if (request == null) {
                 final Incoming incoming = state.getIncoming();
-                final HttpRequest request = incoming != null ? incoming.getRequest() : null;
-                final HttpContext context = incoming != null ? incoming.getContext() : new BasicHttpContext();
+                if (incoming != null) {
+                    request = incoming.getRequest();
+                }
+            }
+            if (request == null) {
+                final Queue<PipelineEntry> pipeline = state.getPipeline();
+                final PipelineEntry pipelineEntry = pipeline.poll();
+                if (pipelineEntry != null) {
+                    request = pipelineEntry.getRequest();
+                }
+            }
+            if (request != null) {
+                conn.resetInput();
+                final HttpCoreContext context = HttpCoreContext.create();
                 final HttpAsyncResponseProducer responseProducer = handleException(cause, context);
                 final HttpResponse response = responseProducer.generateResponse();
                 final Outgoing outgoing = new Outgoing(request, response, responseProducer, context);
                 state.setResponseState(MessageState.INIT);
                 state.setOutgoing(outgoing);
                 commitFinalResponse(conn, state);
-            } catch (final Exception ex) {
-                shutdownConnection(conn);
-                closeHandlers(state);
-                if (ex instanceof RuntimeException) {
-                    throw (RuntimeException) ex;
-                }
-                log(ex);
+                return;
             }
+            conn.close();
+        } catch (final Exception ex) {
+            shutdownConnection(conn);
+            closeHandlers(state);
+            if (ex instanceof RuntimeException) {
+                throw (RuntimeException) ex;
+            }
+            log(ex);
         }
+    }
+
+    protected HttpResponse createHttpResponse(final int status, final HttpContext context) {
+        return this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1, status, context);
     }
 
     @Override
@@ -350,8 +379,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                         && !(conn instanceof SessionBufferStatus && ((SessionBufferStatus) conn).hasBufferedInput())) {
 
                 state.setRequestState(MessageState.ACK_EXPECTED);
-                final HttpResponse ack = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
-                        HttpStatus.SC_CONTINUE, context);
+                final HttpResponse ack = createHttpResponse(HttpStatus.SC_CONTINUE, context);
                 if (this.expectationVerifier != null) {
                     conn.suspendInput();
                     conn.suspendOutput();
@@ -442,11 +470,10 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                 final Object result = pipelineEntry.getResult();
                 final HttpRequest request = pipelineEntry.getRequest();
                 final HttpContext context = pipelineEntry.getContext();
+                final HttpResponse response = createHttpResponse(HttpStatus.SC_OK, context);
+                final HttpAsyncExchangeImpl httpExchange = new HttpAsyncExchangeImpl(
+                        request, response, state, conn, context);
                 if (result != null) {
-                    final HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
-                            HttpStatus.SC_OK, context);
-                    final HttpAsyncExchangeImpl httpExchange = new HttpAsyncExchangeImpl(
-                            request, response, state, conn, context);
                     final HttpAsyncRequestHandler<Object> handler = pipelineEntry.getHandler();
                     conn.suspendOutput();
                     try {
@@ -454,14 +481,12 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     } catch (final RuntimeException ex) {
                         throw ex;
                     } catch (final Exception ex) {
-                        pipeline.add(new PipelineEntry(
-                            request,
-                            null,
-                            ex,
-                            handler,
-                            context));
-                        state.setResponseState(MessageState.READY);
-                        responseReady(conn);
+                        if (!httpExchange.isCompleted()) {
+                            httpExchange.submitResponse(handleException(ex, context));
+                        } else {
+                            log(ex);
+                            conn.close();
+                        }
                         return;
                     }
                 } else {
@@ -469,8 +494,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
                     final HttpAsyncResponseProducer responseProducer = handleException(
                             exception != null ? exception : new HttpException("Internal error processing request"),
                             context);
-                    final HttpResponse error = responseProducer.generateResponse();
-                    state.setOutgoing(new Outgoing(request, error, responseProducer, context));
+                    httpExchange.submitResponse(responseProducer);
                 }
             }
             if (state.getResponseState() == MessageState.INIT) {
@@ -529,7 +553,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
     public void timeout(final NHttpServerConnection conn) throws IOException {
         final State state = getState(conn);
         if (state != null) {
-            exception(conn, new SocketTimeoutException(
+            closeHandlers(state, new SocketTimeoutException(
                     String.format("%,d milliseconds timeout on connection %s", conn.getSocketTimeout(), conn)));
         }
         if (conn.getStatus() == NHttpConnection.ACTIVE) {
@@ -623,10 +647,8 @@ public class HttpAsyncService implements NHttpServerEventHandler {
         if (message == null) {
             message = ex.toString();
         }
-        final HttpResponse response = this.responseFactory.newHttpResponse(HttpVersion.HTTP_1_1,
-                toStatusCode(ex, context), context);
-        return new ErrorResponseProducer(response,
-                new NStringEntity(message, ContentType.DEFAULT_TEXT), false);
+        final HttpResponse response = createHttpResponse(toStatusCode(ex, context), context);
+        return new ErrorResponseProducer(response, new NStringEntity(message, ContentType.DEFAULT_TEXT), false);
     }
 
     protected int toStatusCode(final Exception ex, final HttpContext context) {
@@ -637,8 +659,6 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             code = HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED;
         } else if (ex instanceof ProtocolException) {
             code = HttpStatus.SC_BAD_REQUEST;
-        } else if (ex instanceof SocketTimeoutException) {
-            code = HttpStatus.SC_GATEWAY_TIMEOUT;
         } else {
             code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
         }

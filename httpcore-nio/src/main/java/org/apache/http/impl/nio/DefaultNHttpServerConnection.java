@@ -290,7 +290,6 @@ public class DefaultNHttpServerConnection
                 }
             }
         } catch (final HttpException ex) {
-            resetInput();
             handler.exception(this, ex);
         } catch (final Exception ex) {
             handler.exception(this, ex);

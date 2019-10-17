@@ -163,6 +163,7 @@ public class TestHttpAsyncService {
         state.setIncoming(incoming);
         state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
+        Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
 
         final HttpException httpex = new HttpException();
         this.protocolHandler.exception(this.conn, httpex);
@@ -210,6 +211,7 @@ public class TestHttpAsyncService {
         state.setOutgoing(outgoing);
         state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
+        Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
 
         Mockito.doThrow(new RuntimeException()).when(this.httpProcessor).process(
                 Matchers.any(HttpResponse.class), Matchers.any(HttpContext.class));
@@ -243,6 +245,7 @@ public class TestHttpAsyncService {
         state.setOutgoing(outgoing);
         state.setCancellable(this.cancellable);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
+        Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
 
         Mockito.doThrow(new IOException()).when(this.httpProcessor).process(
                 Matchers.any(HttpResponse.class), Matchers.any(HttpContext.class));
@@ -280,7 +283,7 @@ public class TestHttpAsyncService {
 
         Assert.assertEquals(MessageState.READY, state.getRequestState());
         Assert.assertEquals(MessageState.READY, state.getResponseState());
-        Mockito.verify(this.conn).shutdown();
+        Mockito.verify(this.conn).close();
         Mockito.verify(this.requestConsumer).failed(httpex);
         Mockito.verify(this.requestConsumer).close();
         Mockito.verify(this.responseProducer).failed(httpex);
@@ -1329,19 +1332,31 @@ public class TestHttpAsyncService {
     @Test
     public void testTimeoutActiveConnection() throws Exception {
         final State state = new State();
+        final HttpContext exchangeContext = new BasicHttpContext();
+        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final Incoming incoming = new Incoming(
+                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        state.setIncoming(incoming);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
+        Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.conn.getStatus()).thenReturn(NHttpConnection.ACTIVE, NHttpConnection.CLOSED);
 
         this.protocolHandler.timeout(this.conn);
 
-        Mockito.verify(this.conn).close();
+        Mockito.verify(this.conn, Mockito.atLeastOnce()).close();
         Mockito.verify(this.conn, Mockito.never()).setSocketTimeout(Matchers.anyInt());
     }
 
     @Test
     public void testTimeoutActiveConnectionBufferedData() throws Exception {
         final State state = new State();
+        final HttpContext exchangeContext = new BasicHttpContext();
+        final HttpRequest request = new BasicHttpRequest("GET", "/", HttpVersion.HTTP_1_1);
+        final Incoming incoming = new Incoming(
+                request, this.requestHandler, this.requestConsumer, exchangeContext);
+        state.setIncoming(incoming);
         this.connContext.setAttribute(HttpAsyncService.HTTP_EXCHANGE_STATE, state);
+        Mockito.when(this.conn.getHttpRequest()).thenReturn(request);
         Mockito.when(this.conn.getStatus()).thenReturn(NHttpConnection.ACTIVE, NHttpConnection.CLOSING);
 
         this.protocolHandler.timeout(this.conn);
