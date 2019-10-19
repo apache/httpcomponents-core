@@ -125,8 +125,7 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
             return;
         }
         setInputMode();
-        final int requiredCapacity = buffer().position() + src.remaining();
-        ensureCapacity(requiredCapacity);
+        ensureAdjustedCapacity(buffer().position() + src.remaining());
         buffer().put(src);
     }
 
@@ -147,7 +146,7 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
         final int off = 0;
         final int len = b.length;
         final int requiredCapacity = buffer().position() + len;
-        ensureCapacity(requiredCapacity);
+        ensureAdjustedCapacity(requiredCapacity);
         buffer().put(b, off, len);
     }
 

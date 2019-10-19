@@ -142,13 +142,25 @@ public class ExpandableBuffer {
     }
 
     /**
-     * Ensures the buffer can accommodate the required capacity.
+     * Ensures the buffer can accommodate the exact required capacity.
      *
      * @param requiredCapacity the required capacity.
      */
     protected void ensureCapacity(final int requiredCapacity) {
         if (requiredCapacity > this.buffer.capacity()) {
             expandCapacity(requiredCapacity);
+        }
+    }
+
+    /**
+     * Ensures the buffer can accommodate at least the required capacity adjusted to multiples of 1024.
+     *
+     * @param requiredCapacity the required capacity.
+     */
+    protected void ensureAdjustedCapacity(final int requiredCapacity) {
+        if (requiredCapacity > this.buffer.capacity()) {
+            final int adjustedCapacity = ((requiredCapacity >> 10) + 1) << 10;
+            expandCapacity(adjustedCapacity);
         }
     }
 

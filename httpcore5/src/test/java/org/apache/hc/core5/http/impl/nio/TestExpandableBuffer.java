@@ -34,7 +34,7 @@ import org.junit.Test;
 public class TestExpandableBuffer {
 
     @Test
-    public void testReadLineChunks() throws Exception {
+    public void testBasics() throws Exception {
         final ExpandableBuffer buffer = new ExpandableBuffer(16);
         Assert.assertThat(buffer.mode(), CoreMatchers.equalTo(ExpandableBuffer.Mode.INPUT));
         Assert.assertThat(buffer.hasData(), CoreMatchers.equalTo(false));
@@ -65,4 +65,18 @@ public class TestExpandableBuffer {
         Assert.assertThat(buffer.capacity(), CoreMatchers.equalTo(22));
     }
 
+    @Test
+    public void testAdjustCapacity() throws Exception {
+        final ExpandableBuffer buffer = new ExpandableBuffer(16);
+        Assert.assertThat(buffer.capacity(), CoreMatchers.equalTo(16));
+
+        buffer.ensureCapacity(21);
+        Assert.assertThat(buffer.capacity(), CoreMatchers.equalTo(21));
+        buffer.ensureAdjustedCapacity(22);
+        Assert.assertThat(buffer.capacity(), CoreMatchers.equalTo(1024));
+        buffer.ensureAdjustedCapacity(1024);
+        Assert.assertThat(buffer.capacity(), CoreMatchers.equalTo(1024));
+        buffer.ensureAdjustedCapacity(1025);
+        Assert.assertThat(buffer.capacity(), CoreMatchers.equalTo(2048));
+    }
 }

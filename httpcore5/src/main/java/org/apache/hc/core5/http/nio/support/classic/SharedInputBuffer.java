@@ -55,7 +55,7 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
         lock.lock();
         try {
             setInputMode();
-            ensureCapacity(buffer().position() + src.remaining());
+            ensureAdjustedCapacity(buffer().position() + src.remaining());
             buffer().put(src);
             final int remaining = buffer().remaining();
             condition.signalAll();

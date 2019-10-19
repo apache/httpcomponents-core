@@ -76,7 +76,7 @@ public class BufferedData extends ExpandableBuffer {
         Args.notNull(src, "Data source");
         setInputMode();
         final int requiredCapacity = buffer().position() + src.remaining();
-        ensureCapacity(requiredCapacity);
+        ensureAdjustedCapacity(requiredCapacity);
         buffer().put(src);
     }
 
