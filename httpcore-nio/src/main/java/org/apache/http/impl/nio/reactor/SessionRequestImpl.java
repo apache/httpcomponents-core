@@ -101,6 +101,15 @@ public class SessionRequestImpl implements SessionRequest {
 
     protected void setKey(final SelectionKey key) {
         this.key = key;
+        if (this.completed.get()) {
+            key.cancel();
+            final Channel channel = key.channel();
+            if (channel.isOpen()) {
+                try {
+                    channel.close();
+                } catch (final IOException ignore) {}
+            }
+        }
     }
 
     @Override
