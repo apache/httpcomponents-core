@@ -210,11 +210,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                 final int timeout = sessionRequest.getConnectTimeout();
                 if (timeout > 0) {
                     if (handle.getRequestTime() + timeout < now) {
-                        try {
-                            sessionRequest.timeout();
-                        } finally {
-                            key.attach(null);
-                        }
+                        sessionRequest.timeout();
                     }
                 }
             }
