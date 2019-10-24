@@ -70,7 +70,7 @@ public class ProtocolVersion implements Serializable, Cloneable {
      */
     public ProtocolVersion(final String protocol, final int major, final int minor) {
         this.protocol = Args.notNull(protocol, "Protocol name");
-        this.major = Args.notNegative(major, "Protocol minor version");
+        this.major = Args.notNegative(major, "Protocol major version");
         this.minor = Args.notNegative(minor, "Protocol minor version");
     }
 
