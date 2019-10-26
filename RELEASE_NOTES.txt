@@ -1,3 +1,33 @@
+Release 5.0-BETA10
+-------------------
+
+This BETA fixes a number of defects found since the last release.
+
+IMPORTANT: This release is expected to be the last BETA version. If no major
+design flaws are found, the actual 5.0 API will be frozen and the next version will be
+promoted to GA.
+
+
+Change Log
+-------------------
+
+* HTTPCORE-608: Fixes regression that can lead to performance degradation of
+  asynchronous HTTP/1.1 protocol handlers.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-606: HTTP/2 protocol handler incorrectly uses larger frame size prior
+  to SETTING handshake completion; revision of SETTINGS handshake implementation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: HTTP/2 Protocol handler does not update global connection output window
+  in some cases.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Upgraded Conscrypt dependency to version 2.2.1
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 5.0-BETA9
 -------------------
 
