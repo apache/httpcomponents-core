@@ -178,7 +178,8 @@ public class TimeValue implements Comparable<TimeValue> {
     }
 
     /**
-     * Parses a TimeValue in the format {@code <Long><SPACE><TimeUnit>}, for example {@code "1,200 MILLISECONDS"}.
+     * Parses a TimeValue in the format {@code <Long><SPACE><TimeUnit>} using
+     * {@link Locale#ROOT}, for example {@code "1,200 MILLISECONDS"}.
      * <p>
      * Parses:
      * </p>
@@ -189,13 +190,33 @@ public class TimeValue implements Comparable<TimeValue> {
      * <li></li>
      * </ul>
      *
-     *
      * @param value the TimeValue to parse
      * @return a new TimeValue
      * @throws ParseException if the number cannot be parsed
      */
     public static TimeValue parse(final String value) throws ParseException {
-        final Locale locale = Locale.ROOT;
+        return parse(value, Locale.ROOT);
+    }
+
+    /**
+     * Parses a TimeValue in the format {@code <Long><SPACE><TimeUnit>} using the
+     * given {@link Locale}, for example {@code "1,200 MILLISECONDS"} and
+     * {@link Locale#ROOT}.
+     * <p>
+     * Parses:
+     * </p>
+     * <ul>
+     * <li>{@code "1,200 MILLISECONDS"} Note the comma.</li>
+     * <li>{@code "1200 MILLISECONDS"} Without a comma.</li>
+     * <li>{@code " 1,200 MILLISECONDS "} Spaces are ignored.</li>
+     * <li></li>
+     * </ul>
+     *
+     * @param value the TimeValue to parse
+     * @return a new TimeValue
+     * @throws ParseException if the number cannot be parsed
+     */
+    public static TimeValue parse(final String value, final Locale locale) throws ParseException {
         final String split[] = value.trim().split("\\s+");
         if (split.length < 2) {
             throw new IllegalArgumentException(
@@ -376,7 +397,11 @@ public class TimeValue implements Comparable<TimeValue> {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "%,d %s", duration, timeUnit);
+        return toString(Locale.ROOT);
+    }
+
+    public String toString(final Locale locale) {
+        return String.format(locale, "%,d %s", duration, timeUnit);
     }
 
     public Timeout toTimeout() {
