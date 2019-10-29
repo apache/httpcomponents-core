@@ -116,8 +116,8 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
     @Override
     public final void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
         Args.notNull(waitTime, "Wait time");
-        final long deadline = System.currentTimeMillis() + waitTime.toMillis();
-        long remaining = waitTime.toMillis();
+        final long deadline = System.currentTimeMillis() + waitTime.toMilliseconds();
+        long remaining = waitTime.toMilliseconds();
         synchronized (this.shutdownMutex) {
             while (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
                 this.shutdownMutex.wait(remaining);

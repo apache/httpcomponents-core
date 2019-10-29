@@ -53,12 +53,12 @@ public class TimeValue implements Comparable<TimeValue> {
     /**
      * A negative one millisecond {@link TimeValue}.
      */
-    public static final TimeValue NEG_ONE_MILLISECONDS = TimeValue.of(INT_UNDEFINED, TimeUnit.MILLISECONDS);
+    public static final TimeValue NEG_ONE_MILLISECOND = TimeValue.of(INT_UNDEFINED, TimeUnit.MILLISECONDS);
 
     /**
      * A negative one second {@link TimeValue}.
      */
-    public static final TimeValue NEG_ONE_SECONDS = TimeValue.of(INT_UNDEFINED, TimeUnit.SECONDS);
+    public static final TimeValue NEG_ONE_SECOND = TimeValue.of(INT_UNDEFINED, TimeUnit.SECONDS);
 
     /**
      * A zero milliseconds {@link TimeValue}.
@@ -99,24 +99,24 @@ public class TimeValue implements Comparable<TimeValue> {
 
     /**
      * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
-     * {@link #NEG_ONE_SECONDS}.
+     * {@link #NEG_ONE_SECOND}.
      *
      * @param timeValue may be {@code null}
-     * @return {@code timeValue} or {@link #NEG_ONE_SECONDS}
+     * @return {@code timeValue} or {@link #NEG_ONE_SECOND}
      */
     public static TimeValue defaultsToNegativeOneMillisecond(final TimeValue timeValue) {
-        return defaultsTo(timeValue, NEG_ONE_MILLISECONDS);
+        return defaultsTo(timeValue, NEG_ONE_MILLISECOND);
     }
 
     /**
      * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
-     * {@link #NEG_ONE_SECONDS}.
+     * {@link #NEG_ONE_SECOND}.
      *
      * @param timeValue may be {@code null}
-     * @return {@code timeValue} or {@link #NEG_ONE_SECONDS}
+     * @return {@code timeValue} or {@link #NEG_ONE_SECOND}
      */
     public static TimeValue defaultsToNegativeOneSecond(final TimeValue timeValue) {
-        return defaultsTo(timeValue, NEG_ONE_SECONDS);
+        return defaultsTo(timeValue, NEG_ONE_SECOND);
     }
 
     /**
@@ -126,7 +126,7 @@ public class TimeValue implements Comparable<TimeValue> {
      * @param timeValue may be {@code null}
      * @return {@code timeValue} or {@link #ZERO_MILLISECONDS}
      */
-    public static TimeValue defaultsToZeroMillis(final TimeValue timeValue) {
+    public static TimeValue defaultsToZeroMilliseconds(final TimeValue timeValue) {
         return defaultsTo(timeValue, ZERO_MILLISECONDS);
     }
 
@@ -198,7 +198,8 @@ public class TimeValue implements Comparable<TimeValue> {
         final Locale locale = Locale.ROOT;
         final String split[] = value.trim().split("\\s+");
         if (split.length < 2) {
-            throw new IllegalArgumentException(String.format("Expected format for <Long><SPACE><TimeUnit>: ", value));
+            throw new IllegalArgumentException(
+                    String.format("Expected format for <Long><SPACE><java.util.concurrent.TimeUnit>: %s", value));
         }
         final String clean0 = split[0].trim();
         final String clean1 = split[1].trim().toUpperCase(Locale.ROOT);
@@ -339,23 +340,23 @@ public class TimeValue implements Comparable<TimeValue> {
         return timeUnit.toHours(duration);
     }
 
-    public long toMicros() {
+    public long toMicroseconds() {
         return timeUnit.toMicros(duration);
     }
 
-    public long toMillis() {
+    public long toMilliseconds() {
         return timeUnit.toMillis(duration);
     }
 
-    public int toMillisIntBound() {
-        return asBoundInt(toMillis());
+    public int toMillisecondsIntBound() {
+        return asBoundInt(toMilliseconds());
     }
 
     public long toMinutes() {
         return timeUnit.toMinutes(duration);
     }
 
-    public long toNanos() {
+    public long toNanoseconds() {
         return timeUnit.toNanos(duration);
     }
 

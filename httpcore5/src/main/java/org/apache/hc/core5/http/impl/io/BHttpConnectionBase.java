@@ -197,7 +197,7 @@ class BHttpConnectionBase implements BHttpConnection {
         final SocketHolder socketHolder = this.socketHolderRef.get();
         if (socketHolder != null) {
             try {
-                socketHolder.getSocket().setSoTimeout(Timeout.defaultsToDisabled(timeout).toMillisIntBound());
+                socketHolder.getSocket().setSoTimeout(Timeout.defaultsToDisabled(timeout).toMillisecondsIntBound());
             } catch (final SocketException ignore) {
                 // It is not quite clear from the Sun's documentation if there are any
                 // other legitimate cases for a socket exception to be thrown when setting

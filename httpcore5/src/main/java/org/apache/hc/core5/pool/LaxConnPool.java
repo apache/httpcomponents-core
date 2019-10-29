@@ -109,7 +109,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
     }
 
     public LaxConnPool(final int defaultMaxPerRoute) {
-        this(defaultMaxPerRoute, TimeValue.NEG_ONE_MILLISECONDS, PoolReusePolicy.LIFO, null, null);
+        this(defaultMaxPerRoute, TimeValue.NEG_ONE_MILLISECOND, PoolReusePolicy.LIFO, null, null);
     }
 
     public boolean isShutdown() {
@@ -263,7 +263,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
     @Override
     public void closeIdle(final TimeValue idleTime) {
-        final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMillis() : 0);
+        final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
         enumAvailable(new Callback<PoolEntry<T, C>>() {
 
             @Override

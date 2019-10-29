@@ -479,7 +479,7 @@ public class HttpBenchmark {
             workers[i] = worker;
         }
 
-        final long deadline = config.getTimeLimit() != null ? config.getTimeLimit().toMillis() : Long.MAX_VALUE;
+        final long deadline = config.getTimeLimit() != null ? config.getTimeLimit().toMilliseconds() : Long.MAX_VALUE;
 
         final long startTime = System.currentTimeMillis();
 

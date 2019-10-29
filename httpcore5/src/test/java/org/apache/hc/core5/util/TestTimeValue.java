@@ -44,20 +44,20 @@ public class TestTimeValue {
         Assert.assertEquals(timeUnit.toHours(value), TimeValue.of(value, timeUnit).toHours());
     }
 
-    private void checkToMicros(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toMicros(value), TimeValue.of(value, timeUnit).toMicros());
+    private void checkToMicroseconds(final long value, final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit.toMicros(value), TimeValue.of(value, timeUnit).toMicroseconds());
     }
 
-    private void checkToMillis(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toMillis(value), TimeValue.of(value, timeUnit).toMillis());
+    private void checkToMilliseconds(final long value, final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit.toMillis(value), TimeValue.of(value, timeUnit).toMilliseconds());
     }
 
     private void checkToMinutes(final long value, final TimeUnit timeUnit) {
         Assert.assertEquals(timeUnit.toMinutes(value), TimeValue.of(value, timeUnit).toMinutes());
     }
 
-    private void checkToNanos(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toNanos(value), TimeValue.of(value, timeUnit).toNanos());
+    private void checkToNanoseconds(final long value, final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit.toNanos(value), TimeValue.of(value, timeUnit).toNanoseconds());
     }
 
     private void checkToSeconds(final long value, final TimeUnit timeUnit) {
@@ -70,9 +70,9 @@ public class TestTimeValue {
             checkToHours(value, timeUnit);
             checkToMinutes(value, timeUnit);
             checkToSeconds(value, timeUnit);
-            checkToMillis(value, timeUnit);
-            checkToMicros(value, timeUnit);
-            checkToNanos(value, timeUnit);
+            checkToMilliseconds(value, timeUnit);
+            checkToMicroseconds(value, timeUnit);
+            checkToNanoseconds(value, timeUnit);
         }
     }
 
@@ -97,18 +97,18 @@ public class TestTimeValue {
         // nominator is 0, result should be 0.
         Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toDays());
         Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toHours());
-        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMicros());
-        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMillis());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMicroseconds());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMilliseconds());
         Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMinutes());
-        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toNanos());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toNanoseconds());
         Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toSeconds());
-        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMillisIntBound());
+        Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toMillisecondsIntBound());
         Assert.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toSecondsIntBound());
         //
-        Assert.assertEquals(50, TimeValue.ofMilliseconds(100).divide(2).toMillis());
+        Assert.assertEquals(50, TimeValue.ofMilliseconds(100).divide(2).toMilliseconds());
         Assert.assertEquals(0, TimeValue.ofMinutes(1).divide(2).toSeconds());
         Assert.assertEquals(30, TimeValue.ofMinutes(1).divide(2, TimeUnit.SECONDS).toSeconds());
-        Assert.assertEquals(30000, TimeValue.ofMinutes(1).divide(2, TimeUnit.MILLISECONDS).toMillis());
+        Assert.assertEquals(30000, TimeValue.ofMinutes(1).divide(2, TimeUnit.MILLISECONDS).toMilliseconds());
     }
 
     @Test(expected = ArithmeticException.class)
@@ -136,7 +136,7 @@ public class TestTimeValue {
     }
 
     @Test
-    public void testFactoryForMillisseconds() {
+    public void testFactoryForMilliseconds() {
         testFactory(TimeUnit.MILLISECONDS);
     }
 

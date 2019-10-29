@@ -78,8 +78,8 @@ public class Deadline {
     public static Deadline calculate(final long timeMillis, final TimeValue timeValue) {
         if (TimeValue.isPositive(timeValue)) {
             // TODO handle unlikely overflow
-            final long deadline = timeMillis + timeValue.toMillis();
-            return deadline < 0 ? Deadline.MAX_VALUE : Deadline.fromUnixMillis(deadline);
+            final long deadline = timeMillis + timeValue.toMilliseconds();
+            return deadline < 0 ? Deadline.MAX_VALUE : Deadline.fromUnixMilliseconds(deadline);
         }
         return Deadline.MAX_VALUE;
     }
@@ -101,7 +101,7 @@ public class Deadline {
      * @param value a UNIX time in milliseconds.
      * @return a new deadline.
      */
-    public static Deadline fromUnixMillis(final long value) {
+    public static Deadline fromUnixMilliseconds(final long value) {
         if (value == INTERNAL_MAX_VALUE) {
             return MAX_VALUE;
         }
@@ -119,7 +119,7 @@ public class Deadline {
      * @throws ParseException if the specified source string cannot be parsed.
      */
     public static Deadline parse(final String source) throws ParseException {
-        return fromUnixMillis(simpleDateFormat.parse(source).getTime());
+        return fromUnixMilliseconds(simpleDateFormat.parse(source).getTime());
     }
 
     private volatile boolean frozen;

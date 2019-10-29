@@ -69,7 +69,7 @@ class RequestListener implements Runnable {
         try {
             while (!isTerminated() && !Thread.interrupted()) {
                 final Socket socket = this.serverSocket.accept();
-                socket.setSoTimeout(this.socketConfig.getSoTimeout().toMillisIntBound());
+                socket.setSoTimeout(this.socketConfig.getSoTimeout().toMillisecondsIntBound());
                 socket.setKeepAlive(this.socketConfig.isSoKeepAlive());
                 socket.setTcpNoDelay(this.socketConfig.isTcpNoDelay());
                 if (this.socketConfig.getRcvBufSize() > 0) {

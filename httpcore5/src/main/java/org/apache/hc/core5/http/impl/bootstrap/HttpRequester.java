@@ -249,7 +249,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         } else {
             sock = new Socket();
         }
-        sock.setSoTimeout(socketConfig.getSoTimeout().toMillisIntBound());
+        sock.setSoTimeout(socketConfig.getSoTimeout().toMillisecondsIntBound());
         sock.setReuseAddress(socketConfig.isSoReuseAddress());
         sock.setTcpNoDelay(socketConfig.isTcpNoDelay());
         sock.setKeepAlive(socketConfig.isSoKeepAlive());
@@ -259,7 +259,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         if (socketConfig.getSndBufSize() > 0) {
             sock.setSendBufferSize(socketConfig.getSndBufSize());
         }
-        final int linger = socketConfig.getSoLinger().toMillisIntBound();
+        final int linger = socketConfig.getSoLinger().toMillisecondsIntBound();
         if (linger >= 0) {
             sock.setSoLinger(true, linger);
         }
@@ -271,7 +271,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
             AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
                 @Override
                 public Object run() throws IOException {
-                    sock.connect(targetAddress, socketConfig.getSoTimeout().toMillisIntBound());
+                    sock.connect(targetAddress, socketConfig.getSoTimeout().toMillisecondsIntBound());
                     return null;
                 }
             });

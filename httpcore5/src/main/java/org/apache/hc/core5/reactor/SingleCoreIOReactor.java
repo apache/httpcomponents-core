@@ -88,7 +88,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         this.closedSessions = new ConcurrentLinkedQueue<>();
         this.channelQueue = new ConcurrentLinkedQueue<>();
         this.requestQueue = new ConcurrentLinkedQueue<>();
-        this.selectTimeoutMillis = this.reactorConfig.getSelectInterval().toMillis();
+        this.selectTimeoutMillis = this.reactorConfig.getSelectInterval().toMilliseconds();
     }
 
     void enqueueChannel(final SocketChannel socketChannel) throws IOReactorShutdownException {

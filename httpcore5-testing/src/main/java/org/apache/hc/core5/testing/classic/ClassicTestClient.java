@@ -89,7 +89,7 @@ public class ClassicTestClient {
             final StrictConnPool<HttpHost, HttpClientConnection> connPool = new StrictConnPool<>(
                     20,
                     50,
-                    TimeValue.NEG_ONE_MILLISECONDS,
+                    TimeValue.NEG_ONE_MILLISECOND,
                     PoolReusePolicy.LIFO,
                     LoggingConnPoolListener.INSTANCE);
             final HttpRequester requester = new HttpRequester(
