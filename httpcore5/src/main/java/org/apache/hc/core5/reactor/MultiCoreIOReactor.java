@@ -81,8 +81,8 @@ class MultiCoreIOReactor implements IOReactor {
     @Override
     public final void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
         Args.notNull(waitTime, "Wait time");
-        final long deadline = System.currentTimeMillis() + waitTime.toMillis();
-        long remaining = waitTime.toMillis();
+        final long deadline = System.currentTimeMillis() + waitTime.toMilliseconds();
+        long remaining = waitTime.toMilliseconds();
         for (int i = 0; i < this.ioReactors.length; i++) {
             final IOReactor ioReactor = this.ioReactors[i];
             if (ioReactor.getStatus().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {

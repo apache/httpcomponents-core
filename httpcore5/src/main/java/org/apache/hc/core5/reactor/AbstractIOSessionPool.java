@@ -261,7 +261,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     }
 
     public final void closeIdle(final TimeValue idleTime) {
-        final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMillis() : 0);
+        final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
         for (final PoolEntry poolEntry: sessionPool.values()) {
             if (poolEntry.session != null) {
                 synchronized (poolEntry) {

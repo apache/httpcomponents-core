@@ -251,7 +251,7 @@ public final class IOReactorConfig {
             this.ioThreadCount = Builder.getDefaultMaxIoThreadCount();
             this.soTimeout = Timeout.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
-            this.soLinger = TimeValue.NEG_ONE_SECONDS;
+            this.soLinger = TimeValue.NEG_ONE_SECOND;
             this.soKeepAlive = false;
             this.tcpNoDelay = true;
             this.sndBufSize = 0;

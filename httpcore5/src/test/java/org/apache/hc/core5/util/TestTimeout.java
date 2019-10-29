@@ -43,20 +43,20 @@ public class TestTimeout {
         Assert.assertEquals(timeUnit.toHours(value), Timeout.of(value, timeUnit).toHours());
     }
 
-    private void checkToMicros(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toMicros(value), Timeout.of(value, timeUnit).toMicros());
+    private void checkToMicroseconds(final long value, final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit.toMicros(value), Timeout.of(value, timeUnit).toMicroseconds());
     }
 
-    private void checkToMillis(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toMillis(value), Timeout.of(value, timeUnit).toMillis());
+    private void checkToMilliseconds(final long value, final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit.toMillis(value), Timeout.of(value, timeUnit).toMilliseconds());
     }
 
     private void checkToMinutes(final long value, final TimeUnit timeUnit) {
         Assert.assertEquals(timeUnit.toMinutes(value), Timeout.of(value, timeUnit).toMinutes());
     }
 
-    private void checkToNanos(final long value, final TimeUnit timeUnit) {
-        Assert.assertEquals(timeUnit.toNanos(value), Timeout.of(value, timeUnit).toNanos());
+    private void checkToNanoseconds(final long value, final TimeUnit timeUnit) {
+        Assert.assertEquals(timeUnit.toNanos(value), Timeout.of(value, timeUnit).toNanoseconds());
     }
 
     private void checkToSeconds(final long value, final TimeUnit timeUnit) {
@@ -69,9 +69,9 @@ public class TestTimeout {
             checkToHours(value, timeUnit);
             checkToMinutes(value, timeUnit);
             checkToSeconds(value, timeUnit);
-            checkToMillis(value, timeUnit);
-            checkToMicros(value, timeUnit);
-            checkToNanos(value, timeUnit);
+            checkToMilliseconds(value, timeUnit);
+            checkToMicroseconds(value, timeUnit);
+            checkToNanoseconds(value, timeUnit);
         }
     }
 

@@ -193,7 +193,7 @@ public class SocketConfig {
         Builder() {
             this.soTimeout = Timeout.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
-            this.soLinger = TimeValue.NEG_ONE_SECONDS;
+            this.soLinger = TimeValue.NEG_ONE_SECOND;
             this.soKeepAlive = false;
             this.tcpNoDelay = true;
             this.sndBufSize = 0;
@@ -350,7 +350,7 @@ public class SocketConfig {
             return new SocketConfig(
                     Timeout.defaultsToDisabled(soTimeout),
                     soReuseAddress,
-                    soLinger != null ? soLinger : TimeValue.NEG_ONE_SECONDS,
+                    soLinger != null ? soLinger : TimeValue.NEG_ONE_SECOND,
                     soKeepAlive, tcpNoDelay, sndBufSize, rcvBufSize, backlogSize,
                     socksProxyAddress);
         }

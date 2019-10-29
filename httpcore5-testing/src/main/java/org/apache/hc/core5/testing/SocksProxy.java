@@ -250,7 +250,7 @@ public class SocksProxy {
     }
 
     public void shutdown(final TimeValue timeout) throws InterruptedException {
-        final long waitUntil = System.currentTimeMillis() + timeout.toMillis();
+        final long waitUntil = System.currentTimeMillis() + timeout.toMilliseconds();
         Thread t = null;
         synchronized (this) {
             if (this.server != null) {

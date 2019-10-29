@@ -34,7 +34,7 @@ public class TestDeadlineTimeoutException {
 
     @Test
     public void testMessage() {
-        final Deadline deadline = Deadline.fromUnixMillis(1000).freeze();
+        final Deadline deadline = Deadline.fromUnixMilliseconds(1000).freeze();
         Assert.assertTrue(deadline.toString(), deadline.isExpired());
         final String format = deadline.formatTarget();
         final TimeValue diff = TimeValue.ofMilliseconds(deadline.remaining());

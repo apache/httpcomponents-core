@@ -139,7 +139,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
         final TimeValue timeValue = validateAfterInactivity;
         if (TimeValue.isPositive(timeValue)) {
             final long lastAccessTime = Math.min(ioSession.getLastReadTime(), ioSession.getLastWriteTime());
-            final long deadline = lastAccessTime + timeValue.toMillis();
+            final long deadline = lastAccessTime + timeValue.toMilliseconds();
             if (deadline <= System.currentTimeMillis()) {
                 final Timeout socketTimeoutMillis = ioSession.getSocketTimeout();
                 ioSession.enqueue(new PingCommand(new BasicPingHandler(new Callback<Boolean>() {

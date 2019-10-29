@@ -60,7 +60,7 @@ abstract class InternalChannel implements ModalCloseable {
     final boolean checkTimeout(final long currentTimeMillis) {
         final Timeout timeout = getTimeout();
         if (!timeout.isDisabled()) {
-            final long timeoutMillis = timeout.toMillis();
+            final long timeoutMillis = timeout.toMilliseconds();
             final long deadlineMillis = getLastEventTime() + timeoutMillis;
             if (currentTimeMillis > deadlineMillis) {
                 try {

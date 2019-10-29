@@ -45,7 +45,7 @@ public class TimeoutValueException extends TimeoutException {
      * @param timeoutActual How long we actually waited in milliseconds.
      * @return a new TimeoutValueException.
      */
-    public static TimeoutValueException fromMillis(final long timeoutDeadline, final long timeoutActual) {
+    public static TimeoutValueException fromMilliseconds(final long timeoutDeadline, final long timeoutActual) {
         return new TimeoutValueException(Timeout.ofMilliseconds(min0(timeoutDeadline)),
                 Timeout.ofMilliseconds(min0(timeoutActual)));
     }
