@@ -100,7 +100,7 @@ public class SessionRequestImpl implements SessionRequest {
 
     @Override
     public boolean isCompleted() {
-        return this.state.get().compareTo(SessionRequestState.ACTIVE) == 0;
+        return this.state.get().compareTo(SessionRequestState.ACTIVE) != 0;
     }
 
     boolean isTerminated() {
