@@ -133,7 +133,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                 if (clhs.length == 1) {
                     final Header clh = clhs[0];
                     try {
-                        final int contentLen = Integer.parseInt(clh.getValue());
+                        final long contentLen = Long.parseLong(clh.getValue());
                         if (contentLen < 0) {
                             return false;
                         }
