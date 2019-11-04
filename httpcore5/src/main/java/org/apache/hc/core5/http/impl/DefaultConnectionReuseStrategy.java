@@ -97,7 +97,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             final Header clh = response.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
             if (clh != null) {
                 try {
-                    final int contentLen = Integer.parseInt(clh.getValue());
+                    final long contentLen = Long.parseLong(clh.getValue());
                     if (contentLen > 0) {
                         return false;
                     }
