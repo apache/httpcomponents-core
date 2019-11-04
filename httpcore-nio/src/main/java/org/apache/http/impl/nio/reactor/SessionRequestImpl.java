@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.Channel;
 import java.nio.channels.SelectionKey;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.http.annotation.Contract;
 import org.apache.http.annotation.ThreadingBehavior;
@@ -48,15 +48,22 @@ import org.apache.http.util.Args;
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class SessionRequestImpl implements SessionRequest {
 
+    enum SessionRequestState {
+        ACTIVE,
+        SUCCESSFUL,
+        TIMEDOUT,
+        CANCELLED,
+        FAILED,
+    }
+
     private final SocketAddress remoteAddress;
     private final SocketAddress localAddress;
     private final Object attachment;
     private final SessionRequestCallback callback;
-    private final AtomicBoolean completed;
+    private final AtomicReference<SessionRequestState> state;
 
     private volatile SelectionKey key;
 
-    private volatile boolean terminated;
     private volatile int connectTimeout;
     private volatile IOSession session = null;
     private volatile IOException exception = null;
@@ -72,7 +79,7 @@ public class SessionRequestImpl implements SessionRequest {
         this.localAddress = localAddress;
         this.attachment = attachment;
         this.callback = callback;
-        this.completed = new AtomicBoolean(false);
+        this.state = new AtomicReference<SessionRequestState>(SessionRequestState.ACTIVE);
     }
 
     @Override
@@ -92,16 +99,16 @@ public class SessionRequestImpl implements SessionRequest {
 
     @Override
     public boolean isCompleted() {
-        return this.completed.get();
+        return this.state.get().compareTo(SessionRequestState.ACTIVE) != 0;
     }
 
     boolean isTerminated() {
-        return this.terminated;
+        return this.state.get().compareTo(SessionRequestState.SUCCESSFUL) > 0;
     }
 
     protected void setKey(final SelectionKey key) {
         this.key = key;
-        if (this.completed.get()) {
+        if (this.isCompleted()) {
             key.cancel();
             final Channel channel = key.channel();
             if (channel.isOpen()) {
@@ -114,11 +121,11 @@ public class SessionRequestImpl implements SessionRequest {
 
     @Override
     public void waitFor() throws InterruptedException {
-        if (this.completed.get()) {
+        if (this.isCompleted()) {
             return;
         }
         synchronized (this) {
-            while (!this.completed.get()) {
+            while (!this.isCompleted()) {
                 wait();
             }
         }
@@ -140,7 +147,7 @@ public class SessionRequestImpl implements SessionRequest {
 
     public void completed(final IOSession session) {
         Args.notNull(session, "Session");
-        if (this.completed.compareAndSet(false, true)) {
+        if (this.state.compareAndSet(SessionRequestState.ACTIVE, SessionRequestState.SUCCESSFUL)) {
             synchronized (this) {
                 this.session = session;
                 if (this.callback != null) {
@@ -155,8 +162,7 @@ public class SessionRequestImpl implements SessionRequest {
         if (exception == null) {
             return;
         }
-        if (this.completed.compareAndSet(false, true)) {
-            this.terminated = true;
+        if (this.state.compareAndSet(SessionRequestState.ACTIVE, SessionRequestState.FAILED)) {
             final SelectionKey key = this.key;
             if (key != null) {
                 key.cancel();
@@ -176,8 +182,7 @@ public class SessionRequestImpl implements SessionRequest {
     }
 
     public void timeout() {
-        if (this.completed.compareAndSet(false, true)) {
-            this.terminated = true;
+        if (this.state.compareAndSet(SessionRequestState.ACTIVE, SessionRequestState.TIMEDOUT)) {
             final SelectionKey key = this.key;
             if (key != null) {
                 key.cancel();
@@ -214,8 +219,7 @@ public class SessionRequestImpl implements SessionRequest {
 
     @Override
     public void cancel() {
-        if (this.completed.compareAndSet(false, true)) {
-            this.terminated = true;
+        if (this.state.compareAndSet(SessionRequestState.ACTIVE, SessionRequestState.CANCELLED)) {
             final SelectionKey key = this.key;
             if (key != null) {
                 key.cancel();
