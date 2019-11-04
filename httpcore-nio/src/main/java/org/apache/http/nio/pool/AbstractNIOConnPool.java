@@ -543,6 +543,10 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
 
     protected void requestCompleted(final SessionRequest request) {
         if (this.isShutDown.get()) {
+            final IOSession session = request.getSession();
+            if (session != null) {
+                session.close();
+            }
             return;
         }
         @SuppressWarnings("unchecked")

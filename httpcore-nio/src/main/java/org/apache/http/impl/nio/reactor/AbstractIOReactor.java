@@ -425,7 +425,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                     if (!sessionRequest.isTerminated()) {
                         sessionRequest.completed(session);
                     }
-                    if (!sessionRequest.isTerminated()) {
+                    if (!sessionRequest.isTerminated() && !session.isClosed()) {
                         sessionCreated(key, session);
                     }
                     if (sessionRequest.isTerminated()) {
