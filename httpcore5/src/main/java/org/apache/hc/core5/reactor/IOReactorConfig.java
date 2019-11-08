@@ -205,31 +205,31 @@ public final class IOReactorConfig {
 
     public static class Builder {
 
-        private static int DefaultMaxIoThreadCount = -1;
+        private static int defaultMaxIOThreadCount = -1;
 
         /**
          * Gets the default value for {@code ioThreadCount}. Returns
          * {@link Runtime#availableProcessors()} if
-         * {@link #setDefaultMaxIoThreadCount(int)} was called with a value less &lt;= 0.
+         * {@link #setDefaultMaxIOThreadCount(int)} was called with a value less &lt;= 0.
          *
          * @return the default value for ioThreadCount.
          * @since 4.4.10
          */
-        public static int getDefaultMaxIoThreadCount() {
-            return DefaultMaxIoThreadCount > 0 ? DefaultMaxIoThreadCount : Runtime.getRuntime().availableProcessors();
+        public static int getDefaultMaxIOThreadCount() {
+            return defaultMaxIOThreadCount > 0 ? defaultMaxIOThreadCount : Runtime.getRuntime().availableProcessors();
         }
 
         /**
          * Sets the default value for {@code ioThreadCount}. Use a value &lt;= 0 to
-         * cause {@link #getDefaultMaxIoThreadCount()} to return
+         * cause {@link #getDefaultMaxIOThreadCount()} to return
          * {@link Runtime#availableProcessors()}.
          *
-         * @param defaultMaxIoThreadCount
+         * @param defaultMaxIOThreadCount
          *            the default value for ioThreadCount.
          * @since 4.4.10
          */
-        public static void setDefaultMaxIoThreadCount(final int defaultMaxIoThreadCount) {
-            DefaultMaxIoThreadCount = defaultMaxIoThreadCount;
+        public static void setDefaultMaxIOThreadCount(final int defaultMaxIOThreadCount) {
+            Builder.defaultMaxIOThreadCount = defaultMaxIOThreadCount;
         }
 
         private TimeValue selectInterval;
@@ -248,7 +248,7 @@ public final class IOReactorConfig {
 
         Builder() {
             this.selectInterval = TimeValue.ofSeconds(1);
-            this.ioThreadCount = Builder.getDefaultMaxIoThreadCount();
+            this.ioThreadCount = Builder.getDefaultMaxIOThreadCount();
             this.soTimeout = Timeout.ZERO_MILLISECONDS;
             this.soReuseAddress = false;
             this.soLinger = TimeValue.NEG_ONE_SECOND;
@@ -464,7 +464,7 @@ public final class IOReactorConfig {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("[selectIntervalMillis=").append(this.selectInterval)
+        builder.append("[selectInterval=").append(this.selectInterval)
                 .append(", ioThreadCount=").append(this.ioThreadCount)
                 .append(", soTimeout=").append(this.soTimeout)
                 .append(", soReuseAddress=").append(this.soReuseAddress)
