@@ -252,7 +252,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                             }
                             final E leasedEntry = getPoolEntryBlocking(route, state, timeout, timeUnit, this);
                             if (validateAfterInactivity >= 0)  {
-                                if (validateAfterInactivity == 0 || leasedEntry.getUpdated() + validateAfterInactivity <= System.currentTimeMillis()) {
+                                if (leasedEntry.getUpdated() + validateAfterInactivity <= System.currentTimeMillis()) {
                                     if (!validate(leasedEntry)) {
                                         leasedEntry.close();
                                         release(leasedEntry, false);
