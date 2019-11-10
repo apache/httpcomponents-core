@@ -135,7 +135,7 @@ class MultiCoreIOReactor implements IOReactor {
 
     @Override
     public String toString() {
-        return super.toString() + " [status=" + status + "]";
+        return getClass().getSimpleName() + " [status=" + status + "]";
     }
 
 }
