@@ -63,7 +63,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
     private final Resolver<HttpHost, InetSocketAddress> addressResolver;
     private final TlsStrategy tlsStrategy;
 
-    private volatile TimeValue validateAfterInactivity;
+    private volatile TimeValue validateAfterInactivity = TimeValue.NEG_ONE_MILLISECOND;
 
     public H2ConnPool(
             final ConnectionInitiator connectionInitiator,
@@ -137,7 +137,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final IOSession ioSession,
             final Callback<Boolean> callback) {
         final TimeValue timeValue = validateAfterInactivity;
-        if (TimeValue.isPositive(timeValue)) {
+        if (TimeValue.ZERO_MILLISECONDS.equals(timeValue) || TimeValue.isPositive(timeValue)) {
             final long lastAccessTime = Math.min(ioSession.getLastReadTime(), ioSession.getLastWriteTime());
             final long deadline = lastAccessTime + timeValue.toMilliseconds();
             if (deadline <= System.currentTimeMillis()) {
