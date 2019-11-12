@@ -530,7 +530,7 @@ public class URIBuilder {
     }
 
     public boolean isOpaque() {
-        return isPathEmpty();
+        return this.pathSegments == null && this.encodedPath == null;
     }
 
     public String getScheme() {

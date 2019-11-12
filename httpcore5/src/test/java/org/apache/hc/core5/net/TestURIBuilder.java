@@ -448,4 +448,11 @@ public class TestURIBuilder {
         Assert.assertThat(uri, CoreMatchers.equalTo(URI.create("ftp:/blah")));
     }
 
+    @Test
+    public void testOpaque() throws Exception {
+        final URIBuilder uriBuilder = new URIBuilder("http://host.com");
+        final URI uri = uriBuilder.build();
+        Assert.assertThat(uriBuilder.isOpaque(), CoreMatchers.equalTo(uri.isOpaque()));
+    }
+
 }
