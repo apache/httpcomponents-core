@@ -55,7 +55,12 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public final class EntityUtils {
 
+    private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
+    private static final int DEFAULT_CHAR_BUFFER_SIZE = 1024;
+    private static final int DEFAULT_BYTE_BUFFER_SIZE = 4096;
+
     private EntityUtils() {
+        // NoOp
     }
 
     /**
@@ -64,13 +69,13 @@ public final class EntityUtils {
      *
      * @param entity the entity to consume.
      *
-     *
      * @since 4.2
      */
     public static void consumeQuietly(final HttpEntity entity) {
         try {
           consume(entity);
         } catch (final IOException ignore) {
+            // Ignore exception
         }
     }
 
@@ -93,7 +98,7 @@ public final class EntityUtils {
     }
 
     /**
-     * Read the contents of an entity and return it as a byte array.
+     * Reads the contents of an entity and return it as a byte array.
      *
      * @param entity the entity to read from=
      * @return byte array containing the entity content. May be null if
@@ -107,12 +112,12 @@ public final class EntityUtils {
             if (inStream == null) {
                 return null;
             }
-            int i = (int) Args.checkContentLength(entity);
-            if (i < 0) {
-                i = 4096;
+            int contentLength = (int) Args.checkContentLength(entity);
+            if (contentLength < 0) {
+                contentLength = DEFAULT_BYTE_BUFFER_SIZE;
             }
-            final ByteArrayBuffer buffer = new ByteArrayBuffer(i);
-            final byte[] tmp = new byte[4096];
+            final ByteArrayBuffer buffer = new ByteArrayBuffer(contentLength);
+            final byte[] tmp = new byte[DEFAULT_BYTE_BUFFER_SIZE];
             int l;
             while ((l = inStream.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
@@ -130,7 +135,7 @@ public final class EntityUtils {
             }
             int contentLength = (int) Args.checkContentLength(entity);
             if (contentLength < 0) {
-                contentLength = 4096;
+                contentLength = DEFAULT_BYTE_BUFFER_SIZE;
             }
             Charset charset = null;
             if (contentType != null) {
@@ -141,11 +146,11 @@ public final class EntityUtils {
                 }
             }
             if (charset == null) {
-                charset = StandardCharsets.ISO_8859_1;
+                charset = DEFAULT_CHARSET;
             }
             final Reader reader = new InputStreamReader(inStream, charset);
             final CharArrayBuffer buffer = new CharArrayBuffer(contentLength);
-            final char[] tmp = new char[1024];
+            final char[] tmp = new char[DEFAULT_CHAR_BUFFER_SIZE];
             int chReadCount;
             while ((chReadCount = reader.read(tmp)) != -1) {
                 buffer.append(tmp, 0, chReadCount);
@@ -155,7 +160,7 @@ public final class EntityUtils {
     }
 
     /**
-     * Get the entity content as a String, using the provided default character set
+     * Gets the entity content as a String, using the provided default character set
      * if none is found in the entity.
      * If defaultCharset is null, the default "ISO-8859-1" is used.
      *
@@ -192,7 +197,7 @@ public final class EntityUtils {
     }
 
     /**
-     * Get the entity content as a String, using the provided default character set
+     * Gets the entity content as a String, using the provided default character set
      * if none is found in the entity.
      * If defaultCharset is null, the default "ISO-8859-1" is used.
      *
@@ -212,7 +217,7 @@ public final class EntityUtils {
     }
 
     /**
-     * Read the contents of an entity and return it as a String.
+     * Reads the contents of an entity and return it as a String.
      * The content is converted using the character set from the entity (if any),
      * failing that, "ISO-8859-1" is used.
      *
@@ -234,6 +239,7 @@ public final class EntityUtils {
      * The encoding is taken from the entity's Content-Encoding header.
      * <p>
      * This is typically used while parsing an HTTP POST.
+     * </p>
      *
      * @param entity
      *            The entity to parse
@@ -247,21 +253,21 @@ public final class EntityUtils {
         if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {
             return Collections.emptyList();
         }
-        final long len = entity.getContentLength();
-        Args.checkRange(len, 0, Integer.MAX_VALUE, "HTTP entity is too large");
+        final long contentLength = entity.getContentLength();
+        Args.checkRange(contentLength, 0, Integer.MAX_VALUE, "HTTP entity is too large");
         final Charset charset = contentType.getCharset() != null ? contentType.getCharset()
-                        : StandardCharsets.ISO_8859_1;
+                        : DEFAULT_CHARSET;
         final CharArrayBuffer buf;
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return Collections.emptyList();
             }
-            buf = new CharArrayBuffer(len > 0 ? (int) len : 1024);
+            buf = new CharArrayBuffer(contentLength > 0 ? (int) contentLength : DEFAULT_CHAR_BUFFER_SIZE);
             final Reader reader = new InputStreamReader(inStream, charset);
-            final char[] tmp = new char[1024];
-            int l;
-            while ((l = reader.read(tmp)) != -1) {
-                buf.append(tmp, 0, l);
+            final char[] tmp = new char[DEFAULT_CHAR_BUFFER_SIZE];
+            int chReadCount;
+            while ((chReadCount = reader.read(tmp)) != -1) {
+                buf.append(tmp, 0, chReadCount);
             }
 
         }
