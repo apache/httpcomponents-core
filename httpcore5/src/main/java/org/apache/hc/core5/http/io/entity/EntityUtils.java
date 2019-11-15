@@ -97,6 +97,11 @@ public final class EntityUtils {
         }
     }
 
+    private static int getCheckedContentLength(final HttpEntity entity) {
+        final int contentLength = (int) Args.checkContentLength(entity);
+        return contentLength < 0 ? DEFAULT_BYTE_BUFFER_SIZE : contentLength;
+    }
+
     /**
      * Reads the contents of an entity and return it as a byte array.
      *
@@ -112,11 +117,7 @@ public final class EntityUtils {
             if (inStream == null) {
                 return null;
             }
-            int contentLength = (int) Args.checkContentLength(entity);
-            if (contentLength < 0) {
-                contentLength = DEFAULT_BYTE_BUFFER_SIZE;
-            }
-            final ByteArrayBuffer buffer = new ByteArrayBuffer(contentLength);
+            final ByteArrayBuffer buffer = new ByteArrayBuffer(getCheckedContentLength(entity));
             final byte[] tmp = new byte[DEFAULT_BYTE_BUFFER_SIZE];
             int l;
             while ((l = inStream.read(tmp)) != -1) {
@@ -126,16 +127,26 @@ public final class EntityUtils {
         }
     }
 
+    private static CharArrayBuffer toCharArrayBuffer(final InputStream inStream, final long contentLength,
+            final Charset charset) throws IOException {
+        final Charset actualCharset = charset == null ? DEFAULT_CHARSET : charset;
+        final CharArrayBuffer buf = new CharArrayBuffer(
+                contentLength > 0 ? (int) contentLength : DEFAULT_CHAR_BUFFER_SIZE);
+        final Reader reader = new InputStreamReader(inStream, actualCharset);
+        final char[] tmp = new char[DEFAULT_CHAR_BUFFER_SIZE];
+        int chReadCount;
+        while ((chReadCount = reader.read(tmp)) != -1) {
+            buf.append(tmp, 0, chReadCount);
+        }
+        return buf;
+    }
+
     private static String toString(
             final HttpEntity entity,
                     final ContentType contentType) throws IOException {
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
-            }
-            int contentLength = (int) Args.checkContentLength(entity);
-            if (contentLength < 0) {
-                contentLength = DEFAULT_BYTE_BUFFER_SIZE;
             }
             Charset charset = null;
             if (contentType != null) {
@@ -145,17 +156,7 @@ public final class EntityUtils {
                     charset = defaultContentType != null ? defaultContentType.getCharset() : null;
                 }
             }
-            if (charset == null) {
-                charset = DEFAULT_CHARSET;
-            }
-            final Reader reader = new InputStreamReader(inStream, charset);
-            final CharArrayBuffer buffer = new CharArrayBuffer(contentLength);
-            final char[] tmp = new char[DEFAULT_CHAR_BUFFER_SIZE];
-            int chReadCount;
-            while ((chReadCount = reader.read(tmp)) != -1) {
-                buffer.append(tmp, 0, chReadCount);
-            }
-            return buffer.toString();
+            return toCharArrayBuffer(inStream, getCheckedContentLength(entity), charset).toString();
         }
     }
 
@@ -253,8 +254,7 @@ public final class EntityUtils {
         if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {
             return Collections.emptyList();
         }
-        final long contentLength = entity.getContentLength();
-        Args.checkRange(contentLength, 0, Integer.MAX_VALUE, "HTTP entity is too large");
+        final int contentLength = getCheckedContentLength(entity);
         final Charset charset = contentType.getCharset() != null ? contentType.getCharset()
                         : DEFAULT_CHARSET;
         final CharArrayBuffer buf;
@@ -262,13 +262,7 @@ public final class EntityUtils {
             if (inStream == null) {
                 return Collections.emptyList();
             }
-            buf = new CharArrayBuffer(contentLength > 0 ? (int) contentLength : DEFAULT_CHAR_BUFFER_SIZE);
-            final Reader reader = new InputStreamReader(inStream, charset);
-            final char[] tmp = new char[DEFAULT_CHAR_BUFFER_SIZE];
-            int chReadCount;
-            while ((chReadCount = reader.read(tmp)) != -1) {
-                buf.append(tmp, 0, chReadCount);
-            }
+            buf = toCharArrayBuffer(inStream, contentLength, charset);
 
         }
         if (buf.isEmpty()) {
