@@ -113,11 +113,12 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "Entity");
+        final int contentLength = getCheckedContentLength(entity);
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
             }
-            final ByteArrayBuffer buffer = new ByteArrayBuffer(getCheckedContentLength(entity));
+            final ByteArrayBuffer buffer = new ByteArrayBuffer(contentLength);
             final byte[] tmp = new byte[DEFAULT_BYTE_BUFFER_SIZE];
             int l;
             while ((l = inStream.read(tmp)) != -1) {
@@ -144,6 +145,7 @@ public final class EntityUtils {
     private static String toString(
             final HttpEntity entity,
                     final ContentType contentType) throws IOException {
+        final int contentLength = getCheckedContentLength(entity);
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
@@ -156,7 +158,7 @@ public final class EntityUtils {
                     charset = defaultContentType != null ? defaultContentType.getCharset() : null;
                 }
             }
-            return toCharArrayBuffer(inStream, getCheckedContentLength(entity), charset).toString();
+            return toCharArrayBuffer(inStream, contentLength, charset).toString();
         }
     }
 
@@ -250,11 +252,11 @@ public final class EntityUtils {
      */
     public static List<NameValuePair> parse(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "HTTP entity");
+        final int contentLength = getCheckedContentLength(entity);
         final ContentType contentType = ContentType.parse(entity.getContentType());
         if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {
             return Collections.emptyList();
         }
-        final int contentLength = getCheckedContentLength(entity);
         final Charset charset = contentType.getCharset() != null ? contentType.getCharset()
                         : DEFAULT_CHARSET;
         final CharArrayBuffer buf;
