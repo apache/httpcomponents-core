@@ -97,8 +97,13 @@ public final class EntityUtils {
         }
     }
 
-    private static int getCheckedContentLength(final HttpEntity entity) {
-        final int contentLength = (int) Args.checkContentLength(entity);
+    /**
+     * Gets a usable content length value for the given candidate.
+     *
+     * @param contentLength an integer.
+     * @return The given content length or {@value #DEFAULT_BYTE_BUFFER_SIZE} if it is &lt 0.
+     */
+    private static int toContentLength(final int contentLength) {
         return contentLength < 0 ? DEFAULT_BYTE_BUFFER_SIZE : contentLength;
     }
 
@@ -113,7 +118,8 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "Entity");
-        final int contentLength = getCheckedContentLength(entity);
+        int contentLength = (int) Args.checkContentLength(entity);
+        contentLength = toContentLength(contentLength);
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
@@ -142,10 +148,9 @@ public final class EntityUtils {
         return buf;
     }
 
-    private static String toString(
-            final HttpEntity entity,
-                    final ContentType contentType) throws IOException {
-        final int contentLength = getCheckedContentLength(entity);
+    private static String toString(final HttpEntity entity, final ContentType contentType) throws IOException {
+        int contentLength = (int) Args.checkContentLength(entity);
+        contentLength = toContentLength(contentLength);
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
@@ -252,7 +257,8 @@ public final class EntityUtils {
      */
     public static List<NameValuePair> parse(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "HTTP entity");
-        final int contentLength = getCheckedContentLength(entity);
+        int contentLength = (int) Args.checkContentLength(entity);
+        contentLength = toContentLength(contentLength);
         final ContentType contentType = ContentType.parse(entity.getContentType());
         if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {
             return Collections.emptyList();
