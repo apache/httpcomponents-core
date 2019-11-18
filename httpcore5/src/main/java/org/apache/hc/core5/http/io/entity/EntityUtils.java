@@ -55,7 +55,12 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public final class EntityUtils {
 
+    private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
+    private static final int DEFAULT_CHAR_BUFFER_SIZE = 1024;
+    private static final int DEFAULT_BYTE_BUFFER_SIZE = 4096;
+
     private EntityUtils() {
+        // NoOp
     }
 
     /**
@@ -64,13 +69,13 @@ public final class EntityUtils {
      *
      * @param entity the entity to consume.
      *
-     *
      * @since 4.2
      */
     public static void consumeQuietly(final HttpEntity entity) {
         try {
           consume(entity);
         } catch (final IOException ignore) {
+            // Ignore exception
         }
     }
 
@@ -93,7 +98,17 @@ public final class EntityUtils {
     }
 
     /**
-     * Read the contents of an entity and return it as a byte array.
+     * Gets a usable content length value for the given candidate.
+     *
+     * @param contentLength an integer.
+     * @return The given content length or {@value #DEFAULT_BYTE_BUFFER_SIZE} if it is &lt 0.
+     */
+    private static int toContentLength(final int contentLength) {
+        return contentLength < 0 ? DEFAULT_BYTE_BUFFER_SIZE : contentLength;
+    }
+
+    /**
+     * Reads the contents of an entity and return it as a byte array.
      *
      * @param entity the entity to read from=
      * @return byte array containing the entity content. May be null if
@@ -103,16 +118,13 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "Entity");
+        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
             }
-            int i = (int) Args.checkContentLength(entity);
-            if (i < 0) {
-                i = 4096;
-            }
-            final ByteArrayBuffer buffer = new ByteArrayBuffer(i);
-            final byte[] tmp = new byte[4096];
+            final ByteArrayBuffer buffer = new ByteArrayBuffer(contentLength);
+            final byte[] tmp = new byte[DEFAULT_BYTE_BUFFER_SIZE];
             int l;
             while ((l = inStream.read(tmp)) != -1) {
                 buffer.append(tmp, 0, l);
@@ -121,16 +133,25 @@ public final class EntityUtils {
         }
     }
 
-    private static String toString(
-            final HttpEntity entity,
-                    final ContentType contentType) throws IOException {
+    private static CharArrayBuffer toCharArrayBuffer(final InputStream inStream, final long contentLength,
+            final Charset charset) throws IOException {
+        final Charset actualCharset = charset == null ? DEFAULT_CHARSET : charset;
+        final CharArrayBuffer buf = new CharArrayBuffer(
+                contentLength > 0 ? (int) contentLength : DEFAULT_CHAR_BUFFER_SIZE);
+        final Reader reader = new InputStreamReader(inStream, actualCharset);
+        final char[] tmp = new char[DEFAULT_CHAR_BUFFER_SIZE];
+        int chReadCount;
+        while ((chReadCount = reader.read(tmp)) != -1) {
+            buf.append(tmp, 0, chReadCount);
+        }
+        return buf;
+    }
+
+    private static String toString(final HttpEntity entity, final ContentType contentType) throws IOException {
+        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
-            }
-            int contentLength = (int) Args.checkContentLength(entity);
-            if (contentLength < 0) {
-                contentLength = 4096;
             }
             Charset charset = null;
             if (contentType != null) {
@@ -140,22 +161,12 @@ public final class EntityUtils {
                     charset = defaultContentType != null ? defaultContentType.getCharset() : null;
                 }
             }
-            if (charset == null) {
-                charset = StandardCharsets.ISO_8859_1;
-            }
-            final Reader reader = new InputStreamReader(inStream, charset);
-            final CharArrayBuffer buffer = new CharArrayBuffer(contentLength);
-            final char[] tmp = new char[1024];
-            int chReadCount;
-            while ((chReadCount = reader.read(tmp)) != -1) {
-                buffer.append(tmp, 0, chReadCount);
-            }
-            return buffer.toString();
+            return toCharArrayBuffer(inStream, contentLength, charset).toString();
         }
     }
 
     /**
-     * Get the entity content as a String, using the provided default character set
+     * Gets the entity content as a String, using the provided default character set
      * if none is found in the entity.
      * If defaultCharset is null, the default "ISO-8859-1" is used.
      *
@@ -192,7 +203,7 @@ public final class EntityUtils {
     }
 
     /**
-     * Get the entity content as a String, using the provided default character set
+     * Gets the entity content as a String, using the provided default character set
      * if none is found in the entity.
      * If defaultCharset is null, the default "ISO-8859-1" is used.
      *
@@ -212,7 +223,7 @@ public final class EntityUtils {
     }
 
     /**
-     * Read the contents of an entity and return it as a String.
+     * Reads the contents of an entity and return it as a String.
      * The content is converted using the character set from the entity (if any),
      * failing that, "ISO-8859-1" is used.
      *
@@ -234,6 +245,7 @@ public final class EntityUtils {
      * The encoding is taken from the entity's Content-Encoding header.
      * <p>
      * This is typically used while parsing an HTTP POST.
+     * </p>
      *
      * @param entity
      *            The entity to parse
@@ -243,26 +255,19 @@ public final class EntityUtils {
      */
     public static List<NameValuePair> parse(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "HTTP entity");
+        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         final ContentType contentType = ContentType.parse(entity.getContentType());
         if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {
             return Collections.emptyList();
         }
-        final long len = entity.getContentLength();
-        Args.checkRange(len, 0, Integer.MAX_VALUE, "HTTP entity is too large");
         final Charset charset = contentType.getCharset() != null ? contentType.getCharset()
-                        : StandardCharsets.ISO_8859_1;
+                        : DEFAULT_CHARSET;
         final CharArrayBuffer buf;
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return Collections.emptyList();
             }
-            buf = new CharArrayBuffer(len > 0 ? (int) len : 1024);
-            final Reader reader = new InputStreamReader(inStream, charset);
-            final char[] tmp = new char[1024];
-            int l;
-            while ((l = reader.read(tmp)) != -1) {
-                buf.append(tmp, 0, l);
-            }
+            buf = toCharArrayBuffer(inStream, contentLength, charset);
 
         }
         if (buf.isEmpty()) {
