@@ -118,8 +118,7 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "Entity");
-        int contentLength = (int) Args.checkContentLength(entity);
-        contentLength = toContentLength(contentLength);
+        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
@@ -149,8 +148,7 @@ public final class EntityUtils {
     }
 
     private static String toString(final HttpEntity entity, final ContentType contentType) throws IOException {
-        int contentLength = (int) Args.checkContentLength(entity);
-        contentLength = toContentLength(contentLength);
+        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
@@ -257,8 +255,7 @@ public final class EntityUtils {
      */
     public static List<NameValuePair> parse(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "HTTP entity");
-        int contentLength = (int) Args.checkContentLength(entity);
-        contentLength = toContentLength(contentLength);
+        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         final ContentType contentType = ContentType.parse(entity.getContentType());
         if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {
             return Collections.emptyList();
