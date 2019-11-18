@@ -52,8 +52,9 @@ public class Args {
     }
 
     public static long checkContentLength(final EntityDetails entityDetails) {
-        // -1 is a special value
-        // 0 is allowed as well
+        // -1 is a special value,
+        // 0 is allowed as well,
+        // but never more than Integer.MAX_VALUE.
         return checkRange(entityDetails.getContentLength(), -1, Integer.MAX_VALUE,
                         "HTTP entity too large to be buffered in memory)");
     }
