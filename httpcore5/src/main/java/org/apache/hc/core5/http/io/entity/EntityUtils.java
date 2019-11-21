@@ -55,6 +55,8 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public final class EntityUtils {
 
+    // TODO Consider using a sane value, but what is sane? 1 GB? 100 MB? 10 MB?
+    private static final int DEFAULT_ENTITY_RETURN_MAX_LENGTH = Integer.MAX_VALUE;
     private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
     private static final int DEFAULT_CHAR_BUFFER_SIZE = 1024;
     private static final int DEFAULT_BYTE_BUFFER_SIZE = 4096;
@@ -117,7 +119,7 @@ public final class EntityUtils {
      * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
-        Args.notNull(entity, "Entity");
+        Args.notNull(entity, "HttpEntity");
         final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
@@ -133,11 +135,41 @@ public final class EntityUtils {
         }
     }
 
+    /**
+     * Reads the contents of an entity and return it as a byte array.
+     *
+     * @param entity the entity to read from=
+     * @return byte array containing the entity content. May be null if
+     *   {@link HttpEntity#getContent()} is null.
+     * @param maxResultLength
+     *            The maximum size of the String to return; use it to guard against unreasonable or malicious processing.
+     * @throws IOException if an error occurs reading the input stream
+     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     */
+    public static byte[] toByteArray(final HttpEntity entity, final int maxResultLength) throws IOException {
+        Args.notNull(entity, "HttpEntity");
+        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
+        try (final InputStream inStream = entity.getContent()) {
+            if (inStream == null) {
+                return null;
+            }
+            final ByteArrayBuffer buffer = new ByteArrayBuffer(Math.min(maxResultLength, contentLength));
+            final byte[] tmp = new byte[DEFAULT_BYTE_BUFFER_SIZE];
+            int l;
+            while ((l = inStream.read(tmp)) != -1) {
+                buffer.append(tmp, 0, l);
+            }
+            return buffer.toByteArray();
+        }
+    }
+
     private static CharArrayBuffer toCharArrayBuffer(final InputStream inStream, final long contentLength,
-            final Charset charset) throws IOException {
+            final Charset charset, final int maxResultLength) throws IOException {
+        Args.notNull(inStream, "InputStream");
+        Args.positive(maxResultLength, "maxResultLength");
         final Charset actualCharset = charset == null ? DEFAULT_CHARSET : charset;
         final CharArrayBuffer buf = new CharArrayBuffer(
-                contentLength > 0 ? (int) contentLength : DEFAULT_CHAR_BUFFER_SIZE);
+                Math.min(maxResultLength, contentLength > 0 ? (int) contentLength : DEFAULT_CHAR_BUFFER_SIZE));
         final Reader reader = new InputStreamReader(inStream, actualCharset);
         final char[] tmp = new char[DEFAULT_CHAR_BUFFER_SIZE];
         int chReadCount;
@@ -147,7 +179,9 @@ public final class EntityUtils {
         return buf;
     }
 
-    private static String toString(final HttpEntity entity, final ContentType contentType) throws IOException {
+    private static String toString(final HttpEntity entity, final ContentType contentType, final int maxResultLength)
+            throws IOException {
+        Args.notNull(entity, "HttpEntity");
         final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
@@ -161,7 +195,7 @@ public final class EntityUtils {
                     charset = defaultContentType != null ? defaultContentType.getCharset() : null;
                 }
             }
-            return toCharArrayBuffer(inStream, contentLength, charset).toString();
+            return toCharArrayBuffer(inStream, contentLength, charset, maxResultLength).toString();
         }
     }
 
@@ -183,7 +217,30 @@ public final class EntityUtils {
      */
     public static String toString(
             final HttpEntity entity, final Charset defaultCharset) throws IOException, ParseException {
-        Args.notNull(entity, "Entity");
+        return toString(entity, defaultCharset, DEFAULT_ENTITY_RETURN_MAX_LENGTH);
+    }
+
+    /**
+     * Gets the entity content as a String, using the provided default character set
+     * if none is found in the entity.
+     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     *
+     * @param entity must not be null
+     * @param defaultCharset character set to be applied if none found in the entity,
+     * or if the entity provided charset is invalid or not available.
+     * @param maxResultLength
+     *            The maximum size of the String to return; use it to guard against unreasonable or malicious processing.
+     * @return the entity content as a String. May be null if
+     *   {@link HttpEntity#getContent()} is null.
+     * @throws ParseException if header elements cannot be parsed
+     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IOException if an error occurs reading the input stream
+     * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named entity's charset is not available in
+     * this instance of the Java virtual machine and no defaultCharset is provided.
+     */
+    public static String toString(
+            final HttpEntity entity, final Charset defaultCharset, final int maxResultLength) throws IOException, ParseException {
+        Args.notNull(entity, "HttpEntity");
         ContentType contentType = null;
         try {
             contentType = ContentType.parse(entity.getContentType());
@@ -199,7 +256,7 @@ public final class EntityUtils {
         } else {
             contentType = ContentType.DEFAULT_TEXT.withCharset(defaultCharset);
         }
-        return toString(entity, contentType);
+        return toString(entity, contentType, maxResultLength);
     }
 
     /**
@@ -219,7 +276,29 @@ public final class EntityUtils {
      */
     public static String toString(
             final HttpEntity entity, final String defaultCharset) throws IOException, ParseException {
-        return toString(entity, defaultCharset != null ? Charset.forName(defaultCharset) : null);
+        return toString(entity, defaultCharset, DEFAULT_ENTITY_RETURN_MAX_LENGTH);
+    }
+
+    /**
+     * Gets the entity content as a String, using the provided default character set
+     * if none is found in the entity.
+     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     *
+     * @param entity must not be null
+     * @param defaultCharset character set to be applied if none found in the entity
+     * @param maxResultLength
+     *            The maximum size of the String to return; use it to guard against unreasonable or malicious processing.
+     * @return the entity content as a String. May be null if
+     *   {@link HttpEntity#getContent()} is null.
+     * @throws ParseException if header elements cannot be parsed
+     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IOException if an error occurs reading the input stream
+     * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named charset is not available in
+     * this instance of the Java virtual machine
+     */
+    public static String toString(
+            final HttpEntity entity, final String defaultCharset, final int maxResultLength) throws IOException, ParseException {
+        return toString(entity, defaultCharset != null ? Charset.forName(defaultCharset) : null, maxResultLength);
     }
 
     /**
@@ -236,8 +315,27 @@ public final class EntityUtils {
      * this instance of the Java virtual machine
      */
     public static String toString(final HttpEntity entity) throws IOException, ParseException {
-        Args.notNull(entity, "Entity");
-        return toString(entity, ContentType.parse(entity.getContentType()));
+        return toString(entity, DEFAULT_ENTITY_RETURN_MAX_LENGTH);
+    }
+
+    /**
+     * Reads the contents of an entity and return it as a String.
+     * The content is converted using the character set from the entity (if any),
+     * failing that, "ISO-8859-1" is used.
+     *
+     * @param entity the entity to convert to a string; must not be null
+     * @param maxResultLength
+     *            The maximum size of the String to return; use it to guard against unreasonable or malicious processing.
+     * @return String containing the content.
+     * @throws ParseException if header elements cannot be parsed
+     * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
+     * @throws IOException if an error occurs reading the input stream
+     * @throws java.nio.charset.UnsupportedCharsetException Thrown when the named charset is not available in
+     * this instance of the Java virtual machine
+     */
+    public static String toString(final HttpEntity entity, final int maxResultLength) throws IOException, ParseException {
+        Args.notNull(entity, "HttpEntity");
+        return toString(entity, ContentType.parse(entity.getContentType()), maxResultLength);
     }
 
     /**
@@ -254,7 +352,26 @@ public final class EntityUtils {
      *             If there was an exception getting the entity's data.
      */
     public static List<NameValuePair> parse(final HttpEntity entity) throws IOException {
-        Args.notNull(entity, "HTTP entity");
+        return parse(entity, DEFAULT_ENTITY_RETURN_MAX_LENGTH);
+    }
+
+    /**
+     * Returns a list of {@link NameValuePair NameValuePairs} as parsed from an {@link HttpEntity}.
+     * The encoding is taken from the entity's Content-Encoding header.
+     * <p>
+     * This is typically used while parsing an HTTP POST.
+     * </p>
+     *
+     * @param entity
+     *            The entity to parse
+     * @param maxStreamLength
+     *            The maximum size of the stream to read; use it to guard against unreasonable or malicious processing.
+     * @return a list of {@link NameValuePair} as built from the URI's query portion.
+     * @throws IOException
+     *             If there was an exception getting the entity's data.
+     */
+    public static List<NameValuePair> parse(final HttpEntity entity, final int maxStreamLength) throws IOException {
+        Args.notNull(entity, "HttpEntity");
         final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         final ContentType contentType = ContentType.parse(entity.getContentType());
         if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {
@@ -267,7 +384,7 @@ public final class EntityUtils {
             if (inStream == null) {
                 return Collections.emptyList();
             }
-            buf = toCharArrayBuffer(inStream, contentLength, charset);
+            buf = toCharArrayBuffer(inStream, contentLength, charset, maxStreamLength);
 
         }
         if (buf.isEmpty()) {
