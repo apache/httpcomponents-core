@@ -32,7 +32,7 @@ import java.net.URI;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
@@ -72,19 +72,19 @@ public class BasicRequestProducer implements AsyncRequestProducer {
         this(method, requestUri, null);
     }
 
-    public BasicRequestProducer(final Methods method, final HttpHost host, final String path, final AsyncEntityProducer dataProducer) {
+    public BasicRequestProducer(final Method method, final HttpHost host, final String path, final AsyncEntityProducer dataProducer) {
         this(new BasicHttpRequest(method, host, path), dataProducer);
     }
 
-    public BasicRequestProducer(final Methods method, final HttpHost host, final String path) {
+    public BasicRequestProducer(final Method method, final HttpHost host, final String path) {
         this(method, host, path, null);
     }
 
-    public BasicRequestProducer(final Methods method, final URI requestUri, final AsyncEntityProducer dataProducer) {
+    public BasicRequestProducer(final Method method, final URI requestUri, final AsyncEntityProducer dataProducer) {
         this(new BasicHttpRequest(method, requestUri), dataProducer);
     }
 
-    public BasicRequestProducer(final Methods method, final URI requestUri) {
+    public BasicRequestProducer(final Method method, final URI requestUri) {
         this(method, requestUri, null);
     }
 

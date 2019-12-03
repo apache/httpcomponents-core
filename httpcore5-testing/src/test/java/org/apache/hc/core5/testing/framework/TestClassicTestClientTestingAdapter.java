@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
@@ -213,7 +213,7 @@ public class TestClassicTestClientTestingAdapter {
         final String defaultURI = target.toString();
         final Map<String, Object> request = new HashMap<>();
         request.put(PATH, ECHO_PATH);
-        request.put(METHOD, Methods.POST.name());
+        request.put(METHOD, Method.POST.name());
         final String body = "mybody";
         request.put(BODY, body);
 

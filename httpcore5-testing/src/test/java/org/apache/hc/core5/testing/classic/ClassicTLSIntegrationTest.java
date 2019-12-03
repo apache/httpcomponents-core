@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
@@ -137,7 +137,7 @@ public class ClassicTLSIntegrationTest {
 
         final HttpContext context = new BasicHttpContext();
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
-        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Methods.POST, "/stuff");
+        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
             Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
@@ -176,7 +176,7 @@ public class ClassicTLSIntegrationTest {
 
         final HttpContext context = new BasicHttpContext();
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
-        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Methods.POST, "/stuff");
+        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
             EntityUtils.consume(response1.getEntity());
@@ -216,7 +216,7 @@ public class ClassicTLSIntegrationTest {
 
         final HttpContext context = new BasicHttpContext();
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
-        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Methods.POST, "/stuff");
+        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
             EntityUtils.consume(response1.getEntity());
@@ -249,7 +249,7 @@ public class ClassicTLSIntegrationTest {
 
         final HttpContext context = new BasicHttpContext();
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
-        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Methods.POST, "/stuff");
+        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
             EntityUtils.consume(response1.getEntity());
@@ -303,7 +303,7 @@ public class ClassicTLSIntegrationTest {
 
                 final HttpContext context = new BasicHttpContext();
                 final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
-                final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Methods.POST, "/stuff");
+                final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
                 request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
                 try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
                     EntityUtils.consume(response1.getEntity());

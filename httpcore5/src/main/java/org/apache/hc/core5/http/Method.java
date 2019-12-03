@@ -34,7 +34,7 @@ import java.util.Locale;
  *
  * @since 5.0
  */
-public enum Methods {
+public enum Method {
 
     GET(true, true),
     HEAD(true, true),
@@ -49,7 +49,7 @@ public enum Methods {
     private final boolean safe;
     private final boolean idempotent;
 
-    Methods(final boolean safe, final boolean idempotent) {
+    Method(final boolean safe, final boolean idempotent) {
         this.safe = safe;
         this.idempotent = idempotent;
     }

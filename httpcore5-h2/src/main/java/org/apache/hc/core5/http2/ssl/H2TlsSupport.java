@@ -57,11 +57,11 @@ public final class H2TlsSupport {
                 (HttpVersionPolicy) attachment : HttpVersionPolicy.NEGOTIATE;
         switch (versionPolicy) {
             case FORCE_HTTP_1:
-                return new String[] { ApplicationProtocols.HTTP_1_1.id };
+                return new String[] { ApplicationProtocol.HTTP_1_1.id };
             case FORCE_HTTP_2:
-                return new String[] { ApplicationProtocols.HTTP_2.id };
+                return new String[] { ApplicationProtocol.HTTP_2.id };
             default:
-                return new String[] { ApplicationProtocols.HTTP_2.id, ApplicationProtocols.HTTP_1_1.id };
+                return new String[] { ApplicationProtocol.HTTP_2.id, ApplicationProtocol.HTTP_1_1.id };
         }
     }
 

@@ -36,7 +36,7 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
@@ -116,7 +116,7 @@ public class H2RequestExecutionExample {
             final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
             final AsyncClientEndpoint clientEndpoint = future.get();
             clientEndpoint.execute(
-                    new BasicRequestProducer(Methods.GET, target, requestUri),
+                    new BasicRequestProducer(Method.GET, target, requestUri),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                     new FutureCallback<Message<HttpResponse, String>>() {
 

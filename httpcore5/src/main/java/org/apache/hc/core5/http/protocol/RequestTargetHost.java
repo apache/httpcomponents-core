@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.net.URIAuthority;
@@ -64,7 +64,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
 
         final ProtocolVersion ver = context.getProtocolVersion();
         final String method = request.getMethod();
-        if (Methods.CONNECT.isSame(method) && ver.lessEquals(HttpVersion.HTTP_1_0)) {
+        if (Method.CONNECT.isSame(method) && ver.lessEquals(HttpVersion.HTTP_1_0)) {
             return;
         }
 

@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
@@ -191,13 +191,13 @@ public class ClassicAuthenticationTest {
         server.start();
         final HttpHost target = new HttpHost("localhost", server.getLocalPort());
         final HttpCoreContext context = HttpCoreContext.create();
-        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Methods.GET, "/stuff");
+        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.GET, "/stuff");
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
             Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
             final String body1 = EntityUtils.toString(response1.getEntity());
             Assert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
         }
-        final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Methods.GET, "/stuff");
+        final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.GET, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
             Assert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
@@ -216,14 +216,14 @@ public class ClassicAuthenticationTest {
         for (int i = 0; i < stuff.length; i++) {
             stuff[i] = (byte)('a' + rnd.nextInt(10));
         }
-        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Methods.POST, "/stuff");
+        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new ByteArrayEntity(stuff, ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
             Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
             final String body1 = EntityUtils.toString(response1.getEntity());
             Assert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
         }
-        final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Methods.POST, "/stuff");
+        final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         request2.setEntity(new ByteArrayEntity(stuff, ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
@@ -243,7 +243,7 @@ public class ClassicAuthenticationTest {
         for (int i = 0; i < stuff.length; i++) {
             stuff[i] = (byte)('a' + rnd.nextInt(10));
         }
-        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Methods.POST, "/stuff");
+        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setVersion(HttpVersion.HTTP_1_0);
         request1.setEntity(new ByteArrayEntity(stuff, ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
@@ -251,7 +251,7 @@ public class ClassicAuthenticationTest {
             final String body1 = EntityUtils.toString(response1.getEntity());
             Assert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
         }
-        final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Methods.POST, "/stuff");
+        final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         request2.setVersion(HttpVersion.HTTP_1_0);
         request2.setEntity(new ByteArrayEntity(stuff, ContentType.TEXT_PLAIN));

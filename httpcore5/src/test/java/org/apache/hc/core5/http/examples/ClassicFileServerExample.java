@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
@@ -152,7 +152,7 @@ public class ClassicFileServerExample {
                 final HttpContext context) throws HttpException, IOException {
 
             final String method = request.getMethod();
-            if (!Methods.GET.isSame(method) && !Methods.HEAD.isSame(method) && !Methods.POST.isSame(method)) {
+            if (!Method.GET.isSame(method) && !Method.HEAD.isSame(method) && !Method.POST.isSame(method)) {
                 throw new MethodNotSupportedException(method + " method not supported");
             }
             final String path = request.getPath();

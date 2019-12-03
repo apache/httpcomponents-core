@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
@@ -123,7 +123,7 @@ public class BenchmarkToolTest {
     public void testBasics() throws Exception {
         final BenchmarkConfig config = BenchmarkConfig.custom()
                 .setKeepAlive(true)
-                .setMethod(Methods.POST.name())
+                .setMethod(Method.POST.name())
                 .setPayloadText("0123456789ABCDEF")
                 .setUri(new URIBuilder()
                         .setScheme(URIScheme.HTTP.id)

@@ -29,7 +29,7 @@ package org.apache.hc.core5.http.message;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
@@ -57,7 +57,7 @@ public class TestBasicLineParser {
         buf.append("GET /stuff HTTP/1.1");
         RequestLine requestline = this.parser.parseRequestLine(buf);
         Assert.assertEquals("GET /stuff HTTP/1.1", requestline.toString());
-        Assert.assertEquals(Methods.GET.name(), requestline.getMethod());
+        Assert.assertEquals(Method.GET.name(), requestline.getMethod());
         Assert.assertEquals("/stuff", requestline.getUri());
         Assert.assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion());
 
@@ -66,7 +66,7 @@ public class TestBasicLineParser {
         buf.append("  GET    /stuff   HTTP/1.1   ");
         requestline = this.parser.parseRequestLine(buf);
         Assert.assertEquals("GET /stuff HTTP/1.1", requestline.toString());
-        Assert.assertEquals(Methods.GET.name(), requestline.getMethod());
+        Assert.assertEquals(Method.GET.name(), requestline.getMethod());
         Assert.assertEquals("/stuff", requestline.getUri());
         Assert.assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion());
 
@@ -74,7 +74,7 @@ public class TestBasicLineParser {
         buf.clear();
         buf.append("\rGET /stuff HTTP/1.1");
         requestline = this.parser.parseRequestLine(buf);
-        Assert.assertEquals(Methods.GET.name(), requestline.getMethod());
+        Assert.assertEquals(Method.GET.name(), requestline.getMethod());
         Assert.assertEquals("/stuff", requestline.getUri());
         Assert.assertEquals(HttpVersion.HTTP_1_1, requestline.getProtocolVersion());
     }

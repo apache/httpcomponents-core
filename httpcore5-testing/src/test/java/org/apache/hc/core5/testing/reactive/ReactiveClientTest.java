@@ -60,7 +60,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
@@ -247,7 +247,7 @@ public class ReactiveClientTest {
     }
 
     private BasicRequestProducer getRequestProducer(final InetSocketAddress address, final ReactiveEntityProducer producer) {
-        return new BasicRequestProducer(Methods.POST, URI.create("http://localhost:" + address.getPort()), producer);
+        return new BasicRequestProducer(Method.POST, URI.create("http://localhost:" + address.getPort()), producer);
     }
 
     @Test

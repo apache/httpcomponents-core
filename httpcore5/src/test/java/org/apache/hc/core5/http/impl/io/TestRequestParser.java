@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
@@ -59,7 +59,7 @@ public class TestRequestParser {
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
         final ClassicHttpRequest httprequest = parser.parse(inBuffer, inputStream);
 
-        Assert.assertEquals(Methods.GET.name(), httprequest.getMethod());
+        Assert.assertEquals(Method.GET.name(), httprequest.getMethod());
         Assert.assertEquals("/", httprequest.getPath());
         final Header[] headers = httprequest.getHeaders();
         Assert.assertEquals(3, headers.length);
@@ -89,7 +89,7 @@ public class TestRequestParser {
                 Http1Config.custom().setMaxEmptyLineCount(3).build());
         final ClassicHttpRequest httprequest = parser.parse(inBuffer, inputStream);
 
-        Assert.assertEquals(Methods.GET.name(), httprequest.getMethod());
+        Assert.assertEquals(Method.GET.name(), httprequest.getMethod());
         Assert.assertEquals("/", httprequest.getPath());
         final Header[] headers = httprequest.getHeaders();
         Assert.assertEquals(1, headers.length);
@@ -140,7 +140,7 @@ public class TestRequestParser {
         Assert.assertNotNull(httprequest);
         Assert.assertEquals(5, timeoutCount);
 
-        Assert.assertEquals(Methods.GET.name(), httprequest.getMethod());
+        Assert.assertEquals(Method.GET.name(), httprequest.getMethod());
         Assert.assertEquals("/", httprequest.getPath());
         final Header[] headers = httprequest.getHeaders();
         Assert.assertEquals(3, headers.length);

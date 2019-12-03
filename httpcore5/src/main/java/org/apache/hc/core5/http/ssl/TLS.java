@@ -46,11 +46,11 @@ public enum TLS {
     V_1_2("TLSv1.2", new ProtocolVersion("TLS", 1, 2)),
     V_1_3("TLSv1.3", new ProtocolVersion("TLS", 1, 3));
 
-    public final String ident;
+    public final String id;
     public final ProtocolVersion version;
 
-    TLS(final String ident, final ProtocolVersion version) {
-        this.ident = ident;
+    TLS(final String id, final ProtocolVersion version) {
+        this.id = id;
         this.version = version;
     }
 
@@ -84,12 +84,12 @@ public enum TLS {
         }
         final List<String> enabledProtocols = new ArrayList<>();
         for (final String protocol: protocols) {
-            if (!protocol.startsWith("SSL") && !protocol.equals(V_1_0.ident) && !protocol.equals(V_1_1.ident)) {
+            if (!protocol.startsWith("SSL") && !protocol.equals(V_1_0.id) && !protocol.equals(V_1_1.id)) {
                 enabledProtocols.add(protocol);
             }
         }
         if (enabledProtocols.isEmpty()) {
-            enabledProtocols.add(V_1_2.ident);
+            enabledProtocols.add(V_1_2.id);
         }
         return enabledProtocols.toArray(new String[0]);
     }

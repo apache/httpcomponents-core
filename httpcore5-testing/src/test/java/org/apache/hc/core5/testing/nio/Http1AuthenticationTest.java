@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
@@ -211,7 +211,7 @@ public class Http1AuthenticationTest {
 
         final HttpHost target = new HttpHost("localhost", address.getPort());
 
-        final HttpRequest request1 = new BasicHttpRequest(Methods.GET, target, "/stuff");
+        final HttpRequest request1 = new BasicHttpRequest(Method.GET, target, "/stuff");
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
@@ -222,7 +222,7 @@ public class Http1AuthenticationTest {
         final String body1 = message1.getBody();
         Assert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
 
-        final HttpRequest request2 = new BasicHttpRequest(Methods.GET, target, "/stuff");
+        final HttpRequest request2 = new BasicHttpRequest(Method.GET, target, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
                 new BasicRequestProducer(request2, null),
@@ -249,7 +249,7 @@ public class Http1AuthenticationTest {
         for (int i = 0; i < stuff.length; i++) {
             stuff[i] = (byte)('a' + rnd.nextInt(10));
         }
-        final HttpRequest request1 = new BasicHttpRequest(Methods.POST, target, "/stuff");
+        final HttpRequest request1 = new BasicHttpRequest(Method.POST, target, "/stuff");
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer(request1, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
@@ -260,7 +260,7 @@ public class Http1AuthenticationTest {
         final String body1 = message1.getBody();
         Assert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
 
-        final HttpRequest request2 = new BasicHttpRequest(Methods.POST, target, "/stuff");
+        final HttpRequest request2 = new BasicHttpRequest(Method.POST, target, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
                 new BasicRequestProducer(request2, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
@@ -288,7 +288,7 @@ public class Http1AuthenticationTest {
             stuff[i] = (byte)('a' + rnd.nextInt(10));
         }
 
-        final HttpRequest request1 = new BasicHttpRequest(Methods.POST, target, "/stuff");
+        final HttpRequest request1 = new BasicHttpRequest(Method.POST, target, "/stuff");
         request1.setVersion(HttpVersion.HTTP_1_0);
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer(request1, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
@@ -300,7 +300,7 @@ public class Http1AuthenticationTest {
         final String body1 = message1.getBody();
         Assert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
 
-        final HttpRequest request2 = new BasicHttpRequest(Methods.POST, target, "/stuff");
+        final HttpRequest request2 = new BasicHttpRequest(Method.POST, target, "/stuff");
         request2.setVersion(HttpVersion.HTTP_1_0);
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
