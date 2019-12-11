@@ -264,7 +264,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             streamListener.onHeaderOutput(this, streamId, headers);
         }
         final ByteArrayBuffer buf = new ByteArrayBuffer(512);
-        hPackEncoder.encodeHeaders(buf, headers);
+        hPackEncoder.encodeHeaders(buf, headers, localConfig.isCompressionEnabled());
 
         int off = 0;
         int remaining = buf.length();
@@ -303,7 +303,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         buf.append((byte)(promisedStreamId >> 8));
         buf.append((byte)(promisedStreamId));
 
-        hPackEncoder.encodeHeaders(buf, headers);
+        hPackEncoder.encodeHeaders(buf, headers, localConfig.isCompressionEnabled());
 
         int off = 0;
         int remaining = buf.length();

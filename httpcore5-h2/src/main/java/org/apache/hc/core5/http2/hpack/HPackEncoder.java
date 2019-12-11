@@ -330,10 +330,10 @@ public final class HPackEncoder {
     }
 
     public void encodeHeaders(
-            final ByteArrayBuffer dst, final List<? extends Header> headers) throws CharacterCodingException {
+            final ByteArrayBuffer dst, final List<? extends Header> headers, final boolean useHuffman) throws CharacterCodingException {
         Args.notNull(dst, "ByteArrayBuffer");
         Args.notEmpty(headers, "Header list");
-        encodeHeaders(dst, headers, false, true);
+        encodeHeaders(dst, headers, false, useHuffman);
     }
 
     public int getMaxTableSize() {
