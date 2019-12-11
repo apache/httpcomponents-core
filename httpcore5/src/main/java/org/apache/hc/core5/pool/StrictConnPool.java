@@ -173,11 +173,14 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         Asserts.check(!this.isShutDown.get(), "Connection pool shut down");
         final Deadline deadline = Deadline.calculate(requestTimeout);
         final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<>(callback);
-        boolean acquiredLock = false;
+        final boolean acquiredLock;
 
         try {
             acquiredLock = this.lock.tryLock(requestTimeout.getDuration(), requestTimeout.getTimeUnit());
-        } catch (final InterruptedException ignored) {
+        } catch (final InterruptedException interruptedException) {
+            Thread.currentThread().interrupt();
+            future.failed(interruptedException);
+            return future;
         }
 
         if (acquiredLock) {

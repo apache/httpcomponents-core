@@ -516,27 +516,33 @@ public class TestStrictConnPool {
         Assert.assertTrue(future3.isDone());
     }
 
+    private static class HoldInternalLockThread extends Thread {
+        private HoldInternalLockThread(final StrictConnPool<String, HttpConnection> pool, final CountDownLatch lockHeld) {
+            super(new Runnable() {
+                @Override
+                public void run() {
+                    pool.lease("somehost", null); // lease a connection so we have something to enumLeased()
+                    pool.enumLeased(new Callback<PoolEntry<String, HttpConnection>>() {
+                        @Override
+                        public void execute(final PoolEntry<String, HttpConnection> object) {
+                            try {
+                                lockHeld.countDown();
+                                Thread.sleep(Long.MAX_VALUE);
+                            } catch (final InterruptedException ignored) {
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+
     @Test
     public void testLeaseRequestLockTimeout() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
         final CountDownLatch lockHeld = new CountDownLatch(1);
-        final Thread holdInternalLock = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                pool.enumLeased(new Callback<PoolEntry<String, HttpConnection>>() {
-                    @Override
-                    public void execute(final PoolEntry<String, HttpConnection> object) {
-                        try {
-                            lockHeld.countDown();
-                            Thread.sleep(Long.MAX_VALUE);
-                        } catch (final InterruptedException ignored) {
-                        }
-                    }
-                });
-            }
-        });
+        final Thread holdInternalLock = new HoldInternalLockThread(pool, lockHeld);
 
-        pool.lease("somehost", null); // lease a connection so we have something to enumLeased()
         holdInternalLock.start(); // Start a thread to grab the internal conn pool lock
         lockHeld.await(); // Wait until we know the internal lock is held
 
@@ -551,6 +557,30 @@ public class TestStrictConnPool {
             return;
         }
         Assert.fail("Expected deadline timeout.");
+    }
+
+    @Test
+    public void testLeaseRequestInterrupted() throws Exception {
+        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
+        final CountDownLatch lockHeld = new CountDownLatch(1);
+        final Thread holdInternalLock = new HoldInternalLockThread(pool, lockHeld);
+
+        holdInternalLock.start(); // Start a thread to grab the internal conn pool lock
+        lockHeld.await(); // Wait until we know the internal lock is held
+
+        Thread.currentThread().interrupt();
+        // Attempt to get a connection while lock is held and thread is interrupted
+        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
+
+        Assert.assertTrue(Thread.interrupted());
+        try {
+            future2.get();
+        } catch (final ExecutionException executionException) {
+            Assert.assertTrue(executionException.getCause() instanceof InterruptedException);
+            holdInternalLock.interrupt(); // Cleanup
+            return;
+        }
+        Assert.fail("Expected interrupted exception.");
     }
 
     @Test
