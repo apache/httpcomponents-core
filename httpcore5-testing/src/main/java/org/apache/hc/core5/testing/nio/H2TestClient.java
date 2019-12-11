@@ -127,7 +127,7 @@ public class H2TestClient extends AsyncRequester {
     public Future<ClientSessionEndpoint> connect(
             final HttpHost host,
             final Timeout timeout,
-            final FutureCallback<ClientSessionEndpoint> callback) throws InterruptedException {
+            final FutureCallback<ClientSessionEndpoint> callback) {
         final BasicFuture<ClientSessionEndpoint> future = new BasicFuture<>(callback);
         requestSession(host, timeout, new FutureCallback<IOSession>() {
 
@@ -149,11 +149,11 @@ public class H2TestClient extends AsyncRequester {
         return future;
     }
 
-    public Future<ClientSessionEndpoint> connect(final HttpHost host,final Timeout timeout) throws InterruptedException {
+    public Future<ClientSessionEndpoint> connect(final HttpHost host,final Timeout timeout) {
         return connect(host, timeout, null);
     }
 
-    public Future<ClientSessionEndpoint> connect(final String hostname, final int port, final Timeout timeout) throws InterruptedException {
+    public Future<ClientSessionEndpoint> connect(final String hostname, final int port, final Timeout timeout) {
         return connect(new HttpHost(hostname, port), timeout, null);
     }
 
