@@ -59,6 +59,7 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
     private final BlockingQueue<ByteBuffer> buffers = new LinkedBlockingQueue<>();
     private final AtomicBoolean flushInProgress = new AtomicBoolean(false);
     private final AtomicInteger windowScalingIncrement = new AtomicInteger(0);
+    private volatile boolean buffersSent = false;
     private volatile boolean cancelled = false;
     private volatile boolean completed = false;
     private volatile Exception exception;
@@ -110,6 +111,17 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
         flushToSubscriber();
     }
 
+    /**
+     * @return {@code true} iff this consumer is in a non-terminal state and has not yet sent any data to its subscriber.
+     */
+    boolean awaitingStartOfEntity() {
+        return !buffersSent && !isEnded();
+    }
+
+    private boolean isEnded() {
+        return completed || cancelled || exception != null;
+    }
+
     @Override
     public void releaseResources() {
         this.capacityChannel = null;
@@ -133,6 +145,7 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
             while (requests.get() > 0 && ((next = buffers.poll()) != null)) {
                 final int bytesFreed = next.remaining();
                 s.onNext(next);
+                buffersSent = true;
                 requests.decrementAndGet();
                 windowScalingIncrement.addAndGet(bytesFreed);
             }

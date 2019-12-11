@@ -162,10 +162,14 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
 
     @Override
     public void releaseResources() {
-        reactiveDataConsumer.releaseResources();
-        responseFuture.cancel();
-        if (responseCompletion != null) {
-            responseCompletion.cancel();
+        if (reactiveDataConsumer.awaitingStartOfEntity()) {
+            streamEnd(null);
+        } else {
+            reactiveDataConsumer.releaseResources();
+            responseFuture.cancel();
+            if (responseCompletion != null) {
+                responseCompletion.cancel();
+            }
         }
     }
 }
