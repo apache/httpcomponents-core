@@ -122,7 +122,7 @@ public class H2Config {
                 .setMaxConcurrentStreams(Integer.MAX_VALUE) // no limit
                 .setMaxFrameSize(INIT_MAX_FRAME_SIZE)
                 .setInitialWindowSize(INIT_WINDOW_SIZE)
-                .setHeaderTableSize(Integer.MAX_VALUE); // unlimited
+                .setMaxHeaderListSize(Integer.MAX_VALUE); // unlimited
     }
 
     public static H2Config.Builder copy(final H2Config config) {
