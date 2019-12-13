@@ -27,6 +27,7 @@
 package org.apache.hc.core5.pool;
 
 import java.util.Collections;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -575,8 +576,7 @@ public class TestStrictConnPool {
         Assert.assertTrue(Thread.interrupted());
         try {
             future2.get();
-        } catch (final ExecutionException executionException) {
-            Assert.assertTrue(executionException.getCause() instanceof InterruptedException);
+        } catch (final CancellationException cancellationException) {
             holdInternalLock.interrupt(); // Cleanup
             return;
         }

@@ -179,7 +179,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             acquiredLock = this.lock.tryLock(requestTimeout.getDuration(), requestTimeout.getTimeUnit());
         } catch (final InterruptedException interruptedException) {
             Thread.currentThread().interrupt();
-            future.failed(interruptedException);
+            future.cancel();
             return future;
         }
 
