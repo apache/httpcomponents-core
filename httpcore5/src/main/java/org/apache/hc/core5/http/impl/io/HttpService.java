@@ -42,13 +42,10 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequestMapper;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.MethodNotSupportedException;
-import org.apache.hc.core5.http.NotImplementedException;
-import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
+import org.apache.hc.core5.http.impl.ServerSupport;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
@@ -210,6 +207,7 @@ public class HttpService {
                 @Override
                 public void submitResponse(final ClassicHttpResponse response) throws HttpException, IOException {
                     try {
+                        ServerSupport.validateResponse(response, response.getEntity());
                         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
                         processor.process(response, response.getEntity(), context);
 
@@ -267,7 +265,7 @@ public class HttpService {
      * @param response the HTTP response.
      */
     protected void handleException(final HttpException ex, final ClassicHttpResponse response) {
-        response.setCode(toStatusCode(ex, response));
+        response.setCode(toStatusCode(ex));
         String message = ex.getMessage();
         if (message == null) {
             message = ex.toString();
@@ -275,20 +273,8 @@ public class HttpService {
         response.setEntity(new StringEntity(message, ContentType.TEXT_PLAIN));
     }
 
-    protected int toStatusCode(final Exception ex, final ClassicHttpResponse response) {
-        final int code;
-        if (ex instanceof MethodNotSupportedException) {
-            code = HttpStatus.SC_NOT_IMPLEMENTED;
-        } else if (ex instanceof UnsupportedHttpVersionException) {
-            code = HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED;
-        } else if (ex instanceof NotImplementedException) {
-            code = HttpStatus.SC_NOT_IMPLEMENTED;
-        } else if (ex instanceof ProtocolException) {
-            code = HttpStatus.SC_BAD_REQUEST;
-        } else {
-            code = HttpStatus.SC_INTERNAL_SERVER_ERROR;
-        }
-        return code;
+    protected int toStatusCode(final Exception ex) {
+        return ServerSupport.toStatusCode(ex);
     }
 
 }

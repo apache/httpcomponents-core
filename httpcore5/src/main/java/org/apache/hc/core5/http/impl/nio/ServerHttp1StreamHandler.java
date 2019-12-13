@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
+import org.apache.hc.core5.http.impl.ServerSupport;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -52,6 +53,7 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -252,7 +254,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
         } catch (final HttpException ex) {
             if (!responseCommitted.get()) {
-                final AsyncResponseProducer responseProducer = ServerSupport.handleException(ex);
+                final AsyncResponseProducer responseProducer = new BasicResponseProducer(
+                        ServerSupport.toStatusCode(ex),
+                        ServerSupport.toErrorMessage(ex));
                 exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
                 exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
             } else {

@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio;
+package org.apache.hc.core5.http.impl;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.EntityDetails;
@@ -35,8 +35,6 @@ import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.nio.AsyncResponseProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 
 /**
  * HTTP Server support methods.
@@ -59,12 +57,9 @@ public class ServerSupport {
         }
     }
 
-    public static AsyncResponseProducer handleException(final Exception ex) {
-        String message = ex.getMessage();
-        if (message == null) {
-            message = ex.toString();
-        }
-        return new BasicResponseProducer(toStatusCode(ex), message);
+    public static String toErrorMessage(final Exception ex) {
+        final String message = ex.getMessage();
+        return message != null ? message : ex.toString();
     }
 
     public static int toStatusCode(final Exception ex) {

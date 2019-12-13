@@ -42,8 +42,8 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.IncomingEntityDetails;
+import org.apache.hc.core5.http.impl.ServerSupport;
 import org.apache.hc.core5.http.impl.nio.MessageState;
-import org.apache.hc.core5.http.impl.nio.ServerSupport;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
@@ -51,6 +51,7 @@ import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -241,7 +242,9 @@ public class ServerH2StreamHandler implements H2StreamHandler {
                     exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
                 } catch (final HttpException ex) {
                     if (!responseCommitted.get()) {
-                        final AsyncResponseProducer responseProducer = ServerSupport.handleException(ex);
+                        final AsyncResponseProducer responseProducer = new BasicResponseProducer(
+                                ServerSupport.toStatusCode(ex),
+                                ServerSupport.toErrorMessage(ex));
                         exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
                         exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
                     } else {
