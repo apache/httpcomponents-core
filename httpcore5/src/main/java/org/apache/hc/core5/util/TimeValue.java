@@ -46,7 +46,8 @@ public class TimeValue implements Comparable<TimeValue> {
     static final int INT_UNDEFINED = -1;
 
     /**
-     * A constant holding the maximum value a {@code TimeValue} can have: <code>Long.MAX_VALUE</code> days.
+     * A constant holding the maximum value a {@code TimeValue} can have:
+     * <code>Long.MAX_VALUE</code> days.
      */
     public static final TimeValue MAX_VALUE = ofDays(Long.MAX_VALUE);
 
@@ -66,15 +67,18 @@ public class TimeValue implements Comparable<TimeValue> {
     public static final TimeValue ZERO_MILLISECONDS = TimeValue.of(0, TimeUnit.MILLISECONDS);
 
     /**
-     * Returns the given {@code long} value as an {@code int} where long values out of int range are returned as
-     * {@link Integer#MIN_VALUE} and {@link Integer#MAX_VALUE}.
+     * Returns the given {@code long} value as an {@code int} where long values out
+     * of int range are returned as {@link Integer#MIN_VALUE} and
+     * {@link Integer#MAX_VALUE}.
      *
      * <p>
-     * For example: {@code TimeValue.asBoundInt(Long.MAX_VALUE)} returns {@code Integer.MAX_VALUE}.
+     * For example: {@code TimeValue.asBoundInt(Long.MAX_VALUE)} returns
+     * {@code Integer.MAX_VALUE}.
      * </p>
      *
      * @param value a long value to convert
-     * @return an int value bound within {@link Integer#MIN_VALUE} and {@link Integer#MAX_VALUE}.
+     * @return an int value bound within {@link Integer#MIN_VALUE} and
+     *         {@link Integer#MAX_VALUE}.
      */
     public static int asBoundInt(final long value) {
         if (value > Integer.MAX_VALUE) {
@@ -86,10 +90,10 @@ public class TimeValue implements Comparable<TimeValue> {
     }
 
     /**
-     * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns the given
-     * {@code defaultValue}.
+     * Returns the given {@code timeValue} if it is not {@code null}, if
+     * {@code null} then returns the given {@code defaultValue}.
      *
-     * @param timeValue may be {@code null}
+     * @param timeValue    may be {@code null}
      * @param defaultValue may be {@code null}
      * @return {@code timeValue} or {@code defaultValue}
      */
@@ -98,8 +102,8 @@ public class TimeValue implements Comparable<TimeValue> {
     }
 
     /**
-     * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
-     * {@link #NEG_ONE_SECOND}.
+     * Returns the given {@code timeValue} if it is not {@code null}, if
+     * {@code null} then returns {@link #NEG_ONE_SECOND}.
      *
      * @param timeValue may be {@code null}
      * @return {@code timeValue} or {@link #NEG_ONE_SECOND}
@@ -109,8 +113,8 @@ public class TimeValue implements Comparable<TimeValue> {
     }
 
     /**
-     * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
-     * {@link #NEG_ONE_SECOND}.
+     * Returns the given {@code timeValue} if it is not {@code null}, if
+     * {@code null} then returns {@link #NEG_ONE_SECOND}.
      *
      * @param timeValue may be {@code null}
      * @return {@code timeValue} or {@link #NEG_ONE_SECOND}
@@ -120,8 +124,8 @@ public class TimeValue implements Comparable<TimeValue> {
     }
 
     /**
-     * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns
-     * {@link #ZERO_MILLISECONDS}.
+     * Returns the given {@code timeValue} if it is not {@code null}, if
+     * {@code null} then returns {@link #ZERO_MILLISECONDS}.
      *
      * @param timeValue may be {@code null}
      * @return {@code timeValue} or {@link #ZERO_MILLISECONDS}
@@ -178,7 +182,8 @@ public class TimeValue implements Comparable<TimeValue> {
     }
 
     /**
-     * Parses a TimeValue in the format {@code <Long><SPACE><TimeUnit>}, for example {@code "1,200 MILLISECONDS"}.
+     * Parses a TimeValue in the format {@code <Long><SPACE><TimeUnit>}, for example
+     * {@code "1,200 MILLISECONDS"}.
      * <p>
      * Parses:
      * </p>
@@ -229,7 +234,8 @@ public class TimeValue implements Comparable<TimeValue> {
         }
         if (obj instanceof TimeValue) {
             final TimeValue that = (TimeValue) obj;
-            return this.duration == that.duration && LangUtils.equals(this.timeUnit, that.timeUnit);
+            return BigIntegerTimeUnit.toBigIntegerTimeUnit(timeUnit).toNanos(duration)
+                    .equals(BigIntegerTimeUnit.toBigIntegerTimeUnit(that.timeUnit).toNanos(that.duration));
         }
         return false;
     }
@@ -237,11 +243,9 @@ public class TimeValue implements Comparable<TimeValue> {
     /**
      * Returns a TimeValue whose value is {@code (this / divisor)}.
      *
-     * @param divisor
-     *            value by which this TimeValue is to be divided.
+     * @param divisor value by which this TimeValue is to be divided.
      * @return {@code this / divisor}
-     * @throws ArithmeticException
-     *             if {@code divisor} is zero.
+     * @throws ArithmeticException if {@code divisor} is zero.
      */
     public TimeValue divide(final long divisor) {
         final long newDuration = duration / divisor;
@@ -251,13 +255,10 @@ public class TimeValue implements Comparable<TimeValue> {
     /**
      * Returns a TimeValue whose value is {@code (this / divisor)}.
      *
-     * @param divisor
-     *            value by which this TimeValue is to be divided.
-     * @param targetTimeUnit
-     *            the target TimeUnit
+     * @param divisor        value by which this TimeValue is to be divided.
+     * @param targetTimeUnit the target TimeUnit
      * @return {@code this / divisor}
-     * @throws ArithmeticException
-     *             if {@code divisor} is zero.
+     * @throws ArithmeticException if {@code divisor} is zero.
      */
     public TimeValue divide(final long divisor, final TimeUnit targetTimeUnit) {
         return of(convert(targetTimeUnit) / divisor, targetTimeUnit);
@@ -273,10 +274,7 @@ public class TimeValue implements Comparable<TimeValue> {
 
     @Override
     public int hashCode() {
-        int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, duration);
-        hash = LangUtils.hashCode(hash, timeUnit);
-        return hash;
+        return BigIntegerTimeUnit.toBigIntegerTimeUnit(timeUnit).toNanos(duration).hashCode();
     }
 
     public TimeValue min(final TimeValue other) {
@@ -294,8 +292,7 @@ public class TimeValue implements Comparable<TimeValue> {
     /**
      * Returns a made up scale for TimeUnits.
      *
-     * @param tUnit
-     *            a TimeUnit
+     * @param tUnit a TimeUnit
      * @return a number from 1 to 7, where 1 is NANOSECONDS and 7 DAYS.
      */
     private int scale(final TimeUnit tUnit) {
