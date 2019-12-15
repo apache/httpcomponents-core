@@ -321,6 +321,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         try {
             poolEntry = leaseFuture.get(timeout.getDuration(), timeout.getTimeUnit());
         } catch (final InterruptedException ex) {
+            Thread.currentThread().interrupt();
             throw new InterruptedIOException(ex.getMessage());
         } catch (final ExecutionException ex) {
             throw new HttpException("Unexpected failure leasing connection", ex);

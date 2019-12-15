@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -141,7 +141,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             httpProcessor.process(response, responseEntityDetails, context);
 
-            final boolean endStream = responseEntityDetails == null || Methods.HEAD.isSame(method);
+            final boolean endStream = responseEntityDetails == null || Method.HEAD.isSame(method);
 
             if (!connectionReuseStrategy.keepAlive(receivedRequest, response, context)) {
                 keepAlive = false;

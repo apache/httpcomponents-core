@@ -32,7 +32,7 @@ import java.net.URI;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 
 /**
  * Basic implementation of {@link ClassicHttpRequest}.
@@ -82,7 +82,7 @@ public class BasicClassicHttpRequest extends BasicHttpRequest implements Classic
      * @param method request method.
      * @param path request path.
      */
-    public BasicClassicHttpRequest(final Methods method, final String path) {
+    public BasicClassicHttpRequest(final Method method, final String path) {
         super(method, path);
     }
 
@@ -93,7 +93,7 @@ public class BasicClassicHttpRequest extends BasicHttpRequest implements Classic
      * @param host request host.
      * @param path request path.
      */
-    public BasicClassicHttpRequest(final Methods method, final HttpHost host, final String path) {
+    public BasicClassicHttpRequest(final Method method, final HttpHost host, final String path) {
         super(method, host, path);
     }
 
@@ -103,7 +103,7 @@ public class BasicClassicHttpRequest extends BasicHttpRequest implements Classic
      * @param method request method.
      * @param requestUri request URI.
      */
-    public BasicClassicHttpRequest(final Methods method, final URI requestUri) {
+    public BasicClassicHttpRequest(final Method method, final URI requestUri) {
         super(method, requestUri);
     }
 

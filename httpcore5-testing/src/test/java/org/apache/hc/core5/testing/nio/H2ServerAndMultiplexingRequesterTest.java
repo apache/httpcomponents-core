@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -194,7 +194,7 @@ public class H2ServerAndMultiplexingRequesterTest {
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/stuff",
+                new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -205,7 +205,7 @@ public class H2ServerAndMultiplexingRequesterTest {
         Assert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
 
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/other-stuff",
+                new BasicRequestProducer(Method.POST, target, "/other-stuff",
                         new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -216,7 +216,7 @@ public class H2ServerAndMultiplexingRequesterTest {
         Assert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
 
         final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/more-stuff",
+                new BasicRequestProducer(Method.POST, target, "/more-stuff",
                         new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -239,15 +239,15 @@ public class H2ServerAndMultiplexingRequesterTest {
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
 
         queue.add(requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/stuff",
+                new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null));
         queue.add(requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/other-stuff",
+                new BasicRequestProducer(Method.POST, target, "/other-stuff",
                         new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null));
         queue.add(requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/more-stuff",
+                new BasicRequestProducer(Method.POST, target, "/more-stuff",
                         new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null));
 
@@ -273,7 +273,7 @@ public class H2ServerAndMultiplexingRequesterTest {
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/stuff",
+                new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -286,7 +286,7 @@ public class H2ServerAndMultiplexingRequesterTest {
         Thread.sleep(100);
 
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/other-stuff",
+                new BasicRequestProducer(Method.POST, target, "/other-stuff",
                         new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -299,7 +299,7 @@ public class H2ServerAndMultiplexingRequesterTest {
         Thread.sleep(100);
 
         final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/more-stuff",
+                new BasicRequestProducer(Method.POST, target, "/more-stuff",
                         new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -325,7 +325,7 @@ public class H2ServerAndMultiplexingRequesterTest {
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         for (int i = 0; i < reqNo; i++) {
             final Cancellable cancellable = requester.execute(
-                    new BasicClientExchangeHandler<>(new BasicRequestProducer(Methods.POST, target, "/stuff",
+                    new BasicClientExchangeHandler<>(new BasicRequestProducer(Method.POST, target, "/stuff",
                             new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                             new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                             new FutureCallback<Message<HttpResponse, String>>() {

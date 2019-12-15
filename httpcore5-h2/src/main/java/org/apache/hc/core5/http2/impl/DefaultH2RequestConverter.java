@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
@@ -111,7 +111,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
         if (method == null) {
             throw new ProtocolException("Mandatory request header ':method' not found");
         }
-        if (Methods.CONNECT.isSame(method)) {
+        if (Method.CONNECT.isSame(method)) {
             if (authority == null) {
                 throw new ProtocolException("Header ':authority' is mandatory for CONNECT request");
             }
@@ -150,7 +150,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
         if (TextUtils.isBlank(message.getMethod())) {
             throw new ProtocolException("Request method is empty");
         }
-        final boolean optionMethod = Methods.CONNECT.name().equalsIgnoreCase(message.getMethod());
+        final boolean optionMethod = Method.CONNECT.name().equalsIgnoreCase(message.getMethod());
         if (optionMethod) {
             if (message.getAuthority() == null) {
                 throw new ProtocolException("CONNECT request authority is not set");

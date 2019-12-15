@@ -76,7 +76,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
@@ -200,7 +200,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 10; i++) {
             queue.add(streamEndpoint.execute(
-                    new BasicRequestProducer(Methods.GET, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
 
         }
@@ -235,7 +235,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
         for (int i = 0; i < 5; i++) {
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(Methods.HEAD, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicRequestProducer(Method.HEAD, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assert.assertNotNull(result);
@@ -264,11 +264,11 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(Methods.GET, createRequestURI(serverEndpoint, "/"), null),
+                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/"), null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
-                new BasicRequestProducer(Methods.GET, createRequestURI(serverEndpoint, "/")),
+                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer(512)), null);
 
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -315,7 +315,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
         for (int i = 0; i < 10; i++) {
-            final HttpRequest request = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/hello"));
+            final HttpRequest request = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello"));
             queue.add(streamEndpoint.execute(
                     new BasicRequestProducer(request, new StringAsyncEntityProducer("Hi there", ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null));
@@ -351,7 +351,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(Methods.POST, createRequestURI(serverEndpoint, "/echo"),
+                new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/echo"),
                         new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -385,7 +385,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(Methods.GET, createRequestURI(serverEndpoint, "/"), null),
+                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/"), null),
                 new BasicResponseConsumer<>(new AbstractClassicEntityConsumer<String>(16, Executors.newSingleThreadExecutor()) {
 
                     @Override
@@ -443,7 +443,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/echo"));
+        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new AbstractClassicEntityProducer(4096, ContentType.TEXT_PLAIN, Executors.newSingleThreadExecutor()) {
 
@@ -502,7 +502,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                             response.setCode(HttpStatus.SC_NOT_FOUND);
                             return;
                         }
-                        if (!Methods.POST.name().equalsIgnoreCase(request.getMethod())) {
+                        if (!Method.POST.name().equalsIgnoreCase(request.getMethod())) {
                             response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
                             return;
                         }
@@ -551,7 +551,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/hello"));
+        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcd", 2000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -583,7 +583,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                             final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                             final HttpContext context) throws IOException, HttpException {
                         responseTrigger.pushPromise(
-                                new BasicHttpRequest(Methods.GET, createRequestURI(serverEndpoint, "/stuff")),
+                                new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/stuff")),
                                 context,
                                 new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)));
                         responseTrigger.submitResponse(
@@ -604,7 +604,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(Methods.GET, createRequestURI(serverEndpoint, "/hello")),
+                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                 new HandlerFactory<AsyncPushConsumer>() {
 
@@ -667,7 +667,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                             final HttpContext context) throws IOException, HttpException {
 
                         responseTrigger.pushPromise(
-                                new BasicHttpRequest(Methods.GET, createRequestURI(serverEndpoint, "/stuff")),
+                                new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/stuff")),
                                 context, new BasicPushProducer(AsyncEntityProducers.create("Pushing all sorts of stuff")) {
 
                             @Override
@@ -678,7 +678,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
                         });
                         responseTrigger.pushPromise(
-                                new BasicHttpRequest(Methods.GET, createRequestURI(serverEndpoint, "/more-stuff")),
+                                new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/more-stuff")),
                                 context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)) {
 
                             @Override
@@ -704,7 +704,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(Methods.GET, createRequestURI(serverEndpoint, "/hello")),
+                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assert.assertNotNull(result1);
@@ -744,7 +744,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
         final Queue<Future<Message<HttpResponse, Void>>> queue = new LinkedList<>();
         for (int i = 0; i < 2000; i++) {
-            final HttpRequest request1 = new BasicHttpRequest(Methods.GET, createRequestURI(serverEndpoint, "/"));
+            final HttpRequest request1 = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/"));
             final Future<Message<HttpResponse, Void>> future = streamEndpoint.execute(
                     new BasicRequestProducer(request1, null),
                     new BasicResponseConsumer<>(new NoopEntityConsumer()), null);
@@ -807,7 +807,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/echo"));
+        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
         request1.addHeader("password", "secret");
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
@@ -819,7 +819,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         Assert.assertEquals(200, response1.getCode());
         Assert.assertNotNull("All is well", result1.getBody());
 
-        final HttpRequest request2 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/echo"));
+        final HttpRequest request2 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -901,7 +901,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Methods.POST, createRequestURI(serverEndpoint, "/echo"));
+        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
@@ -951,7 +951,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final HttpRequest request1 = new BasicHttpRequest(Methods.GET, createRequestURI(serverEndpoint, "/hello"));
+        final HttpRequest request1 = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
         final DigestingEntityConsumer<String> entityConsumer = new DigestingEntityConsumer<>("MD5", new StringAsyncEntityConsumer());
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, null),
@@ -997,7 +997,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final AtomicInteger count = new AtomicInteger(0);
         for (int i = 0; i < n; i++) {
             streamEndpoint.execute(
-                    new BasicRequestProducer(Methods.GET, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             streamEndpoint.execute(new PingCommand(new BasicPingHandler(new Callback<Boolean>() {
 
@@ -1034,7 +1034,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final IOSession session = sessionFuture.get();
         final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(session);
 
-        final HttpRequest request = new BasicHttpRequest(Methods.GET, createRequestURI(serverEndpoint, "/hello"));
+        final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
         request.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(request, null),

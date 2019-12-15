@@ -49,9 +49,11 @@ public class H2Config {
     private final int initialWindowSize;
     private final int maxFrameSize;
     private final int maxHeaderListSize;
+    private final boolean compressionEnabled;
 
     H2Config(final int headerTableSize, final boolean pushEnabled, final int maxConcurrentStreams,
-             final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize) {
+             final int initialWindowSize, final int maxFrameSize, final int maxHeaderListSize,
+             final boolean compressionEnabled) {
         super();
         this.headerTableSize = headerTableSize;
         this.pushEnabled = pushEnabled;
@@ -59,6 +61,7 @@ public class H2Config {
         this.initialWindowSize = initialWindowSize;
         this.maxFrameSize = maxFrameSize;
         this.maxHeaderListSize = maxHeaderListSize;
+        this.compressionEnabled = compressionEnabled;
     }
 
     public int getHeaderTableSize() {
@@ -85,6 +88,10 @@ public class H2Config {
         return maxHeaderListSize;
     }
 
+    public boolean isCompressionEnabled() {
+        return compressionEnabled;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -94,6 +101,7 @@ public class H2Config {
                 .append(", initialWindowSize=").append(this.initialWindowSize)
                 .append(", maxFrameSize=").append(this.maxFrameSize)
                 .append(", maxHeaderListSize=").append(this.maxHeaderListSize)
+                .append(", compressionEnabled=").append(this.compressionEnabled)
                 .append("]");
         return builder.toString();
     }
@@ -114,7 +122,7 @@ public class H2Config {
                 .setMaxConcurrentStreams(Integer.MAX_VALUE) // no limit
                 .setMaxFrameSize(INIT_MAX_FRAME_SIZE)
                 .setInitialWindowSize(INIT_WINDOW_SIZE)
-                .setHeaderTableSize(Integer.MAX_VALUE); // unlimited
+                .setMaxHeaderListSize(Integer.MAX_VALUE); // unlimited
     }
 
     public static H2Config.Builder copy(final H2Config config) {
@@ -125,7 +133,8 @@ public class H2Config {
                 .setMaxConcurrentStreams(config.getMaxConcurrentStreams())
                 .setInitialWindowSize(config.getInitialWindowSize())
                 .setMaxFrameSize(config.getMaxFrameSize())
-                .setMaxHeaderListSize(config.getMaxHeaderListSize());
+                .setMaxHeaderListSize(config.getMaxHeaderListSize())
+                .setCompressionEnabled(config.isCompressionEnabled());
     }
 
     public static class Builder {
@@ -136,6 +145,7 @@ public class H2Config {
         private int initialWindowSize;
         private int maxFrameSize;
         private int maxHeaderListSize;
+        private boolean compressionEnabled;
 
         Builder() {
             this.headerTableSize = INIT_HEADER_TABLE_SIZE * 2;
@@ -144,6 +154,7 @@ public class H2Config {
             this.initialWindowSize = INIT_WINDOW_SIZE;
             this.maxFrameSize  = FrameConsts.MIN_FRAME_SIZE * 4;
             this.maxHeaderListSize = FrameConsts.MAX_FRAME_SIZE;
+            this.compressionEnabled = true;
         }
 
         public Builder setHeaderTableSize(final int headerTableSize) {
@@ -181,6 +192,11 @@ public class H2Config {
             return this;
         }
 
+        public Builder setCompressionEnabled(final boolean compressionEnabled) {
+            this.compressionEnabled = compressionEnabled;
+            return this;
+        }
+
         public H2Config build() {
             return new H2Config(
                     headerTableSize,
@@ -188,7 +204,8 @@ public class H2Config {
                     maxConcurrentStreams,
                     initialWindowSize,
                     maxFrameSize,
-                    maxHeaderListSize);
+                    maxHeaderListSize,
+                    compressionEnabled);
         }
 
     }

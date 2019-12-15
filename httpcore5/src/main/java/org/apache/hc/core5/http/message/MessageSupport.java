@@ -41,7 +41,7 @@ import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MessageHeaders;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
@@ -173,11 +173,11 @@ public class MessageSupport {
      * @since  5.0
      */
     public static boolean canResponseHaveBody(final String method, final HttpResponse response) {
-        if (Methods.HEAD.isSame(method)) {
+        if (Method.HEAD.isSame(method)) {
             return false;
         }
         final int status = response.getCode();
-        if (Methods.CONNECT.isSame(method) && status == HttpStatus.SC_OK) {
+        if (Method.CONNECT.isSame(method) && status == HttpStatus.SC_OK) {
             return false;
         }
         return status >= HttpStatus.SC_SUCCESS

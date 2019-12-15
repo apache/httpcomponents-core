@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
@@ -134,7 +134,7 @@ public class H2CompatibilityTest {
                 final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
                 final CountDownLatch countDownLatch = new CountDownLatch(1);
-                final HttpRequest httpget = new BasicHttpRequest(Methods.GET, target, "/status.html");
+                final HttpRequest httpget = new BasicHttpRequest(Method.GET, target, "/status.html");
                 endpoint.execute(
                         new BasicRequestProducer(httpget, null),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
@@ -185,7 +185,7 @@ public class H2CompatibilityTest {
                 final int reqCount = 20;
                 final CountDownLatch countDownLatch = new CountDownLatch(reqCount);
                 for (int i = 0; i < reqCount; i++) {
-                    final HttpRequest httpget = new BasicHttpRequest(Methods.GET, target, "/status.html");
+                    final HttpRequest httpget = new BasicHttpRequest(Method.GET, target, "/status.html");
                     endpoint.execute(
                             new BasicRequestProducer(httpget, null),
                             new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
@@ -235,7 +235,7 @@ public class H2CompatibilityTest {
                 final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
                 final CountDownLatch countDownLatch = new CountDownLatch(5);
-                final HttpRequest httpget = new BasicHttpRequest(Methods.GET, target, "/index.html");
+                final HttpRequest httpget = new BasicHttpRequest(Method.GET, target, "/index.html");
                 final Future<Message<HttpResponse, String>> future = endpoint.execute(
                         new BasicRequestProducer(httpget, null),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
@@ -295,28 +295,28 @@ public class H2CompatibilityTest {
 
             final List<Message<HttpRequest, AsyncEntityProducer>> requestMessages = Arrays.asList(
                     new Message<HttpRequest, AsyncEntityProducer>(
-                            new BasicHttpRequest(Methods.GET, target, "/headers"),
+                            new BasicHttpRequest(Method.GET, target, "/headers"),
                             null),
                     new Message<HttpRequest, AsyncEntityProducer>(
-                            new BasicHttpRequest(Methods.POST, target, "/anything"),
+                            new BasicHttpRequest(Method.POST, target, "/anything"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
                     new Message<HttpRequest, AsyncEntityProducer>(
-                            new BasicHttpRequest(Methods.PUT, target, "/anything"),
+                            new BasicHttpRequest(Method.PUT, target, "/anything"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
                     new Message<HttpRequest, AsyncEntityProducer>(
-                            new BasicHttpRequest(Methods.GET, target, "/drip"),
+                            new BasicHttpRequest(Method.GET, target, "/drip"),
                             null),
                     new Message<HttpRequest, AsyncEntityProducer>(
-                            new BasicHttpRequest(Methods.GET, target, "/bytes/20000"),
+                            new BasicHttpRequest(Method.GET, target, "/bytes/20000"),
                             null),
                     new Message<HttpRequest, AsyncEntityProducer>(
-                            new BasicHttpRequest(Methods.GET, target, "/delay/2"),
+                            new BasicHttpRequest(Method.GET, target, "/delay/2"),
                             null),
                     new Message<HttpRequest, AsyncEntityProducer>(
-                            new BasicHttpRequest(Methods.POST, target, "/delay/2"),
+                            new BasicHttpRequest(Method.POST, target, "/delay/2"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
                     new Message<HttpRequest, AsyncEntityProducer>(
-                            new BasicHttpRequest(Methods.PUT, target, "/delay/2"),
+                            new BasicHttpRequest(Method.PUT, target, "/delay/2"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN))
             );
 
@@ -377,10 +377,10 @@ public class H2CompatibilityTest {
                 final HttpRequest request;
                 final AsyncEntityProducer entityProducer;
                 if (i % 2 == 0) {
-                    request = new BasicHttpRequest(Methods.GET, target, "/headers");
+                    request = new BasicHttpRequest(Method.GET, target, "/headers");
                     entityProducer = null;
                 } else {
-                    request = new BasicHttpRequest(Methods.POST, target, "/anything");
+                    request = new BasicHttpRequest(Method.POST, target, "/anything");
                     entityProducer = new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN);
                 }
 

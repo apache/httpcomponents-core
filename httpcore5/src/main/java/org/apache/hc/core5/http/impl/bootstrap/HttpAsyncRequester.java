@@ -234,7 +234,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         return resultFuture;
     }
 
-    public Future<AsyncClientEndpoint> connect(final HttpHost host, final Timeout timeout) throws InterruptedException {
+    public Future<AsyncClientEndpoint> connect(final HttpHost host, final Timeout timeout) {
         return connect(host, timeout, null, null);
     }
 

@@ -44,7 +44,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
@@ -171,7 +171,7 @@ public class H2TLSIntegrationTest {
 
         final HttpHost target = new HttpHost("https", "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/stuff",
+                new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -232,7 +232,7 @@ public class H2TLSIntegrationTest {
 
         final HttpHost target = new HttpHost("https", "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/stuff",
+                new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         try {
@@ -298,7 +298,7 @@ public class H2TLSIntegrationTest {
 
         final HttpHost target = new HttpHost("https", "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/stuff",
+                new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         try {
@@ -364,7 +364,7 @@ public class H2TLSIntegrationTest {
 
         final HttpHost target = new HttpHost("https", "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                new BasicRequestProducer(Methods.POST, target, "/stuff",
+                new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         try {
@@ -448,7 +448,7 @@ public class H2TLSIntegrationTest {
 
                 final HttpHost target = new HttpHost("https", "localhost", address.getPort());
                 final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
-                        new BasicRequestProducer(Methods.POST, target, "/stuff",
+                        new BasicRequestProducer(Method.POST, target, "/stuff",
                                 new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
                 try {

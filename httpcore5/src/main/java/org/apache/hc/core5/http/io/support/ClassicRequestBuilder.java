@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
@@ -83,7 +83,7 @@ public class ClassicRequestBuilder {
         this.method = method;
     }
 
-    ClassicRequestBuilder(final Methods method) {
+    ClassicRequestBuilder(final Method method) {
         this(method.name());
     }
 
@@ -93,11 +93,11 @@ public class ClassicRequestBuilder {
         this.uri = uri;
     }
 
-    ClassicRequestBuilder(final Methods method, final URI uri) {
+    ClassicRequestBuilder(final Method method, final URI uri) {
         this(method.name(), uri);
     }
 
-    ClassicRequestBuilder(final Methods method, final String uri) {
+    ClassicRequestBuilder(final Method method, final String uri) {
         this(method.name(), uri != null ? URI.create(uri) : null);
     }
 
@@ -111,99 +111,99 @@ public class ClassicRequestBuilder {
     }
 
     public static ClassicRequestBuilder get() {
-        return new ClassicRequestBuilder(Methods.GET);
+        return new ClassicRequestBuilder(Method.GET);
     }
 
     public static ClassicRequestBuilder get(final URI uri) {
-        return new ClassicRequestBuilder(Methods.GET, uri);
+        return new ClassicRequestBuilder(Method.GET, uri);
     }
 
     public static ClassicRequestBuilder get(final String uri) {
-        return new ClassicRequestBuilder(Methods.GET, uri);
+        return new ClassicRequestBuilder(Method.GET, uri);
     }
 
     public static ClassicRequestBuilder head() {
-        return new ClassicRequestBuilder(Methods.HEAD);
+        return new ClassicRequestBuilder(Method.HEAD);
     }
 
     public static ClassicRequestBuilder head(final URI uri) {
-        return new ClassicRequestBuilder(Methods.HEAD, uri);
+        return new ClassicRequestBuilder(Method.HEAD, uri);
     }
 
     public static ClassicRequestBuilder head(final String uri) {
-        return new ClassicRequestBuilder(Methods.HEAD, uri);
+        return new ClassicRequestBuilder(Method.HEAD, uri);
     }
 
     public static ClassicRequestBuilder patch() {
-        return new ClassicRequestBuilder(Methods.PATCH);
+        return new ClassicRequestBuilder(Method.PATCH);
     }
 
     public static ClassicRequestBuilder patch(final URI uri) {
-        return new ClassicRequestBuilder(Methods.PATCH, uri);
+        return new ClassicRequestBuilder(Method.PATCH, uri);
     }
 
     public static ClassicRequestBuilder patch(final String uri) {
-        return new ClassicRequestBuilder(Methods.PATCH, uri);
+        return new ClassicRequestBuilder(Method.PATCH, uri);
     }
 
     public static ClassicRequestBuilder post() {
-        return new ClassicRequestBuilder(Methods.POST);
+        return new ClassicRequestBuilder(Method.POST);
     }
 
     public static ClassicRequestBuilder post(final URI uri) {
-        return new ClassicRequestBuilder(Methods.POST, uri);
+        return new ClassicRequestBuilder(Method.POST, uri);
     }
 
     public static ClassicRequestBuilder post(final String uri) {
-        return new ClassicRequestBuilder(Methods.POST, uri);
+        return new ClassicRequestBuilder(Method.POST, uri);
     }
 
     public static ClassicRequestBuilder put() {
-        return new ClassicRequestBuilder(Methods.PUT);
+        return new ClassicRequestBuilder(Method.PUT);
     }
 
     public static ClassicRequestBuilder put(final URI uri) {
-        return new ClassicRequestBuilder(Methods.PUT, uri);
+        return new ClassicRequestBuilder(Method.PUT, uri);
     }
 
     public static ClassicRequestBuilder put(final String uri) {
-        return new ClassicRequestBuilder(Methods.PUT, uri);
+        return new ClassicRequestBuilder(Method.PUT, uri);
     }
 
     public static ClassicRequestBuilder delete() {
-        return new ClassicRequestBuilder(Methods.DELETE);
+        return new ClassicRequestBuilder(Method.DELETE);
     }
 
     public static ClassicRequestBuilder delete(final URI uri) {
-        return new ClassicRequestBuilder(Methods.DELETE, uri);
+        return new ClassicRequestBuilder(Method.DELETE, uri);
     }
 
     public static ClassicRequestBuilder delete(final String uri) {
-        return new ClassicRequestBuilder(Methods.DELETE, uri);
+        return new ClassicRequestBuilder(Method.DELETE, uri);
     }
 
     public static ClassicRequestBuilder trace() {
-        return new ClassicRequestBuilder(Methods.TRACE);
+        return new ClassicRequestBuilder(Method.TRACE);
     }
 
     public static ClassicRequestBuilder trace(final URI uri) {
-        return new ClassicRequestBuilder(Methods.TRACE, uri);
+        return new ClassicRequestBuilder(Method.TRACE, uri);
     }
 
     public static ClassicRequestBuilder trace(final String uri) {
-        return new ClassicRequestBuilder(Methods.TRACE, uri);
+        return new ClassicRequestBuilder(Method.TRACE, uri);
     }
 
     public static ClassicRequestBuilder options() {
-        return new ClassicRequestBuilder(Methods.OPTIONS);
+        return new ClassicRequestBuilder(Method.OPTIONS);
     }
 
     public static ClassicRequestBuilder options(final URI uri) {
-        return new ClassicRequestBuilder(Methods.OPTIONS, uri);
+        return new ClassicRequestBuilder(Method.OPTIONS, uri);
     }
 
     public static ClassicRequestBuilder options(final String uri) {
-        return new ClassicRequestBuilder(Methods.OPTIONS, uri);
+        return new ClassicRequestBuilder(Method.OPTIONS, uri);
     }
 
     public ClassicRequestBuilder setCharset(final Charset charset) {
@@ -368,7 +368,7 @@ public class ClassicRequestBuilder {
         URI uriCopy = this.uri != null ? this.uri : URI.create("/");
         HttpEntity entityCopy = this.entity;
         if (parameters != null && !parameters.isEmpty()) {
-            if (entityCopy == null && (Methods.POST.isSame(method) || Methods.PUT.isSame(method))) {
+            if (entityCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method))) {
                 entityCopy = HttpEntities.createUrlEncoded(parameters, charset);
             } else {
                 try {
@@ -382,8 +382,8 @@ public class ClassicRequestBuilder {
             }
         }
 
-        if (entityCopy != null && Methods.TRACE.isSame(method)) {
-            throw new IllegalStateException(Methods.TRACE + " requests may not include an entity");
+        if (entityCopy != null && Method.TRACE.isSame(method)) {
+            throw new IllegalStateException(Method.TRACE + " requests may not include an entity");
         }
 
         final ClassicHttpRequest result = new BasicClassicHttpRequest(method, uriCopy);

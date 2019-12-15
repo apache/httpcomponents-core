@@ -171,21 +171,36 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         Args.notNull(route, "Route");
         Args.notNull(requestTimeout, "Request timeout");
         Asserts.check(!this.isShutDown.get(), "Connection pool shut down");
+        final Deadline deadline = Deadline.calculate(requestTimeout);
         final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<>(callback);
-        this.lock.lock();
+        final boolean acquiredLock;
+
         try {
-            final LeaseRequest<T, C> request = new LeaseRequest<>(route, state, requestTimeout, future);
-            final boolean completed = processPendingRequest(request);
-            if (!request.isDone() && !completed) {
-                this.leasingRequests.add(request);
-            }
-            if (request.isDone()) {
-                this.completedRequests.add(request);
-            }
-        } finally {
-            this.lock.unlock();
+            acquiredLock = this.lock.tryLock(requestTimeout.getDuration(), requestTimeout.getTimeUnit());
+        } catch (final InterruptedException interruptedException) {
+            Thread.currentThread().interrupt();
+            future.cancel();
+            return future;
         }
-        fireCallbacks();
+
+        if (acquiredLock) {
+            try {
+                final LeaseRequest<T, C> request = new LeaseRequest<>(route, state, requestTimeout, future);
+                final boolean completed = processPendingRequest(request);
+                if (!request.isDone() && !completed) {
+                    this.leasingRequests.add(request);
+                }
+                if (request.isDone()) {
+                    this.completedRequests.add(request);
+                }
+            } finally {
+                this.lock.unlock();
+            }
+            fireCallbacks();
+        } else {
+            future.failed(DeadlineTimeoutException.from(deadline));
+        }
+
         return future;
     }
 

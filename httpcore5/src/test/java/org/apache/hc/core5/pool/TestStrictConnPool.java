@@ -27,11 +27,16 @@
 package org.apache.hc.core5.pool;
 
 import java.util.Collections;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.util.DeadlineTimeoutException;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
@@ -510,6 +515,72 @@ public class TestStrictConnPool {
 
         Assert.assertFalse(future2.isDone());
         Assert.assertTrue(future3.isDone());
+    }
+
+    private static class HoldInternalLockThread extends Thread {
+        private HoldInternalLockThread(final StrictConnPool<String, HttpConnection> pool, final CountDownLatch lockHeld) {
+            super(new Runnable() {
+                @Override
+                public void run() {
+                    pool.lease("somehost", null); // lease a connection so we have something to enumLeased()
+                    pool.enumLeased(new Callback<PoolEntry<String, HttpConnection>>() {
+                        @Override
+                        public void execute(final PoolEntry<String, HttpConnection> object) {
+                            try {
+                                lockHeld.countDown();
+                                Thread.sleep(Long.MAX_VALUE);
+                            } catch (final InterruptedException ignored) {
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    @Test
+    public void testLeaseRequestLockTimeout() throws Exception {
+        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
+        final CountDownLatch lockHeld = new CountDownLatch(1);
+        final Thread holdInternalLock = new HoldInternalLockThread(pool, lockHeld);
+
+        holdInternalLock.start(); // Start a thread to grab the internal conn pool lock
+        lockHeld.await(); // Wait until we know the internal lock is held
+
+        // Attempt to get a connection while lock is held
+        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
+
+        try {
+            future2.get();
+        } catch (final ExecutionException executionException) {
+            Assert.assertTrue(executionException.getCause() instanceof DeadlineTimeoutException);
+            holdInternalLock.interrupt(); // Cleanup
+            return;
+        }
+        Assert.fail("Expected deadline timeout.");
+    }
+
+    @Test
+    public void testLeaseRequestInterrupted() throws Exception {
+        final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
+        final CountDownLatch lockHeld = new CountDownLatch(1);
+        final Thread holdInternalLock = new HoldInternalLockThread(pool, lockHeld);
+
+        holdInternalLock.start(); // Start a thread to grab the internal conn pool lock
+        lockHeld.await(); // Wait until we know the internal lock is held
+
+        Thread.currentThread().interrupt();
+        // Attempt to get a connection while lock is held and thread is interrupted
+        final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
+
+        Assert.assertTrue(Thread.interrupted());
+        try {
+            future2.get();
+        } catch (final CancellationException cancellationException) {
+            holdInternalLock.interrupt(); // Cleanup
+            return;
+        }
+        Assert.fail("Expected interrupted exception.");
     }
 
     @Test

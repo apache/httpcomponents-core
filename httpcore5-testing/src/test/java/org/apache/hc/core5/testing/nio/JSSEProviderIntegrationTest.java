@@ -44,7 +44,7 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
@@ -243,7 +243,7 @@ public class JSSEProviderIntegrationTest {
 
         for (int i = 0; i < REQ_NUM; i++) {
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(Methods.GET, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assert.assertNotNull(result);
@@ -309,7 +309,7 @@ public class JSSEProviderIntegrationTest {
                     "localhost", serverEndpoint.getPort(), TIMEOUT);
             try (final ClientSessionEndpoint streamEndpoint = connectFuture.get()) {
                 final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                        new BasicRequestProducer(Methods.GET, createRequestURI(serverEndpoint, "/hello")),
+                        new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
                 final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
                 Assert.assertNotNull(result);

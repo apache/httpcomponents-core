@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.nio.command.CommandSupport;
-import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
+import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.IOEventHandler;
@@ -88,7 +88,7 @@ public class H2OnlyClientProtocolNegotiator implements HttpConnectionEventHandle
                         throw new HttpException("ALPN: missing application protocol");
                     }
                 } else {
-                    if (!ApplicationProtocols.HTTP_2.id.equals(applicationProtocol)) {
+                    if (!ApplicationProtocol.HTTP_2.id.equals(applicationProtocol)) {
                         throw new HttpException("ALPN: unexpected application protocol '" + applicationProtocol + "'");
                     }
                 }

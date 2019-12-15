@@ -55,7 +55,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.Methods;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
@@ -201,7 +201,7 @@ public class ClassicIntegrationTest {
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
-            final BasicClassicHttpRequest get = new BasicClassicHttpRequest(Methods.GET, "/?" + r);
+            final BasicClassicHttpRequest get = new BasicClassicHttpRequest(Method.GET, "/?" + r);
             try (final ClassicHttpResponse response = this.client.execute(host, get, context)) {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
@@ -259,7 +259,7 @@ public class ClassicIntegrationTest {
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
-            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Methods.POST, "/");
+            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
             final byte[] data = testData.get(r);
             post.setEntity(new ByteArrayEntity(data, null));
 
@@ -320,7 +320,7 @@ public class ClassicIntegrationTest {
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
-            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Methods.POST, "/");
+            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
             final byte[] data = testData.get(r);
             post.setEntity(new ByteArrayEntity(data, null, true));
 
@@ -384,7 +384,7 @@ public class ClassicIntegrationTest {
 
         for (int r = 0; r < reqNo; r++) {
             // Set protocol level to HTTP/1.0
-            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Methods.POST, "/");
+            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
             post.setVersion(HttpVersion.HTTP_1_0);
             final byte[] data = testData.get(r);
             post.setEntity(new ByteArrayEntity(data, null));
@@ -450,7 +450,7 @@ public class ClassicIntegrationTest {
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
-            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Methods.POST, "/");
+            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
             final byte[] data = testData.get(r);
             post.setEntity(new ByteArrayEntity(data, null, true));
 
@@ -526,7 +526,7 @@ public class ClassicIntegrationTest {
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
-            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Methods.POST, "/");
+            final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
             post.addHeader("Secret", Integer.toString(r));
 
             final byte[] b = new byte[2048];
@@ -668,7 +668,7 @@ public class ClassicIntegrationTest {
         for (final String pattern : patterns) {
             for (int n = 1000; n < 1020; n++) {
                 final BasicClassicHttpRequest post = new BasicClassicHttpRequest(
-                        Methods.POST.name(), "/?n=" + n);
+                        Method.POST.name(), "/?n=" + n);
                 post.setEntity(new StringEntity(pattern, ContentType.TEXT_PLAIN, n % 2 == 0));
 
                 try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
@@ -720,7 +720,7 @@ public class ClassicIntegrationTest {
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
-        final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Methods.POST, "/");
+        final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
         post.setEntity(null);
 
         try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
@@ -759,7 +759,7 @@ public class ClassicIntegrationTest {
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
-        final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Methods.POST, "/");
+        final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
         post.setEntity(null);
 
         try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
@@ -809,7 +809,7 @@ public class ClassicIntegrationTest {
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
-        final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Methods.POST, "/");
+        final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
         post.setEntity(null);
 
         try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
@@ -842,7 +842,7 @@ public class ClassicIntegrationTest {
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
-            final BasicClassicHttpRequest get = new BasicClassicHttpRequest(Methods.GET, "/?" + r);
+            final BasicClassicHttpRequest get = new BasicClassicHttpRequest(Method.GET, "/?" + r);
             try (final ClassicHttpResponse response = this.client.execute(host, get, context)) {
                 Assert.assertNull(response.getEntity());
             }
@@ -871,14 +871,14 @@ public class ClassicIntegrationTest {
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
-        final BasicClassicHttpRequest get1 = new BasicClassicHttpRequest(Methods.GET, "/");
+        final BasicClassicHttpRequest get1 = new BasicClassicHttpRequest(Method.GET, "/");
         get1.setVersion(HttpVersion.HTTP_1_0);
         try (final ClassicHttpResponse response1 = this.client.execute(host, get1, context)) {
             Assert.assertEquals(200, response1.getCode());
             EntityUtils.consume(response1.getEntity());
         }
 
-        final BasicClassicHttpRequest get2 = new BasicClassicHttpRequest(Methods.GET, "/");
+        final BasicClassicHttpRequest get2 = new BasicClassicHttpRequest(Method.GET, "/");
         try (final ClassicHttpResponse response2 = this.client.execute(host, get2, context)) {
             Assert.assertEquals(400, response2.getCode());
             EntityUtils.consume(response2.getEntity());

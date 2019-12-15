@@ -46,7 +46,7 @@ import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.ssl.ApplicationProtocols;
+import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.IOSession;
@@ -145,7 +145,7 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             case NEGOTIATE:
                 final TlsDetails tlsDetails = ioSession.getTlsDetails();
                 if (tlsDetails != null) {
-                    if (ApplicationProtocols.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
+                    if (ApplicationProtocol.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
                         // Proceed with the H2 preface
                         preface = ByteBuffer.wrap(PREFACE);
                     }

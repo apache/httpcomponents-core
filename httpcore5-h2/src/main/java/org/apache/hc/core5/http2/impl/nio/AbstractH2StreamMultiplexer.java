@@ -264,7 +264,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             streamListener.onHeaderOutput(this, streamId, headers);
         }
         final ByteArrayBuffer buf = new ByteArrayBuffer(512);
-        hPackEncoder.encodeHeaders(buf, headers);
+        hPackEncoder.encodeHeaders(buf, headers, localConfig.isCompressionEnabled());
 
         int off = 0;
         int remaining = buf.length();
@@ -303,7 +303,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         buf.append((byte)(promisedStreamId >> 8));
         buf.append((byte)(promisedStreamId));
 
-        hPackEncoder.encodeHeaders(buf, headers);
+        hPackEncoder.encodeHeaders(buf, headers, localConfig.isCompressionEnabled());
 
         int off = 0;
         int remaining = buf.length();
@@ -1188,7 +1188,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private void applyRemoteSettings(final H2Config config) throws H2ConnectionException {
         remoteConfig = config;
 
-        hPackDecoder.setMaxTableSize(remoteConfig.getMaxHeaderListSize());
+        hPackEncoder.setMaxTableSize(remoteConfig.getHeaderTableSize());
         final int delta = remoteConfig.getInitialWindowSize() - initOutputWinSize;
         initOutputWinSize = remoteConfig.getInitialWindowSize();
 
@@ -1210,7 +1210,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     private void applyLocalSettings() throws H2ConnectionException {
-        hPackEncoder.setMaxTableSize(localConfig.getMaxHeaderListSize());
+        hPackDecoder.setMaxTableSize(localConfig.getHeaderTableSize());
 
         final int delta = localConfig.getInitialWindowSize() - initInputWinSize;
         initInputWinSize = localConfig.getInitialWindowSize();
