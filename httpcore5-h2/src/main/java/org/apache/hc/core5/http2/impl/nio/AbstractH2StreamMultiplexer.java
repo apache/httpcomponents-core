@@ -1215,17 +1215,14 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         final int delta = localConfig.getInitialWindowSize() - initInputWinSize;
         initInputWinSize = localConfig.getInitialWindowSize();
 
-        if (delta != 0) {
-            updateInputWindow(0, connInputWindow, delta);
-            if (!streamMap.isEmpty()) {
-                for (final Iterator<Map.Entry<Integer, H2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
-                    final Map.Entry<Integer, H2Stream> entry = it.next();
-                    final H2Stream stream = entry.getValue();
-                    try {
-                        updateInputWindow(stream.getId(), stream.getInputWindow(), delta);
-                    } catch (final ArithmeticException ex) {
-                        throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR, ex.getMessage());
-                    }
+        if (delta != 0 && !streamMap.isEmpty()) {
+            for (final Iterator<Map.Entry<Integer, H2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
+                final Map.Entry<Integer, H2Stream> entry = it.next();
+                final H2Stream stream = entry.getValue();
+                try {
+                    updateInputWindow(stream.getId(), stream.getInputWindow(), delta);
+                } catch (final ArithmeticException ex) {
+                    throw new H2ConnectionException(H2Error.FLOW_CONTROL_ERROR, ex.getMessage());
                 }
             }
         }
