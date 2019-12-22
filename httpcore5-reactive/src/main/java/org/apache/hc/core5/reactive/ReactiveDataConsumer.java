@@ -58,6 +58,7 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
 
     private final BlockingQueue<ByteBuffer> buffers = new LinkedBlockingQueue<>();
     private final AtomicBoolean flushInProgress = new AtomicBoolean(false);
+    private final Object flushLock = new Object();
     private final AtomicInteger windowScalingIncrement = new AtomicInteger(0);
     private volatile boolean buffersSent = false;
     private volatile boolean cancelled = false;
@@ -128,43 +129,45 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
     }
 
     private void flushToSubscriber() {
-        final Subscriber<? super ByteBuffer> s = subscriber;
-        if (flushInProgress.getAndSet(true)) {
-            return;
-        }
-        try {
-            if (s == null) {
+        synchronized (flushLock) {
+            final Subscriber<? super ByteBuffer> s = subscriber;
+            if (flushInProgress.getAndSet(true)) {
                 return;
             }
-            if (exception != null) {
-                subscriber = null;
-                s.onError(exception);
-                return;
-            }
-            ByteBuffer next;
-            while (requests.get() > 0 && ((next = buffers.poll()) != null)) {
-                final int bytesFreed = next.remaining();
-                s.onNext(next);
-                buffersSent = true;
-                requests.decrementAndGet();
-                windowScalingIncrement.addAndGet(bytesFreed);
-            }
-            final CapacityChannel localChannel = capacityChannel;
-            if (localChannel != null) {
-                try {
-                    signalCapacity(localChannel);
-                } catch (final IOException e) {
-                    exception = e;
-                    s.onError(e);
+            try {
+                if (s == null) {
                     return;
                 }
+                if (exception != null) {
+                    subscriber = null;
+                    s.onError(exception);
+                    return;
+                }
+                ByteBuffer next;
+                while (requests.get() > 0 && ((next = buffers.poll()) != null)) {
+                    final int bytesFreed = next.remaining();
+                    s.onNext(next);
+                    buffersSent = true;
+                    requests.decrementAndGet();
+                    windowScalingIncrement.addAndGet(bytesFreed);
+                }
+                final CapacityChannel localChannel = capacityChannel;
+                if (localChannel != null) {
+                    try {
+                        signalCapacity(localChannel);
+                    } catch (final IOException e) {
+                        exception = e;
+                        s.onError(e);
+                        return;
+                    }
+                }
+                if (completed && buffers.isEmpty()) {
+                    subscriber = null;
+                    s.onComplete();
+                }
+            } finally {
+                flushInProgress.set(false);
             }
-            if (completed && buffers.isEmpty()) {
-                subscriber = null;
-                s.onComplete();
-            }
-        } finally {
-            flushInProgress.set(false);
         }
     }
 
