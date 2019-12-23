@@ -234,6 +234,14 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         processCommands();
     }
 
+    IncomingMessage parseMessageHead(final boolean endOfStream) throws IOException, HttpException {
+        final IncomingMessage messageHead = incomingMessageParser.parse(inbuf, endOfStream);
+        if (messageHead != null) {
+            incomingMessageParser.reset();
+        }
+        return messageHead;
+    }
+
     public final void onInput(final ByteBuffer src) throws HttpException, IOException {
         if (src != null) {
             inbuf.put(src);
@@ -256,10 +264,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         do {
             if (incomingMessage == null) {
 
-                final IncomingMessage messageHead = incomingMessageParser.parse(inbuf, endOfStream);
+                final IncomingMessage messageHead = parseMessageHead(endOfStream);
                 if (messageHead != null) {
-                    incomingMessageParser.reset();
-
                     this.version = messageHead.getVersion();
 
                     updateInputMetrics(messageHead, connMetrics);
@@ -444,6 +450,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     void setSessionTimeout(final Timeout timeout) {
         ioSession.setSocketTimeout(timeout);
+    }
+
+    void suspendSessionInput() {
+        ioSession.clearEvent(SelectionKey.OP_READ);
     }
 
     void suspendSessionOutput() throws IOException {

@@ -298,6 +298,43 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     }
 
     @Override
+    HttpRequest parseMessageHead(final boolean endOfStream) throws IOException, HttpException {
+        try {
+            return super.parseMessageHead(endOfStream);
+        } catch (final HttpException ex) {
+            terminateExchange(ex);
+            return null;
+        }
+    }
+
+    void terminateExchange(final HttpException ex) throws HttpException, IOException {
+        suspendSessionInput();
+        final ServerHttp1StreamHandler streamHandler;
+        final HttpCoreContext context = HttpCoreContext.create();
+        context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
+        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+        if (outgoing == null) {
+            streamHandler = new ServerHttp1StreamHandler(
+                    outputChannel,
+                    httpProcessor,
+                    connectionReuseStrategy,
+                    exchangeHandlerFactory,
+                    context);
+            outgoing = streamHandler;
+        } else {
+            streamHandler = new ServerHttp1StreamHandler(
+                    new DelayedOutputChannel(outputChannel),
+                    httpProcessor,
+                    connectionReuseStrategy,
+                    exchangeHandlerFactory,
+                    context);
+            pipeline.add(streamHandler);
+        }
+        streamHandler.terminateExchange(ex);
+        incoming = streamHandler;
+    }
+
+    @Override
     void consumeHeader(final HttpRequest request, final EntityDetails entityDetails) throws HttpException, IOException {
         if (streamListener != null) {
             streamListener.onRequestHead(this, request);
