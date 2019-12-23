@@ -28,12 +28,16 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequestFactory;
+import org.apache.hc.core5.http.MessageConstraintException;
+import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.config.Http1Config;
+import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -85,6 +89,16 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<ClassicHttpR
     @Override
     protected IOException createConnectionClosedException() {
         return new ConnectionClosedException("Client closed connection");
+    }
+
+    @Override
+    public ClassicHttpRequest parse(
+            final SessionInputBuffer buffer, final InputStream inputStream) throws IOException, HttpException {
+        try {
+            return super.parse(buffer, inputStream);
+        } catch (final MessageConstraintException ex) {
+            throw new RequestHeaderFieldsTooLargeException(ex.getMessage(), ex);
+        }
     }
 
     @Override

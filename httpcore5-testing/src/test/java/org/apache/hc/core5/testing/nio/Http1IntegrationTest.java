@@ -122,6 +122,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
+import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -1787,6 +1788,79 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertNotNull(response1);
         Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response1.getCode());
         Assert.assertEquals("Boom!!!", entity1);
+    }
+
+    @Test
+    public void testHeaderTooLarge() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new SingleLineResponseHandler("Hi there");
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start(null, Http1Config.custom()
+                .setMaxLineLength(100)
+                .build());
+        client.start();
+
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final HttpRequest request1 = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
+        request1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890");
+        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                new BasicRequestProducer(request1, null),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assert.assertNotNull(result1);
+        final HttpResponse response1 = result1.getHead();
+        Assert.assertNotNull(response1);
+        Assert.assertEquals(431, response1.getCode());
+        Assert.assertEquals("Maximum line length limit exceeded", result1.getBody());
+    }
+
+    @Test
+    public void testHeaderTooLargePost() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new SingleLineResponseHandler("Hi there");
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start(null, Http1Config.custom()
+                .setMaxLineLength(100)
+                .build());
+        client.start(
+                new DefaultHttpProcessor(new RequestContent(), new RequestTargetHost(), new RequestConnControl()), null);
+
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello"));
+        request1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890");
+
+        final byte[] b = new byte[2048];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = (byte) ('a' + i % 10);
+        }
+
+        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                new BasicRequestProducer(request1, AsyncEntityProducers.create(b, ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assert.assertNotNull(result1);
+        final HttpResponse response1 = result1.getHead();
+        Assert.assertNotNull(response1);
+        Assert.assertEquals(431, response1.getCode());
+        Assert.assertEquals("Maximum line length limit exceeded", result1.getBody());
     }
 
 }

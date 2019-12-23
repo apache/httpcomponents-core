@@ -266,11 +266,7 @@ public class HttpService {
      */
     protected void handleException(final HttpException ex, final ClassicHttpResponse response) {
         response.setCode(toStatusCode(ex));
-        String message = ex.getMessage();
-        if (message == null) {
-            message = ex.toString();
-        }
-        response.setEntity(new StringEntity(message, ContentType.TEXT_PLAIN));
+        response.setEntity(new StringEntity(ServerSupport.toErrorMessage(ex), ContentType.TEXT_PLAIN));
     }
 
     protected int toStatusCode(final Exception ex) {

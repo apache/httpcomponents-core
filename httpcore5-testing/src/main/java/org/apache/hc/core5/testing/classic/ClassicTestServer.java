@@ -99,7 +99,10 @@ public class ClassicTestServer {
         throw new IllegalStateException("Server not running");
     }
 
-    public void start(final HttpProcessor httpProcessor, final Decorator<HttpServerRequestHandler> handlerDecorator) throws IOException {
+    public void start(
+            final Http1Config http1Config,
+            final HttpProcessor httpProcessor,
+            final Decorator<HttpServerRequestHandler> handlerDecorator) throws IOException {
         if (serverRef.get() == null) {
             final HttpServerRequestHandler handler = new BasicHttpServerRequestHandler(registry);
             final HttpService httpService = new HttpService(
@@ -115,7 +118,7 @@ public class ClassicTestServer {
                     sslContext != null ? sslContext.getServerSocketFactory() : ServerSocketFactory.getDefault(),
                     new LoggingBHttpServerConnectionFactory(
                             sslContext != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
-                            Http1Config.DEFAULT,
+                            http1Config != null ? http1Config : Http1Config.DEFAULT,
                             CharCodingConfig.DEFAULT),
                     null,
                     LoggingExceptionListener.INSTANCE);
@@ -128,7 +131,7 @@ public class ClassicTestServer {
     }
 
     public void start() throws IOException {
-        start(null, null);
+        start(null, null, null);
     }
 
     public void shutdown(final CloseMode closeMode) {

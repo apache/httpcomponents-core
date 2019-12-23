@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 
 /**
@@ -70,6 +71,8 @@ public class ServerSupport {
             code = HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED;
         } else if (ex instanceof NotImplementedException) {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
+        } else if (ex instanceof RequestHeaderFieldsTooLargeException) {
+            code = HttpStatus.SC_REQUEST_HEADER_FIELDS_TOO_LARGE;
         } else if (ex instanceof ProtocolException) {
             code = HttpStatus.SC_BAD_REQUEST;
         } else {
