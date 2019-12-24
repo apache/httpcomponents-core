@@ -29,15 +29,12 @@ package org.apache.hc.core5.testing.reactive;
 import static java.lang.String.format;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.WritableByteChannel;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -46,36 +43,22 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.HeaderElements;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
-import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactive.ReactiveEntityProducer;
-import org.apache.hc.core5.reactive.ReactiveRequestProcessor;
 import org.apache.hc.core5.reactive.ReactiveResponseConsumer;
 import org.apache.hc.core5.reactive.ReactiveServerExchangeHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -86,6 +69,8 @@ import org.apache.hc.core5.testing.nio.LoggingH2StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
+import org.apache.hc.core5.testing.reactive.ReactiveTestUtils.StreamDescription;
+import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -101,7 +86,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.functions.Action;
 import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 @RunWith(Parameterized.class)
 public class ReactiveClientTest {
@@ -127,28 +111,6 @@ public class ReactiveClientTest {
     }
 
     private HttpAsyncServer server;
-
-    private static final class ReactiveEchoProcessor implements ReactiveRequestProcessor {
-        @Override
-        public void processRequest(
-                final HttpRequest request,
-                final EntityDetails entityDetails,
-                final ResponseChannel responseChannel,
-                final HttpContext context,
-                final Publisher<ByteBuffer> requestBody,
-                final Callback<Publisher<ByteBuffer>> responseBodyFuture
-        ) throws HttpException, IOException {
-            if (new BasicHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE).equals(request.getHeader(HttpHeaders.EXPECT))) {
-                responseChannel.sendInformation(new BasicHttpResponse(100), context);
-            }
-
-            responseChannel.sendResponse(
-                    new BasicHttpResponse(200),
-                    new BasicEntityDetails(-1, ContentType.APPLICATION_OCTET_STREAM),
-                    context);
-            responseBodyFuture.execute(requestBody);
-        }
-    }
 
     @Rule
     public ExternalResource serverResource = new ExternalResource() {
@@ -253,47 +215,20 @@ public class ReactiveClientTest {
     @Test
     public void testLongRunningRequest() throws Exception {
         final InetSocketAddress address = startClientAndServer();
-        final AtomicLong requestLength = new AtomicLong(0L);
-        final AtomicReference<MessageDigest> requestDigest = new AtomicReference<>(newDigest());
-        final Publisher<ByteBuffer> publisher = Flowable.rangeLong(1, 100)
-            .map(new Function<Long, ByteBuffer>() {
-                @Override
-                public ByteBuffer apply(final Long seed) {
-                    final Random random = new Random(seed);
-                    // Using blocks slightly larger than the HTTP/2 window size serves to exercise the input window
-                    // management code
-                    final byte[] bytes = new byte[65535 + 7];
-                    requestLength.addAndGet(bytes.length);
-                    random.nextBytes(bytes);
-                    return ByteBuffer.wrap(bytes);
-                }
-            })
-            .doOnNext(new Consumer<ByteBuffer>() {
-                @Override
-                public void accept(final ByteBuffer byteBuffer) {
-                    requestDigest.get().update(byteBuffer.duplicate());
-                }
-            });
-        final ReactiveEntityProducer producer = new ReactiveEntityProducer(publisher, -1, null, null);
+        final long expectedLength = 6_554_200L;
+        final AtomicReference<String> expectedHash = new AtomicReference<>(null);
+        final Flowable<ByteBuffer> stream = ReactiveTestUtils.produceStream(expectedLength, expectedHash);
+        final ReactiveEntityProducer producer = new ReactiveEntityProducer(stream, -1, null, null);
         final BasicRequestProducer request = getRequestProducer(address, producer);
 
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
         requester.execute(request, consumer, SOCKET_TIMEOUT, null);
         final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
                 .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
+        final StreamDescription desc = ReactiveTestUtils.consumeStream(response.getBody()).blockingGet();
 
-        final AtomicLong responseLength = new AtomicLong(0);
-        final AtomicReference<MessageDigest> responseDigest = new AtomicReference<>(newDigest());
-        Flowable.fromPublisher(response.getBody())
-            .blockingForEach(new Consumer<ByteBuffer>() {
-                @Override
-                public void accept(final ByteBuffer byteBuffer) {
-                    responseLength.addAndGet(byteBuffer.remaining());
-                    responseDigest.get().update(byteBuffer);
-                }
-            });
-        Assert.assertEquals(requestLength.get(), responseLength.get());
-        Assert.assertArrayEquals(requestDigest.get().digest(), responseDigest.get().digest());
+        Assert.assertEquals(expectedLength, desc.length);
+        Assert.assertEquals(expectedHash.get(), TextUtils.toHexString(desc.md.digest()));
     }
 
     @Test
@@ -304,47 +239,21 @@ public class ReactiveClientTest {
         // so it's unlikely to consistently occur.
         final InetSocketAddress address = startClientAndServer();
         for (int i = 0; i < 10; i++) {
-            final AtomicLong requestLength = new AtomicLong(0L);
-            final AtomicReference<MessageDigest> requestDigest = new AtomicReference<>(newDigest());
-            final Publisher<ByteBuffer> publisher = Flowable.rangeLong(1, 1_000)
-                .map(new Function<Long, ByteBuffer>() {
-                    @Override
-                    public ByteBuffer apply(final Long seed) {
-                        final Random random = new Random(seed);
-                        final byte[] bytes = new byte[1024];
-                        requestLength.addAndGet(bytes.length);
-                        random.nextBytes(bytes);
-                        return ByteBuffer.wrap(bytes);
-                    }
-                })
-                .doOnNext(new Consumer<ByteBuffer>() {
-                    @Override
-                    public void accept(final ByteBuffer byteBuffer) {
-                        requestDigest.get().update(byteBuffer.duplicate());
-                    }
-                });
-            final ReactiveEntityProducer producer = new ReactiveEntityProducer(publisher, -1, null, null);
+            final long expectedLength = 1_024_000;
+            final int maximumBlockSize = 1024;
+            final AtomicReference<String> expectedHash = new AtomicReference<>(null);
+            final Publisher<ByteBuffer> stream = ReactiveTestUtils.produceStream(expectedLength, maximumBlockSize, expectedHash);
+            final ReactiveEntityProducer producer = new ReactiveEntityProducer(stream, -1, null, null);
             final BasicRequestProducer request = getRequestProducer(address, producer);
 
             final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
             requester.execute(request, consumer, SOCKET_TIMEOUT, null);
             final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
                 .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
+            final StreamDescription desc = ReactiveTestUtils.consumeStream(response.getBody()).blockingGet();
 
-            final AtomicLong responseLength = new AtomicLong(0);
-            final AtomicReference<MessageDigest> responseDigest = new AtomicReference<>(newDigest());
-            Flowable.fromPublisher(response.getBody())
-                .doOnNext(new Consumer<ByteBuffer>() {
-                    @Override
-                    public void accept(final ByteBuffer byteBuffer) {
-                        responseLength.addAndGet(byteBuffer.remaining());
-                        responseDigest.get().update(byteBuffer);
-                    }
-                })
-                .blockingLast(); // This requests Long.MAX_VALUE objects and guarantees we won't call request again
-
-            Assert.assertEquals(requestLength.get(), responseLength.get());
-            Assert.assertArrayEquals(requestDigest.get().digest(), responseDigest.get().digest());
+            Assert.assertEquals(expectedLength, desc.length);
+            Assert.assertEquals(expectedHash.get(), TextUtils.toHexString(desc.md.digest()));
         }
     }
 
@@ -409,16 +318,7 @@ public class ReactiveClientTest {
         final InetSocketAddress address = startClientAndServer();
         final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean(false);
         final AtomicReference<Throwable> requestStreamError = new AtomicReference<>();
-        final Publisher<ByteBuffer> publisher = Flowable.rangeLong(Long.MIN_VALUE, Long.MAX_VALUE)
-            .map(new Function<Long, ByteBuffer>() {
-                @Override
-                public ByteBuffer apply(final Long seed) throws Exception {
-                    final Random random = new Random(seed);
-                    final byte[] bytes = new byte[1 + random.nextInt(1024)];
-                    random.nextBytes(bytes);
-                    return ByteBuffer.wrap(bytes);
-                }
-            })
+        final Publisher<ByteBuffer> stream = ReactiveTestUtils.produceStream(Long.MAX_VALUE, 1024, null)
             .doOnCancel(new Action() {
                 @Override
                 public void run() throws Exception {
@@ -431,7 +331,7 @@ public class ReactiveClientTest {
                     requestStreamError.set(throwable);
                 }
             });
-        final ReactiveEntityProducer producer = new ReactiveEntityProducer(publisher, -1, null, null);
+        final ReactiveEntityProducer producer = new ReactiveEntityProducer(stream, -1, null, null);
         final BasicRequestProducer request = getRequestProducer(address, producer);
 
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
@@ -460,10 +360,6 @@ public class ReactiveClientTest {
             Assert.assertTrue(requestPublisherWasCancelled.get());
             Assert.assertNull(requestStreamError.get());
         }
-    }
-
-    private static MessageDigest newDigest() throws NoSuchAlgorithmException {
-        return MessageDigest.getInstance("MD5");
     }
 
     private InetSocketAddress startClientAndServer() throws InterruptedException, ExecutionException {
