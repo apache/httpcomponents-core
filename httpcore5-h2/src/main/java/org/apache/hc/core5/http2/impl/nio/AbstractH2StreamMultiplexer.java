@@ -768,6 +768,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     stream.localReset(ex);
                 } catch (final HttpStreamResetException ex) {
                     stream.localReset(ex, ex.getCause() != null ? H2Error.INTERNAL_ERROR : H2Error.CANCEL);
+                } catch (final HttpException ex) {
+                    stream.handle(ex);
                 }
 
                 if (stream.isTerminated()) {
@@ -1038,6 +1040,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
     }
 
+    List<Header> decodeHeaders(final ByteBuffer payload) throws HttpException {
+        return hPackDecoder.decodeHeaders(payload);
+    }
+
     private void consumeHeaderFrame(final RawFrame frame, final H2Stream stream) throws HttpException, IOException {
         final int streamId = stream.getId();
         if (!frame.isFlagSet(FrameFlag.END_HEADERS)) {
@@ -1050,7 +1056,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             payload.get();
         }
         if (continuation == null) {
-            final List<Header> headers = hPackDecoder.decodeHeaders(payload);
+            final List<Header> headers = decodeHeaders(payload);
             if (stream.isRemoteInitiated() && streamId > processedRemoteStreamId) {
                 processedRemoteStreamId = streamId;
             }
@@ -1080,7 +1086,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         final ByteBuffer payload = frame.getPayload();
         continuation.copyPayload(payload);
         if (frame.isFlagSet(FrameFlag.END_HEADERS)) {
-            final List<Header> headers = hPackDecoder.decodeHeaders(continuation.getContent());
+            final List<Header> headers = decodeHeaders(continuation.getContent());
             if (stream.isRemoteInitiated() && streamId > processedRemoteStreamId) {
                 processedRemoteStreamId = streamId;
             }
@@ -1525,7 +1531,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     }
 
-    private static class H2Stream {
+    static class H2Stream {
 
         private final H2StreamChannelImpl channel;
         private final H2StreamHandler handler;
@@ -1636,6 +1642,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         void localReset(final H2StreamResetException ex) throws IOException {
             localReset(ex, ex.getCode());
+        }
+
+        void handle(final HttpException ex) throws IOException, HttpException {
+            handler.handle(ex, channel.isRemoteClosed());
         }
 
         HandlerFactory<AsyncPushConsumer> getPushHandlerFactory() {

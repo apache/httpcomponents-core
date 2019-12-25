@@ -27,8 +27,13 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.List;
 
 import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -43,6 +48,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
+import org.apache.hc.core5.http2.hpack.HeaderListConstraintException;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
@@ -111,6 +117,15 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final HttpProcessor httpProcessor,
             final BasicHttpConnectionMetrics connMetrics) throws IOException {
         throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Illegal attempt to execute a request");
+    }
+
+    @Override
+    List<Header> decodeHeaders(final ByteBuffer payload) throws HttpException {
+        try {
+            return super.decodeHeaders(payload);
+        } catch (final HeaderListConstraintException ex) {
+            throw new RequestHeaderFieldsTooLargeException(ex.getMessage(), ex);
+        }
     }
 
     @Override

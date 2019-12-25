@@ -107,12 +107,16 @@ import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityConsumer;
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicServerExchangeHandler;
+import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.nio.command.PingCommand;
 import org.apache.hc.core5.http2.nio.support.BasicPingHandler;
+import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
+import org.apache.hc.core5.http2.protocol.H2RequestContent;
+import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -1049,6 +1053,80 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final HttpConnection eventHandler = (HttpConnection) ((ProtocolIOSession) session).getHandler();
         final EndpointDetails endpointDetails = eventHandler.getEndpointDetails();
         Assert.assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
+    }
+
+    @Test
+    public void testHeaderTooLarge() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new SingleLineResponseHandler("Hi there");
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start(H2Config.custom()
+                .setMaxHeaderListSize(100)
+                .build());
+        client.start();
+
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final HttpRequest request1 = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
+        request1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890");
+        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                new BasicRequestProducer(request1, null),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assert.assertNotNull(result1);
+        final HttpResponse response1 = result1.getHead();
+        Assert.assertNotNull(response1);
+        Assert.assertEquals(431, response1.getCode());
+        Assert.assertEquals("Maximum header list size exceeded", result1.getBody());
+    }
+
+    @Test
+    public void testHeaderTooLargePost() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new SingleLineResponseHandler("Hi there");
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start(H2Config.custom()
+                .setMaxHeaderListSize(100)
+                .build());
+        client.start(
+                new DefaultHttpProcessor(new H2RequestContent(), new H2RequestTargetHost(), new H2RequestConnControl()),
+                H2Config.DEFAULT);
+
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello"));
+        request1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890");
+
+        final byte[] b = new byte[2048];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = (byte) ('a' + i % 10);
+        }
+
+        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                new BasicRequestProducer(request1, AsyncEntityProducers.create(b, ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assert.assertNotNull(result1);
+        final HttpResponse response1 = result1.getHead();
+        Assert.assertNotNull(response1);
+        Assert.assertEquals(431, response1.getCode());
+        Assert.assertEquals("Maximum header list size exceeded", result1.getBody());
     }
 
 }

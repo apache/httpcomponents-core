@@ -251,6 +251,11 @@ class ClientH2StreamHandler implements H2StreamHandler {
     }
 
     @Override
+    public void handle(final HttpException ex, final boolean endStream) throws HttpException, IOException {
+        throw ex;
+    }
+
+    @Override
     public void failed(final Exception cause) {
         try {
             if (failed.compareAndSet(false, true)) {

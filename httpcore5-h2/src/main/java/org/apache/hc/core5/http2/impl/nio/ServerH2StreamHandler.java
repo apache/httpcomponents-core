@@ -63,10 +63,11 @@ import org.apache.hc.core5.http2.impl.DefaultH2RequestConverter;
 import org.apache.hc.core5.http2.impl.DefaultH2ResponseConverter;
 import org.apache.hc.core5.util.Asserts;
 
-public class ServerH2StreamHandler implements H2StreamHandler {
+class ServerH2StreamHandler implements H2StreamHandler {
 
     private final H2StreamChannel outputChannel;
     private final DataStreamChannel dataChannel;
+    private final ResponseChannel responseChannel;
     private final HttpProcessor httpProcessor;
     private final BasicHttpConnectionMetrics connMetrics;
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
@@ -112,6 +113,27 @@ public class ServerH2StreamHandler implements H2StreamHandler {
             }
 
         };
+        this.responseChannel = new ResponseChannel() {
+
+            @Override
+            public void sendInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
+                commitInformation(response);
+            }
+
+            @Override
+            public void sendResponse(
+                    final HttpResponse response, final EntityDetails responseEntityDetails, final HttpContext httpContext) throws HttpException, IOException {
+                ServerSupport.validateResponse(response, responseEntityDetails);
+                commitResponse(response, responseEntityDetails);
+            }
+
+            @Override
+            public void pushPromise(
+                    final HttpRequest promise, final AsyncPushProducer pushProducer, final HttpContext httpContext) throws HttpException, IOException {
+                commitPromise(promise, pushProducer);
+            }
+
+        };
         this.httpProcessor = httpProcessor;
         this.connMetrics = connMetrics;
         this.exchangeHandlerFactory = exchangeHandlerFactory;
@@ -154,9 +176,8 @@ public class ServerH2StreamHandler implements H2StreamHandler {
 
             final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
 
-            Asserts.notNull(receivedRequest, "Received request");
-            final String method = receivedRequest.getMethod();
-            final boolean endStream = responseEntityDetails == null || Method.HEAD.isSame(method);
+            final boolean endStream = responseEntityDetails == null ||
+                    (receivedRequest != null && Method.HEAD.isSame(receivedRequest.getMethod()));
             outputChannel.submit(responseHeaders, endStream);
             connMetrics.incrementResponseCount();
             if (responseEntityDetails == null) {
@@ -211,28 +232,6 @@ public class ServerH2StreamHandler implements H2StreamHandler {
 
                 context.setProtocolVersion(HttpVersion.HTTP_2);
                 context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
-
-                final ResponseChannel responseChannel = new ResponseChannel() {
-
-                    @Override
-                    public void sendInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
-                        commitInformation(response);
-                    }
-
-                    @Override
-                    public void sendResponse(
-                            final HttpResponse response, final EntityDetails responseEntityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                        ServerSupport.validateResponse(response, responseEntityDetails);
-                        commitResponse(response, responseEntityDetails);
-                    }
-
-                    @Override
-                    public void pushPromise(
-                            final HttpRequest promise, final AsyncPushProducer pushProducer, final HttpContext httpContext) throws HttpException, IOException {
-                        commitPromise(promise, pushProducer);
-                    }
-
-                };
 
                 try {
                     httpProcessor.process(request, requestEntityDetails, context);
@@ -292,6 +291,31 @@ public class ServerH2StreamHandler implements H2StreamHandler {
         if (responseState == MessageState.BODY) {
             Asserts.notNull(exchangeHandler, "Exchange handler");
             exchangeHandler.produce(dataChannel);
+        }
+    }
+
+    @Override
+    public void handle(final HttpException ex, final boolean endStream) throws HttpException, IOException {
+        if (done.get()) {
+            throw ex;
+        }
+        switch (requestState) {
+            case HEADERS:
+                requestState = endStream ? MessageState.COMPLETE : MessageState.BODY;
+                if (!responseCommitted.get()) {
+                    final AsyncResponseProducer responseProducer = new BasicResponseProducer(
+                            ServerSupport.toStatusCode(ex),
+                            ServerSupport.toErrorMessage(ex));
+                    exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
+                    exchangeHandler.handleRequest(null, null, responseChannel, context);
+                } else {
+                    throw ex;
+                }
+                break;
+            case BODY:
+                responseState = MessageState.COMPLETE;
+            default:
+                throw ex;
         }
     }
 
