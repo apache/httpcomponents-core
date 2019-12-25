@@ -54,4 +54,6 @@ interface H2StreamHandler extends ResourceHolder {
 
     void failed(Exception cause);
 
+    void handle(final HttpException ex, final boolean endStream) throws HttpException, IOException;
+
 }
