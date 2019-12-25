@@ -33,12 +33,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.apache.hc.core5.util.LangUtils;
 
 /**
  * A class for combining a set of headers. This class allows for multiple headers with the same name
@@ -104,7 +104,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
 
     private boolean headerEquals(final Header header1, final Header header2) {
         return header2 == header1 || header2.getName().equalsIgnoreCase(header1.getName())
-                && LangUtils.equals(header1.getValue(), header2.getValue());
+                && Objects.equals(header1.getValue(), header2.getValue());
     }
 
     /**

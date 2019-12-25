@@ -29,6 +29,7 @@ package org.apache.hc.core5.pool;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -52,7 +53,6 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Deadline;
 import org.apache.hc.core5.util.DeadlineTimeoutException;
-import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -452,7 +452,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                     if (entry.getExpiryDeadline().isExpired()) {
                         entry.discardConnection(CloseMode.GRACEFUL);
                     }
-                    if (!LangUtils.equals(entry.getState(), state)) {
+                    if (!Objects.equals(entry.getState(), state)) {
                         entry.discardConnection(CloseMode.GRACEFUL);
                     }
                     return entry;

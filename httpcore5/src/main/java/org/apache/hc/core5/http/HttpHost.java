@@ -32,6 +32,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -39,7 +40,6 @@ import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.net.Ports;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
@@ -375,7 +375,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
             return this.lcHostname.equals(that.lcHostname)
                 && this.port == that.port
                 && this.schemeName.equals(that.schemeName)
-                && LangUtils.equals(this.address, that.address);
+                && Objects.equals(this.address, that.address);
         }
         return false;
     }
@@ -385,12 +385,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      */
     @Override
     public int hashCode() {
-        int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, this.lcHostname);
-        hash = LangUtils.hashCode(hash, this.port);
-        hash = LangUtils.hashCode(hash, this.schemeName);
-        hash = LangUtils.hashCode(hash, address);
-        return hash;
+        return Objects.hash(lcHostname, port, schemeName, address);
     }
 
 }

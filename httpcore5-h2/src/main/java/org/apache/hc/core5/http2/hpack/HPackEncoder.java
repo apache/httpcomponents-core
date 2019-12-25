@@ -35,12 +35,12 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.apache.hc.core5.util.LangUtils;
 
 /**
  * HPACK encoder.
@@ -252,7 +252,7 @@ public final class HPackEncoder {
         }
         for (int i = 0; i < entries.size(); i++) {
             final HPackEntry entry = entries.get(i);
-            if (LangUtils.equals(value, entry.getHeader().getValue())) {
+            if (Objects.equals(value, entry.getHeader().getValue())) {
                 return entry.getIndex();
             }
         }

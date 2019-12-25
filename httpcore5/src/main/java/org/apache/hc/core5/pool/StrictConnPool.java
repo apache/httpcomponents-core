@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -50,7 +51,6 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Deadline;
 import org.apache.hc.core5.util.DeadlineTimeoutException;
-import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -517,7 +517,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             final PerRoutePool<T, C> pool = getPool(route);
             int pendingCount = 0;
             for (final LeaseRequest<T, C> request: leasingRequests) {
-                if (LangUtils.equals(route, request.getRoute())) {
+                if (Objects.equals(route, request.getRoute())) {
                     pendingCount++;
                 }
             }
