@@ -275,12 +275,14 @@ public class TestTimeValue {
         Assert.assertThat(tv1.equals(null), CoreMatchers.equalTo(false));
         Assert.assertThat(tv1.equals(tv2), CoreMatchers.equalTo(false));
         Assert.assertThat(tv1.equals(tv3), CoreMatchers.equalTo(true));
-        Assert.assertThat(tv1.equals(tv4), CoreMatchers.equalTo(false));
+        Assert.assertThat(tv1.equals(tv4), CoreMatchers.equalTo(true));
+        Assert.assertThat(tv4.equals(tv1), CoreMatchers.equalTo(true));
         Assert.assertThat(tv1.equals(tv5), CoreMatchers.equalTo(false));
 
         Assert.assertThat(tv1.hashCode() == tv2.hashCode(), CoreMatchers.equalTo(false));
         Assert.assertThat(tv1.hashCode() == tv3.hashCode(), CoreMatchers.equalTo(true));
-        Assert.assertThat(tv1.hashCode() == tv4.hashCode(), CoreMatchers.equalTo(false));
+        Assert.assertThat(tv1.hashCode() == tv4.hashCode(), CoreMatchers.equalTo(true));
+        Assert.assertThat(tv4.hashCode() == tv1.hashCode(), CoreMatchers.equalTo(true));
         Assert.assertThat(tv1.hashCode() == tv5.hashCode(), CoreMatchers.equalTo(false));
     }
 

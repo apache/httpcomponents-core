@@ -229,7 +229,9 @@ public class TimeValue implements Comparable<TimeValue> {
         }
         if (obj instanceof TimeValue) {
             final TimeValue that = (TimeValue) obj;
-            return this.duration == that.duration && LangUtils.equals(this.timeUnit, that.timeUnit);
+            final long thisDuration = this.convert(TimeUnit.NANOSECONDS);
+            final long thatDuration = that.convert(TimeUnit.NANOSECONDS);
+            return thisDuration == thatDuration;
         }
         return false;
     }
@@ -274,8 +276,7 @@ public class TimeValue implements Comparable<TimeValue> {
     @Override
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, duration);
-        hash = LangUtils.hashCode(hash, timeUnit);
+        hash = LangUtils.hashCode(hash, this.convert(TimeUnit.NANOSECONDS));
         return hash;
     }
 
