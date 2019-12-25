@@ -102,12 +102,12 @@ public class TestLaxConnPool {
     }
 
     @Test
-    public void testLeaseIllegal() throws Exception {
+    public void testLeaseInvalid() throws Exception {
         final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         try {
             pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException expected) {
         }
     }
 
@@ -372,7 +372,7 @@ public class TestLaxConnPool {
         Assert.assertEquals(0, totals.getLeased());
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=NullPointerException.class)
     public void testGetStatsInvalid() throws Exception {
         final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         pool.getStats(null);
@@ -383,8 +383,8 @@ public class TestLaxConnPool {
         final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         try {
             pool.setMaxPerRoute(null, 1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException expected) {
         }
         try {
             pool.setDefaultMaxPerRoute(-1);

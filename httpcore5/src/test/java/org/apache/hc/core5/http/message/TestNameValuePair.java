@@ -48,8 +48,8 @@ public class TestNameValuePair {
     public void testInvalidName() {
         try {
             new BasicNameValuePair(null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             //expected
         }
     }

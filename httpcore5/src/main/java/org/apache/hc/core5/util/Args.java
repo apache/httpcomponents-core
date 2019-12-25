@@ -79,7 +79,7 @@ public class Args {
 
     public static <T extends CharSequence> T containsNoBlanks(final T argument, final String name) {
         if (argument == null) {
-            throw illegalArgumentExceptionNotNull(name);
+            throw NullPointerException(name);
         }
         if (argument.length() == 0) {
             throw illegalArgumentExceptionNotEmpty(name);
@@ -98,13 +98,13 @@ public class Args {
         return new IllegalArgumentException(name + " must not be empty");
     }
 
-    private static IllegalArgumentException illegalArgumentExceptionNotNull(final String name) {
-        return new IllegalArgumentException(name + " must not be null");
+    private static NullPointerException NullPointerException(final String name) {
+        return new NullPointerException(name + " must not be null");
     }
 
     public static <T extends CharSequence> T notBlank(final T argument, final String name) {
         if (argument == null) {
-            throw illegalArgumentExceptionNotNull(name);
+            throw NullPointerException(name);
         }
         if (TextUtils.isBlank(argument)) {
             throw new IllegalArgumentException(name + " must not be blank");
@@ -114,7 +114,7 @@ public class Args {
 
     public static <T extends CharSequence> T notEmpty(final T argument, final String name) {
         if (argument == null) {
-            throw illegalArgumentExceptionNotNull(name);
+            throw NullPointerException(name);
         }
         if (TextUtils.isEmpty(argument)) {
             throw illegalArgumentExceptionNotEmpty(name);
@@ -124,7 +124,7 @@ public class Args {
 
     public static <E, T extends Collection<E>> T notEmpty(final T argument, final String name) {
         if (argument == null) {
-            throw illegalArgumentExceptionNotNull(name);
+            throw NullPointerException(name);
         }
         if (argument.isEmpty()) {
             throw illegalArgumentExceptionNotEmpty(name);
@@ -148,7 +148,7 @@ public class Args {
 
     public static <T> T notNull(final T argument, final String name) {
         if (argument == null) {
-            throw illegalArgumentExceptionNotNull(name);
+            throw NullPointerException(name);
         }
         return argument;
     }

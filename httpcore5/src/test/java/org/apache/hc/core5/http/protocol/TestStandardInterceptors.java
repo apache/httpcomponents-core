@@ -103,8 +103,8 @@ public class TestStandardInterceptors {
         final RequestConnControl interceptor = new RequestConnControl();
         try {
             interceptor.process(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -252,8 +252,8 @@ public class TestStandardInterceptors {
         final RequestContent interceptor = new RequestContent();
         try {
             interceptor.process(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -360,8 +360,8 @@ public class TestStandardInterceptors {
         final RequestExpectContinue interceptor = new RequestExpectContinue();
         try {
             interceptor.process(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -429,14 +429,14 @@ public class TestStandardInterceptors {
         final RequestTargetHost interceptor = new RequestTargetHost();
         try {
             interceptor.process(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             interceptor.process(new BasicClassicHttpRequest(Method.GET, "/"), null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -503,8 +503,8 @@ public class TestStandardInterceptors {
         final RequestUserAgent interceptor = new RequestUserAgent();
         try {
             interceptor.process(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -699,15 +699,15 @@ public class TestStandardInterceptors {
         final ResponseConnControl interceptor = new ResponseConnControl();
         try {
             interceptor.process(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
             interceptor.process(response, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -835,8 +835,8 @@ public class TestStandardInterceptors {
         final ResponseContent interceptor = new ResponseContent();
         try {
             interceptor.process(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -929,8 +929,8 @@ public class TestStandardInterceptors {
         final ResponseDate interceptor = new ResponseDate();
         try {
             interceptor.process(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -966,8 +966,8 @@ public class TestStandardInterceptors {
         final RequestDate interceptor = new RequestDate();
         try {
             interceptor.process(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -1010,8 +1010,8 @@ public class TestStandardInterceptors {
         final ResponseServer interceptor = new ResponseServer();
         try {
             interceptor.process(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }

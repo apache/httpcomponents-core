@@ -61,7 +61,7 @@ public class TestByteArrayEntity {
         Assert.assertFalse(entity.isStreaming());
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=NullPointerException.class)
     public void testIllegalConstructorNullByteArray() throws Exception {
         new ByteArrayEntity(null, null);
     }
@@ -109,8 +109,8 @@ public class TestByteArrayEntity {
 
         try {
             entity.writeTo(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -142,8 +142,8 @@ public class TestByteArrayEntity {
 
         try {
             entity.writeTo(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }

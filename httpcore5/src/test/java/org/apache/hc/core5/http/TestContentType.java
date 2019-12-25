@@ -83,8 +83,8 @@ public class TestContentType {
     public void testCreateInvalidInput() throws Exception {
         try {
             ContentType.create(null, (String) null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {

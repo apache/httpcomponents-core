@@ -49,7 +49,7 @@ import org.junit.Test;
  */
 public class TestEntityUtils {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void testNullEntityToByteArray() throws Exception {
         EntityUtils.toByteArray(null);
     }
@@ -90,8 +90,8 @@ public class TestEntityUtils {
     public void testNullEntityToString() throws Exception {
         try {
             EntityUtils.toString(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }

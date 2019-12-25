@@ -60,11 +60,11 @@ public class TestFileEntity {
     }
 
     @Test
-    public void testIllegalConstructor() throws Exception {
+    public void testNullConstructor() throws Exception {
         try {
             new FileEntity(null, ContentType.TEXT_PLAIN);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -97,8 +97,8 @@ public class TestFileEntity {
 
         try {
             httpentity.writeTo(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }

@@ -61,58 +61,58 @@ public class TestHttpRequestExecutor {
         try {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.execute(null, conn, context);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
         }
         try {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.execute(request, null, context);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
         }
         try {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.execute(request, conn, null);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
         }
 
         try {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.preProcess(null, httprocessor, context);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
         }
         try {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.preProcess(request, null, context);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
         }
         try {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.preProcess(request, httprocessor, null);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
         }
 
         try {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.postProcess(null, httprocessor, context);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
         }
         try {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.postProcess(response, null, context);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
         }
         try {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.postProcess(response, httprocessor, null);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
         }
     }
 

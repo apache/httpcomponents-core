@@ -147,20 +147,20 @@ public class TestLengthDelimitedEncoder {
 
         try {
             new LengthDelimitedEncoder(null, null, null, 10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // ignore
         }
         try {
             new LengthDelimitedEncoder(channel, null, null, 10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // ignore
         }
         try {
             new LengthDelimitedEncoder(channel, outbuf, null, 10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // ignore
         }
         try {

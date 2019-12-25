@@ -68,8 +68,8 @@ public class TestHttpHost {
         Assert.assertEquals("https", host5.getSchemeName());
         try {
             new HttpHost(null, (String) null, -1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException expected) {
         }
         try {
             new HttpHost(null, "   ", -1);
@@ -78,8 +78,8 @@ public class TestHttpHost {
         }
         try {
             new HttpHost(null, (InetAddress) null, -1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException expected) {
         }
     }
 

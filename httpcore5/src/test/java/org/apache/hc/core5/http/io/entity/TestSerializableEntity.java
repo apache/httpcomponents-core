@@ -82,8 +82,8 @@ public class TestSerializableEntity {
 
         try {
             httpentity.writeTo(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }

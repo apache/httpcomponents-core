@@ -78,8 +78,8 @@ public class TestPoolEntry {
         Assert.assertEquals(Deadline.MIN_VALUE, entry1.getExpiryDeadline());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testInvalidConstruction() throws Exception {
+    @Test(expected = NullPointerException.class)
+    public void testNullConstructor() throws Exception {
         new PoolEntry<String, HttpConnection>(null);
     }
 
@@ -114,7 +114,7 @@ public class TestPoolEntry {
         Assert.assertEquals(validityDeadline, entry2.getExpiryDeadline());
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=NullPointerException.class)
     public void testInvalidExpiry() throws Exception {
         final PoolEntry<String, HttpConnection> entry = new PoolEntry<>(
                 "route1", TimeValue.of(0L, TimeUnit.MILLISECONDS), currentTimeSupplier);

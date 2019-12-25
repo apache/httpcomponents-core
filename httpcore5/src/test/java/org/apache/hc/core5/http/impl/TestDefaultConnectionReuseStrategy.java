@@ -55,8 +55,8 @@ public class TestDefaultConnectionReuseStrategy {
         context = new BasicHttpContext(null);
     }
 
-    @Test(expected=IllegalArgumentException.class)
-    public void testIllegalResponseArg() throws Exception {
+    @Test(expected=NullPointerException.class)
+    public void testInvalidResponseArg() throws Exception {
         reuseStrategy.keepAlive(null, null, this.context);
     }
 

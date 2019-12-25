@@ -221,7 +221,7 @@ public class TestBasicHeaderIterator {
         try {
             hit = new BasicHeaderIterator(null, "whatever");
             Assert.fail("null headers not detected");
-        } catch (final IllegalArgumentException iax) {
+        } catch (final NullPointerException iax) {
             // expected
         }
 

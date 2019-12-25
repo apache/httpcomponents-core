@@ -499,20 +499,20 @@ public class TestLengthDelimitedDecoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         try {
             new LengthDelimitedDecoder(null, null, null, 10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // ignore
         }
         try {
             new LengthDelimitedDecoder(channel, null, null, 10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // ignore
         }
         try {
             new LengthDelimitedDecoder(channel, inbuf, null, 10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // ignore
         }
         try {
@@ -536,8 +536,8 @@ public class TestLengthDelimitedDecoder {
 
         try {
             decoder.read(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
