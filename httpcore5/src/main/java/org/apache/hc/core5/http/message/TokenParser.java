@@ -31,6 +31,7 @@ import java.util.BitSet;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -52,18 +53,6 @@ public class TokenParser {
         return bitset;
     }
 
-    /** US-ASCII CR, carriage return (13) */
-    public static final char CR = '\r';
-
-    /** US-ASCII LF, line feed (10) */
-    public static final char LF = '\n';
-
-    /** US-ASCII SP, space (32) */
-    public static final char SP = ' ';
-
-    /** US-ASCII HT, horizontal-tab (9) */
-    public static final char HT = '\t';
-
     /** Double quote */
     public static final char DQUOTE = '\"';
 
@@ -71,7 +60,7 @@ public class TokenParser {
     public static final char ESCAPE = '\\';
 
     public static boolean isWhitespace(final char ch) {
-        return ch == SP || ch == HT || ch == CR || ch == LF;
+        return ch == Chars.SP || ch == Chars.HT || ch == Chars.CR || ch == Chars.LF;
     }
 
     public static final TokenParser INSTANCE = new TokenParser();
@@ -269,7 +258,7 @@ public class TokenParser {
                 }
                 if (current == ESCAPE) {
                     escaped = true;
-                } else if (current != CR && current != LF) {
+                } else if (current != Chars.CR && current != Chars.LF) {
                     dst.append(current);
                 }
             }
