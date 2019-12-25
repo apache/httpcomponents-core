@@ -29,6 +29,7 @@ package org.apache.hc.core5.util;
 
 import java.text.ParseException;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -227,7 +228,7 @@ public class TimeValue implements Comparable<TimeValue> {
         }
         if (obj instanceof TimeValue) {
             final TimeValue that = (TimeValue) obj;
-            return this.duration == that.duration && LangUtils.equals(this.timeUnit, that.timeUnit);
+            return this.duration == that.duration && Objects.equals(this.timeUnit, that.timeUnit);
         }
         return false;
     }
@@ -271,10 +272,7 @@ public class TimeValue implements Comparable<TimeValue> {
 
     @Override
     public int hashCode() {
-        int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, duration);
-        hash = LangUtils.hashCode(hash, timeUnit);
-        return hash;
+        return Objects.hash(duration, timeUnit);
     }
 
     public TimeValue min(final TimeValue other) {

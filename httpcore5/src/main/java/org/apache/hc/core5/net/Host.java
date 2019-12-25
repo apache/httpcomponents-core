@@ -29,11 +29,11 @@ package org.apache.hc.core5.net;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
@@ -100,10 +100,7 @@ public final class Host implements NamedEndpoint, Serializable {
 
     @Override
     public int hashCode() {
-        int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, this.lcName);
-        hash = LangUtils.hashCode(hash, this.port);
-        return hash;
+        return Objects.hash(lcName, port);
     }
 
     @Override

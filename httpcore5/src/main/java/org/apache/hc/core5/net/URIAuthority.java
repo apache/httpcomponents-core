@@ -30,11 +30,11 @@ package org.apache.hc.core5.net;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
@@ -159,8 +159,8 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         }
         if (obj instanceof URIAuthority) {
             final URIAuthority that = (URIAuthority) obj;
-            return LangUtils.equals(this.userInfo, that.userInfo) &&
-                    LangUtils.equals(this.hostname, that.hostname) &&
+            return Objects.equals(this.userInfo, that.userInfo) &&
+                    Objects.equals(this.hostname, that.hostname) &&
                     this.port == that.port;
         }
         return false;
@@ -168,11 +168,7 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
 
     @Override
     public int hashCode() {
-        int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, userInfo);
-        hash = LangUtils.hashCode(hash, hostname);
-        hash = LangUtils.hashCode(hash, port);
-        return hash;
+        return Objects.hash(userInfo, hostname, port);
     }
 
 }
