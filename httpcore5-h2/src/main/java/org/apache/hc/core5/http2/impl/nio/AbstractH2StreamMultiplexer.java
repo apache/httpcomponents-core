@@ -678,10 +678,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             for (final Iterator<Map.Entry<Integer, H2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
                 final Map.Entry<Integer, H2Stream> entry = it.next();
                 final H2Stream stream = entry.getValue();
-                if (stream.isLocalClosed() && (stream.isRemoteClosed() || stream.isLocalReset())) {
-                    stream.reset(cause);
-                }
-                stream.releaseResources();
+                stream.reset(cause);
             }
             streamMap.clear();
             if (!(cause instanceof ConnectionClosedException)) {
@@ -701,7 +698,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             connState = ConnectionHandshake.SHUTDOWN;
         } catch (final IOException ignore) {
         } finally {
-            ioSession.close(CloseMode.IMMEDIATE);
+            ioSession.close(cause instanceof IOException ? CloseMode.IMMEDIATE : CloseMode.GRACEFUL);
         }
     }
 
