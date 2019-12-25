@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
@@ -241,7 +242,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
     @Override
     void updateOutputMetrics(final HttpResponse response, final BasicHttpConnectionMetrics connMetrics) {
-        if (response.getCode() >= 200) {
+        if (response.getCode() >= HttpStatus.SC_OK) {
             connMetrics.incrementRequestCount();
         }
     }
