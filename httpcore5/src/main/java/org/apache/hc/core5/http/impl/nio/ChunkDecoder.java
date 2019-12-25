@@ -224,7 +224,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                         this.state = State.COMPLETED;
                         setCompleted();
                         throw new TruncatedChunkException(
-                                        "Truncated chunk (expected size: %,d; actual size: %,d)",
+                                        "Truncated chunk (expected size: %d; actual size: %d)",
                                         chunkSize, pos);
                     }
                 }

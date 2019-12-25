@@ -86,7 +86,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
             setCompleted();
             if (this.len < this.contentLength) {
                 throw new ConnectionClosedException(
-                                "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
+                                "Premature end of Content-Length delimited message body (expected: %d; received: %d)",
                                 this.contentLength, this.len);
             }
         }
@@ -123,7 +123,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
         } else {
             if (this.channel.isOpen()) {
                 if (position > dst.size()) {
-                    throw new IOException(String.format("Position past end of file [%,d > %,d]",
+                    throw new IOException(String.format("Position past end of file [%d > %d]",
                                     position, dst.size()));
                 }
                 bytesRead = dst.transferFrom(this.channel, position, count < chunk ? count : chunk);
@@ -138,7 +138,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
             setCompleted();
             if (this.len < this.contentLength) {
                 throw new ConnectionClosedException(
-                                "Premature end of Content-Length delimited message body (expected: %,d; received: %,d)",
+                                "Premature end of Content-Length delimited message body (expected: %d; received: %d)",
                                 this.contentLength, this.len);
             }
         }

@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.util;
 
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -178,14 +177,14 @@ public class TimeValue implements Comparable<TimeValue> {
     }
 
     /**
-     * Parses a TimeValue in the format {@code <Long><SPACE><TimeUnit>}, for example {@code "1,200 MILLISECONDS"}.
+     * Parses a TimeValue in the format {@code <Long><SPACE><TimeUnit>}, for example {@code "1200 MILLISECONDS"}.
      * <p>
      * Parses:
      * </p>
      * <ul>
-     * <li>{@code "1,200 MILLISECONDS"} Note the comma.</li>
-     * <li>{@code "1200 MILLISECONDS"} Without a comma.</li>
-     * <li>{@code " 1,200 MILLISECONDS "} Spaces are ignored.</li>
+     * <li>{@code "1200 MILLISECONDS"}.</li>
+     * <li>{@code " 1200 MILLISECONDS "}, spaces are ignored.</li>
+     * <li>{@code "1 MINUTE"}, singular units.</li>
      * <li></li>
      * </ul>
      *
@@ -195,7 +194,6 @@ public class TimeValue implements Comparable<TimeValue> {
      * @throws ParseException if the number cannot be parsed
      */
     public static TimeValue parse(final String value) throws ParseException {
-        final Locale locale = Locale.ROOT;
         final String split[] = value.trim().split("\\s+");
         if (split.length < 2) {
             throw new IllegalArgumentException(
@@ -204,7 +202,7 @@ public class TimeValue implements Comparable<TimeValue> {
         final String clean0 = split[0].trim();
         final String clean1 = split[1].trim().toUpperCase(Locale.ROOT);
         final String timeUnitStr = clean1.endsWith("S") ? clean1 : clean1 + "S";
-        return TimeValue.of(NumberFormat.getInstance(locale).parse(clean0).longValue(), TimeUnit.valueOf(timeUnitStr));
+        return TimeValue.of(Long.parseLong(clean0), TimeUnit.valueOf(timeUnitStr));
     }
 
     private final long duration;
@@ -376,7 +374,7 @@ public class TimeValue implements Comparable<TimeValue> {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "%,d %s", duration, timeUnit);
+        return String.format("%d %s", duration, timeUnit);
     }
 
     public Timeout toTimeout() {

@@ -62,7 +62,7 @@ public class Args {
     public static int checkRange(final int value, final int lowInclusive, final int highInclusive,
                     final String message) {
         if (value < lowInclusive || value > highInclusive) {
-            throw illegalArgumentException("%s: %,d is out of range [%,d, %,d]", message, Integer.valueOf(value),
+            throw illegalArgumentException("%s: %d is out of range [%d, %d]", message, Integer.valueOf(value),
                             Integer.valueOf(lowInclusive), Integer.valueOf(highInclusive));
         }
         return value;
@@ -71,7 +71,7 @@ public class Args {
     public static long checkRange(final long value, final long lowInclusive, final long highInclusive,
                     final String message) {
         if (value < lowInclusive || value > highInclusive) {
-            throw illegalArgumentException("%s: %,d is out of range [%,d, %,d]", message, Long.valueOf(value),
+            throw illegalArgumentException("%s: %d is out of range [%d, %d]", message, Long.valueOf(value),
                             Long.valueOf(lowInclusive), Long.valueOf(highInclusive));
         }
         return value;
@@ -134,14 +134,14 @@ public class Args {
 
     public static int notNegative(final int n, final String name) {
         if (n < 0) {
-            throw illegalArgumentException("%s must not be negative: %,d", name, n);
+            throw illegalArgumentException("%s must not be negative: %d", name, n);
         }
         return n;
     }
 
     public static long notNegative(final long n, final String name) {
         if (n < 0) {
-            throw illegalArgumentException("%s must not be negative: %,d", name, n);
+            throw illegalArgumentException("%s must not be negative: %d", name, n);
         }
         return n;
     }
@@ -155,14 +155,14 @@ public class Args {
 
     public static int positive(final int n, final String name) {
         if (n <= 0) {
-            throw illegalArgumentException("%s must not be negative or zero: %,d", name, n);
+            throw illegalArgumentException("%s must not be negative or zero: %d", name, n);
         }
         return n;
     }
 
     public static long positive(final long n, final String name) {
         if (n <= 0) {
-            throw illegalArgumentException("%s must not be negative or zero: %,d", name, n);
+            throw illegalArgumentException("%s must not be negative or zero: %d", name, n);
         }
         return n;
     }

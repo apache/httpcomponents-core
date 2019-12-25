@@ -34,7 +34,7 @@ public class TestTimeoutValueException {
 
     @Test
     public void testMessage() {
-        Assert.assertEquals("Timeout deadline: 1,000 MILLISECONDS, actual: 2,000 MILLISECONDS",
+        Assert.assertEquals("Timeout deadline: 1000 MILLISECONDS, actual: 2000 MILLISECONDS",
                 TimeoutValueException.fromMilliseconds(1000, 2000).getMessage());
     }
 }

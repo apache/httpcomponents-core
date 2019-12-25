@@ -193,7 +193,7 @@ public class ChunkedInputStream extends InputStream {
             return bytesRead;
         }
         eof = true;
-        throw new TruncatedChunkException("Truncated chunk (expected size: %,d; actual size: %,d)",
+        throw new TruncatedChunkException("Truncated chunk (expected size: %d; actual size: %d)",
                         chunkSize, pos);
     }
 
