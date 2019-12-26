@@ -34,7 +34,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -45,6 +47,7 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.ServerSupport;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -227,9 +230,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         }
         receivedRequest = null;
         requestState = MessageState.COMPLETE;
-        final AsyncResponseProducer responseProducer = new BasicResponseProducer(
-                ServerSupport.toStatusCode(ex),
-                ServerSupport.toErrorMessage(ex));
+        final HttpResponse response = new BasicHttpResponse(ServerSupport.toStatusCode(ex));
+        response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+        final AsyncResponseProducer responseProducer = new BasicResponseProducer(response, ServerSupport.toErrorMessage(ex));
         exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
         exchangeHandler.handleRequest(null, null, responseChannel, context);
     }
@@ -267,9 +270,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
         } catch (final HttpException ex) {
             if (!responseCommitted.get()) {
-                final AsyncResponseProducer responseProducer = new BasicResponseProducer(
-                        ServerSupport.toStatusCode(ex),
-                        ServerSupport.toErrorMessage(ex));
+                final HttpResponse response = new BasicHttpResponse(ServerSupport.toStatusCode(ex));
+                response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                final AsyncResponseProducer responseProducer = new BasicResponseProducer(response, ServerSupport.toErrorMessage(ex));
                 exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
                 exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
             } else {

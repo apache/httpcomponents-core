@@ -332,7 +332,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             pipeline.add(streamHandler);
         }
         streamHandler.terminateExchange(ex);
-        incoming = streamHandler;
+        incoming = null;
     }
 
     @Override
