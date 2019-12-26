@@ -57,6 +57,7 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
 
     private final AsyncRequestProducer requestProducer;
     private final AsyncResponseConsumer<T> responseConsumer;
+    private final AtomicBoolean completed;
     private final FutureCallback<T> resultCallback;
     private final AtomicBoolean outputTerminated;
 
@@ -66,6 +67,7 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
             final FutureCallback<T> resultCallback) {
         this.requestProducer = Args.notNull(requestProducer, "Request producer");
         this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
+        this.completed = new AtomicBoolean(false);
         this.resultCallback = resultCallback;
         this.outputTerminated = new AtomicBoolean(false);
     }
@@ -104,25 +106,40 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
 
             @Override
             public void completed(final T result) {
-                releaseResources();
-                if (resultCallback != null) {
-                    resultCallback.completed(result);
+                if (completed.compareAndSet(false, true)) {
+                    try {
+                        if (resultCallback != null) {
+                            resultCallback.completed(result);
+                        }
+                    } finally {
+                        internalReleaseResources();
+                    }
                 }
             }
 
             @Override
             public void failed(final Exception ex) {
-                releaseResources();
-                if (resultCallback != null) {
-                    resultCallback.failed(ex);
+                if (completed.compareAndSet(false, true)) {
+                    try {
+                        if (resultCallback != null) {
+                            resultCallback.failed(ex);
+                        }
+                    } finally {
+                        internalReleaseResources();
+                    }
                 }
             }
 
             @Override
             public void cancelled() {
-                releaseResources();
-                if (resultCallback != null) {
-                    resultCallback.cancelled();
+                if (completed.compareAndSet(false, true)) {
+                    try {
+                        if (resultCallback != null) {
+                            resultCallback.cancelled();
+                        }
+                    } finally {
+                        internalReleaseResources();
+                    }
                 }
             }
 
@@ -131,9 +148,14 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
 
     @Override
     public void cancel() {
-        releaseResources();
-        if (resultCallback != null) {
-            resultCallback.cancelled();
+        if (completed.compareAndSet(false, true)) {
+            try {
+                if (resultCallback != null) {
+                    resultCallback.cancelled();
+                }
+            } finally {
+                internalReleaseResources();
+            }
         }
     }
 
@@ -158,17 +180,25 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
             requestProducer.failed(cause);
             responseConsumer.failed(cause);
         } finally {
-            releaseResources();
-            if (resultCallback != null) {
-                resultCallback.failed(cause);
+            if (completed.compareAndSet(false, true)) {
+                try {
+                    if (resultCallback != null) {
+                        resultCallback.failed(cause);
+                    }
+                } finally {
+                    internalReleaseResources();
+                }
             }
         }
     }
 
-    @Override
-    public final void releaseResources() {
+    private void internalReleaseResources() {
         requestProducer.releaseResources();
         responseConsumer.releaseResources();
+    }
+
+    @Override
+    public final void releaseResources() {
     }
 
 }
