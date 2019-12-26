@@ -65,7 +65,7 @@ public final class ContentType implements Serializable {
 
     // constants
     public static final ContentType APPLICATION_ATOM_XML = create(
-            "application/atom+xml", StandardCharsets.ISO_8859_1);
+            "application/atom+xml", StandardCharsets.UTF_8);
     public static final ContentType APPLICATION_FORM_URLENCODED = create(
             "application/x-www-form-urlencoded", StandardCharsets.ISO_8859_1);
     public static final ContentType APPLICATION_JSON = create(
@@ -75,20 +75,20 @@ public final class ContentType implements Serializable {
     public static final ContentType APPLICATION_SOAP_XML = create(
             "application/soap+xml", StandardCharsets.UTF_8);
     public static final ContentType APPLICATION_SVG_XML = create(
-            "application/svg+xml", StandardCharsets.ISO_8859_1);
+            "application/svg+xml", StandardCharsets.UTF_8);
     public static final ContentType APPLICATION_XHTML_XML = create(
-            "application/xhtml+xml", StandardCharsets.ISO_8859_1);
+            "application/xhtml+xml", StandardCharsets.UTF_8);
     public static final ContentType APPLICATION_XML = create(
-            "application/xml", StandardCharsets.ISO_8859_1);
+            "application/xml", StandardCharsets.UTF_8);
     public static final ContentType IMAGE_BMP = create(
             "image/bmp");
-    public static final ContentType IMAGE_GIF= create(
+    public static final ContentType IMAGE_GIF = create(
             "image/gif");
     public static final ContentType IMAGE_JPEG = create(
             "image/jpeg");
     public static final ContentType IMAGE_PNG = create(
             "image/png");
-    public static final ContentType IMAGE_SVG= create(
+    public static final ContentType IMAGE_SVG = create(
             "image/svg+xml");
     public static final ContentType IMAGE_TIFF = create(
             "image/tiff");
@@ -101,7 +101,7 @@ public final class ContentType implements Serializable {
     public static final ContentType TEXT_PLAIN = create(
             "text/plain", StandardCharsets.ISO_8859_1);
     public static final ContentType TEXT_XML = create(
-            "text/xml", StandardCharsets.ISO_8859_1);
+            "text/xml", StandardCharsets.UTF_8);
     public static final ContentType WILDCARD = create(
             "*/*", (Charset) null);
 
