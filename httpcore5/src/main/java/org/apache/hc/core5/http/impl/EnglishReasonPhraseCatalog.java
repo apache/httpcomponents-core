@@ -37,8 +37,6 @@ import org.apache.hc.core5.util.Args;
 
 /**
  * English reason phrases for HTTP status codes.
- * All status codes defined in RFC1945 (HTTP/1.0), RFC2616 (HTTP/1.1), and
- * RFC2518 (WebDAV) are supported.
  *
  * @since 4.0
  */
@@ -117,7 +115,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
 
     /** Set up status code to "reason phrase" map. */
     static {
-        // HTTP 1.0 Server status codes -- see RFC 1945
+        // HTTP 1.1 Server status codes -- see RFC 7231
         setReason(HttpStatus.SC_OK,
                   "OK");
         setReason(HttpStatus.SC_CREATED,
@@ -149,7 +147,6 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         setReason(HttpStatus.SC_SERVICE_UNAVAILABLE,
                   "Service Unavailable");
 
-        // HTTP 1.1 Server status codes -- see RFC 2048
         setReason(HttpStatus.SC_CONTINUE,
                   "Continue");
         setReason(HttpStatus.SC_TEMPORARY_REDIRECT,
