@@ -59,11 +59,14 @@ public final class HPackDecoder {
     private final CharsetDecoder charsetDecoder;
     private CharBuffer tmpBuf;
     private int maxTableSize;
+    private int maxListSize;
 
     HPackDecoder(final InboundDynamicTable dynamicTable, final CharsetDecoder charsetDecoder) {
         this.dynamicTable = dynamicTable != null ? dynamicTable : new InboundDynamicTable();
         this.contentBuf = new ByteArrayBuffer(256);
         this.charsetDecoder = charsetDecoder;
+        this.maxTableSize = dynamicTable != null ? dynamicTable.getMaxSize() : Integer.MAX_VALUE;
+        this.maxListSize = Integer.MAX_VALUE;
     }
 
     HPackDecoder(final InboundDynamicTable dynamicTable, final Charset charset) {
@@ -221,7 +224,7 @@ public final class HPackDecoder {
         return binaryLen;
     }
 
-    Header decodeLiteralHeader(
+    HPackHeader decodeLiteralHeader(
             final ByteBuffer src,
             final HPackRepresentation representation) throws HPackException, CharacterCodingException {
 
@@ -248,13 +251,13 @@ public final class HPackDecoder {
         if (representation == HPackRepresentation.WITH_INDEXING) {
             this.dynamicTable.add(header);
         }
-        return new BasicHeader(header.getName(), header.getValue(), header.isSensitive());
+        return header;
     }
 
-    Header decodeIndexedHeader(final ByteBuffer src) throws HPackException, CharacterCodingException {
+    HPackHeader decodeIndexedHeader(final ByteBuffer src) throws HPackException {
 
         final int index = decodeInt(src, 7);
-        final Header existing =  this.dynamicTable.getHeader(index);
+        final HPackHeader existing =  this.dynamicTable.getHeader(index);
         if (existing == null) {
             throw new HPackException("Invalid header index");
         }
@@ -262,6 +265,11 @@ public final class HPackDecoder {
     }
 
     public Header decodeHeader(final ByteBuffer src) throws HPackException {
+        final HPackHeader header = decodeHPackHeader(src);
+        return header != null ? new BasicHeader(header.getName(), header.getValue(), header.isSensitive()) : null;
+    }
+
+    HPackHeader decodeHPackHeader(final ByteBuffer src) throws HPackException {
         try {
             while (src.hasRemaining()) {
                 final int b = peekByte(src);
@@ -287,14 +295,22 @@ public final class HPackDecoder {
     }
 
     public List<Header> decodeHeaders(final ByteBuffer src) throws HPackException {
+        final boolean enforceSizeLimit = maxListSize < Integer.MAX_VALUE;
+        int listSize = 0;
 
         final List<Header> list = new ArrayList<>();
         while (src.hasRemaining()) {
-            final Header header = decodeHeader(src);
+            final HPackHeader header = decodeHPackHeader(src);
             if (header == null) {
                 break;
             }
-            list.add(header);
+            if (enforceSizeLimit) {
+                listSize += header.getTotalSize();
+                if (listSize >= maxListSize) {
+                    throw new HeaderListConstraintException("Maximum header list size exceeded");
+                }
+            }
+            list.add(new BasicHeader(header.getName(), header.getValue(), header.isSensitive()));
         }
         return list;
     }
@@ -307,6 +323,15 @@ public final class HPackDecoder {
         Args.notNegative(maxTableSize, "Max table size");
         this.maxTableSize = maxTableSize;
         this.dynamicTable.setMaxSize(maxTableSize);
+    }
+
+    public int getMaxListSize() {
+        return maxListSize;
+    }
+
+    public void setMaxListSize(final int maxListSize) {
+        Args.notNegative(maxListSize, "Max list size");
+        this.maxListSize = maxListSize;
     }
 
 }
