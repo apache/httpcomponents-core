@@ -88,7 +88,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
 
     /**
      * Parses HTTP headers from the data receiver stream according to the generic
-     * format as given in Section 3.1 of RFC 822, RFC-2616 Section 4 and 19.3.
+     * format as specified by the HTTP/1.1 protocol specification.
      *
      * @param inBuffer Session input buffer
      * @param inputStream Input stream
@@ -119,7 +119,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
 
     /**
      * Parses HTTP headers from the data receiver stream according to the generic
-     * format as given in Section 3.1 of RFC 822, RFC-2616 Section 4 and 19.3.
+     * format as specified by the HTTP/1.1 protocol specification.
      *
      * @param inBuffer Session input buffer
      * @param inputStream Input stream

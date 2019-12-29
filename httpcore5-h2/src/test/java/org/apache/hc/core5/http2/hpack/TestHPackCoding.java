@@ -36,6 +36,7 @@ import java.util.List;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.util.ByteArrayBuffer;
+import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -1026,6 +1027,30 @@ public class TestHPackCoding {
 
         Assert.assertEquals(0, outboundTable2.dynamicLength());
         Assert.assertEquals(0, inboundTable2.dynamicLength());
+    }
+
+    @Test(expected = HeaderListConstraintException.class)
+    public void testHeaderSizeLimit() throws Exception {
+
+        final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
+        final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
+
+        final ByteArrayBuffer buf = new ByteArrayBuffer(128);
+
+        encoder.encodeHeaders(buf,
+                Arrays.asList(
+                        new BasicHeader("regular-header", "blah"),
+                        new BasicHeader("big-f-header", "12345678901234567890123456789012345678901234567890" +
+                                "123456789012345678901234567890123456789012345678901234567890")),
+                false);
+
+        Assert.assertThat(decoder.decodeHeaders(ByteBuffer.wrap(buf.toByteArray())).size(), CoreMatchers.equalTo(2));
+
+        decoder.setMaxListSize(1000000);
+        Assert.assertThat(decoder.decodeHeaders(ByteBuffer.wrap(buf.toByteArray())).size(), CoreMatchers.equalTo(2));
+
+        decoder.setMaxListSize(200);
+        decoder.decodeHeaders(ByteBuffer.wrap(buf.toByteArray()));
     }
 
 }

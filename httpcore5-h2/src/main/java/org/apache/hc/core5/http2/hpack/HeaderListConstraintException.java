@@ -24,36 +24,23 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.impl.nio;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.List;
+package org.apache.hc.core5.http2.hpack;
 
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.nio.AsyncPushConsumer;
-import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.nio.ResourceHolder;
+/**
+ * Signals a header list constraint violation.
+ *
+ * @since 5.0
+ */
+public class HeaderListConstraintException extends HPackException {
 
-interface H2StreamHandler extends ResourceHolder {
-
-    boolean isOutputReady();
-
-    void produceOutput() throws HttpException, IOException;
-
-    void consumePromise(List<Header> headers) throws HttpException, IOException;
-
-    void consumeHeader(List<Header> headers, boolean endStream) throws HttpException, IOException;
-
-    void updateInputCapacity() throws IOException;
-
-    void consumeData(ByteBuffer src, boolean endStream) throws HttpException, IOException;
-
-    HandlerFactory<AsyncPushConsumer> getPushHandlerFactory();
-
-    void failed(Exception cause);
-
-    void handle(final HttpException ex, final boolean endStream) throws HttpException, IOException;
+    /**
+     * Creates a HeaderListConstraintException with the specified detail message.
+     *
+     * @param message The exception detail message
+     */
+    public HeaderListConstraintException(final String message) {
+        super(message);
+    }
 
 }

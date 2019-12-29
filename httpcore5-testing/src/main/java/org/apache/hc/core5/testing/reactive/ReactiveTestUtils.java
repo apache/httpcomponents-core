@@ -102,7 +102,7 @@ public class ReactiveTestUtils {
                     final int bufferLength = (int) Math.min(remainingLength, 1 + random.nextInt(maximumBlockSize));
                     final byte[] bs = new byte[bufferLength];
                     for (int i = 0; i < bufferLength; i++) {
-                        final byte b = RANGE[(int) (Math.random() * RANGE.length)];
+                        final byte b = RANGE[(int) (random.nextDouble() * RANGE.length)];
                         bs[i] = b;
                     }
                     if (hash != null) {

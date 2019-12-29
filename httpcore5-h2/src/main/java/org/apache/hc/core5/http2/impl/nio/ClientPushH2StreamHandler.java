@@ -190,6 +190,11 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
     }
 
     @Override
+    public void handle(final HttpException ex, final boolean endStream) throws HttpException {
+        throw ex;
+    }
+
+    @Override
     public void releaseResources() {
         if (done.compareAndSet(false, true)) {
             responseState = MessageState.COMPLETE;

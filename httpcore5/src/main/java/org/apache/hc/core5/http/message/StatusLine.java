@@ -120,43 +120,31 @@ public final class StatusLine implements Serializable {
 
     /**
      * Standard classes of HTTP status codes, plus {@code OTHER} for non-standard codes.
-     *
-     * @see <a href="https://tools.ietf.org/html/rfc2616#section-10">HTTP/1.1, Section 10</a>
      */
     public enum StatusClass {
 
         /**
          * Informational {@code 1xx} HTTP status codes.
-         *
-         * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.1">HTTP/1.1, Section 10.1</a>
          */
         INFORMATIONAL,
 
         /**
          * Successful {@code 2xx} HTTP status codes.
-         *
-         * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.2">HTTP/1.1, Section 10.2</a>
          */
         SUCCESSFUL,
 
         /**
          * Redirection {@code 3xx} HTTP status codes.
-         *
-         * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.3">HTTP/1.1, Section 10.3</a>
          */
         REDIRECTION,
 
         /**
          * Client Error {@code 4xx} HTTP status codes.
-         *
-         * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.4">HTTP/1.1, Section 10.4</a>
          */
         CLIENT_ERROR,
 
         /**
          * {@code 5xx} HTTP status codes.
-         *
-         * @see <a href="https://tools.ietf.org/html/rfc2616#section-10.5">HTTP/1.1, Section 10.5</a>
          */
         SERVER_ERROR,
 

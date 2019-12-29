@@ -171,7 +171,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     /**
      * Gets a header representing all of the header values with the given name.
      * If more that one header with the given name exists the values will be
-     * combined with a "," as per RFC 2616.
+     * combined with a ",".
      *
      * <p>Header name comparison is case insensitive.
      *
