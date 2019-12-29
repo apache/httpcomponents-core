@@ -234,6 +234,14 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         processCommands();
     }
 
+    IncomingMessage parseMessageHead(final boolean endOfStream) throws IOException, HttpException {
+        final IncomingMessage messageHead = incomingMessageParser.parse(inbuf, endOfStream);
+        if (messageHead != null) {
+            incomingMessageParser.reset();
+        }
+        return messageHead;
+    }
+
     public final void onInput(final ByteBuffer src) throws HttpException, IOException {
         if (src != null) {
             inbuf.put(src);
@@ -256,10 +264,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         do {
             if (incomingMessage == null) {
 
-                final IncomingMessage messageHead = incomingMessageParser.parse(inbuf, endOfStream);
+                final IncomingMessage messageHead = parseMessageHead(endOfStream);
                 if (messageHead != null) {
-                    incomingMessageParser.reset();
-
                     this.version = messageHead.getVersion();
 
                     updateInputMetrics(messageHead, connMetrics);
@@ -446,6 +452,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         ioSession.setSocketTimeout(timeout);
     }
 
+    void suspendSessionInput() {
+        ioSession.clearEvent(SelectionKey.OP_READ);
+    }
+
     void suspendSessionOutput() throws IOException {
         ioSession.getLock().lock();
         try {
@@ -576,22 +586,26 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     static class CapacityWindow implements CapacityChannel {
         private final IOSession ioSession;
+        private final Object lock;
         private int window;
         private boolean closed;
 
         CapacityWindow(final int window, final IOSession ioSession) {
             this.window = window;
             this.ioSession = ioSession;
+            this.lock = new Object();
         }
 
         @Override
-        public synchronized void update(final int increment) throws IOException {
-            if (closed) {
-                return;
-            }
-            if (increment > 0) {
-                updateWindow(increment);
-                ioSession.setEvent(SelectionKey.OP_READ);
+        public void update(final int increment) throws IOException {
+            synchronized (lock) {
+                if (closed) {
+                    return;
+                }
+                if (increment > 0) {
+                    updateWindow(increment);
+                    ioSession.setEvent(SelectionKey.OP_READ);
+                }
             }
         }
 
@@ -599,12 +613,14 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
          * Internal method for removing capacity. We don't need to check
          * if this channel is closed in it.
          */
-        synchronized int removeCapacity(final int delta) {
-            updateWindow(-delta);
-            if (window <= 0) {
-                ioSession.clearEvent(SelectionKey.OP_READ);
+        int removeCapacity(final int delta) {
+            synchronized (lock) {
+                updateWindow(-delta);
+                if (window <= 0) {
+                    ioSession.clearEvent(SelectionKey.OP_READ);
+                }
+                return window;
             }
-            return window;
         }
 
         private void updateWindow(final int delta) {
@@ -620,8 +636,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
          * Closes the capacity channel, preventing user code from accidentally requesting
          * read events outside of the context of the request the channel was created for
          */
-        synchronized void close() {
-            closed = true;
+        void close() {
+            synchronized (lock) {
+                closed = true;
+            }
         }
 
         // visible for testing

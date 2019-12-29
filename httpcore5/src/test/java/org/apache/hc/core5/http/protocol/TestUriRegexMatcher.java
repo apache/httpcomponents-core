@@ -60,7 +60,7 @@ public class TestUriRegexMatcher {
         Assert.assertNull(h);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void testRegisterNull() throws Exception {
         final LookupRegistry<Object> matcher = new UriRegexMatcher<>();
         matcher.register(null, null);
@@ -196,13 +196,13 @@ public class TestUriRegexMatcher {
         Assert.assertTrue(h1 == h);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void testRegisterInvalidInput() throws Exception {
         final LookupRegistry<Object> matcher = new UriRegexMatcher<>();
         matcher.register(null, null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = NullPointerException.class)
     public void testLookupInvalidInput() throws Exception {
         final LookupRegistry<Object> matcher = new UriRegexMatcher<>();
         matcher.lookup(null);

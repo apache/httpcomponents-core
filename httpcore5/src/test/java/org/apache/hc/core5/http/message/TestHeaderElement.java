@@ -65,8 +65,8 @@ public class TestHeaderElement {
     public void testInvalidName() {
         try {
             new BasicHeaderElement(null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             //expected
         }
     }
@@ -83,8 +83,8 @@ public class TestHeaderElement {
         Assert.assertNull(element.getParameterByName("param3"));
         try {
             element.getParameterByName(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             //expected
         }
     }

@@ -34,7 +34,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -44,6 +46,8 @@ import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
+import org.apache.hc.core5.http.impl.ServerSupport;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -52,16 +56,17 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResourceHolder;
 import org.apache.hc.core5.http.nio.ResponseChannel;
+import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.util.Asserts;
 
 class ServerHttp1StreamHandler implements ResourceHolder {
 
     private final Http1StreamChannel<HttpResponse> outputChannel;
     private final DataStreamChannel internalDataChannel;
+    private final ResponseChannel responseChannel;
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final ConnectionReuseStrategy connectionReuseStrategy;
@@ -110,6 +115,33 @@ class ServerHttp1StreamHandler implements ResourceHolder {
 
         };
 
+        this.responseChannel = new ResponseChannel() {
+
+            @Override
+            public void sendInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
+                commitInformation(response);
+            }
+
+            @Override
+            public void sendResponse(
+                    final HttpResponse response, final EntityDetails responseEntityDetails, final HttpContext httpContext) throws HttpException, IOException {
+                ServerSupport.validateResponse(response, responseEntityDetails);
+                commitResponse(response, responseEntityDetails);
+            }
+
+            @Override
+            public void pushPromise(
+                    final HttpRequest promise, final AsyncPushProducer pushProducer, final HttpContext httpContext) throws HttpException, IOException {
+                commitPromise();
+            }
+
+            @Override
+            public String toString() {
+                return super.toString() + " " + ServerHttp1StreamHandler.this.toString();
+            }
+
+        };
+
         this.httpProcessor = httpProcessor;
         this.connectionReuseStrategy = connectionReuseStrategy;
         this.exchangeHandlerFactory = exchangeHandlerFactory;
@@ -136,12 +168,11 @@ class ServerHttp1StreamHandler implements ResourceHolder {
                 throw new HttpException("Invalid response: " + status);
             }
 
-            Asserts.notNull(receivedRequest, "Received request");
-            final String method = receivedRequest.getMethod();
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             httpProcessor.process(response, responseEntityDetails, context);
 
-            final boolean endStream = responseEntityDetails == null || Method.HEAD.isSame(method);
+            final boolean endStream = responseEntityDetails == null ||
+                    (receivedRequest != null && Method.HEAD.isSame(receivedRequest.getMethod()));
 
             if (!connectionReuseStrategy.keepAlive(receivedRequest, response, context)) {
                 keepAlive = false;
@@ -193,6 +224,19 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         return requestState == MessageState.COMPLETE && responseState == MessageState.COMPLETE;
     }
 
+    void terminateExchange(final HttpException ex) throws HttpException, IOException {
+        if (done.get() || requestState != MessageState.HEADERS) {
+            throw new ProtocolException("Unexpected message head");
+        }
+        receivedRequest = null;
+        requestState = MessageState.COMPLETE;
+        final HttpResponse response = new BasicHttpResponse(ServerSupport.toStatusCode(ex));
+        response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+        final AsyncResponseProducer responseProducer = new BasicResponseProducer(response, ServerSupport.toErrorMessage(ex));
+        exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
+        exchangeHandler.handleRequest(null, null, responseChannel, context);
+    }
+
     void consumeHeader(final HttpRequest request, final EntityDetails requestEntityDetails) throws HttpException, IOException {
         if (done.get() || requestState != MessageState.HEADERS) {
             throw new ProtocolException("Unexpected message head");
@@ -221,38 +265,14 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         context.setProtocolVersion(transportVersion);
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
-        final ResponseChannel responseChannel = new ResponseChannel() {
-
-            @Override
-            public void sendInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
-                commitInformation(response);
-            }
-
-            @Override
-            public void sendResponse(
-                    final HttpResponse response, final EntityDetails responseEntityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                ServerSupport.validateResponse(response, responseEntityDetails);
-                commitResponse(response, responseEntityDetails);
-            }
-
-            @Override
-            public void pushPromise(
-                    final HttpRequest promise, final AsyncPushProducer pushProducer, final HttpContext httpContext) throws HttpException, IOException {
-                commitPromise();
-            }
-
-            @Override
-            public String toString() {
-                return super.toString() + " " + ServerHttp1StreamHandler.this.toString();
-            }
-
-        };
         try {
             httpProcessor.process(request, requestEntityDetails, context);
             exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
         } catch (final HttpException ex) {
             if (!responseCommitted.get()) {
-                final AsyncResponseProducer responseProducer = ServerSupport.handleException(ex);
+                final HttpResponse response = new BasicHttpResponse(ServerSupport.toStatusCode(ex));
+                response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                final AsyncResponseProducer responseProducer = new BasicResponseProducer(response, ServerSupport.toErrorMessage(ex));
                 exchangeHandler = new ImmediateResponseExchangeHandler(responseProducer);
                 exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
             } else {

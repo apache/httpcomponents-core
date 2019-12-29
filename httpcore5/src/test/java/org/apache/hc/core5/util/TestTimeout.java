@@ -147,16 +147,16 @@ public class TestTimeout {
 
     @Test
     public void testToString() {
-        Assert.assertEquals("9,223,372,036,854,775,807 SECONDS", Timeout.ofSeconds(Long.MAX_VALUE).toString());
+        Assert.assertEquals("9223372036854775807 SECONDS", Timeout.ofSeconds(Long.MAX_VALUE).toString());
         Assert.assertEquals("0 MILLISECONDS", Timeout.ZERO_MILLISECONDS.toString());
     }
 
     @Test
     public void testFromString() throws ParseException {
-        Assert.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9,223,372,036,854,775,807 SECONDS"));
-        Assert.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9,223,372,036,854,775,807 Seconds"));
-        Assert.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9,223,372,036,854,775,807  Seconds"));
-        Assert.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9,223,372,036,854,775,807\tSeconds"));
+        Assert.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807 SECONDS"));
+        Assert.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807 Seconds"));
+        Assert.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807  Seconds"));
+        Assert.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807\tSeconds"));
         Assert.assertEquals(Timeout.ZERO_MILLISECONDS, Timeout.parse("0 MILLISECONDS"));
     }
 

@@ -166,7 +166,7 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
                     socket.bind(address, this.reactorConfig.getBacklogSize());
                 } catch (final BindException ex) {
                     final BindException detailedEx = new BindException(
-                            String.format("Socket bind failure for socket %s, address=%s, BacklogSize=%,d: %s", socket,
+                            String.format("Socket bind failure for socket %s, address=%s, BacklogSize=%d: %s", socket,
                                     address, this.reactorConfig.getBacklogSize(), ex));
                     detailedEx.setStackTrace(ex.getStackTrace());
                     throw detailedEx;

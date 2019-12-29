@@ -53,11 +53,11 @@ public class TestStringEntity {
     }
 
     @Test
-    public void testIllegalConstructor() throws Exception {
+    public void testNullConstructor() throws Exception {
         try {
             new StringEntity(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -126,8 +126,8 @@ public class TestStringEntity {
 
         try {
             httpentity.writeTo(null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }

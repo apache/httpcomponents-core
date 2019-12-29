@@ -62,7 +62,7 @@ public class Args {
     public static int checkRange(final int value, final int lowInclusive, final int highInclusive,
                     final String message) {
         if (value < lowInclusive || value > highInclusive) {
-            throw illegalArgumentException("%s: %,d is out of range [%,d, %,d]", message, Integer.valueOf(value),
+            throw illegalArgumentException("%s: %d is out of range [%d, %d]", message, Integer.valueOf(value),
                             Integer.valueOf(lowInclusive), Integer.valueOf(highInclusive));
         }
         return value;
@@ -71,7 +71,7 @@ public class Args {
     public static long checkRange(final long value, final long lowInclusive, final long highInclusive,
                     final String message) {
         if (value < lowInclusive || value > highInclusive) {
-            throw illegalArgumentException("%s: %,d is out of range [%,d, %,d]", message, Long.valueOf(value),
+            throw illegalArgumentException("%s: %d is out of range [%d, %d]", message, Long.valueOf(value),
                             Long.valueOf(lowInclusive), Long.valueOf(highInclusive));
         }
         return value;
@@ -79,7 +79,7 @@ public class Args {
 
     public static <T extends CharSequence> T containsNoBlanks(final T argument, final String name) {
         if (argument == null) {
-            throw illegalArgumentExceptionNotNull(name);
+            throw NullPointerException(name);
         }
         if (argument.length() == 0) {
             throw illegalArgumentExceptionNotEmpty(name);
@@ -98,13 +98,13 @@ public class Args {
         return new IllegalArgumentException(name + " must not be empty");
     }
 
-    private static IllegalArgumentException illegalArgumentExceptionNotNull(final String name) {
-        return new IllegalArgumentException(name + " must not be null");
+    private static NullPointerException NullPointerException(final String name) {
+        return new NullPointerException(name + " must not be null");
     }
 
     public static <T extends CharSequence> T notBlank(final T argument, final String name) {
         if (argument == null) {
-            throw illegalArgumentExceptionNotNull(name);
+            throw NullPointerException(name);
         }
         if (TextUtils.isBlank(argument)) {
             throw new IllegalArgumentException(name + " must not be blank");
@@ -114,7 +114,7 @@ public class Args {
 
     public static <T extends CharSequence> T notEmpty(final T argument, final String name) {
         if (argument == null) {
-            throw illegalArgumentExceptionNotNull(name);
+            throw NullPointerException(name);
         }
         if (TextUtils.isEmpty(argument)) {
             throw illegalArgumentExceptionNotEmpty(name);
@@ -124,7 +124,7 @@ public class Args {
 
     public static <E, T extends Collection<E>> T notEmpty(final T argument, final String name) {
         if (argument == null) {
-            throw illegalArgumentExceptionNotNull(name);
+            throw NullPointerException(name);
         }
         if (argument.isEmpty()) {
             throw illegalArgumentExceptionNotEmpty(name);
@@ -134,35 +134,35 @@ public class Args {
 
     public static int notNegative(final int n, final String name) {
         if (n < 0) {
-            throw illegalArgumentException("%s must not be negative: %,d", name, n);
+            throw illegalArgumentException("%s must not be negative: %d", name, n);
         }
         return n;
     }
 
     public static long notNegative(final long n, final String name) {
         if (n < 0) {
-            throw illegalArgumentException("%s must not be negative: %,d", name, n);
+            throw illegalArgumentException("%s must not be negative: %d", name, n);
         }
         return n;
     }
 
     public static <T> T notNull(final T argument, final String name) {
         if (argument == null) {
-            throw illegalArgumentExceptionNotNull(name);
+            throw NullPointerException(name);
         }
         return argument;
     }
 
     public static int positive(final int n, final String name) {
         if (n <= 0) {
-            throw illegalArgumentException("%s must not be negative or zero: %,d", name, n);
+            throw illegalArgumentException("%s must not be negative or zero: %d", name, n);
         }
         return n;
     }
 
     public static long positive(final long n, final String name) {
         if (n <= 0) {
-            throw illegalArgumentException("%s must not be negative or zero: %,d", name, n);
+            throw illegalArgumentException("%s must not be negative or zero: %d", name, n);
         }
         return n;
     }

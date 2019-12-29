@@ -101,8 +101,8 @@ public class TestHttpService {
                     handlerResolver,
                     connReuseStrategy,
                     responseFactory);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException expected) {
         }
     }
 

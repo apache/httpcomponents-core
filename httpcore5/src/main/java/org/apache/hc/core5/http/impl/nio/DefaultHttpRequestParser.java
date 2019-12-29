@@ -27,12 +27,17 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import java.io.IOException;
+
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestFactory;
+import org.apache.hc.core5.http.MessageConstraintException;
+import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.RequestLine;
+import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -76,6 +81,15 @@ public class DefaultHttpRequestParser<T extends HttpRequest> extends AbstractMes
     */
     public DefaultHttpRequestParser(final HttpRequestFactory<T> requestFactory) {
         this(requestFactory, null);
+    }
+
+    @Override
+    public T parse(final SessionInputBuffer sessionBuffer, final boolean endOfStream) throws IOException, HttpException {
+        try {
+            return super.parse(sessionBuffer, endOfStream);
+        } catch (final MessageConstraintException ex) {
+            throw new RequestHeaderFieldsTooLargeException(ex.getMessage(), ex);
+        }
     }
 
     @Override

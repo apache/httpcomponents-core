@@ -76,7 +76,7 @@ public class TestUriPatternMatcher {
         Assert.assertNull(h);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=NullPointerException.class)
     public void testRegisterNull() throws Exception {
         final LookupRegistry<Object> matcher = new UriPatternMatcher<>();
         matcher.register(null, null);
@@ -154,13 +154,13 @@ public class TestUriPatternMatcher {
         Assert.assertTrue(h1 == h);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=NullPointerException.class)
     public void testRegisterInvalidInput() throws Exception {
         final LookupRegistry<Object> matcher = new UriPatternMatcher<>();
         matcher.register(null, null);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=NullPointerException.class)
     public void testLookupInvalidInput() throws Exception {
         final LookupRegistry<Object> matcher = new UriPatternMatcher<>();
         matcher.lookup(null);

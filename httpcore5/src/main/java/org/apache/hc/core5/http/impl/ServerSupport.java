@@ -24,7 +24,7 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio;
+package org.apache.hc.core5.http.impl;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.EntityDetails;
@@ -34,9 +34,8 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
-import org.apache.hc.core5.http.nio.AsyncResponseProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
 
 /**
  * HTTP Server support methods.
@@ -59,12 +58,9 @@ public class ServerSupport {
         }
     }
 
-    public static AsyncResponseProducer handleException(final Exception ex) {
-        String message = ex.getMessage();
-        if (message == null) {
-            message = ex.toString();
-        }
-        return new BasicResponseProducer(toStatusCode(ex), message);
+    public static String toErrorMessage(final Exception ex) {
+        final String message = ex.getMessage();
+        return message != null ? message : ex.toString();
     }
 
     public static int toStatusCode(final Exception ex) {
@@ -75,6 +71,8 @@ public class ServerSupport {
             code = HttpStatus.SC_HTTP_VERSION_NOT_SUPPORTED;
         } else if (ex instanceof NotImplementedException) {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
+        } else if (ex instanceof RequestHeaderFieldsTooLargeException) {
+            code = HttpStatus.SC_REQUEST_HEADER_FIELDS_TOO_LARGE;
         } else if (ex instanceof ProtocolException) {
             code = HttpStatus.SC_BAD_REQUEST;
         } else {

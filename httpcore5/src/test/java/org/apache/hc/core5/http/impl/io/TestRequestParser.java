@@ -33,8 +33,8 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
@@ -95,7 +95,7 @@ public class TestRequestParser {
         Assert.assertEquals(1, headers.length);
     }
 
-    @Test(expected = MessageConstraintException.class)
+    @Test(expected = RequestHeaderFieldsTooLargeException.class)
     public void testBasicMessageParsingTooManyLeadingEmptyLines() throws Exception {
         final String s =
                 "\r\n" +

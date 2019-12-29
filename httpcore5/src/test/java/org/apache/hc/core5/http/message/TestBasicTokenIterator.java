@@ -184,7 +184,7 @@ public class TestBasicTokenIterator {
         try {
             new BasicTokenIterator(null);
             Assert.fail("null argument not detected");
-        } catch (final IllegalArgumentException iax) {
+        } catch (final NullPointerException iax) {
             // expected
         }
 

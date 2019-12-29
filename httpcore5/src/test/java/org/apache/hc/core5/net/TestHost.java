@@ -52,8 +52,8 @@ public class TestHost {
         Assert.assertEquals(0, host2.getPort());
         try {
             new Host(null, 0);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException expected) {
         }
         try {
             new Host("blah", -1);

@@ -125,6 +125,9 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
         this.entityDetails = entityDetails;
         this.responseCompletion = new BasicFuture<>(resultCallback);
         this.responseFuture.completed(new Message<HttpResponse, Publisher<ByteBuffer>>(response, reactiveDataConsumer));
+        if (entityDetails == null) {
+            streamEnd(null);
+        }
     }
 
     @Override
@@ -162,14 +165,10 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
 
     @Override
     public void releaseResources() {
-        if (reactiveDataConsumer.awaitingStartOfEntity()) {
-            streamEnd(null);
-        } else {
-            reactiveDataConsumer.releaseResources();
-            responseFuture.cancel();
-            if (responseCompletion != null) {
-                responseCompletion.cancel();
-            }
+        reactiveDataConsumer.releaseResources();
+        responseFuture.cancel();
+        if (responseCompletion != null) {
+            responseCompletion.cancel();
         }
     }
 }

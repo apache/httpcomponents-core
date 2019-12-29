@@ -171,51 +171,51 @@ public class TestBasicHeaderValueFormatter {
 
         try {
             this.formatter.formatNameValuePair(null, param, false);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             this.formatter.formatNameValuePair(buf, null, false);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             this.formatter.formatParameters(null, params, false);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             this.formatter.formatParameters(buf, null, false);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
 
         try {
             this.formatter.formatHeaderElement(null, element, false);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             this.formatter.formatHeaderElement(buf, null, false);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             this.formatter.formatElements(null, elements, false);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             this.formatter.formatElements(buf, null, false);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }

@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
@@ -241,7 +242,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
     @Override
     void updateOutputMetrics(final HttpResponse response, final BasicHttpConnectionMetrics connMetrics) {
-        if (response.getCode() >= 200) {
+        if (response.getCode() >= HttpStatus.SC_OK) {
             connMetrics.incrementRequestCount();
         }
     }
@@ -295,6 +296,43 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     @Override
     boolean outputIdle() {
         return outgoing == null && pipeline.isEmpty();
+    }
+
+    @Override
+    HttpRequest parseMessageHead(final boolean endOfStream) throws IOException, HttpException {
+        try {
+            return super.parseMessageHead(endOfStream);
+        } catch (final HttpException ex) {
+            terminateExchange(ex);
+            return null;
+        }
+    }
+
+    void terminateExchange(final HttpException ex) throws HttpException, IOException {
+        suspendSessionInput();
+        final ServerHttp1StreamHandler streamHandler;
+        final HttpCoreContext context = HttpCoreContext.create();
+        context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
+        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+        if (outgoing == null) {
+            streamHandler = new ServerHttp1StreamHandler(
+                    outputChannel,
+                    httpProcessor,
+                    connectionReuseStrategy,
+                    exchangeHandlerFactory,
+                    context);
+            outgoing = streamHandler;
+        } else {
+            streamHandler = new ServerHttp1StreamHandler(
+                    new DelayedOutputChannel(outputChannel),
+                    httpProcessor,
+                    connectionReuseStrategy,
+                    exchangeHandlerFactory,
+                    context);
+            pipeline.add(streamHandler);
+        }
+        streamHandler.terminateExchange(ex);
+        incoming = null;
     }
 
     @Override

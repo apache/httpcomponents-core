@@ -25,16 +25,34 @@
  *
  */
 
-package org.apache.hc.core5.util;
+package org.apache.hc.core5.http;
 
-import org.junit.Assert;
-import org.junit.Test;
+/**
+ * Signals request header field length or total field size violation.
+ *
+ * @since 5.0
+ */
+public class RequestHeaderFieldsTooLargeException extends ProtocolException {
 
-public class TestTimeoutValueException {
+    private static final long serialVersionUID = 1L;
 
-    @Test
-    public void testMessage() {
-        Assert.assertEquals("Timeout deadline: 1000 MILLISECONDS, actual: 2000 MILLISECONDS",
-                TimeoutValueException.fromMilliseconds(1000, 2000).getMessage());
+    /**
+     * Creates a new RequestHeaderFieldsTooLargeException with the specified detail message.
+     *
+     * @param message The exception detail message
+     */
+    public RequestHeaderFieldsTooLargeException(final String message) {
+        super(message);
+    }
+
+    /**
+     * Creates a new RequestHeaderFieldsTooLargeException with the specified detail message and cause.
+     *
+     * @param message the exception detail message
+     * @param cause the {@code Throwable} that caused this exception, or {@code null}
+     * if the cause is unavailable, unknown, or not a {@code Throwable}
+     */
+    public RequestHeaderFieldsTooLargeException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 }

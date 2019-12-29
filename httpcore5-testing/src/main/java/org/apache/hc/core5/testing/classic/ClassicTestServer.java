@@ -38,14 +38,13 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
-import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnectionFactory;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.support.BasicHttpServerExpectationDecorator;
 import org.apache.hc.core5.http.io.support.BasicHttpServerRequestHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -100,7 +99,10 @@ public class ClassicTestServer {
         throw new IllegalStateException("Server not running");
     }
 
-    public void start(final HttpProcessor httpProcessor, final Decorator<HttpServerRequestHandler> handlerDecorator) throws IOException {
+    public void start(
+            final Http1Config http1Config,
+            final HttpProcessor httpProcessor,
+            final Decorator<HttpServerRequestHandler> handlerDecorator) throws IOException {
         if (serverRef.get() == null) {
             final HttpServerRequestHandler handler = new BasicHttpServerRequestHandler(registry);
             final HttpService httpService = new HttpService(
@@ -114,9 +116,9 @@ public class ClassicTestServer {
                     null,
                     socketConfig,
                     sslContext != null ? sslContext.getServerSocketFactory() : ServerSocketFactory.getDefault(),
-                    new DefaultBHttpServerConnectionFactory(
+                    new LoggingBHttpServerConnectionFactory(
                             sslContext != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
-                            Http1Config.DEFAULT,
+                            http1Config != null ? http1Config : Http1Config.DEFAULT,
                             CharCodingConfig.DEFAULT),
                     null,
                     LoggingExceptionListener.INSTANCE);
@@ -129,7 +131,7 @@ public class ClassicTestServer {
     }
 
     public void start() throws IOException {
-        start(null, null);
+        start(null, null, null);
     }
 
     public void shutdown(final CloseMode closeMode) {

@@ -29,6 +29,7 @@ package org.apache.hc.core5.testing.classic;
 
 import java.nio.ByteBuffer;
 
+import org.apache.hc.core5.http.Chars;
 import org.slf4j.Logger;
 
 public class Wire {
@@ -46,15 +47,15 @@ public class Wire {
         final StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < off; i++) {
             final int ch = b[pos + i];
-            if (ch == 13) {
+            if (ch == Chars.CR) {
                 buffer.append("[\\r]");
-            } else if (ch == 10) {
+            } else if (ch == Chars.LF) {
                 buffer.append("[\\n]\"");
                 buffer.insert(0, "\"");
                 buffer.insert(0, header);
                 this.log.debug(this.id + " " + buffer.toString());
                 buffer.setLength(0);
-            } else if ((ch < 32) || (ch >= 127)) {
+            } else if ((ch < Chars.SP) || (ch >= Chars.DEL)) {
                 buffer.append("[0x");
                 buffer.append(Integer.toHexString(ch));
                 buffer.append("]");

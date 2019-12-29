@@ -59,8 +59,8 @@ public class TestHeader {
     public void testInvalidName() {
         try {
             new BasicHeader(null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should have been thrown");
+        } catch (final NullPointerException ex) {
             //expected
         }
     }

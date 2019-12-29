@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.message;
 
+import org.apache.hc.core5.util.Args;
+
 /**
  * This class represents a context of a parsing operation:
  * <ul>
@@ -44,12 +46,8 @@ public class ParserCursor {
 
     public ParserCursor(final int lowerBound, final int upperBound) {
         super();
-        if (lowerBound < 0) {
-            throw new IndexOutOfBoundsException("Lower bound cannot be negative");
-        }
-        if (lowerBound > upperBound) {
-            throw new IndexOutOfBoundsException("Lower bound cannot be greater then upper bound");
-        }
+        Args.notNegative(lowerBound, "lowerBound");
+        Args.check(lowerBound <= upperBound, "lowerBound cannot be greater than upperBound");
         this.lowerBound = lowerBound;
         this.upperBound = upperBound;
         this.pos = lowerBound;

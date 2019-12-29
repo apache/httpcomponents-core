@@ -30,16 +30,71 @@ package org.apache.hc.core5.testing.classic;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentLengthStrategy;
+import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
+import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
+import org.apache.hc.core5.http.io.HttpMessageParserFactory;
+import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 
 public class LoggingBHttpClientConnectionFactory implements HttpConnectionFactory<LoggingBHttpClientConnection> {
 
     public static final LoggingBHttpClientConnectionFactory INSTANCE = new LoggingBHttpClientConnectionFactory();
 
+    private final Http1Config http1Config;
+    private final CharCodingConfig charCodingConfig;
+    private final ContentLengthStrategy incomingContentStrategy;
+    private final ContentLengthStrategy outgoingContentStrategy;
+    private final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory;
+    private final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory;
+
+    public LoggingBHttpClientConnectionFactory(
+            final Http1Config http1Config,
+            final CharCodingConfig charCodingConfig,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy,
+            final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
+            final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
+        super();
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
+        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
+        this.incomingContentStrategy = incomingContentStrategy;
+        this.outgoingContentStrategy = outgoingContentStrategy;
+        this.requestWriterFactory = requestWriterFactory;
+        this.responseParserFactory = responseParserFactory;
+    }
+
+    public LoggingBHttpClientConnectionFactory(
+            final Http1Config http1Config,
+            final CharCodingConfig charCodingConfig,
+            final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
+            final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
+        this(http1Config, charCodingConfig, null, null, requestWriterFactory, responseParserFactory);
+    }
+
+    public LoggingBHttpClientConnectionFactory(
+            final Http1Config http1Config,
+            final CharCodingConfig charCodingConfig) {
+        this(http1Config, charCodingConfig, null, null, null, null);
+    }
+
+    public LoggingBHttpClientConnectionFactory() {
+        this(null, null, null, null, null, null);
+    }
+
     @Override
     public LoggingBHttpClientConnection createConnection(final Socket socket) throws IOException {
-        final LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(Http1Config.DEFAULT);
+        final LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(
+                http1Config,
+                CharCodingSupport.createDecoder(charCodingConfig),
+                CharCodingSupport.createEncoder(charCodingConfig),
+                incomingContentStrategy,
+                outgoingContentStrategy,
+                requestWriterFactory,
+                responseParserFactory);
         conn.bind(socket);
         return conn;
     }

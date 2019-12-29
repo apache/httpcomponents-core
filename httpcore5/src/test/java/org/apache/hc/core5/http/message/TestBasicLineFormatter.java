@@ -69,14 +69,14 @@ public class TestBasicLineFormatter {
         final RequestLine requestline = new RequestLine(Method.GET.name(), "/stuff", HttpVersion.HTTP_1_1);
         try {
             this.formatter.formatRequestLine(null, requestline);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             this.formatter.formatRequestLine(buf, null);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -102,14 +102,14 @@ public class TestBasicLineFormatter {
         final StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         try {
             this.formatter.formatStatusLine(null, statusline);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             this.formatter.formatStatusLine(buf, null);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }
@@ -133,14 +133,14 @@ public class TestBasicLineFormatter {
         final Header header = new BasicHeader("name", "value");
         try {
             this.formatter.formatHeader(null, header);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
         try {
             this.formatter.formatHeader(buf, null);
-            Assert.fail("IllegalArgumentException should habe been thrown");
-        } catch (final IllegalArgumentException ex) {
+            Assert.fail("NullPointerException should habe been thrown");
+        } catch (final NullPointerException ex) {
             // expected
         }
     }

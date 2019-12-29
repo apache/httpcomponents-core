@@ -34,7 +34,7 @@ package org.apache.hc.core5.http;
  */
 public class HttpException extends Exception {
 
-    private static final int FIRST_VALID_CHAR = 32;
+    private static final int FIRST_VALID_CHAR = Chars.SP;
     private static final long serialVersionUID = -5437299376222011036L;
 
     /**

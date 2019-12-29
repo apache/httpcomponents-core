@@ -263,7 +263,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
             }
         }
         if (count > 1) {
-            throw new ProtocolException("Multiple headers '%s'' found", name);
+            throw new ProtocolException("multiple '%s' headers found", name);
         }
         return singleHeader;
     }

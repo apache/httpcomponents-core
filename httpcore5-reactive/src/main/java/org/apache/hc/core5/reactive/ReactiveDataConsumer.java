@@ -58,8 +58,8 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
 
     private final BlockingQueue<ByteBuffer> buffers = new LinkedBlockingQueue<>();
     private final AtomicBoolean flushInProgress = new AtomicBoolean(false);
+    private final Object flushLock = new Object();
     private final AtomicInteger windowScalingIncrement = new AtomicInteger(0);
-    private volatile boolean buffersSent = false;
     private volatile boolean cancelled = false;
     private volatile boolean completed = false;
     private volatile Exception exception;
@@ -111,60 +111,50 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
         flushToSubscriber();
     }
 
-    /**
-     * @return {@code true} iff this consumer is in a non-terminal state and has not yet sent any data to its subscriber.
-     */
-    boolean awaitingStartOfEntity() {
-        return !buffersSent && !isEnded();
-    }
-
-    private boolean isEnded() {
-        return completed || cancelled || exception != null;
-    }
-
     @Override
     public void releaseResources() {
         this.capacityChannel = null;
     }
 
     private void flushToSubscriber() {
-        final Subscriber<? super ByteBuffer> s = subscriber;
-        if (flushInProgress.getAndSet(true)) {
-            return;
-        }
-        try {
-            if (s == null) {
+        synchronized (flushLock) {
+            final Subscriber<? super ByteBuffer> s = subscriber;
+            if (flushInProgress.getAndSet(true)) {
                 return;
             }
-            if (exception != null) {
-                subscriber = null;
-                s.onError(exception);
-                return;
-            }
-            ByteBuffer next;
-            while (requests.get() > 0 && ((next = buffers.poll()) != null)) {
-                final int bytesFreed = next.remaining();
-                s.onNext(next);
-                buffersSent = true;
-                requests.decrementAndGet();
-                windowScalingIncrement.addAndGet(bytesFreed);
-            }
-            final CapacityChannel localChannel = capacityChannel;
-            if (localChannel != null) {
-                try {
-                    signalCapacity(localChannel);
-                } catch (final IOException e) {
-                    exception = e;
-                    s.onError(e);
+            try {
+                if (s == null) {
                     return;
                 }
+                if (exception != null) {
+                    subscriber = null;
+                    s.onError(exception);
+                    return;
+                }
+                ByteBuffer next;
+                while (requests.get() > 0 && ((next = buffers.poll()) != null)) {
+                    final int bytesFreed = next.remaining();
+                    s.onNext(next);
+                    requests.decrementAndGet();
+                    windowScalingIncrement.addAndGet(bytesFreed);
+                }
+                final CapacityChannel localChannel = capacityChannel;
+                if (localChannel != null) {
+                    try {
+                        signalCapacity(localChannel);
+                    } catch (final IOException e) {
+                        exception = e;
+                        s.onError(e);
+                        return;
+                    }
+                }
+                if (completed && buffers.isEmpty()) {
+                    subscriber = null;
+                    s.onComplete();
+                }
+            } finally {
+                flushInProgress.set(false);
             }
-            if (completed && buffers.isEmpty()) {
-                subscriber = null;
-                s.onComplete();
-            }
-        } finally {
-            flushInProgress.set(false);
         }
     }
 

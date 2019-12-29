@@ -57,6 +57,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
@@ -108,7 +109,7 @@ public class ClassicIntegrationTest {
         @Override
         protected void before() throws Throwable {
             server = new ClassicTestServer(
-                    scheme == URIScheme.HTTPS  ? SSLTestContexts.createServerSSLContext() : null,
+                    scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null,
                     SocketConfig.custom()
                             .setSoTimeout(5, TimeUnit.SECONDS)
                             .build());
@@ -489,7 +490,7 @@ public class ClassicIntegrationTest {
 
         });
 
-        this.server.start(null, new Decorator<HttpServerRequestHandler>() {
+        this.server.start(null, null, new Decorator<HttpServerRequestHandler>() {
 
             @Override
             public HttpServerRequestHandler decorate(final HttpServerRequestHandler handler) {
@@ -882,6 +883,81 @@ public class ClassicIntegrationTest {
         try (final ClassicHttpResponse response2 = this.client.execute(host, get2, context)) {
             Assert.assertEquals(400, response2.getCode());
             EntityUtils.consume(response2.getEntity());
+        }
+    }
+
+    @Test
+    public void testHeaderTooLarge() throws Exception {
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII));
+            }
+
+        });
+
+        this.server.start(
+                Http1Config.custom()
+                        .setMaxLineLength(100)
+                        .build(),
+                null,
+                null);
+        this.client.start();
+
+        final HttpCoreContext context = HttpCoreContext.create();
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+
+        final BasicClassicHttpRequest get1 = new BasicClassicHttpRequest(Method.GET, "/");
+        get1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890");
+        try (final ClassicHttpResponse response1 = this.client.execute(host, get1, context)) {
+            Assert.assertEquals(431, response1.getCode());
+            EntityUtils.consume(response1.getEntity());
+        }
+    }
+
+    @Test
+    public void testHeaderTooLargePost() throws Exception {
+        this.server.registerHandler("*", new HttpRequestHandler() {
+
+            @Override
+            public void handle(
+                    final ClassicHttpRequest request,
+                    final ClassicHttpResponse response,
+                    final HttpContext context) throws HttpException, IOException {
+                response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII));
+            }
+
+        });
+
+        this.server.start(
+                Http1Config.custom()
+                        .setMaxLineLength(100)
+                        .build(),
+                null,
+                null);
+        this.client.start(
+                new DefaultHttpProcessor(new RequestContent(), new RequestTargetHost(), new RequestConnControl()));
+
+        final HttpCoreContext context = HttpCoreContext.create();
+        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+
+        final ClassicHttpRequest post1 = new BasicClassicHttpRequest(Method.POST, "/");
+        post1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
+                "1234567890123456789012345678901234567890");
+        final byte[] b = new byte[2048];
+        for (int i = 0; i < b.length; i++) {
+            b[i] = (byte) ('a' + i % 10);
+        }
+        post1.setEntity(new ByteArrayEntity(b, ContentType.TEXT_PLAIN));
+
+        try (final ClassicHttpResponse response1 = this.client.execute(host, post1, context)) {
+            Assert.assertEquals(431, response1.getCode());
+            EntityUtils.consume(response1.getEntity());
         }
     }
 

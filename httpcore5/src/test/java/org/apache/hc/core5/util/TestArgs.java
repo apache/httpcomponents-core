@@ -55,7 +55,7 @@ public class TestArgs {
         Assert.assertSame(stuff, Args.notNull(stuff, "Stuff"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=NullPointerException.class)
     public void testArgNotNullFail() {
         Args.notNull(null, "Stuff");
     }
@@ -66,7 +66,7 @@ public class TestArgs {
         Assert.assertSame(stuff, Args.notEmpty(stuff, "Stuff"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=NullPointerException.class)
     public void testArgNotEmptyFail1() {
         Args.notEmpty((String) null, "Stuff");
     }
@@ -76,7 +76,7 @@ public class TestArgs {
         Args.notEmpty("", "Stuff");
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=NullPointerException.class)
     public void testArgNotBlankFail1() {
         Args.notBlank((String) null, "Stuff");
     }
@@ -97,7 +97,7 @@ public class TestArgs {
         Assert.assertSame(list, Args.notEmpty(list, "List"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=NullPointerException.class)
     public void testArgCollectionNotEmptyFail1() {
         Args.notEmpty((List<?>) null, "List");
     }
