@@ -34,7 +34,11 @@ import java.nio.channels.SelectionKey;
  *
  * @since 4.0
  */
-public interface EventMask {
+public final class EventMask {
+
+    private EventMask() {
+        throw new AssertionError("No org.apache.hc.core5.reactor.EventMask instances for you!");
+    }
 
     /**
      * Interest in data input.
