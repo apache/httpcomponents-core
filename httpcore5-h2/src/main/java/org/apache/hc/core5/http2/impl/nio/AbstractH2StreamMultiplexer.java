@@ -169,6 +169,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         this.hPackDecoder.setMaxTableSize(H2Config.INIT.getHeaderTableSize());
         this.hPackEncoder.setMaxTableSize(H2Config.INIT.getHeaderTableSize());
+        this.hPackDecoder.setMaxListSize(H2Config.INIT.getMaxHeaderListSize());
 
         this.lowMark = H2Config.INIT.getInitialWindowSize() / 2;
         this.streamListener = streamListener;
@@ -1208,6 +1209,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
     private void applyLocalSettings() throws H2ConnectionException {
         hPackDecoder.setMaxTableSize(localConfig.getHeaderTableSize());
+        hPackDecoder.setMaxListSize(localConfig.getMaxHeaderListSize());
 
         final int delta = localConfig.getInitialWindowSize() - initInputWinSize;
         initInputWinSize = localConfig.getInitialWindowSize();
