@@ -89,7 +89,7 @@ public class SSLIOSession implements IOSession {
     private int appEventMask;
 
     private volatile boolean endOfStream;
-    private volatile int status;
+    private volatile Status status = Status.ACTIVE;
     private volatile boolean initialized;
     private volatile Timeout socketTimeout;
     private TlsDetails tlsDetails;
@@ -228,7 +228,7 @@ public class SSLIOSession implements IOSession {
 
         this.session.getLock().lock();
         try {
-            if (this.status >= IOSession.CLOSING) {
+            if (this.status.rank >= Status.CLOSING.rank) {
                 return;
             }
             switch (this.sslMode) {
@@ -319,7 +319,7 @@ public class SSLIOSession implements IOSession {
                     // Just wrap an empty buffer because there is no data to write.
                     result = doWrap(EMPTY_BUFFER, outEncryptedBuf);
 
-                    if (result.getStatus() != Status.OK || result.getHandshakeStatus() == HandshakeStatus.NEED_WRAP) {
+                    if (result.getStatus() != SSLEngineResult.Status.OK || result.getHandshakeStatus() == HandshakeStatus.NEED_WRAP) {
                         handshaking = false;
                     }
                     break;
@@ -352,10 +352,10 @@ public class SSLIOSession implements IOSession {
                     }
                 }
 
-                if (this.status >= IOSession.CLOSING) {
+                if (this.status.rank >= Status.CLOSING.rank) {
                     this.inPlain.release();
                 }
-                if (result.getStatus() != Status.OK) {
+                if (result.getStatus() != SSLEngineResult.Status.OK) {
                     handshaking = false;
                 }
                 break;
@@ -391,24 +391,24 @@ public class SSLIOSession implements IOSession {
         this.session.getLock().lock();
         try {
             // Graceful session termination
-            if (this.status == ACTIVE
+            if (this.status == Status.ACTIVE
                     && (this.endOfStream || this.sslEngine.isInboundDone())) {
-                this.status = CLOSING;
+                this.status = Status.CLOSING;
             }
-            if (this.status == CLOSING && !this.outEncrypted.hasData()) {
+            if (this.status == Status.CLOSING && !this.outEncrypted.hasData()) {
                 this.sslEngine.closeOutbound();
                 this.outboundClosedCount.incrementAndGet();
             }
-            if (this.status == CLOSING && this.sslEngine.isOutboundDone()
+            if (this.status == Status.CLOSING && this.sslEngine.isOutboundDone()
                     && (this.endOfStream || this.sslEngine.isInboundDone())) {
-                this.status = CLOSED;
+                this.status = Status.CLOSED;
             }
             // Abnormal session termination
-            if (this.status <= CLOSING && this.endOfStream
+            if (this.status.rank <= Status.CLOSING.rank && this.endOfStream
                     && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
-                this.status = CLOSED;
+                this.status = Status.CLOSED;
             }
-            if (this.status == CLOSED) {
+            if (this.status == Status.CLOSED) {
                 this.session.close();
                 if (disconnectedCallback != null) {
                     disconnectedCallback.execute(this);
@@ -468,7 +468,7 @@ public class SSLIOSession implements IOSession {
 
             // Clear output buffer if the session has been closed
             // in case there is still `close_notify` data stuck in it
-            if (this.status == CLOSED) {
+            if (this.status == Status.CLOSED) {
                 outEncryptedBuf.clear();
             }
 
@@ -539,8 +539,8 @@ public class SSLIOSession implements IOSession {
                                 inPlainBuf.clear();
                             }
                         }
-                        if (result.getStatus() != Status.OK) {
-                            if (result.getStatus() == Status.BUFFER_UNDERFLOW && endOfStream) {
+                        if (result.getStatus() != SSLEngineResult.Status.OK) {
+                            if (result.getStatus() == SSLEngineResult.Status.BUFFER_UNDERFLOW && endOfStream) {
                                 throw new SSLException("Unable to decrypt incoming data due to unexpected end of stream");
                             }
                             break;
@@ -564,7 +564,7 @@ public class SSLIOSession implements IOSession {
         this.session.getLock().lock();
         try {
             appReady = (this.appEventMask & SelectionKey.OP_WRITE) > 0
-                    && this.status == ACTIVE
+                    && this.status == Status.ACTIVE
                     && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NOT_HANDSHAKING;
         } finally {
             this.session.getLock().unlock();
@@ -579,7 +579,7 @@ public class SSLIOSession implements IOSession {
         Args.notNull(src, "Byte buffer");
         this.session.getLock().lock();
         try {
-            if (this.status != ACTIVE) {
+            if (this.status != Status.ACTIVE) {
                 throw new ClosedChannelException();
             }
             if (!this.initialized) {
@@ -619,7 +619,7 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public boolean isOpen() {
-        return this.status == ACTIVE && this.session.isOpen();
+        return this.status == Status.ACTIVE && this.session.isOpen();
     }
 
     @Override
@@ -632,10 +632,10 @@ public class SSLIOSession implements IOSession {
         this.session.getLock().lock();
         try {
             if (closeMode == CloseMode.GRACEFUL) {
-                if (this.status >= CLOSING) {
+                if (this.status.rank >= Status.CLOSING.rank) {
                     return;
                 }
-                this.status = CLOSING;
+                this.status = Status.CLOSING;
                 if (this.session.getSocketTimeout().isDisabled()) {
                     this.session.setSocketTimeout(Timeout.ofMilliseconds(1000));
                 }
@@ -651,14 +651,14 @@ public class SSLIOSession implements IOSession {
                     this.session.close(CloseMode.IMMEDIATE);
                 }
             } else {
-                if (this.status == CLOSED) {
+                if (this.status == Status.CLOSED) {
                     return;
                 }
                 this.inEncrypted.release();
                 this.outEncrypted.release();
                 this.inPlain.release();
 
-                this.status = CLOSED;
+                this.status = Status.CLOSED;
                 this.session.close(closeMode);
             }
         } finally {
@@ -667,7 +667,7 @@ public class SSLIOSession implements IOSession {
     }
 
     @Override
-    public int getStatus() {
+    public Status getStatus() {
         return this.status;
     }
 
@@ -804,17 +804,7 @@ public class SSLIOSession implements IOSession {
             final StringBuilder buffer = new StringBuilder();
             buffer.append(this.session);
             buffer.append("[");
-            switch (this.status) {
-                case ACTIVE:
-                    buffer.append("ACTIVE");
-                    break;
-                case CLOSING:
-                    buffer.append("CLOSING");
-                    break;
-                case CLOSED:
-                    buffer.append("CLOSED");
-                    break;
-            }
+            buffer.append(this.status);
             buffer.append("][");
             formatOps(buffer, this.appEventMask);
             buffer.append("][");

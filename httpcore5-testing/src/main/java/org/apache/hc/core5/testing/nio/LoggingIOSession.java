@@ -162,7 +162,7 @@ public class LoggingIOSession implements IOSession {
     }
 
     @Override
-    public int getStatus() {
+    public Status getStatus() {
         return this.session.getStatus();
     }
 

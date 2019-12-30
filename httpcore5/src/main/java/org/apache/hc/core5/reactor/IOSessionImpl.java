@@ -36,7 +36,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
@@ -49,6 +48,7 @@ import org.apache.hc.core5.util.Timeout;
 
 class IOSessionImpl implements IOSession {
 
+    /** Counts instances created. */
     private final static AtomicLong COUNT = new AtomicLong(0);
 
     private final SelectionKey key;
@@ -57,7 +57,7 @@ class IOSessionImpl implements IOSession {
     private final Lock lock;
     private final String id;
     private final AtomicReference<IOEventHandler> handlerRef;
-    private final AtomicInteger status;
+    private final AtomicReference<IOSession.Status> status;
 
     private volatile Timeout socketTimeout;
     private volatile long lastReadTime;
@@ -73,7 +73,7 @@ class IOSessionImpl implements IOSession {
         this.socketTimeout = Timeout.DISABLED;
         this.id = String.format(type + "-%08X", COUNT.getAndIncrement());
         this.handlerRef = new AtomicReference<>();
-        this.status = new AtomicInteger(ACTIVE);
+        this.status = new AtomicReference<>(Status.ACTIVE);
         final long currentTimeMillis = System.currentTimeMillis();
         this.lastReadTime = currentTimeMillis;
         this.lastWriteTime = currentTimeMillis;
@@ -226,17 +226,17 @@ class IOSessionImpl implements IOSession {
     }
 
     @Override
-    public int getStatus() {
+    public Status getStatus() {
         return this.status.get();
     }
 
     private boolean isStatusClosed() {
-        return this.status.get() == CLOSED;
+        return this.status.get() == Status.CLOSED;
     }
 
     @Override
     public boolean isOpen() {
-        return this.status.get() == ACTIVE && this.channel.isOpen();
+        return this.status.get() == Status.ACTIVE && this.channel.isOpen();
     }
 
     @Override
@@ -246,7 +246,7 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void close(final CloseMode closeMode) {
-        if (this.status.compareAndSet(ACTIVE, CLOSED)) {
+        if (this.status.compareAndSet(Status.ACTIVE, Status.CLOSED)) {
             if (closeMode == CloseMode.IMMEDIATE) {
                 try {
                     this.channel.socket().setSoLinger(true, 0);
@@ -282,17 +282,7 @@ class IOSessionImpl implements IOSession {
     public String toString() {
         final StringBuilder buffer = new StringBuilder();
         buffer.append(id).append("[");
-        switch (this.status.get()) {
-        case ACTIVE:
-            buffer.append("ACTIVE");
-            break;
-        case CLOSING:
-            buffer.append("CLOSING");
-            break;
-        case CLOSED:
-            buffer.append("CLOSED");
-            break;
-        }
+        buffer.append(this.status);
         buffer.append("][");
         if (this.key.isValid()) {
             formatOps(buffer, this.key.interestOps());

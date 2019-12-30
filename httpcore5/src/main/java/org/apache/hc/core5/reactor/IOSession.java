@@ -55,9 +55,19 @@ import org.apache.hc.core5.util.Timeout;
 @Internal
 public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiable {
 
-    int ACTIVE       = 0;
-    int CLOSING      = 1;
-    int CLOSED       = Integer.MAX_VALUE;
+    public enum Status {
+
+        ACTIVE(0),
+        CLOSING(1),
+        CLOSED(Integer.MAX_VALUE);
+
+        private Status(final int rank) {
+            this.rank = rank;
+        }
+
+        public final int rank;
+
+    }
 
     /**
      * Returns event handler associated with the session.
@@ -165,15 +175,15 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
     /**
      * Returns status of the session:
      * <p>
-     * {@link #ACTIVE}: session is active.
+     * {@link Status#ACTIVE}: session is active.
      * <p>
-     * {@link #CLOSING}: session is being closed.
+     * {@link Status#CLOSING}: session is being closed.
      * <p>
-     * {@link #CLOSED}: session has been terminated.
+     * {@link Status#CLOSED}: session has been terminated.
      *
      * @return session status.
      */
-    int getStatus();
+    Status getStatus();
 
     /**
      * Returns value of the socket timeout in milliseconds. The value of
