@@ -47,7 +47,7 @@ package org.apache.hc.core5.http;
 public final class HttpStatus {
 
     private HttpStatus() {
-        throw new AssertionError("No org.apache.hc.core5.http.HttpStatus instances for you!");
+        // no instances.
     }
 
     // --- 1xx Informational ---
