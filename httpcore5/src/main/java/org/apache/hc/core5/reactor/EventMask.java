@@ -37,7 +37,7 @@ import java.nio.channels.SelectionKey;
 public final class EventMask {
 
     private EventMask() {
-        throw new AssertionError("No org.apache.hc.core5.reactor.EventMask instances for you!");
+        // no instances.
     }
 
     /**
