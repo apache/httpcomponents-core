@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
+import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncDataConsumer;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
@@ -81,7 +81,7 @@ public class AsyncServerFilterExample {
 
                 // Replace standard expect-continue handling with a custom auth filter
 
-                .replaceFilter(StandardFilters.EXPECT_CONTINUE.name(), new AbstractAsyncServerAuthFilter<String>(true) {
+                .replaceFilter(StandardFilter.EXPECT_CONTINUE.name(), new AbstractAsyncServerAuthFilter<String>(true) {
 
                     @Override
                     protected String parseChallengeResponse(

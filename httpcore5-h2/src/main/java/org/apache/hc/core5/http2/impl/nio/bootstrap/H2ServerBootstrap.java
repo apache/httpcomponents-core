@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
+import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestParserFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseWriterFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
@@ -375,10 +375,10 @@ public class H2ServerBootstrap {
             final NamedElementChain<AsyncFilterHandler> filterChainDefinition = new NamedElementChain<>();
             filterChainDefinition.addLast(
                     new TerminalAsyncServerFilter(new DefaultAsyncResponseExchangeHandlerFactory(registry)),
-                    StandardFilters.MAIN_HANDLER.name());
+                    StandardFilter.MAIN_HANDLER.name());
             filterChainDefinition.addFirst(
                     new AsyncServerExpectationFilter(),
-                    StandardFilters.EXPECT_CONTINUE.name());
+                    StandardFilter.EXPECT_CONTINUE.name());
 
             for (final FilterEntry<AsyncFilterHandler> entry: filters) {
                 switch (entry.postion) {

@@ -52,7 +52,7 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
+import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncDataConsumer;
@@ -127,7 +127,7 @@ public class Http1ServerAndRequesterTest {
                         }
 
                     })
-                    .addFilterBefore(StandardFilters.MAIN_HANDLER.name(), "no-keepalive", new AsyncFilterHandler() {
+                    .addFilterBefore(StandardFilter.MAIN_HANDLER.name(), "no-keepalive", new AsyncFilterHandler() {
 
                         @Override
                         public AsyncDataConsumer handle(
