@@ -245,7 +245,7 @@ public class HttpBenchmark {
                             }
 
                             @Override
-                            public int getStatus() {
+                            public Status getStatus() {
                                 return ioSession.getStatus();
                             }
 

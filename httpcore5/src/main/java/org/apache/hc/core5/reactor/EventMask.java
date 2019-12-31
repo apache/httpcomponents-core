@@ -34,7 +34,11 @@ import java.nio.channels.SelectionKey;
  *
  * @since 4.0
  */
-public interface EventMask {
+public final class EventMask {
+
+    private EventMask() {
+        // no instances.
+    }
 
     /**
      * Interest in data input.

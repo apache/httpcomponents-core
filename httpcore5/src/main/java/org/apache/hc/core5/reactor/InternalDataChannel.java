@@ -270,7 +270,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
-    public int getStatus() {
+    public IOSession.Status getStatus() {
         return getSessionImpl().getStatus();
     }
 
