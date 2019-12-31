@@ -55,17 +55,15 @@ import org.apache.hc.core5.util.Timeout;
 @Internal
 public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiable {
 
-    public enum Status {
+    /**
+     * This enum represents a set of states I/O session transitions through
+     * during its life-span.
+     */
+    enum Status {
 
-        ACTIVE(0),
-        CLOSING(1),
-        CLOSED(Integer.MAX_VALUE);
-
-        private Status(final int rank) {
-            this.rank = rank;
-        }
-
-        public final int rank;
+        ACTIVE,
+        CLOSING,
+        CLOSED
 
     }
 
