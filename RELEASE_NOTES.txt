@@ -1,3 +1,10 @@
+Release 5.0-BETA11
+------------------
+
+This BETA fixes a number of defects found since the last release.
+
+* HTTPCORE-618: org.apache.hc.core5.http.HttpStatus should be a class, not an interface.
+
 Release 5.0-BETA10
 -------------------
 
