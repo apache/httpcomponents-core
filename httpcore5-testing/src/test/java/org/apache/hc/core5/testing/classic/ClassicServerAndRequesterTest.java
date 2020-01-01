@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
-import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
+import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpFilterHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
@@ -101,7 +101,7 @@ public class ClassicServerAndRequesterTest {
                             .setSoTimeout(TIMEOUT)
                             .build())
                     .register("*", new EchoHandler())
-                    .addFilterBefore(StandardFilters.MAIN_HANDLER.name(), "no-keep-alive", new HttpFilterHandler() {
+                    .addFilterBefore(StandardFilter.MAIN_HANDLER.name(), "no-keep-alive", new HttpFilterHandler() {
 
                         @Override
                         public void handle(

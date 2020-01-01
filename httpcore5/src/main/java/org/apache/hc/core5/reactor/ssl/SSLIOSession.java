@@ -41,7 +41,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
-import javax.net.ssl.SSLEngineResult.Status;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
 
@@ -228,7 +227,7 @@ public class SSLIOSession implements IOSession {
 
         this.session.getLock().lock();
         try {
-            if (this.status.rank >= Status.CLOSING.rank) {
+            if (this.status.compareTo(Status.CLOSING) >= 0) {
                 return;
             }
             switch (this.sslMode) {
@@ -352,7 +351,7 @@ public class SSLIOSession implements IOSession {
                     }
                 }
 
-                if (this.status.rank >= Status.CLOSING.rank) {
+                if (this.status.compareTo(Status.CLOSING) >= 0) {
                     this.inPlain.release();
                 }
                 if (result.getStatus() != SSLEngineResult.Status.OK) {
@@ -404,7 +403,7 @@ public class SSLIOSession implements IOSession {
                 this.status = Status.CLOSED;
             }
             // Abnormal session termination
-            if (this.status.rank <= Status.CLOSING.rank && this.endOfStream
+            if (this.status.compareTo(Status.CLOSING) <= 0 && this.endOfStream
                     && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
                 this.status = Status.CLOSED;
             }
@@ -632,7 +631,7 @@ public class SSLIOSession implements IOSession {
         this.session.getLock().lock();
         try {
             if (closeMode == CloseMode.GRACEFUL) {
-                if (this.status.rank >= Status.CLOSING.rank) {
+                if (this.status.compareTo(Status.CLOSING) >= 0) {
                     return;
                 }
                 this.status = Status.CLOSING;

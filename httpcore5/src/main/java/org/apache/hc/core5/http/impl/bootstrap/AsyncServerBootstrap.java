@@ -353,10 +353,10 @@ public class AsyncServerBootstrap {
             final NamedElementChain<AsyncFilterHandler> filterChainDefinition = new NamedElementChain<>();
             filterChainDefinition.addLast(
                     new TerminalAsyncServerFilter(new DefaultAsyncResponseExchangeHandlerFactory(registry)),
-                    StandardFilters.MAIN_HANDLER.name());
+                    StandardFilter.MAIN_HANDLER.name());
             filterChainDefinition.addFirst(
                     new AsyncServerExpectationFilter(),
-                    StandardFilters.EXPECT_CONTINUE.name());
+                    StandardFilter.EXPECT_CONTINUE.name());
 
             for (final FilterEntry<AsyncFilterHandler> entry: filters) {
                 switch (entry.postion) {

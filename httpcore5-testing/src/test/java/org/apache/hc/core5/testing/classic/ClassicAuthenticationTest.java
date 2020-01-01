@@ -47,7 +47,7 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
-import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
+import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -103,7 +103,7 @@ public class ClassicAuthenticationTest {
                                     .setSoTimeout(TIMEOUT)
                                     .build())
                     .register("*", new EchoHandler())
-                    .replaceFilter(StandardFilters.EXPECT_CONTINUE.name(), new AbstractHttpServerAuthFilter<String>(respondImmediately) {
+                    .replaceFilter(StandardFilter.EXPECT_CONTINUE.name(), new AbstractHttpServerAuthFilter<String>(respondImmediately) {
 
                         @Override
                         protected String parseChallengeResponse(

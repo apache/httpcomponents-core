@@ -33,7 +33,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
  * @see AsyncServerBootstrap
  * @see ServerBootstrap
  */
-public enum StandardFilters {
+public enum StandardFilter {
 
     EXPECT_CONTINUE, MAIN_HANDLER
 

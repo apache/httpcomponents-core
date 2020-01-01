@@ -49,7 +49,7 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
+import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -117,7 +117,7 @@ public class Http1AuthenticationTest {
                         }
 
                     })
-                    .replaceFilter(StandardFilters.EXPECT_CONTINUE.name(), new AbstractAsyncServerAuthFilter<String>(respondImmediately) {
+                    .replaceFilter(StandardFilter.EXPECT_CONTINUE.name(), new AbstractAsyncServerAuthFilter<String>(respondImmediately) {
 
                         @Override
                         protected String parseChallengeResponse(

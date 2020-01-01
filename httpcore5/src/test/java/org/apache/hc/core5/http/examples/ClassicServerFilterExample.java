@@ -38,7 +38,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
-import org.apache.hc.core5.http.impl.bootstrap.StandardFilters;
+import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpFilterHandler;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
@@ -71,7 +71,7 @@ public class ClassicServerFilterExample {
 
                 // Replace standard expect-continue handling with a custom auth filter
 
-                .replaceFilter(StandardFilters.EXPECT_CONTINUE.name(), new AbstractHttpServerAuthFilter<String>(false) {
+                .replaceFilter(StandardFilter.EXPECT_CONTINUE.name(), new AbstractHttpServerAuthFilter<String>(false) {
 
                     @Override
                     protected String parseChallengeResponse(

@@ -345,10 +345,10 @@ public class ServerBootstrap {
                     new TerminalServerFilter(
                             handlerRegistry,
                             this.responseFactory != null ? this.responseFactory : DefaultClassicHttpResponseFactory.INSTANCE),
-                    StandardFilters.MAIN_HANDLER.name());
+                    StandardFilter.MAIN_HANDLER.name());
             filterChainDefinition.addFirst(
                     new HttpServerExpectationFilter(),
-                    StandardFilters.EXPECT_CONTINUE.name());
+                    StandardFilter.EXPECT_CONTINUE.name());
 
             for (final FilterEntry<HttpFilterHandler> entry: filters) {
                 switch (entry.postion) {
