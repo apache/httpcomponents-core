@@ -17,8 +17,12 @@ language: java
 dist: trusty
 sudo: false
 
+services:
+  - docker
+
+script: mvn verify -B -P docker
+
 jdk:
-  - openjdk7
   - oraclejdk8
   - openjdk11
   - oraclejdk11
@@ -27,6 +31,11 @@ jdk:
 matrix:
   allow_failures:
     - jdk: openjdk-ea
+
+jobs:
+  include:
+    - jdk: openjdk7
+      script: mvn verify -B
 
 after_success:
   - mvn clean cobertura:cobertura coveralls:report
