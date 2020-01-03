@@ -112,7 +112,11 @@ public class TestJSSEProviderIntegration {
         @Override
         protected void before() throws Throwable {
             if ("Conscrypt".equalsIgnoreCase(securityProviderName)) {
-                securityProvider = Conscrypt.newProviderBuilder().provideTrustManager(true).build();
+                try {
+                    securityProvider = Conscrypt.newProviderBuilder().provideTrustManager(true).build();
+                } catch (final UnsatisfiedLinkError e) {
+                    Assume.assumeFalse("Conscrypt provider failed to be loaded: " + e.getMessage(), true);
+                }
             } else {
                 securityProvider = null;
             }
