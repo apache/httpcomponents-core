@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.apache.httpcomponents.core5</groupId>
     <artifactId>httpcore5-parent</artifactId>
-    <version>5.0-beta11-SNAPSHOT</version>
+    <version>5.0-beta12-SNAPSHOT</version>
   </parent>
   <artifactId>httpcore5-testing</artifactId>
   <name>Apache HttpComponents Core Integration Tests</name>
@@ -98,6 +98,69 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <build>
+        <plugins>
+
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <version>2.22.2</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <version>0.31.0</version>
+            <executions>
+              <execution>
+                <id>start-httpbin</id>
+                <phase>pre-integration-test</phase>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+                <configuration>
+                  <images>
+                    <image>
+                      <name>kennethreitz/httpbin</name>
+                      <alias>httpbin</alias>
+                      <run>
+                        <log>
+                          <color>MAGENTA</color>
+                        </log>
+                        <ports>
+                          <port>8082:80</port>
+                        </ports>
+                      </run>
+                    </image>
+                  </images>
+                </configuration>
+              </execution>
+              <execution>
+                <id>stop-test-servers</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>stop</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <reporting>
     <plugins>

@@ -1,11 +1,76 @@
 Release 5.0-BETA11
 ------------------
 
-This BETA fixes a number of defects found since the last release.
+This BETA improves handling of illegal or invalid requests on the server side and fixes a number
+of defects in HTTP/2 protocol code found since the last release.
+
+IMPORTANT: This release is expected to be the last BETA version. If no major
+design flaws are found, the actual 5.0 API will be frozen and the next version will be
+promoted to GA.
+
+
+Change Log
+-------------------
 
 * HTTPCORE-618: org.apache.hc.core5.http.HttpStatus should be a class, not an interface.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
 
 * HTTPCORE-619: org.apache.hc.core5.reactor.EventMask should be a class, not an interface.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+* Normalize TimeUnit in TimeValue's #equals() and #hashCode().
+  Contributed by Michael Osipov <michaelo at apache.org>
+
+* Support for status code 431 (Request Header Fields Too Large) by H2 server side protocol handler
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Enforce H2 SETTINGS_MAX_HEADER_LIST_SIZE limit for HTTP/2 messages.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improved H2 connection window management logic.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Use UTF-8 encoding for XML-based content types.
+  Contributed by Michael Osipov <michaelo at apache.org>
+
+* Bug-fix: H2 protocol handler to reset all streams unconditionally in case of an unexpected
+  exception and attempt to close the i/o session gracefully if possible.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Support for status code 431 (Request Header Fields Too Large).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Corrected handling of illegal or invalid request heads by async server side protocol handler
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug-fix: Fixed race condition in ReactiveDataConsumer.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Bug-fix: Fixed H2 SETTINGS_HEADER_TABLE_SIZE negotiation.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Bug-fix: Fixed empty response handling in ReactiveResponseConsumer.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* Allow for timeout while acquiring lock in StrictConnPool.
+  Contributed by Chris Wildman <chriswildman at chriswildman.com>
+
+* Added H2 config option to disable Huffman compression
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-613: Now allowing 0 for validaterAfterInactivity.
+  Contributed by Peter Frank <IMATOOL13 at gmail.com>
+
+* HTTPCLIENT-2029: URIBuilder to support parsing of non-UTF8 URIs.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-2026: Fixed URIBuilder#isOpaque() logic.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-611: Minor glitches with TimeValue.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+
 
 Release 5.0-BETA10
 -------------------
