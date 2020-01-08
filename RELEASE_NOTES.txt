@@ -1,3 +1,48 @@
+Release 4.4.13
+-------------------
+
+This is a maintenance release that corrects a number of defects discovered since release 4.4.12.
+
+Changelog
+-------------------
+
+* HTTPCORE-612: DefaultConnectionReuseStrategy incorrectly used int to represent Content-Length value
+  instead of long.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPASYNC-152: Non-blocking connection pools to automatically close all newly created sessions when
+  being shut down.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPASYNC-152: Better session state representation in SessionRequestImpl.
+  Contributed by Anurag Agarwal <anurag.agarwal561994 at gmail.com>
+
+* HTTPCORE-609: Non-blocking session requests to immediately cancel the associated key if already
+  marked as completed.
+  Contributed by Anurag Agarwal <anurag.agarwal561994 at gmail.com>
+
+* HTTPCORE-607: HttpAsyncService incorrectly attempts to submit a response over idle connection in case
+  of a timeout (no prior request).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: SSLEngine#closeOutbound() called prematurely in SSLIOSession#close().
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-601: Work-around for SSL session spin on outbound session closure with Conscrypt 2.2.1
+  (back-ported from master).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-2016, regression: Tab chars are replaced by question marks in header values.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-600: SSLIOSession incorrectly disables input interest when there is still decrypted data
+  available in the session input buffer.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-596: Connection pools to reduce socket timeout to 1 second when closing managed connections
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 4.4.12
 -------------------
 
