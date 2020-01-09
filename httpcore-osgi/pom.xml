@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcomponents-core</artifactId>
-    <version>4.4.13-SNAPSHOT</version>
+    <version>4.4.13</version>
   </parent>
   <artifactId>httpcore-osgi</artifactId>
   <name>Apache HttpCore OSGi bundle</name>
