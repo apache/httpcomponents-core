@@ -167,6 +167,11 @@ public class Args {
         return n;
     }
 
+    public static <T extends TimeValue> T positive(final T timeValue, final String name) {
+        positive(timeValue.getDuration(), name);
+        return timeValue;
+    }
+
     private Args() {
         // Do not allow utility class to be instantiated.
     }

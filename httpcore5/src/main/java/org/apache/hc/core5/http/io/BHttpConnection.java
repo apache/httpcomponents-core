@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.io;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpConnection;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * Abstract blocking HTTP connection interface.
@@ -39,16 +40,16 @@ import org.apache.hc.core5.http.HttpConnection;
 public interface BHttpConnection extends HttpConnection {
 
     /**
-     * Checks if inout data is available from the connection. May wait for
+     * Checks if input data is available from the connection. May wait for
      * the specified time until some data becomes available. Note that some
      * implementations may completely ignore the timeout parameter.
      *
-     * @param timeout the maximum time in milliseconds to wait for data
+     * @param timeout the maximum time to wait for data
      * @return true if data is available; false if there was no data available
-     *         even after waiting for {@code timeout} milliseconds.
+     *         even after waiting for {@code timeout}.
      * @throws IOException if an error happens on the connection
      */
-    boolean isDataAvailable(int timeout) throws IOException;
+    boolean isDataAvailable(Timeout timeout) throws IOException;
 
     /**
      * Checks whether this connection has gone down.
