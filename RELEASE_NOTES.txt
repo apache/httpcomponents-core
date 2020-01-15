@@ -1,3 +1,27 @@
+Release 5.0-BETA12
+------------------
+
+This BETA improves handling of illegal or invalid requests on the server side and fixes a number
+of defects in HTTP/2 protocol code found since the last release.
+
+IMPORTANT: This release is expected to be the last BETA version. If no major
+design flaws are found, the actual 5.0 API will be frozen and the next version will be
+promoted to GA.
+
+
+Change Log
+-------------------
+
+* GitHub #183: IO reactor status equality clean ups.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+* HTTPCORE-623 GitHub #185: Change org.apache.hc.core5.http.io.BHttpConnection.isDataAvailable() int input to Timeout.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+* GitHub #188: Add PathEntity, a Path based implementation of HttpEntity. (#188)
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+
 Release 5.0-BETA11
 ------------------
 
