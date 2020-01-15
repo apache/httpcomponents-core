@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -153,6 +154,10 @@ public final class HttpEntities {
         return gzip(create(callback, contentType));
     }
 
+    public static HttpEntity createGzipped(final Path content, final ContentType contentType) {
+        return gzip(create(content, contentType));
+    }
+
     public static HttpEntity withTrailers(final HttpEntity entity, final Header... trailers) {
         return new HttpEntityWrapper(entity) {
 
@@ -219,6 +224,14 @@ public final class HttpEntities {
     public static HttpEntity create(
             final IOCallback<OutputStream> callback, final ContentType contentType, final Header... trailers) {
         return withTrailers(create(callback, contentType), trailers);
+    }
+
+    public static HttpEntity create(final Path content, final ContentType contentType) {
+        return new PathEntity(content, contentType);
+    }
+
+    public static HttpEntity create(final Path content, final ContentType contentType, final Header... trailers) {
+        return withTrailers(create(content, contentType), trailers);
     }
 
 }
