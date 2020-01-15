@@ -83,13 +83,13 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
     @Override
     protected final void doExecute() throws IOException {
         while (!Thread.currentThread().isInterrupted()) {
-            if (getStatus().compareTo(IOReactorStatus.ACTIVE) != 0) {
+            if (getStatus() != IOReactorStatus.ACTIVE) {
                 break;
             }
 
             final int readyCount = this.selector.select(this.selectTimeoutMillis);
 
-            if (getStatus().compareTo(IOReactorStatus.ACTIVE) != 0) {
+            if (getStatus() != IOReactorStatus.ACTIVE) {
                 break;
             }
 

@@ -151,7 +151,7 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
             }
         } else {
             final IOReactorStatus previousStatus = this.status.getAndSet(IOReactorStatus.SHUT_DOWN);
-            if (previousStatus.compareTo(IOReactorStatus.ACTIVE) == 0) {
+            if (previousStatus == IOReactorStatus.ACTIVE) {
                 this.selector.wakeup();
             }
             synchronized (this.shutdownMutex) {

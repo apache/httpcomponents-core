@@ -119,7 +119,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 }
                 closePendingChannels();
             }
-            if (getStatus().compareTo(IOReactorStatus.SHUT_DOWN) == 0) {
+            if (getStatus() == IOReactorStatus.SHUT_DOWN) {
                 break;
             }
 
@@ -134,16 +134,16 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             processClosedSessions();
 
             // If active process new channels
-            if (getStatus().compareTo(IOReactorStatus.ACTIVE) == 0) {
+            if (getStatus() == IOReactorStatus.ACTIVE) {
                 processPendingChannels();
                 processPendingConnectionRequests();
             }
 
             // Exit select loop if graceful shutdown has been completed
-            if (getStatus().compareTo(IOReactorStatus.SHUTTING_DOWN) == 0 && this.selector.keys().isEmpty()) {
+            if (getStatus() == IOReactorStatus.SHUTTING_DOWN && this.selector.keys().isEmpty()) {
                 break;
             }
-            if (getStatus().compareTo(IOReactorStatus.SHUT_DOWN) == 0) {
+            if (getStatus() == IOReactorStatus.SHUT_DOWN) {
                 break;
             }
         }
