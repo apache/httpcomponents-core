@@ -258,19 +258,19 @@ class BHttpConnectionBase implements BHttpConnection {
         }
     }
 
-    private int fillInputBuffer(final int timeout) throws IOException {
+    private int fillInputBuffer(final Timeout timeout) throws IOException {
         final SocketHolder socketHolder = ensureOpen();
         final Socket socket = socketHolder.getSocket();
         final int oldtimeout = socket.getSoTimeout();
         try {
-            socket.setSoTimeout(timeout);
+            socket.setSoTimeout(timeout.toMillisecondsIntBound());
             return this.inBuffer.fillBuffer(socketHolder.getInputStream());
         } finally {
             socket.setSoTimeout(oldtimeout);
         }
     }
 
-    protected boolean awaitInput(final int timeout) throws IOException {
+    protected boolean awaitInput(final Timeout timeout) throws IOException {
         if (this.inBuffer.hasBufferedData()) {
             return true;
         }
@@ -279,7 +279,7 @@ class BHttpConnectionBase implements BHttpConnection {
     }
 
     @Override
-    public boolean isDataAvailable(final int timeout) throws IOException {
+    public boolean isDataAvailable(final Timeout timeout) throws IOException {
         ensureOpen();
         try {
             return awaitInput(timeout);
@@ -294,7 +294,7 @@ class BHttpConnectionBase implements BHttpConnection {
             return true;
         }
         try {
-            final int bytesRead = fillInputBuffer(1);
+            final int bytesRead = fillInputBuffer(Timeout.ofMilliseconds(1));
             return bytesRead < 0;
         } catch (final SocketTimeoutException ex) {
             return false;

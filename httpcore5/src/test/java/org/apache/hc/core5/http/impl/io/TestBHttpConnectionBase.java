@@ -250,7 +250,7 @@ public class TestBHttpConnectionBase {
         conn.ensureOpen();
         conn.inBuffer.read(inStream);
 
-        Assert.assertTrue(conn.awaitInput(432));
+        Assert.assertTrue(conn.awaitInput(Timeout.ofMilliseconds(432)));
 
         Mockito.verify(socket, Mockito.never()).setSoTimeout(ArgumentMatchers.anyInt());
         Mockito.verify(inStream, Mockito.times(1)).read(
@@ -267,7 +267,7 @@ public class TestBHttpConnectionBase {
         conn.bind(socket);
         conn.ensureOpen();
 
-        Assert.assertTrue(conn.awaitInput(432));
+        Assert.assertTrue(conn.awaitInput(Timeout.ofMilliseconds(432)));
 
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(432);
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(345);
@@ -285,7 +285,7 @@ public class TestBHttpConnectionBase {
         conn.bind(socket);
         conn.ensureOpen();
 
-        Assert.assertFalse(conn.awaitInput(432));
+        Assert.assertFalse(conn.awaitInput(Timeout.ofMilliseconds(432)));
     }
 
     @Test

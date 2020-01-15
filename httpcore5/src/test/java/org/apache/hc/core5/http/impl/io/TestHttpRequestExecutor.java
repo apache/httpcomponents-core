@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -285,13 +286,13 @@ public class TestHttpRequestExecutor {
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(100, "Continue"),
                 new BasicClassicHttpResponse(200, "OK"));
-        Mockito.when(conn.isDataAvailable(ArgumentMatchers.anyInt())).thenReturn(Boolean.TRUE);
+        Mockito.when(conn.isDataAvailable(ArgumentMatchers.any(Timeout.class))).thenReturn(Boolean.TRUE);
 
         final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).sendRequestEntity(request);
         Mockito.verify(conn, Mockito.times(2)).flush();
-        Mockito.verify(conn).isDataAvailable(3000);
+        Mockito.verify(conn).isDataAvailable(Timeout.ofMilliseconds(3000));
         Mockito.verify(conn, Mockito.times(2)).receiveResponseHeader();
         Mockito.verify(conn).receiveResponseEntity(response);
 
@@ -316,14 +317,14 @@ public class TestHttpRequestExecutor {
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(402, "OK"));
-        Mockito.when(conn.isDataAvailable(ArgumentMatchers.anyInt())).thenReturn(Boolean.TRUE);
+        Mockito.when(conn.isDataAvailable(ArgumentMatchers.any(Timeout.class))).thenReturn(Boolean.TRUE);
 
         final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn, Mockito.never()).sendRequestEntity(request);
         Mockito.verify(conn).terminateRequest(request);
         Mockito.verify(conn, Mockito.times(2)).flush();
-        Mockito.verify(conn).isDataAvailable(3000);
+        Mockito.verify(conn).isDataAvailable(Timeout.ofMilliseconds(3000));
         Mockito.verify(conn).receiveResponseHeader();
         Mockito.verify(conn).receiveResponseEntity(response);
 
@@ -351,7 +352,7 @@ public class TestHttpRequestExecutor {
                 new BasicClassicHttpResponse(100, "Continue"),
                 new BasicClassicHttpResponse(111, "Huh?"),
                 new BasicClassicHttpResponse(200, "OK"));
-        Mockito.when(conn.isDataAvailable(ArgumentMatchers.anyInt())).thenReturn(Boolean.TRUE);
+        Mockito.when(conn.isDataAvailable(ArgumentMatchers.any(Timeout.class))).thenReturn(Boolean.TRUE);
 
         final HttpResponseInformationCallback callback = Mockito.mock(HttpResponseInformationCallback.class);
 
@@ -359,7 +360,7 @@ public class TestHttpRequestExecutor {
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).sendRequestEntity(request);
         Mockito.verify(conn, Mockito.times(2)).flush();
-        Mockito.verify(conn, Mockito.times(2)).isDataAvailable(3000);
+        Mockito.verify(conn, Mockito.times(2)).isDataAvailable(Timeout.ofMilliseconds(3000));
         Mockito.verify(conn, Mockito.times(4)).receiveResponseHeader();
         Mockito.verify(conn).receiveResponseEntity(response);
 
@@ -396,13 +397,13 @@ public class TestHttpRequestExecutor {
 
         Mockito.when(conn.receiveResponseHeader()).thenReturn(
                 new BasicClassicHttpResponse(200, "OK"));
-        Mockito.when(conn.isDataAvailable(ArgumentMatchers.anyInt())).thenReturn(Boolean.FALSE);
+        Mockito.when(conn.isDataAvailable(ArgumentMatchers.any(Timeout.class))).thenReturn(Boolean.FALSE);
 
         final ClassicHttpResponse response = executor.execute(request, conn, context);
         Mockito.verify(conn).sendRequestHeader(request);
         Mockito.verify(conn).sendRequestEntity(request);
         Mockito.verify(conn, Mockito.times(2)).flush();
-        Mockito.verify(conn).isDataAvailable(3000);
+        Mockito.verify(conn).isDataAvailable(Timeout.ofMilliseconds(3000));
         Mockito.verify(conn).receiveResponseHeader();
         Mockito.verify(conn).receiveResponseEntity(response);
 

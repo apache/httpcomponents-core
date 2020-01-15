@@ -55,6 +55,7 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * {@code HttpRequestExecutor} is a client side HTTP protocol handler based
@@ -72,9 +73,9 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class HttpRequestExecutor {
 
-    public static final int DEFAULT_WAIT_FOR_CONTINUE = 3000;
+    public static final Timeout DEFAULT_WAIT_FOR_CONTINUE = Timeout.ofSeconds(3);
 
-    private final int waitForContinue;
+    private final Timeout waitForContinue;
     private final ConnectionReuseStrategy connReuseStrategy;
     private final Http1StreamListener streamListener;
 
@@ -84,7 +85,7 @@ public class HttpRequestExecutor {
      * @since 4.3
      */
     public HttpRequestExecutor(
-            final int waitForContinue,
+            final Timeout waitForContinue,
             final ConnectionReuseStrategy connReuseStrategy,
             final Http1StreamListener streamListener) {
         super();
