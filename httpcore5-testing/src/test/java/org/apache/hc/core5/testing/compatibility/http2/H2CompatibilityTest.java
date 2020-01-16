@@ -131,7 +131,7 @@ public class H2CompatibilityTest {
             System.out.println("*** HTTP/2 simple request execution ***");
             final Future<AsyncClientEndpoint> connectFuture = client.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
             try {
-                final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                final AsyncClientEndpoint endpoint = TIMEOUT.get(connectFuture);
 
                 final CountDownLatch countDownLatch = new CountDownLatch(1);
                 final HttpRequest httpget = new BasicHttpRequest(Method.GET, target, "/status.html");
@@ -166,7 +166,7 @@ public class H2CompatibilityTest {
                             }
 
                         });
-                if (!countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())) {
+                if (!TIMEOUT.await(countDownLatch)) {
                     logResult(TestResult.NOK, target, null, null, "(single request execution failed to complete in time)");
                 }
             } catch (final ExecutionException ex) {
@@ -180,7 +180,7 @@ public class H2CompatibilityTest {
             System.out.println("*** HTTP/2 multiplexed request execution ***");
             final Future<AsyncClientEndpoint> connectFuture = client.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
             try {
-                final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                final AsyncClientEndpoint endpoint = TIMEOUT.get(connectFuture);
 
                 final int reqCount = 20;
                 final CountDownLatch countDownLatch = new CountDownLatch(reqCount);
@@ -218,7 +218,7 @@ public class H2CompatibilityTest {
 
                             });
                 }
-                if (!countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())) {
+                if (!TIMEOUT.await(countDownLatch)) {
                     logResult(TestResult.NOK, target, null, null, "(multiplexed request execution failed to complete in time)");
                 }
             } catch (final ExecutionException ex) {
@@ -232,7 +232,7 @@ public class H2CompatibilityTest {
             System.out.println("*** HTTP/2 request execution with push ***");
             final Future<AsyncClientEndpoint> connectFuture = client.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
             try {
-                final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                final AsyncClientEndpoint endpoint = TIMEOUT.get(connectFuture);
 
                 final CountDownLatch countDownLatch = new CountDownLatch(5);
                 final HttpRequest httpget = new BasicHttpRequest(Method.GET, target, "/index.html");
@@ -268,13 +268,13 @@ public class H2CompatibilityTest {
                         },
                         null,
                         null);
-                final Message<HttpResponse, String> message = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                final Message<HttpResponse, String> message = TIMEOUT.get(future);
                 final HttpResponse response = message.getHead();
                 final int code = response.getCode();
                 if (code == HttpStatus.SC_OK) {
                     logResult(TestResult.OK, target, httpget, response,
                             Objects.toString(response.getFirstHeader("server")));
-                    if (!countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())) {
+                    if (!TIMEOUT.await(countDownLatch)) {
                         logResult(TestResult.NOK, target, null, null, "Push messages not received");
                     }
                 } else {
@@ -359,7 +359,7 @@ public class H2CompatibilityTest {
                                 countDownLatch.countDown();
                             }
                         });
-                if (!countDownLatch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit())) {
+                if (!TIMEOUT.await(countDownLatch)) {
                     logResult(TestResult.NOK, target, null, null, "(httpbin.org tests failed to complete in time)");
                 }
             }

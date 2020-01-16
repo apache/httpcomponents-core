@@ -116,8 +116,8 @@ public class TestSharedInputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals(Integer.valueOf(10), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals(Boolean.TRUE, TIMEOUT.get(task1));
+        Assert.assertEquals(Integer.valueOf(10), TIMEOUT.get(task2));
         Mockito.verify(capacityChannel).update(10);
     }
 
@@ -152,8 +152,8 @@ public class TestSharedInputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals(Integer.valueOf('a'), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals(Boolean.TRUE, TIMEOUT.get(task1));
+        Assert.assertEquals(Integer.valueOf('a'), TIMEOUT.get(task2));
         Mockito.verify(capacityChannel).update(10);
     }
 
@@ -200,9 +200,8 @@ public class TestSharedInputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals("12345678901234567890123456789012345678901234567890",
-                task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals(Boolean.TRUE, TIMEOUT.get(task1));
+        Assert.assertEquals("12345678901234567890123456789012345678901234567890", TIMEOUT.get(task2));
         Mockito.verify(capacityChannel, Mockito.atLeast(1)).update(ArgumentMatchers.anyInt());
     }
 
@@ -237,8 +236,8 @@ public class TestSharedInputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals(Integer.valueOf(-1), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals(Boolean.TRUE, TIMEOUT.get(task1));
+        Assert.assertEquals(Integer.valueOf(-1), TIMEOUT.get(task2));
         Mockito.verify(capacityChannel, Mockito.never()).update(10);
     }
 

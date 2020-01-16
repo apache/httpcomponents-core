@@ -176,13 +176,13 @@ public class H2ProtocolNegotiationTest {
 
         final HttpHost target = new HttpHost("https", "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_1, null);
-        final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final AsyncClientEndpoint endpoint = TIMEOUT.get(connectFuture);
 
         final Future<Message<HttpResponse, String>> resultFuture1 = endpoint.execute(
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> message1 = TIMEOUT.get(resultFuture1);
         Assert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
         Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
@@ -199,13 +199,13 @@ public class H2ProtocolNegotiationTest {
 
         final HttpHost target = new HttpHost("https", "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
-        final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final AsyncClientEndpoint endpoint = TIMEOUT.get(connectFuture);
 
         final Future<Message<HttpResponse, String>> resultFuture1 = endpoint.execute(
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> message1 = TIMEOUT.get(resultFuture1);
         Assert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
         Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
@@ -222,13 +222,13 @@ public class H2ProtocolNegotiationTest {
 
         final HttpHost target = new HttpHost("https", "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.NEGOTIATE, null);
-        final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final AsyncClientEndpoint endpoint = TIMEOUT.get(connectFuture);
 
         final Future<Message<HttpResponse, String>> resultFuture1 = endpoint.execute(
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> message1 = TIMEOUT.get(resultFuture1);
         Assert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
         Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));

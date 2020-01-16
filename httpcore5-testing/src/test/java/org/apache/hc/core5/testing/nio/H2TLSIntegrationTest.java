@@ -174,7 +174,7 @@ public class H2TLSIntegrationTest {
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> message1 = TIMEOUT.get(resultFuture1);
         Assert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
         Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
@@ -236,7 +236,7 @@ public class H2TLSIntegrationTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         try {
-            resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            TIMEOUT.get(resultFuture1);
             Assert.fail("ExecutionException expected");
         } catch (final ExecutionException ex) {
             final Throwable cause = ex.getCause();
@@ -302,7 +302,7 @@ public class H2TLSIntegrationTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         try {
-            resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            TIMEOUT.get(resultFuture1);
             Assert.fail("ExecutionException expected");
         } catch (final ExecutionException ex) {
             final Throwable cause = ex.getCause();
@@ -368,7 +368,7 @@ public class H2TLSIntegrationTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         try {
-            resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            TIMEOUT.get(resultFuture1);
             Assert.fail("ExecutionException expected");
         } catch (final ExecutionException ex) {
             final Throwable cause = ex.getCause();
@@ -452,7 +452,7 @@ public class H2TLSIntegrationTest {
                                 new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
                 try {
-                    resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                    TIMEOUT.get(resultFuture1);
                     Assert.fail("ExecutionException expected");
                 } catch (final ExecutionException ex) {
                     final Throwable cause = ex.getCause();

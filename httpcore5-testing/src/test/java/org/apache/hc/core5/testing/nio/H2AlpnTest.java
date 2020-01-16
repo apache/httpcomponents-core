@@ -193,7 +193,7 @@ public class H2AlpnTest {
             new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1;
         try {
-            message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            message1 = TIMEOUT.get(resultFuture1);
         } catch (final ExecutionException e) {
             final Throwable cause = e.getCause();
             assertFalse("h2 negotiation was enabled, but h2 was not negotiated", h2Allowed);

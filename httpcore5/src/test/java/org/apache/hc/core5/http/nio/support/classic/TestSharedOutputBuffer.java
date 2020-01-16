@@ -184,8 +184,8 @@ public class TestSharedOutputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals(Boolean.TRUE, TIMEOUT.get(task1));
+        Assert.assertEquals(Boolean.TRUE, TIMEOUT.get(task2));
 
         Assert.assertEquals("1234567890123456789012123456789012345678901234567890", new String(channel.toByteArray(), charset));
     }
@@ -221,9 +221,9 @@ public class TestSharedOutputBuffer {
 
         });
 
-        Assert.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assert.assertEquals(Boolean.TRUE, TIMEOUT.get(task2));
         try {
-            task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            TIMEOUT.get(task1);
         } catch (final ExecutionException ex) {
             Assert.assertTrue(ex.getCause() instanceof InterruptedIOException);
         }

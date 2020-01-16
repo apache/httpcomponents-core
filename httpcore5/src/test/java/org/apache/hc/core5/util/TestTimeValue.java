@@ -28,6 +28,7 @@
 package org.apache.hc.core5.util;
 
 import java.text.ParseException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.hamcrest.CoreMatchers;
@@ -84,6 +85,12 @@ public class TestTimeValue {
     @Test
     public void test1() {
         test(1);
+    }
+
+    @Test
+    public void testAwait() throws InterruptedException {
+        // Simplest test
+        TimeValue.ZERO_MILLISECONDS.await(new CountDownLatch(0));
     }
 
     @Test

@@ -29,7 +29,12 @@ package org.apache.hc.core5.util;
 
 import java.text.ParseException;
 import java.util.Locale;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -215,6 +220,31 @@ public class TimeValue implements Comparable<TimeValue> {
         this.timeUnit = Args.notNull(timeUnit, "timeUnit");
     }
 
+    /**
+     * Precise short-hand for calling {@link CountDownLatch#await(long, TimeUnit)}
+     * without performing a conversion.
+     *
+     * @param countDownLatch the latch to wait on.
+     * @return See {@link CountDownLatch#await(long, TimeUnit)}
+     * @throws InterruptedException See {@link CountDownLatch#await(long, TimeUnit)}
+     * @see CountDownLatch#await(long, TimeUnit)
+     */
+    public boolean await(final CountDownLatch countDownLatch) throws InterruptedException {
+        return countDownLatch.await(duration, timeUnit);
+    }
+
+    /**
+     * Precise short-hand for calling {@link ExecutorService#awaitTermination(long, TimeUnit)}
+     * without performing a conversion.
+     *
+     * @param executorService The receiver for {@link ExecutorService#awaitTermination(long, TimeUnit)}.
+     * @return See {@link ExecutorService#awaitTermination(long, TimeUnit)}
+     * @throws InterruptedException See {@link ExecutorService#awaitTermination(long, TimeUnit)}
+     */
+    public boolean awaitTermination(final ExecutorService executorService) throws InterruptedException {
+        return executorService.awaitTermination(duration, timeUnit);
+    }
+
     public long convert(final TimeUnit targetTimeUnit) {
         Args.notNull(targetTimeUnit, "timeUnit");
         return targetTimeUnit.convert(duration, timeUnit);
@@ -232,6 +262,22 @@ public class TimeValue implements Comparable<TimeValue> {
             return thisDuration == thatDuration;
         }
         return false;
+    }
+
+    /**
+     * Precise short-hand for calling {@link Future#get(long, TimeUnit)}
+     * without performing a conversion.
+     *
+     * @param <V> See {@link Future#get(long, TimeUnit)}
+     * @param future the receiver for {@link Future#get(long, TimeUnit)}.
+     * @return See {@link Future#get(long, TimeUnit)}
+     * @throws InterruptedException See {@link Future#get(long, TimeUnit)}
+     * @throws ExecutionException See {@link Future#get(long, TimeUnit)}
+     * @throws TimeoutException See {@link Future#get(long, TimeUnit)}
+     * @see Future#get(long, TimeUnit)
+     */
+    public <V> V get(final Future<V> future) throws InterruptedException, ExecutionException, TimeoutException {
+        return future.get(duration, timeUnit);
     }
 
     /**
@@ -263,10 +309,20 @@ public class TimeValue implements Comparable<TimeValue> {
         return of(convert(targetTimeUnit) / divisor, targetTimeUnit);
     }
 
+    /**
+     * Gets the underlying duration.
+     *
+     * @return the underlying duration.
+     */
     public long getDuration() {
         return duration;
     }
 
+    /**
+     * Gets the underlying time unit.
+     *
+     * @return the underlying time unit.
+     */
     public TimeUnit getTimeUnit() {
         return timeUnit;
     }

@@ -179,7 +179,7 @@ public class HttpServer implements ModalCloseable {
 
     public void awaitTermination(final TimeValue waitTime) throws InterruptedException {
         Args.notNull(waitTime, "Wait time");
-        this.workerExecutorService.awaitTermination(waitTime.getDuration(), waitTime.getTimeUnit());
+        waitTime.awaitTermination(this.workerExecutorService);
     }
 
     @Override

@@ -31,12 +31,14 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.TimeoutValueException;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestBasicFuture {
 
+    private static final TimeValue ONE_MINUTE = TimeValue.ofMinutes(1);
     @Test
     public void testCompleted() throws Exception {
         final BasicFutureCallback<Object> callback = new BasicFutureCallback<>();
@@ -148,7 +150,7 @@ public class TestBasicFuture {
         };
         t.setDaemon(true);
         t.start();
-        Assert.assertSame(result, future.get(60, TimeUnit.SECONDS));
+        Assert.assertSame(result, ONE_MINUTE.get(future));
         Assert.assertTrue(future.isDone());
         Assert.assertFalse(future.isCancelled());
     }
@@ -173,7 +175,7 @@ public class TestBasicFuture {
         t.setDaemon(true);
         t.start();
         try {
-            future.get(60, TimeUnit.SECONDS);
+            ONE_MINUTE.get(future);
         } catch (final ExecutionException ex) {
             Assert.assertSame(boom, ex.getCause());
         }
@@ -199,7 +201,7 @@ public class TestBasicFuture {
         };
         t.setDaemon(true);
         t.start();
-        future.get(60, TimeUnit.SECONDS);
+        ONE_MINUTE.get(future);
     }
 
     @Test(expected=TimeoutException.class)
@@ -227,7 +229,7 @@ public class TestBasicFuture {
     @Test(expected=TimeoutValueException.class)
     public void testAsyncNegativeTimeout() throws Exception {
         final BasicFuture<Object> future = new BasicFuture<>(null);
-        future.get(-1, TimeUnit.MILLISECONDS);
+        TimeValue.NEG_ONE_MILLISECOND.get(future);
     }
 
 }

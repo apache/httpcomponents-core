@@ -319,7 +319,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         final PoolEntry<HttpHost, HttpClientConnection> poolEntry;
         final Timeout timeout = Timeout.defaultsToDisabled(connectTimeout);
         try {
-            poolEntry = leaseFuture.get(timeout.getDuration(), timeout.getTimeUnit());
+            poolEntry = timeout.get(leaseFuture);
         } catch (final InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new InterruptedIOException(ex.getMessage());

@@ -50,7 +50,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -100,7 +99,7 @@ public class TestSSLContextBuilder {
     public void cleanup() throws Exception {
         if (this.executorService != null) {
             this.executorService.shutdown();
-            this.executorService.awaitTermination(5, TimeUnit.SECONDS);
+            TIMEOUT.awaitTermination(this.executorService);
         }
     }
 
@@ -271,7 +270,7 @@ public class TestSSLContextBuilder {
             Assert.assertEquals(-1, inputStream.read());
         }
 
-        final Boolean result = future.get(5, TimeUnit.SECONDS);
+        final Boolean result = TIMEOUT.get(future);
         Assert.assertNotNull(result);
     }
 
@@ -372,7 +371,7 @@ public class TestSSLContextBuilder {
             Assert.assertEquals(-1, inputStream.read());
         }
 
-        final Boolean result = future.get(5, TimeUnit.SECONDS);
+        final Boolean result = TIMEOUT.get(future);
         Assert.assertNotNull(result);
 
         final X509Certificate[] certs = certChainRef.get();
@@ -445,7 +444,7 @@ public class TestSSLContextBuilder {
             Assert.assertEquals(-1, inputStream.read());
         }
 
-        final Principal clientPrincipal = future.get(5, TimeUnit.SECONDS);
+        final Principal clientPrincipal = TIMEOUT.get(future);
         Assert.assertNull(clientPrincipal);
     }
 
@@ -541,7 +540,7 @@ public class TestSSLContextBuilder {
             Assert.assertEquals(-1, inputStream.read());
         }
 
-        final Principal clientPrincipal = future.get(5, TimeUnit.SECONDS);
+        final Principal clientPrincipal = TIMEOUT.get(future);
         Assert.assertNotNull(clientPrincipal);
     }
 
@@ -602,7 +601,7 @@ public class TestSSLContextBuilder {
             Assert.assertEquals(-1, inputStream.read());
         }
 
-        final Principal clientPrincipal = future.get(5, TimeUnit.SECONDS);
+        final Principal clientPrincipal = TIMEOUT.get(future);
         Assert.assertNotNull(clientPrincipal);
         Assert.assertEquals("CN=Test Client 2,OU=HttpComponents Project,O=Apache Software Foundation", clientPrincipal.getName());
     }
