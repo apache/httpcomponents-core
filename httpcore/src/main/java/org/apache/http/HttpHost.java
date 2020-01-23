@@ -107,6 +107,10 @@ public final class HttpHost implements Cloneable, Serializable {
     public static HttpHost create(final String s) {
         Args.containsNoBlanks(s, "HTTP Host");
         String text = s;
+        final char lastChar = text.charAt(text.length() - 1);
+        if (lastChar == '/') {
+            text = text.substring(0, text.length() - 1);
+        }
         String scheme = null;
         final int schemeIdx = text.indexOf("://");
         if (schemeIdx > 0) {

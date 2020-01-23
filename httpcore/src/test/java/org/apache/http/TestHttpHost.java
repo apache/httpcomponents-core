@@ -200,7 +200,9 @@ public class TestHttpHost {
     @Test
     public void testCreateFromString() throws Exception {
         Assert.assertEquals(new HttpHost("somehost", 8080, "https"), HttpHost.create("https://somehost:8080"));
+        Assert.assertEquals(new HttpHost("somehost", 8080, "https"), HttpHost.create("https://somehost:8080/"));
         Assert.assertEquals(new HttpHost("somehost", 8080, "https"), HttpHost.create("HttpS://SomeHost:8080"));
+        Assert.assertEquals(new HttpHost("somehost", 8080, "https"), HttpHost.create("HttpS://SomeHost:8080/"));
         Assert.assertEquals(new HttpHost("somehost", 1234, null), HttpHost.create("somehost:1234"));
         Assert.assertEquals(new HttpHost("somehost", -1, null), HttpHost.create("somehost"));
     }
