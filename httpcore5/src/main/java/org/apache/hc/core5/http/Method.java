@@ -28,7 +28,8 @@
 package org.apache.hc.core5.http;
 
 import java.util.Locale;
-import java.util.Objects;
+
+import org.apache.hc.core5.util.Args;
 
 /**
  * Common HTTP methods defined by the HTTP spec.
@@ -92,7 +93,7 @@ public enum Method {
      * @return the Method for the given method name.
      */
     public static Method normalizedValueOf(final String method) {
-        return valueOf(Objects.requireNonNull(method, "method").toUpperCase(Locale.ROOT));
+        return valueOf(Args.notNull(method, "method").toUpperCase(Locale.ROOT));
     }
 
     public boolean isSame(final String value) {
