@@ -29,6 +29,8 @@ package org.apache.hc.core5.http;
 
 import java.util.Locale;
 
+import org.apache.hc.core5.util.Args;
+
 /**
  * Common HTTP methods defined by the HTTP spec.
  *
@@ -67,7 +69,7 @@ public enum Method {
             return false;
         }
         try {
-            return valueOf(value.toUpperCase(Locale.ROOT)).safe;
+            return normalizedValueOf(value).safe;
         } catch (final IllegalArgumentException ex) {
             return false;
         }
@@ -78,10 +80,20 @@ public enum Method {
             return false;
         }
         try {
-            return valueOf(value.toUpperCase(Locale.ROOT)).idempotent;
+            return normalizedValueOf(value).idempotent;
         } catch (final IllegalArgumentException ex) {
             return false;
         }
+    }
+
+    /**
+     * Returns the Method for a normalized {@code value} of a method name.
+     *
+     * @param method A method name like {@code "delete"}, {@code "DELETE"}, or any mixed-case variant.
+     * @return the Method for the given method name.
+     */
+    public static Method normalizedValueOf(final String method) {
+        return valueOf(Args.notNull(method, "method").toUpperCase(Locale.ROOT));
     }
 
     public boolean isSame(final String value) {

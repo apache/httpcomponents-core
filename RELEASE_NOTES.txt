@@ -20,6 +20,9 @@ Change Log
 
 * GitHub #188: Add PathEntity, a Path based implementation of HttpEntity. (#188)
   Contributed by Gary Gregory <garydgregory at gmail.com>
+  
+* GitHub #191: Add org.apache.hc.core5.http.Method.normalizedValueOf(String).
+  Contributed by Gary Gregory <garydgregory at gmail.com>
 
 
 Release 5.0-BETA11
