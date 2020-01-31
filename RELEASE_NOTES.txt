@@ -24,6 +24,9 @@ Change Log
 * GitHub #191: Add org.apache.hc.core5.http.Method.normalizedValueOf(String).
   Contributed by Gary Gregory <garydgregory at gmail.com>
 
+* GitHub #193: Reuse constants instead of magic strings.
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
 
 Release 5.0-BETA11
 ------------------

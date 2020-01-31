@@ -91,7 +91,7 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
         }
 
         if (statusText == null) {
-            throw new ProtocolException("Mandatory response header ':status' not found");
+            throw new ProtocolException("Mandatory response header '%s' not found", H2PseudoResponseHeaders.STATUS);
         }
         final int statusCode;
         try {

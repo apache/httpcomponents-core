@@ -109,24 +109,24 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             }
         }
         if (method == null) {
-            throw new ProtocolException("Mandatory request header ':method' not found");
+            throw new ProtocolException("Mandatory request header '%s' not found", H2PseudoRequestHeaders.METHOD);
         }
         if (Method.CONNECT.isSame(method)) {
             if (authority == null) {
-                throw new ProtocolException("Header ':authority' is mandatory for CONNECT request");
+                throw new ProtocolException("Header '%s' is mandatory for CONNECT request", H2PseudoRequestHeaders.AUTHORITY);
             }
             if (scheme != null) {
-                throw new ProtocolException("Header ':scheme' must not be set for CONNECT request");
+                throw new ProtocolException("Header '%s' must not be set for CONNECT request", H2PseudoRequestHeaders.SCHEME);
             }
             if (path != null) {
-                throw new ProtocolException("Header ':path' must not be set for CONNECT request");
+                throw new ProtocolException("Header '%s' must not be set for CONNECT request", H2PseudoRequestHeaders.PATH);
             }
         } else {
             if (scheme == null) {
-                throw new ProtocolException("Mandatory request header ':scheme' not found");
+                throw new ProtocolException("Mandatory request header '%s' not found", H2PseudoRequestHeaders.SCHEME);
             }
             if (path == null) {
-                throw new ProtocolException("Mandatory request header ':path' not found");
+                throw new ProtocolException("Mandatory request header '%s' not found", H2PseudoRequestHeaders.PATH);
             }
         }
 
