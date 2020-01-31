@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.support;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -43,7 +44,6 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link AsyncServerExchangeHandler} implementation that immediately responds
@@ -57,7 +57,7 @@ public final class ImmediateResponseExchangeHandler implements AsyncServerExchan
     private final AsyncResponseProducer responseProducer;
 
     public ImmediateResponseExchangeHandler(final AsyncResponseProducer responseProducer) {
-        this.responseProducer = Args.notNull(responseProducer, "Response producer");
+        this.responseProducer = Objects.requireNonNull(responseProducer, "Response producer");
     }
 
     public ImmediateResponseExchangeHandler(final HttpResponse response, final String message) {

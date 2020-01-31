@@ -30,9 +30,9 @@ package org.apache.hc.core5.http.io.entity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.util.Args;
 
 /**
  * An entity that delivers the contents of a {@link ByteBuffer}.
@@ -44,7 +44,7 @@ public class ByteBufferEntity extends AbstractHttpEntity {
 
     public ByteBufferEntity(final ByteBuffer buffer, final ContentType contentType, final String contentEncoding) {
         super(contentType, contentEncoding);
-        Args.notNull(buffer, "Source byte buffer");
+        Objects.requireNonNull(buffer, "Source byte buffer");
         this.buffer = buffer;
         this.length = buffer.remaining();
     }

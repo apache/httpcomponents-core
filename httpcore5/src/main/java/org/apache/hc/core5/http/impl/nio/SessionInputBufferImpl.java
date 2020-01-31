@@ -35,6 +35,7 @@ import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.MessageConstraintException;
@@ -135,7 +136,7 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
 
     @Override
     public int fill(final ReadableByteChannel channel) throws IOException {
-        Args.notNull(channel, "Channel");
+        Objects.requireNonNull(channel, "Channel");
         setInputMode();
         if (!buffer().hasRemaining()) {
             expand();

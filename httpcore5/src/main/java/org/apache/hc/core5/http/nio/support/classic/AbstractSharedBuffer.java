@@ -26,13 +26,13 @@
  */
 package org.apache.hc.core5.http.nio.support.classic;
 
+import java.util.Objects;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.impl.nio.ExpandableBuffer;
-import org.apache.hc.core5.util.Args;
 
 /**
  * @since 5.0
@@ -48,7 +48,7 @@ abstract class AbstractSharedBuffer extends ExpandableBuffer {
 
     public AbstractSharedBuffer(final ReentrantLock lock, final int initialBufferSize) {
         super(initialBufferSize);
-        this.lock = Args.notNull(lock, "Lock");
+        this.lock = Objects.requireNonNull(lock, "Lock");
         this.condition = lock.newCondition();
     }
 

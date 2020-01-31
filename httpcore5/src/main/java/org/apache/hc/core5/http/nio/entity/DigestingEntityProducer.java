@@ -33,13 +33,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
@@ -58,7 +58,7 @@ public class DigestingEntityProducer implements AsyncEntityProducer {
     public DigestingEntityProducer(
             final String algo,
             final AsyncEntityProducer wrapped) {
-        this.wrapped = Args.notNull(wrapped, "Entity consumer");
+        this.wrapped = Objects.requireNonNull(wrapped, "Entity consumer");
         try {
             this.digester = MessageDigest.getInstance(algo);
         } catch (final NoSuchAlgorithmException ex) {

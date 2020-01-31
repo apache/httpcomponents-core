@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.frame;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Setting;
@@ -57,7 +58,7 @@ public abstract class FrameFactory {
     }
 
     public RawFrame createResetStream(final int streamId, final H2Error error) {
-        Args.notNull(error, "Error");
+        Objects.requireNonNull(error, "Error");
         return createResetStream(streamId, error.getCode());
     }
 
@@ -70,13 +71,13 @@ public abstract class FrameFactory {
     }
 
     public RawFrame createPing(final ByteBuffer opaqueData) {
-        Args.notNull(opaqueData, "Opaque data");
+        Objects.requireNonNull(opaqueData, "Opaque data");
         Args.check(opaqueData.remaining() == 8, "Opaque data length must be equal 8");
         return new RawFrame(FrameType.PING.getValue(), 0, 0, opaqueData);
     }
 
     public RawFrame createPingAck(final ByteBuffer opaqueData) {
-        Args.notNull(opaqueData, "Opaque data");
+        Objects.requireNonNull(opaqueData, "Opaque data");
         Args.check(opaqueData.remaining() == 8, "Opaque data length must be equal 8");
         return new RawFrame(FrameType.PING.getValue(), FrameFlag.ACK.value, 0, opaqueData);
     }

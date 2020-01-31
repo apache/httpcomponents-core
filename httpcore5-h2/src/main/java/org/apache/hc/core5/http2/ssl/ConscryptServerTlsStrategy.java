@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http2.ssl;
 
 import java.net.SocketAddress;
+import java.util.Objects;
 
 import javax.net.ssl.SSLContext;
 
@@ -39,7 +40,6 @@ import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -62,7 +62,7 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
             final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
-        this.sslContext = Args.notNull(sslContext, "SSL context");
+        this.sslContext = Objects.requireNonNull(sslContext, "SSL context");
         this.securePortStrategy = securePortStrategy;
         this.sslBufferMode = sslBufferMode;
         this.initializer = initializer;

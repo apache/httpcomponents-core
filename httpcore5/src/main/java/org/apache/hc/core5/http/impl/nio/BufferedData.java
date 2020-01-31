@@ -31,8 +31,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
-
-import org.apache.hc.core5.util.Args;
+import java.util.Objects;
 
 /**
  * A buffer that expand its capacity on demand. Internally, this class is backed
@@ -73,7 +72,7 @@ public class BufferedData extends ExpandableBuffer {
     }
 
     public final void put(final ByteBuffer src) {
-        Args.notNull(src, "Data source");
+        Objects.requireNonNull(src, "Data source");
         setInputMode();
         final int requiredCapacity = buffer().position() + src.remaining();
         ensureAdjustedCapacity(requiredCapacity);
@@ -81,7 +80,7 @@ public class BufferedData extends ExpandableBuffer {
     }
 
     public final int readFrom(final ReadableByteChannel channel) throws IOException {
-        Args.notNull(channel, "Channel");
+        Objects.requireNonNull(channel, "Channel");
         setInputMode();
         if (!buffer().hasRemaining()) {
             expand();

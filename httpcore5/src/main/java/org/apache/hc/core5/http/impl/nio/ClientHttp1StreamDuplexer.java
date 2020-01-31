@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -66,7 +67,6 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
@@ -102,7 +102,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final ContentLengthStrategy outgoingContentStrategy,
             final Http1StreamListener streamListener) {
         super(ioSession, http1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter, incomingContentStrategy, outgoingContentStrategy);
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
+        this.httpProcessor = Objects.requireNonNull(httpProcessor, "HTTP processor");
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;

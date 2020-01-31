@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.http2.config;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -39,7 +41,7 @@ public final class H2Setting {
     private final int value;
 
     public H2Setting(final H2Param param, final int value) {
-        Args.notNull(param, "Setting parameter");
+        Objects.requireNonNull(param, "Setting parameter");
         Args.notNegative(value, "Setting value must be a non-negative value");
         this.param = param;
         this.value = value;

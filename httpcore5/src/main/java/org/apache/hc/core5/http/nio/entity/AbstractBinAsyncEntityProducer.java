@@ -28,6 +28,7 @@ package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -36,7 +37,6 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.StreamChannel;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Abstract binary entity content producer.
@@ -177,7 +177,7 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
 
                     @Override
                     public int write(final ByteBuffer src) throws IOException {
-                        Args.notNull(src, "Buffer");
+                        Objects.requireNonNull(src, "Buffer");
                         synchronized (bytebuf) {
                             return writeData(channel, src);
                         }

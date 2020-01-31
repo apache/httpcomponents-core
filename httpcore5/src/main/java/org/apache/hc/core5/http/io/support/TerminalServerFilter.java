@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http.io.support;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -41,7 +42,6 @@ import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpFilterHandler;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link HttpFilterHandler} implementation represents a terminal handler
@@ -59,7 +59,7 @@ public final class TerminalServerFilter implements HttpFilterHandler {
     public TerminalServerFilter(
             final HttpRequestMapper<HttpRequestHandler> handlerMapper,
             final HttpResponseFactory<ClassicHttpResponse> responseFactory) {
-        this.handlerMapper = Args.notNull(handlerMapper, "Handler mapper");
+        this.handlerMapper = Objects.requireNonNull(handlerMapper, "Handler mapper");
         this.responseFactory = responseFactory != null ? responseFactory : DefaultClassicHttpResponseFactory.INSTANCE;
     }
 

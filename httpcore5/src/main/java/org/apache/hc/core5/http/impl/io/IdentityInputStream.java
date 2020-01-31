@@ -29,10 +29,10 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Input stream that reads data without any transformation. The end of the
@@ -61,8 +61,8 @@ public class IdentityInputStream extends InputStream {
      */
     public IdentityInputStream(final SessionInputBuffer buffer, final InputStream inputStream) {
         super();
-        this.buffer = Args.notNull(buffer, "Session input buffer");
-        this.inputStream = Args.notNull(inputStream, "Input stream");
+        this.buffer = Objects.requireNonNull(buffer, "Session input buffer");
+        this.inputStream = Objects.requireNonNull(inputStream, "Input stream");
     }
 
     @Override

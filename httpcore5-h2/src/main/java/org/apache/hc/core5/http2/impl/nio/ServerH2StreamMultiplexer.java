@@ -29,6 +29,7 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.Header;
@@ -50,7 +51,6 @@ import org.apache.hc.core5.http2.frame.FrameFactory;
 import org.apache.hc.core5.http2.frame.StreamIdGenerator;
 import org.apache.hc.core5.http2.hpack.HeaderListConstraintException;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.util.Args;
 
 /**
  * I/O event handler for events fired by {@link ProtocolIOSession} that implements
@@ -73,7 +73,7 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final H2Config h2Config,
             final H2StreamListener streamListener) {
         super(ioSession, frameFactory, StreamIdGenerator.EVEN, httpProcessor, charCodingConfig, h2Config, streamListener);
-        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Handler factory");
+        this.exchangeHandlerFactory = Objects.requireNonNull(exchangeHandlerFactory, "Handler factory");
     }
 
     public ServerH2StreamMultiplexer(

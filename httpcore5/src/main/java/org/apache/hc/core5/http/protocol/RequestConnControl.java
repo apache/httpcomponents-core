@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -38,7 +39,6 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.Method;
-import org.apache.hc.core5.util.Args;
 
 /**
  * RequestConnControl is responsible for adding {@code Connection} header
@@ -58,7 +58,7 @@ public class RequestConnControl implements HttpRequestInterceptor {
     @Override
     public void process(final HttpRequest request, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
-        Args.notNull(request, "HTTP request");
+        Objects.requireNonNull(request, "HTTP request");
 
         final String method = request.getMethod();
         if (Method.CONNECT.isSame(method)) {

@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import java.util.Objects;
+
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.http.config.CharCodingConfig;
@@ -46,7 +48,6 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.util.Args;
 
 class InternalServerH2EventHandlerFactory implements IOEventHandlerFactory {
 
@@ -70,8 +71,8 @@ class InternalServerH2EventHandlerFactory implements IOEventHandlerFactory {
             final SSLContext sslContext,
             final SSLSessionInitializer sslSessionInitializer,
             final SSLSessionVerifier sslSessionVerifier) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
+        this.httpProcessor = Objects.requireNonNull(httpProcessor, "HTTP processor");
+        this.exchangeHandlerFactory = Objects.requireNonNull(exchangeHandlerFactory, "Exchange handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;

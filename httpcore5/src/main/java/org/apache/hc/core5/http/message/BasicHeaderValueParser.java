@@ -30,12 +30,12 @@ package org.apache.hc.core5.http.message;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Default {@link org.apache.hc.core5.http.message.HeaderValueParser} implementation.
@@ -63,8 +63,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     @Override
     public HeaderElement[] parseElements(final CharSequence buffer, final ParserCursor cursor) {
-        Args.notNull(buffer, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
+        Objects.requireNonNull(buffer, "Char sequence");
+        Objects.requireNonNull(cursor, "Parser cursor");
         final List<HeaderElement> elements = new ArrayList<>();
         while (!cursor.atEnd()) {
             final HeaderElement element = parseHeaderElement(buffer, cursor);
@@ -77,8 +77,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     @Override
     public HeaderElement parseHeaderElement(final CharSequence buffer, final ParserCursor cursor) {
-        Args.notNull(buffer, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
+        Objects.requireNonNull(buffer, "Char sequence");
+        Objects.requireNonNull(cursor, "Parser cursor");
         final NameValuePair nvp = parseNameValuePair(buffer, cursor);
         NameValuePair[] params = null;
         if (!cursor.atEnd()) {
@@ -92,8 +92,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     @Override
     public NameValuePair[] parseParameters(final CharSequence buffer, final ParserCursor cursor) {
-        Args.notNull(buffer, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
+        Objects.requireNonNull(buffer, "Char sequence");
+        Objects.requireNonNull(cursor, "Parser cursor");
         tokenParser.skipWhiteSpace(buffer, cursor);
         final List<NameValuePair> params = new ArrayList<>();
         while (!cursor.atEnd()) {
@@ -109,8 +109,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     @Override
     public NameValuePair parseNameValuePair(final CharSequence buffer, final ParserCursor cursor) {
-        Args.notNull(buffer, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
+        Objects.requireNonNull(buffer, "Char sequence");
+        Objects.requireNonNull(cursor, "Parser cursor");
 
         final String name = tokenParser.parseToken(buffer, cursor, TOKEN_DELIMS);
         if (cursor.atEnd()) {

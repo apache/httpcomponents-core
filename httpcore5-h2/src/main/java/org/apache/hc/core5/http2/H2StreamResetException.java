@@ -26,8 +26,9 @@
  */
 package org.apache.hc.core5.http2;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.http.HttpStreamResetException;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Signals HTTP/2 protocol error that renders the actual HTTP/2 data stream
@@ -41,7 +42,7 @@ public class H2StreamResetException extends HttpStreamResetException {
 
     public H2StreamResetException(final H2Error error, final String message) {
         super(message);
-        Args.notNull(error, "H2 Error code may not be null");
+        Objects.requireNonNull(error, "H2 Error code may not be null");
         this.code = error.getCode();
     }
 

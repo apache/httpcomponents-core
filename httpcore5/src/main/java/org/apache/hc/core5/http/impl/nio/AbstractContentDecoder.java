@@ -31,12 +31,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.ContentDecoder;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Abstract {@link ContentDecoder} that serves as a base for all content
@@ -65,9 +65,9 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
             final SessionInputBuffer buffer,
             final BasicHttpTransportMetrics metrics) {
         super();
-        Args.notNull(channel, "Channel");
-        Args.notNull(buffer, "Session input buffer");
-        Args.notNull(metrics, "Transport metrics");
+        Objects.requireNonNull(channel, "Channel");
+        Objects.requireNonNull(buffer, "Session input buffer");
+        Objects.requireNonNull(metrics, "Transport metrics");
         this.buffer = buffer;
         this.channel = channel;
         this.metrics = metrics;

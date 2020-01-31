@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http2.config;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http2.frame.FrameConsts;
@@ -126,7 +128,7 @@ public class H2Config {
     }
 
     public static H2Config.Builder copy(final H2Config config) {
-        Args.notNull(config, "Connection config");
+        Objects.requireNonNull(config, "Connection config");
         return new Builder()
                 .setHeaderTableSize(config.getHeaderTableSize())
                 .setPushEnabled(config.isPushEnabled())

@@ -29,6 +29,7 @@ package org.apache.hc.core5.reactive;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,7 +42,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.AsyncDataConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.apache.hc.core5.util.Args;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -160,7 +160,7 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
 
     @Override
     public void subscribe(final Subscriber<? super ByteBuffer> subscriber) {
-        this.subscriber = Args.notNull(subscriber, "subscriber");
+        this.subscriber = Objects.requireNonNull(subscriber, "subscriber");
         subscriber.onSubscribe(new Subscription() {
             @Override
             public void request(final long increment) {

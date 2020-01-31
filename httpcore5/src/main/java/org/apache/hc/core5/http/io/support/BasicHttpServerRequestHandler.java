@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.io.support;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -39,7 +40,6 @@ import org.apache.hc.core5.http.impl.io.DefaultClassicHttpResponseFactory;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Basic {@link HttpServerRequestHandler} implementation that makes use of
@@ -56,7 +56,7 @@ public class BasicHttpServerRequestHandler implements HttpServerRequestHandler {
     public BasicHttpServerRequestHandler(
             final HttpRequestMapper<HttpRequestHandler> handlerMapper,
             final HttpResponseFactory<ClassicHttpResponse> responseFactory) {
-        this.handlerMapper = Args.notNull(handlerMapper, "Handler mapper");
+        this.handlerMapper = Objects.requireNonNull(handlerMapper, "Handler mapper");
         this.responseFactory = responseFactory != null ? responseFactory : DefaultClassicHttpResponseFactory.INSTANCE;
     }
 

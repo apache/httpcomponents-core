@@ -29,8 +29,7 @@ package org.apache.hc.core5.http.nio.support.classic;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.hc.core5.util.Args;
+import java.util.Objects;
 
 /**
  * {@link InputStream} adaptor for {@link ContentInputBuffer}.
@@ -43,7 +42,7 @@ public class ContentInputStream extends InputStream {
 
     public ContentInputStream(final ContentInputBuffer buffer) {
         super();
-        Args.notNull(buffer, "Input buffer");
+        Objects.requireNonNull(buffer, "Input buffer");
         this.buffer = buffer;
     }
 

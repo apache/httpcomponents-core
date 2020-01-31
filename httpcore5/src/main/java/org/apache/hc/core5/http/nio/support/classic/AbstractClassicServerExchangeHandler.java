@@ -32,6 +32,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -77,7 +78,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
 
     public AbstractClassicServerExchangeHandler(final int initialBufferSize, final Executor executor) {
         this.initialBufferSize = Args.positive(initialBufferSize, "Initial buffer size");
-        this.executor = Args.notNull(executor, "Executor");
+        this.executor = Objects.requireNonNull(executor, "Executor");
         this.exception = new AtomicReference<>(null);
         this.state = new AtomicReference<>(State.IDLE);
     }

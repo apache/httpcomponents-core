@@ -29,6 +29,7 @@ package org.apache.hc.core5.util;
 
 import java.text.ParseException;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -212,11 +213,11 @@ public class TimeValue implements Comparable<TimeValue> {
     TimeValue(final long duration, final TimeUnit timeUnit) {
         super();
         this.duration = duration;
-        this.timeUnit = Args.notNull(timeUnit, "timeUnit");
+        this.timeUnit = Objects.requireNonNull(timeUnit, "timeUnit");
     }
 
     public long convert(final TimeUnit targetTimeUnit) {
-        Args.notNull(targetTimeUnit, "timeUnit");
+        Objects.requireNonNull(targetTimeUnit, "timeUnit");
         return targetTimeUnit.convert(duration, timeUnit);
     }
 

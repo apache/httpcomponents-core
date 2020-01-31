@@ -27,7 +27,8 @@
 
 package org.apache.hc.core5.http.config;
 
-import org.apache.hc.core5.util.Args;
+import java.util.Objects;
+
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -112,7 +113,7 @@ public class Http1Config {
     }
 
     public static Http1Config.Builder copy(final Http1Config config) {
-        Args.notNull(config, "Config");
+        Objects.requireNonNull(config, "Config");
         return new Builder()
                 .setBufferSize(config.getBufferSize())
                 .setChunkSizeHint(config.getChunkSizeHint())

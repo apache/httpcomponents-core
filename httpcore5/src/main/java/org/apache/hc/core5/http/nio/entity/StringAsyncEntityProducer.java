@@ -28,11 +28,11 @@ package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
 import java.nio.CharBuffer;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.StreamChannel;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
@@ -52,7 +52,7 @@ public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
             final int fragmentSizeHint,
             final ContentType contentType) {
         super(bufferSize, fragmentSizeHint, contentType);
-        Args.notNull(content, "Content");
+        Objects.requireNonNull(content, "Content");
         this.content = CharBuffer.wrap(content);
         this.exception = new AtomicReference<>(null);
     }

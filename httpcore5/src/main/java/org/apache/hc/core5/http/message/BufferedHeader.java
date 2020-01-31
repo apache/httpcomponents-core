@@ -28,10 +28,10 @@
 package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -85,7 +85,7 @@ public class BufferedHeader implements FormattedHeader, Serializable {
 
     BufferedHeader(final CharArrayBuffer buffer, final boolean strict) throws ParseException {
         super();
-        Args.notNull(buffer, "Char array buffer");
+        Objects.requireNonNull(buffer, "Char array buffer");
         final int colon = buffer.indexOf(':');
         if (colon <= 0) {
             throw new ParseException("Invalid header", buffer, 0, buffer.length());

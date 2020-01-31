@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http2.nio.pool;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -47,7 +48,6 @@ import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -70,7 +70,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final Resolver<HttpHost, InetSocketAddress> addressResolver,
             final TlsStrategy tlsStrategy) {
         super();
-        this.connectionInitiator = Args.notNull(connectionInitiator, "Connection initiator");
+        this.connectionInitiator = Objects.requireNonNull(connectionInitiator, "Connection initiator");
         this.addressResolver = addressResolver != null ? addressResolver : DefaultAddressResolver.INSTANCE;
         this.tlsStrategy = tlsStrategy;
     }

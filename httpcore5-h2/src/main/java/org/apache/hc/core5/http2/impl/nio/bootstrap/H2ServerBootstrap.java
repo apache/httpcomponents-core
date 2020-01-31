@@ -28,6 +28,7 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
@@ -237,7 +238,7 @@ public class H2ServerBootstrap {
      */
     public final H2ServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
+        Objects.requireNonNull(supplier, "Supplier");
         handlerList.add(new HandlerEntry<>(null, uriPattern, supplier));
         return this;
     }
@@ -253,7 +254,7 @@ public class H2ServerBootstrap {
     public final H2ServerBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
+        Objects.requireNonNull(supplier, "Supplier");
         handlerList.add(new HandlerEntry<>(hostname, uriPattern, supplier));
         return this;
     }
@@ -308,7 +309,7 @@ public class H2ServerBootstrap {
     public final H2ServerBootstrap addFilterBefore(final String existing, final String name, final AsyncFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
         Args.notBlank(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Objects.requireNonNull(filterHandler, "Filter handler");
         filters.add(new FilterEntry<>(FilterEntry.Postion.BEFORE, name, filterHandler, existing));
         return this;
     }
@@ -319,7 +320,7 @@ public class H2ServerBootstrap {
     public final H2ServerBootstrap addFilterAfter(final String existing, final String name, final AsyncFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
         Args.notBlank(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Objects.requireNonNull(filterHandler, "Filter handler");
         filters.add(new FilterEntry<>(FilterEntry.Postion.AFTER, name, filterHandler, existing));
         return this;
     }
@@ -329,7 +330,7 @@ public class H2ServerBootstrap {
      */
     public final H2ServerBootstrap replaceFilter(final String existing, final AsyncFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
-        Args.notNull(filterHandler, "Filter handler");
+        Objects.requireNonNull(filterHandler, "Filter handler");
         filters.add(new FilterEntry<>(FilterEntry.Postion.REPLACE, existing, filterHandler, existing));
         return this;
     }
@@ -338,8 +339,8 @@ public class H2ServerBootstrap {
      * Add an filter to the head of the processing list.
      */
     public final H2ServerBootstrap addFilterFirst(final String name, final AsyncFilterHandler filterHandler) {
-        Args.notNull(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Objects.requireNonNull(name, "Name");
+        Objects.requireNonNull(filterHandler, "Filter handler");
         filters.add(new FilterEntry<>(FilterEntry.Postion.FIRST, name, filterHandler, null));
         return this;
     }
@@ -348,8 +349,8 @@ public class H2ServerBootstrap {
      * Add an filter to the tail of the processing list.
      */
     public final H2ServerBootstrap addFilterLast(final String name, final AsyncFilterHandler filterHandler) {
-        Args.notNull(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Objects.requireNonNull(name, "Name");
+        Objects.requireNonNull(filterHandler, "Filter handler");
         filters.add(new FilterEntry<>(FilterEntry.Postion.LAST, name, filterHandler, null));
         return this;
     }

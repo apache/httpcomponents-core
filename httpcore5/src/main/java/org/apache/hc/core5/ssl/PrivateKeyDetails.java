@@ -28,8 +28,7 @@ package org.apache.hc.core5.ssl;
 
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-
-import org.apache.hc.core5.util.Args;
+import java.util.Objects;
 
 /**
  * Private key details.
@@ -43,7 +42,7 @@ public final class PrivateKeyDetails {
 
     public PrivateKeyDetails(final String type, final X509Certificate[] certChain) {
         super();
-        this.type = Args.notNull(type, "Private key type");
+        this.type = Objects.requireNonNull(type, "Private key type");
         this.certChain = certChain;
     }
 

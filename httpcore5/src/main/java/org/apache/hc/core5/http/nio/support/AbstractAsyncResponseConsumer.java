@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -43,7 +44,6 @@ import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Abstract asynchronous response consumer that makes use of {@link AsyncEntityConsumer}
@@ -60,7 +60,7 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
     private final AtomicReference<AsyncEntityConsumer<E>> dataConsumerRef;
 
     public AbstractAsyncResponseConsumer(final Supplier<AsyncEntityConsumer<E>> dataConsumerSupplier) {
-        this.dataConsumerSupplier = Args.notNull(dataConsumerSupplier, "Data consumer supplier");
+        this.dataConsumerSupplier = Objects.requireNonNull(dataConsumerSupplier, "Data consumer supplier");
         this.dataConsumerRef = new AtomicReference<>(null);
     }
 

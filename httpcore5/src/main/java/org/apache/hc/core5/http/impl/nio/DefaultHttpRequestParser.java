@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.nio;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -38,7 +39,6 @@ import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -66,7 +66,7 @@ public class DefaultHttpRequestParser<T extends HttpRequest> extends AbstractMes
             final LineParser parser,
             final Http1Config http1Config) {
         super(parser, http1Config);
-        this.requestFactory = Args.notNull(requestFactory, "Request factory");
+        this.requestFactory = Objects.requireNonNull(requestFactory, "Request factory");
     }
 
     /**

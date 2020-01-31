@@ -27,11 +27,12 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -54,8 +55,8 @@ public class BasicLineFormatter implements LineFormatter {
 
     @Override
     public void formatRequestLine(final CharArrayBuffer buffer, final RequestLine reqline) {
-        Args.notNull(buffer, "Char array buffer");
-        Args.notNull(reqline, "Request line");
+        Objects.requireNonNull(buffer, "Char array buffer");
+        Objects.requireNonNull(reqline, "Request line");
         buffer.append(reqline.getMethod());
         buffer.append(' ');
         buffer.append(reqline.getUri());
@@ -65,8 +66,8 @@ public class BasicLineFormatter implements LineFormatter {
 
     @Override
     public void formatStatusLine(final CharArrayBuffer buffer, final StatusLine statusLine) {
-        Args.notNull(buffer, "Char array buffer");
-        Args.notNull(statusLine, "Status line");
+        Objects.requireNonNull(buffer, "Char array buffer");
+        Objects.requireNonNull(statusLine, "Status line");
 
         formatProtocolVersion(buffer, statusLine.getProtocolVersion());
         buffer.append(' ');
@@ -80,8 +81,8 @@ public class BasicLineFormatter implements LineFormatter {
 
     @Override
     public void formatHeader(final CharArrayBuffer buffer, final Header header) {
-        Args.notNull(buffer, "Char array buffer");
-        Args.notNull(header, "Header");
+        Objects.requireNonNull(buffer, "Char array buffer");
+        Objects.requireNonNull(header, "Header");
 
         buffer.append(header.getName());
         buffer.append(": ");

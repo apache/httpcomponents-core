@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 
 /**
@@ -88,7 +89,7 @@ public class VersionInfo {
      */
     protected VersionInfo(final String pckg, final String module,
                           final String release, final String time, final String clsldr) {
-        Args.notNull(pckg, "Package identifier");
+        Objects.requireNonNull(pckg, "Package identifier");
         infoPackage     = pckg;
         infoModule      = (module  != null) ? module  : UNAVAILABLE;
         infoRelease     = (release != null) ? release : UNAVAILABLE;
@@ -196,7 +197,7 @@ public class VersionInfo {
      */
     public static VersionInfo[] loadVersionInfo(final String[] pckgs,
                                                       final ClassLoader clsldr) {
-        Args.notNull(pckgs, "Package identifier array");
+        Objects.requireNonNull(pckgs, "Package identifier array");
         final List<VersionInfo> vil = new ArrayList<>(pckgs.length);
         for (final String pckg : pckgs) {
             final VersionInfo vi = loadVersionInfo(pckg, clsldr);
@@ -222,7 +223,7 @@ public class VersionInfo {
      *          {@code null} if not available
      */
     public static VersionInfo loadVersionInfo(final String pckg, final ClassLoader clsldr) {
-        Args.notNull(pckg, "Package identifier");
+        Objects.requireNonNull(pckg, "Package identifier");
         final ClassLoader cl = clsldr != null ? clsldr : Thread.currentThread().getContextClassLoader();
 
         Properties vip = null; // version info properties, if available
@@ -260,7 +261,7 @@ public class VersionInfo {
      */
     protected static VersionInfo fromMap(final String pckg, final Map<?, ?> info,
                                                final ClassLoader clsldr) {
-        Args.notNull(pckg, "Package identifier");
+        Objects.requireNonNull(pckg, "Package identifier");
         String module = null;
         String release = null;
         String timestamp = null;

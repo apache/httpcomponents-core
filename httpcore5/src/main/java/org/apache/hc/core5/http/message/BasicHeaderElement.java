@@ -27,9 +27,10 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Basic implementation of {@link HeaderElement}
@@ -57,7 +58,7 @@ public class BasicHeaderElement implements HeaderElement {
             final String value,
             final NameValuePair[] parameters) {
         super();
-        this.name = Args.notNull(name, "Name");
+        this.name = Objects.requireNonNull(name, "Name");
         this.value = value;
         if (parameters != null) {
             this.parameters = parameters;
@@ -104,7 +105,7 @@ public class BasicHeaderElement implements HeaderElement {
 
     @Override
     public NameValuePair getParameterByName(final String name) {
-        Args.notNull(name, "Name");
+        Objects.requireNonNull(name, "Name");
         NameValuePair found = null;
         for (final NameValuePair current : this.parameters) {
             if (current.getName().equalsIgnoreCase(name)) {

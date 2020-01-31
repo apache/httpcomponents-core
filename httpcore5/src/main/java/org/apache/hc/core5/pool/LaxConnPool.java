@@ -29,6 +29,7 @@ package org.apache.hc.core5.pool;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -156,7 +157,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             final T route, final Object state,
             final Timeout requestTimeout,
             final FutureCallback<PoolEntry<T, C>> callback) {
-        Args.notNull(route, "Route");
+        Objects.requireNonNull(route, "Route");
         Asserts.check(!isShutDown.get(), "Connection pool shut down");
         final PerRoutePool<T, C> routePool = getPool(route);
         return routePool.lease(state, requestTimeout, callback);
@@ -206,14 +207,14 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
     @Override
     public void setMaxPerRoute(final T route, final int max) {
-        Args.notNull(route, "Route");
+        Objects.requireNonNull(route, "Route");
         final PerRoutePool<T, C> routePool = getPool(route);
         routePool.setMax(max > -1 ? max : defaultMaxPerRoute);
     }
 
     @Override
     public int getMaxPerRoute(final T route) {
-        Args.notNull(route, "Route");
+        Objects.requireNonNull(route, "Route");
         final PerRoutePool<T, C> routePool = getPool(route);
         return routePool.getMax();
     }
@@ -235,7 +236,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
     @Override
     public PoolStats getStats(final T route) {
-        Args.notNull(route, "Route");
+        Objects.requireNonNull(route, "Route");
         final PerRoutePool<T, C> routePool = getPool(route);
         return new PoolStats(
                 routePool.getLeasedCount(),

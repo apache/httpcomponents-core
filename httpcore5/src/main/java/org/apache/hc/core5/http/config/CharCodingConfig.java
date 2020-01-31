@@ -30,10 +30,10 @@ package org.apache.hc.core5.http.config;
 import java.nio.charset.Charset;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.util.Args;
 
 /**
  * HTTP/1.1 char coding configuration.
@@ -86,7 +86,7 @@ public class CharCodingConfig {
     }
 
     public static CharCodingConfig.Builder copy(final CharCodingConfig config) {
-        Args.notNull(config, "Config");
+        Objects.requireNonNull(config, "Config");
         return new Builder()
             .setCharset(config.getCharset())
             .setMalformedInputAction(config.getMalformedInputAction())

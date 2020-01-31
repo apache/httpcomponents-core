@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -42,7 +43,6 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.MessageSupport;
-import org.apache.hc.core5.util.Args;
 
 /**
  * RequestContent is the most important interceptor for outgoing requests.
@@ -87,7 +87,7 @@ public class RequestContent implements HttpRequestInterceptor {
     @Override
     public void process(final HttpRequest request, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
-        Args.notNull(request, "HTTP request");
+        Objects.requireNonNull(request, "HTTP request");
         final String method = request.getMethod();
         if (Method.TRACE.isSame(method) && entity != null) {
             throw new ProtocolException("TRACE request may not enclose an entity");

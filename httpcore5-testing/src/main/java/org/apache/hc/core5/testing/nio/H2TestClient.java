@@ -28,6 +28,7 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
@@ -50,7 +51,6 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 public class H2TestClient extends AsyncRequester {
@@ -77,8 +77,8 @@ public class H2TestClient extends AsyncRequester {
     }
 
     public void register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
-        Args.notNull(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
+        Objects.requireNonNull(uriPattern, "URI pattern");
+        Objects.requireNonNull(supplier, "Supplier");
         registry.register(null, uriPattern, supplier);
     }
 

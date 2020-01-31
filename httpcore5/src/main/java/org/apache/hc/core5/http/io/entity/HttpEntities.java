@@ -37,6 +37,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
@@ -47,7 +48,6 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.io.IOCallback;
 import org.apache.hc.core5.net.URLEncodedUtils;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {HttpEntity} factory methods.
@@ -115,7 +115,7 @@ public final class HttpEntities {
 
             @Override
             public void writeTo(final OutputStream outStream) throws IOException {
-                Args.notNull(outStream, "Output stream");
+                Objects.requireNonNull(outStream, "Output stream");
                 final GZIPOutputStream gzip = new GZIPOutputStream(outStream);
                 super.writeTo(gzip);
                 // Only close output stream if the wrapped entity has been

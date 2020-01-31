@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.http.nio.support;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpException;
@@ -36,7 +38,6 @@ import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Factory for {@link AsyncServerExchangeHandler} instances that make use
@@ -53,7 +54,7 @@ public final class DefaultAsyncResponseExchangeHandlerFactory implements Handler
     public DefaultAsyncResponseExchangeHandlerFactory(
             final HttpRequestMapper<Supplier<AsyncServerExchangeHandler>> mapper,
             final Decorator<AsyncServerExchangeHandler> decorator) {
-        this.mapper = Args.notNull(mapper, "Request handler mapper");
+        this.mapper = Objects.requireNonNull(mapper, "Request handler mapper");
         this.decorator = decorator;
     }
 

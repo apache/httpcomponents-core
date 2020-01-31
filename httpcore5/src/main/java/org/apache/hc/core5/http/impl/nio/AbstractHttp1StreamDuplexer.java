@@ -35,6 +35,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.net.ssl.SSLSession;
@@ -74,7 +75,6 @@ import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Identifiable;
 import org.apache.hc.core5.util.Timeout;
 
@@ -113,7 +113,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy) {
-        this.ioSession = Args.notNull(ioSession, "I/O session");
+        this.ioSession = Objects.requireNonNull(ioSession, "I/O session");
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         final int bufferSize = this.http1Config.getBufferSize();
         this.inbuf = new SessionInputBufferImpl(bufferSize, bufferSize < 512 ? bufferSize : 512,

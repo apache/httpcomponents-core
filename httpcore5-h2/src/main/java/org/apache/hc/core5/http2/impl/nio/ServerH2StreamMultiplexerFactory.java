@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http2.impl.nio;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -37,7 +39,6 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.DefaultFrameFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link ServerH2StreamMultiplexer} factory.
@@ -60,8 +61,8 @@ public final class ServerH2StreamMultiplexerFactory {
             final H2Config h2Config,
             final CharCodingConfig charCodingConfig,
             final H2StreamListener streamListener) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
+        this.httpProcessor = Objects.requireNonNull(httpProcessor, "HTTP processor");
+        this.exchangeHandlerFactory = Objects.requireNonNull(exchangeHandlerFactory, "Exchange handler factory");
         this.h2Config = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.streamListener = streamListener;

@@ -31,12 +31,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.ContentEncoder;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
@@ -66,9 +66,9 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
             final SessionOutputBuffer buffer,
             final BasicHttpTransportMetrics metrics) {
         super();
-        Args.notNull(channel, "Channel");
-        Args.notNull(buffer, "Session input buffer");
-        Args.notNull(metrics, "Transport metrics");
+        Objects.requireNonNull(channel, "Channel");
+        Objects.requireNonNull(buffer, "Session input buffer");
+        Objects.requireNonNull(metrics, "Transport metrics");
         this.buffer = buffer;
         this.channel = channel;
         this.metrics = metrics;

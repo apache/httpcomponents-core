@@ -28,6 +28,7 @@ package org.apache.hc.core5.reactor;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -43,7 +44,6 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -124,7 +124,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
             final T endpoint,
             final Timeout connectTimeout,
             final FutureCallback<IOSession> callback) {
-        Args.notNull(endpoint, "Endpoint");
+        Objects.requireNonNull(endpoint, "Endpoint");
         Asserts.check(!closed.get(), "Connection pool shut down");
         final ComplexFuture<IOSession> future = new ComplexFuture<>(callback);
         final PoolEntry poolEntry = getPoolEntry(endpoint);

@@ -30,9 +30,9 @@ package org.apache.hc.core5.http.io.entity;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.util.Args;
 
 /**
  * A streamed, non-repeatable entity that obtains its content from an {@link InputStream}.
@@ -47,7 +47,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
     public InputStreamEntity(
             final InputStream inStream, final long length, final ContentType contentType, final String contentEncoding) {
         super(contentType, contentEncoding);
-        this.content = Args.notNull(inStream, "Source input stream");
+        this.content = Objects.requireNonNull(inStream, "Source input stream");
         this.length = length;
     }
 
@@ -86,7 +86,7 @@ public class InputStreamEntity extends AbstractHttpEntity {
      */
     @Override
     public final void writeTo(final OutputStream outStream) throws IOException {
-        Args.notNull(outStream, "Output stream");
+        Objects.requireNonNull(outStream, "Output stream");
         try (final InputStream inStream = this.content) {
             final byte[] buffer = new byte[OUTPUT_BUFFER_SIZE];
             int readLen;

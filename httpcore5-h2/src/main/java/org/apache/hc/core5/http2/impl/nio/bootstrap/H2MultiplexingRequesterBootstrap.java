@@ -28,6 +28,7 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
@@ -176,7 +177,7 @@ public class H2MultiplexingRequesterBootstrap {
      */
     public final H2MultiplexingRequesterBootstrap register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
+        Objects.requireNonNull(supplier, "Supplier");
         pushConsumerList.add(new HandlerEntry<>(null, uriPattern, supplier));
         return this;
     }
@@ -192,7 +193,7 @@ public class H2MultiplexingRequesterBootstrap {
     public final H2MultiplexingRequesterBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
+        Objects.requireNonNull(supplier, "Supplier");
         pushConsumerList.add(new HandlerEntry<>(hostname, uriPattern, supplier));
         return this;
     }

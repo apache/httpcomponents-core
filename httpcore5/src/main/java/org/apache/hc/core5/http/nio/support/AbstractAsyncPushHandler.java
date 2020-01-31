@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.support;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.EntityDetails;
@@ -40,7 +41,6 @@ import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Abstract push response handler.
@@ -54,7 +54,7 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
     private final AsyncResponseConsumer<T> responseConsumer;
 
     public AbstractAsyncPushHandler(final AsyncResponseConsumer<T> responseConsumer) {
-        this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
+        this.responseConsumer = Objects.requireNonNull(responseConsumer, "Response consumer");
     }
 
     /**

@@ -30,6 +30,7 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.channels.SocketChannel;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
@@ -39,7 +40,6 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
@@ -81,7 +81,7 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
-        Args.notNull(eventHandlerFactory, "Event handler factory");
+        Objects.requireNonNull(eventHandlerFactory, "Event handler factory");
         this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
         this.workers = new SingleCoreIOReactor[workerCount];
         final Thread[] threads = new Thread[workerCount + 1];

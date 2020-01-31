@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.message;
 
 import java.util.BitSet;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -35,7 +36,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
 
@@ -147,7 +147,7 @@ public class BasicLineParser implements LineParser {
      */
     @Override
     public RequestLine parseRequestLine(final CharArrayBuffer buffer) throws ParseException {
-        Args.notNull(buffer, "Char array buffer");
+        Objects.requireNonNull(buffer, "Char array buffer");
 
         final ParserCursor cursor = new ParserCursor(0, buffer.length());
         this.tokenParser.skipWhiteSpace(buffer, cursor);
@@ -173,7 +173,7 @@ public class BasicLineParser implements LineParser {
 
     @Override
     public StatusLine parseStatusLine(final CharArrayBuffer buffer) throws ParseException {
-        Args.notNull(buffer, "Char array buffer");
+        Objects.requireNonNull(buffer, "Char array buffer");
 
         final ParserCursor cursor = new ParserCursor(0, buffer.length());
         this.tokenParser.skipWhiteSpace(buffer, cursor);
@@ -199,7 +199,7 @@ public class BasicLineParser implements LineParser {
 
     @Override
     public Header parseHeader(final CharArrayBuffer buffer) throws ParseException {
-        Args.notNull(buffer, "Char array buffer");
+        Objects.requireNonNull(buffer, "Char array buffer");
 
         final ParserCursor cursor = new ParserCursor(0, buffer.length());
         this.tokenParser.skipWhiteSpace(buffer, cursor);

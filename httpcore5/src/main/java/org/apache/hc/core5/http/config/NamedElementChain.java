@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.config;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -58,7 +60,7 @@ public class NamedElementChain<E> {
 
     public Node addFirst(final E value, final String name) {
         Args.notBlank(name, "Name");
-        Args.notNull(value, "Value");
+        Objects.requireNonNull(value, "Value");
         final Node newNode = new Node(name, value);
         final Node oldNode = master.next;
         master.next = newNode;
@@ -71,7 +73,7 @@ public class NamedElementChain<E> {
 
     public Node addLast(final E value, final String name) {
         Args.notBlank(name, "Name");
-        Args.notNull(value, "Value");
+        Objects.requireNonNull(value, "Value");
         final Node newNode = new Node(name, value);
         final Node oldNode = master.previous;
         master.previous = newNode;
@@ -100,7 +102,7 @@ public class NamedElementChain<E> {
 
     public Node addBefore(final String existing, final E value, final String name) {
         Args.notBlank(name, "Name");
-        Args.notNull(value, "Value");
+        Objects.requireNonNull(value, "Value");
         final Node current = doFind(existing);
         if (current == null) {
             return null;
@@ -117,7 +119,7 @@ public class NamedElementChain<E> {
 
     public Node addAfter(final String existing, final E value, final String name) {
         Args.notBlank(name, "Name");
-        Args.notNull(value, "Value");
+        Objects.requireNonNull(value, "Value");
         final Node current = doFind(existing);
         if (current == null) {
             return null;

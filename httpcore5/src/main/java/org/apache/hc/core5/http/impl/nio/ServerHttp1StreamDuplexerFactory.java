@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -45,7 +47,6 @@ import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link ServerHttp1StreamDuplexer} factory.
@@ -78,8 +79,8 @@ public final class ServerHttp1StreamDuplexerFactory {
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final Http1StreamListener streamListener) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
+        this.httpProcessor = Objects.requireNonNull(httpProcessor, "HTTP processor");
+        this.exchangeHandlerFactory = Objects.requireNonNull(exchangeHandlerFactory, "Exchange handler factory");
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :

@@ -29,13 +29,13 @@ package org.apache.hc.core5.http.io.entity;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 import org.apache.hc.core5.io.Closer;
-import org.apache.hc.core5.util.Args;
 
 /**
  * A generic streamed, non-repeatable entity that obtains its content from an {@link InputStream}.
@@ -52,7 +52,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
             final InputStream content, final long length, final ContentType contentType, final String contentEncoding,
             final boolean chunked) {
         super(contentType, contentEncoding, chunked);
-        this.content = Args.notNull(content, "Content stream");
+        this.content = Objects.requireNonNull(content, "Content stream");
         this.length = length;
     }
 

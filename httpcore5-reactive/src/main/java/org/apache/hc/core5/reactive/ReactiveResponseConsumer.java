@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -44,7 +45,6 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 import org.reactivestreams.Publisher;
 
 /**
@@ -81,7 +81,7 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
      * @param responseCallback the callback to invoke when the response is available for consumption.
      */
     public ReactiveResponseConsumer(final FutureCallback<Message<HttpResponse, Publisher<ByteBuffer>>> responseCallback) {
-        this.responseFuture = new BasicFuture<>(Args.notNull(responseCallback, "responseCallback"));
+        this.responseFuture = new BasicFuture<>(Objects.requireNonNull(responseCallback, "responseCallback"));
     }
 
     public Future<Message<HttpResponse, Publisher<ByteBuffer>>> getResponseFuture() {

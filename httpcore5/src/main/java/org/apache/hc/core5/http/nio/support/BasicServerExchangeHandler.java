@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http.nio.support;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
@@ -34,7 +35,6 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Basic {@link AbstractServerExchangeHandler} implementation that delegates
@@ -48,7 +48,7 @@ public class BasicServerExchangeHandler<T> extends AbstractServerExchangeHandler
 
     public BasicServerExchangeHandler(final AsyncServerRequestHandler<T> requestHandler) {
         super();
-        this.requestHandler = Args.notNull(requestHandler, "Response handler");
+        this.requestHandler = Objects.requireNonNull(requestHandler, "Response handler");
     }
 
     @Override

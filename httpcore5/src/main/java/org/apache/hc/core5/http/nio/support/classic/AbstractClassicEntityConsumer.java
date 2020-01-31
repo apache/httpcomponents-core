@@ -32,6 +32,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -42,7 +43,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link AsyncEntityConsumer} implementation that acts as a compatibility
@@ -64,7 +64,7 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
     private final AtomicReference<Exception> exceptionRef;
 
     public AbstractClassicEntityConsumer(final int initialBufferSize, final Executor executor) {
-        this.executor = Args.notNull(executor, "Executor");
+        this.executor = Objects.requireNonNull(executor, "Executor");
         this.buffer = new SharedInputBuffer(initialBufferSize);
         this.state = new AtomicReference<>(State.IDLE);
         this.resultRef = new AtomicReference<>(null);

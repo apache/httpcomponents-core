@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Objects;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Internal;
@@ -48,7 +49,6 @@ import org.apache.hc.core5.reactor.IOReactorService;
 import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -92,8 +92,8 @@ public class AsyncRequester extends AbstractConnectionInitiatorBase implements I
             final Timeout timeout,
             final Object attachment,
             final FutureCallback<IOSession> callback) {
-        Args.notNull(host, "Host");
-        Args.notNull(timeout, "Timeout");
+        Objects.requireNonNull(host, "Host");
+        Objects.requireNonNull(timeout, "Timeout");
         return connect(host, addressResolver.resolve(host), null, timeout, attachment, callback);
     }
 

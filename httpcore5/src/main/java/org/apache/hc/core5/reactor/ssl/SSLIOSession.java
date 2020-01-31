@@ -34,6 +34,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
@@ -54,7 +55,6 @@ import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
@@ -119,8 +119,8 @@ public class SSLIOSession implements IOSession {
             final Callback<SSLIOSession> disconnectedCallback,
             final Timeout connectTimeout) {
         super();
-        Args.notNull(session, "IO session");
-        Args.notNull(sslContext, "SSL context");
+        Objects.requireNonNull(session, "IO session");
+        Objects.requireNonNull(sslContext, "SSL context");
         this.targetEndpoint = targetEndpoint;
         this.session = session;
         this.sslMode = sslMode;
@@ -575,7 +575,7 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public int write(final ByteBuffer src) throws IOException {
-        Args.notNull(src, "Byte buffer");
+        Objects.requireNonNull(src, "Byte buffer");
         this.session.getLock().lock();
         try {
             if (this.status != Status.ACTIVE) {

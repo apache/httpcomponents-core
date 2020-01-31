@@ -28,12 +28,12 @@
 package org.apache.hc.core5.http.message;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Abstract {@link HttpMessage} wrapper.
@@ -43,7 +43,7 @@ public abstract class AbstractMessageWrapper implements HttpMessage {
     private final HttpMessage message;
 
     public AbstractMessageWrapper(final HttpMessage message) {
-        this.message = Args.notNull(message, "Message");
+        this.message = Objects.requireNonNull(message, "Message");
     }
 
     @Override

@@ -35,6 +35,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.Header;
@@ -317,21 +318,21 @@ public final class HPackEncoder {
 
     public void encodeHeader(
             final ByteArrayBuffer dst, final Header header) throws CharacterCodingException {
-        Args.notNull(dst, "ByteArrayBuffer");
-        Args.notNull(header, "Header");
+        Objects.requireNonNull(dst, "ByteArrayBuffer");
+        Objects.requireNonNull(header, "Header");
         encodeHeader(dst, header.getName(), header.getValue(), header.isSensitive());
     }
 
     public void encodeHeader(
             final ByteArrayBuffer dst, final String name, final String value, final boolean sensitive) throws CharacterCodingException {
-        Args.notNull(dst, "ByteArrayBuffer");
+        Objects.requireNonNull(dst, "ByteArrayBuffer");
         Args.notEmpty(name, "Header name");
         encodeHeader(dst, name, value, sensitive, false, true);
     }
 
     public void encodeHeaders(
             final ByteArrayBuffer dst, final List<? extends Header> headers, final boolean useHuffman) throws CharacterCodingException {
-        Args.notNull(dst, "ByteArrayBuffer");
+        Objects.requireNonNull(dst, "ByteArrayBuffer");
         Args.notEmpty(headers, "Header list");
         encodeHeaders(dst, headers, false, useHuffman);
     }

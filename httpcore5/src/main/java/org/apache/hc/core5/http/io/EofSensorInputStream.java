@@ -28,8 +28,7 @@ package org.apache.hc.core5.http.io;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.apache.hc.core5.util.Args;
+import java.util.Objects;
 
 /**
  * A stream wrapper that triggers actions on {@link #close close()} and EOF.
@@ -79,7 +78,7 @@ public class EofSensorInputStream extends InputStream {
      */
     public EofSensorInputStream(final InputStream in,
                                 final EofSensorWatcher watcher) {
-        Args.notNull(in, "Wrapped stream");
+        Objects.requireNonNull(in, "Wrapped stream");
         wrappedStream = in;
         selfClosed = false;
         eofWatcher = watcher;

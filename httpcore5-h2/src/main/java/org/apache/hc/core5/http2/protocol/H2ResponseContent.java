@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http2.protocol;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -38,7 +39,6 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.ResponseContent;
-import org.apache.hc.core5.util.Args;
 
 /**
  * HTTP/2 compatible extension of {@link ResponseContent}.
@@ -61,7 +61,7 @@ public class H2ResponseContent extends ResponseContent {
             final HttpResponse response,
             final EntityDetails entity,
             final HttpContext context) throws HttpException, IOException {
-        Args.notNull(context, "HTTP context");
+        Objects.requireNonNull(context, "HTTP context");
         final ProtocolVersion ver = context.getProtocolVersion();
         if (ver.getMajor() < 2) {
             super.process(response, entity, context);

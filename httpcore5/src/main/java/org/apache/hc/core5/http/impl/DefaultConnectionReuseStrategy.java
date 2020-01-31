@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -43,7 +44,6 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicTokenIterator;
 import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Default implementation of a strategy deciding about connection re-use. The strategy
@@ -78,7 +78,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
     @Override
     public boolean keepAlive(
             final HttpRequest request, final HttpResponse response, final HttpContext context) {
-        Args.notNull(response, "HTTP response");
+        Objects.requireNonNull(response, "HTTP response");
 
         if (request != null) {
             final Iterator<String> ti = new BasicTokenIterator(request.headerIterator(HttpHeaders.CONNECTION));

@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
@@ -76,8 +77,8 @@ public class ContentLengthOutputStream extends OutputStream {
      */
     public ContentLengthOutputStream(final SessionOutputBuffer buffer, final OutputStream outputStream, final long contentLength) {
         super();
-        this.buffer = Args.notNull(buffer, "Session output buffer");
-        this.outputStream = Args.notNull(outputStream, "Output stream");
+        this.buffer = Objects.requireNonNull(buffer, "Session output buffer");
+        this.outputStream = Objects.requireNonNull(outputStream, "Output stream");
         this.contentLength = Args.notNegative(contentLength, "Content length");
     }
 

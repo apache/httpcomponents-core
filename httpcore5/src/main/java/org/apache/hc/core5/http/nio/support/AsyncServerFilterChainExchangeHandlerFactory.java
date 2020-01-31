@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.nio.support;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.EntityDetails;
@@ -48,7 +49,6 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
@@ -62,7 +62,7 @@ public final class AsyncServerFilterChainExchangeHandlerFactory implements Handl
     private final AsyncServerFilterChainElement filterChain;
 
     public AsyncServerFilterChainExchangeHandlerFactory(final AsyncServerFilterChainElement filterChain) {
-        this.filterChain = Args.notNull(filterChain, "Filter chain");
+        this.filterChain = Objects.requireNonNull(filterChain, "Filter chain");
     }
 
     @Override

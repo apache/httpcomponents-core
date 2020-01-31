@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Future;
 
@@ -73,7 +74,6 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -124,9 +124,9 @@ public class H2MultiplexingRequester extends AsyncRequester{
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Timeout timeout,
             final HttpContext context) {
-        Args.notNull(exchangeHandler, "Exchange handler");
-        Args.notNull(timeout, "Timeout");
-        Args.notNull(context, "Context");
+        Objects.requireNonNull(exchangeHandler, "Exchange handler");
+        Objects.requireNonNull(timeout, "Timeout");
+        Objects.requireNonNull(context, "Context");
         final CancellableExecution cancellableExecution = new CancellableExecution();
         execute(exchangeHandler, pushHandlerFactory, cancellableExecution, timeout, context);
         return cancellableExecution;
@@ -145,9 +145,9 @@ public class H2MultiplexingRequester extends AsyncRequester{
             final CancellableDependency cancellableDependency,
             final Timeout timeout,
             final HttpContext context) {
-        Args.notNull(exchangeHandler, "Exchange handler");
-        Args.notNull(timeout, "Timeout");
-        Args.notNull(context, "Context");
+        Objects.requireNonNull(exchangeHandler, "Exchange handler");
+        Objects.requireNonNull(timeout, "Timeout");
+        Objects.requireNonNull(context, "Context");
         try {
             exchangeHandler.produceRequest(new RequestChannel() {
 
@@ -256,9 +256,9 @@ public class H2MultiplexingRequester extends AsyncRequester{
             final Timeout timeout,
             final HttpContext context,
             final FutureCallback<T> callback) {
-        Args.notNull(requestProducer, "Request producer");
-        Args.notNull(responseConsumer, "Response consumer");
-        Args.notNull(timeout, "Timeout");
+        Objects.requireNonNull(requestProducer, "Request producer");
+        Objects.requireNonNull(responseConsumer, "Response consumer");
+        Objects.requireNonNull(timeout, "Timeout");
         final ComplexFuture<T> future = new ComplexFuture<>(callback);
         final AsyncClientExchangeHandler exchangeHandler = new BasicClientExchangeHandler<>(requestProducer, responseConsumer, new FutureCallback<T>() {
 

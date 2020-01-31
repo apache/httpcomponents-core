@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.config;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.hc.core5.util.Args;
 
@@ -53,7 +54,7 @@ public final class RegistryBuilder<I> {
 
     public RegistryBuilder<I> register(final String id, final I item) {
         Args.notEmpty(id, "ID");
-        Args.notNull(item, "Item");
+        Objects.requireNonNull(item, "Item");
         items.put(id.toLowerCase(Locale.ROOT), item);
         return this;
     }

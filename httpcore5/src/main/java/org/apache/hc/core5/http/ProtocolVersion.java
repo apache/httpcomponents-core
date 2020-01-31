@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -68,7 +69,7 @@ public class ProtocolVersion implements Serializable {
      * @param minor      the minor version number of the protocol
      */
     public ProtocolVersion(final String protocol, final int major, final int minor) {
-        this.protocol = Args.notNull(protocol, "Protocol name");
+        this.protocol = Objects.requireNonNull(protocol, "Protocol name");
         this.major = Args.notNegative(major, "Protocol minor version");
         this.minor = Args.notNegative(minor, "Protocol minor version");
     }
@@ -199,7 +200,7 @@ public class ProtocolVersion implements Serializable {
      *         or if the argument is {@code null}
      */
     public int compareToVersion(final ProtocolVersion that) {
-        Args.notNull(that, "Protocol version");
+        Objects.requireNonNull(that, "Protocol version");
         Args.check(this.protocol.equals(that.protocol),
                 "Versions for different protocols cannot be compared: %s %s", this, that);
         int delta = getMajor() - that.getMajor();

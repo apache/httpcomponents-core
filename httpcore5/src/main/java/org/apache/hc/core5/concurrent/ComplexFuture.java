@@ -26,10 +26,9 @@
  */
 package org.apache.hc.core5.concurrent;
 
+import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link Future} whose result depends on another {@link Cancellable} process
@@ -50,7 +49,7 @@ public final class ComplexFuture<T> extends BasicFuture<T> implements Cancellabl
 
     @Override
     public void setDependency(final Cancellable dependency) {
-        Args.notNull(dependency, "dependency");
+        Objects.requireNonNull(dependency, "dependency");
         if (isDone()) {
             dependency.cancel();
         } else {
@@ -59,7 +58,7 @@ public final class ComplexFuture<T> extends BasicFuture<T> implements Cancellabl
     }
 
     public void setDependency(final Future<?> dependency) {
-        Args.notNull(dependency, "dependency");
+        Objects.requireNonNull(dependency, "dependency");
         if (dependency instanceof Cancellable) {
             setDependency((Cancellable) dependency);
         } else {

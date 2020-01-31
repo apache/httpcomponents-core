@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.io.support;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -39,7 +40,6 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link HttpServerRequestHandler} implementation that adds support
@@ -53,7 +53,7 @@ public class BasicHttpServerExpectationDecorator implements HttpServerRequestHan
     private final HttpServerRequestHandler requestHandler;
 
     public BasicHttpServerExpectationDecorator(final HttpServerRequestHandler requestHandler) {
-        this.requestHandler = Args.notNull(requestHandler, "Request handler");
+        this.requestHandler = Objects.requireNonNull(requestHandler, "Request handler");
     }
 
     /**

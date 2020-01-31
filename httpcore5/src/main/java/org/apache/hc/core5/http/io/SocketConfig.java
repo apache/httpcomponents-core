@@ -28,11 +28,11 @@
 package org.apache.hc.core5.http.io;
 
 import java.net.SocketAddress;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -165,7 +165,7 @@ public class SocketConfig {
     }
 
     public static SocketConfig.Builder copy(final SocketConfig config) {
-        Args.notNull(config, "Socket config");
+        Objects.requireNonNull(config, "Socket config");
         return new Builder()
             .setSoTimeout(config.getSoTimeout())
             .setSoReuseAddress(config.isSoReuseAddress())

@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -58,7 +59,6 @@ import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@code HttpService} is a server side HTTP protocol handler based on
@@ -140,8 +140,8 @@ public class HttpService {
             final ConnectionReuseStrategy connReuseStrategy,
             final Http1StreamListener streamListener) {
         super();
-        this.processor =  Args.notNull(processor, "HTTP processor");
-        this.requestHandler =  Args.notNull(requestHandler, "Request handler");
+        this.processor =  Objects.requireNonNull(processor, "HTTP processor");
+        this.requestHandler =  Objects.requireNonNull(requestHandler, "Request handler");
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy : DefaultConnectionReuseStrategy.INSTANCE;
         this.streamListener = streamListener;
     }

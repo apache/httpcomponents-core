@@ -34,11 +34,11 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.util.Args;
 
 /**
  * A streamed entity that obtains its content from a {@link Serializable}.
@@ -60,7 +60,7 @@ public class SerializableEntity extends AbstractHttpEntity {
     public SerializableEntity(
             final Serializable serializable, final ContentType contentType, final String contentEncoding) {
         super(contentType, contentEncoding);
-        this.serializable = Args.notNull(serializable, "Source object");
+        this.serializable = Objects.requireNonNull(serializable, "Source object");
     }
 
     /**
@@ -97,7 +97,7 @@ public class SerializableEntity extends AbstractHttpEntity {
 
     @Override
     public final void writeTo(final OutputStream outStream) throws IOException {
-        Args.notNull(outStream, "Output stream");
+        Objects.requireNonNull(outStream, "Output stream");
         final ObjectOutputStream out = new ObjectOutputStream(outStream);
         out.writeObject(this.serializable);
         out.flush();

@@ -31,13 +31,13 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Basic {@link AsyncEntityProducer} implementation that generates data stream
@@ -54,7 +54,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
     private final AtomicReference<Exception> exception;
 
     public BasicAsyncEntityProducer(final byte[] content, final ContentType contentType, final boolean chunked) {
-        Args.notNull(content, "Content");
+        Objects.requireNonNull(content, "Content");
         this.bytebuf = ByteBuffer.wrap(content);
         this.length = this.bytebuf.remaining();
         this.contentType = contentType;
@@ -71,7 +71,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
     }
 
     public BasicAsyncEntityProducer(final CharSequence content, final ContentType contentType, final boolean chunked) {
-        Args.notNull(content, "Content");
+        Objects.requireNonNull(content, "Content");
         this.contentType = contentType;
         Charset charset = contentType != null ? contentType.getCharset() : null;
         if (charset == null) {

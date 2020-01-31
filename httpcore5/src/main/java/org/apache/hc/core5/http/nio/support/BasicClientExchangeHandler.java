@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.support;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -44,7 +45,6 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Basic {@link AsyncClientExchangeHandler} implementation that makes use
@@ -65,8 +65,8 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final FutureCallback<T> resultCallback) {
-        this.requestProducer = Args.notNull(requestProducer, "Request producer");
-        this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
+        this.requestProducer = Objects.requireNonNull(requestProducer, "Request producer");
+        this.responseConsumer = Objects.requireNonNull(responseConsumer, "Response consumer");
         this.completed = new AtomicBoolean(false);
         this.resultCallback = resultCallback;
         this.outputTerminated = new AtomicBoolean(false);

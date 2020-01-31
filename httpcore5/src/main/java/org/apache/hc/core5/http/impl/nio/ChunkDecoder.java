@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
@@ -43,7 +44,6 @@ import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.message.BufferedHeader;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -183,7 +183,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
 
     @Override
     public int read(final ByteBuffer dst) throws IOException {
-        Args.notNull(dst, "Byte buffer");
+        Objects.requireNonNull(dst, "Byte buffer");
         if (this.state == State.COMPLETED) {
             return -1;
         }

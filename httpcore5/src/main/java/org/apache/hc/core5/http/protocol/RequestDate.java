@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -36,7 +37,6 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.util.Args;
 
 /**
  * RequestDate interceptor is responsible for adding {@code Date} header
@@ -55,7 +55,7 @@ public class RequestDate implements HttpRequestInterceptor {
     @Override
     public void process(final HttpRequest request, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
-        Args.notNull(request, "HTTP request");
+        Objects.requireNonNull(request, "HTTP request");
         if (entity != null && !request.containsHeader(HttpHeaders.DATE)) {
             request.setHeader(HttpHeaders.DATE, HttpDateGenerator.INSTANCE.getCurrentDate());
         }

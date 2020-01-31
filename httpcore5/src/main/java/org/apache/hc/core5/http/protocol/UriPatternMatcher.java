@@ -31,11 +31,11 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Maintains a map of objects keyed by a request URI pattern.
@@ -87,7 +87,7 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
      */
     @Override
     public synchronized void register(final String pattern, final T obj) {
-        Args.notNull(pattern, "URI request pattern");
+        Objects.requireNonNull(pattern, "URI request pattern");
         this.map.put(pattern, obj);
     }
 
@@ -114,7 +114,7 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
      */
     @Override
     public synchronized T lookup(final String path) {
-        Args.notNull(path, "Request path");
+        Objects.requireNonNull(path, "Request path");
         // direct match?
         T obj = this.map.get(path);
         if (obj == null) {

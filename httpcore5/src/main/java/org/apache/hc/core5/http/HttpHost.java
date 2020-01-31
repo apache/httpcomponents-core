@@ -32,6 +32,7 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -224,7 +225,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @since 5.0
      */
     public HttpHost(final String scheme, final InetAddress address, final int port) {
-        this(scheme, Args.notNull(address,"Inet address"), address.getHostName(), port);
+        this(scheme, Objects.requireNonNull(address, "Inet address"), address.getHostName(), port);
     }
 
     /**
@@ -269,7 +270,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @since 5.0
      */
     public HttpHost(final String scheme, final NamedEndpoint namedEndpoint) {
-        this(scheme, Args.notNull(namedEndpoint, "Named endpoint").getHostName(), namedEndpoint.getPort());
+        this(scheme, Objects.requireNonNull(namedEndpoint, "Named endpoint").getHostName(), namedEndpoint.getPort());
     }
 
     /**

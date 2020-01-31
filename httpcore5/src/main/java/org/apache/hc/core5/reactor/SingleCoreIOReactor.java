@@ -39,6 +39,7 @@ import java.nio.channels.SocketChannel;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -51,7 +52,6 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
@@ -79,8 +79,8 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
         super(exceptionCallback);
-        this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
-        this.reactorConfig = Args.notNull(reactorConfig, "I/O reactor config");
+        this.eventHandlerFactory = Objects.requireNonNull(eventHandlerFactory, "Event handler factory");
+        this.reactorConfig = Objects.requireNonNull(reactorConfig, "I/O reactor config");
         this.ioSessionDecorator = ioSessionDecorator;
         this.sessionListener = sessionListener;
         this.sessionShutdownCallback = sessionShutdownCallback;
@@ -92,7 +92,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     }
 
     void enqueueChannel(final SocketChannel socketChannel) throws IOReactorShutdownException {
-        Args.notNull(socketChannel, "SocketChannel");
+        Objects.requireNonNull(socketChannel, "SocketChannel");
         if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
@@ -248,7 +248,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             final Timeout timeout,
             final Object attachment,
             final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
-        Args.notNull(remoteEndpoint, "Remote endpoint");
+        Objects.requireNonNull(remoteEndpoint, "Remote endpoint");
         final IOSessionRequest sessionRequest = new IOSessionRequest(
                 remoteEndpoint,
                 remoteAddress != null ? remoteAddress : new InetSocketAddress(remoteEndpoint.getHostName(), remoteEndpoint.getPort()),

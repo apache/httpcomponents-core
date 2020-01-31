@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.annotation.Internal;
@@ -36,7 +37,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.http.message.MessageSupport;
-import org.apache.hc.core5.util.Args;
 
 /**
  * HTTP message entity details.
@@ -50,7 +50,7 @@ public class IncomingEntityDetails implements EntityDetails {
     private final long contentLength;
 
     public IncomingEntityDetails(final MessageHeaders message, final long contentLength) {
-        this.message = Args.notNull(message, "Message");
+        this.message = Objects.requireNonNull(message, "Message");
         this.contentLength = contentLength;
     }
 

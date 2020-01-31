@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.message;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.http.EntityDetails;
@@ -58,7 +59,7 @@ public class MessageSupport {
     }
 
     public static void formatTokens(final CharArrayBuffer dst, final String... tokens) {
-        Args.notNull(dst, "Destination");
+        Objects.requireNonNull(dst, "Destination");
         for (int i = 0; i < tokens.length; i++) {
             final String element = tokens[i];
             if (i > 0) {
@@ -69,7 +70,7 @@ public class MessageSupport {
     }
 
     public static void formatTokens(final CharArrayBuffer dst, final Set<String> tokens) {
-        Args.notNull(dst, "Destination");
+        Objects.requireNonNull(dst, "Destination");
         if (tokens == null || tokens.isEmpty()) {
             return;
         }
@@ -103,8 +104,8 @@ public class MessageSupport {
     private static final BitSet COMMA = TokenParser.INIT_BITSET(',');
 
     public static Set<String> parseTokens(final CharSequence src, final ParserCursor cursor) {
-        Args.notNull(src, "Source");
-        Args.notNull(cursor, "Cursor");
+        Objects.requireNonNull(src, "Source");
+        Objects.requireNonNull(cursor, "Cursor");
         final Set<String> tokens = new LinkedHashSet<>();
         while (!cursor.atEnd()) {
             final int pos = cursor.getPos();
@@ -120,7 +121,7 @@ public class MessageSupport {
     }
 
     public static Set<String> parseTokens(final Header header) {
-        Args.notNull(header, "Header");
+        Objects.requireNonNull(header, "Header");
         if (header instanceof FormattedHeader) {
             final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
             final ParserCursor cursor = new ParserCursor(0, buf.length());
@@ -154,13 +155,13 @@ public class MessageSupport {
     }
 
     public static Iterator<HeaderElement> iterate(final MessageHeaders headers, final String name) {
-        Args.notNull(headers, "Message headers");
+        Objects.requireNonNull(headers, "Message headers");
         Args.notBlank(name, "Header name");
         return new BasicHeaderElementIterator(headers.headerIterator(name));
     }
 
     public static HeaderElement[] parse(final Header header) {
-        Args.notNull(header, "Headers");
+        Objects.requireNonNull(header, "Headers");
         final String value = header.getValue();
         if (value == null) {
             return new HeaderElement[] {};

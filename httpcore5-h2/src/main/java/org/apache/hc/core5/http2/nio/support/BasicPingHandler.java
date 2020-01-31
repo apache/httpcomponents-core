@@ -28,11 +28,11 @@ package org.apache.hc.core5.http2.nio.support;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Basic {@link AsyncPingHandler} implementation.
@@ -46,7 +46,7 @@ public class BasicPingHandler implements AsyncPingHandler {
     private final Callback<Boolean> callback;
 
     public BasicPingHandler(final Callback<Boolean> callback) {
-        this.callback = Args.notNull(callback, "Callback");
+        this.callback = Objects.requireNonNull(callback, "Callback");
     }
 
     @Override

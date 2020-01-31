@@ -30,6 +30,7 @@ package org.apache.hc.core5.util;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -52,12 +53,12 @@ public class TestArgs {
     @Test
     public void testArgNotNullPass() {
         final String stuff = "stuff";
-        Assert.assertSame(stuff, Args.notNull(stuff, "Stuff"));
+        Assert.assertSame(stuff, Objects.requireNonNull(stuff, "Stuff"));
     }
 
     @Test(expected=NullPointerException.class)
     public void testArgNotNullFail() {
-        Args.notNull(null, "Stuff");
+        Objects.requireNonNull(null, "Stuff");
     }
 
     @Test

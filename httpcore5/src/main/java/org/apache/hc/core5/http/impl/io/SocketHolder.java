@@ -31,9 +31,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.apache.hc.core5.util.Args;
 
 /**
  * Utility class that holds a {@link Socket} along with copies of its {@link InputStream}
@@ -48,7 +47,7 @@ public class SocketHolder {
     private final AtomicReference<OutputStream> outputStreamRef;
 
     public SocketHolder(final Socket socket) {
-        this.socket = Args.notNull(socket, "Socket");
+        this.socket = Objects.requireNonNull(socket, "Socket");
         this.inputStreamRef = new AtomicReference<>(null);
         this.outputStreamRef = new AtomicReference<>(null);
     }

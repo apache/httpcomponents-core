@@ -28,11 +28,11 @@
 package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
+import java.util.Objects;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractIOReactorBase implements ConnectionInitiator, IOReactorService {
@@ -45,7 +45,7 @@ abstract class AbstractIOReactorBase implements ConnectionInitiator, IOReactorSe
             final Timeout timeout,
             final Object attachment,
             final FutureCallback<IOSession> callback) throws IOReactorShutdownException {
-        Args.notNull(remoteEndpoint, "Remote endpoint");
+        Objects.requireNonNull(remoteEndpoint, "Remote endpoint");
         if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }

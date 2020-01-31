@@ -28,13 +28,13 @@
 package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Base class for wrapping entity producers that delegates all calls to the wrapped producer.
@@ -50,7 +50,7 @@ public class AsyncEntityProducerWrapper implements AsyncEntityProducer {
 
     public AsyncEntityProducerWrapper(final AsyncEntityProducer wrappedEntityProducer) {
         super();
-        this.wrappedEntityProducer = Args.notNull(wrappedEntityProducer, "Wrapped entity producer");
+        this.wrappedEntityProducer = Objects.requireNonNull(wrappedEntityProducer, "Wrapped entity producer");
     }
 
     @Override

@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -69,7 +70,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
 
     @Override
     public int read(final ByteBuffer dst) throws IOException {
-        Args.notNull(dst, "Byte buffer");
+        Objects.requireNonNull(dst, "Byte buffer");
         if (isCompleted()) {
             return -1;
         }

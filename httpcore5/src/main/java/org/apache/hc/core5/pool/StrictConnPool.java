@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
@@ -168,8 +169,8 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             final T route, final Object state,
             final Timeout requestTimeout,
             final FutureCallback<PoolEntry<T, C>> callback) {
-        Args.notNull(route, "Route");
-        Args.notNull(requestTimeout, "Request timeout");
+        Objects.requireNonNull(route, "Route");
+        Objects.requireNonNull(requestTimeout, "Request timeout");
         Asserts.check(!this.isShutDown.get(), "Connection pool shut down");
         final Deadline deadline = Deadline.calculate(requestTimeout);
         final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<>(callback);
@@ -471,7 +472,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
     @Override
     public void setMaxPerRoute(final T route, final int max) {
-        Args.notNull(route, "Route");
+        Objects.requireNonNull(route, "Route");
         this.lock.lock();
         try {
             if (max > -1) {
@@ -486,7 +487,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
     @Override
     public int getMaxPerRoute(final T route) {
-        Args.notNull(route, "Route");
+        Objects.requireNonNull(route, "Route");
         this.lock.lock();
         try {
             return getMax(route);
@@ -511,7 +512,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
     @Override
     public PoolStats getStats(final T route) {
-        Args.notNull(route, "Route");
+        Objects.requireNonNull(route, "Route");
         this.lock.lock();
         try {
             final PerRoutePool<T, C> pool = getPool(route);

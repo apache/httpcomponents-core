@@ -27,10 +27,11 @@
 
 package org.apache.hc.core5.http2.nio.command;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http2.nio.AsyncPingHandler;
 import org.apache.hc.core5.reactor.Command;
-import org.apache.hc.core5.util.Args;
 
 /**
  * HTTP/2 ping command.
@@ -43,7 +44,7 @@ public final class PingCommand implements Command {
     private final AsyncPingHandler handler;
 
     public PingCommand(final AsyncPingHandler handler) {
-        this.handler = Args.notNull(handler, "Handler");
+        this.handler = Objects.requireNonNull(handler, "Handler");
     }
 
     public AsyncPingHandler getHandler() {

@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.support;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -42,7 +43,6 @@ import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Basic implementation of {@link AsyncResponseConsumer} that represents response message as
@@ -57,7 +57,7 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     private final AtomicReference<AsyncEntityConsumer<T>> dataConsumerRef;
 
     public BasicResponseConsumer(final Supplier<AsyncEntityConsumer<T>> dataConsumerSupplier) {
-        this.dataConsumerSupplier = Args.notNull(dataConsumerSupplier, "Data consumer supplier");
+        this.dataConsumerSupplier = Objects.requireNonNull(dataConsumerSupplier, "Data consumer supplier");
         this.dataConsumerRef = new AtomicReference<>(null);
     }
 
@@ -77,7 +77,7 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
             final HttpResponse response,
             final EntityDetails entityDetails,
             final HttpContext httpContext, final FutureCallback<Message<HttpResponse, T>> resultCallback) throws HttpException, IOException {
-        Args.notNull(response, "Response");
+        Objects.requireNonNull(response, "Response");
 
         if (entityDetails != null) {
             final AsyncEntityConsumer<T> dataConsumer = dataConsumerSupplier.get();

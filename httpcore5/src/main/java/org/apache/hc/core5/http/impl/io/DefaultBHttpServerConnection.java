@@ -32,6 +32,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -49,7 +50,6 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.io.HttpServerConnection;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Default implementation of {@link HttpServerConnection}.
@@ -147,7 +147,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     @Override
     public void receiveRequestEntity(final ClassicHttpRequest request)
             throws HttpException, IOException {
-        Args.notNull(request, "HTTP request");
+        Objects.requireNonNull(request, "HTTP request");
         final SocketHolder socketHolder = ensureOpen();
 
         final long len = this.incomingContentStrategy.determineLength(request);
@@ -160,7 +160,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     @Override
     public void sendResponseHeader(final ClassicHttpResponse response)
             throws HttpException, IOException {
-        Args.notNull(response, "HTTP response");
+        Objects.requireNonNull(response, "HTTP response");
         final SocketHolder socketHolder = ensureOpen();
         this.responseWriter.write(response, this.outbuffer, socketHolder.getOutputStream());
         onResponseSubmitted(response);
@@ -172,7 +172,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     @Override
     public void sendResponseEntity(final ClassicHttpResponse response)
             throws HttpException, IOException {
-        Args.notNull(response, "HTTP response");
+        Objects.requireNonNull(response, "HTTP response");
         final SocketHolder socketHolder = ensureOpen();
         final HttpEntity entity = response.getEntity();
         if (entity == null) {

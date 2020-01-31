@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
@@ -39,7 +40,6 @@ import org.apache.hc.core5.http.message.LazyLineParser;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -144,7 +144,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     @Override
     public T parse(
             final SessionInputBuffer sessionBuffer, final boolean endOfStream) throws IOException, HttpException {
-        Args.notNull(sessionBuffer, "Session input buffer");
+        Objects.requireNonNull(sessionBuffer, "Session input buffer");
         while (this.state !=State.COMPLETED) {
             if (this.lineBuf == null) {
                 this.lineBuf = new CharArrayBuffer(64);

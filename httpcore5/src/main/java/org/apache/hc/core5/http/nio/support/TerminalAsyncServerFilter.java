@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http.nio.support;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -48,7 +49,6 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link AsyncFilterHandler} implementation represents a terminal handler
@@ -63,7 +63,7 @@ public final class TerminalAsyncServerFilter implements AsyncFilterHandler {
     final private HandlerFactory<AsyncServerExchangeHandler> handlerFactory;
 
     public TerminalAsyncServerFilter(final HandlerFactory<AsyncServerExchangeHandler> handlerFactory) {
-        this.handlerFactory = Args.notNull(handlerFactory, "Handler factory");
+        this.handlerFactory = Objects.requireNonNull(handlerFactory, "Handler factory");
     }
 
     @Override

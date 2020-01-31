@@ -28,6 +28,7 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -39,7 +40,6 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorService;
 import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -67,7 +67,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
             Callback<IOSession> sessionShutdownCallback) throws IOException;
 
     protected void execute(final IOEventHandlerFactory ioEventHandlerFactory) throws IOException {
-        Args.notNull(ioEventHandlerFactory, "Handler factory");
+        Objects.requireNonNull(ioEventHandlerFactory, "Handler factory");
         if (ioReactorRef.compareAndSet(null, createIOReactor(
                 ioEventHandlerFactory,
                 ioReactorConfig,
@@ -97,7 +97,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
     }
 
     public void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
-        Args.notNull(waitTime, "Wait time");
+        Objects.requireNonNull(waitTime, "Wait time");
         final T ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
             ioReactor.awaitShutdown(waitTime);
@@ -114,7 +114,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
     }
 
     public void shutdown(final TimeValue graceTime) {
-        Args.notNull(graceTime, "Grace time");
+        Objects.requireNonNull(graceTime, "Grace time");
         final T ioReactor = ioReactorRef.get();
         if (ioReactor != null) {
             if (status.compareAndSet(Status.RUNNING, Status.TERMINATED)) {

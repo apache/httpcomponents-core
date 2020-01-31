@@ -27,13 +27,14 @@
 
 package org.apache.hc.core5.http.nio.command;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.CancellableDependency;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Request execution command.
@@ -53,7 +54,7 @@ public final class RequestExecutionCommand extends ExecutableCommand {
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final CancellableDependency cancellableDependency,
             final HttpContext context) {
-        this.exchangeHandler = Args.notNull(exchangeHandler, "Handler");
+        this.exchangeHandler = Objects.requireNonNull(exchangeHandler, "Handler");
         this.pushHandlerFactory = pushHandlerFactory;
         this.cancellableDependency = cancellableDependency;
         this.context = context;

@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -195,7 +196,7 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
 
                     @Override
                     public int write(final CharBuffer src) throws IOException {
-                        Args.notNull(src, "Buffer");
+                        Objects.requireNonNull(src, "Buffer");
                         synchronized (bytebuf) {
                             return writeData(channel, src);
                         }

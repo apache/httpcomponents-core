@@ -30,6 +30,7 @@ package org.apache.hc.core5.testing.nio;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 
@@ -43,7 +44,6 @@ import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor> implements ConnectionInitiator {
@@ -83,7 +83,7 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
     }
 
     public Future<IOSession> requestSession(final HttpHost host, final Timeout timeout, final FutureCallback<IOSession> callback) {
-        Args.notNull(host, "Host");
+        Objects.requireNonNull(host, "Host");
         return reactor().connect(host, toSocketAddress(host), null, timeout, null, callback);
     }
 

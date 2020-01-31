@@ -27,13 +27,14 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.StatusLine;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -61,7 +62,7 @@ public class DefaultHttpResponseParser<T extends HttpResponse> extends AbstractM
             final LineParser parser,
             final Http1Config http1Config) {
         super(parser, http1Config);
-        this.responseFactory = Args.notNull(responseFactory, "Response factory");
+        this.responseFactory = Objects.requireNonNull(responseFactory, "Response factory");
     }
 
     /**

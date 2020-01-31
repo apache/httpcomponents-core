@@ -37,6 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -119,7 +120,7 @@ public final class EntityUtils {
      * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
-        Args.notNull(entity, "HttpEntity");
+        Objects.requireNonNull(entity, "HttpEntity");
         final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
@@ -147,7 +148,7 @@ public final class EntityUtils {
      * @throws IllegalArgumentException if entity is null or if content length &gt; Integer.MAX_VALUE
      */
     public static byte[] toByteArray(final HttpEntity entity, final int maxResultLength) throws IOException {
-        Args.notNull(entity, "HttpEntity");
+        Objects.requireNonNull(entity, "HttpEntity");
         final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
@@ -165,7 +166,7 @@ public final class EntityUtils {
 
     private static CharArrayBuffer toCharArrayBuffer(final InputStream inStream, final long contentLength,
             final Charset charset, final int maxResultLength) throws IOException {
-        Args.notNull(inStream, "InputStream");
+        Objects.requireNonNull(inStream, "InputStream");
         Args.positive(maxResultLength, "maxResultLength");
         final Charset actualCharset = charset == null ? DEFAULT_CHARSET : charset;
         final CharArrayBuffer buf = new CharArrayBuffer(
@@ -181,7 +182,7 @@ public final class EntityUtils {
 
     private static String toString(final HttpEntity entity, final ContentType contentType, final int maxResultLength)
             throws IOException {
-        Args.notNull(entity, "HttpEntity");
+        Objects.requireNonNull(entity, "HttpEntity");
         final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
@@ -240,7 +241,7 @@ public final class EntityUtils {
      */
     public static String toString(
             final HttpEntity entity, final Charset defaultCharset, final int maxResultLength) throws IOException, ParseException {
-        Args.notNull(entity, "HttpEntity");
+        Objects.requireNonNull(entity, "HttpEntity");
         ContentType contentType = null;
         try {
             contentType = ContentType.parse(entity.getContentType());
@@ -334,7 +335,7 @@ public final class EntityUtils {
      * this instance of the Java virtual machine
      */
     public static String toString(final HttpEntity entity, final int maxResultLength) throws IOException, ParseException {
-        Args.notNull(entity, "HttpEntity");
+        Objects.requireNonNull(entity, "HttpEntity");
         return toString(entity, ContentType.parse(entity.getContentType()), maxResultLength);
     }
 
@@ -371,7 +372,7 @@ public final class EntityUtils {
      *             If there was an exception getting the entity's data.
      */
     public static List<NameValuePair> parse(final HttpEntity entity, final int maxStreamLength) throws IOException {
-        Args.notNull(entity, "HttpEntity");
+        Objects.requireNonNull(entity, "HttpEntity");
         final int contentLength = toContentLength((int) Args.checkContentLength(entity));
         final ContentType contentType = ContentType.parse(entity.getContentType());
         if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {

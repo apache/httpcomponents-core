@@ -30,11 +30,11 @@ package org.apache.hc.core5.http.protocol;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Maintains a map of objects keyed by a request URI regular expression.
@@ -69,7 +69,7 @@ public class UriRegexMatcher<T> implements LookupRegistry<T> {
      */
     @Override
     public synchronized void register(final String regex, final T obj) {
-        Args.notNull(regex, "URI request regex");
+        Objects.requireNonNull(regex, "URI request regex");
         this.objectMap.put(regex, obj);
         this.patternMap.put(regex, Pattern.compile(regex));
     }
@@ -98,7 +98,7 @@ public class UriRegexMatcher<T> implements LookupRegistry<T> {
      */
     @Override
     public synchronized T lookup(final String path) {
-        Args.notNull(path, "Request path");
+        Objects.requireNonNull(path, "Request path");
         // direct match?
         final T obj = this.objectMap.get(path);
         if (obj == null) {

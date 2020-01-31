@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.message;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
@@ -36,7 +37,6 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.net.URIAuthority;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
@@ -84,7 +84,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      */
     public BasicHttpRequest(final String method, final HttpHost host, final String path) {
         super();
-        this.method = Args.notNull(method, "Method name");
+        this.method = Objects.requireNonNull(method, "Method name");
         this.scheme = host != null ? host.getSchemeName() : null;
         this.authority = host != null ? new URIAuthority(host) : null;
         this.path = path;
@@ -100,8 +100,8 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      */
     public BasicHttpRequest(final String method, final URI requestUri) {
         super();
-        this.method = Args.notNull(method, "Method name");
-        setUri(Args.notNull(requestUri, "Request URI"));
+        this.method = Objects.requireNonNull(method, "Method name");
+        setUri(Objects.requireNonNull(requestUri, "Request URI"));
     }
 
     /**
@@ -114,7 +114,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      */
     public BasicHttpRequest(final Method method, final String path) {
         super();
-        this.method = Args.notNull(method, "Method").name();
+        this.method = Objects.requireNonNull(method, "Method").name();
         if (path != null) {
             try {
                 setUri(new URI(path));
@@ -135,7 +135,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      */
     public BasicHttpRequest(final Method method, final HttpHost host, final String path) {
         super();
-        this.method = Args.notNull(method, "Method").name();
+        this.method = Objects.requireNonNull(method, "Method").name();
         this.scheme = host != null ? host.getSchemeName() : null;
         this.authority = host != null ? new URIAuthority(host) : null;
         this.path = path;
@@ -151,19 +151,19 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      */
     public BasicHttpRequest(final Method method, final URI requestUri) {
         super();
-        this.method = Args.notNull(method, "Method").name();
-        setUri(Args.notNull(requestUri, "Request URI"));
+        this.method = Objects.requireNonNull(method, "Method").name();
+        setUri(Objects.requireNonNull(requestUri, "Request URI"));
     }
 
     @Override
     public void addHeader(final String name, final Object value) {
-        Args.notNull(name, "Header name");
+        Objects.requireNonNull(name, "Header name");
         addHeader(new BasicHeader(name, value));
     }
 
     @Override
     public void setHeader(final String name, final Object value) {
-        Args.notNull(name, "Header name");
+        Objects.requireNonNull(name, "Header name");
         setHeader(new BasicHeader(name, value));
     }
 

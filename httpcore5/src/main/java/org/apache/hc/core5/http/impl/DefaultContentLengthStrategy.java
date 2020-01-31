@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.impl;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -37,7 +39,6 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.util.Args;
 
 /**
  * The default implementation of the content length strategy. This class
@@ -63,7 +64,7 @@ public class DefaultContentLengthStrategy implements ContentLengthStrategy {
 
     @Override
     public long determineLength(final HttpMessage message) throws HttpException {
-        Args.notNull(message, "HTTP message");
+        Objects.requireNonNull(message, "HTTP message");
         // Although Transfer-Encoding is specified as a list, in practice
         // it is either missing or has the single value "chunked". So we
         // treat it as a single-valued header here.

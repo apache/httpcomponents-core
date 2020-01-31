@@ -27,11 +27,12 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -50,7 +51,7 @@ public class LazyLineParser extends BasicLineParser {
 
     @Override
     public Header parseHeader(final CharArrayBuffer buffer) throws ParseException {
-        Args.notNull(buffer, "Char array buffer");
+        Objects.requireNonNull(buffer, "Char array buffer");
 
         return new BufferedHeader(buffer, true);
     }

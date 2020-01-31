@@ -28,10 +28,10 @@
 package org.apache.hc.core5.http.message;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElement;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link java.util.Iterator} of {@link org.apache.hc.core5.http.HeaderElement}s.
@@ -49,7 +49,7 @@ public class BasicHeaderElementIterator extends AbstractHeaderElementIterator<He
             final Iterator<Header> headerIterator,
             final HeaderValueParser parser) {
         super(headerIterator);
-        this.parser = Args.notNull(parser, "Parser");
+        this.parser = Objects.requireNonNull(parser, "Parser");
     }
 
     public BasicHeaderElementIterator(final Iterator<Header> headerIterator) {

@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
@@ -74,7 +75,6 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -100,7 +100,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final ManagedConnPool<HttpHost, IOSession> connPool) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
                         ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
-        this.connPool = Args.notNull(connPool, "Connection pool");
+        this.connPool = Objects.requireNonNull(connPool, "Connection pool");
     }
 
     @Override
@@ -171,8 +171,8 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final Timeout timeout,
             final Object attachment,
             final FutureCallback<AsyncClientEndpoint> callback) {
-        Args.notNull(host, "Host");
-        Args.notNull(timeout, "Timeout");
+        Objects.requireNonNull(host, "Host");
+        Objects.requireNonNull(timeout, "Timeout");
         final ComplexFuture<AsyncClientEndpoint> resultFuture = new ComplexFuture<>(callback);
         final Future<PoolEntry<HttpHost, IOSession>> leaseFuture = connPool.lease(
                 host, null, timeout, new FutureCallback<PoolEntry<HttpHost, IOSession>>() {
@@ -243,9 +243,9 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Timeout timeout,
             final HttpContext executeContext) {
-        Args.notNull(exchangeHandler, "Exchange handler");
-        Args.notNull(timeout, "Timeout");
-        Args.notNull(executeContext, "Context");
+        Objects.requireNonNull(exchangeHandler, "Exchange handler");
+        Objects.requireNonNull(timeout, "Timeout");
+        Objects.requireNonNull(executeContext, "Context");
         try {
             exchangeHandler.produceRequest(new RequestChannel() {
 
@@ -367,9 +367,9 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final Timeout timeout,
             final HttpContext context,
             final FutureCallback<T> callback) {
-        Args.notNull(requestProducer, "Request producer");
-        Args.notNull(responseConsumer, "Response consumer");
-        Args.notNull(timeout, "Timeout");
+        Objects.requireNonNull(requestProducer, "Request producer");
+        Objects.requireNonNull(responseConsumer, "Response consumer");
+        Objects.requireNonNull(timeout, "Timeout");
         final BasicFuture<T> future = new BasicFuture<>(callback);
         final AsyncClientExchangeHandler exchangeHandler = new BasicClientExchangeHandler<>(requestProducer, responseConsumer, new FutureCallback<T>() {
 

@@ -32,6 +32,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.EntityDetails;
@@ -39,7 +40,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link AsyncEntityConsumer} decorator that calculates a digest hash from
@@ -59,7 +59,7 @@ public class DigestingEntityConsumer<T> implements AsyncEntityConsumer<T> {
     public DigestingEntityConsumer(
             final String algo,
             final AsyncEntityConsumer<T> wrapped) throws NoSuchAlgorithmException {
-        this.wrapped = Args.notNull(wrapped, "Entity consumer");
+        this.wrapped = Objects.requireNonNull(wrapped, "Entity consumer");
         this.trailers = new ArrayList<>();
         this.digester = MessageDigest.getInstance(algo);
     }

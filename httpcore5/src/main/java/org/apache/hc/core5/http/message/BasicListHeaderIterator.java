@@ -30,9 +30,9 @@ package org.apache.hc.core5.http.message;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
@@ -75,7 +75,7 @@ class BasicListHeaderIterator implements Iterator<Header> {
      */
     public BasicListHeaderIterator(final List<Header> headers, final String name) {
         super();
-        this.allHeaders = Args.notNull(headers, "Header list");
+        this.allHeaders = Objects.requireNonNull(headers, "Header list");
         this.headerName = name;
         this.currentIndex = findNext(-1);
         this.lastIndex = -1;

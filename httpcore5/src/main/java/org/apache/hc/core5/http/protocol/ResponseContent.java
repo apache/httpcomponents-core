@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -42,7 +43,6 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.MessageSupport;
-import org.apache.hc.core5.util.Args;
 
 /**
  * ResponseContent is the most important interceptor for outgoing responses.
@@ -94,7 +94,7 @@ public class ResponseContent implements HttpResponseInterceptor {
     @Override
     public void process(final HttpResponse response, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
-        Args.notNull(response, "HTTP response");
+        Objects.requireNonNull(response, "HTTP response");
         if (this.overwrite) {
             response.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
             response.removeHeaders(HttpHeaders.CONTENT_LENGTH);

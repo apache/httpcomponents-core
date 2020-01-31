@@ -36,6 +36,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
@@ -114,7 +115,7 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
 
     @Override
     public int flush(final WritableByteChannel channel) throws IOException {
-        Args.notNull(channel, "Channel");
+        Objects.requireNonNull(channel, "Channel");
         setOutputMode();
         return channel.write(buffer());
     }

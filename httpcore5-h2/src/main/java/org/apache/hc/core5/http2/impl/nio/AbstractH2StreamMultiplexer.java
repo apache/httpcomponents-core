@@ -36,6 +36,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,7 +86,6 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.Identifiable;
 import org.apache.hc.core5.util.Timeout;
@@ -142,10 +142,10 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             final CharCodingConfig charCodingConfig,
             final H2Config h2Config,
             final H2StreamListener streamListener) {
-        this.ioSession = Args.notNull(ioSession, "IO session");
-        this.frameFactory = Args.notNull(frameFactory, "Frame factory");
-        this.idGenerator = Args.notNull(idGenerator, "Stream id generator");
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
+        this.ioSession = Objects.requireNonNull(ioSession, "IO session");
+        this.frameFactory = Objects.requireNonNull(frameFactory, "Frame factory");
+        this.idGenerator = Objects.requireNonNull(idGenerator, "Stream id generator");
+        this.httpProcessor = Objects.requireNonNull(httpProcessor, "HTTP processor");
         this.localConfig = h2Config != null ? h2Config : H2Config.DEFAULT;
         this.inputMetrics = new BasicH2TransportMetrics();
         this.outputMetrics = new BasicH2TransportMetrics();
@@ -249,7 +249,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     private void commitFrame(final RawFrame frame) throws IOException {
-        Args.notNull(frame, "Frame");
+        Objects.requireNonNull(frame, "Frame");
         ioSession.getLock().lock();
         try {
             commitFrameInternal(frame);

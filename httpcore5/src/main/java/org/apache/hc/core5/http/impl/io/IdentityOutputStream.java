@@ -29,10 +29,10 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Output stream that writes data without any transformation. The end of
@@ -62,8 +62,8 @@ public class IdentityOutputStream extends OutputStream {
      */
     public IdentityOutputStream(final SessionOutputBuffer buffer, final OutputStream outputStream) {
         super();
-        this.buffer = Args.notNull(buffer, "Session output buffer");
-        this.outputStream = Args.notNull(outputStream, "Output stream");
+        this.buffer = Objects.requireNonNull(buffer, "Session output buffer");
+        this.outputStream = Objects.requireNonNull(outputStream, "Output stream");
     }
 
     /**

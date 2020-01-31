@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.http2.nio.support;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -34,7 +36,6 @@ import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Factory for {@link AsyncPushConsumer} instances that make use
@@ -48,7 +49,7 @@ public final class DefaultAsyncPushConsumerFactory implements HandlerFactory<Asy
     private final HttpRequestMapper<Supplier<AsyncPushConsumer>> mapper;
 
     public DefaultAsyncPushConsumerFactory(final HttpRequestMapper<Supplier<AsyncPushConsumer>> mapper) {
-        this.mapper = Args.notNull(mapper, "Request handler mapper");
+        this.mapper = Objects.requireNonNull(mapper, "Request handler mapper");
     }
 
     @Override

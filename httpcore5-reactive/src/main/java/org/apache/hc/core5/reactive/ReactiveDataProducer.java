@@ -29,6 +29,7 @@ package org.apache.hc.core5.reactive;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,7 +38,6 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.AsyncDataProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.util.Args;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
@@ -60,7 +60,7 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
     private final ArrayDeque<ByteBuffer> buffers = new ArrayDeque<>(); // This field requires synchronization
 
     public ReactiveDataProducer(final Publisher<ByteBuffer> publisher) {
-        this.publisher = Args.notNull(publisher, "publisher");
+        this.publisher = Objects.requireNonNull(publisher, "publisher");
     }
 
     void setChannel(final DataStreamChannel channel) {

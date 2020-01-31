@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.URIScheme;
@@ -34,7 +36,6 @@ import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -53,7 +54,7 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
             final ServerHttp1StreamDuplexerFactory streamDuplexerFactory,
             final TlsStrategy tlsStrategy,
             final Timeout handshakeTimeout) {
-        this.streamDuplexerFactory = Args.notNull(streamDuplexerFactory, "Stream duplexer factory");
+        this.streamDuplexerFactory = Objects.requireNonNull(streamDuplexerFactory, "Stream duplexer factory");
         this.tlsStrategy = tlsStrategy;
         this.handshakeTimeout = handshakeTimeout;
     }

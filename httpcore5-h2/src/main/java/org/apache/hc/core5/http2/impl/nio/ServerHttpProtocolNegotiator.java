@@ -30,6 +30,7 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLSession;
@@ -53,7 +54,6 @@ import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -82,9 +82,9 @@ public class ServerHttpProtocolNegotiator implements HttpConnectionEventHandler 
             final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory,
             final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final HttpVersionPolicy versionPolicy) {
-        this.ioSession = Args.notNull(ioSession, "I/O session");
-        this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
-        this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
+        this.ioSession = Objects.requireNonNull(ioSession, "I/O session");
+        this.http1StreamHandlerFactory = Objects.requireNonNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
+        this.http2StreamHandlerFactory = Objects.requireNonNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.inBuf = BufferedData.allocate(1024);
         this.protocolHandlerRef = new AtomicReference<>(null);

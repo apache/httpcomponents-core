@@ -37,6 +37,7 @@ import java.net.SocketTimeoutException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLSession;
@@ -61,7 +62,6 @@ import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.InetAddressUtils;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 class BHttpConnectionBase implements BHttpConnection {
@@ -111,12 +111,12 @@ class BHttpConnectionBase implements BHttpConnection {
      * @throws IOException in case of an I/O error.
      */
     protected void bind(final Socket socket) throws IOException {
-        Args.notNull(socket, "Socket");
+        Objects.requireNonNull(socket, "Socket");
         bind(new SocketHolder(socket));
     }
 
     protected void bind(final SocketHolder socketHolder) throws IOException {
-        Args.notNull(socketHolder, "Socket holder");
+        Objects.requireNonNull(socketHolder, "Socket holder");
         this.socketHolderRef.set(socketHolder);
         this.endpointDetails = null;
     }

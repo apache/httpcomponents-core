@@ -26,9 +26,8 @@
  */
 package org.apache.hc.core5.concurrent;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicMarkableReference;
-
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link Cancellable} that has a dependency on another {@link Cancellable}
@@ -52,7 +51,7 @@ public final class ComplexCancellable implements CancellableDependency {
 
     @Override
     public void setDependency(final Cancellable dependency) {
-        Args.notNull(dependency, "dependency");
+        Objects.requireNonNull(dependency, "dependency");
         final Cancellable actualDependency = dependencyRef.getReference();
         if (!dependencyRef.compareAndSet(actualDependency, dependency, false, false)) {
             dependency.cancel();

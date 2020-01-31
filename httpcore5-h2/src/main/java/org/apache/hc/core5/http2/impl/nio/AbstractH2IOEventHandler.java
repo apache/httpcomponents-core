@@ -30,6 +30,7 @@ package org.apache.hc.core5.http2.impl.nio;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import javax.net.ssl.SSLSession;
 
@@ -39,7 +40,6 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 class AbstractH2IOEventHandler implements HttpConnectionEventHandler {
@@ -47,7 +47,7 @@ class AbstractH2IOEventHandler implements HttpConnectionEventHandler {
     final AbstractH2StreamMultiplexer streamMultiplexer;
 
     AbstractH2IOEventHandler(final AbstractH2StreamMultiplexer streamMultiplexer) {
-        this.streamMultiplexer = Args.notNull(streamMultiplexer, "Stream multiplexer");
+        this.streamMultiplexer = Objects.requireNonNull(streamMultiplexer, "Stream multiplexer");
     }
 
     @Override

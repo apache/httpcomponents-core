@@ -27,8 +27,7 @@
 package org.apache.hc.core5.http2;
 
 import java.io.IOException;
-
-import org.apache.hc.core5.util.Args;
+import java.util.Objects;
 
 /**
  * Signals fatal HTTP/2 protocol violation that renders the actual
@@ -44,7 +43,7 @@ public class H2ConnectionException extends IOException {
 
     public H2ConnectionException(final H2Error error, final String message) {
         super(message);
-        Args.notNull(error, "H2 Error code may not be null");
+        Objects.requireNonNull(error, "H2 Error code may not be null");
         this.code = error.getCode();
     }
 

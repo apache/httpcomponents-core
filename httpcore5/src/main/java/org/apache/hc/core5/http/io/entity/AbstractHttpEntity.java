@@ -32,13 +32,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Abstract base class for mutable entities. Provides the commonly used attributes for streamed and
@@ -75,8 +75,8 @@ public abstract class AbstractHttpEntity implements HttpEntity {
     }
 
     public static void writeTo(final HttpEntity entity, final OutputStream outStream) throws IOException {
-        Args.notNull(entity, "Entity");
-        Args.notNull(outStream, "Output stream");
+        Objects.requireNonNull(entity, "Entity");
+        Objects.requireNonNull(outStream, "Output stream");
         try (final InputStream inStream = entity.getContent()) {
             if (inStream != null) {
                 int count;

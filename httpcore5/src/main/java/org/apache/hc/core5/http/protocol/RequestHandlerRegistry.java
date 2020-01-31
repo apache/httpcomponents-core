@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -58,7 +59,7 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
     private final ConcurrentMap<String, LookupRegistry<T>> virtualMap;
 
     public RequestHandlerRegistry(final String canonicalHostName, final Supplier<LookupRegistry<T>> registrySupplier) {
-        this.canonicalHostName = Args.notNull(canonicalHostName, "Canonical hostname").toLowerCase(Locale.ROOT);
+        this.canonicalHostName = Objects.requireNonNull(canonicalHostName, "Canonical hostname").toLowerCase(Locale.ROOT);
         this.registrySupplier = registrySupplier != null ? registrySupplier : new Supplier<LookupRegistry<T>>() {
 
             @Override

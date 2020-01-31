@@ -30,8 +30,7 @@ package org.apache.hc.core5.http2.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-
-import org.apache.hc.core5.util.Args;
+import java.util.Objects;
 
 /**
  * @since 5.0
@@ -45,7 +44,7 @@ abstract class FrameOutputStream extends OutputStream {
 
     public FrameOutputStream(final int minChunkSize, final OutputStream outputStream) {
         super();
-        this.outputStream = Args.notNull(outputStream, "Output stream");
+        this.outputStream = Objects.requireNonNull(outputStream, "Output stream");
         this.cache = new byte[minChunkSize];
     }
 

@@ -27,12 +27,12 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
 class MultiCoreIOReactor implements IOReactor {
@@ -80,7 +80,7 @@ class MultiCoreIOReactor implements IOReactor {
 
     @Override
     public final void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
-        Args.notNull(waitTime, "Wait time");
+        Objects.requireNonNull(waitTime, "Wait time");
         final long deadline = System.currentTimeMillis() + waitTime.toMilliseconds();
         long remaining = waitTime.toMilliseconds();
         for (int i = 0; i < this.ioReactors.length; i++) {

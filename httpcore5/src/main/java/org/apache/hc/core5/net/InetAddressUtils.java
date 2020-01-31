@@ -31,9 +31,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.regex.Pattern;
-
-import org.apache.hc.core5.util.Args;
 
 /**
  * A collection of utilities relating to InetAddresses.
@@ -132,7 +131,7 @@ public class InetAddressUtils {
     public static void formatAddress(
             final StringBuilder buffer,
             final SocketAddress socketAddress) {
-        Args.notNull(buffer, "buffer");
+        Objects.requireNonNull(buffer, "buffer");
         if (socketAddress instanceof InetSocketAddress) {
             final InetSocketAddress socketaddr = (InetSocketAddress) socketAddress;
             final InetAddress inetaddr = socketaddr.getAddress();

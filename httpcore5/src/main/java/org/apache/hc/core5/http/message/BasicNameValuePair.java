@@ -29,11 +29,11 @@ package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
 
 /**
@@ -57,7 +57,7 @@ public class BasicNameValuePair implements NameValuePair, Serializable {
      */
     public BasicNameValuePair(final String name, final String value) {
         super();
-        this.name = Args.notNull(name, "Name");
+        this.name = Objects.requireNonNull(name, "Name");
         this.value = value;
     }
 

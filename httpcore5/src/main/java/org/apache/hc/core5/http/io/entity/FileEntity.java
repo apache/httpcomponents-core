@@ -31,11 +31,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.util.Args;
 
 /**
  * A self contained, repeatable entity that obtains its content from a file.
@@ -49,12 +49,12 @@ public class FileEntity extends AbstractHttpEntity {
 
     public FileEntity(final File file, final ContentType contentType, final String contentEncoding) {
         super(contentType, contentEncoding);
-        this.file = Args.notNull(file, "File");
+        this.file = Objects.requireNonNull(file, "File");
     }
 
     public FileEntity(final File file, final ContentType contentType) {
         super(contentType, null);
-        this.file = Args.notNull(file, "File");
+        this.file = Objects.requireNonNull(file, "File");
     }
 
     @Override

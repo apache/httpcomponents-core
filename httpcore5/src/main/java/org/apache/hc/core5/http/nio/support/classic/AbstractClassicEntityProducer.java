@@ -28,6 +28,7 @@ package org.apache.hc.core5.http.nio.support.classic;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -35,7 +36,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link AsyncEntityProducer} implementation that acts as a compatibility
@@ -57,7 +57,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
     public AbstractClassicEntityProducer(final int initialBufferSize, final ContentType contentType, final Executor executor) {
         this.buffer = new SharedOutputBuffer(initialBufferSize);
         this.contentType = contentType;
-        this.executor = Args.notNull(executor, "Executor");
+        this.executor = Objects.requireNonNull(executor, "Executor");
         this.state = new AtomicReference<>(State.IDLE);
         this.exception = new AtomicReference<>(null);
     }

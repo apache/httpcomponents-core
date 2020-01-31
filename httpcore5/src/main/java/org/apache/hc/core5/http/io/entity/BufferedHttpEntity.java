@@ -32,9 +32,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.util.Args;
 
 /**
  * A wrapping entity that buffers it content if necessary.
@@ -106,7 +106,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
 
     @Override
     public void writeTo(final OutputStream outStream) throws IOException {
-        Args.notNull(outStream, "Output stream");
+        Objects.requireNonNull(outStream, "Output stream");
         if (this.buffer != null) {
             outStream.write(this.buffer);
         } else {

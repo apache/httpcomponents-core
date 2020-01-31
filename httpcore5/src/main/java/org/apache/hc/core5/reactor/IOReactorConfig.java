@@ -28,11 +28,11 @@
 package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -186,7 +186,7 @@ public final class IOReactorConfig {
     }
 
     public static Builder copy(final IOReactorConfig config) {
-        Args.notNull(config, "I/O reactor config");
+        Objects.requireNonNull(config, "I/O reactor config");
         return new Builder()
             .setSelectInterval(config.getSelectInterval())
             .setIoThreadCount(config.getIoThreadCount())

@@ -32,13 +32,13 @@ import java.io.IOException;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
 abstract class AbstractSingleCoreIOReactor implements IOReactor {
@@ -115,7 +115,7 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
 
     @Override
     public final void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
-        Args.notNull(waitTime, "Wait time");
+        Objects.requireNonNull(waitTime, "Wait time");
         final long deadline = System.currentTimeMillis() + waitTime.toMilliseconds();
         long remaining = waitTime.toMilliseconds();
         synchronized (this.shutdownMutex) {

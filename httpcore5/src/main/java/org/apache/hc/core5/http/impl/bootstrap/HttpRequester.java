@@ -36,6 +36,7 @@ import java.net.Socket;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -84,7 +85,6 @@ import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.pool.PoolStats;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -120,9 +120,9 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
             final Callback<SSLParameters> sslSetupHandler,
             final SSLSessionVerifier sslSessionVerifier,
             final Resolver<HttpHost, InetSocketAddress> addressResolver) {
-        this.requestExecutor = Args.notNull(requestExecutor, "Request executor");
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
-        this.connPool = Args.notNull(connPool, "Connection pool");
+        this.requestExecutor = Objects.requireNonNull(requestExecutor, "Request executor");
+        this.httpProcessor = Objects.requireNonNull(httpProcessor, "HTTP processor");
+        this.connPool = Objects.requireNonNull(connPool, "Connection pool");
         this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
         this.connectFactory = connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
                 Http1Config.DEFAULT, CharCodingConfig.DEFAULT);
@@ -192,9 +192,9 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
             final ClassicHttpRequest request,
             final HttpResponseInformationCallback informationCallback,
             final HttpContext context) throws HttpException, IOException {
-        Args.notNull(connection, "HTTP connection");
-        Args.notNull(request, "HTTP request");
-        Args.notNull(context, "HTTP context");
+        Objects.requireNonNull(connection, "HTTP connection");
+        Objects.requireNonNull(request, "HTTP request");
+        Objects.requireNonNull(context, "HTTP context");
         if (!connection.isOpen()) {
             throw new ConnectionClosedException();
         }
@@ -313,8 +313,8 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
             final HttpResponseInformationCallback informationCallback,
             final Timeout connectTimeout,
             final HttpContext context) throws HttpException, IOException {
-        Args.notNull(targetHost, "HTTP host");
-        Args.notNull(request, "HTTP request");
+        Objects.requireNonNull(targetHost, "HTTP host");
+        Objects.requireNonNull(request, "HTTP request");
         final Future<PoolEntry<HttpHost, HttpClientConnection>> leaseFuture = connPool.lease(targetHost, null, connectTimeout, null);
         final PoolEntry<HttpHost, HttpClientConnection> poolEntry;
         final Timeout timeout = Timeout.defaultsToDisabled(connectTimeout);

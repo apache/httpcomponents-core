@@ -29,8 +29,7 @@ package org.apache.hc.core5.http.nio.ssl;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-
-import org.apache.hc.core5.util.Args;
+import java.util.Objects;
 
 /**
  * Basic implementation of {@link SecurePortStrategy} with a fixed list of secure ports.
@@ -42,7 +41,7 @@ public final class FixedPortStrategy implements SecurePortStrategy {
     private final int[] securePorts;
 
     public FixedPortStrategy(final int... securePorts) {
-        this.securePorts = Args.notNull(securePorts, "Secure ports");
+        this.securePorts = Objects.requireNonNull(securePorts, "Secure ports");
     }
 
     @Override

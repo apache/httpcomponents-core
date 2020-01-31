@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
@@ -197,7 +198,7 @@ public class ServerBootstrap {
      */
     public final ServerBootstrap register(final String uriPattern, final HttpRequestHandler requestHandler) {
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(requestHandler, "Supplier");
+        Objects.requireNonNull(requestHandler, "Supplier");
         handlerList.add(new HandlerEntry<>(null, uriPattern, requestHandler));
         return this;
     }
@@ -213,7 +214,7 @@ public class ServerBootstrap {
     public final ServerBootstrap registerVirtual(final String hostname, final String uriPattern, final HttpRequestHandler requestHandler) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(requestHandler, "Supplier");
+        Objects.requireNonNull(requestHandler, "Supplier");
         handlerList.add(new HandlerEntry<>(hostname, uriPattern, requestHandler));
         return this;
     }
@@ -276,7 +277,7 @@ public class ServerBootstrap {
     public final ServerBootstrap addFilterBefore(final String existing, final String name, final HttpFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
         Args.notBlank(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Objects.requireNonNull(filterHandler, "Filter handler");
         filters.add(new FilterEntry<>(FilterEntry.Postion.BEFORE, name, filterHandler, existing));
         return this;
     }
@@ -287,7 +288,7 @@ public class ServerBootstrap {
     public final ServerBootstrap addFilterAfter(final String existing, final String name, final HttpFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
         Args.notBlank(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Objects.requireNonNull(filterHandler, "Filter handler");
         filters.add(new FilterEntry<>(FilterEntry.Postion.AFTER, name, filterHandler, existing));
         return this;
     }
@@ -297,7 +298,7 @@ public class ServerBootstrap {
      */
     public final ServerBootstrap replaceFilter(final String existing, final HttpFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
-        Args.notNull(filterHandler, "Filter handler");
+        Objects.requireNonNull(filterHandler, "Filter handler");
         filters.add(new FilterEntry<>(FilterEntry.Postion.REPLACE, existing, filterHandler, existing));
         return this;
     }
@@ -306,8 +307,8 @@ public class ServerBootstrap {
      * Add an filter to the head of the processing list.
      */
     public final ServerBootstrap addFilterFirst(final String name, final HttpFilterHandler filterHandler) {
-        Args.notNull(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Objects.requireNonNull(name, "Name");
+        Objects.requireNonNull(filterHandler, "Filter handler");
         filters.add(new FilterEntry<>(FilterEntry.Postion.FIRST, name, filterHandler, null));
         return this;
     }
@@ -316,8 +317,8 @@ public class ServerBootstrap {
      * Add an filter to the tail of the processing list.
      */
     public final ServerBootstrap addFilterLast(final String name, final HttpFilterHandler filterHandler) {
-        Args.notNull(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Objects.requireNonNull(name, "Name");
+        Objects.requireNonNull(filterHandler, "Filter handler");
         filters.add(new FilterEntry<>(FilterEntry.Postion.LAST, name, filterHandler, null));
         return this;
     }

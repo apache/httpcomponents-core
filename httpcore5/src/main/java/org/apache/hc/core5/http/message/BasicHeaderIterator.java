@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.message;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link java.util.Iterator} of {@link org.apache.hc.core5.http.Header}s.
@@ -69,7 +69,7 @@ public class BasicHeaderIterator implements Iterator<Header> {
      */
     public BasicHeaderIterator(final Header[] headers, final String name) {
         super();
-        this.allHeaders = Args.notNull(headers, "Header array");
+        this.allHeaders = Objects.requireNonNull(headers, "Header array");
         this.headerName = name;
         this.currentIndex = findNext(-1);
     }

@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http2.impl.nio;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -35,7 +37,6 @@ import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -59,8 +60,8 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
             final HttpVersionPolicy versionPolicy,
             final TlsStrategy tlsStrategy,
             final Timeout handshakeTimeout) {
-        this.http1StreamDuplexerFactory = Args.notNull(http1StreamDuplexerFactory, "HTTP/1.1 stream handler factory");
-        this.http2StreamMultiplexerFactory = Args.notNull(http2StreamMultiplexerFactory, "HTTP/2 stream handler factory");
+        this.http1StreamDuplexerFactory = Objects.requireNonNull(http1StreamDuplexerFactory, "HTTP/1.1 stream handler factory");
+        this.http2StreamMultiplexerFactory = Objects.requireNonNull(http2StreamMultiplexerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.tlsStrategy = tlsStrategy;
         this.handshakeTimeout = handshakeTimeout;

@@ -28,6 +28,7 @@
 package org.apache.hc.core5.util;
 
 import java.text.ParseException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -154,7 +155,7 @@ public class Timeout extends TimeValue {
     }
 
     Timeout(final long duration, final TimeUnit timeUnit) {
-        super(Args.notNegative(duration, "duration"), Args.notNull(timeUnit, "timeUnit"));
+        super(Args.notNegative(duration, "duration"), Objects.requireNonNull(timeUnit, "timeUnit"));
     }
 
     /**

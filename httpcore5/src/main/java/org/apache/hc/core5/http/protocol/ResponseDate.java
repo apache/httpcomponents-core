@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -37,7 +38,6 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.util.Args;
 
 /**
  * ResponseDate is responsible for adding {@code Date} header to the
@@ -56,7 +56,7 @@ public class ResponseDate implements HttpResponseInterceptor {
     @Override
     public void process(final HttpResponse response, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
-        Args.notNull(response, "HTTP response");
+        Objects.requireNonNull(response, "HTTP response");
         final int status = response.getCode();
         if ((status >= HttpStatus.SC_OK) &&
             !response.containsHeader(HttpHeaders.DATE)) {

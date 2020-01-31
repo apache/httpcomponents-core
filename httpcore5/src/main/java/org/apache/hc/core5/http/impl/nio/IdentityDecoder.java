@@ -31,11 +31,11 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.FileContentDecoder;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Content decoder that reads data without any transformation. The end of the
@@ -60,7 +60,7 @@ public class IdentityDecoder extends AbstractContentDecoder implements FileConte
 
     @Override
     public int read(final ByteBuffer dst) throws IOException {
-        Args.notNull(dst, "Byte buffer");
+        Objects.requireNonNull(dst, "Byte buffer");
         if (isCompleted()) {
             return -1;
         }

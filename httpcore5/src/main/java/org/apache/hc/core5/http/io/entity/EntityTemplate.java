@@ -32,12 +32,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.io.IOCallback;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Entity that delegates the process of content generation to a {@link IOCallback}
@@ -56,7 +56,7 @@ public final class EntityTemplate extends AbstractHttpEntity {
             final IOCallback<OutputStream> callback) {
         super(contentType, contentEncoding);
         this.contentLength = contentLength;
-        this.callback = Args.notNull(callback, "I/O callback");
+        this.callback = Objects.requireNonNull(callback, "I/O callback");
     }
 
     @Override
@@ -78,7 +78,7 @@ public final class EntityTemplate extends AbstractHttpEntity {
 
     @Override
     public void writeTo(final OutputStream outStream) throws IOException {
-        Args.notNull(outStream, "Output stream");
+        Objects.requireNonNull(outStream, "Output stream");
         this.callback.execute(outStream);
     }
 

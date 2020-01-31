@@ -35,6 +35,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.Deque;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,7 +44,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 class IOSessionImpl implements IOSession {
@@ -66,8 +66,8 @@ class IOSessionImpl implements IOSession {
 
     public IOSessionImpl(final String type, final SelectionKey key, final SocketChannel socketChannel) {
         super();
-        this.key = Args.notNull(key, "Selection key");
-        this.channel = Args.notNull(socketChannel, "Socket channel");
+        this.key = Objects.requireNonNull(key, "Selection key");
+        this.channel = Objects.requireNonNull(socketChannel, "Socket channel");
         this.commandQueue = new ConcurrentLinkedDeque<>();
         this.lock = new ReentrantLock();
         this.socketTimeout = Timeout.DISABLED;

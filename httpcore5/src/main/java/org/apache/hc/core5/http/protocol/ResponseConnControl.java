@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -44,7 +45,6 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.MessageSupport;
-import org.apache.hc.core5.util.Args;
 
 /**
  * ResponseConnControl is responsible for adding {@code Connection} header
@@ -64,8 +64,8 @@ public class ResponseConnControl implements HttpResponseInterceptor {
     @Override
     public void process(final HttpResponse response, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
-        Args.notNull(response, "HTTP response");
-        Args.notNull(context, "HTTP context");
+        Objects.requireNonNull(response, "HTTP response");
+        Objects.requireNonNull(context, "HTTP context");
 
         // Always drop connection after certain type of responses
         final int status = response.getCode();

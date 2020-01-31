@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpResponse;
@@ -34,7 +36,6 @@ import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.ReasonPhraseCatalog;
 import org.apache.hc.core5.http.impl.EnglishReasonPhraseCatalog;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Default factory for creating {@link HttpResponse} objects.
@@ -54,7 +55,7 @@ public class DefaultHttpResponseFactory implements HttpResponseFactory<HttpRespo
      * @param catalog   the catalog of reason phrases
      */
     public DefaultHttpResponseFactory(final ReasonPhraseCatalog catalog) {
-        this.reasonCatalog = Args.notNull(catalog, "Reason phrase catalog");
+        this.reasonCatalog = Objects.requireNonNull(catalog, "Reason phrase catalog");
     }
 
     /**

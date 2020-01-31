@@ -26,13 +26,13 @@
  */
 package org.apache.hc.core5.concurrent;
 
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeoutValueException;
 
 /**
@@ -88,7 +88,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
     @Override
     public synchronized T get(final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
-        Args.notNull(unit, "Time unit");
+        Objects.requireNonNull(unit, "Time unit");
         final long msecs = unit.toMillis(timeout);
         final long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
         long waitTime = msecs;

@@ -28,13 +28,13 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Default implementation of {@link HttpContext}.
@@ -64,7 +64,7 @@ public class BasicHttpContext implements HttpContext {
 
     @Override
     public Object getAttribute(final String id) {
-        Args.notNull(id, "Id");
+        Objects.requireNonNull(id, "Id");
         Object obj = this.map.get(id);
         if (obj == null && this.parentContext != null) {
             obj = this.parentContext.getAttribute(id);
@@ -74,7 +74,7 @@ public class BasicHttpContext implements HttpContext {
 
     @Override
     public Object setAttribute(final String id, final Object obj) {
-        Args.notNull(id, "Id");
+        Objects.requireNonNull(id, "Id");
         if (obj != null) {
             return this.map.put(id, obj);
         }
@@ -83,7 +83,7 @@ public class BasicHttpContext implements HttpContext {
 
     @Override
     public Object removeAttribute(final String id) {
-        Args.notNull(id, "Id");
+        Objects.requireNonNull(id, "Id");
         return this.map.remove(id);
     }
 

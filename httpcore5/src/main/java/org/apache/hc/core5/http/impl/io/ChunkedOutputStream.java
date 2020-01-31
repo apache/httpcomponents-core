@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.FormattedHeader;
@@ -37,7 +38,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -80,8 +80,8 @@ public class ChunkedOutputStream extends OutputStream {
             final int chunkSizeHint,
             final Supplier<List<? extends Header>> trailerSupplier) {
         super();
-        this.buffer = Args.notNull(buffer, "Session output buffer");
-        this.outputStream = Args.notNull(outputStream, "Output stream");
+        this.buffer = Objects.requireNonNull(buffer, "Session output buffer");
+        this.outputStream = Objects.requireNonNull(outputStream, "Output stream");
         this.cache = new byte[chunkSizeHint > 0 ? chunkSizeHint : 2048];
         this.lineBuffer = new CharArrayBuffer(32);
         this.trailerSupplier = trailerSupplier;

@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http.nio.support;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
@@ -39,7 +40,6 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Basic implementation of {@link AsyncResponseProducer} that produces one fixed response
@@ -53,12 +53,12 @@ public class BasicResponseProducer implements AsyncResponseProducer {
     private final AsyncEntityProducer dataProducer;
 
     public BasicResponseProducer(final HttpResponse response, final AsyncEntityProducer dataProducer) {
-        this.response = Args.notNull(response, "Response");
+        this.response = Objects.requireNonNull(response, "Response");
         this.dataProducer = dataProducer;
     }
 
     public BasicResponseProducer(final HttpResponse response) {
-        this.response = Args.notNull(response, "Response");
+        this.response = Objects.requireNonNull(response, "Response");
         this.dataProducer = null;
     }
 

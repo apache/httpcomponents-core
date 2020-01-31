@@ -31,11 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.util.Args;
 
 /**
  * A self contained, repeatable entity that obtains its content from a path.
@@ -47,12 +47,12 @@ public class PathEntity extends AbstractHttpEntity {
 
     public PathEntity(final Path path, final ContentType contentType, final String contentEncoding) {
         super(contentType, contentEncoding);
-        this.path = Args.notNull(path, "Path");
+        this.path = Objects.requireNonNull(path, "Path");
     }
 
     public PathEntity(final Path path, final ContentType contentType) {
         super(contentType, null);
-        this.path = Args.notNull(path, "Path");
+        this.path = Objects.requireNonNull(path, "Path");
     }
 
     @Override

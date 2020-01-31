@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.StreamClosedException;
@@ -80,8 +81,8 @@ public class ContentLengthInputStream extends InputStream {
      */
     public ContentLengthInputStream(final SessionInputBuffer buffer, final InputStream inputStream, final long contentLength) {
         super();
-        this.buffer = Args.notNull(buffer, "Session input buffer");
-        this.inputStream = Args.notNull(inputStream, "Input stream");
+        this.buffer = Objects.requireNonNull(buffer, "Session input buffer");
+        this.inputStream = Objects.requireNonNull(inputStream, "Input stream");
         this.contentLength = Args.notNegative(contentLength, "Content length");
     }
 

@@ -27,11 +27,12 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -54,8 +55,8 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     @Override
     public void formatElements(
             final CharArrayBuffer buffer, final HeaderElement[] elems, final boolean quote) {
-        Args.notNull(buffer, "Char array buffer");
-        Args.notNull(elems, "Header element array");
+        Objects.requireNonNull(buffer, "Char array buffer");
+        Objects.requireNonNull(elems, "Header element array");
 
         for (int i = 0; i < elems.length; i++) {
             if (i > 0) {
@@ -68,8 +69,8 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     @Override
     public void formatHeaderElement(
             final CharArrayBuffer buffer, final HeaderElement elem, final boolean quote) {
-        Args.notNull(buffer, "Char array buffer");
-        Args.notNull(elem, "Header element");
+        Objects.requireNonNull(buffer, "Char array buffer");
+        Objects.requireNonNull(elem, "Header element");
 
         buffer.append(elem.getName());
         final String value = elem.getValue();
@@ -90,8 +91,8 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     @Override
     public void formatParameters(
             final CharArrayBuffer buffer, final NameValuePair[] nvps, final boolean quote) {
-        Args.notNull(buffer, "Char array buffer");
-        Args.notNull(nvps, "Header parameter array");
+        Objects.requireNonNull(buffer, "Char array buffer");
+        Objects.requireNonNull(nvps, "Header parameter array");
 
         for (int i = 0; i < nvps.length; i++) {
             if (i > 0) {
@@ -104,8 +105,8 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
     @Override
     public void formatNameValuePair(
             final CharArrayBuffer buffer, final NameValuePair nvp, final boolean quote) {
-        Args.notNull(buffer, "Char array buffer");
-        Args.notNull(nvp, "Name / value pair");
+        Objects.requireNonNull(buffer, "Char array buffer");
+        Objects.requireNonNull(nvp, "Name / value pair");
 
         buffer.append(nvp.getName());
         final String value = nvp.getValue();

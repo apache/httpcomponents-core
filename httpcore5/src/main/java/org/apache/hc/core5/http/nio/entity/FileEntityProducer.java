@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,7 +38,6 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.io.Closer;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
@@ -58,7 +58,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
     private boolean eof;
 
     public FileEntityProducer(final File file, final int bufferSize, final ContentType contentType, final boolean chunked) {
-        this.file = Args.notNull(file, "File");
+        this.file = Objects.requireNonNull(file, "File");
         this.length = file.length();
         this.byteBuffer = ByteBuffer.allocate(bufferSize);
         this.contentType = contentType;

@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -41,7 +42,6 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.net.URIAuthority;
-import org.apache.hc.core5.util.Args;
 
 /**
  * RequestHostOutgoing is responsible for adding {@code Host} header to the outgoing message.
@@ -59,8 +59,8 @@ public class RequestTargetHost implements HttpRequestInterceptor {
     @Override
     public void process(final HttpRequest request, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
-        Args.notNull(request, "HTTP request");
-        Args.notNull(context, "HTTP context");
+        Objects.requireNonNull(request, "HTTP request");
+        Objects.requireNonNull(context, "HTTP context");
 
         final ProtocolVersion ver = context.getProtocolVersion();
         final String method = request.getMethod();

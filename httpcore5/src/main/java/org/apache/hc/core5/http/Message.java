@@ -27,7 +27,7 @@
 
 package org.apache.hc.core5.http;
 
-import org.apache.hc.core5.util.Args;
+import java.util.Objects;
 
 /**
  * Generic message consisting of a message head and a message body.
@@ -43,7 +43,7 @@ public final class Message<H extends MessageHeaders, B> {
     private final B body;
 
     public Message(final H head, final B body) {
-        this.head = Args.notNull(head, "Message head");
+        this.head = Objects.requireNonNull(head, "Message head");
         this.body = body;
     }
 

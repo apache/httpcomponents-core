@@ -28,13 +28,13 @@
 package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.util.Args;
 
 /**
  * HTTP/1.1 request line.
@@ -52,7 +52,7 @@ public final class RequestLine implements Serializable {
 
     public RequestLine(final HttpRequest request) {
         super();
-        Args.notNull(request, "Request");
+        Objects.requireNonNull(request, "Request");
         this.method = request.getMethod();
         this.uri = request.getRequestUri();
         this.protoversion = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
@@ -62,8 +62,8 @@ public final class RequestLine implements Serializable {
                        final String uri,
                        final ProtocolVersion version) {
         super();
-        this.method = Args.notNull(method, "Method");
-        this.uri = Args.notNull(uri, "URI");
+        this.method = Objects.requireNonNull(method, "Method");
+        this.uri = Objects.requireNonNull(uri, "URI");
         this.protoversion = version != null ? version : HttpVersion.HTTP_1_1;
     }
 

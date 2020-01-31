@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ContentType;
@@ -345,7 +346,7 @@ public class ClassicRequestBuilder {
     }
 
     public ClassicRequestBuilder addParameter(final NameValuePair nvp) {
-        Args.notNull(nvp, "Name value pair");
+        Objects.requireNonNull(nvp, "Name value pair");
         if (parameters == null) {
             parameters = new LinkedList<>();
         }

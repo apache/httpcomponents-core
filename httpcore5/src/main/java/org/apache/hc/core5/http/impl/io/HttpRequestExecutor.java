@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -121,9 +122,9 @@ public class HttpRequestExecutor {
             final HttpClientConnection conn,
             final HttpResponseInformationCallback informationCallback,
             final HttpContext context) throws IOException, HttpException {
-        Args.notNull(request, "HTTP request");
-        Args.notNull(conn, "Client connection");
-        Args.notNull(context, "HTTP context");
+        Objects.requireNonNull(request, "HTTP request");
+        Objects.requireNonNull(conn, "Client connection");
+        Objects.requireNonNull(context, "HTTP context");
         try {
             context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
             context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
@@ -241,9 +242,9 @@ public class HttpRequestExecutor {
             final ClassicHttpRequest request,
             final HttpProcessor processor,
             final HttpContext context) throws HttpException, IOException {
-        Args.notNull(request, "HTTP request");
-        Args.notNull(processor, "HTTP processor");
-        Args.notNull(context, "HTTP context");
+        Objects.requireNonNull(request, "HTTP request");
+        Objects.requireNonNull(processor, "HTTP processor");
+        Objects.requireNonNull(context, "HTTP context");
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         processor.process(request, request.getEntity(), context);
     }
@@ -269,9 +270,9 @@ public class HttpRequestExecutor {
             final ClassicHttpResponse response,
             final HttpProcessor processor,
             final HttpContext context) throws HttpException, IOException {
-        Args.notNull(response, "HTTP response");
-        Args.notNull(processor, "HTTP processor");
-        Args.notNull(context, "HTTP context");
+        Objects.requireNonNull(response, "HTTP response");
+        Objects.requireNonNull(processor, "HTTP processor");
+        Objects.requireNonNull(context, "HTTP context");
         final ProtocolVersion transportVersion = response.getVersion();
         if (transportVersion != null) {
             context.setProtocolVersion(transportVersion);
@@ -295,10 +296,10 @@ public class HttpRequestExecutor {
             final ClassicHttpResponse response,
             final HttpClientConnection connection,
             final HttpContext context) throws IOException {
-        Args.notNull(connection, "HTTP connection");
-        Args.notNull(request, "HTTP request");
-        Args.notNull(response, "HTTP response");
-        Args.notNull(context, "HTTP context");
+        Objects.requireNonNull(connection, "HTTP connection");
+        Objects.requireNonNull(request, "HTTP request");
+        Objects.requireNonNull(response, "HTTP response");
+        Objects.requireNonNull(context, "HTTP context");
         final boolean keepAlive = connection.isConsistent() && connReuseStrategy.keepAlive(request, response, context);
         if (streamListener != null) {
             streamListener.onExchangeComplete(connection, keepAlive);

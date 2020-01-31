@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -94,7 +95,7 @@ public class HttpServer implements ModalCloseable {
             final Callback<SSLParameters> sslSetupHandler,
             final ExceptionListener exceptionListener) {
         this.port = Args.notNegative(port, "Port value is negative");
-        this.httpService = Args.notNull(httpService, "HTTP service");
+        this.httpService = Objects.requireNonNull(httpService, "HTTP service");
         this.ifAddress = ifAddress;
         this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
         this.serverSocketFactory = serverSocketFactory != null ? serverSocketFactory : ServerSocketFactory.getDefault();
@@ -178,7 +179,7 @@ public class HttpServer implements ModalCloseable {
     }
 
     public void awaitTermination(final TimeValue waitTime) throws InterruptedException {
-        Args.notNull(waitTime, "Wait time");
+        Objects.requireNonNull(waitTime, "Wait time");
         this.workerExecutorService.awaitTermination(waitTime.getDuration(), waitTime.getTimeUnit());
     }
 

@@ -33,11 +33,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.util.Args;
 
 /**
  * A self contained, repeatable entity that obtains its content from a {@link String}.
@@ -61,7 +61,7 @@ public class StringEntity extends AbstractHttpEntity {
     public StringEntity(
             final String string, final ContentType contentType, final String contentEncoding, final boolean chunked) {
         super(contentType, contentEncoding, chunked);
-        Args.notNull(string, "Source string");
+        Objects.requireNonNull(string, "Source string");
         Charset charset = contentType != null ? contentType.getCharset() : null;
         if (charset == null) {
             charset = StandardCharsets.ISO_8859_1;
@@ -124,7 +124,7 @@ public class StringEntity extends AbstractHttpEntity {
 
     @Override
     public final void writeTo(final OutputStream outStream) throws IOException {
-        Args.notNull(outStream, "Output stream");
+        Objects.requireNonNull(outStream, "Output stream");
         outStream.write(this.content);
         outStream.flush();
     }

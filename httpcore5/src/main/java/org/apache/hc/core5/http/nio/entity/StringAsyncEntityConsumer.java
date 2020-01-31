@@ -28,6 +28,7 @@ package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
 import java.nio.CharBuffer;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
@@ -75,7 +76,7 @@ public class StringAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<S
 
     @Override
     protected final void data(final CharBuffer src, final boolean endOfStream) {
-        Args.notNull(src, "CharBuffer");
+        Objects.requireNonNull(src, "CharBuffer");
         final int chunk = src.remaining();
         content.ensureCapacity(chunk);
         src.get(content.array(), content.length(), chunk);

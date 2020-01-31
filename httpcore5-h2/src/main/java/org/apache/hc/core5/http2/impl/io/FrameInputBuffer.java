@@ -30,6 +30,7 @@ package org.apache.hc.core5.http2.impl.io;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -57,7 +58,7 @@ public final class FrameInputBuffer {
     private int dataLen;
 
     FrameInputBuffer(final BasicH2TransportMetrics metrics, final int bufferLen, final int maxFramePayloadSize) {
-        Args.notNull(metrics, "HTTP2 transport metrcis");
+        Objects.requireNonNull(metrics, "HTTP2 transport metrcis");
         Args.positive(maxFramePayloadSize, "Maximum payload size");
         this.metrics = metrics;
         this.maxFramePayloadSize = maxFramePayloadSize;

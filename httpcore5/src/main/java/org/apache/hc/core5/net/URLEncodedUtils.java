@@ -37,12 +37,12 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.ParserCursor;
 import org.apache.hc.core5.http.message.TokenParser;
-import org.apache.hc.core5.util.Args;
 
 /**
  * A collection of utilities for encoding URLs.
@@ -72,7 +72,7 @@ public class URLEncodedUtils {
      * @since 4.5
      */
     public static List<NameValuePair> parse(final URI uri, final Charset charset) {
-        Args.notNull(uri, "URI");
+        Objects.requireNonNull(uri, "URI");
         final String query = uri.getRawQuery();
         if (query != null && !query.isEmpty()) {
             return parse(query, charset);
@@ -109,7 +109,7 @@ public class URLEncodedUtils {
      */
     public static List<NameValuePair> parse(
             final CharSequence s, final Charset charset, final char... separators) {
-        Args.notNull(s, "Char sequence");
+        Objects.requireNonNull(s, "Char sequence");
         final TokenParser tokenParser = TokenParser.INSTANCE;
         final BitSet delimSet = new BitSet();
         for (final char separator: separators) {
@@ -183,7 +183,7 @@ public class URLEncodedUtils {
      * @since 4.5
      */
     public static List<String> parsePathSegments(final CharSequence s, final Charset charset) {
-        Args.notNull(s, "Char sequence");
+        Objects.requireNonNull(s, "Char sequence");
         final List<String> list = splitPathSegments(s);
         for (int i = 0; i < list.size(); i++) {
             list.set(i, urlDecode(list.get(i), charset != null ? charset : StandardCharsets.UTF_8, false));
@@ -220,7 +220,7 @@ public class URLEncodedUtils {
      * @since 4.5
      */
     public static String formatSegments(final Iterable<String> segments, final Charset charset) {
-        Args.notNull(segments, "Segments");
+        Objects.requireNonNull(segments, "Segments");
         final StringBuilder buf = new StringBuilder();
         formatSegments(buf, segments, charset);
         return buf.toString();
@@ -279,7 +279,7 @@ public class URLEncodedUtils {
             final Iterable<? extends NameValuePair> parameters,
             final char parameterSeparator,
             final Charset charset) {
-        Args.notNull(parameters, "Parameters");
+        Objects.requireNonNull(parameters, "Parameters");
         final StringBuilder buf = new StringBuilder();
         formatNameValuePairs(buf, parameters, parameterSeparator, charset);
         return buf.toString();

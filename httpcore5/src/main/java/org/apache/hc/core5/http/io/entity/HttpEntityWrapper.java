@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -38,7 +39,6 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Base class for wrapping entities that delegates all calls to the wrapped entity.
@@ -60,7 +60,7 @@ public class HttpEntityWrapper implements HttpEntity {
      */
     public HttpEntityWrapper(final HttpEntity wrappedEntity) {
         super();
-        this.wrappedEntity = Args.notNull(wrappedEntity, "Wrapped entity");
+        this.wrappedEntity = Objects.requireNonNull(wrappedEntity, "Wrapped entity");
     }
 
     @Override

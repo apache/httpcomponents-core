@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -41,7 +42,6 @@ import org.apache.hc.core5.http.io.HttpMessageParser;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.message.LazyLineParser;
 import org.apache.hc.core5.http.message.LineParser;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -149,10 +149,10 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
             final int maxLineLen,
             final LineParser parser,
             final List<CharArrayBuffer> headerLines) throws HttpException, IOException {
-        Args.notNull(inBuffer, "Session input buffer");
-        Args.notNull(inputStream, "Input stream");
-        Args.notNull(parser, "Line parser");
-        Args.notNull(headerLines, "Header line list");
+        Objects.requireNonNull(inBuffer, "Session input buffer");
+        Objects.requireNonNull(inputStream, "Input stream");
+        Objects.requireNonNull(parser, "Line parser");
+        Objects.requireNonNull(headerLines, "Header line list");
 
         CharArrayBuffer current = null;
         CharArrayBuffer previous = null;
@@ -231,8 +231,8 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
 
     @Override
     public T parse(final SessionInputBuffer buffer, final InputStream inputStream) throws IOException, HttpException {
-        Args.notNull(buffer, "Session input buffer");
-        Args.notNull(inputStream, "Input stream");
+        Objects.requireNonNull(buffer, "Session input buffer");
+        Objects.requireNonNull(inputStream, "Input stream");
         final int st = this.state;
         switch (st) {
         case HEAD_LINE:

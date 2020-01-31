@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.nio;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
@@ -38,7 +39,6 @@ import org.apache.hc.core5.http.message.BasicLineFormatter;
 import org.apache.hc.core5.http.message.LineFormatter;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
 /**
@@ -83,8 +83,8 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
 
     @Override
     public void write(final T message, final SessionOutputBuffer sessionBuffer) throws IOException, HttpException {
-        Args.notNull(message, "HTTP message");
-        Args.notNull(sessionBuffer, "Session output buffer");
+        Objects.requireNonNull(message, "HTTP message");
+        Objects.requireNonNull(sessionBuffer, "Session output buffer");
 
         writeHeadLine(message, this.lineBuf);
         sessionBuffer.writeLine(this.lineBuf);

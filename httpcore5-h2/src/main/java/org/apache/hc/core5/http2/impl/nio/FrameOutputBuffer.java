@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.Objects;
 
 import org.apache.hc.core5.http2.H2ConnectionException;
 import org.apache.hc.core5.http2.H2Error;
@@ -51,7 +52,7 @@ public final class FrameOutputBuffer {
     private final ByteBuffer buffer;
 
     public FrameOutputBuffer(final BasicH2TransportMetrics metrics, final int maxFramePayloadSize) {
-        Args.notNull(metrics, "HTTP2 transport metrcis");
+        Objects.requireNonNull(metrics, "HTTP2 transport metrcis");
         Args.positive(maxFramePayloadSize, "Maximum payload size");
         this.metrics = metrics;
         this.maxFramePayloadSize = maxFramePayloadSize;
@@ -63,7 +64,7 @@ public final class FrameOutputBuffer {
     }
 
     public void write(final RawFrame frame, final WritableByteChannel channel) throws IOException {
-        Args.notNull(frame, "Frame");
+        Objects.requireNonNull(frame, "Frame");
 
         final ByteBuffer payload = frame.getPayload();
         if (payload != null && payload.remaining() > maxFramePayloadSize) {

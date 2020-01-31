@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.MessageConstraintException;
@@ -87,7 +88,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
             final int minChunkLimit,
             final int maxLineLen,
             final CharsetDecoder charDecoder) {
-        Args.notNull(metrics, "HTTP transport metrcis");
+        Objects.requireNonNull(metrics, "HTTP transport metrcis");
         Args.positive(bufferSize, "Buffer size");
         this.metrics = metrics;
         this.buffer = new byte[bufferSize];
@@ -133,7 +134,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     }
 
     public int fillBuffer(final InputStream inputStream) throws IOException {
-        Args.notNull(inputStream, "Input stream");
+        Objects.requireNonNull(inputStream, "Input stream");
         // compact the buffer if necessary
         if (this.bufferPos > 0) {
             final int len = this.bufferLen - this.bufferPos;
@@ -166,7 +167,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
 
     @Override
     public int read(final InputStream inputStream) throws IOException {
-        Args.notNull(inputStream, "Input stream");
+        Objects.requireNonNull(inputStream, "Input stream");
         int readLen;
         while (!hasBufferedData()) {
             readLen = fillBuffer(inputStream);
@@ -179,7 +180,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
 
     @Override
     public int read(final byte[] b, final int off, final int len, final InputStream inputStream) throws IOException {
-        Args.notNull(inputStream, "Input stream");
+        Objects.requireNonNull(inputStream, "Input stream");
         if (b == null) {
             return 0;
         }
@@ -238,8 +239,8 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
      */
     @Override
     public int readLine(final CharArrayBuffer charBuffer, final InputStream inputStream) throws IOException {
-        Args.notNull(charBuffer, "Char array buffer");
-        Args.notNull(inputStream, "Input stream");
+        Objects.requireNonNull(charBuffer, "Char array buffer");
+        Objects.requireNonNull(inputStream, "Input stream");
         int readLen = 0;
         boolean retry = true;
         while (retry) {

@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -42,7 +43,6 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.net.URIAuthority;
-import org.apache.hc.core5.util.Args;
 
 /**
  * RequestTargetHost is responsible for copying {@code Host} header value to
@@ -61,7 +61,7 @@ public class RequestValidateHost implements HttpRequestInterceptor {
     @Override
     public void process(final HttpRequest request, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
-        Args.notNull(request, "HTTP request");
+        Objects.requireNonNull(request, "HTTP request");
 
         final Header header = request.getHeader(HttpHeaders.HOST);
         if (header != null) {

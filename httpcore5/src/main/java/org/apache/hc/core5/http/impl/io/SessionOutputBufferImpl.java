@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -81,7 +82,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
             final CharsetEncoder charEncoder) {
         super();
         Args.positive(bufferSize, "Buffer size");
-        Args.notNull(metrics, "HTTP transport metrcis");
+        Objects.requireNonNull(metrics, "HTTP transport metrcis");
         this.metrics = metrics;
         this.buffer = new ByteArrayBuffer(bufferSize);
         this.fragementSizeHint = fragementSizeHint >= 0 ? fragementSizeHint : bufferSize;
@@ -122,7 +123,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
 
     @Override
     public void flush(final OutputStream outputStream) throws IOException {
-        Args.notNull(outputStream, "Output stream");
+        Objects.requireNonNull(outputStream, "Output stream");
         flushBuffer(outputStream);
         outputStream.flush();
     }
@@ -132,7 +133,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
         if (b == null) {
             return;
         }
-        Args.notNull(outputStream, "Output stream");
+        Objects.requireNonNull(outputStream, "Output stream");
         // Do not want to buffer large-ish chunks
         // if the byte array is larger then MIN_CHUNK_LIMIT
         // write it directly to the output stream
@@ -164,7 +165,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
 
     @Override
     public void write(final int b, final OutputStream outputStream) throws IOException {
-        Args.notNull(outputStream, "Output stream");
+        Objects.requireNonNull(outputStream, "Output stream");
         if (this.fragementSizeHint > 0) {
             if (this.buffer.isFull()) {
                 flushBuffer(outputStream);
@@ -190,7 +191,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
         if (charbuffer == null) {
             return;
         }
-        Args.notNull(outputStream, "Output stream");
+        Objects.requireNonNull(outputStream, "Output stream");
         if (this.encoder == null) {
             int off = 0;
             int remaining = charbuffer.length();

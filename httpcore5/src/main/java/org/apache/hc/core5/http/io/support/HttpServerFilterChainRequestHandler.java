@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.io.support;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -35,7 +36,6 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link HttpServerRequestHandler} implementation that delegates request processing
@@ -48,7 +48,7 @@ public class HttpServerFilterChainRequestHandler implements HttpServerRequestHan
     private final HttpServerFilterChainElement filterChain;
 
     public HttpServerFilterChainRequestHandler(final HttpServerFilterChainElement filterChain) {
-        this.filterChain = Args.notNull(filterChain, "Filter chain");
+        this.filterChain = Objects.requireNonNull(filterChain, "Filter chain");
     }
 
     @Override

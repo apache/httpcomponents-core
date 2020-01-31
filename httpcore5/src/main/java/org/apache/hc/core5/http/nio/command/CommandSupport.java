@@ -27,12 +27,13 @@
 
 package org.apache.hc.core5.http.nio.command;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link Command} utility methods.
@@ -46,7 +47,7 @@ public final class CommandSupport {
      * Fails all pending session {@link Command}s.
      */
     static public void failCommands(final IOSession ioSession, final Exception ex) {
-        Args.notNull(ioSession, "I/O session");
+        Objects.requireNonNull(ioSession, "I/O session");
         Command command;
         while ((command = ioSession.poll()) != null) {
             if (command instanceof RequestExecutionCommand) {
@@ -66,7 +67,7 @@ public final class CommandSupport {
      * Cancels all pending session {@link Command}s.
      */
     static public void cancelCommands(final IOSession ioSession) {
-        Args.notNull(ioSession, "I/O session");
+        Objects.requireNonNull(ioSession, "I/O session");
         Command command;
         while ((command = ioSession.poll()) != null) {
             if (command instanceof RequestExecutionCommand) {

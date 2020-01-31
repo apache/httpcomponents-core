@@ -26,12 +26,12 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Deadline;
 import org.apache.hc.core5.util.TimeValue;
 
@@ -64,7 +64,7 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     PoolEntry(final T route, final TimeValue timeToLive, final DisposalCallback<C> disposalCallback,
               final Supplier<Long> currentTimeSupplier) {
         super();
-        this.route = Args.notNull(route, "Route");
+        this.route = Objects.requireNonNull(route, "Route");
         this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
         this.connRef = new AtomicReference<>(null);
         this.disposalCallback = disposalCallback;
@@ -144,7 +144,7 @@ public final class PoolEntry<T, C extends ModalCloseable> {
      * @since 5.0
      */
     public void assignConnection(final C conn) {
-        Args.notNull(conn, "connection");
+        Objects.requireNonNull(conn, "connection");
         if (this.connRef.compareAndSet(null, conn)) {
             this.created = getCurrentTime();
             this.updated = this.created;
@@ -179,7 +179,7 @@ public final class PoolEntry<T, C extends ModalCloseable> {
      * @since 5.0
      */
     public void updateExpiry(final TimeValue expiryTime) {
-        Args.notNull(expiryTime, "Expiry time");
+        Objects.requireNonNull(expiryTime, "Expiry time");
         final long currentTime = getCurrentTime();
         final Deadline newExpiry = Deadline.calculate(currentTime, expiryTime);
         this.expiryDeadline = newExpiry.min(this.validityDeadline);

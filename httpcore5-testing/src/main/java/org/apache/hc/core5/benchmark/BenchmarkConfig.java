@@ -29,9 +29,9 @@ package org.apache.hc.core5.benchmark;
 import java.io.File;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -236,7 +236,7 @@ public class BenchmarkConfig {
     }
 
     public static BenchmarkConfig.Builder copy(final BenchmarkConfig config) {
-        Args.notNull(config, "Socket config");
+        Objects.requireNonNull(config, "Socket config");
         return new Builder()
                 .setUri(config.getUri())
                 .setRequests(config.getRequests())

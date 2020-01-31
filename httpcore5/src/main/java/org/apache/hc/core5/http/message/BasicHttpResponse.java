@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.message;
 
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -97,13 +98,13 @@ public class BasicHttpResponse extends HeaderGroup implements HttpResponse {
 
     @Override
     public void addHeader(final String name, final Object value) {
-        Args.notNull(name, "Header name");
+        Objects.requireNonNull(name, "Header name");
         addHeader(new BasicHeader(name, value));
     }
 
     @Override
     public void setHeader(final String name, final Object value) {
-        Args.notNull(name, "Header name");
+        Objects.requireNonNull(name, "Header name");
         setHeader(new BasicHeader(name, value));
     }
 
@@ -146,7 +147,7 @@ public class BasicHttpResponse extends HeaderGroup implements HttpResponse {
 
     @Override
     public void setLocale(final Locale locale) {
-        this.locale = Args.notNull(locale, "Locale");
+        this.locale = Objects.requireNonNull(locale, "Locale");
     }
 
     /**

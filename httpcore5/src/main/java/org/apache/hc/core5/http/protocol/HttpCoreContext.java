@@ -27,13 +27,14 @@
 
 package org.apache.hc.core5.http.protocol;
 
+import java.util.Objects;
+
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Implementation of {@link HttpContext} that provides convenience
@@ -125,7 +126,7 @@ public class HttpCoreContext implements HttpContext {
     }
 
     public <T> T getAttribute(final String attribname, final Class<T> clazz) {
-        Args.notNull(clazz, "Attribute class");
+        Objects.requireNonNull(clazz, "Attribute class");
         final Object obj = getAttribute(attribname);
         if (obj == null) {
             return null;

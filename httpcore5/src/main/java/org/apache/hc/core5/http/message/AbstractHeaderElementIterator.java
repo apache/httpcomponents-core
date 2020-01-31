@@ -29,10 +29,10 @@ package org.apache.hc.core5.http.message;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.util.Args;
 
 /**
  * {@link java.util.Iterator} of {@link org.apache.hc.core5.http.HeaderElement}s.
@@ -51,7 +51,7 @@ abstract class AbstractHeaderElementIterator<T> implements Iterator<T> {
      * Creates a new instance of BasicHeaderElementIterator
      */
     AbstractHeaderElementIterator(final Iterator<Header> headerIterator) {
-        this.headerIt = Args.notNull(headerIterator, "Header iterator");
+        this.headerIt = Objects.requireNonNull(headerIterator, "Header iterator");
     }
 
     private void bufferHeaderValue() {

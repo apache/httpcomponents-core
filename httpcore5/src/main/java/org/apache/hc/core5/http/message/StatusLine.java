@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -68,7 +69,7 @@ public final class StatusLine implements Serializable {
 
     public StatusLine(final HttpResponse response) {
         super();
-        Args.notNull(response, "Response");
+        Objects.requireNonNull(response, "Response");
         this.protoVersion = response.getVersion() != null ? response.getVersion() : HttpVersion.HTTP_1_1;
         this.statusCode = response.getCode();
         this.statusClass = StatusClass.from(this.statusCode);

@@ -33,7 +33,6 @@ import java.util.Objects;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Immutable {@link Header}.
@@ -70,7 +69,7 @@ public class BasicHeader implements Header, Cloneable, Serializable {
      */
     public BasicHeader(final String name, final Object value, final boolean sensitive) {
         super();
-        this.name = Args.notNull(name, "Name");
+        this.name = Objects.requireNonNull(name, "Name");
         this.value = Objects.toString(value, null);
         this.sensitive = sensitive;
     }

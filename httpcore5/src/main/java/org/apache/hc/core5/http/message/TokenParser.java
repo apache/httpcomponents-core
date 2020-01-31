@@ -28,11 +28,11 @@
 package org.apache.hc.core5.http.message;
 
 import java.util.BitSet;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Chars;
-import org.apache.hc.core5.util.Args;
 
 /**
  * Low level parser for header field elements. The parsing routines of this class are designed
@@ -75,8 +75,8 @@ public class TokenParser {
      *  is not delimited by any character.
      */
     public String parseToken(final CharSequence buf, final ParserCursor cursor, final BitSet delimiters) {
-        Args.notNull(buf, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
+        Objects.requireNonNull(buf, "Char sequence");
+        Objects.requireNonNull(cursor, "Parser cursor");
         final StringBuilder dst = new StringBuilder();
         boolean whitespace = false;
         while (!cursor.atEnd()) {
@@ -108,8 +108,8 @@ public class TokenParser {
      *  is not delimited by any character.
      */
     public String parseValue(final CharSequence buf, final ParserCursor cursor, final BitSet delimiters) {
-        Args.notNull(buf, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
+        Objects.requireNonNull(buf, "Char sequence");
+        Objects.requireNonNull(cursor, "Parser cursor");
         final StringBuilder dst = new StringBuilder();
         boolean whitespace = false;
         while (!cursor.atEnd()) {
@@ -144,8 +144,8 @@ public class TokenParser {
      * @param cursor defines the bounds and current position of the buffer
      */
     public void skipWhiteSpace(final CharSequence buf, final ParserCursor cursor) {
-        Args.notNull(buf, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
+        Objects.requireNonNull(buf, "Char sequence");
+        Objects.requireNonNull(cursor, "Parser cursor");
         int pos = cursor.getPos();
         final int indexFrom = cursor.getPos();
         final int indexTo = cursor.getUpperBound();
@@ -171,9 +171,9 @@ public class TokenParser {
      */
     public void copyContent(final CharSequence buf, final ParserCursor cursor, final BitSet delimiters,
             final StringBuilder dst) {
-        Args.notNull(buf, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
-        Args.notNull(dst, "String builder");
+        Objects.requireNonNull(buf, "Char sequence");
+        Objects.requireNonNull(cursor, "Parser cursor");
+        Objects.requireNonNull(dst, "String builder");
         int pos = cursor.getPos();
         final int indexFrom = cursor.getPos();
         final int indexTo = cursor.getUpperBound();
@@ -200,9 +200,9 @@ public class TokenParser {
      */
     public void copyUnquotedContent(final CharSequence buf, final ParserCursor cursor,
             final BitSet delimiters, final StringBuilder dst) {
-        Args.notNull(buf, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
-        Args.notNull(dst, "String builder");
+        Objects.requireNonNull(buf, "Char sequence");
+        Objects.requireNonNull(cursor, "Parser cursor");
+        Objects.requireNonNull(dst, "String builder");
         int pos = cursor.getPos();
         final int indexFrom = cursor.getPos();
         final int indexTo = cursor.getUpperBound();
@@ -227,9 +227,9 @@ public class TokenParser {
      */
     public void copyQuotedContent(final CharSequence buf, final ParserCursor cursor,
             final StringBuilder dst) {
-        Args.notNull(buf, "Char sequence");
-        Args.notNull(cursor, "Parser cursor");
-        Args.notNull(dst, "String builder");
+        Objects.requireNonNull(buf, "Char sequence");
+        Objects.requireNonNull(cursor, "Parser cursor");
+        Objects.requireNonNull(dst, "String builder");
         if (cursor.atEnd()) {
             return;
         }

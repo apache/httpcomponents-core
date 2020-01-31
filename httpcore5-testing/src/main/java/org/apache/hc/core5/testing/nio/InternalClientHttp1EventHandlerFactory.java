@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import java.util.Objects;
+
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -54,7 +56,6 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.util.Args;
 
 /**
  * @since 5.0
@@ -80,7 +81,7 @@ class InternalClientHttp1EventHandlerFactory implements IOEventHandlerFactory {
             final SSLContext sslContext,
             final SSLSessionInitializer sslSessionInitializer,
             final SSLSessionVerifier sslSessionVerifier) {
-        this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
+        this.httpProcessor = Objects.requireNonNull(httpProcessor, "HTTP processor");
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
