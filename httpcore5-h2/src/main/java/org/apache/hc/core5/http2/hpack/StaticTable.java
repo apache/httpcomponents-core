@@ -32,23 +32,26 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import org.apache.hc.core5.http2.H2PseudoRequestHeaders;
+import org.apache.hc.core5.http2.H2PseudoResponseHeaders;
+
 final class StaticTable {
 
     static final HPackHeader[] STANDARD_HEADERS = {
-            new HPackHeader(":authority", ""),
-            new HPackHeader(":method", "GET"),
-            new HPackHeader(":method", "POST"),
-            new HPackHeader(":path", "/"),
-            new HPackHeader(":path", "/index.html"),
-            new HPackHeader(":scheme", "http"),
-            new HPackHeader(":scheme", "https"),
-            new HPackHeader(":status", "200"),
-            new HPackHeader(":status", "204"),
-            new HPackHeader(":status", "206"),
-            new HPackHeader(":status", "304"),
-            new HPackHeader(":status", "400"),
-            new HPackHeader(":status", "404"),
-            new HPackHeader(":status", "500"),
+            new HPackHeader(H2PseudoRequestHeaders.AUTHORITY, ""),
+            new HPackHeader(H2PseudoRequestHeaders.METHOD, "GET"),
+            new HPackHeader(H2PseudoRequestHeaders.METHOD, "POST"),
+            new HPackHeader(H2PseudoRequestHeaders.PATH, "/"),
+            new HPackHeader(H2PseudoRequestHeaders.PATH, "/index.html"),
+            new HPackHeader(H2PseudoRequestHeaders.SCHEME, "http"),
+            new HPackHeader(H2PseudoRequestHeaders.SCHEME, "https"),
+            new HPackHeader(H2PseudoResponseHeaders.STATUS, "200"),
+            new HPackHeader(H2PseudoResponseHeaders.STATUS, "204"),
+            new HPackHeader(H2PseudoResponseHeaders.STATUS, "206"),
+            new HPackHeader(H2PseudoResponseHeaders.STATUS, "304"),
+            new HPackHeader(H2PseudoResponseHeaders.STATUS, "400"),
+            new HPackHeader(H2PseudoResponseHeaders.STATUS, "404"),
+            new HPackHeader(H2PseudoResponseHeaders.STATUS, "500"),
             new HPackHeader("accept-charset", ""),
             new HPackHeader("accept-encoding", "gzip, deflate"),
             new HPackHeader("accept-language", ""),
