@@ -1,12 +1,58 @@
-Release 5.0-BETA12
+Release 5.0
 ------------------
 
-This BETA improves handling of illegal or invalid requests on the server side and fixes a number
-of defects in HTTP/2 protocol code found since the last release.
+This is the first stable (GA) release of HttpCore 5.0.
 
-IMPORTANT: This release is expected to be the last BETA version. If no major
-design flaws are found, the actual 5.0 API will be frozen and the next version will be
-promoted to GA.
+Notable changes and features included in the 5.0 series:
+
+* Support for HTTP/2 protocol and conformance to requirements and recommendations
+  of the latest HTTP/2 protocol specification (RFC 7540, RFC 7541)
+
+  Supported features:
+
+    ** HPACK header compression
+    ** stream multiplexing (client and server)
+    ** flow control
+    ** response push (client and server)
+    ** message trailers
+    ** expect-continue handshake
+    ** connection validation (ping)
+    ** application-layer protocol negotiation (ALPN) on Java 9+
+    ** TLS 1.2 security features
+
+   Features out of scope for 5.0 release:
+
+    ** padding of outgoing frames
+    ** stream priority
+    ** plain connection HTTP/1.1 upgrade
+    ** CONNECT method
+
+* Improved conformance to requirements and recommendations of the latest HTTP/1.1 protocol
+  specification (RFC 7230, RFC 7231)
+
+* New asynchronous HTTP transport APIs consistent for both HTTP/1.1 and HTTP/2 transport.
+
+* Redesigned I/O reactor APIs and improved NIO based reactor implementation for a greater
+  performance and scalability.
+
+* Support for server-side request filters for classic and asynchronous server implementations.
+  Request filters could be used to implement cross-cutting protocol aspects such
+  as the 'expect-continue' handshaking and user authentication / authorization.
+
+* Support for Reactive Streams API [http://www.reactive-streams.org/]
+
+* Redesigned connection pool implementation with strict connection limit guarantees.
+  The connection pool is expected to have a better performance under higher concurrency
+  due to reduced global pool lock contention.
+
+* New connection pool implementation with lax connection limit guarantees and better
+  performance under higher concurrency due to absence of a global pool lock.
+
+* Package name space changed to 'org.apache.hc.core5'
+
+* Maven group id changed to 'org.apache.httpcomponents.core5'
+
+HttpCore 5.0 releases can be co-located with earlier versions.
 
 
 Change Log
@@ -31,7 +77,7 @@ Change Log
 Release 5.0-BETA11
 ------------------
 
-This BETA improves handling of illegal or invalid requests on the server side and fixes a number
+This BETA improves handling of illegal or invalid requests on the server-side and fixes a number
 of defects in HTTP/2 protocol code found since the last release.
 
 IMPORTANT: This release is expected to be the last BETA version. If no major
@@ -51,7 +97,7 @@ Change Log
 * Normalize TimeUnit in TimeValue's #equals() and #hashCode().
   Contributed by Michael Osipov <michaelo at apache.org>
 
-* Support for status code 431 (Request Header Fields Too Large) by H2 server side protocol handler
+* Support for status code 431 (Request Header Fields Too Large) by H2 server-side protocol handler
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Enforce H2 SETTINGS_MAX_HEADER_LIST_SIZE limit for HTTP/2 messages.
@@ -70,7 +116,7 @@ Change Log
 * Support for status code 431 (Request Header Fields Too Large).
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Corrected handling of illegal or invalid request heads by async server side protocol handler
+* Corrected handling of illegal or invalid request heads by async server-side protocol handler
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Bug-fix: Fixed race condition in ReactiveDataConsumer.
@@ -302,7 +348,7 @@ Change Log
 * HTTPCORE-578: Incorrect serialization of HeaderGroup.
   Contributed by Gary Gregory <garydgregory at gmail.com>
 
-* HTTPCORE-577: Server side HTTP protocol negotiator to propagate exceptions
+* HTTPCORE-577: server-side HTTP protocol negotiator to propagate exceptions
   to the I/O event handler associated with the I/O session.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -445,7 +491,7 @@ Change Log
 * HTTP/1.1 and HTTP/2 async protocol handlers to use I/O session lock for output synchronization.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Bug fix: non-blocking HTTP/1.1 server side streams incorrectly report their keep-alive status.
+* Bug fix: non-blocking HTTP/1.1 server-side streams incorrectly report their keep-alive status.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Bug fix: fixed a race condition in non-blocking HTTP/1.1 protocol handlers causing premature
@@ -524,7 +570,7 @@ Change Log
 * Resolved compatibility issues with TLS 1.3 engine shipped with Java 11
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Bug fix: corrected handling of FORCE_HTTP2 version policy by the server side protocol negotiator
+* Bug fix: corrected handling of FORCE_HTTP2 version policy by the server-side protocol negotiator
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Redesign of the internal HTTP benchmark loosely based on AB, added support for HTTP/2
@@ -702,7 +748,7 @@ Notable changes and features included in the 5.0 series:
 * Redesigned I/O reactor APIs and improved NIO based reactor implementation for a greater
   performance and scalability.
 
-* Support for server side request filters for classic and asynchronous server implementations.
+* Support for server-side request filters for classic and asynchronous server implementations.
   Request filters could be used to implement cross-cutting protocol aspects such
   as the 'expect-continue' handshaking and user authentication / authorization.
 
@@ -738,7 +784,7 @@ Change Log
   input buffer.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Bug fix: incorrect handing of premature I/O session termination by the server side application protocol
+* Bug fix: incorrect handing of premature I/O session termination by the server-side application protocol
   negotiator.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -799,7 +845,7 @@ Notable changes and features included in the 5.0 series:
 * Redesigned I/O reactor APIs and improved NIO based reactor implementation for a greater
   performance and scalability.
 
-* Support for server side request filters for classic and asynchronous server implementations.
+* Support for server-side request filters for classic and asynchronous server implementations.
   Request filters could be used to implement cross-cutting protocol aspects such
   as the 'expect-continue' handshaking and user authentication / authorization.
 
@@ -880,7 +926,7 @@ Notable changes and features included in the 5.0 series are:
 * Redesigned I/O reactor APIs and improved NIO based reactor implementation for a greater
   performance and scalability.
 
-* Support for server side request filters for classic and asynchronous server implementations.
+* Support for server-side request filters for classic and asynchronous server implementations.
   Request filters could be used to implement cross-cutting protocol aspects such
   as the 'expect-continue' handshaking and user authentication / authorization.
 
@@ -918,7 +964,7 @@ Change Log
   and lax total and per route max guarantees.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* Request filters for classic and asynchronous server side protocol handlers
+* Request filters for classic and asynchronous server-side protocol handlers
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Improved handling of 1xx status messages by the classic transport; server expectation
@@ -1040,7 +1086,7 @@ Change Log
 * HTTPCORE-451: Add a TimeValue class to wrap a long and a TimeUnit.
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* Fixed HTTP/2 server side response message delineation when replying to HEAD requests.
+* Fixed HTTP/2 server-side response message delineation when replying to HEAD requests.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Rewrite of non-blocking HTTP/1.1 connection persistence and re-use code.
@@ -1227,7 +1273,7 @@ Change Log
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * RFC 7230: reject headers containing whitespaces between the header field name and colon in strict mode
-  (when parsing request messages on the server side)
+  (when parsing request messages on the server-side)
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * RFC 7230: reject messages with incompatible major protocol version
@@ -1344,7 +1390,7 @@ Release 4.4
 This is the first stable (GA) release of HttpCore 4.4. Notable features included in 
 the 4.4 series are:
 
-* Support for pipelined request processing on the server side
+* Support for pipelined request processing on the server-side
 
 * Support for pipelined request execution on the client side
 
@@ -1371,7 +1417,7 @@ Release 4.4-BETA1
 This is the first BETA release from 4.4 release series. Notable features included in 
 the 4.4 series are:
 
-* Support for pipelined request processing on the server side
+* Support for pipelined request processing on the server-side
 
 * Support for pipelined request execution on the client side
 
@@ -1393,7 +1439,7 @@ Release 4.4-ALPHA1
 This is the first release from the 4.4.x development branch. The most notable features included in 
 this release are:
 
-* Support for pipelined request processing on the server side
+* Support for pipelined request processing on the server-side
 
 * Support for pipelined request execution on the client side
 
@@ -1774,7 +1820,7 @@ Release 4.2
 
 This is the first stable (GA) release of HttpCore 4.2. The most notable features included in this
 release are connection pool components for blocking and non-blocking HTTP connections and new
-asynchronous client and server side protocol handlers.
+asynchronous client and server-side protocol handlers.
 
 New protocol handling API used in conjunction with connection pooling components is expected to
 make development of asynchronous HTTP client agents and HTTP proxies easier and less error prone.
@@ -1794,7 +1840,7 @@ Change Log
   and returns false.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-296] Server side connections (both blocking and non-blocking) can now handle entity
+* [HTTPCORE-296] server-side connections (both blocking and non-blocking) can now handle entity
   enclosing requests without Content-Length and Transfer-Encoding headers.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
@@ -2163,7 +2209,7 @@ documentation and fixes a few minor bugs reported since the previous release. Ht
 now comes with a complete tutorial presenting an in-depth coverage of the API.
 
 HttpCore is a set of low level HTTP transport components that can be used to build custom
-client and server side HTTP services with a minimal footprint. HttpCore supports two I/O
+client and server-side HTTP services with a minimal footprint. HttpCore supports two I/O
 models: blocking I/O model based on the classic Java I/O and non-blocking, event driven I/O
 model based on Java NIO.  The blocking I/O model may be more appropriate for data intensive,
 low latency scenarios, whereas the non-blocking model may be more appropriate for high latency
@@ -2236,7 +2282,7 @@ Release 4.0 Beta 2
 
 The second BETA version of HttpComponents Core has been released. This release
 adds a number of improvements to the NIO components, most notable being improved
-asynchronous client side and server side protocol handlers.
+asynchronous client side and server-side protocol handlers.
 
 There has been a number of important bug fixes in HttpCore NIO module, whereas
 HttpCore base module has had very few changes.
@@ -2578,7 +2624,7 @@ ability to transparently encrypt data in transit using SSL/TLS protocol.
   UnresolvedAddressException runtime exception.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-42]: Added server side API for the expectation verification.
+* [HTTPCORE-42]: Added server-side API for the expectation verification.
   Improved support for the 'expect: continue' handshake in HttpCore and
   HttpCore NIO.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
@@ -2651,7 +2697,7 @@ a small number of I/O threads.
 * [HTTPCORE-10] Non-blocking (async) client side I/O transport based on NIO.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-9] Non-blocking (async) server side I/O transport based on NIO.
+* [HTTPCORE-9] Non-blocking (async) server-side I/O transport based on NIO.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-7] ConnectionReuseStrategy interface changed to allow access
