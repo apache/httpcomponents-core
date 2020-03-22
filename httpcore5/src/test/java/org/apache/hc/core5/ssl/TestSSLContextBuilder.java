@@ -138,7 +138,7 @@ public class TestSSLContextBuilder {
                 .loadKeyMaterial((KeyStore) null, null, null)
                 .build();
         Assert.assertNotNull(sslContext);
-        Assert.assertEquals("TLS", sslContext.getProtocol());
+        Assert.assertEquals("TLSv1.2", sslContext.getProtocol());
         Assert.assertEquals(PROVIDER_SUN_JSSE,  sslContext.getProvider().getName());
     }
 
@@ -151,7 +151,7 @@ public class TestSSLContextBuilder {
                 .loadKeyMaterial((KeyStore) null, null, null)
                 .build();
         Assert.assertNotNull(sslContext);
-        Assert.assertEquals("TLS", sslContext.getProtocol());
+        Assert.assertEquals("TLSv1.2", sslContext.getProtocol());
     }
 
     @Test
