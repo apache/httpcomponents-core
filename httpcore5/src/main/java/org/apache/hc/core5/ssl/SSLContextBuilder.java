@@ -77,7 +77,7 @@ import org.apache.hc.core5.util.Args;
  */
 public class SSLContextBuilder {
 
-    static final String TLS   = "TLS";
+    static final String DEFAULT_PROTOCOL = "TLSv1.2";
 
     private String protocol;
     private final Set<KeyManager> keyManagers;
@@ -348,7 +348,7 @@ public class SSLContextBuilder {
 
     public SSLContext build() throws NoSuchAlgorithmException, KeyManagementException {
         final SSLContext sslContext;
-        final String protocolStr = this.protocol != null ? this.protocol : TLS;
+        final String protocolStr = this.protocol != null ? this.protocol : DEFAULT_PROTOCOL;
         if (this.provider != null) {
             sslContext = SSLContext.getInstance(protocolStr, this.provider);
         } else {

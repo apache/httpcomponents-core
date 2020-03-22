@@ -63,7 +63,7 @@ public final class SSLContexts {
      */
     public static SSLContext createDefault() throws SSLInitializationException {
         try {
-            final SSLContext sslContext = SSLContext.getInstance(SSLContextBuilder.TLS);
+            final SSLContext sslContext = SSLContext.getInstance(SSLContextBuilder.DEFAULT_PROTOCOL);
             sslContext.init(null, null, null);
             return sslContext;
         } catch (final NoSuchAlgorithmException | KeyManagementException ex) {
