@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -60,9 +61,16 @@ import org.apache.hc.core5.util.Asserts;
 public final class AsyncServerFilterChainExchangeHandlerFactory implements HandlerFactory<AsyncServerExchangeHandler> {
 
     private final AsyncServerFilterChainElement filterChain;
+    private final Callback<Exception> exceptionCallback;
+
+    public AsyncServerFilterChainExchangeHandlerFactory(final AsyncServerFilterChainElement filterChain,
+                                                        final Callback<Exception> exceptionCallback) {
+        this.filterChain = Args.notNull(filterChain, "Filter chain");
+        this.exceptionCallback = exceptionCallback;
+    }
 
     public AsyncServerFilterChainExchangeHandlerFactory(final AsyncServerFilterChainElement filterChain) {
-        this.filterChain = Args.notNull(filterChain, "Filter chain");
+        this(filterChain, null);
     }
 
     @Override
@@ -105,6 +113,9 @@ public final class AsyncServerFilterChainExchangeHandlerFactory implements Handl
 
             @Override
             public void failed(final Exception cause) {
+                if (exceptionCallback != null) {
+                    exceptionCallback.execute(cause);
+                }
                 final AsyncResponseProducer handler = responseProducerRef.get();
                 if (handler != null) {
                     handler.failed(cause);

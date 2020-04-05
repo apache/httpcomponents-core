@@ -407,13 +407,13 @@ public class H2ServerBootstrap {
                 current = current.getPrevious();
             }
 
-            handlerFactory = new AsyncServerFilterChainExchangeHandlerFactory(execChain);
+            handlerFactory = new AsyncServerFilterChainExchangeHandlerFactory(execChain, exceptionCallback);
         } else {
             handlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(registry, new Decorator<AsyncServerExchangeHandler>() {
 
                 @Override
                 public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
-                    return new BasicAsyncServerExpectationDecorator(handler);
+                    return new BasicAsyncServerExpectationDecorator(handler, exceptionCallback);
                 }
 
             });

@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
@@ -57,11 +58,18 @@ import org.apache.hc.core5.util.Args;
 public class BasicAsyncServerExpectationDecorator implements AsyncServerExchangeHandler {
 
     private final AsyncServerExchangeHandler handler;
+    private final Callback<Exception> exceptionCallback;
     private final AtomicReference<AsyncResponseProducer> responseProducerRef;
 
-    public BasicAsyncServerExpectationDecorator(final AsyncServerExchangeHandler handler) {
+    public BasicAsyncServerExpectationDecorator(final AsyncServerExchangeHandler handler,
+                                                final Callback<Exception> exceptionCallback) {
         this.handler = Args.notNull(handler, "Handler");
+        this.exceptionCallback = exceptionCallback;
         this.responseProducerRef = new AtomicReference<>(null);
+    }
+
+    public BasicAsyncServerExpectationDecorator(final AsyncServerExchangeHandler handler) {
+        this(handler, null);
     }
 
     protected AsyncResponseProducer verify(
@@ -135,14 +143,14 @@ public class BasicAsyncServerExpectationDecorator implements AsyncServerExchange
 
     @Override
     public final void failed(final Exception cause) {
-        try {
+        if (exceptionCallback != null) {
+            exceptionCallback.execute(cause);
+        }
+        final AsyncResponseProducer dataProducer = responseProducerRef.get();
+        if (dataProducer == null) {
             handler.failed(cause);
-            final AsyncResponseProducer dataProducer = responseProducerRef.getAndSet(null);
-            if (dataProducer != null) {
-                dataProducer.failed(cause);
-            }
-        } finally {
-            releaseResources();
+        } else {
+            dataProducer.failed(cause);
         }
     }
 
