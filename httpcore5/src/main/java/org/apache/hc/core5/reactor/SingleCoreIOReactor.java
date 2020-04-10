@@ -65,7 +65,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private final IOSessionListener sessionListener;
     private final Callback<IOSession> sessionShutdownCallback;
     private final Queue<InternalDataChannel> closedSessions;
-    private final Queue<SocketChannel> channelQueue;
+    private final Queue<ChannelEntry> channelQueue;
     private final Queue<IOSessionRequest> requestQueue;
     private final AtomicBoolean shutdownInitiated;
     private final long selectTimeoutMillis;
@@ -91,12 +91,11 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         this.selectTimeoutMillis = this.reactorConfig.getSelectInterval().toMilliseconds();
     }
 
-    void enqueueChannel(final SocketChannel socketChannel) throws IOReactorShutdownException {
-        Args.notNull(socketChannel, "SocketChannel");
+    void enqueueChannel(final ChannelEntry entry) throws IOReactorShutdownException {
         if (getStatus().compareTo(IOReactorStatus.ACTIVE) > 0) {
             throw new IOReactorShutdownException("I/O reactor has been shut down");
         }
-        this.channelQueue.add(socketChannel);
+        this.channelQueue.add(entry);
         this.selector.wakeup();
     }
 
@@ -186,8 +185,10 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     }
 
     private void processPendingChannels() throws IOException {
-        SocketChannel socketChannel;
-        for (int i = 0; i < MAX_CHANNEL_REQUESTS && (socketChannel = this.channelQueue.poll()) != null; i++) {
+        ChannelEntry entry;
+        for (int i = 0; i < MAX_CHANNEL_REQUESTS && (entry = this.channelQueue.poll()) != null; i++) {
+            final SocketChannel socketChannel = entry.channel;
+            final Object attachment = entry.attachment;
             try {
                 prepareSocket(socketChannel.socket());
                 socketChannel.configureBlocking(false);
@@ -212,7 +213,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                     null,
                     sessionListener,
                     closedSessions);
-            dataChannel.upgrade(this.eventHandlerFactory.createHandler(dataChannel, null));
+            dataChannel.upgrade(this.eventHandlerFactory.createHandler(dataChannel, attachment));
             dataChannel.setSocketTimeout(this.reactorConfig.getSoTimeout());
             key.attach(dataChannel);
             dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
@@ -384,8 +385,9 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     }
 
     private void closePendingChannels() {
-        SocketChannel socketChannel;
-        while ((socketChannel = this.channelQueue.poll()) != null) {
+        ChannelEntry entry;
+        while ((entry = this.channelQueue.poll()) != null) {
+            final SocketChannel socketChannel = entry.channel;
             try {
                 socketChannel.close();
             } catch (final IOException ex) {

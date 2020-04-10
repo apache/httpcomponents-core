@@ -29,7 +29,6 @@ package org.apache.hc.core5.reactor;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.nio.channels.SocketChannel;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
@@ -44,14 +43,14 @@ import org.apache.hc.core5.util.TimeValue;
 
 /**
  * Multi-core I/O reactor that can ask as both {@link ConnectionInitiator}
- * and {@link ConnectionAcceptor}. Internally this I/O reactor distributes newly created
+ * and {@link ConnectionListener}. Internally this I/O reactor distributes newly created
  * I/O session equally across multiple I/O worker threads for a more optimal resource
  * utilization and a better I/O performance. Usually it is recommended to have
  * one worker I/O reactor per physical CPU core.
  *
  * @since 4.0
  */
-public class DefaultListeningIOReactor extends AbstractIOReactorBase implements ConnectionAcceptor {
+public class DefaultListeningIOReactor extends AbstractIOReactorBase implements ConnectionListener, ConnectionAcceptor {
 
     private final static ThreadFactory DISPATCH_THREAD_FACTORY = new DefaultThreadFactory("I/O server dispatch", true);
     private final static ThreadFactory LISTENER_THREAD_FACTORY = new DefaultThreadFactory("I/O listener", true);
@@ -98,11 +97,11 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
         }
         final IOReactor[] ioReactors = new IOReactor[this.workerCount + 1];
         System.arraycopy(this.workers, 0, ioReactors, 1, this.workerCount);
-        this.listener = new SingleCoreListeningIOReactor(exceptionCallback, ioReactorConfig, new Callback<SocketChannel>() {
+        this.listener = new SingleCoreListeningIOReactor(exceptionCallback, ioReactorConfig, new Callback<ChannelEntry>() {
 
             @Override
-            public void execute(final SocketChannel channel) {
-                enqueueChannel(channel);
+            public void execute(final ChannelEntry entry) {
+                enqueueChannel(entry);
             }
 
         });
@@ -147,8 +146,14 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
     }
 
     @Override
+    public Future<ListenerEndpoint> listen(
+            final SocketAddress address, final Object attachment, final FutureCallback<ListenerEndpoint> callback) {
+        return listener.listen(address, attachment, callback);
+    }
+
+    @Override
     public Future<ListenerEndpoint> listen(final SocketAddress address, final FutureCallback<ListenerEndpoint> callback) {
-        return listener.listen(address, callback);
+        return listen(address, null, callback);
     }
 
     public Future<ListenerEndpoint> listen(final SocketAddress address) {
@@ -180,9 +185,9 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
         return workerSelector;
     }
 
-    private void enqueueChannel(final SocketChannel socketChannel) {
+    private void enqueueChannel(final ChannelEntry entry) {
         try {
-            workerSelector.next().enqueueChannel(socketChannel);
+            workerSelector.next().enqueueChannel(entry);
         } catch (final IOReactorShutdownException ex) {
             initiateShutdown();
         }
