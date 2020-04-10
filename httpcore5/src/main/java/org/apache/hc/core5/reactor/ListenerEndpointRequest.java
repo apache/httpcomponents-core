@@ -35,10 +35,12 @@ import org.apache.hc.core5.concurrent.BasicFuture;
 final class ListenerEndpointRequest implements Closeable {
 
     final SocketAddress address;
+    final Object attachment;
     final BasicFuture<ListenerEndpoint> future;
 
-    ListenerEndpointRequest(final SocketAddress address, final BasicFuture<ListenerEndpoint> future) {
+    ListenerEndpointRequest(final SocketAddress address, final Object attachment, final BasicFuture<ListenerEndpoint> future) {
         this.address = address;
+        this.attachment = attachment;
         this.future = future;
     }
 

@@ -27,55 +27,25 @@
 
 package org.apache.hc.core5.reactor;
 
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.nio.channels.SelectionKey;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.nio.channels.SocketChannel;
 
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.io.Closer;
+final class ChannelEntry {
 
-class ListenerEndpointImpl implements ListenerEndpoint {
-
-    private final SelectionKey key;
-    final SocketAddress address;
+    final SocketChannel channel;
     final Object attachment;
-    private final AtomicBoolean closed;
 
-    public ListenerEndpointImpl(final SelectionKey key, final Object attachment, final SocketAddress address) {
+    public ChannelEntry(final SocketChannel channel, final Object attachment) {
         super();
-        this.key = key;
-        this.address = address;
+        this.channel = channel;
         this.attachment = attachment;
-        this.closed = new AtomicBoolean(false);
-    }
-
-    @Override
-    public SocketAddress getAddress() {
-        return this.address;
     }
 
     @Override
     public String toString() {
-        return "endpoint: " + address;
-    }
-
-    @Override
-    public boolean isClosed() {
-        return this.closed.get();
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (closed.compareAndSet(false, true)) {
-            key.cancel();
-            key.channel().close();
-        }
-    }
-
-    @Override
-    public void close(final CloseMode closeMode) {
-        Closer.closeQuietly(this);
+        return "[" +
+                "channel=" + channel +
+                ", attachment=" + attachment +
+                ']';
     }
 
 }
