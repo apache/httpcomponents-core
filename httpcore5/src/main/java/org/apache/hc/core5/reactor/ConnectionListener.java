@@ -37,12 +37,9 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 /**
  * Non-blocking connection acceptor.
  *
- * @since 5.0
- *
- * @deprecated Use {@link ConnectionListener}
+ * @since 5.1
  */
-@Deprecated
-public interface ConnectionAcceptor {
+public interface ConnectionListener {
 
     /**
      * Opens a new listener endpoint with the given socket address. Once
@@ -51,10 +48,11 @@ public interface ConnectionAcceptor {
      * dispatcher.
      *
      * @param address the socket address to listen on.
+     * @param attachment the attachment object.
      * @param callback the result callback.
      * @return listener endpoint.
      */
-    Future<ListenerEndpoint> listen(SocketAddress address, FutureCallback<ListenerEndpoint> callback);
+    Future<ListenerEndpoint> listen(SocketAddress address, Object attachment, FutureCallback<ListenerEndpoint> callback);
 
     /**
      * Suspends the I/O reactor preventing it from accepting new connections on
