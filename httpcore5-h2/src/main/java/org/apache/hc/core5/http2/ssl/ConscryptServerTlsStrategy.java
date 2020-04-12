@@ -51,11 +51,16 @@ import org.apache.hc.core5.util.Timeout;
 public class ConscryptServerTlsStrategy implements TlsStrategy {
 
     private final SSLContext sslContext;
+    @SuppressWarnings("deprecation")
     private final SecurePortStrategy securePortStrategy;
     private final SSLBufferMode sslBufferMode;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
 
+    /**
+     * @deprecated Use {@link ConscryptServerTlsStrategy#ConscryptServerTlsStrategy(SSLContext, SSLBufferMode, SSLSessionInitializer, SSLSessionVerifier)}
+     */
+    @Deprecated
     public ConscryptServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
@@ -69,6 +74,10 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
         this.verifier = verifier;
     }
 
+    /**
+     * @deprecated Use {@link ConscryptServerTlsStrategy#ConscryptServerTlsStrategy(SSLContext, SSLSessionInitializer, SSLSessionVerifier)}
+     */
+    @Deprecated
     public ConscryptServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
@@ -77,6 +86,10 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
         this(sslContext, securePortStrategy, null, initializer, verifier);
     }
 
+    /**
+     * @deprecated Use {@link ConscryptServerTlsStrategy#ConscryptServerTlsStrategy(SSLContext, SSLSessionVerifier)}
+     */
+    @Deprecated
     public ConscryptServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
@@ -84,12 +97,51 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
         this(sslContext, securePortStrategy, null, null, verifier);
     }
 
+    /**
+     * @deprecated Use {@link ConscryptServerTlsStrategy#ConscryptServerTlsStrategy(SSLContext)}
+     */
+    @Deprecated
     public ConscryptServerTlsStrategy(final SSLContext sslContext, final SecurePortStrategy securePortStrategy) {
         this(sslContext, securePortStrategy, null, null, null);
     }
 
+    /**
+     * @deprecated Use {@link ConscryptServerTlsStrategy#ConscryptServerTlsStrategy(SSLContext)}
+     */
+    @Deprecated
     public ConscryptServerTlsStrategy(final SSLContext sslContext, final int... securePorts) {
         this(sslContext, new FixedPortStrategy(securePorts));
+    }
+
+    public ConscryptServerTlsStrategy(
+            final SSLContext sslContext,
+            final SSLBufferMode sslBufferMode,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) {
+        this.sslContext = Args.notNull(sslContext, "SSL context");
+        this.sslBufferMode = sslBufferMode;
+        this.initializer = initializer;
+        this.verifier = verifier;
+        this.securePortStrategy = null;
+    }
+
+    public ConscryptServerTlsStrategy(
+            final SSLContext sslContext,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) {
+        this(sslContext, (SSLBufferMode) null, initializer, verifier);
+    }
+
+    public ConscryptServerTlsStrategy(final SSLContext sslContext, final SSLSessionVerifier verifier) {
+        this(sslContext, (SSLBufferMode) null, null, verifier);
+    }
+
+    public ConscryptServerTlsStrategy(final SSLContext sslContext) {
+        this(sslContext, (SSLBufferMode) null, null, null);
+    }
+
+    private boolean isApplicable(final SocketAddress localAddress) {
+        return securePortStrategy == null || securePortStrategy.isSecure(localAddress);
     }
 
     @Override
@@ -100,7 +152,7 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
             final SocketAddress remoteAddress,
             final Object attachment,
             final Timeout handshakeTimeout) {
-        if (securePortStrategy != null && securePortStrategy.isSecure(localAddress)) {
+        if (isApplicable(localAddress)) {
             tlsSession.startTls(
                     sslContext,
                     host,

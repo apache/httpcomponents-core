@@ -49,11 +49,16 @@ import org.apache.hc.core5.util.Timeout;
 public class BasicServerTlsStrategy implements TlsStrategy {
 
     private final SSLContext sslContext;
+    @SuppressWarnings("deprecation")
     private final SecurePortStrategy securePortStrategy;
     private final SSLBufferMode sslBufferMode;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
 
+    /**
+     * @deprecated Use {@link BasicServerTlsStrategy#BasicServerTlsStrategy(SSLContext, SSLBufferMode, SSLSessionInitializer, SSLSessionVerifier)}
+     */
+    @Deprecated
     public BasicServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
@@ -67,6 +72,10 @@ public class BasicServerTlsStrategy implements TlsStrategy {
         this.verifier = verifier;
     }
 
+    /**
+     * @deprecated Use {@link BasicServerTlsStrategy#BasicServerTlsStrategy(SSLContext, SSLSessionInitializer, SSLSessionVerifier)}
+     */
+    @Deprecated
     public BasicServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
@@ -75,6 +84,10 @@ public class BasicServerTlsStrategy implements TlsStrategy {
         this(sslContext, securePortStrategy, null, initializer, verifier);
     }
 
+    /**
+     * @deprecated Use {@link BasicServerTlsStrategy#BasicServerTlsStrategy(SSLContext, SSLSessionVerifier)}
+     */
+    @Deprecated
     public BasicServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
@@ -82,12 +95,57 @@ public class BasicServerTlsStrategy implements TlsStrategy {
         this(sslContext, securePortStrategy, null, null, verifier);
     }
 
+    /**
+     * @deprecated Use {@link BasicServerTlsStrategy#BasicServerTlsStrategy(SSLContext)}
+     */
+    @Deprecated
     public BasicServerTlsStrategy(final SSLContext sslContext, final SecurePortStrategy securePortStrategy) {
         this(sslContext, securePortStrategy, null, null, null);
     }
 
+    /**
+     * @deprecated Use {@link BasicServerTlsStrategy#BasicServerTlsStrategy()}
+     */
+    @Deprecated
     public BasicServerTlsStrategy(final SecurePortStrategy securePortStrategy) {
         this(SSLContexts.createSystemDefault(), securePortStrategy);
+    }
+
+    public BasicServerTlsStrategy(
+            final SSLContext sslContext,
+            final SSLBufferMode sslBufferMode,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) {
+        this.sslContext = Args.notNull(sslContext, "SSL context");
+        this.sslBufferMode = sslBufferMode;
+        this.initializer = initializer;
+        this.verifier = verifier;
+        this.securePortStrategy = null;
+    }
+
+    public BasicServerTlsStrategy(
+            final SSLContext sslContext,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) {
+        this(sslContext, (SSLBufferMode) null, initializer, verifier);
+    }
+
+    public BasicServerTlsStrategy(
+            final SSLContext sslContext,
+            final SSLSessionVerifier verifier) {
+        this(sslContext, (SSLBufferMode) null, null, verifier);
+    }
+
+    public BasicServerTlsStrategy(final SSLContext sslContext) {
+        this(sslContext, null, null, null, null);
+    }
+
+    public BasicServerTlsStrategy() {
+        this(SSLContexts.createSystemDefault());
+    }
+
+    private boolean isApplicable(final SocketAddress localAddress) {
+        return securePortStrategy == null || securePortStrategy.isSecure(localAddress);
     }
 
     @Override
@@ -98,7 +156,7 @@ public class BasicServerTlsStrategy implements TlsStrategy {
             final SocketAddress remoteAddress,
             final Object attachment,
             final Timeout handshakeTimeout) {
-        if (securePortStrategy != null && securePortStrategy.isSecure(localAddress)) {
+        if (isApplicable(localAddress)) {
             tlsSession.startTls(sslContext, host, sslBufferMode,
                     TlsSupport.enforceStrongSecurity(initializer), verifier, handshakeTimeout);
             return true;

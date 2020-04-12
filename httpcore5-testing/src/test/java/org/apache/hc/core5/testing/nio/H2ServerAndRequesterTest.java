@@ -111,9 +111,8 @@ public class H2ServerAndRequesterTest {
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
-                    .setTlsStrategy(scheme == URIScheme.HTTPS  ? new H2ServerTlsStrategy(
-                            SSLTestContexts.createServerSSLContext(),
-                            SecureAllPortsStrategy.INSTANCE) : null)
+                    .setTlsStrategy(scheme == URIScheme.HTTPS  ?
+                            new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()) : null)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setStreamListener(LoggingH2StreamListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)

@@ -33,7 +33,10 @@ import java.net.SocketAddress;
  * Side-side strategy to determine if local endpoint should be secured with TLS.
  *
  * @since 5.0
+ *
+ * @deprecated Use configuration parameters provided by connection listeners.
  */
+@Deprecated
 public interface SecurePortStrategy {
 
     /**

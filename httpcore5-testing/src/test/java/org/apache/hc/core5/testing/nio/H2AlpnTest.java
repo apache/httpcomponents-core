@@ -109,8 +109,8 @@ public class H2AlpnTest {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             final TlsStrategy tlsStrategy = h2Allowed ?
-                new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(), SecureAllPortsStrategy.INSTANCE) :
-                new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext(), SecureAllPortsStrategy.INSTANCE);
+                new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()) :
+                new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext());
             server = H2ServerBootstrap.bootstrap()
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
