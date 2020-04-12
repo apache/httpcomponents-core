@@ -164,9 +164,8 @@ public class Http1ServerAndRequesterTest {
                             });
                         }
                     })
-                    .setTlsStrategy(scheme == URIScheme.HTTPS  ? new BasicServerTlsStrategy(
-                            SSLTestContexts.createServerSSLContext(),
-                            SecureAllPortsStrategy.INSTANCE) : null)
+                    .setTlsStrategy(scheme == URIScheme.HTTPS  ?
+                            new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext()) : null)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .setExceptionCallback(LoggingExceptionCallback.INSTANCE)

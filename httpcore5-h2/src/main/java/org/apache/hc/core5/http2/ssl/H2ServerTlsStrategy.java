@@ -52,11 +52,16 @@ import org.apache.hc.core5.util.Timeout;
 public class H2ServerTlsStrategy implements TlsStrategy {
 
     private final SSLContext sslContext;
+    @SuppressWarnings("deprecation")
     private final SecurePortStrategy securePortStrategy;
     private final SSLBufferMode sslBufferMode;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
 
+    /**
+     * @deprecated Use {@link H2ServerTlsStrategy#H2ServerTlsStrategy(SSLContext, SSLBufferMode, SSLSessionInitializer, SSLSessionVerifier)}
+     */
+    @Deprecated
     public H2ServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
@@ -70,6 +75,10 @@ public class H2ServerTlsStrategy implements TlsStrategy {
         this.verifier = verifier;
     }
 
+    /**
+     * @deprecated Use {@link H2ServerTlsStrategy#H2ServerTlsStrategy(SSLContext, SSLSessionInitializer, SSLSessionVerifier)}
+     */
+    @Deprecated
     public H2ServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
@@ -78,6 +87,10 @@ public class H2ServerTlsStrategy implements TlsStrategy {
         this(sslContext, securePortStrategy, null, initializer, verifier);
     }
 
+    /**
+     * @deprecated Use {@link H2ServerTlsStrategy#H2ServerTlsStrategy(SSLContext, SSLSessionVerifier)}
+     */
+    @Deprecated
     public H2ServerTlsStrategy(
             final SSLContext sslContext,
             final SecurePortStrategy securePortStrategy,
@@ -85,12 +98,55 @@ public class H2ServerTlsStrategy implements TlsStrategy {
         this(sslContext, securePortStrategy, null, null, verifier);
     }
 
+    /**
+     * @deprecated Use {@link H2ServerTlsStrategy#H2ServerTlsStrategy(SSLContext)}
+     */
+    @Deprecated
     public H2ServerTlsStrategy(final SSLContext sslContext, final SecurePortStrategy securePortStrategy) {
         this(sslContext, securePortStrategy, null, null, null);
     }
 
+    /**
+     * @deprecated Use {@link H2ServerTlsStrategy#H2ServerTlsStrategy()}
+     */
+    @Deprecated
     public H2ServerTlsStrategy(final int... securePorts) {
         this(SSLContexts.createSystemDefault(), new FixedPortStrategy(securePorts));
+    }
+
+    public H2ServerTlsStrategy(
+            final SSLContext sslContext,
+            final SSLBufferMode sslBufferMode,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) {
+        this.sslContext = Args.notNull(sslContext, "SSL context");
+        this.sslBufferMode = sslBufferMode;
+        this.initializer = initializer;
+        this.verifier = verifier;
+        this.securePortStrategy = null;
+    }
+
+    public H2ServerTlsStrategy(
+            final SSLContext sslContext,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier) {
+        this(sslContext, (SSLBufferMode) null, initializer, verifier);
+    }
+
+    public H2ServerTlsStrategy(final SSLContext sslContext, final SSLSessionVerifier verifier) {
+        this(sslContext, (SSLBufferMode) null, null, verifier);
+    }
+
+    public H2ServerTlsStrategy(final SSLContext sslContext) {
+        this(sslContext, (SSLBufferMode) null, null, null);
+    }
+
+    public H2ServerTlsStrategy() {
+        this(SSLContexts.createSystemDefault());
+    }
+
+    private boolean isApplicable(final SocketAddress localAddress) {
+        return securePortStrategy == null || securePortStrategy.isSecure(localAddress);
     }
 
     @Override
@@ -101,7 +157,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
             final SocketAddress remoteAddress,
             final Object attachment,
             final Timeout handshakeTimeout) {
-        if (securePortStrategy != null && securePortStrategy.isSecure(localAddress)) {
+        if (isApplicable(localAddress)) {
             tlsSession.startTls(
                     sslContext,
                     host,
