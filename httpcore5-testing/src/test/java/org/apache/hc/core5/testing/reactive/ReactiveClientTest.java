@@ -50,6 +50,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -364,7 +365,7 @@ public class ReactiveClientTest {
 
     private InetSocketAddress startClientAndServer() throws InterruptedException, ExecutionException {
         server.start();
-        final ListenerEndpoint listener = server.listen(new InetSocketAddress(0)).get();
+        final ListenerEndpoint listener = server.listen(new InetSocketAddress(0), URIScheme.HTTP).get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
         return address;

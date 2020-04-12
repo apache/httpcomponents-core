@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
@@ -188,7 +189,7 @@ public class AsyncServerFilterExample {
         });
 
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port), URIScheme.HTTP);
         final ListenerEndpoint listenerEndpoint = future.get();
         System.out.print("Listening on " + listenerEndpoint.getAddress());
         server.awaitShutdown(TimeValue.MAX_VALUE);

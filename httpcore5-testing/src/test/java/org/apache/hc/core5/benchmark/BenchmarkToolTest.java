@@ -107,7 +107,7 @@ public class BenchmarkToolTest {
                 .setVersionPolicy(versionPolicy)
                 .create();
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
         address = (InetSocketAddress) listener.getAddress();
     }
