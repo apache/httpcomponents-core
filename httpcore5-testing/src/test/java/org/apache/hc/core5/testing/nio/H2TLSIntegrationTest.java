@@ -123,7 +123,7 @@ public class H2TLSIntegrationTest {
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
                                 .build())
-                .setTlsStrategy(new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext(), SecureAllPortsStrategy.INSTANCE))
+                .setTlsStrategy(new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
@@ -197,7 +197,7 @@ public class H2TLSIntegrationTest {
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
                                 .build())
-                .setTlsStrategy(new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext(), SecureAllPortsStrategy.INSTANCE))
+                .setTlsStrategy(new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
@@ -255,7 +255,6 @@ public class H2TLSIntegrationTest {
                                 .build())
                 .setTlsStrategy(new BasicServerTlsStrategy(
                         SSLTestContexts.createServerSSLContext(),
-                        SecureAllPortsStrategy.INSTANCE,
                         new SSLSessionInitializer() {
 
                             @Override
@@ -321,7 +320,6 @@ public class H2TLSIntegrationTest {
                                 .build())
                 .setTlsStrategy(new BasicServerTlsStrategy(
                         SSLTestContexts.createServerSSLContext(),
-                        SecureAllPortsStrategy.INSTANCE,
                         new SSLSessionInitializer() {
 
                             @Override
@@ -419,7 +417,6 @@ public class H2TLSIntegrationTest {
                                     .build())
                     .setTlsStrategy(new BasicServerTlsStrategy(
                             SSLTestContexts.createServerSSLContext(),
-                            SecureAllPortsStrategy.INSTANCE,
                             new SSLSessionInitializer() {
 
                                 @Override

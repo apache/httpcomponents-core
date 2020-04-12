@@ -36,7 +36,10 @@ import org.apache.hc.core5.util.Args;
  * Basic implementation of {@link SecurePortStrategy} with a fixed list of secure ports.
  *
  * @since 5.0
+ *
+ * @deprecated Use configuration parameters provided by connection listeners.
  */
+@Deprecated
 public final class FixedPortStrategy implements SecurePortStrategy {
 
     private final int[] securePorts;

@@ -112,9 +112,8 @@ public class H2ServerAndMultiplexingRequesterTest {
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
-                    .setTlsStrategy(scheme == URIScheme.HTTPS  ? new H2ServerTlsStrategy(
-                            SSLTestContexts.createServerSSLContext(),
-                            SecureAllPortsStrategy.INSTANCE) : null)
+                    .setTlsStrategy(scheme == URIScheme.HTTPS  ?
+                            new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()) : null)
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
