@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
@@ -115,7 +116,7 @@ public class H2GreetingServer {
         }));
 
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port), URIScheme.HTTP);
         final ListenerEndpoint listenerEndpoint = future.get();
         System.out.println("Listening on " + listenerEndpoint.getAddress());
         server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));

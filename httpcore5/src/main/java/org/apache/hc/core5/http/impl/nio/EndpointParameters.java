@@ -24,37 +24,33 @@
  * <http://www.apache.org/>.
  *
  */
-
 package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.net.InetAddressUtils;
+import org.apache.hc.core5.http.URIScheme;
 
 /**
- * {@link org.apache.hc.core5.reactor.IOEventHandler} that implements
- *  client side HTTP/1.1 messaging protocol with full support for
- *  duplexed message transmission and message pipelining.
+ * Endpoint initialization parameters
  *
- * @since 5.0
+ * @since 5.1
  */
 @Internal
-public class ClientHttp1IOEventHandler extends AbstractHttp1IOEventHandler {
+public final class EndpointParameters {
 
-    public ClientHttp1IOEventHandler(final ClientHttp1StreamDuplexer streamDuplexer) {
-        super(streamDuplexer);
+    public final String scheme;
+    public final Object attachment;
+
+    public EndpointParameters(final String scheme, final Object attachment) {
+        this.scheme = scheme != null ? scheme : URIScheme.HTTP.id;
+        this.attachment = attachment;
     }
 
     @Override
     public String toString() {
-        final StringBuilder buf = new StringBuilder();
-        InetAddressUtils.formatAddress(buf, getLocalAddress());
-        buf.append("->");
-        InetAddressUtils.formatAddress(buf, getRemoteAddress());
-        buf.append(" [");
-        streamDuplexer.appendState(buf);
-        buf.append("]");
-        return buf.toString();
+        return "EndpointParameters{" +
+                "scheme=" + scheme +
+                ", attachment=" + attachment +
+                '}';
     }
 
 }
-

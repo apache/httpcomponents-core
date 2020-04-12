@@ -187,7 +187,7 @@ public class H2ServerAndMultiplexingRequesterTest {
     @Test
     public void testSequentialRequests() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
@@ -230,7 +230,7 @@ public class H2ServerAndMultiplexingRequesterTest {
     @Test
     public void testMultiplexedRequests() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
@@ -265,7 +265,7 @@ public class H2ServerAndMultiplexingRequesterTest {
     @Test
     public void testValidityCheck() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
@@ -313,7 +313,7 @@ public class H2ServerAndMultiplexingRequesterTest {
     @Test
     public void testMultiplexedRequestCancellation() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();

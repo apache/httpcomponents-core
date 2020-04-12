@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
@@ -171,12 +172,12 @@ public class H2ProtocolNegotiationTest {
     @Test
     public void testForceHttp1() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("https", "localhost", address.getPort());
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_1, null);
         final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
@@ -194,12 +195,12 @@ public class H2ProtocolNegotiationTest {
     @Test
     public void testForceHttp2() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("https", "localhost", address.getPort());
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
         final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 
@@ -217,12 +218,12 @@ public class H2ProtocolNegotiationTest {
     @Test
     public void testNegotiateProtocol() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("https", "localhost", address.getPort());
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.NEGOTIATE, null);
         final AsyncClientEndpoint endpoint = connectFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
 

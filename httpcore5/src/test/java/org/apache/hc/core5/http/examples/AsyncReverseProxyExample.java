@@ -56,6 +56,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
@@ -204,7 +205,7 @@ public class AsyncReverseProxyExample {
 
         requester.start();
         server.start();
-        server.listen(new InetSocketAddress(port));
+        server.listen(new InetSocketAddress(port), URIScheme.HTTP);
         println("Listening on port " + port);
 
         server.awaitShutdown(TimeValue.MAX_VALUE);
