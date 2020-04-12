@@ -28,10 +28,12 @@
 package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -44,6 +46,7 @@ import org.apache.hc.core5.util.Timeout;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
+@Internal
 public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     private final ClientHttp1StreamDuplexerFactory streamDuplexerFactory;
@@ -61,15 +64,17 @@ public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     @Override
     public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
-        if (tlsStrategy != null && ioSession.getInitialEndpoint() instanceof HttpHost) {
-            final HttpHost host = (HttpHost) ioSession.getInitialEndpoint();
-            if (URIScheme.HTTPS.same(host.getSchemeName())) {
+        if (attachment instanceof EndpointParameters) {
+            final EndpointParameters params = (EndpointParameters) attachment;
+            final NamedEndpoint endpoint = ioSession.getInitialEndpoint();
+            if (tlsStrategy != null && endpoint != null && URIScheme.HTTPS.same(params.scheme)) {
+                final HttpHost host = new HttpHost(params.scheme, endpoint.getHostName(), endpoint.getPort());
                 tlsStrategy.upgrade(
                         ioSession,
                         host,
                         ioSession.getLocalAddress(),
                         ioSession.getRemoteAddress(),
-                        attachment,
+                        params.attachment,
                         handshakeTimeout);
             }
         }

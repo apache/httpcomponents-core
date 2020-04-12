@@ -33,8 +33,10 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
+import org.apache.hc.core5.http.impl.nio.EndpointParameters;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
@@ -70,23 +72,29 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
 
     @Override
     public ClientHttpProtocolNegotiator createHandler(final ProtocolIOSession ioSession, final Object attachment) {
-        if (tlsStrategy != null && ioSession.getInitialEndpoint() instanceof HttpHost) {
-            final HttpHost host = (HttpHost) ioSession.getInitialEndpoint();
-            if (URIScheme.HTTPS.same(host.getSchemeName())) {
+        HttpVersionPolicy endpointPolicy = versionPolicy;
+        if (attachment instanceof EndpointParameters) {
+            final NamedEndpoint endpoint = ioSession.getInitialEndpoint();
+            final EndpointParameters params = (EndpointParameters) attachment;
+            if (tlsStrategy != null && endpoint != null && URIScheme.HTTPS.same(params.scheme)) {
+                final HttpHost host = new HttpHost(params.scheme, endpoint.getHostName(), endpoint.getPort());
                 tlsStrategy.upgrade(
                         ioSession,
                         host,
                         ioSession.getLocalAddress(),
                         ioSession.getRemoteAddress(),
-                        attachment,
+                        params.attachment,
                         handshakeTimeout);
+            }
+            if (params.attachment instanceof HttpVersionPolicy) {
+                endpointPolicy = (HttpVersionPolicy) params.attachment;
             }
         }
         return new ClientHttpProtocolNegotiator(
                 ioSession,
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
-                attachment instanceof HttpVersionPolicy ? (HttpVersionPolicy) attachment : versionPolicy);
+                endpointPolicy);
     }
 
 }

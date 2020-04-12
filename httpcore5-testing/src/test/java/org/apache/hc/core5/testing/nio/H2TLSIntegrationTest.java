@@ -46,6 +46,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
@@ -164,12 +165,12 @@ public class H2TLSIntegrationTest {
                 .create();
 
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("https", "localhost", address.getPort());
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
@@ -225,12 +226,12 @@ public class H2TLSIntegrationTest {
                 .create();
 
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("https", "localhost", address.getPort());
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
@@ -291,12 +292,12 @@ public class H2TLSIntegrationTest {
                 .create();
 
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("https", "localhost", address.getPort());
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
@@ -357,12 +358,12 @@ public class H2TLSIntegrationTest {
                 .create();
 
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
 
-        final HttpHost target = new HttpHost("https", "localhost", address.getPort());
+        final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
@@ -442,11 +443,11 @@ public class H2TLSIntegrationTest {
                     .create();
             try {
                 server.start();
-                final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+                final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
                 final ListenerEndpoint listener = future.get();
                 final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
 
-                final HttpHost target = new HttpHost("https", "localhost", address.getPort());
+                final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
                 final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
                         new BasicRequestProducer(Method.POST, target, "/stuff",
                                 new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),

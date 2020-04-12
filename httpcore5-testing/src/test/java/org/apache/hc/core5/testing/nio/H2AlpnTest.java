@@ -181,7 +181,7 @@ public class H2AlpnTest {
     @Test
     public void testALPN() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();

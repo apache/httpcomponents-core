@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
+import org.apache.hc.core5.http.impl.nio.EndpointParameters;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -99,7 +100,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final IOSessionListener sessionListener,
             final ManagedConnPool<HttpHost, IOSession> connPool) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
-                        ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
+                ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
         this.connPool = Args.notNull(connPool, "Connection pool");
     }
 
@@ -177,59 +178,63 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         final Future<PoolEntry<HttpHost, IOSession>> leaseFuture = connPool.lease(
                 host, null, timeout, new FutureCallback<PoolEntry<HttpHost, IOSession>>() {
 
-            @Override
-            public void completed(final PoolEntry<HttpHost, IOSession> poolEntry) {
-                final AsyncClientEndpoint endpoint = new InternalAsyncClientEndpoint(poolEntry);
-                final IOSession ioSession = poolEntry.getConnection();
-                if (ioSession != null && !ioSession.isOpen()) {
-                    poolEntry.discardConnection(CloseMode.IMMEDIATE);
-                }
-                if (poolEntry.hasConnection()) {
-                    resultFuture.completed(endpoint);
-                } else {
-                    final Future<IOSession> futute = requestSession(host, timeout, attachment, new FutureCallback<IOSession>() {
-
-                        @Override
-                        public void completed(final IOSession session) {
-                            session.setSocketTimeout(timeout);
-                            poolEntry.assignConnection(session);
+                    @Override
+                    public void completed(final PoolEntry<HttpHost, IOSession> poolEntry) {
+                        final AsyncClientEndpoint endpoint = new InternalAsyncClientEndpoint(poolEntry);
+                        final IOSession ioSession = poolEntry.getConnection();
+                        if (ioSession != null && !ioSession.isOpen()) {
+                            poolEntry.discardConnection(CloseMode.IMMEDIATE);
+                        }
+                        if (poolEntry.hasConnection()) {
                             resultFuture.completed(endpoint);
+                        } else {
+                            final Future<IOSession> future = requestSession(
+                                    host,
+                                    timeout,
+                                    new EndpointParameters(host.getSchemeName(), attachment),
+                                    new FutureCallback<IOSession>() {
+
+                                        @Override
+                                        public void completed(final IOSession session) {
+                                            session.setSocketTimeout(timeout);
+                                            poolEntry.assignConnection(session);
+                                            resultFuture.completed(endpoint);
+                                        }
+
+                                        @Override
+                                        public void failed(final Exception cause) {
+                                            try {
+                                                resultFuture.failed(cause);
+                                            } finally {
+                                                endpoint.releaseAndDiscard();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void cancelled() {
+                                            try {
+                                                resultFuture.cancel();
+                                            } finally {
+                                                endpoint.releaseAndDiscard();
+                                            }
+                                        }
+
+                                    });
+                            resultFuture.setDependency(future);
                         }
+                    }
 
-                        @Override
-                        public void failed(final Exception cause) {
-                            try {
-                                resultFuture.failed(cause);
-                            } finally {
-                                endpoint.releaseAndDiscard();
-                            }
-                        }
+                    @Override
+                    public void failed(final Exception ex) {
+                        resultFuture.failed(ex);
+                    }
 
-                        @Override
-                        public void cancelled() {
-                            try {
-                                resultFuture.cancel();
-                            } finally {
-                                endpoint.releaseAndDiscard();
-                            }
-                        }
+                    @Override
+                    public void cancelled() {
+                        resultFuture.cancel();
+                    }
 
-                    });
-                    resultFuture.setDependency(futute);
-                }
-            }
-
-            @Override
-            public void failed(final Exception ex) {
-                resultFuture.failed(ex);
-            }
-
-            @Override
-            public void cancelled() {
-                resultFuture.cancel();
-            }
-
-        });
+                });
         resultFuture.setDependency(leaseFuture);
         return resultFuture;
     }

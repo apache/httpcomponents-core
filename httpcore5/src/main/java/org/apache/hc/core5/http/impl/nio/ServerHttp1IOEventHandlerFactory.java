@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
@@ -43,6 +44,7 @@ import org.apache.hc.core5.util.Timeout;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
+@Internal
 public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     private final ServerHttp1StreamDuplexerFactory streamDuplexerFactory;
@@ -60,21 +62,29 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     @Override
     public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
-        final boolean tlsSecured;
-        if (tlsStrategy != null) {
-            tlsSecured = tlsStrategy.upgrade(
+        String endpointScheme = URIScheme.HTTP.id;
+        if (attachment instanceof EndpointParameters) {
+            final EndpointParameters params = (EndpointParameters) attachment;
+            endpointScheme = params.scheme;
+            if (tlsStrategy != null && URIScheme.HTTPS.same(endpointScheme)) {
+                tlsStrategy.upgrade(
+                        ioSession,
+                        null,
+                        ioSession.getLocalAddress(),
+                        ioSession.getRemoteAddress(),
+                        params.attachment,
+                        handshakeTimeout);
+            }
+        } else {
+            tlsStrategy.upgrade(
                     ioSession,
                     null,
                     ioSession.getLocalAddress(),
                     ioSession.getRemoteAddress(),
                     attachment,
                     handshakeTimeout);
-        } else {
-            tlsSecured = false;
         }
-        return new ServerHttp1IOEventHandler(streamDuplexerFactory.create(
-                tlsSecured ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
-                ioSession));
+        return new ServerHttp1IOEventHandler(streamDuplexerFactory.create(endpointScheme, ioSession));
     }
 
 }
