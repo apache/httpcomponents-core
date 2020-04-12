@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
@@ -53,11 +54,11 @@ import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
-import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncServerAuthFilter;
+import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
@@ -204,7 +205,7 @@ public class Http1AuthenticationTest {
     @Test
     public void testGetRequestAuthentication() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
@@ -238,7 +239,7 @@ public class Http1AuthenticationTest {
     @Test
     public void testPostRequestAuthentication() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();
@@ -276,7 +277,7 @@ public class Http1AuthenticationTest {
     @Test
     public void testPostRequestAuthenticationNoExpectContinue() throws Exception {
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
         requester.start();

@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
@@ -141,7 +142,7 @@ public class ReactiveFullDuplexServerExample {
         });
 
         server.start();
-        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port));
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port), URIScheme.HTTP);
         final ListenerEndpoint listenerEndpoint = future.get();
         System.out.print("Listening on " + listenerEndpoint.getAddress());
         server.awaitShutdown(TimeValue.ofDays(Long.MAX_VALUE));

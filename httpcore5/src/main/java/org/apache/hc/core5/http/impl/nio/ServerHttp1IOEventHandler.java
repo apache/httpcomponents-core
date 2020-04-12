@@ -27,8 +27,7 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.net.InetAddressUtils;
 
 /**
@@ -38,7 +37,7 @@ import org.apache.hc.core5.net.InetAddressUtils;
  *
  * @since 5.0
  */
-@Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
+@Internal
 public class ServerHttp1IOEventHandler extends AbstractHttp1IOEventHandler {
 
     public ServerHttp1IOEventHandler(final ServerHttp1StreamDuplexer streamDuplexer) {

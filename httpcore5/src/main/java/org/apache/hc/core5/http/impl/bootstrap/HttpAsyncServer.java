@@ -26,14 +26,21 @@
  */
 package org.apache.hc.core5.http.impl.bootstrap;
 
+import java.net.SocketAddress;
+import java.util.concurrent.Future;
+
 import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.impl.nio.EndpointParameters;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.ListenerEndpoint;
 
 /**
  * HTTP/1.1 server side message exchange handler.
@@ -54,6 +61,43 @@ public class HttpAsyncServer extends AsyncServer {
             final IOSessionListener sessionListener) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
                         ShutdownCommand.GRACEFUL_NORMAL_CALLBACK);
+    }
+
+    public Future<ListenerEndpoint> listen(
+            final SocketAddress address,
+            final URIScheme scheme,
+            final Object attachment,
+            final FutureCallback<ListenerEndpoint> callback) {
+        return super.listen(address, new EndpointParameters(scheme.id, attachment), callback);
+    }
+
+    public Future<ListenerEndpoint> listen(
+            final SocketAddress address,
+            final URIScheme scheme,
+            final FutureCallback<ListenerEndpoint> callback) {
+        return listen(address, scheme, null, callback);
+    }
+
+    public Future<ListenerEndpoint> listen(final SocketAddress address, final URIScheme scheme) {
+        return listen(address, scheme, null, null);
+    }
+
+    /**
+     * @deprecated Use {@link #listen(SocketAddress, URIScheme, FutureCallback)}
+     */
+    @Deprecated
+    @Override
+    public Future<ListenerEndpoint> listen(final SocketAddress address, final FutureCallback<ListenerEndpoint> callback) {
+        return super.listen(address, callback);
+    }
+
+    /**
+     * @deprecated Use {@link #listen(SocketAddress, URIScheme)}
+     */
+    @Deprecated
+    @Override
+    public Future<ListenerEndpoint> listen(final SocketAddress address) {
+        return super.listen(address);
     }
 
 }
