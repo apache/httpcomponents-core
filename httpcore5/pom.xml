@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.apache.httpcomponents.core5</groupId>
     <artifactId>httpcore5-parent</artifactId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.1-alpha1-SNAPSHOT</version>
   </parent>
   <artifactId>httpcore5</artifactId>
   <name>Apache HttpComponents Core HTTP/1.1</name>
@@ -36,10 +36,6 @@
   <description>Apache HttpComponents HTTP/1.1 core components</description>
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>
-
-  <properties>
-    <Automatic-Module-Name>org.apache.httpcomponents.core5.httpcore5</Automatic-Module-Name>
-  </properties>
 
   <dependencies>
     <dependency>

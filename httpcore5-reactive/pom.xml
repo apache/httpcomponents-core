@@ -27,7 +27,7 @@
   <parent>
     <artifactId>httpcore5-parent</artifactId>
     <groupId>org.apache.httpcomponents.core5</groupId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.1-alpha1-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -36,10 +36,6 @@
   <description>Apache HttpComponents Reactive Streams Bindings</description>
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>
-
-  <properties>
-    <Automatic-Module-Name>org.apache.httpcomponents.core5.httpcore5.reactive</Automatic-Module-Name>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -89,7 +85,7 @@
           </execution>
         </executions>
       </plugin>
-    </plugins>
+	</plugins>
   </build>
 
   <reporting>
