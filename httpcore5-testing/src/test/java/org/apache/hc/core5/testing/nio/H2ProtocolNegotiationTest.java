@@ -88,15 +88,13 @@ public class H2ProtocolNegotiationTest {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             server = H2ServerBootstrap.bootstrap()
-                    .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext(), SecureAllPortsStrategy.INSTANCE))
+                    .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                     .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
-                    .setTlsStrategy(new H2ServerTlsStrategy(
-                            SSLTestContexts.createServerSSLContext(),
-                            SecureAllPortsStrategy.INSTANCE))
+                    .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
                     .register("*", new Supplier<AsyncServerExchangeHandler>() {
 
                         @Override
