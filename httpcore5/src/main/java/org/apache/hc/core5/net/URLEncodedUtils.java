@@ -206,7 +206,7 @@ public class URLEncodedUtils {
     static void formatSegments(final StringBuilder buf, final Iterable<String> segments, final Charset charset) {
         for (final String segment : segments) {
             buf.append(PATH_SEPARATOR);
-            urlEncode(buf, segment, charset, PATHSAFE, false);
+            urlEncode(buf, segment, charset, PATHSAFE);
         }
     }
 
@@ -419,8 +419,7 @@ public class URLEncodedUtils {
             final StringBuilder buf,
             final String content,
             final Charset charset,
-            final BitSet safechars,
-            final boolean blankAsPlus) {
+            final BitSet safechars) {
         if (content == null) {
             return;
         }
@@ -429,8 +428,6 @@ public class URLEncodedUtils {
             final int b = bb.get() & 0xff;
             if (safechars.get(b)) {
                 buf.append((char) b);
-            } else if (blankAsPlus && b == ' ') {
-                buf.append('+');
             } else {
                 buf.append("%");
                 final char hex1 = Character.toUpperCase(Character.forDigit((b >> 4) & 0xF, RADIX));
@@ -485,15 +482,24 @@ public class URLEncodedUtils {
         if (content == null) {
             return;
         }
-        urlEncode(buf, content, charset != null ? charset : StandardCharsets.UTF_8, URLENCODER, true);
+        urlEncode(buf, content, charset != null ? charset : StandardCharsets.UTF_8, URLENCODER);
+    }
+
+    static String encodeFormFields(final String content, final Charset charset) {
+        if (content == null) {
+            return null;
+        }
+        final StringBuilder buf = new StringBuilder();
+        urlEncode(buf, content, charset != null ? charset : StandardCharsets.UTF_8, URLENCODER);
+        return buf.toString();
     }
 
     static void encUserInfo(final StringBuilder buf, final String content, final Charset charset) {
-        urlEncode(buf, content, charset != null ? charset : StandardCharsets.UTF_8, USERINFO, false);
+        urlEncode(buf, content, charset != null ? charset : StandardCharsets.UTF_8, USERINFO);
     }
 
     static void encUric(final StringBuilder buf, final String content, final Charset charset) {
-        urlEncode(buf, content, charset != null ? charset : StandardCharsets.UTF_8, URIC, false);
+        urlEncode(buf, content, charset != null ? charset : StandardCharsets.UTF_8, URIC);
     }
 
 }
