@@ -400,6 +400,16 @@ public class TestCharArrayBuffer {
     }
 
     @Test
+    public void testSubSequence() {
+        final CharArrayBuffer buffer = new CharArrayBuffer(16);
+        buffer.append(" name:  value    ");
+        Assert.assertEquals(5, buffer.indexOf(':'));
+        Assert.assertEquals(" name", buffer.subSequence(0, 5).toString());
+        Assert.assertEquals("  value    ",
+            buffer.subSequence(6, buffer.length()).toString());
+    }
+
+    @Test
     public void testSubSequenceIndexOfOutBound() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("stuff");

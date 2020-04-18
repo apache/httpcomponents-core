@@ -485,7 +485,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         if (beginIndex > endIndex) {
             throw new IndexOutOfBoundsException("beginIndex: " + beginIndex + " > endIndex: " + endIndex);
         }
-        return CharBuffer.wrap(this.array, beginIndex, endIndex);
+        return CharBuffer.wrap(this.array, beginIndex, endIndex - beginIndex);
     }
 
     @Override
