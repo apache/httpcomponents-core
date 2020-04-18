@@ -28,7 +28,6 @@ package org.apache.hc.core5.net;
 
 import java.net.InetAddress;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -191,7 +190,7 @@ public class TestURIBuilder {
         final URIBuilder uribuilder = new URIBuilder(uri).setParameter("param", "some other stuff")
             .setParameter("blah", "blah");
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/?param=some+other+stuff&blah=blah"), result);
+        Assert.assertEquals(new URI("http://localhost:80/?param=some%20other%20stuff&blah=blah"), result);
     }
 
     @Test
@@ -216,7 +215,7 @@ public class TestURIBuilder {
         final URIBuilder uribuilder = new URIBuilder(uri).addParameter("param", "1 + 1 = 2")
             .addParameter("param", "blah&blah");
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/?param=stuff&param=1+%2B+1+%3D+2&" +
+        Assert.assertEquals(new URI("http://localhost:80/?param=stuff&param=1%20%2B%201%20%3D%202&" +
                 "param=blah%26blah"), result);
     }
 
@@ -227,13 +226,13 @@ public class TestURIBuilder {
             .addParameter("blah", "blah");
         final URI result = uribuilder.build();
         Assert.assertEquals(new URI("http://localhost:80/?param=stuff&blah&blah&" +
-                "param=some+other+stuff&blah=blah"), result);
+                "param=some%20other%20stuff&blah=blah"), result);
     }
 
     @Test
     public void testQueryEncoding() throws Exception {
         final URI uri1 = new URI("https://somehost.com/stuff?client_id=1234567890" +
-                "&redirect_uri=https%3A%2F%2Fsomehost.com%2Fblah+blah%2F");
+                "&redirect_uri=https%3A%2F%2Fsomehost.com%2Fblah%20blah%2F");
         final URI uri2 = new URIBuilder("https://somehost.com/stuff")
             .addParameter("client_id","1234567890")
             .addParameter("redirect_uri","https://somehost.com/blah blah/").build();
@@ -356,8 +355,8 @@ public class TestURIBuilder {
     }
 
     public void assertBuild(final Charset charset, final URI uri) throws Exception {
-        final String encodedData1 = URLEncoder.encode("\"1\u00aa position\"", charset.displayName());
-        final String encodedData2 = URLEncoder.encode("Jos\u00e9 Abra\u00e3o", charset.displayName());
+        final String encodedData1 = URLEncodedUtils.encodeFormFields("\"1\u00aa position\"", charset);
+        final String encodedData2 = URLEncodedUtils.encodeFormFields("Jos\u00e9 Abra\u00e3o", charset);
 
         final String uriExpected = String.format("https://somehost.com/stuff?parameter1=value1&parameter2=%s&parameter3=%s", encodedData1, encodedData2);
 
@@ -453,6 +452,16 @@ public class TestURIBuilder {
         final URIBuilder uriBuilder = new URIBuilder("http://host.com");
         final URI uri = uriBuilder.build();
         Assert.assertThat(uriBuilder.isOpaque(), CoreMatchers.equalTo(uri.isOpaque()));
+    }
+
+    @Test
+    public void testAddParameterEncodingEquivalence() throws Exception {
+        final URI uri = new URI("http", null, "localhost", 80, "/",
+                "param=stuff with spaces", null);
+        final URIBuilder uribuilder = new URIBuilder().setScheme("http").setHost("localhost").setPort(80).setPath("/").addParameter(
+                "param", "stuff with spaces");
+        final URI result = uribuilder.build();
+        Assert.assertEquals(uri, result);
     }
 
 }
