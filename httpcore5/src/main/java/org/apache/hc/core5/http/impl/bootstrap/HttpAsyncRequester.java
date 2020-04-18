@@ -433,7 +433,11 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             }
             ioSession.enqueue(new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context), Command.Priority.NORMAL);
             if (!ioSession.isOpen()) {
-                exchangeHandler.failed(new ConnectionClosedException());
+                try {
+                    exchangeHandler.failed(new ConnectionClosedException());
+                } finally {
+                    exchangeHandler.releaseResources();
+                }
             }
         }
 
