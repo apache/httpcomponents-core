@@ -464,4 +464,28 @@ public class TestURIBuilder {
         Assert.assertEquals(uri, result);
     }
 
+    @Test
+    public void testSchemeSpecificPartParametersNull() throws Exception {
+       final URIBuilder uribuilder = new URIBuilder("http://host.com").setParameter("par", "parvalue")
+               .setSchemeSpecificPart("", null);
+       Assert.assertEquals(new URI("http://host.com?par=parvalue"), uribuilder.build());
+    }
+
+    @Test
+    public void testSchemeSpecificPartSetGet() throws Exception {
+       final URIBuilder uribuilder = new URIBuilder().setSchemeSpecificPart("specificpart", null);
+       Assert.assertEquals("specificpart", uribuilder.getSchemeSpecificPart());
+    }
+
+    /** Common use case: mailto: scheme. See https://tools.ietf.org/html/rfc6068#section-2 */
+    @Test
+    public void testSchemeSpecificPartParametersByRFC6068Sample() throws Exception {
+        final List<NameValuePair> parameters = new ArrayList<>();
+        parameters.add(new BasicNameValuePair("subject", "mail subject"));
+
+       final URIBuilder uribuilder = new URIBuilder().setScheme("mailto").setSchemeSpecificPart("my@email.server", parameters);
+       final String result = uribuilder.build().toString();
+       Assert.assertTrue("mail address as scheme specific part expected", result.contains("my@email.server"));
+       Assert.assertTrue("correct parameter encoding expected for that scheme", result.contains("mail%20subject"));
+    }
 }

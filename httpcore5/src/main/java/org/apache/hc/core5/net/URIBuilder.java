@@ -264,6 +264,25 @@ public class URIBuilder {
     }
 
     /**
+     *Sets the URI scheme specific part.
+     *
+     * @param schemeSpecificPart
+     * @param nvps Optional, can be null. List of query parameters to be reused by the specific scheme
+     * @return this.
+     */
+    public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart, final List <NameValuePair> nvps) {
+        if (!TextUtils.isBlank(schemeSpecificPart)) {
+            final StringBuilder sb = new StringBuilder(schemeSpecificPart);
+            if (nvps != null && !nvps.isEmpty()) {
+                sb.append("?");
+                encodeUrlForm(sb, nvps);
+            }
+            this.encodedSchemeSpecificPart = sb.toString();
+        }
+        return this;
+    }
+
+    /**
      * Sets URI user info. The value is expected to be unescaped and may contain non ASCII
      * characters.
      *
@@ -553,6 +572,10 @@ public class URIBuilder {
 
     public String getScheme() {
         return this.scheme;
+    }
+
+    public String getSchemeSpecificPart() {
+        return this.encodedSchemeSpecificPart;
     }
 
     public String getUserInfo() {
