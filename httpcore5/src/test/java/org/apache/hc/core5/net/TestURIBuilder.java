@@ -467,14 +467,24 @@ public class TestURIBuilder {
     @Test
     public void testSchemeSpecificPartParametersNull() throws Exception {
        final URIBuilder uribuilder = new URIBuilder("http://host.com").setParameter("par", "parvalue")
-               .setSchemeSpecificPart("", null);
+               .setSchemeSpecificPartWithParameters("", null);
        Assert.assertEquals(new URI("http://host.com?par=parvalue"), uribuilder.build());
     }
 
     @Test
     public void testSchemeSpecificPartSetGet() throws Exception {
-       final URIBuilder uribuilder = new URIBuilder().setSchemeSpecificPart("specificpart", null);
+       final URIBuilder uribuilder = new URIBuilder().setSchemeSpecificPart("specificpart");
        Assert.assertEquals("specificpart", uribuilder.getSchemeSpecificPart());
+    }
+
+    /** Common use case: mailto: scheme. See https://tools.ietf.org/html/rfc6068#section-2 */
+    @Test
+    public void testSchemeSpecificPartParameterByRFC6068Sample() throws Exception {
+       final URIBuilder uribuilder = new URIBuilder().setScheme("mailto")
+               .setSchemeSpecificPartWithParameter("my@email.server", new BasicNameValuePair("subject", "mail subject"));
+       final String result = uribuilder.build().toString();
+       Assert.assertTrue("mail address as scheme specific part expected", result.contains("my@email.server"));
+       Assert.assertTrue("correct parameter encoding expected for that scheme", result.contains("mail%20subject"));
     }
 
     /** Common use case: mailto: scheme. See https://tools.ietf.org/html/rfc6068#section-2 */
@@ -483,7 +493,7 @@ public class TestURIBuilder {
         final List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("subject", "mail subject"));
 
-       final URIBuilder uribuilder = new URIBuilder().setScheme("mailto").setSchemeSpecificPart("my@email.server", parameters);
+       final URIBuilder uribuilder = new URIBuilder().setScheme("mailto").setSchemeSpecificPartWithParameters("my@email.server", parameters);
        final String result = uribuilder.build().toString();
        Assert.assertTrue("mail address as scheme specific part expected", result.contains("my@email.server"));
        Assert.assertTrue("correct parameter encoding expected for that scheme", result.contains("mail%20subject"));

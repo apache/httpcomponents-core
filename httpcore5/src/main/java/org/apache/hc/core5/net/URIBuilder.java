@@ -264,13 +264,39 @@ public class URIBuilder {
     }
 
     /**
-     *Sets the URI scheme specific part.
+     * Sets the URI scheme specific part.
      *
      * @param schemeSpecificPart
-     * @param nvps Optional, can be null. List of query parameters to be reused by the specific scheme
      * @return this.
+     * @since 5.1
      */
-    public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart, final List <NameValuePair> nvps) {
+    public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart) {
+        this.encodedSchemeSpecificPart = schemeSpecificPart;
+        return this;
+    }
+
+    /**
+     * Sets the URI scheme specific part and append a list of parameters to this part.
+     *
+     * @param schemeSpecificPart
+     * @param nvps Optional, can be null. List of NameValuePair query parameters to be reused by the specific scheme part
+     * @return this.
+     * @since 5.1
+     */
+    public URIBuilder setSchemeSpecificPartWithParameter(final String schemeSpecificPart, final NameValuePair... nvps) {
+        return setSchemeSpecificPartWithParameters(schemeSpecificPart, nvps != null ? Arrays.asList(nvps) : null);
+    }
+
+    /**
+     * Sets the URI scheme specific part and append a list of parameters to this part.
+     *
+     * @param schemeSpecificPart
+     * @param nvps Optional, can be null. List of query parameters to be reused by the specific scheme part
+     * @return this.
+     * @since 5.1
+     */
+    public URIBuilder setSchemeSpecificPartWithParameters(final String schemeSpecificPart, final List <NameValuePair> nvps) {
+        this.encodedSchemeSpecificPart = null;
         if (!TextUtils.isBlank(schemeSpecificPart)) {
             final StringBuilder sb = new StringBuilder(schemeSpecificPart);
             if (nvps != null && !nvps.isEmpty()) {
@@ -574,6 +600,12 @@ public class URIBuilder {
         return this.scheme;
     }
 
+    /**
+     * Gets the scheme specific part
+     *
+     * @return String
+     * @since 5.1
+     */
     public String getSchemeSpecificPart() {
         return this.encodedSchemeSpecificPart;
     }
