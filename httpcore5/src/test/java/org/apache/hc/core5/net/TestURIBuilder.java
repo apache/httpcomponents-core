@@ -467,7 +467,7 @@ public class TestURIBuilder {
     @Test
     public void testSchemeSpecificPartParametersNull() throws Exception {
        final URIBuilder uribuilder = new URIBuilder("http://host.com").setParameter("par", "parvalue")
-               .setSchemeSpecificPartWithParameters("", null);
+               .setSchemeSpecificPart("", (NameValuePair)null);
        Assert.assertEquals(new URI("http://host.com?par=parvalue"), uribuilder.build());
     }
 
@@ -479,9 +479,9 @@ public class TestURIBuilder {
 
     /** Common use case: mailto: scheme. See https://tools.ietf.org/html/rfc6068#section-2 */
     @Test
-    public void testSchemeSpecificPartParameterByRFC6068Sample() throws Exception {
+    public void testSchemeSpecificPartNameValuePairByRFC6068Sample() throws Exception {
        final URIBuilder uribuilder = new URIBuilder().setScheme("mailto")
-               .setSchemeSpecificPartWithParameter("my@email.server", new BasicNameValuePair("subject", "mail subject"));
+               .setSchemeSpecificPart("my@email.server", new BasicNameValuePair("subject", "mail subject"));
        final String result = uribuilder.build().toString();
        Assert.assertTrue("mail address as scheme specific part expected", result.contains("my@email.server"));
        Assert.assertTrue("correct parameter encoding expected for that scheme", result.contains("mail%20subject"));
@@ -489,11 +489,11 @@ public class TestURIBuilder {
 
     /** Common use case: mailto: scheme. See https://tools.ietf.org/html/rfc6068#section-2 */
     @Test
-    public void testSchemeSpecificPartParametersByRFC6068Sample() throws Exception {
+    public void testSchemeSpecificPartNameValuePairListByRFC6068Sample() throws Exception {
         final List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("subject", "mail subject"));
 
-       final URIBuilder uribuilder = new URIBuilder().setScheme("mailto").setSchemeSpecificPartWithParameters("my@email.server", parameters);
+       final URIBuilder uribuilder = new URIBuilder().setScheme("mailto").setSchemeSpecificPart("my@email.server", parameters);
        final String result = uribuilder.build().toString();
        Assert.assertTrue("mail address as scheme specific part expected", result.contains("my@email.server"));
        Assert.assertTrue("correct parameter encoding expected for that scheme", result.contains("mail%20subject"));
