@@ -27,32 +27,26 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.StreamChannel;
-import org.apache.hc.core5.http.nio.entity.AbstractCharAsyncEntityProducer;
+import org.apache.hc.core5.http.nio.entity.AbstractBinAsyncEntityProducer;
 
-public class MultiLineEntityProducer extends AbstractCharAsyncEntityProducer {
+public class MultiBinEntityProducer extends AbstractBinAsyncEntityProducer {
 
-    private final String text;
+    private final byte[] bin;
     private final int total;
-    private final CharBuffer charbuf;
+    private final ByteBuffer bytebuf;
 
     private int count;
 
-    public MultiLineEntityProducer(final String text, final int total, final Charset charset) {
-        super(1024, -1, ContentType.TEXT_PLAIN.withCharset(charset));
-        this.text = text;
+    public MultiBinEntityProducer(final byte[] bin, final int total, final ContentType contentType) {
+        super(-1, contentType);
+        this.bin = bin;
         this.total = total;
-        this.charbuf = CharBuffer.allocate(4096);
+        this.bytebuf = ByteBuffer.allocate(4096);
         this.count = 0;
-    }
-
-    public MultiLineEntityProducer(final String text, final int total) {
-        this(text, total, StandardCharsets.US_ASCII);
     }
 
     @Override
@@ -66,19 +60,29 @@ public class MultiLineEntityProducer extends AbstractCharAsyncEntityProducer {
     }
 
     @Override
-    protected void produceData(final StreamChannel<CharBuffer> channel) throws IOException {
-        while (charbuf.remaining() > text.length() + 2 && count < total) {
-            charbuf.put(text + "\r\n");
+    protected void produceData(final StreamChannel<ByteBuffer> channel) throws IOException {
+        while (bytebuf.remaining() > bin.length + 2 && count < total) {
+            bytebuf.put(bin);
             count++;
         }
-        if (charbuf.position() > 0) {
-            charbuf.flip();
-            channel.write(charbuf);
-            charbuf.compact();
+        if (bytebuf.position() > 0) {
+            bytebuf.flip();
+            channel.write(bytebuf);
+            bytebuf.compact();
         }
-        if (count >= total && charbuf.position() == 0) {
+        if (count >= total && bytebuf.position() == 0) {
             channel.endStream();
         }
+    }
+
+    @Override
+    public boolean isChunked() {
+        return false;
+    }
+
+    @Override
+    public long getContentLength() {
+        return bin.length * total;
     }
 
     @Override
@@ -88,7 +92,7 @@ public class MultiLineEntityProducer extends AbstractCharAsyncEntityProducer {
     @Override
     public void releaseResources() {
         count = 0;
-        charbuf.clear();
+        bytebuf.clear();
         super.releaseResources();
     }
 

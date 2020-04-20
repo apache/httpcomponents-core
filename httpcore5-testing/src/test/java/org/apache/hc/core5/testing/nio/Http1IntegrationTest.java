@@ -1034,9 +1034,26 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
+        for (int i = 0; i < 3; i++) {
+            final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+            final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                    new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 100000)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.assertNotNull(result1);
+            final HttpResponse response1 = result1.getHead();
+            Assert.assertNotNull(response1);
+            Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
+            Assert.assertNotNull("You shall not pass", result1.getBody());
+
+            Assert.assertTrue(streamEndpoint.isOpen());
+        }
         final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
+                new BasicRequestProducer(request1, new MultiBinEntityProducer(
+                        new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'},
+                        100000,
+                        ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assert.assertNotNull(result1);
@@ -1044,6 +1061,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertNotNull(response1);
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
         Assert.assertNotNull("You shall not pass", result1.getBody());
+
+        Assert.assertFalse(streamEndpoint.isOpen());
     }
 
     @Test
