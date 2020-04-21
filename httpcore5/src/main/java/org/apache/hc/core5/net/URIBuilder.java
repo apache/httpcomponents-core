@@ -264,6 +264,51 @@ public class URIBuilder {
     }
 
     /**
+     * Sets the URI scheme specific part.
+     *
+     * @param schemeSpecificPart
+     * @return this.
+     * @since 5.1
+     */
+    public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart) {
+        this.encodedSchemeSpecificPart = schemeSpecificPart;
+        return this;
+    }
+
+    /**
+     * Sets the URI scheme specific part and append a variable arguments list of NameValuePair instance(s) to this part.
+     *
+     * @param schemeSpecificPart
+     * @param nvps Optional, can be null. Variable arguments list of NameValuePair query parameters to be reused by the specific scheme part
+     * @return this.
+     * @since 5.1
+     */
+    public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart, final NameValuePair... nvps) {
+        return setSchemeSpecificPart(schemeSpecificPart, nvps != null ? Arrays.asList(nvps) : null);
+    }
+
+    /**
+     * Sets the URI scheme specific part and append a list of NameValuePair to this part.
+     *
+     * @param schemeSpecificPart
+     * @param nvps Optional, can be null. List of query parameters to be reused by the specific scheme part
+     * @return this.
+     * @since 5.1
+     */
+    public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart, final List <NameValuePair> nvps) {
+        this.encodedSchemeSpecificPart = null;
+        if (!TextUtils.isBlank(schemeSpecificPart)) {
+            final StringBuilder sb = new StringBuilder(schemeSpecificPart);
+            if (nvps != null && !nvps.isEmpty()) {
+                sb.append("?");
+                encodeUrlForm(sb, nvps);
+            }
+            this.encodedSchemeSpecificPart = sb.toString();
+        }
+        return this;
+    }
+
+    /**
      * Sets URI user info. The value is expected to be unescaped and may contain non ASCII
      * characters.
      *
@@ -553,6 +598,16 @@ public class URIBuilder {
 
     public String getScheme() {
         return this.scheme;
+    }
+
+    /**
+     * Gets the scheme specific part
+     *
+     * @return String
+     * @since 5.1
+     */
+    public String getSchemeSpecificPart() {
+        return this.encodedSchemeSpecificPart;
     }
 
     public String getUserInfo() {
