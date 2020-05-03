@@ -33,6 +33,7 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Callback;
@@ -45,6 +46,7 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
 
     private final Callback<Exception> exceptionCallback;
     private final AtomicReference<IOReactorStatus> status;
+    private final AtomicBoolean terminated;
     private final Object shutdownMutex;
 
     final Selector selector;
@@ -54,6 +56,7 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
         this.exceptionCallback = exceptionCallback;
         this.shutdownMutex = new Object();
         this.status = new AtomicReference<>(IOReactorStatus.INACTIVE);
+        this.terminated = new AtomicBoolean();
         try {
             this.selector = Selector.open();
         } catch (final IOException ex) {
@@ -87,27 +90,10 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
             } finally {
                 try {
                     doTerminate();
-                    final Set<SelectionKey> keys = this.selector.keys();
-                    for (final SelectionKey key : keys) {
-                        try {
-                            Closer.close((Closeable) key.attachment());
-                        } catch (final IOException ex) {
-                            logException(ex);
-                        }
-                        key.channel().close();
-                    }
-                    try {
-                        this.selector.close();
-                    } catch (final IOException ex) {
-                        logException(ex);
-                    }
                 } catch (final Exception ex) {
                     logException(ex);
                 } finally {
-                    this.status.set(IOReactorStatus.SHUT_DOWN);
-                    synchronized (this.shutdownMutex) {
-                        this.shutdownMutex.notifyAll();
-                    }
+                    close(CloseMode.IMMEDIATE);
                 }
             }
         }
@@ -149,14 +135,26 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        } else {
-            final IOReactorStatus previousStatus = this.status.getAndSet(IOReactorStatus.SHUT_DOWN);
-            if (previousStatus == IOReactorStatus.ACTIVE) {
-                this.selector.wakeup();
+        }
+        this.status.set(IOReactorStatus.SHUT_DOWN);
+        if (terminated.compareAndSet(false, true)) {
+            try {
+                final Set<SelectionKey> keys = this.selector.keys();
+                for (final SelectionKey key : keys) {
+                    try {
+                        Closer.close((Closeable) key.attachment());
+                    } catch (final IOException ex) {
+                        logException(ex);
+                    }
+                    key.channel().close();
+                }
+                selector.close();
+            } catch (final Exception ex) {
+                logException(ex);
             }
-            synchronized (this.shutdownMutex) {
-                this.shutdownMutex.notifyAll();
-            }
+        }
+        synchronized (this.shutdownMutex) {
+            this.shutdownMutex.notifyAll();
         }
     }
 

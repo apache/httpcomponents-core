@@ -28,6 +28,7 @@
 package org.apache.hc.core5.reactor;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.io.CloseMode;
@@ -40,12 +41,14 @@ class MultiCoreIOReactor implements IOReactor {
     private final IOReactor[] ioReactors;
     private final Thread[] threads;
     private final AtomicReference<IOReactorStatus> status;
+    private final AtomicBoolean terminated;
 
     MultiCoreIOReactor(final IOReactor[] ioReactors, final Thread[] threads) {
         super();
         this.ioReactors = ioReactors.clone();
         this.threads = threads.clone();
         this.status = new AtomicReference<>(IOReactorStatus.INACTIVE);
+        this.terminated = new AtomicBoolean();
     }
 
     @Override
@@ -70,7 +73,8 @@ class MultiCoreIOReactor implements IOReactor {
 
     @Override
     public final void initiateShutdown() {
-        if (this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)) {
+        if (this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.SHUT_DOWN) ||
+                this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)) {
             for (int i = 0; i < this.ioReactors.length; i++) {
                 final IOReactor ioReactor = this.ioReactors[i];
                 ioReactor.initiateShutdown();
@@ -105,10 +109,6 @@ class MultiCoreIOReactor implements IOReactor {
 
     @Override
     public final void close(final CloseMode closeMode) {
-        final IOReactorStatus currentStatus = this.status.get();
-        if (currentStatus == IOReactorStatus.INACTIVE || currentStatus == IOReactorStatus.SHUT_DOWN) {
-            return;
-        }
         if (closeMode == CloseMode.GRACEFUL) {
             initiateShutdown();
             try {
@@ -116,8 +116,9 @@ class MultiCoreIOReactor implements IOReactor {
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
-        } else {
-            this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN);
+        }
+        this.status.set(IOReactorStatus.SHUT_DOWN);
+        if (this.terminated.compareAndSet(false, true)) {
             for (int i = 0; i < this.ioReactors.length; i++) {
                 Closer.close(this.ioReactors[i], CloseMode.IMMEDIATE);
             }
@@ -125,7 +126,6 @@ class MultiCoreIOReactor implements IOReactor {
                 this.threads[i].interrupt();
             }
         }
-        this.status.set(IOReactorStatus.SHUT_DOWN);
     }
 
     @Override
