@@ -294,7 +294,7 @@ class BHttpConnectionBase implements BHttpConnection {
             return true;
         }
         try {
-            final int bytesRead = fillInputBuffer(Timeout.ofMilliseconds(1));
+            final int bytesRead = fillInputBuffer(Timeout.ONE_MILLISECOND);
             return bytesRead < 0;
         } catch (final SocketTimeoutException ex) {
             return false;
