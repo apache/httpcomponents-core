@@ -1,3 +1,26 @@
+Release 5.0.1
+------------------
+
+This BETA improves handling of early response messages by the classic client protocol handler and
+fixes a number of minor defects.
+
+Change Log
+-------------------
+
+* Add handling of early response messages by the classic client protocol handler.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-631: Revised i/o reactor shutdown sequence and resource de-allocation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fix CharArrayBuffer.subSequence(beganIndex,endIndex) to return right result.
+  Contributed by Lee Ray <liruigo at gmail.com>
+
+* Added exception callback to async server implementations enabling logging of unexpected and
+  fatal exceptions in the server side protocol handlers.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.0
 ------------------
 
