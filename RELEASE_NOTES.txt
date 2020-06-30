@@ -1,8 +1,8 @@
 Release 5.0.1
 ------------------
 
-This BETA improves handling of early response messages by the classic client protocol handler and
-fixes a number of minor defects.
+This release improves handling of early response messages by the classic client protocol handler
+and fixes a number of minor defects.
 
 Change Log
 -------------------
