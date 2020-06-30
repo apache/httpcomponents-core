@@ -44,6 +44,8 @@ import org.apache.hc.core5.util.Timeout;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class SocketConfig {
 
+    private static final Timeout DEFAULT_SOCKET_TIMEOUT = Timeout.ofMinutes(3);
+
     public static final SocketConfig DEFAULT = new Builder().build();
 
     private final Timeout soTimeout;
@@ -191,7 +193,7 @@ public class SocketConfig {
         private SocketAddress socksProxyAddress;
 
         Builder() {
-            this.soTimeout = Timeout.ZERO_MILLISECONDS;
+            this.soTimeout = DEFAULT_SOCKET_TIMEOUT;
             this.soReuseAddress = false;
             this.soLinger = TimeValue.NEG_ONE_SECOND;
             this.soKeepAlive = false;
@@ -213,7 +215,7 @@ public class SocketConfig {
         /**
          * Determines the default socket timeout value for blocking I/O operations.
          * <p>
-         * Default: {@code 0} (no timeout)
+         * Default: 3 minutes
          * </p>
          *
          * @return the default socket timeout value for blocking I/O operations.
