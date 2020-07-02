@@ -109,7 +109,7 @@ public class ClassicReverseProxyExample {
                     public void onLease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
                         final StringBuilder buf = new StringBuilder();
                         buf.append("[proxy->origin] " + Thread.currentThread()  + " connection leased ").append(route);
-                        System.out.println(buf.toString());
+                        System.out.println(buf);
                     }
 
                     @Override
@@ -120,7 +120,7 @@ public class ClassicReverseProxyExample {
                         buf.append("; total kept alive: ").append(totals.getAvailable()).append("; ");
                         buf.append("total allocated: ").append(totals.getLeased() + totals.getAvailable());
                         buf.append(" of ").append(totals.getMax());
-                        System.out.println(buf.toString());
+                        System.out.println(buf);
                     }
 
                 })

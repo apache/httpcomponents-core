@@ -87,7 +87,7 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection i
     @Override
     public void close() throws IOException {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + ": Close connection");
+            this.log.debug("{}: Close connection", this.id);
         }
         super.close();
     }
@@ -95,7 +95,7 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection i
     @Override
     public void close(final CloseMode closeMode) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.id + ": Shutdown connection");
+            this.log.debug("{}: Shutdown connection", this.id);
         }
         super.close(closeMode);
     }
@@ -108,10 +108,10 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection i
     @Override
     protected void onResponseReceived(final ClassicHttpResponse response) {
         if (response != null && this.headerLog.isDebugEnabled()) {
-            this.headerLog.debug(this.id + " << " + new StatusLine(response));
+            this.headerLog.debug("{} << {}", this.id, new StatusLine(response));
             final Header[] headers = response.getHeaders();
             for (final Header header : headers) {
-                this.headerLog.debug(this.id + " << " + header.toString());
+                this.headerLog.debug("{} << {}", this.id, header);
             }
         }
     }
@@ -119,10 +119,10 @@ public class LoggingBHttpClientConnection extends DefaultBHttpClientConnection i
     @Override
     protected void onRequestSubmitted(final ClassicHttpRequest request) {
         if (request != null && this.headerLog.isDebugEnabled()) {
-            this.headerLog.debug(id + " >> " + new RequestLine(request));
+            this.headerLog.debug("{} >> {}", id, new RequestLine(request));
             final Header[] headers = request.getHeaders();
             for (final Header header : headers) {
-                this.headerLog.debug(this.id + " >> " + header.toString());
+                this.headerLog.debug("{} >> {}", this.id, header);
             }
         }
     }

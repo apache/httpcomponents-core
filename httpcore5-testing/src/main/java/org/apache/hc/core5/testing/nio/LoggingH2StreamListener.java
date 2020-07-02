@@ -90,7 +90,7 @@ public class LoggingH2StreamListener implements H2StreamListener {
         if (headerLog.isDebugEnabled()) {
             final String prefix = LoggingSupport.getId(connection) + " << ";
             for (int i = 0; i < headers.size(); i++) {
-                headerLog.debug(prefix + headers.get(i));
+                headerLog.debug("{}{}", prefix, headers.get(i));
             }
         }
     }
@@ -100,7 +100,7 @@ public class LoggingH2StreamListener implements H2StreamListener {
         if (headerLog.isDebugEnabled()) {
             final String prefix = LoggingSupport.getId(connection) + " >> ";
             for (int i = 0; i < headers.size(); i++) {
-                headerLog.debug(prefix + headers.get(i));
+                headerLog.debug("{}{}", prefix, headers.get(i));
             }
         }
     }

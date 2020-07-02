@@ -76,7 +76,7 @@ public class LoggingIOSession implements IOSession {
     public void enqueue(final Command command, final Command.Priority priority) {
         this.session.enqueue(command, priority);
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Enqueued " + command.getClass().getSimpleName() + " with priority " + priority);
+            this.log.debug("{} Enqueued {} with priority {}", this.session, command.getClass().getSimpleName(), priority);
         }
     }
 
@@ -133,7 +133,7 @@ public class LoggingIOSession implements IOSession {
     public void setEventMask(final int ops) {
         this.session.setEventMask(ops);
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Event mask set " + formatOps(ops));
+            this.log.debug("{} Event mask set {}", this.session, formatOps(ops));
         }
     }
 
@@ -141,7 +141,7 @@ public class LoggingIOSession implements IOSession {
     public void setEvent(final int op) {
         this.session.setEvent(op);
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Event set " + formatOps(op));
+            this.log.debug("{} Event set {}", this.session, formatOps(op));
         }
     }
 
@@ -149,14 +149,14 @@ public class LoggingIOSession implements IOSession {
     public void clearEvent(final int op) {
         this.session.clearEvent(op);
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Event cleared " + formatOps(op));
+            this.log.debug("{} Event cleared {}", this.session, formatOps(op));
         }
     }
 
     @Override
     public void close() {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Close");
+            this.log.debug("{} Close", this.session);
         }
         this.session.close();
     }
@@ -174,7 +174,7 @@ public class LoggingIOSession implements IOSession {
     @Override
     public void close(final CloseMode closeMode) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Shutdown " + closeMode);
+            this.log.debug("{} Shutdown {}", this.session, closeMode);
         }
         this.session.close(closeMode);
     }
@@ -187,7 +187,7 @@ public class LoggingIOSession implements IOSession {
     @Override
     public void setSocketTimeout(final Timeout timeout) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Set timeout " + timeout);
+            this.log.debug("{} Set timeout {}", this.session, timeout);
         }
         this.session.setSocketTimeout(timeout);
     }
@@ -196,7 +196,7 @@ public class LoggingIOSession implements IOSession {
     public int read(final ByteBuffer dst) throws IOException {
         final int bytesRead = session.read(dst);
         if (log.isDebugEnabled()) {
-            log.debug(session + " " + bytesRead + " bytes read");
+            log.debug("{} {} bytes read", session, bytesRead);
         }
         if (bytesRead > 0 && wireLog.isEnabled()) {
             final ByteBuffer b = dst.duplicate();
@@ -212,7 +212,7 @@ public class LoggingIOSession implements IOSession {
     public int write(final ByteBuffer src) throws IOException {
         final int byteWritten = session.write(src);
         if (log.isDebugEnabled()) {
-            log.debug(session + " " + byteWritten + " bytes written");
+            log.debug("{} {} bytes written", session, byteWritten);
         }
         if (byteWritten > 0 && wireLog.isEnabled()) {
             final ByteBuffer b = src.duplicate();
@@ -257,7 +257,7 @@ public class LoggingIOSession implements IOSession {
     @Override
     public void upgrade(final IOEventHandler handler) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug(this.session + " Protocol upgrade: " + (handler != null ? handler.getClass() : null));
+            this.log.debug("{} Protocol upgrade: {}", this.session, handler != null ? handler.getClass() : null);
         }
         this.session.upgrade(handler);
     }

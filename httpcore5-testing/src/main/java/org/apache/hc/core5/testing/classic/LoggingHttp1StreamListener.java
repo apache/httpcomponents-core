@@ -52,9 +52,9 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
         if (connLog.isDebugEnabled()) {
             if (keepAlive) {
-                connLog.debug(LoggingSupport.getId(connection) + " Connection is kept alive");
+                connLog.debug("{} Connection is kept alive", LoggingSupport.getId(connection));
             } else {
-                connLog.debug(LoggingSupport.getId(connection) + " Connection is not kept alive");
+                connLog.debug("{} Connection is not kept alive", LoggingSupport.getId(connection));
             }
         }
     }

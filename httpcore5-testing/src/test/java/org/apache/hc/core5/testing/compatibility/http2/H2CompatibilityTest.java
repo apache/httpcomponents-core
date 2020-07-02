@@ -448,7 +448,7 @@ public class H2CompatibilityTest {
         if (message != null && !TextUtils.isBlank(message)) {
             buf.append(" -> ").append(message);
         }
-        System.out.println(buf.toString());
+        System.out.println(buf);
     }
 
 }

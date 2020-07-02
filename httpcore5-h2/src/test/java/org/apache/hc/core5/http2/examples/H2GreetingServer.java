@@ -155,7 +155,7 @@ public class H2GreetingServer {
 
             // recording the request
             System.out.println(String.format("[%s] %s %s %s", new Date(),
-                    endpoint.getRemoteAddress().toString(),
+                    endpoint.getRemoteAddress(),
                     req.getMethod(),
                     req.getPath()));
 
