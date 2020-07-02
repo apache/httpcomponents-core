@@ -76,7 +76,7 @@ public class LoggingIOSession implements IOSession {
     public void enqueue(final Command command, final Command.Priority priority) {
         this.session.enqueue(command, priority);
         if (this.log.isDebugEnabled()) {
-            this.log.debug("{} Enqueued {} with priority {}", this.session, command.getClass().getSimpleName(), priority);
+            this.log.debug("{} enqueued {} with priority {}", this.session, command.getClass().getSimpleName(), priority);
         }
     }
 
@@ -133,7 +133,7 @@ public class LoggingIOSession implements IOSession {
     public void setEventMask(final int ops) {
         this.session.setEventMask(ops);
         if (this.log.isDebugEnabled()) {
-            this.log.debug("{} Event mask set {}", this.session, formatOps(ops));
+            this.log.debug("{} event mask set {}", this.session, formatOps(ops));
         }
     }
 
@@ -141,7 +141,7 @@ public class LoggingIOSession implements IOSession {
     public void setEvent(final int op) {
         this.session.setEvent(op);
         if (this.log.isDebugEnabled()) {
-            this.log.debug("{} Event set {}", this.session, formatOps(op));
+            this.log.debug("{} event set {}", this.session, formatOps(op));
         }
     }
 
@@ -149,14 +149,14 @@ public class LoggingIOSession implements IOSession {
     public void clearEvent(final int op) {
         this.session.clearEvent(op);
         if (this.log.isDebugEnabled()) {
-            this.log.debug("{} Event cleared {}", this.session, formatOps(op));
+            this.log.debug("{} event cleared {}", this.session, formatOps(op));
         }
     }
 
     @Override
     public void close() {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("{} Close", this.session);
+            this.log.debug("{} close", this.session);
         }
         this.session.close();
     }
@@ -174,7 +174,7 @@ public class LoggingIOSession implements IOSession {
     @Override
     public void close(final CloseMode closeMode) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("{} Shutdown {}", this.session, closeMode);
+            this.log.debug("{} shutdown {}", this.session, closeMode);
         }
         this.session.close(closeMode);
     }
@@ -187,7 +187,7 @@ public class LoggingIOSession implements IOSession {
     @Override
     public void setSocketTimeout(final Timeout timeout) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("{} Set timeout {}", this.session, timeout);
+            this.log.debug("{} set timeout {}", this.session, timeout);
         }
         this.session.setSocketTimeout(timeout);
     }
@@ -257,7 +257,7 @@ public class LoggingIOSession implements IOSession {
     @Override
     public void upgrade(final IOEventHandler handler) {
         if (this.log.isDebugEnabled()) {
-            this.log.debug("{} Protocol upgrade: {}", this.session, handler != null ? handler.getClass() : null);
+            this.log.debug("{} protocol upgrade: {}", this.session, handler != null ? handler.getClass() : null);
         }
         this.session.upgrade(handler);
     }
