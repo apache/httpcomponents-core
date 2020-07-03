@@ -71,10 +71,10 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
     @Override
     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
         if (headerLog.isDebugEnabled()) {
-            final String idResponseDirection = LoggingSupport.getId(connection) + responseDirection;
-            headerLog.debug("{}{}", idResponseDirection, new StatusLine(response));
+            final String id = LoggingSupport.getId(connection);
+            headerLog.debug("{}{}{}", id, responseDirection, new StatusLine(response));
             for (final Iterator<Header> it = response.headerIterator(); it.hasNext(); ) {
-                headerLog.debug("{}{}", idResponseDirection, it.next());
+                headerLog.debug("{}{}{}", id, responseDirection, it.next());
             }
         }
     }
@@ -83,9 +83,9 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
         if (connLog.isDebugEnabled()) {
             if (keepAlive) {
-                connLog.debug("{} Connection is kept alive", LoggingSupport.getId(connection));
+                connLog.debug("{} connection is kept alive", LoggingSupport.getId(connection));
             } else {
-                connLog.debug("{} Connection is not kept alive", LoggingSupport.getId(connection));
+                connLog.debug("{} connection is not kept alive", LoggingSupport.getId(connection));
             }
         }
     }

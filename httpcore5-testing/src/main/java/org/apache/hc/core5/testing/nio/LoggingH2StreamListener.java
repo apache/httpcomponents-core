@@ -78,19 +78,15 @@ public class LoggingH2StreamListener implements H2StreamListener {
     }
 
     private void logFlowControl(final String prefix, final int streamId, final int delta, final int actualSize) {
-        final StringBuilder buffer = new StringBuilder();
-        buffer.append(prefix).append(" stream ").append(streamId).append(" flow control " )
-                .append(delta).append(" -> ")
-                .append(actualSize);
-        flowCtrlLog.debug(buffer.toString());
+        flowCtrlLog.debug("{} stream {} flow control {} -> {}", prefix, streamId, delta, actualSize);
     }
 
     @Override
     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
-            final String prefix = LoggingSupport.getId(connection) + " << ";
+            final String prefix = LoggingSupport.getId(connection);
             for (int i = 0; i < headers.size(); i++) {
-                headerLog.debug("{}{}", prefix, headers.get(i));
+                headerLog.debug("{} << {}", prefix, headers.get(i));
             }
         }
     }
@@ -98,9 +94,9 @@ public class LoggingH2StreamListener implements H2StreamListener {
     @Override
     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
-            final String prefix = LoggingSupport.getId(connection) + " >> ";
+            final String prefix = LoggingSupport.getId(connection);
             for (int i = 0; i < headers.size(); i++) {
-                headerLog.debug("{}{}", prefix, headers.get(i));
+                headerLog.debug("{} >> {}", prefix, headers.get(i));
             }
         }
     }
