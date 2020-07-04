@@ -36,6 +36,10 @@
   <url>http://hc.apache.org/httpcomponents-core-ga</url>
   <packaging>jar</packaging>
 
+  <properties>
+    <Automatic-Module-Name>org.apache.httpcomponents.core5.httpcore5.h2</Automatic-Module-Name>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.apache.httpcomponents.core5</groupId>
@@ -99,9 +103,9 @@
           </execution>
         </executions>
       </plugin>
-	</plugins>
+    </plugins>
   </build>
-	
+
   <reporting>
     <plugins>
 
