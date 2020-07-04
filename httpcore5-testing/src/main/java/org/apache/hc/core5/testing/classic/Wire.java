@@ -53,7 +53,7 @@ public class Wire {
                 buffer.append("[\\n]\"");
                 buffer.insert(0, "\"");
                 buffer.insert(0, header);
-                this.log.debug(this.id + " " + buffer.toString());
+                this.log.debug("{} {}", this.id, buffer);
                 buffer.setLength(0);
             } else if ((ch < Chars.SP) || (ch >= Chars.DEL)) {
                 buffer.append("[0x");
@@ -67,7 +67,7 @@ public class Wire {
             buffer.append('\"');
             buffer.insert(0, '\"');
             buffer.insert(0, header);
-            this.log.debug(this.id + " " + buffer.toString());
+            this.log.debug("{} {}", this.id, buffer);
         }
     }
 

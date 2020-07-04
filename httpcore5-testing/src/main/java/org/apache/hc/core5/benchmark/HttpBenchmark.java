@@ -334,7 +334,7 @@ public class HttpBenchmark {
                             System.out.println(">> " + request.getMethod() + " " + request.getRequestUri());
                             final Header[] headers = request.getHeaders();
                             for (final Header header : headers) {
-                                System.out.println(">> " + header.toString());
+                                System.out.println(">> " + header);
                             }
                             System.out.println();
                         }
@@ -346,7 +346,7 @@ public class HttpBenchmark {
                             System.out.println("<< " + response.getCode() + " " + response.getReasonPhrase());
                             final Header[] headers = response.getHeaders();
                             for (final Header header : headers) {
-                                System.out.println("<< " + header.toString());
+                                System.out.println("<< " + header);
                             }
                             System.out.println();
                         }
@@ -371,7 +371,7 @@ public class HttpBenchmark {
                             final List<? extends Header> headers) {
                         if (config.getVerbosity() >= 3) {
                             for (final Header header : headers) {
-                                System.out.println(">> " + header.toString());
+                                System.out.println(">> " + header);
                             }
                             System.out.println();
                         }
@@ -384,7 +384,7 @@ public class HttpBenchmark {
                             final List<? extends Header> headers) {
                         if (config.getVerbosity() >= 3) {
                             for (final Header header : headers) {
-                                System.out.println("<< " + header.toString());
+                                System.out.println("<< " + header);
                             }
                             System.out.println();
                         }

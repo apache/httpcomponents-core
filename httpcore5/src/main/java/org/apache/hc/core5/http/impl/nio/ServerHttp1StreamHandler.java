@@ -137,7 +137,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
 
             @Override
             public String toString() {
-                return super.toString() + " " + ServerHttp1StreamHandler.this.toString();
+                return super.toString() + " " + ServerHttp1StreamHandler.this;
             }
 
         };

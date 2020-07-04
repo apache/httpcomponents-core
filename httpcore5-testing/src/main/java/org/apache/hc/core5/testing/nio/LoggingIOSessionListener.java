@@ -45,35 +45,35 @@ public class LoggingIOSessionListener implements IOSessionListener {
     @Override
     public void connected(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(session + " connected");
+            connLog.debug("{} connected", session);
         }
     }
 
     @Override
     public void startTls(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(session + " TLS started");
+            connLog.debug("{} TLS started", session);
         }
     }
 
     @Override
     public void inputReady(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(session + " input ready");
+            connLog.debug("{} input ready", session);
         }
     }
 
     @Override
     public void outputReady(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(session + " output ready");
+            connLog.debug("{} output ready", session);
         }
     }
 
     @Override
     public void timeout(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(session + " timeout");
+            connLog.debug("{} timeout", session);
         }
     }
 
@@ -82,13 +82,13 @@ public class LoggingIOSessionListener implements IOSessionListener {
         if (ex instanceof ConnectionClosedException) {
             return;
         }
-        connLog.error(session + " " + ex.getMessage(), ex);
+        connLog.error("{} {}", session, ex.getMessage(), ex);
     }
 
     @Override
     public void disconnected(final IOSession session) {
         if (connLog.isDebugEnabled()) {
-            connLog.debug(session + " disconnected");
+            connLog.debug("{} disconnected", session);
         }
     }
 

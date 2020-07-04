@@ -61,9 +61,9 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
         if (headerLog.isDebugEnabled()) {
             final String idRequestDirection = LoggingSupport.getId(connection) + requestDirection;
-            headerLog.debug(idRequestDirection + new RequestLine(request));
+            headerLog.debug("{}{}", idRequestDirection, new RequestLine(request));
             for (final Iterator<Header> it = request.headerIterator(); it.hasNext(); ) {
-                headerLog.debug(idRequestDirection + it.next());
+                headerLog.debug("{}{}", idRequestDirection, it.next());
             }
         }
     }
@@ -71,10 +71,10 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
     @Override
     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
         if (headerLog.isDebugEnabled()) {
-            final String idResponseDirection = LoggingSupport.getId(connection) + responseDirection;
-            headerLog.debug(idResponseDirection + new StatusLine(response));
+            final String id = LoggingSupport.getId(connection);
+            headerLog.debug("{}{}{}", id, responseDirection, new StatusLine(response));
             for (final Iterator<Header> it = response.headerIterator(); it.hasNext(); ) {
-                headerLog.debug(idResponseDirection + it.next());
+                headerLog.debug("{}{}{}", id, responseDirection, it.next());
             }
         }
     }
@@ -83,9 +83,9 @@ public class LoggingHttp1StreamListener implements Http1StreamListener {
     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
         if (connLog.isDebugEnabled()) {
             if (keepAlive) {
-                connLog.debug(LoggingSupport.getId(connection) + " Connection is kept alive");
+                connLog.debug("{} connection is kept alive", LoggingSupport.getId(connection));
             } else {
-                connLog.debug(LoggingSupport.getId(connection) + " Connection is not kept alive");
+                connLog.debug("{} connection is not kept alive", LoggingSupport.getId(connection));
             }
         }
     }
