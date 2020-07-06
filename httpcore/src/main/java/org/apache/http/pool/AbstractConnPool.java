@@ -318,13 +318,13 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
         }
         this.lock.lock();
         try {
-            final RouteSpecificPool<T, C, E> pool = getPool(route);
             E entry;
             for (;;) {
                 Asserts.check(!this.isShutDown, "Connection pool shut down");
                 if (future.isCancelled()) {
                     throw new ExecutionException(operationAborted());
                 }
+                final RouteSpecificPool<T, C, E> pool = getPool(route);
                 for (;;) {
                     entry = pool.getFree(state);
                     if (entry == null) {
