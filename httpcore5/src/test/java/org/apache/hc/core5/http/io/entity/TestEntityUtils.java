@@ -249,7 +249,7 @@ public class TestEntityUtils {
         testCases.put(allBytes.length, allBytes);
         testCases.put(Integer.MAX_VALUE, allBytes);
 
-        for (Map.Entry<Integer, byte[]> tc : testCases.entrySet()) {
+        for (final Map.Entry<Integer, byte[]> tc : testCases.entrySet()) {
             final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(allBytes), allBytes.length, null);
 
             final byte[] bytes = EntityUtils.toByteArray(entity, tc.getKey());
