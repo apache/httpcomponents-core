@@ -33,7 +33,10 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -235,6 +238,28 @@ public class TestEntityUtils {
         Assert.assertEquals(2, result.size());
         assertNameValuePair(result.get(0), "russian", ru_hello);
         assertNameValuePair(result.get(1), "swiss", ch_hello);
+    }
+
+    @Test
+    public void testByteArrayMaxResultLength() throws IOException {
+        final byte[] allBytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
+        final Map<Integer, byte[]> testCases = new HashMap<>();
+        testCases.put(0, new byte[]{});
+        testCases.put(2, Arrays.copyOfRange(allBytes, 0, 2));
+        testCases.put(allBytes.length, allBytes);
+        testCases.put(Integer.MAX_VALUE, allBytes);
+
+        for (Map.Entry<Integer, byte[]> tc : testCases.entrySet()) {
+            final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(allBytes), allBytes.length, null);
+
+            final byte[] bytes = EntityUtils.toByteArray(entity, tc.getKey());
+            final byte[] expectedBytes = tc.getValue();
+            Assert.assertNotNull(bytes);
+            Assert.assertEquals(expectedBytes.length, bytes.length);
+            for (int i = 0; i < expectedBytes.length; i++) {
+                Assert.assertEquals(expectedBytes[i], bytes[i]);
+            }
+        }
     }
 
 }
