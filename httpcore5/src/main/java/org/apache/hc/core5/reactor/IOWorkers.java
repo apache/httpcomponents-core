@@ -80,7 +80,7 @@ final class IOWorkers {
 
         @Override
         public SingleCoreIOReactor next() {
-            final SingleCoreIOReactor dispatcher = dispatchers[idx.getAndIncrement() % dispatchers.length];
+            final SingleCoreIOReactor dispatcher = dispatchers[(idx.getAndIncrement() & Integer.MAX_VALUE) % dispatchers.length];
             validate(dispatcher);
             return dispatcher;
         }
