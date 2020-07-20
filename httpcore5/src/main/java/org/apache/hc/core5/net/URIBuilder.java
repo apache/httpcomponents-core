@@ -34,6 +34,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -41,7 +42,9 @@ import java.util.List;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.http.message.ParserCursor;
 import org.apache.hc.core5.util.TextUtils;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * Builder for {@link URI} instances.
@@ -75,6 +78,7 @@ public class URIBuilder {
     private String host;
     private int port;
     private String encodedPath;
+    private boolean pathRootless;
     private List<String> pathSegments;
     private String encodedQuery;
     private List<NameValuePair> queryParams;
@@ -98,7 +102,7 @@ public class URIBuilder {
      * @throws URISyntaxException if the input is not a valid URI
      */
     public URIBuilder(final String string) throws URISyntaxException {
-        this(new URI(string), null);
+        this(new URI(string), StandardCharsets.UTF_8);
     }
 
     /**
@@ -106,7 +110,7 @@ public class URIBuilder {
      * @param uri
      */
     public URIBuilder(final URI uri) {
-        this(uri, null);
+        this(uri, StandardCharsets.UTF_8);
     }
 
     /**
@@ -125,8 +129,7 @@ public class URIBuilder {
      */
     public URIBuilder(final URI uri, final Charset charset) {
         super();
-        setCharset(charset);
-        digestURI(uri);
+        digestURI(uri, charset);
     }
 
     public URIBuilder setCharset(final Charset charset) {
@@ -138,18 +141,118 @@ public class URIBuilder {
         return charset;
     }
 
-    private List <NameValuePair> parseQuery(final String query, final Charset charset) {
-        if (query != null && !query.isEmpty()) {
-            return URLEncodedUtils.parse(query, charset);
-        }
-        return null;
+    private static final char QUERY_PARAM_SEPARATOR = '&';
+    private static final char PARAM_VALUE_SEPARATOR = '=';
+    private static final char PATH_SEPARATOR = '/';
+
+    private static final BitSet QUERY_PARAM_SEPARATORS = new BitSet(256);
+    private static final BitSet QUERY_VALUE_SEPARATORS = new BitSet(256);
+    private static final BitSet PATH_SEPARATORS = new BitSet(256);
+
+    static {
+        QUERY_PARAM_SEPARATORS.set(QUERY_PARAM_SEPARATOR);
+        QUERY_PARAM_SEPARATORS.set(PARAM_VALUE_SEPARATOR);
+        QUERY_VALUE_SEPARATORS.set(QUERY_PARAM_SEPARATOR);
+        PATH_SEPARATORS.set(PATH_SEPARATOR);
     }
 
-    private List <String> parsePath(final String path, final Charset charset) {
-        if (path != null && !path.isEmpty()) {
-            return URLEncodedUtils.parsePathSegments(path, charset);
+    static List<NameValuePair> parseQuery(final CharSequence s, final Charset charset, final boolean plusAsBlank) {
+        if (s == null) {
+            return null;
         }
-        return null;
+        final Tokenizer tokenParser = Tokenizer.INSTANCE;
+        final ParserCursor cursor = new ParserCursor(0, s.length());
+        final List<NameValuePair> list = new ArrayList<>();
+        while (!cursor.atEnd()) {
+            final String name = tokenParser.parseToken(s, cursor, QUERY_PARAM_SEPARATORS);
+            String value = null;
+            if (!cursor.atEnd()) {
+                final int delim = s.charAt(cursor.getPos());
+                cursor.updatePos(cursor.getPos() + 1);
+                if (delim == PARAM_VALUE_SEPARATOR) {
+                    value = tokenParser.parseToken(s, cursor, QUERY_VALUE_SEPARATORS);
+                    if (!cursor.atEnd()) {
+                        cursor.updatePos(cursor.getPos() + 1);
+                    }
+                }
+            }
+            if (!name.isEmpty()) {
+                list.add(new BasicNameValuePair(
+                        PercentCodec.decode(name, charset, plusAsBlank),
+                        PercentCodec.decode(value, charset, plusAsBlank)));
+            }
+        }
+        return list;
+    }
+
+    static List<String> splitPath(final CharSequence s) {
+        if (s == null) {
+            return null;
+        }
+        final ParserCursor cursor = new ParserCursor(0, s.length());
+        // Skip leading separator
+        if (cursor.atEnd()) {
+            return new ArrayList<>(0);
+        }
+        if (PATH_SEPARATORS.get(s.charAt(cursor.getPos()))) {
+            cursor.updatePos(cursor.getPos() + 1);
+        }
+        final List<String> list = new ArrayList<>();
+        final StringBuilder buf = new StringBuilder();
+        for (;;) {
+            if (cursor.atEnd()) {
+                list.add(buf.toString());
+                break;
+            }
+            final char current = s.charAt(cursor.getPos());
+            if (PATH_SEPARATORS.get(current)) {
+                list.add(buf.toString());
+                buf.setLength(0);
+            } else {
+                buf.append(current);
+            }
+            cursor.updatePos(cursor.getPos() + 1);
+        }
+        return list;
+    }
+
+    static List<String> parsePath(final CharSequence s, final Charset charset) {
+        if (s == null) {
+            return null;
+        }
+        final List<String> segments = splitPath(s);
+        final List<String> list = new ArrayList<>(segments.size());
+        for (final String segment: segments) {
+            list.add(PercentCodec.decode(segment, charset));
+        }
+        return list;
+    }
+
+    static void formatPath(final StringBuilder buf, final Iterable<String> segments, final boolean rootless, final Charset charset) {
+        int i = 0;
+        for (final String segment : segments) {
+            if (i > 0 || !rootless) {
+                buf.append(PATH_SEPARATOR);
+            }
+            PercentCodec.encode(buf, segment, charset);
+            i++;
+        }
+    }
+
+    static void formatQuery(final StringBuilder buf, final Iterable<? extends NameValuePair> params, final Charset charset,
+                            final boolean blankAsPlus) {
+        int i = 0;
+        for (final NameValuePair parameter : params) {
+            if (i > 0) {
+                buf.append(QUERY_PARAM_SEPARATOR);
+            }
+            PercentCodec.encode(buf, parameter.getName(), charset, blankAsPlus);
+            if (parameter.getValue() != null) {
+                buf.append(PARAM_VALUE_SEPARATOR);
+                PercentCodec.encode(buf, parameter.getValue(), charset, blankAsPlus);
+            }
+            i++;
+        }
     }
 
     /**
@@ -167,14 +270,23 @@ public class URIBuilder {
         if (this.encodedSchemeSpecificPart != null) {
             sb.append(this.encodedSchemeSpecificPart);
         } else {
+            final boolean authoritySpecified;
             if (this.encodedAuthority != null) {
                 sb.append("//").append(this.encodedAuthority);
+                authoritySpecified = true;
             } else if (this.host != null) {
                 sb.append("//");
                 if (this.encodedUserInfo != null) {
                     sb.append(this.encodedUserInfo).append("@");
                 } else if (this.userInfo != null) {
-                    encodeUserInfo(sb, this.userInfo);
+                    final int idx = this.userInfo.indexOf(':');
+                    if (idx != -1) {
+                        PercentCodec.encode(sb, this.userInfo.substring(0, idx), this.charset);
+                        sb.append(':');
+                        PercentCodec.encode(sb, this.userInfo.substring(idx + 1), this.charset);
+                    } else {
+                        PercentCodec.encode(sb, this.userInfo, this.charset);
+                    }
                     sb.append("@");
                 }
                 if (InetAddressUtils.isIPv6Address(this.host)) {
@@ -185,43 +297,38 @@ public class URIBuilder {
                 if (this.port >= 0) {
                     sb.append(":").append(this.port);
                 }
+                authoritySpecified = true;
+            } else {
+                authoritySpecified = false;
             }
             if (this.encodedPath != null) {
-                sb.append(normalizePath(this.encodedPath, sb.length() == 0));
+                if (authoritySpecified && !TextUtils.isEmpty(this.encodedPath) && !this.encodedPath.startsWith("/")) {
+                    sb.append('/');
+                }
+                sb.append(this.encodedPath);
             } else if (this.pathSegments != null) {
-                encodePath(sb, this.pathSegments);
+                formatPath(sb, this.pathSegments, !authoritySpecified && this.pathRootless, this.charset);
             }
             if (this.encodedQuery != null) {
                 sb.append("?").append(this.encodedQuery);
             } else if (this.queryParams != null && !this.queryParams.isEmpty()) {
                 sb.append("?");
-                encodeUrlForm(sb, this.queryParams);
+                formatQuery(sb, this.queryParams, this.charset, false);
             } else if (this.query != null) {
                 sb.append("?");
-                encodeUric(sb, this.query);
+                PercentCodec.encode(sb, this.query, this.charset, PercentCodec.URIC, false);
             }
         }
         if (this.encodedFragment != null) {
             sb.append("#").append(this.encodedFragment);
         } else if (this.fragment != null) {
             sb.append("#");
-            encodeUric(sb, this.fragment);
+            PercentCodec.encode(sb, this.fragment, this.charset);
         }
         return sb.toString();
     }
 
-    private static String normalizePath(final String path, final boolean relative) {
-        String s = path;
-        if (TextUtils.isBlank(s)) {
-            return "";
-        }
-        if (!relative && !s.startsWith("/")) {
-            s = "/" + s;
-        }
-        return s;
-    }
-
-    private void digestURI(final URI uri) {
+    private void digestURI(final URI uri, final Charset charset) {
         this.scheme = uri.getScheme();
         this.encodedSchemeSpecificPart = uri.getRawSchemeSpecificPart();
         this.encodedAuthority = uri.getRawAuthority();
@@ -230,27 +337,13 @@ public class URIBuilder {
         this.encodedUserInfo = uri.getRawUserInfo();
         this.userInfo = uri.getUserInfo();
         this.encodedPath = uri.getRawPath();
-        this.pathSegments = parsePath(uri.getRawPath(), this.charset != null ? this.charset : StandardCharsets.UTF_8);
+        this.pathSegments = parsePath(uri.getRawPath(), charset);
+        this.pathRootless = uri.getRawPath() != null && !uri.getRawPath().startsWith("/");
         this.encodedQuery = uri.getRawQuery();
-        this.queryParams = parseQuery(uri.getRawQuery(), this.charset != null ? this.charset : StandardCharsets.UTF_8);
+        this.queryParams = parseQuery(uri.getRawQuery(), charset, false);
         this.encodedFragment = uri.getRawFragment();
         this.fragment = uri.getFragment();
-    }
-
-    private void encodeUserInfo(final StringBuilder buf, final String userInfo) {
-        URLEncodedUtils.encUserInfo(buf, userInfo, this.charset != null ? this.charset : StandardCharsets.UTF_8);
-    }
-
-    private void encodePath(final StringBuilder buf, final List<String> pathSegments) {
-        URLEncodedUtils.formatSegments(buf, pathSegments, this.charset != null ? this.charset : StandardCharsets.UTF_8);
-    }
-
-    private void encodeUrlForm(final StringBuilder buf, final List<NameValuePair> params) {
-        URLEncodedUtils.formatParameters(buf, params, this.charset != null ? this.charset : StandardCharsets.UTF_8);
-    }
-
-    private void encodeUric(final StringBuilder buf, final String fragment) {
-        URLEncodedUtils.encUric(buf, fragment, this.charset != null ? this.charset : StandardCharsets.UTF_8);
+        this.charset = charset;
     }
 
     /**
@@ -301,7 +394,7 @@ public class URIBuilder {
             final StringBuilder sb = new StringBuilder(schemeSpecificPart);
             if (nvps != null && !nvps.isEmpty()) {
                 sb.append("?");
-                encodeUrlForm(sb, nvps);
+                formatQuery(sb, nvps, this.charset, false);
             }
             this.encodedSchemeSpecificPart = sb.toString();
         }
@@ -327,7 +420,11 @@ public class URIBuilder {
      * be unescaped and may contain non ASCII characters.
      *
      * @return this.
+     *
+     * @deprecated The use of clear-text passwords in {@link URI}s has been deprecated and is strongly
+     * discouraged.
      */
+    @Deprecated
     public URIBuilder setUserInfo(final String username, final String password) {
         return setUserInfo(username + ':' + password);
     }
@@ -387,7 +484,9 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder setPath(final String path) {
-        return setPathSegments(path != null ? URLEncodedUtils.splitPathSegments(path) : null);
+        setPathSegments(path != null ? splitPath(path) : null);
+        this.pathRootless = path != null && !path.startsWith("/");
+        return this;
     }
 
     /**
@@ -399,6 +498,23 @@ public class URIBuilder {
         this.pathSegments = pathSegments.length > 0 ? Arrays.asList(pathSegments) : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedPath = null;
+        this.pathRootless = false;
+        return this;
+    }
+
+    /**
+     * Sets rootless URI path (the first segment does not start with a /).
+     * The value is expected to be unescaped and may contain non ASCII characters.
+     *
+     * @return this.
+     *
+     * @since 5.1
+     */
+    public URIBuilder setPathSegmentsRootless(final String... pathSegments) {
+        this.pathSegments = pathSegments.length > 0 ? Arrays.asList(pathSegments) : null;
+        this.encodedSchemeSpecificPart = null;
+        this.encodedPath = null;
+        this.pathRootless = true;
         return this;
     }
 
@@ -411,6 +527,23 @@ public class URIBuilder {
         this.pathSegments = pathSegments != null && pathSegments.size() > 0 ? new ArrayList<>(pathSegments) : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedPath = null;
+        this.pathRootless = false;
+        return this;
+    }
+
+    /**
+     * Sets rootless URI path (the first segment does not start with a /).
+     * The value is expected to be unescaped and may contain non ASCII characters.
+     *
+     * @return this.
+     *
+     * @since 5.1
+     */
+    public URIBuilder setPathSegmentsRootless(final List<String> pathSegments) {
+        this.pathSegments = pathSegments != null && pathSegments.size() > 0 ? new ArrayList<>(pathSegments) : null;
+        this.encodedSchemeSpecificPart = null;
+        this.encodedPath = null;
+        this.pathRootless = true;
         return this;
     }
 
