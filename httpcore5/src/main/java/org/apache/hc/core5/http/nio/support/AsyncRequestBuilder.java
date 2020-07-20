@@ -50,7 +50,7 @@ import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.net.URIBuilder;
-import org.apache.hc.core5.net.URLEncodedUtils;
+import org.apache.hc.core5.net.WWWFormCodec;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -368,7 +368,7 @@ public class AsyncRequestBuilder {
         AsyncEntityProducer entityProducerCopy = entityProducer;
         if (parameters != null && !parameters.isEmpty()) {
             if (entityProducerCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method))) {
-                final String content = URLEncodedUtils.format(
+                final String content = WWWFormCodec.format(
                         parameters,
                         charset != null ? charset : ContentType.APPLICATION_FORM_URLENCODED.getCharset());
                 entityProducerCopy = new StringAsyncEntityProducer(
