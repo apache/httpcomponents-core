@@ -63,7 +63,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.URLEncodedUtils;
+import org.apache.hc.core5.net.WWWFormCodec;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
@@ -174,7 +174,7 @@ public class H2GreetingServer {
             if (contentType != null && contentType.isSameMimeType(ContentType.APPLICATION_FORM_URLENCODED)) {
 
                 // decoding the form entity into key/value pairs:
-                final List<NameValuePair> args = URLEncodedUtils.parse(httpEntity, contentType.getCharset());
+                final List<NameValuePair> args = WWWFormCodec.parse(httpEntity, contentType.getCharset());
                 if (!args.isEmpty()) {
                     name = args.get(0).getValue();
                 }

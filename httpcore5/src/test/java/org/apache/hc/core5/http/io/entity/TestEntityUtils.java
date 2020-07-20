@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.apache.hc.core5.net.URLEncodedUtils;
+import org.apache.hc.core5.net.WWWFormCodec;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -228,7 +228,7 @@ public class TestEntityUtils {
         parameters.add(new BasicNameValuePair("russian", ru_hello));
         parameters.add(new BasicNameValuePair("swiss", ch_hello));
 
-        final String s = URLEncodedUtils.format(parameters, StandardCharsets.UTF_8);
+        final String s = WWWFormCodec.format(parameters, StandardCharsets.UTF_8);
 
         Assert.assertEquals("russian=%D0%92%D1%81%D0%B5%D0%BC_%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82" +
                 "&swiss=Gr%C3%BCezi_z%C3%A4m%C3%A4", s);

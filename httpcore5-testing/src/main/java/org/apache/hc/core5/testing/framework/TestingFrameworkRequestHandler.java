@@ -45,17 +45,17 @@ import java.util.Map.Entry;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.apache.hc.core5.net.URLEncodedUtils;
+import org.apache.hc.core5.net.URIBuilder;
 
 public class TestingFrameworkRequestHandler implements HttpRequestHandler {
     protected Throwable thrown;
@@ -137,7 +137,8 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             final Map<String, String> expectedQuery = (Map<String, String>) requestExpectations.get(QUERY);
             if (expectedQuery != null) {
                 final URI uri = request.getUri();
-                final List<NameValuePair> actualParams = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
+                final URIBuilder uriBuilder = new URIBuilder(uri, StandardCharsets.UTF_8);
+                final List<NameValuePair> actualParams = uriBuilder.getQueryParams();
                 final Map<String, String> actualParamsMap = new HashMap<>();
                 for (final NameValuePair actualParam : actualParams) {
                     actualParamsMap.put(actualParam.getName(), actualParam.getValue());
