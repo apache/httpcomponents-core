@@ -32,16 +32,137 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.NameValuePairListMatcher;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class TestURIBuilder {
+
+    private static final String CH_HELLO = "\u0047\u0072\u00FC\u0065\u007A\u0069\u005F\u007A\u00E4\u006D\u00E4";
+    private static final String RU_HELLO = "\u0412\u0441\u0435\u043C\u005F\u043F\u0440\u0438\u0432\u0435\u0442";
+
+    static List<String> parsePath(final CharSequence s) {
+        return URIBuilder.parsePath(s, null);
+    }
+
+    @Test
+    public void testParseSegments() throws Exception {
+        MatcherAssert.assertThat(parsePath("/this/that"), CoreMatchers.equalTo(Arrays.asList("this", "that")));
+        MatcherAssert.assertThat(parsePath("this/that"), CoreMatchers.equalTo(Arrays.asList("this", "that")));
+        MatcherAssert.assertThat(parsePath("this//that"), CoreMatchers.equalTo(Arrays.asList("this", "", "that")));
+        MatcherAssert.assertThat(parsePath("this//that/"), CoreMatchers.equalTo(Arrays.asList("this", "", "that", "")));
+        MatcherAssert.assertThat(parsePath("this//that/%2fthis%20and%20that"),
+                CoreMatchers.equalTo(Arrays.asList("this", "", "that", "/this and that")));
+        MatcherAssert.assertThat(parsePath("this///that//"),
+                CoreMatchers.equalTo(Arrays.asList("this", "", "", "that", "", "")));
+        MatcherAssert.assertThat(parsePath("/"), CoreMatchers.equalTo(Collections.singletonList("")));
+        MatcherAssert.assertThat(parsePath(""), CoreMatchers.equalTo(Collections.<String>emptyList()));
+    }
+
+    static String formatPath(final String... pathSegments) {
+        final StringBuilder buf = new StringBuilder();
+        URIBuilder.formatPath(buf, Arrays.asList(pathSegments), false, null);
+        return buf.toString();
+    }
+
+    @Test
+    public void testFormatSegments() throws Exception {
+        MatcherAssert.assertThat(formatPath("this", "that"), CoreMatchers.equalTo("/this/that"));
+        MatcherAssert.assertThat(formatPath("this", "", "that"), CoreMatchers.equalTo("/this//that"));
+        MatcherAssert.assertThat(formatPath("this", "", "that", "/this and that"),
+                CoreMatchers.equalTo("/this//that/%2Fthis%20and%20that"));
+        MatcherAssert.assertThat(formatPath("this", "", "", "that", "", ""),
+                CoreMatchers.equalTo("/this///that//"));
+        MatcherAssert.assertThat(formatPath(""), CoreMatchers.equalTo("/"));
+        MatcherAssert.assertThat(formatPath(), CoreMatchers.equalTo(""));
+    }
+
+    static List<NameValuePair> parseQuery(final CharSequence s) {
+        return URIBuilder.parseQuery(s, null, false);
+    }
+
+    @Test
+    public void testParseQuery() throws Exception {
+        MatcherAssert.assertThat(parseQuery(""), NameValuePairListMatcher.isEmpty());
+        MatcherAssert.assertThat(parseQuery("Name0"),
+                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name0", null)));
+        MatcherAssert.assertThat(parseQuery("Name1=Value1"),
+                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name1", "Value1")));
+        MatcherAssert.assertThat(parseQuery("Name2="),
+                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name2", "")));
+        MatcherAssert.assertThat(parseQuery(" Name3  "),
+                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name3", null)));
+        MatcherAssert.assertThat(parseQuery("Name4=Value%204%21"),
+                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name4", "Value 4!")));
+        MatcherAssert.assertThat(parseQuery("Name4=Value%2B4%21"),
+                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name4", "Value+4!")));
+        MatcherAssert.assertThat(parseQuery("Name4=Value%204%21%20%214"),
+                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name4", "Value 4! !4")));
+        MatcherAssert.assertThat(parseQuery("Name5=aaa&Name6=bbb"),
+                NameValuePairListMatcher.equalsTo(
+                        new BasicNameValuePair("Name5", "aaa"),
+                        new BasicNameValuePair("Name6", "bbb")));
+        MatcherAssert.assertThat(parseQuery("Name7=aaa&Name7=b%2Cb&Name7=ccc"),
+                NameValuePairListMatcher.equalsTo(
+                        new BasicNameValuePair("Name7", "aaa"),
+                        new BasicNameValuePair("Name7", "b,b"),
+                        new BasicNameValuePair("Name7", "ccc")));
+        MatcherAssert.assertThat(parseQuery("Name8=xx%2C%20%20yy%20%20%2Czz"),
+                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name8", "xx,  yy  ,zz")));
+        MatcherAssert.assertThat(parseQuery("price=10%20%E2%82%AC"),
+                NameValuePairListMatcher.equalsTo(new BasicNameValuePair("price", "10 \u20AC")));
+        MatcherAssert.assertThat(parseQuery("a=b\"c&d=e"),
+                NameValuePairListMatcher.equalsTo(
+                        new BasicNameValuePair("a", "b\"c"),
+                        new BasicNameValuePair("d", "e")));
+        MatcherAssert.assertThat(parseQuery("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
+                        "&swiss=" + PercentCodec.encode(CH_HELLO, StandardCharsets.UTF_8)),
+                NameValuePairListMatcher.equalsTo(
+                        new BasicNameValuePair("russian", RU_HELLO),
+                        new BasicNameValuePair("swiss", CH_HELLO)));
+    }
+
+    static String formatQuery(final NameValuePair... params) {
+        final StringBuilder buf = new StringBuilder();
+        URIBuilder.formatQuery(buf, Arrays.asList(params), null, false);
+        return buf.toString();
+    }
+
+    @Test
+    public void testFormatQuery() throws Exception {
+        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name0", null)), CoreMatchers.equalTo("Name0"));
+        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name1", "Value1")), CoreMatchers.equalTo("Name1=Value1"));
+        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name2", "")), CoreMatchers.equalTo("Name2="));
+        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name4", "Value 4&")),
+                CoreMatchers.equalTo("Name4=Value%204%26"));
+        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name4", "Value+4&")),
+                CoreMatchers.equalTo("Name4=Value%2B4%26"));
+        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name4", "Value 4& =4")),
+                CoreMatchers.equalTo("Name4=Value%204%26%20%3D4"));
+        MatcherAssert.assertThat(formatQuery(
+                new BasicNameValuePair("Name5", "aaa"),
+                new BasicNameValuePair("Name6", "bbb")), CoreMatchers.equalTo("Name5=aaa&Name6=bbb"));
+        MatcherAssert.assertThat(formatQuery(
+                new BasicNameValuePair("Name7", "aaa"),
+                new BasicNameValuePair("Name7", "b,b"),
+                new BasicNameValuePair("Name7", "ccc")
+        ), CoreMatchers.equalTo("Name7=aaa&Name7=b%2Cb&Name7=ccc"));
+        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name8", "xx,  yy  ,zz")),
+                CoreMatchers.equalTo("Name8=xx%2C%20%20yy%20%20%2Czz"));
+        MatcherAssert.assertThat(formatQuery(
+                new BasicNameValuePair("russian", RU_HELLO),
+                new BasicNameValuePair("swiss", CH_HELLO)),
+                CoreMatchers.equalTo("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
+                        "&swiss=" + PercentCodec.encode(CH_HELLO, StandardCharsets.UTF_8)));
+    }
 
     @Test
     public void testHierarchicalUri() throws Exception {
@@ -169,14 +290,6 @@ public class TestURIBuilder {
     }
 
     @Test
-    public void testSetUserInfo() throws Exception {
-        final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff", null);
-        final URIBuilder uribuilder = new URIBuilder(uri).setUserInfo("user", "password");
-        final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://user:password@localhost:80/?param=stuff"), result);
-    }
-
-    @Test
     public void testRemoveParameters() throws Exception {
         final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff", null);
         final URIBuilder uribuilder = new URIBuilder(uri).removeQuery();
@@ -290,35 +403,6 @@ public class TestURIBuilder {
     }
 
     @Test
-    public void testAgainstURIEncoded() throws Exception {
-        // Check that the encoded URI generated by URI builder agrees with that generated by using URI directly
-        final String scheme="https";
-        final String host="localhost";
-        final String specials="/ abcd!$&*()_-+.,=:;'~<>/@[]|#^%\"{}\\`xyz"; // N.B. excludes \u00a3\u00ac\u00a6
-        final URI uri = new URI(scheme, specials, host, 80, specials, specials, specials);
-
-        final URI bld = new URIBuilder()
-                .setScheme(scheme)
-                .setHost(host)
-                .setUserInfo(specials)
-                .setPath(specials)
-                .setCustomQuery(specials)
-                .setFragment(specials)
-                .build();
-
-        Assert.assertEquals(uri.getHost(), bld.getHost());
-
-        Assert.assertEquals(uri.getRawUserInfo(), bld.getRawUserInfo());
-
-        Assert.assertEquals(uri.getRawPath(), bld.getRawPath());
-
-        Assert.assertEquals(uri.getRawQuery(), bld.getRawQuery());
-
-        Assert.assertEquals(uri.getRawFragment(), bld.getRawFragment());
-
-    }
-
-    @Test
     public void testBuildAddParametersUTF8() throws Exception {
         assertAddParameters(StandardCharsets.UTF_8);
     }
@@ -355,8 +439,8 @@ public class TestURIBuilder {
     }
 
     public void assertBuild(final Charset charset, final URI uri) throws Exception {
-        final String encodedData1 = URLEncodedUtils.encodeFormFields("\"1\u00aa position\"", charset);
-        final String encodedData2 = URLEncodedUtils.encodeFormFields("Jos\u00e9 Abra\u00e3o", charset);
+        final String encodedData1 = PercentCodec.encode("\"1\u00aa position\"", charset);
+        final String encodedData2 = PercentCodec.encode("Jos\u00e9 Abra\u00e3o", charset);
 
         final String uriExpected = String.format("https://somehost.com/stuff?parameter1=value1&parameter2=%s&parameter3=%s", encodedData1, encodedData2);
 
@@ -392,7 +476,7 @@ public class TestURIBuilder {
 
     @Test
     public void testTolerateNullInput() throws Exception {
-        Assert.assertThat(new URIBuilder()
+        MatcherAssert.assertThat(new URIBuilder()
                         .setScheme(null)
                         .setHost("localhost")
                         .setUserInfo(null)
@@ -406,7 +490,7 @@ public class TestURIBuilder {
 
     @Test
     public void testTolerateBlankInput() throws Exception {
-        Assert.assertThat(new URIBuilder()
+        MatcherAssert.assertThat(new URIBuilder()
                         .setScheme("")
                         .setHost("localhost")
                         .setUserInfo("")
@@ -424,8 +508,7 @@ public class TestURIBuilder {
         final HttpHost httpHost = new HttpHost("http", "example.com", 1234);
         final URIBuilder uribuilder = new URIBuilder();
         uribuilder.setHttpHost(httpHost);
-        final URI result = uribuilder.build();
-        Assert.assertEquals(URI.create(httpHost.toURI()), result);
+        Assert.assertEquals(URI.create("http://example.com:1234"), uribuilder.build());
     }
 
     @Test
@@ -435,23 +518,50 @@ public class TestURIBuilder {
                 .setHost("somehost")
                 .setPath("//blah//blah")
                 .build();
-        Assert.assertThat(uri, CoreMatchers.equalTo(URI.create("ftp://somehost//blah//blah")));
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("ftp://somehost//blah//blah")));
     }
 
     @Test
-    public void testPathNoLeadingSlash() throws Exception {
+    public void testNoAuthorityAndPath() throws Exception {
         final URI uri = new URIBuilder()
-                .setScheme("ftp")
+                .setScheme("file")
+                .setPath("/blah")
+                .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:/blah")));
+    }
+
+    @Test
+    public void testNoAuthorityAndPathSegments() throws Exception {
+        final URI uri = new URIBuilder()
+                .setScheme("file")
+                .setPathSegments("this", "that")
+                .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:/this/that")));
+    }
+
+    @Test
+    public void testNoAuthorityAndRootlessPath() throws Exception {
+        final URI uri = new URIBuilder()
+                .setScheme("file")
                 .setPath("blah")
                 .build();
-        Assert.assertThat(uri, CoreMatchers.equalTo(URI.create("ftp:/blah")));
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:blah")));
+    }
+
+    @Test
+    public void testNoAuthorityAndRootlessPathSegments() throws Exception {
+        final URI uri = new URIBuilder()
+                .setScheme("file")
+                .setPathSegmentsRootless("this", "that")
+                .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:this/that")));
     }
 
     @Test
     public void testOpaque() throws Exception {
         final URIBuilder uriBuilder = new URIBuilder("http://host.com");
         final URI uri = uriBuilder.build();
-        Assert.assertThat(uriBuilder.isOpaque(), CoreMatchers.equalTo(uri.isOpaque()));
+        MatcherAssert.assertThat(uriBuilder.isOpaque(), CoreMatchers.equalTo(uri.isOpaque()));
     }
 
     @Test

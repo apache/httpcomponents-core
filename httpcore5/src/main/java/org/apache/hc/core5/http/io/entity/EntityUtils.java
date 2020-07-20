@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.io.Closer;
-import org.apache.hc.core5.net.URLEncodedUtils;
+import org.apache.hc.core5.net.WWWFormCodec;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -390,7 +390,7 @@ public final class EntityUtils {
         if (buf.isEmpty()) {
             return Collections.emptyList();
         }
-        return URLEncodedUtils.parse(buf, charset, '&');
+        return WWWFormCodec.parse(buf, charset);
     }
 
 }

@@ -46,7 +46,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.io.IOCallback;
-import org.apache.hc.core5.net.URLEncodedUtils;
+import org.apache.hc.core5.net.WWWFormCodec;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -88,7 +88,7 @@ public final class HttpEntities {
         final ContentType contentType = charset != null ?
                 ContentType.APPLICATION_FORM_URLENCODED.withCharset(charset) :
                 ContentType.APPLICATION_FORM_URLENCODED;
-        return create(URLEncodedUtils.format(parameters, contentType.getCharset()), contentType);
+        return create(WWWFormCodec.format(parameters, contentType.getCharset()), contentType);
     }
 
     public static HttpEntity create(final IOCallback<OutputStream> callback, final ContentType contentType) {

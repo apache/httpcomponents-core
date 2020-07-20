@@ -45,7 +45,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.StreamChannel;
-import org.apache.hc.core5.net.URLEncodedUtils;
+import org.apache.hc.core5.net.WWWFormCodec;
 
 /**
  * {AsyncEntityProducer} factory methods.
@@ -82,7 +82,7 @@ public final class AsyncEntityProducers {
         final ContentType contentType = charset != null ?
                 ContentType.APPLICATION_FORM_URLENCODED.withCharset(charset) :
                 ContentType.APPLICATION_FORM_URLENCODED;
-        return create(URLEncodedUtils.format(parameters, contentType.getCharset()), contentType);
+        return create(WWWFormCodec.format(parameters, contentType.getCharset()), contentType);
     }
 
     public static AsyncEntityProducer createBinary(

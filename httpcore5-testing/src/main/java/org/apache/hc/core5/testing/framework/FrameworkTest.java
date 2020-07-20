@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.net.URLEncodedUtils;
+import org.apache.hc.core5.net.URIBuilder;
 
 public class FrameworkTest {
 
@@ -112,7 +112,8 @@ public class FrameworkTest {
             if (path != null) {
                 final URI uri = path.startsWith("/") ? new URI("http://localhost:8080" + path) :
                                                  new URI("http://localhost:8080/");
-                final List<NameValuePair> params = URLEncodedUtils.parse(uri, StandardCharsets.UTF_8);
+                final URIBuilder uriBuilder = new URIBuilder(uri, StandardCharsets.UTF_8);
+                final List<NameValuePair> params = uriBuilder.getQueryParams();
                 @SuppressWarnings("unchecked")
                 final Map<String, Object> queryMap = (Map<String, Object>) request.get(QUERY);
                 for (final NameValuePair param : params) {
