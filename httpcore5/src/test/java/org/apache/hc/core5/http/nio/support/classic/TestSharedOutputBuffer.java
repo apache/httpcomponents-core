@@ -229,5 +229,19 @@ public class TestSharedOutputBuffer {
         }
     }
 
+    @Test
+    public void testEndStreamOnlyCalledOnce() throws IOException {
+
+        final DataStreamChannel channel = Mockito.mock(DataStreamChannel.class);
+        final SharedOutputBuffer outputBuffer = new SharedOutputBuffer(20);
+
+        outputBuffer.flush(channel);
+
+        outputBuffer.writeCompleted();
+        outputBuffer.flush(channel);
+
+        Mockito.verify(channel, Mockito.times(1)).endStream();
+    }
+
 }
 
