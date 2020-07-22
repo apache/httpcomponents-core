@@ -65,7 +65,7 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
                 dataStreamChannel.write(buffer());
             }
             if (!buffer().hasRemaining() && endStream) {
-                propagateEndStreamOnce();
+                propagateEndStream();
             }
             condition.signalAll();
         } finally {
@@ -137,7 +137,7 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
                     if (buffer().hasRemaining()) {
                         dataStreamChannel.requestOutput();
                     } else {
-                        propagateEndStreamOnce();
+                        propagateEndStream();
                     }
                 }
             }
@@ -164,7 +164,7 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
         setInputMode();
     }
 
-    private void propagateEndStreamOnce() throws IOException {
+    private void propagateEndStream() throws IOException {
         if (!endStreamPropagated) {
             dataStreamChannel.endStream();
             endStreamPropagated = true;
