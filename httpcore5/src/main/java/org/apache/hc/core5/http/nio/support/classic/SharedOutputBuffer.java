@@ -43,10 +43,12 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
 
     private volatile DataStreamChannel dataStreamChannel;
     private volatile boolean hasCapacity;
+    private volatile boolean endStreamPropagated;
 
     public SharedOutputBuffer(final ReentrantLock lock, final int initialBufferSize) {
         super(lock, initialBufferSize);
         this.hasCapacity = false;
+        this.endStreamPropagated = false;
     }
 
     public SharedOutputBuffer(final int bufferSize) {
@@ -63,7 +65,7 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
                 dataStreamChannel.write(buffer());
             }
             if (!buffer().hasRemaining() && endStream) {
-                dataStreamChannel.endStream();
+                propagateEndStream();
             }
             condition.signalAll();
         } finally {
@@ -135,7 +137,7 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
                     if (buffer().hasRemaining()) {
                         dataStreamChannel.requestOutput();
                     } else {
-                        dataStreamChannel.endStream();
+                        propagateEndStream();
                     }
                 }
             }
@@ -160,6 +162,13 @@ public final class SharedOutputBuffer extends AbstractSharedBuffer implements Co
             ensureNotAborted();
         }
         setInputMode();
+    }
+
+    private void propagateEndStream() throws IOException {
+        if (!endStreamPropagated) {
+            dataStreamChannel.endStream();
+            endStreamPropagated = true;
+        }
     }
 
 }
