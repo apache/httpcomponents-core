@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * Default {@link org.apache.hc.core5.http.message.LineParser} implementation.
@@ -51,16 +52,16 @@ public class BasicLineParser implements LineParser {
 
     // IMPORTANT!
     // These private static variables must be treated as immutable and never exposed outside this class
-    private static final BitSet FULL_STOP = TokenParser.INIT_BITSET('.');
-    private static final BitSet BLANKS = TokenParser.INIT_BITSET(' ', '\t');
-    private static final BitSet COLON = TokenParser.INIT_BITSET(':');
+    private static final BitSet FULL_STOP = Tokenizer.INIT_BITSET('.');
+    private static final BitSet BLANKS = Tokenizer.INIT_BITSET(' ', '\t');
+    private static final BitSet COLON = Tokenizer.INIT_BITSET(':');
 
     /**
      * A version of the protocol to parse.
      * The version is typically not relevant, but the protocol name.
      */
     private final ProtocolVersion protocol;
-    private final TokenParser tokenParser;
+    private final Tokenizer tokenizer;
 
     /**
      * Creates a new line parser for the given HTTP-like protocol.
@@ -71,7 +72,7 @@ public class BasicLineParser implements LineParser {
      */
     public BasicLineParser(final ProtocolVersion proto) {
         this.protocol = proto != null? proto : HttpVersion.HTTP_1_1;
-        this.tokenParser = TokenParser.INSTANCE;
+        this.tokenizer = Tokenizer.INSTANCE;
     }
 
     /**
@@ -87,7 +88,7 @@ public class BasicLineParser implements LineParser {
         final String protoname = this.protocol.getProtocol();
         final int protolength  = protoname.length();
 
-        this.tokenParser.skipWhiteSpace(buffer, cursor);
+        this.tokenizer.skipWhiteSpace(buffer, cursor);
 
         final int pos = cursor.getPos();
 
@@ -112,7 +113,7 @@ public class BasicLineParser implements LineParser {
 
         cursor.updatePos(pos + protolength + 1);
 
-        final String token1 = this.tokenParser.parseToken(buffer, cursor, FULL_STOP);
+        final String token1 = this.tokenizer.parseToken(buffer, cursor, FULL_STOP);
         final int major;
         try {
             major = Integer.parseInt(token1);
@@ -125,7 +126,7 @@ public class BasicLineParser implements LineParser {
                     buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
         }
         cursor.updatePos(cursor.getPos() + 1);
-        final String token2 = this.tokenParser.parseToken(buffer, cursor, BLANKS);
+        final String token2 = this.tokenizer.parseToken(buffer, cursor, BLANKS);
         final int minor;
         try {
             minor = Integer.parseInt(token2);
@@ -150,20 +151,20 @@ public class BasicLineParser implements LineParser {
         Args.notNull(buffer, "Char array buffer");
 
         final ParserCursor cursor = new ParserCursor(0, buffer.length());
-        this.tokenParser.skipWhiteSpace(buffer, cursor);
-        final String method = this.tokenParser.parseToken(buffer, cursor, BLANKS);
+        this.tokenizer.skipWhiteSpace(buffer, cursor);
+        final String method = this.tokenizer.parseToken(buffer, cursor, BLANKS);
         if (TextUtils.isEmpty(method)) {
             throw new ParseException("Invalid request line",
                     buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
         }
-        this.tokenParser.skipWhiteSpace(buffer, cursor);
-        final String uri = this.tokenParser.parseToken(buffer, cursor, BLANKS);
+        this.tokenizer.skipWhiteSpace(buffer, cursor);
+        final String uri = this.tokenizer.parseToken(buffer, cursor, BLANKS);
         if (TextUtils.isEmpty(uri)) {
             throw new ParseException("Invalid request line",
                     buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
         }
         final ProtocolVersion ver = parseProtocolVersion(buffer, cursor);
-        this.tokenParser.skipWhiteSpace(buffer, cursor);
+        this.tokenizer.skipWhiteSpace(buffer, cursor);
         if (!cursor.atEnd()) {
             throw new ParseException("Invalid request line",
                     buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
@@ -176,10 +177,10 @@ public class BasicLineParser implements LineParser {
         Args.notNull(buffer, "Char array buffer");
 
         final ParserCursor cursor = new ParserCursor(0, buffer.length());
-        this.tokenParser.skipWhiteSpace(buffer, cursor);
+        this.tokenizer.skipWhiteSpace(buffer, cursor);
         final ProtocolVersion ver = parseProtocolVersion(buffer, cursor);
-        this.tokenParser.skipWhiteSpace(buffer, cursor);
-        final String s = this.tokenParser.parseToken(buffer, cursor, BLANKS);
+        this.tokenizer.skipWhiteSpace(buffer, cursor);
+        final String s = this.tokenizer.parseToken(buffer, cursor, BLANKS);
         for (int i = 0; i < s.length(); i++) {
             if (!Character.isDigit(s.charAt(i))) {
                 throw new ParseException("Status line contains invalid status code",
@@ -202,12 +203,12 @@ public class BasicLineParser implements LineParser {
         Args.notNull(buffer, "Char array buffer");
 
         final ParserCursor cursor = new ParserCursor(0, buffer.length());
-        this.tokenParser.skipWhiteSpace(buffer, cursor);
-        final String name = this.tokenParser.parseToken(buffer, cursor, COLON);
+        this.tokenizer.skipWhiteSpace(buffer, cursor);
+        final String name = this.tokenizer.parseToken(buffer, cursor, COLON);
         if (cursor.getPos() == cursor.getLowerBound() || cursor.getPos() == cursor.getUpperBound() ||
                 buffer.charAt(cursor.getPos()) != ':' ||
                 TextUtils.isEmpty(name) ||
-                TokenParser.isWhitespace(buffer.charAt(cursor.getPos() - 1))) {
+                Tokenizer.isWhitespace(buffer.charAt(cursor.getPos() - 1))) {
             throw new ParseException("Invalid header",
                     buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
         }

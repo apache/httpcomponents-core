@@ -40,9 +40,8 @@ import java.util.List;
 
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.apache.hc.core5.http.message.ParserCursor;
-import org.apache.hc.core5.http.message.TokenParser;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * A collection of utilities for encoding URLs.
@@ -110,12 +109,12 @@ public class URLEncodedUtils {
     public static List<NameValuePair> parse(
             final CharSequence s, final Charset charset, final char... separators) {
         Args.notNull(s, "Char sequence");
-        final TokenParser tokenParser = TokenParser.INSTANCE;
+        final Tokenizer tokenParser = Tokenizer.INSTANCE;
         final BitSet delimSet = new BitSet();
         for (final char separator: separators) {
             delimSet.set(separator);
         }
-        final ParserCursor cursor = new ParserCursor(0, s.length());
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final List<NameValuePair> list = new ArrayList<>();
         while (!cursor.atEnd()) {
             delimSet.set('=');
@@ -142,7 +141,7 @@ public class URLEncodedUtils {
     }
 
     static List<String> splitSegments(final CharSequence s, final BitSet separators) {
-        final ParserCursor cursor = new ParserCursor(0, s.length());
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         // Skip leading separator
         if (cursor.atEnd()) {
             return Collections.emptyList();

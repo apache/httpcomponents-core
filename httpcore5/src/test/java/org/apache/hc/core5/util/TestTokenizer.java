@@ -25,20 +25,19 @@
  *
  */
 
-package org.apache.hc.core5.http.message;
+package org.apache.hc.core5.util;
 
-import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class TestTokenParser {
+public class TestTokenizer {
 
-    private TokenParser parser;
+    private Tokenizer parser;
 
     @Before
     public void setUp() throws Exception {
-        parser = new TokenParser();
+        parser = new Tokenizer();
     }
 
     private static CharArrayBuffer createBuffer(final String value) {
@@ -54,7 +53,7 @@ public class TestTokenParser {
     public void testBasicTokenParsing() throws Exception {
         final String s = "   raw: \" some stuff \"";
         final CharArrayBuffer raw = createBuffer(s);
-        final ParserCursor cursor = new ParserCursor(0, s.length());
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
 
         parser.skipWhiteSpace(raw, cursor);
 
@@ -62,7 +61,7 @@ public class TestTokenParser {
         Assert.assertEquals(3, cursor.getPos());
 
         final StringBuilder strbuf1 = new StringBuilder();
-        parser.copyContent(raw, cursor, TokenParser.INIT_BITSET(':'), strbuf1);
+        parser.copyContent(raw, cursor, Tokenizer.INIT_BITSET(':'), strbuf1);
 
         Assert.assertFalse(cursor.atEnd());
         Assert.assertEquals(6, cursor.getPos());
@@ -92,7 +91,7 @@ public class TestTokenParser {
     public void testTokenParsingWithQuotedPairs() throws Exception {
         final String s = "raw: \"\\\"some\\stuff\\\\\"";
         final CharArrayBuffer raw = createBuffer(s);
-        final ParserCursor cursor = new ParserCursor(0, s.length());
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
 
         parser.skipWhiteSpace(raw, cursor);
 
@@ -100,7 +99,7 @@ public class TestTokenParser {
         Assert.assertEquals(0, cursor.getPos());
 
         final StringBuilder strbuf1 = new StringBuilder();
-        parser.copyContent(raw, cursor, TokenParser.INIT_BITSET(':'), strbuf1);
+        parser.copyContent(raw, cursor, Tokenizer.INIT_BITSET(':'), strbuf1);
 
         Assert.assertFalse(cursor.atEnd());
         Assert.assertEquals("raw", strbuf1.toString());
@@ -122,7 +121,7 @@ public class TestTokenParser {
     public void testTokenParsingIncompleteQuote() throws Exception {
         final String s = "\"stuff and more stuff  ";
         final CharArrayBuffer raw = createBuffer(s);
-        final ParserCursor cursor = new ParserCursor(0, s.length());
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final StringBuilder strbuf1 = new StringBuilder();
         parser.copyQuotedContent(raw, cursor, strbuf1);
         Assert.assertEquals("stuff and more stuff  ", strbuf1.toString());
@@ -132,8 +131,8 @@ public class TestTokenParser {
     public void testTokenParsingTokensWithUnquotedBlanks() throws Exception {
         final String s = "  stuff and   \tsome\tmore  stuff  ;";
         final CharArrayBuffer raw = createBuffer(s);
-        final ParserCursor cursor = new ParserCursor(0, s.length());
-        final String result = parser.parseToken(raw, cursor, TokenParser.INIT_BITSET(';'));
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        final String result = parser.parseToken(raw, cursor, Tokenizer.INIT_BITSET(';'));
         Assert.assertEquals("stuff and some more stuff", result);
     }
 
@@ -141,8 +140,8 @@ public class TestTokenParser {
     public void testTokenParsingMixedValuesAndQuotedValues() throws Exception {
         final String s = "  stuff and    \" some more \"   \"stuff  ;";
         final CharArrayBuffer raw = createBuffer(s);
-        final ParserCursor cursor = new ParserCursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, TokenParser.INIT_BITSET(';'));
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
         Assert.assertEquals("stuff and  some more  stuff  ;", result);
     }
 
@@ -150,8 +149,8 @@ public class TestTokenParser {
     public void testTokenParsingMixedValuesAndQuotedValues2() throws Exception {
         final String s = "stuff\"more\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
-        final ParserCursor cursor = new ParserCursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, TokenParser.INIT_BITSET(';'));
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
         Assert.assertEquals("stuffmorestuff", result);
     }
 
@@ -159,8 +158,8 @@ public class TestTokenParser {
     public void testTokenParsingEscapedQuotes() throws Exception {
         final String s = "stuff\"\\\"more\\\"\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
-        final ParserCursor cursor = new ParserCursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, TokenParser.INIT_BITSET(';'));
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
         Assert.assertEquals("stuff\"more\"stuff", result);
     }
 
@@ -168,8 +167,8 @@ public class TestTokenParser {
     public void testTokenParsingEscapedDelimiter() throws Exception {
         final String s = "stuff\"\\\"more\\\";\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
-        final ParserCursor cursor = new ParserCursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, TokenParser.INIT_BITSET(';'));
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
         Assert.assertEquals("stuff\"more\";stuff", result);
     }
 
@@ -177,8 +176,8 @@ public class TestTokenParser {
     public void testTokenParsingEscapedSlash() throws Exception {
         final String s = "stuff\"\\\"more\\\";\\\\\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
-        final ParserCursor cursor = new ParserCursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, TokenParser.INIT_BITSET(';'));
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
         Assert.assertEquals("stuff\"more\";\\stuff", result);
     }
 
@@ -186,8 +185,8 @@ public class TestTokenParser {
     public void testTokenParsingSlashOutsideQuotes() throws Exception {
         final String s = "stuff\\; more stuff;";
         final CharArrayBuffer raw = createBuffer(s);
-        final ParserCursor cursor = new ParserCursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, TokenParser.INIT_BITSET(';'));
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
         Assert.assertEquals("stuff\\", result);
     }
 }
