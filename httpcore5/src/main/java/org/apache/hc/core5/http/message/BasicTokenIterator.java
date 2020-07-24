@@ -32,6 +32,7 @@ import java.util.Iterator;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.TextUtils;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * {@link java.util.Iterator} of {@link org.apache.hc.core5.http.Header} tokens..
@@ -40,9 +41,9 @@ import org.apache.hc.core5.util.TextUtils;
  */
 public class BasicTokenIterator extends AbstractHeaderElementIterator<String> {
 
-    private static final BitSet COMMA = TokenParser.INIT_BITSET(',');
+    private static final BitSet COMMA = Tokenizer.INIT_BITSET(',');
 
-    private final TokenParser parser;
+    private final Tokenizer tokenizer;
 
     /**
      * Creates a new instance of {@link BasicTokenIterator}.
@@ -51,12 +52,12 @@ public class BasicTokenIterator extends AbstractHeaderElementIterator<String> {
      */
     public BasicTokenIterator(final Iterator<Header> headerIterator) {
         super(headerIterator);
-        this.parser = TokenParser.INSTANCE;
+        this.tokenizer = Tokenizer.INSTANCE;
     }
 
     @Override
     String parseHeaderElement(final CharSequence buf, final ParserCursor cursor) {
-        final String token = this.parser.parseToken(buf, cursor, COMMA);
+        final String token = this.tokenizer.parseToken(buf, cursor, COMMA);
         if (!cursor.atEnd()) {
             final int pos = cursor.getPos();
             if (buf.charAt(pos) == ',') {

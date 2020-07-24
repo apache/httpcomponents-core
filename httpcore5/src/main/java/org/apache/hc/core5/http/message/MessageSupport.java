@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * Support methods for HTTP message processing.
@@ -100,7 +101,7 @@ public class MessageSupport {
         return BufferedHeader.create(buffer);
     }
 
-    private static final BitSet COMMA = TokenParser.INIT_BITSET(',');
+    private static final BitSet COMMA = Tokenizer.INIT_BITSET(',');
 
     public static Set<String> parseTokens(final CharSequence src, final ParserCursor cursor) {
         Args.notNull(src, "Source");
@@ -111,7 +112,7 @@ public class MessageSupport {
             if (src.charAt(pos) == ',') {
                 cursor.updatePos(pos + 1);
             }
-            final String token = TokenParser.INSTANCE.parseToken(src, cursor, COMMA);
+            final String token = Tokenizer.INSTANCE.parseToken(src, cursor, COMMA);
             if (!TextUtils.isBlank(token)) {
                 tokens.add(token);
             }

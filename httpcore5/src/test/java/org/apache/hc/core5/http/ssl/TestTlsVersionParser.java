@@ -29,8 +29,7 @@ package org.apache.hc.core5.http.ssl;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.message.ParserCursor;
-import org.apache.hc.core5.http.message.TokenParser;
+import org.apache.hc.core5.util.Tokenizer;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Before;
@@ -59,8 +58,8 @@ public class TestTlsVersionParser {
 
     @Test
     public void testParseBuffer() throws Exception {
-        final ParserCursor cursor = new ParserCursor(1, 13);
-        Assert.assertThat(impl.parse(" TLSv1.2,0000", cursor, TokenParser.INIT_BITSET(',')),
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
+        Assert.assertThat(impl.parse(" TLSv1.2,0000", cursor, Tokenizer.INIT_BITSET(',')),
                 CoreMatchers.equalTo(TLS.V_1_2.version));
         Assert.assertThat(cursor.getPos(), CoreMatchers.equalTo(8));
     }

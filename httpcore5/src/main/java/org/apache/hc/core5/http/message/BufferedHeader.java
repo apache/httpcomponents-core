@@ -33,6 +33,7 @@ import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * This class represents a raw HTTP header whose content is parsed 'on demand'
@@ -90,7 +91,7 @@ public class BufferedHeader implements FormattedHeader, Serializable {
         if (colon <= 0) {
             throw new ParseException("Invalid header", buffer, 0, buffer.length());
         }
-        if (strict && TokenParser.isWhitespace(buffer.charAt(colon - 1))) {
+        if (strict && Tokenizer.isWhitespace(buffer.charAt(colon - 1))) {
             throw new ParseException("Invalid header", buffer, 0, buffer.length(), colon - 1);
         }
         final String s = buffer.substringTrimmed(0, colon);

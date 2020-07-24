@@ -31,22 +31,21 @@ import java.util.BitSet;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.message.ParserCursor;
-import org.apache.hc.core5.http.message.TokenParser;
+import org.apache.hc.core5.util.Tokenizer;
 
 final class TlsVersionParser {
 
     public final static TlsVersionParser INSTANCE = new TlsVersionParser();
 
-    private final TokenParser tokenParser;
+    private final Tokenizer tokenizer;
 
     TlsVersionParser() {
-        this.tokenParser = TokenParser.INSTANCE;
+        this.tokenizer = Tokenizer.INSTANCE;
     }
 
     ProtocolVersion parse(
             final CharSequence buffer,
-            final ParserCursor cursor,
+            final Tokenizer.Cursor cursor,
             final BitSet delimiters) throws ParseException {
         final int lowerBound = cursor.getLowerBound();
         final int upperBound = cursor.getUpperBound();
@@ -64,7 +63,7 @@ final class TlsVersionParser {
         if (cursor.atEnd()) {
             throw new ParseException("Invalid TLS version", buffer, lowerBound, upperBound, pos);
         }
-        final String s = this.tokenParser.parseToken(buffer, cursor, delimiters);
+        final String s = this.tokenizer.parseToken(buffer, cursor, delimiters);
         final int idx = s.indexOf('.');
         if (idx == -1) {
             final int major;
@@ -97,7 +96,7 @@ final class TlsVersionParser {
         if (s == null) {
             return null;
         }
-        final ParserCursor cursor = new ParserCursor(0, s.length());
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         return parse(s, cursor, null);
     }
 
