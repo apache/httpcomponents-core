@@ -36,6 +36,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * Default {@link org.apache.hc.core5.http.message.HeaderValueParser} implementation.
@@ -52,13 +53,13 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     // IMPORTANT!
     // These private static variables must be treated as immutable and never exposed outside this class
-    private static final BitSet TOKEN_DELIMS = TokenParser.INIT_BITSET('=', PARAM_DELIMITER, ELEM_DELIMITER);
-    private static final BitSet VALUE_DELIMS = TokenParser.INIT_BITSET(PARAM_DELIMITER, ELEM_DELIMITER);
+    private static final BitSet TOKEN_DELIMS = Tokenizer.INIT_BITSET('=', PARAM_DELIMITER, ELEM_DELIMITER);
+    private static final BitSet VALUE_DELIMS = Tokenizer.INIT_BITSET(PARAM_DELIMITER, ELEM_DELIMITER);
 
-    private final TokenParser tokenParser;
+    private final Tokenizer tokenizer;
 
     public BasicHeaderValueParser() {
-        this.tokenParser = TokenParser.INSTANCE;
+        this.tokenizer = Tokenizer.INSTANCE;
     }
 
     @Override
@@ -94,7 +95,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     public NameValuePair[] parseParameters(final CharSequence buffer, final ParserCursor cursor) {
         Args.notNull(buffer, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
-        tokenParser.skipWhiteSpace(buffer, cursor);
+        tokenizer.skipWhiteSpace(buffer, cursor);
         final List<NameValuePair> params = new ArrayList<>();
         while (!cursor.atEnd()) {
             final NameValuePair param = parseNameValuePair(buffer, cursor);
@@ -112,7 +113,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         Args.notNull(buffer, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
 
-        final String name = tokenParser.parseToken(buffer, cursor, TOKEN_DELIMS);
+        final String name = tokenizer.parseToken(buffer, cursor, TOKEN_DELIMS);
         if (cursor.atEnd()) {
             return new BasicNameValuePair(name, null);
         }
@@ -121,7 +122,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         if (delim != '=') {
             return new BasicNameValuePair(name, null);
         }
-        final String value = tokenParser.parseValue(buffer, cursor, VALUE_DELIMS);
+        final String value = tokenizer.parseValue(buffer, cursor, VALUE_DELIMS);
         if (!cursor.atEnd()) {
             cursor.updatePos(cursor.getPos() + 1);
         }

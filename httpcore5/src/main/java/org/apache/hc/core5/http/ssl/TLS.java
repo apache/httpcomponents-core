@@ -32,7 +32,7 @@ import java.util.List;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.message.ParserCursor;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * Supported {@code TLS} protocol versions.
@@ -74,7 +74,7 @@ public enum TLS {
         if (s == null) {
             return null;
         }
-        final ParserCursor cursor = new ParserCursor(0, s.length());
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         return TlsVersionParser.INSTANCE.parse(s, cursor, null);
     }
 
