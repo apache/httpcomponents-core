@@ -29,6 +29,7 @@ package org.apache.hc.core5.net;
 
 import java.io.Serializable;
 import java.net.URISyntaxException;
+import java.util.BitSet;
 import java.util.Locale;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -36,6 +37,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * Represents authority component of request {@link java.net.URI}.
@@ -49,6 +51,97 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     private final String userInfo;
     private final String hostname;
     private final int port;
+
+    private static final BitSet HOST_SEPARATORS = new BitSet(256);
+    private static final BitSet PORT_SEPARATORS = new BitSet(256);
+    private static final BitSet TERMINATORS = new BitSet(256);
+
+    static {
+        TERMINATORS.set('/');
+        TERMINATORS.set('#');
+        TERMINATORS.set('?');
+        HOST_SEPARATORS.or(TERMINATORS);
+        HOST_SEPARATORS.set('@');
+        HOST_SEPARATORS.set(':');
+        PORT_SEPARATORS.or(TERMINATORS);
+        PORT_SEPARATORS.set(':');
+    }
+
+    static URISyntaxException createException(
+            final CharSequence input, final Tokenizer.Cursor cursor, final String reason) {
+        return new URISyntaxException(
+                input.subSequence(cursor.getLowerBound(), cursor.getUpperBound()).toString(),
+                reason,
+                cursor.getPos());
+    }
+
+    static URIAuthority parse(final CharSequence s, final Tokenizer.Cursor cursor) throws URISyntaxException {
+        final Tokenizer tokenizer = Tokenizer.INSTANCE;
+        String userInfo = null;
+        String hostName = null;
+        String portText = null;
+        final String token = tokenizer.parseContent(s, cursor, HOST_SEPARATORS);
+        if (!cursor.atEnd()) {
+            final char separator1 = s.charAt(cursor.getPos());
+            if (separator1 == '@') {
+                userInfo = !TextUtils.isEmpty(token) ? token : null;
+                cursor.updatePos(cursor.getPos() + 1);
+                hostName = tokenizer.parseContent(s, cursor, PORT_SEPARATORS);
+                if (!cursor.atEnd()) {
+                    final char separator2 = s.charAt(cursor.getPos());
+                    if (separator2 == ':') {
+                        cursor.updatePos(cursor.getPos() + 1);
+                        portText = tokenizer.parseContent(s, cursor, TERMINATORS);
+                    }
+                }
+            } else {
+                hostName = token;
+                if (separator1 == ':') {
+                    cursor.updatePos(cursor.getPos() + 1);
+                    portText = tokenizer.parseContent(s, cursor, TERMINATORS);
+                }
+            }
+        } else {
+            hostName = token;
+        }
+        if (TextUtils.isBlank(hostName)) {
+            throw createException(s, cursor, "Authority host is empty");
+        }
+        final int port;
+        if (!TextUtils.isBlank(portText)) {
+            try {
+                port = Integer.parseInt(portText);
+            } catch (final NumberFormatException ex) {
+                throw createException(s, cursor, "Authority port is invalid");
+            }
+        } else {
+            port = -1;
+        }
+        return new URIAuthority(userInfo, hostName.toLowerCase(Locale.ROOT), port, true);
+    }
+
+    static URIAuthority parse(final CharSequence s) throws URISyntaxException {
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        return parse(s, cursor);
+    }
+
+    static void format(final StringBuilder buf, final URIAuthority uriAuthority) {
+        if (uriAuthority.userInfo != null) {
+            buf.append(uriAuthority.userInfo);
+            buf.append("@");
+        }
+        buf.append(uriAuthority.hostname);
+        if (uriAuthority.port != -1) {
+            buf.append(":");
+            buf.append(uriAuthority.port);
+        }
+    }
+
+    static String format(final URIAuthority uriAuthority) {
+        final StringBuilder buf = new StringBuilder();
+        format(buf, uriAuthority);
+        return buf.toString();
+    }
 
     /**
      * @throws IllegalArgumentException
@@ -90,33 +183,15 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
      * Creates {@code URIHost} instance from string. Text may not contain any blanks.
      */
     public static URIAuthority create(final String s) throws URISyntaxException {
-        if (s == null) {
+        if (TextUtils.isBlank(s)) {
             return null;
         }
-        String userInfo = null;
-        String hostname = s;
-        int port = -1;
-        final int portIdx = hostname.lastIndexOf(":");
-        if (portIdx > 0) {
-            try {
-                port = Integer.parseInt(hostname.substring(portIdx + 1));
-            } catch (final NumberFormatException ex) {
-                throw new URISyntaxException(s, "invalid port");
-            }
-            hostname = hostname.substring(0, portIdx);
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        final URIAuthority uriAuthority = parse(s, cursor);
+        if (!cursor.atEnd()) {
+            throw createException(s, cursor, "Unexpected content");
         }
-        final int atIdx = hostname.lastIndexOf("@");
-        if (atIdx > 0) {
-            userInfo = hostname.substring(0, atIdx);
-            if (TextUtils.containsBlanks(userInfo)) {
-                throw new URISyntaxException(s, "user info contains blanks");
-            }
-            hostname = hostname.substring(atIdx + 1);
-        }
-        if (TextUtils.containsBlanks(hostname)) {
-            throw new URISyntaxException(s, "hostname contains blanks");
-        }
-        return new URIAuthority(userInfo, hostname.toLowerCase(Locale.ROOT), port, true);
+        return uriAuthority;
     }
 
     public URIAuthority(final String hostname) {
@@ -139,17 +214,7 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
 
     @Override
     public String toString() {
-        final StringBuilder buffer = new StringBuilder();
-        if (userInfo != null) {
-            buffer.append(userInfo);
-            buffer.append("@");
-        }
-        buffer.append(hostname);
-        if (port != -1) {
-            buffer.append(":");
-            buffer.append(Integer.toString(port));
-        }
-        return buffer.toString();
+        return format(this);
     }
 
     @Override

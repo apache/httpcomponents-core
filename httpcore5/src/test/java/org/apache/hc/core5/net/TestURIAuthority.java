@@ -33,6 +33,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URISyntaxException;
 
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -118,19 +120,91 @@ public class TestURIAuthority {
     }
 
     @Test
-    public void testCreateFromString() throws Exception {
-        Assert.assertEquals(new URIAuthority("somehost", 8080), URIAuthority.create("somehost:8080"));
-        Assert.assertEquals(new URIAuthority("somehost", 8080), URIAuthority.create("SomeHost:8080"));
-        Assert.assertEquals(new URIAuthority("somehost", 1234), URIAuthority.create("somehost:1234"));
-        Assert.assertEquals(new URIAuthority("somehost", -1), URIAuthority.create("somehost"));
-        Assert.assertEquals(new URIAuthority("user", "somehost", -1), URIAuthority.create("user@somehost"));
+    public void testParse() throws Exception {
+        MatcherAssert.assertThat(URIAuthority.parse("somehost"),
+                CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
+        MatcherAssert.assertThat(URIAuthority.parse("somehost/blah"),
+                CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
+        MatcherAssert.assertThat(URIAuthority.parse("somehost?blah"),
+                CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
+        MatcherAssert.assertThat(URIAuthority.parse("somehost#blah"),
+                CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
+        try {
+            URIAuthority.create("aaaa@:8080");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+        }
+        try {
+            URIAuthority.create("@:");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+        }
+        MatcherAssert.assertThat(URIAuthority.parse("somehost:8080"),
+                CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
+        MatcherAssert.assertThat(URIAuthority.parse("somehost:8080/blah"),
+                CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
+        MatcherAssert.assertThat(URIAuthority.parse("somehost:8080?blah"),
+                CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
+        MatcherAssert.assertThat(URIAuthority.parse("somehost:8080#blah"),
+                CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
+        MatcherAssert.assertThat(URIAuthority.parse("somehost:008080"),
+                CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
+        try {
+            URIAuthority.create("somehost:aaaaa");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+        }
+        try {
+            URIAuthority.create("somehost:90ab");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+        }
+
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost/blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost?blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost#blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:/blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:?blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:#blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:8080"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", 8080)));
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:8080/blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", 8080)));
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:8080?blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", 8080)));
+        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:8080#blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", 8080)));
+        MatcherAssert.assertThat(URIAuthority.parse("@somehost:8080"),
+                CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
     }
 
     @Test
-    public void testCreateFromStringInvalid() throws Exception {
+    public void testCreateFromString() throws Exception {
+        Assert.assertEquals(new URIAuthority("somehost", 8080), URIAuthority.create("somehost:8080"));
+        Assert.assertEquals(new URIAuthority("SomeHost", 8080), URIAuthority.create("SomeHost:8080"));
+        Assert.assertEquals(new URIAuthority("somehost", 1234), URIAuthority.create("somehost:1234"));
+        Assert.assertEquals(new URIAuthority("somehost", -1), URIAuthority.create("somehost"));
+        Assert.assertEquals(new URIAuthority("user", "somehost", -1), URIAuthority.create("user@somehost"));
         try {
-            URIAuthority.create(" host ");
-            Assert.fail("IllegalArgumentException expected");
+            URIAuthority.create(" host");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+        }
+        try {
+            URIAuthority.create("host  ");
+            Assert.fail("URISyntaxException expected");
         } catch (final URISyntaxException expected) {
         }
         try {
