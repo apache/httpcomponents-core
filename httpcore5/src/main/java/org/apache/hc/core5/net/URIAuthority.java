@@ -34,7 +34,6 @@ import java.util.Locale;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
@@ -104,9 +103,6 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         } else {
             hostName = token;
         }
-        if (TextUtils.isBlank(hostName)) {
-            throw createException(s, cursor, "Authority host is empty");
-        }
         final int port;
         if (!TextUtils.isBlank(portText)) {
             try {
@@ -162,12 +158,8 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
      */
     public URIAuthority(final String userInfo, final String hostname, final int port) {
         super();
-        Args.containsNoBlanks(hostname, "Host name");
-        if (userInfo != null) {
-            Args.containsNoBlanks(userInfo, "User info");
-        }
         this.userInfo = userInfo;
-        this.hostname = hostname.toLowerCase(Locale.ROOT);
+        this.hostname = hostname != null ? hostname.toLowerCase(Locale.ROOT) : null;
         this.port = Ports.checkWithDefault(port);
     }
 
