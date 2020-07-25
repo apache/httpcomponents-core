@@ -292,7 +292,7 @@ public class URIBuilder {
                 if (InetAddressUtils.isIPv6Address(this.host)) {
                     sb.append("[").append(this.host).append("]");
                 } else {
-                    sb.append(this.host);
+                    sb.append(PercentCodec.encode(this.host, this.charset));
                 }
                 if (this.port >= 0) {
                     sb.append(":").append(this.port);
@@ -336,6 +336,16 @@ public class URIBuilder {
         this.port = uri.getPort();
         this.encodedUserInfo = uri.getRawUserInfo();
         this.userInfo = uri.getUserInfo();
+        if (this.encodedAuthority != null && this.host == null) {
+            try {
+                final URIAuthority uriAuthority = URIAuthority.parse(this.encodedAuthority);
+                this.encodedUserInfo = uriAuthority.getUserInfo();
+                this.userInfo = PercentCodec.decode(uriAuthority.getUserInfo(), charset);
+                this.host = PercentCodec.decode(uriAuthority.getHostName(), charset);
+                this.port = uriAuthority.getPort();
+            } catch (final URISyntaxException ignore) {
+            }
+        }
         this.encodedPath = uri.getRawPath();
         this.pathSegments = parsePath(uri.getRawPath(), charset);
         this.pathRootless = uri.getRawPath() != null && !uri.getRawPath().startsWith("/");
@@ -447,7 +457,7 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder setHost(final String host) {
-        this.host = !TextUtils.isBlank(host) ? host : null;
+        this.host = host;
         this.encodedSchemeSpecificPart = null;
         this.encodedAuthority = null;
         return this;

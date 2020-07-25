@@ -129,16 +129,10 @@ public class TestURIAuthority {
                 CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
         MatcherAssert.assertThat(URIAuthority.parse("somehost#blah"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
-        try {
-            URIAuthority.create("aaaa@:8080");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
-        try {
-            URIAuthority.create("@:");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
+        MatcherAssert.assertThat(URIAuthority.parse("aaaa@:8080"),
+                CoreMatchers.equalTo(new URIAuthority("aaaa", "", 8080)));
+        MatcherAssert.assertThat(URIAuthority.parse("@:"),
+                CoreMatchers.equalTo(new URIAuthority(null, "", -1)));
         MatcherAssert.assertThat(URIAuthority.parse("somehost:8080"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
         MatcherAssert.assertThat(URIAuthority.parse("somehost:8080/blah"),
