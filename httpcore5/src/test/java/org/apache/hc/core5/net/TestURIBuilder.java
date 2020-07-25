@@ -512,6 +512,20 @@ public class TestURIBuilder {
     }
 
     @Test
+    public void testSetHostWithReservedChars() throws Exception {
+        final URIBuilder uribuilder = new URIBuilder();
+        uribuilder.setScheme("http").setHost("!example!.com");
+        Assert.assertEquals(URI.create("http://%21example%21.com"), uribuilder.build());
+    }
+
+    @Test
+    public void testGetHostWithReservedChars() throws Exception {
+        final URIBuilder uribuilder = new URIBuilder("http://someuser%21@%21example%21.com/");
+        Assert.assertEquals("!example!.com", uribuilder.getHost());
+        Assert.assertEquals("someuser!", uribuilder.getUserInfo());
+    }
+
+    @Test
     public void testMultipleLeadingPathSlashes() throws Exception {
         final URI uri = new URIBuilder()
                 .setScheme("ftp")
