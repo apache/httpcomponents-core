@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.impl.CharCodingSupport;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
+import org.apache.hc.core5.http.io.ResponseOutOfOrderStrategy;
 
 /**
  * Default factory for {@link org.apache.hc.core5.http.io.HttpClientConnection}s.
@@ -55,8 +56,26 @@ public class DefaultBHttpClientConnectionFactory
     private final CharCodingConfig charCodingConfig;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
+    private final ResponseOutOfOrderStrategy responseOutOfOrderStrategy;
     private final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory;
     private final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory;
+
+    private DefaultBHttpClientConnectionFactory(
+            final Http1Config http1Config,
+            final CharCodingConfig charCodingConfig,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy,
+            final ResponseOutOfOrderStrategy responseOutOfOrderStrategy,
+            final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
+            final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
+        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
+        this.incomingContentStrategy = incomingContentStrategy;
+        this.outgoingContentStrategy = outgoingContentStrategy;
+        this.responseOutOfOrderStrategy = responseOutOfOrderStrategy;
+        this.requestWriterFactory = requestWriterFactory;
+        this.responseParserFactory = responseParserFactory;
+    }
 
     public DefaultBHttpClientConnectionFactory(
             final Http1Config http1Config,
@@ -65,13 +84,14 @@ public class DefaultBHttpClientConnectionFactory
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
-        super();
-        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
-        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
-        this.incomingContentStrategy = incomingContentStrategy;
-        this.outgoingContentStrategy = outgoingContentStrategy;
-        this.requestWriterFactory = requestWriterFactory;
-        this.responseParserFactory = responseParserFactory;
+        this(
+                http1Config,
+                charCodingConfig,
+                incomingContentStrategy,
+                outgoingContentStrategy,
+                null,
+                requestWriterFactory,
+                responseParserFactory);
     }
 
     public DefaultBHttpClientConnectionFactory(
@@ -100,6 +120,7 @@ public class DefaultBHttpClientConnectionFactory
                 CharCodingSupport.createEncoder(this.charCodingConfig),
                 this.incomingContentStrategy,
                 this.outgoingContentStrategy,
+                this.responseOutOfOrderStrategy,
                 this.requestWriterFactory,
                 this.responseParserFactory);
         conn.bind(socket);
@@ -125,6 +146,9 @@ public class DefaultBHttpClientConnectionFactory
         private CharCodingConfig charCodingConfig;
         private ContentLengthStrategy incomingContentLengthStrategy;
         private ContentLengthStrategy outgoingContentLengthStrategy;
+        private ContentLengthStrategy incomingContentStrategy;
+        private ContentLengthStrategy outgoingContentStrategy;
+        private ResponseOutOfOrderStrategy responseOutOfOrderStrategy;
         private HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory;
         private HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory;
 
@@ -150,6 +174,11 @@ public class DefaultBHttpClientConnectionFactory
             return this;
         }
 
+        public Builder responseOutOfOrderStrategy(final ResponseOutOfOrderStrategy responseOutOfOrderStrategy) {
+            this.responseOutOfOrderStrategy = responseOutOfOrderStrategy;
+            return this;
+        }
+
         public Builder requestWriterFactory(
                 final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory) {
             this.requestWriterFactory = requestWriterFactory;
@@ -168,6 +197,7 @@ public class DefaultBHttpClientConnectionFactory
                     charCodingConfig,
                     incomingContentLengthStrategy,
                     outgoingContentLengthStrategy,
+                    responseOutOfOrderStrategy,
                     requestWriterFactory,
                     responseParserFactory);
         }
