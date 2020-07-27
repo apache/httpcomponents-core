@@ -27,14 +27,13 @@
 
 package org.apache.hc.core5.http.impl.io;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-
-import javax.net.ssl.SSLSocket;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -157,8 +156,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         try (final OutputStream outStream = createContentOutputStream(
                 len, this.outbuffer, new OutputStream() {
 
-                    final boolean ssl = socketHolder.getSocket() instanceof SSLSocket;
                     final InputStream socketInputStream = socketHolder.getInputStream();
+                    final boolean earlyResponseCheckRequiresRead = !(socketInputStream instanceof FileInputStream);
                     final OutputStream socketOutputStream = socketHolder.getOutputStream();
 
                     long totalBytes = 0;
@@ -168,7 +167,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
                         final long n = totalBytes / (8 * 1024);
                         if (n > chunks) {
                             chunks = n;
-                            if (ssl ? isDataAvailable(Timeout.ONE_MILLISECOND) : (socketInputStream.available() > 0)) {
+                            if (earlyResponseCheckRequiresRead
+                                    ? isDataAvailable(Timeout.ONE_MILLISECOND)
+                                    : (socketInputStream.available() > 0)) {
                                 throw new ResponseOutOfOrderException();
                             }
                         }
