@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
@@ -51,6 +52,7 @@ import org.apache.hc.core5.http.io.HttpMessageParser;
 import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
+import org.apache.hc.core5.http.io.ResponseOutOfOrderStrategy;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -65,7 +67,51 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     private final HttpMessageWriter<ClassicHttpRequest> requestWriter;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
+    private final ResponseOutOfOrderStrategy responseOutOfOrderStrategy;
     private volatile boolean consistent;
+
+    /**
+     * Creates new instance of DefaultBHttpClientConnection.
+     *
+     * @param http1Config Message http1Config. If {@code null}
+     *   {@link Http1Config#DEFAULT} will be used.
+     * @param charDecoder decoder to be used for decoding HTTP protocol elements.
+     *   If {@code null} simple type cast will be used for byte to char conversion.
+     * @param charEncoder encoder to be used for encoding HTTP protocol elements.
+     *   If {@code null} simple type cast will be used for char to byte conversion.
+     * @param incomingContentStrategy incoming content length strategy. If {@code null}
+     *   {@link DefaultContentLengthStrategy#INSTANCE} will be used.
+     * @param outgoingContentStrategy outgoing content length strategy. If {@code null}
+     *   {@link DefaultContentLengthStrategy#INSTANCE} will be used.
+     * @param responseOutOfOrderStrategy response out of order strategy. If {@code null}
+     *   {@link NoResponseOutOfOrderStrategy#INSTANCE} will be used.
+     * @param requestWriterFactory request writer factory. If {@code null}
+     *   {@link DefaultHttpRequestWriterFactory#INSTANCE} will be used.
+     * @param responseParserFactory response parser factory. If {@code null}
+     *   {@link DefaultHttpResponseParserFactory#INSTANCE} will be used.
+     */
+    public DefaultBHttpClientConnection(
+            final Http1Config http1Config,
+            final CharsetDecoder charDecoder,
+            final CharsetEncoder charEncoder,
+            final ContentLengthStrategy incomingContentStrategy,
+            final ContentLengthStrategy outgoingContentStrategy,
+            final ResponseOutOfOrderStrategy responseOutOfOrderStrategy,
+            final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
+            final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
+        super(http1Config, charDecoder, charEncoder);
+        this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
+            DefaultHttpRequestWriterFactory.INSTANCE).create();
+        this.responseParser = (responseParserFactory != null ? responseParserFactory :
+            DefaultHttpResponseParserFactory.INSTANCE).create(http1Config);
+        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
+            DefaultContentLengthStrategy.INSTANCE;
+        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
+            DefaultContentLengthStrategy.INSTANCE;
+        this.responseOutOfOrderStrategy = responseOutOfOrderStrategy != null ? responseOutOfOrderStrategy :
+            NoResponseOutOfOrderStrategy.INSTANCE;
+        this.consistent = true;
+    }
 
     /**
      * Creates new instance of DefaultBHttpClientConnection.
@@ -93,16 +139,15 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             final ContentLengthStrategy outgoingContentStrategy,
             final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory,
             final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
-        super(http1Config, charDecoder, charEncoder);
-        this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
-            DefaultHttpRequestWriterFactory.INSTANCE).create();
-        this.responseParser = (responseParserFactory != null ? responseParserFactory :
-            DefaultHttpResponseParserFactory.INSTANCE).create(http1Config);
-        this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
-        this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
-                DefaultContentLengthStrategy.INSTANCE;
-        this.consistent = true;
+        this(
+                http1Config,
+                charDecoder,
+                charEncoder,
+                incomingContentStrategy,
+                outgoingContentStrategy,
+                null,
+                requestWriterFactory,
+                responseParserFactory);
     }
 
     public DefaultBHttpClientConnection(
@@ -149,8 +194,62 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (len == ContentLengthStrategy.UNDEFINED) {
             throw new LengthRequiredException();
         }
-        try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
+        try (final OutputStream outStream = createContentOutputStream(
+                len, this.outbuffer, new OutputStream() {
+
+                    final OutputStream socketOutputStream = socketHolder.getOutputStream();
+                    final InputStream socketInputStream = socketHolder.getInputStream();
+
+                    long totalBytes = 0;
+
+                    void checkForEarlyResponse(final long totalBytesSent, final int nextWriteSize) throws IOException {
+                        if (responseOutOfOrderStrategy.isEarlyResponseDetected(
+                                request,
+                                DefaultBHttpClientConnection.this,
+                                socketInputStream,
+                                totalBytesSent,
+                                nextWriteSize)) {
+                            throw new ResponseOutOfOrderException();
+                        }
+                    }
+
+                    @Override
+                    public void write(final byte[] b) throws IOException {
+                        checkForEarlyResponse(totalBytes, b.length);
+                        totalBytes += b.length;
+                        socketOutputStream.write(b);
+                    }
+
+                    @Override
+                    public void write(final byte[] b, final int off, final int len) throws IOException {
+                        checkForEarlyResponse(totalBytes, len);
+                        totalBytes += len;
+                        socketOutputStream.write(b, off, len);
+                    }
+
+                    @Override
+                    public void write(final int b) throws IOException {
+                        checkForEarlyResponse(totalBytes, 1);
+                        totalBytes++;
+                        socketOutputStream.write(b);
+                    }
+
+                    @Override
+                    public void flush() throws IOException {
+                        socketOutputStream.flush();
+                    }
+
+                    @Override
+                    public void close() throws IOException {
+                        socketOutputStream.close();
+                    }
+
+                }, entity.getTrailers())) {
             entity.writeTo(outStream);
+        } catch (final ResponseOutOfOrderException ex) {
+            if (len > 0) {
+                this.consistent = false;
+            }
         }
     }
 
