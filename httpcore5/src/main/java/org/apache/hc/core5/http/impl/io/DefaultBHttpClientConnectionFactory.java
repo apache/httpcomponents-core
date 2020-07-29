@@ -106,4 +106,70 @@ public class DefaultBHttpClientConnectionFactory
         return conn;
     }
 
+    /**
+     * Create a new {@link Builder}.
+     *
+     * @since 5.1
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder for {@link DefaultBHttpClientConnectionFactory}.
+     *
+     * @since 5.1
+     */
+    public static final class Builder {
+        private Http1Config http1Config;
+        private CharCodingConfig charCodingConfig;
+        private ContentLengthStrategy incomingContentLengthStrategy;
+        private ContentLengthStrategy outgoingContentLengthStrategy;
+        private HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory;
+        private HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory;
+
+        private Builder() {}
+
+        public Builder http1Config(final Http1Config http1Config) {
+            this.http1Config = http1Config;
+            return this;
+        }
+
+        public Builder charCodingConfig(final CharCodingConfig charCodingConfig) {
+            this.charCodingConfig = charCodingConfig;
+            return this;
+        }
+
+        public Builder incomingContentLengthStrategy(final ContentLengthStrategy incomingContentLengthStrategy) {
+            this.incomingContentLengthStrategy = incomingContentLengthStrategy;
+            return this;
+        }
+
+        public Builder outgoingContentLengthStrategy(final ContentLengthStrategy outgoingContentLengthStrategy) {
+            this.outgoingContentLengthStrategy = outgoingContentLengthStrategy;
+            return this;
+        }
+
+        public Builder requestWriterFactory(
+                final HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory) {
+            this.requestWriterFactory = requestWriterFactory;
+            return this;
+        }
+
+        public Builder responseParserFactory(
+                final HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory) {
+            this.responseParserFactory = responseParserFactory;
+            return this;
+        }
+
+        public DefaultBHttpClientConnectionFactory build() {
+            return new DefaultBHttpClientConnectionFactory(
+                    http1Config,
+                    charCodingConfig,
+                    incomingContentLengthStrategy,
+                    outgoingContentLengthStrategy,
+                    requestWriterFactory,
+                    responseParserFactory);
+        }
+    }
 }
