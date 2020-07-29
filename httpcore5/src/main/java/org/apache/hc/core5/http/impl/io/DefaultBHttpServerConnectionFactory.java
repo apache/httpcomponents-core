@@ -107,4 +107,77 @@ public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactor
         return conn;
     }
 
+    /**
+     * Create a new {@link Builder}.
+     *
+     * @since 5.0.2
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder for {@link DefaultBHttpServerConnectionFactory}.
+     *
+     * @since 5.0.2
+     */
+    public static final class Builder {
+        private String scheme;
+        private Http1Config http1Config;
+        private CharCodingConfig charCodingConfig;
+        private ContentLengthStrategy incomingContentStrategy;
+        private ContentLengthStrategy outgoingContentStrategy;
+        private HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory;
+        private HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory;
+
+        private Builder() {}
+
+        public Builder scheme(final String scheme) {
+            this.scheme = scheme;
+            return this;
+        }
+
+        public Builder http1Config(final Http1Config http1Config) {
+            this.http1Config = http1Config;
+            return this;
+        }
+
+        public Builder charCodingConfig(final CharCodingConfig charCodingConfig) {
+            this.charCodingConfig = charCodingConfig;
+            return this;
+        }
+
+        public Builder incomingContentStrategy(final ContentLengthStrategy incomingContentStrategy) {
+            this.incomingContentStrategy = incomingContentStrategy;
+            return this;
+        }
+
+        public Builder outgoingContentStrategy(final ContentLengthStrategy outgoingContentStrategy) {
+            this.outgoingContentStrategy = outgoingContentStrategy;
+            return this;
+        }
+
+        public Builder requestParserFactory(
+                final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory) {
+            this.requestParserFactory = requestParserFactory;
+            return this;
+        }
+
+        public Builder responseWriterFactory(
+                final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
+            this.responseWriterFactory = responseWriterFactory;
+            return this;
+        }
+
+        public DefaultBHttpServerConnectionFactory build() {
+            return new DefaultBHttpServerConnectionFactory(
+                    scheme,
+                    http1Config,
+                    charCodingConfig,
+                    incomingContentStrategy,
+                    outgoingContentStrategy,
+                    requestParserFactory,
+                    responseWriterFactory);
+        }
+    }
 }
