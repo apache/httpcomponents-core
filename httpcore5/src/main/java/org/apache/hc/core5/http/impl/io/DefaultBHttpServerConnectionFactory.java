@@ -110,7 +110,7 @@ public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactor
     /**
      * Create a new {@link Builder}.
      *
-     * @since 5.0.2
+     * @since 5.1
      */
     public static Builder builder() {
         return new Builder();
@@ -119,7 +119,7 @@ public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactor
     /**
      * Builder for {@link DefaultBHttpServerConnectionFactory}.
      *
-     * @since 5.0.2
+     * @since 5.1
      */
     public static final class Builder {
         private String scheme;
