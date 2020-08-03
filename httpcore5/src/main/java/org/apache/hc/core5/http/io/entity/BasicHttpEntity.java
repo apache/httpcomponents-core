@@ -33,7 +33,6 @@ import java.io.InputStream;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
 
