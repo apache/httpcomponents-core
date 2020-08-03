@@ -25,15 +25,13 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.io;
+package org.apache.hc.core5.http.io.entity;
 
 import java.io.InputStream;
 
 /**
- * @since 4.4
- * @deprecated Please use {@link org.apache.hc.core5.http.io.entity.EmptyInputStream}
+ * @since 5.1
  */
-@Deprecated
 public final class EmptyInputStream extends InputStream {
 
     public static final EmptyInputStream INSTANCE = new EmptyInputStream();

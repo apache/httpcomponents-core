@@ -32,7 +32,6 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.impl.io.EmptyInputStream;
 
 import java.io.IOException;
 import java.io.InputStream;
