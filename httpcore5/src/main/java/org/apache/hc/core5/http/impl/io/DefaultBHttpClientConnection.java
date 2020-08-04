@@ -34,8 +34,6 @@ import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
-import javax.net.ssl.SSLSocket;
-
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -55,7 +53,6 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Timeout;
 
 /**
  * Default implementation of {@link HttpClientConnection}.
@@ -157,7 +154,6 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         try (final OutputStream outStream = createContentOutputStream(
                 len, this.outbuffer, new OutputStream() {
 
-                    final boolean ssl = socketHolder.getSocket() instanceof SSLSocket;
                     final InputStream socketInputStream = socketHolder.getInputStream();
                     final OutputStream socketOutputStream = socketHolder.getOutputStream();
 
@@ -168,7 +164,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
                         final long n = totalBytes / (8 * 1024);
                         if (n > chunks) {
                             chunks = n;
-                            if (ssl ? isDataAvailable(Timeout.ONE_MILLISECOND) : (socketInputStream.available() > 0)) {
+                            if (socketInputStream.available() > 0) {
                                 throw new ResponseOutOfOrderException();
                             }
                         }
