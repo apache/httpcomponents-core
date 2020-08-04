@@ -125,8 +125,8 @@ public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactor
         private String scheme;
         private Http1Config http1Config;
         private CharCodingConfig charCodingConfig;
-        private ContentLengthStrategy incomingContentStrategy;
-        private ContentLengthStrategy outgoingContentStrategy;
+        private ContentLengthStrategy incomingContentLengthStrategy;
+        private ContentLengthStrategy outgoingContentLengthStrategy;
         private HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory;
         private HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory;
 
@@ -147,13 +147,13 @@ public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactor
             return this;
         }
 
-        public Builder incomingContentStrategy(final ContentLengthStrategy incomingContentStrategy) {
-            this.incomingContentStrategy = incomingContentStrategy;
+        public Builder incomingContentLengthStrategy(final ContentLengthStrategy incomingContentLengthStrategy) {
+            this.incomingContentLengthStrategy = incomingContentLengthStrategy;
             return this;
         }
 
-        public Builder outgoingContentStrategy(final ContentLengthStrategy outgoingContentStrategy) {
-            this.outgoingContentStrategy = outgoingContentStrategy;
+        public Builder outgoingContentLengthStrategy(final ContentLengthStrategy outgoingContentLengthStrategy) {
+            this.outgoingContentLengthStrategy = outgoingContentLengthStrategy;
             return this;
         }
 
@@ -174,8 +174,8 @@ public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactor
                     scheme,
                     http1Config,
                     charCodingConfig,
-                    incomingContentStrategy,
-                    outgoingContentStrategy,
+                    incomingContentLengthStrategy,
+                    outgoingContentLengthStrategy,
                     requestParserFactory,
                     responseWriterFactory);
         }

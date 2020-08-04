@@ -144,8 +144,8 @@ public class DefaultBHttpClientConnectionFactory
     public static final class Builder {
         private Http1Config http1Config;
         private CharCodingConfig charCodingConfig;
-        private ContentLengthStrategy incomingContentStrategy;
-        private ContentLengthStrategy outgoingContentStrategy;
+        private ContentLengthStrategy incomingContentLengthStrategy;
+        private ContentLengthStrategy outgoingContentLengthStrategy;
         private ResponseOutOfOrderStrategy responseOutOfOrderStrategy;
         private HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory;
         private HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory;
@@ -162,13 +162,13 @@ public class DefaultBHttpClientConnectionFactory
             return this;
         }
 
-        public Builder incomingContentStrategy(final ContentLengthStrategy incomingContentStrategy) {
-            this.incomingContentStrategy = incomingContentStrategy;
+        public Builder incomingContentLengthStrategy(final ContentLengthStrategy incomingContentLengthStrategy) {
+            this.incomingContentLengthStrategy = incomingContentLengthStrategy;
             return this;
         }
 
-        public Builder outgoingContentStrategy(final ContentLengthStrategy outgoingContentStrategy) {
-            this.outgoingContentStrategy = outgoingContentStrategy;
+        public Builder outgoingContentLengthStrategy(final ContentLengthStrategy outgoingContentLengthStrategy) {
+            this.outgoingContentLengthStrategy = outgoingContentLengthStrategy;
             return this;
         }
 
@@ -193,8 +193,8 @@ public class DefaultBHttpClientConnectionFactory
             return new DefaultBHttpClientConnectionFactory(
                     http1Config,
                     charCodingConfig,
-                    incomingContentStrategy,
-                    outgoingContentStrategy,
+                    incomingContentLengthStrategy,
+                    outgoingContentLengthStrategy,
                     responseOutOfOrderStrategy,
                     requestWriterFactory,
                     responseParserFactory);
