@@ -47,11 +47,6 @@ public class Timeout extends TimeValue {
     public static final Timeout ZERO_MILLISECONDS = Timeout.of(0, TimeUnit.MILLISECONDS);
 
     /**
-     * A one millisecond {@link Timeout}.
-     */
-    public static final Timeout ONE_MILLISECOND = Timeout.of(1, TimeUnit.MILLISECONDS);
-
-    /**
      * A disabled timeout represented as 0 {@code MILLISECONDS}.
      */
     public static final Timeout DISABLED = ZERO_MILLISECONDS;

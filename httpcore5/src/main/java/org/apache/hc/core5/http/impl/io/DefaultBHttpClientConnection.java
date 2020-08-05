@@ -28,13 +28,10 @@
 package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-
-import javax.net.ssl.SSLSocket;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -55,7 +52,6 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Timeout;
 
 /**
  * Default implementation of {@link HttpClientConnection}.
@@ -153,64 +149,8 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (len == ContentLengthStrategy.UNDEFINED) {
             throw new LengthRequiredException();
         }
-
-        try (final OutputStream outStream = createContentOutputStream(
-                len, this.outbuffer, new OutputStream() {
-
-                    final boolean ssl = socketHolder.getSocket() instanceof SSLSocket;
-                    final InputStream socketInputStream = socketHolder.getInputStream();
-                    final OutputStream socketOutputStream = socketHolder.getOutputStream();
-
-                    long totalBytes = 0;
-                    long chunks = -1;
-
-                    void checkForEarlyResponse() throws IOException {
-                        final long n = totalBytes / (8 * 1024);
-                        if (n > chunks) {
-                            chunks = n;
-                            if (ssl ? isDataAvailable(Timeout.ONE_MILLISECOND) : (socketInputStream.available() > 0)) {
-                                throw new ResponseOutOfOrderException();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void write(final byte[] b) throws IOException {
-                        totalBytes += b.length;
-                        checkForEarlyResponse();
-                        socketOutputStream.write(b);
-                    }
-
-                    @Override
-                    public void write(final byte[] b, final int off, final int len) throws IOException {
-                        totalBytes += len;
-                        checkForEarlyResponse();
-                        socketOutputStream.write(b, off, len);
-                    }
-
-                    @Override
-                    public void write(final int b) throws IOException {
-                        totalBytes++;
-                        checkForEarlyResponse();
-                        socketOutputStream.write(b);
-                    }
-
-                    @Override
-                    public void flush() throws IOException {
-                        socketOutputStream.flush();
-                    }
-
-                    @Override
-                    public void close() throws IOException {
-                        socketOutputStream.close();
-                    }
-
-                }, entity.getTrailers())) {
+        try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
             entity.writeTo(outStream);
-        } catch (final ResponseOutOfOrderException ex) {
-            if (len > 0) {
-                this.consistent = false;
-            }
         }
     }
 
@@ -229,13 +169,11 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         }
         final long len = this.outgoingContentStrategy.determineLength(request);
         if (len == ContentLengthStrategy.CHUNKED) {
-            try (final OutputStream outStream = createContentOutputStream(
-                    len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
+            try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
                 // just close
             }
         } else if (len >= 0 && len <= 1024) {
-            try (final OutputStream outStream = createContentOutputStream(
-                    len, this.outbuffer, socketHolder.getOutputStream(), null)) {
+            try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), null)) {
                 entity.writeTo(outStream);
             }
         } else {
