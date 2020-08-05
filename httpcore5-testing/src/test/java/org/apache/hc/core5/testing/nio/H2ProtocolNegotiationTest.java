@@ -233,7 +233,7 @@ public class H2ProtocolNegotiationTest {
         final HttpResponse response1 = message1.getHead();
         Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
 
-        if (javaVersion >= 9) {
+        if (javaVersion >= 8) {
             Assert.assertThat(response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_2));
         } else {
             Assert.assertThat(response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_1_1));
