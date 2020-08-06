@@ -39,8 +39,8 @@ import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.MonitoringResponseOutOfOrderStrategy;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -56,6 +56,7 @@ import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -154,8 +155,7 @@ public class MonitoringResponseOutOfOrderStrategyIntegrationTest {
                     final ClassicHttpResponse response,
                     final HttpContext context) throws IOException {
                 response.setCode(400);
-                response.setEntity(new InputStreamEntity(
-                        new AllOnesInputStream(200000), -1, ContentType.APPLICATION_OCTET_STREAM));
+                response.setEntity(new AllOnesHttpEntity(200000));
             }
 
         });
@@ -166,8 +166,7 @@ public class MonitoringResponseOutOfOrderStrategyIntegrationTest {
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
 
         final ClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
-        post.setEntity(new InputStreamEntity(
-                new AllOnesInputStream(200000), -1, ContentType.APPLICATION_OCTET_STREAM));
+        post.setEntity(new AllOnesHttpEntity(200000));
 
         try (final ClassicHttpResponse response = requester.execute(host, post, TIMEOUT, context)) {
             Assert.assertEquals(400, response.getCode());
@@ -175,20 +174,42 @@ public class MonitoringResponseOutOfOrderStrategyIntegrationTest {
         }
     }
 
-    private static final class AllOnesInputStream extends InputStream {
+    private static final class AllOnesHttpEntity extends AbstractHttpEntity {
         private long remaining;
 
-        AllOnesInputStream(final long length) {
+        protected AllOnesHttpEntity(final long length) {
+            super(ContentType.APPLICATION_OCTET_STREAM, null, true);
             this.remaining = length;
         }
 
         @Override
-        public int read() {
-            if (remaining > 0) {
-                remaining--;
-                return 1;
+        public InputStream getContent() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void writeTo(final OutputStream outStream) throws IOException {
+            final byte[] buf = new byte[1024];
+            while (remaining > 0) {
+                final int writeLength = (int) Math.min(remaining, buf.length);
+                outStream.write(buf, 0, writeLength);
+                outStream.flush();
+                remaining -= writeLength;
             }
-            return -1;
+        }
+
+        @Override
+        public boolean isStreaming() {
+            return true;
+        }
+
+        @Override
+        public void close() {
+        }
+
+        @Override
+        public long getContentLength() {
+            return -1L;
         }
     }
 }
