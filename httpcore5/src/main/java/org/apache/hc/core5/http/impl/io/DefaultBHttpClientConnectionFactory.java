@@ -146,8 +146,6 @@ public class DefaultBHttpClientConnectionFactory
         private CharCodingConfig charCodingConfig;
         private ContentLengthStrategy incomingContentLengthStrategy;
         private ContentLengthStrategy outgoingContentLengthStrategy;
-        private ContentLengthStrategy incomingContentStrategy;
-        private ContentLengthStrategy outgoingContentStrategy;
         private ResponseOutOfOrderStrategy responseOutOfOrderStrategy;
         private HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory;
         private HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory;
