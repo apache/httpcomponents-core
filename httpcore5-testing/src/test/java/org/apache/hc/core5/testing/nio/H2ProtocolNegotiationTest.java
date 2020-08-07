@@ -29,6 +29,8 @@ package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
@@ -232,11 +234,26 @@ public class H2ProtocolNegotiationTest {
         final HttpResponse response1 = message1.getHead();
         Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
 
-        if (javaVersion >= 9) {
+        if (isAlpnSupported()) {
             Assert.assertThat(response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_2));
         } else {
             Assert.assertThat(response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_1_1));
         }
+    }
+
+    private boolean isAlpnSupported() {
+        if (javaVersion == 8) {
+            // The 'java.version' property values are structured "1.8.0_[BUILD NUMBER]" in java 8 releases.
+            final Matcher matcher = Pattern.compile("^1\\.8\\.0_(\\d+)$")
+                    .matcher(System.getProperty("java.version"));
+            if (matcher.matches()) {
+                final int java8Build = Integer.parseInt(matcher.group(1));
+                // jep244 (alpn) was backported to java 8u251.
+                // https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8230977
+                return java8Build >= 251;
+            }
+        }
+        return javaVersion > 8;
     }
 
 }
