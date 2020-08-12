@@ -102,7 +102,7 @@ public class ChunkedOutputStream extends OutputStream {
             final OutputStream outputStream,
             final int chunkSizeHint,
             final Supplier<List<? extends Header>> trailerSupplier) {
-        this(buffer, outputStream, new byte[chunkSizeHint > 0 ? chunkSizeHint : 2048], trailerSupplier);
+        this(buffer, outputStream, new byte[chunkSizeHint > 0 ? chunkSizeHint : 8192], trailerSupplier);
     }
 
     /**
