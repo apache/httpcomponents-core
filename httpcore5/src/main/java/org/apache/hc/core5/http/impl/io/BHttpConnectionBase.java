@@ -72,6 +72,8 @@ class BHttpConnectionBase implements BHttpConnection {
     final SessionOutputBufferImpl outbuffer;
     final BasicHttpConnectionMetrics connMetrics;
     final AtomicReference<SocketHolder> socketHolderRef;
+    // Lazily initialized chunked request buffer provided to ChunkedOutputStream.
+    private byte[] chunkedRequestBuffer;
 
     volatile ProtocolVersion version;
     volatile EndpointDetails endpointDetails;
@@ -147,11 +149,18 @@ class BHttpConnectionBase implements BHttpConnection {
         if (len >= 0) {
             return new ContentLengthOutputStream(buffer, outputStream, len);
         } else if (len == ContentLengthStrategy.CHUNKED) {
-            final int chunkSizeHint = http1Config.getChunkSizeHint() >= 0 ? http1Config.getChunkSizeHint() : 2048;
-            return new ChunkedOutputStream(buffer, outputStream, chunkSizeHint, trailers);
+            return new ChunkedOutputStream(buffer, outputStream, getChunkedRequestBuffer(), trailers);
         } else {
             return new IdentityOutputStream(buffer, outputStream);
         }
+    }
+
+    private byte[] getChunkedRequestBuffer() {
+        if (chunkedRequestBuffer == null) {
+            final int chunkSizeHint = this.http1Config.getChunkSizeHint();
+            chunkedRequestBuffer = new byte[chunkSizeHint > 0 ? chunkSizeHint : 2048];
+        }
+        return chunkedRequestBuffer;
     }
 
     protected InputStream createContentInputStream(

@@ -69,6 +69,29 @@ public class ChunkedOutputStream extends OutputStream {
      *
      * @param buffer Session output buffer
      * @param outputStream Output stream
+     * @param chunkCache Buffer used to aggregate smaller writes into chunks.
+     * @param trailerSupplier Trailer supplier. May be {@code null}
+     *
+     * @since 5.1
+     */
+    public ChunkedOutputStream(
+            final SessionOutputBuffer buffer,
+            final OutputStream outputStream,
+            final byte[] chunkCache,
+            final Supplier<List<? extends Header>> trailerSupplier) {
+        super();
+        this.buffer = Args.notNull(buffer, "Session output buffer");
+        this.outputStream = Args.notNull(outputStream, "Output stream");
+        this.cache = Args.notNull(chunkCache, "Chunk cache");
+        this.lineBuffer = new CharArrayBuffer(32);
+        this.trailerSupplier = trailerSupplier;
+    }
+
+    /**
+     * Constructor taking an integer chunk size hint.
+     *
+     * @param buffer Session output buffer
+     * @param outputStream Output stream
      * @param chunkSizeHint minimal chunk size hint
      * @param trailerSupplier Trailer supplier. May be {@code null}
      *
@@ -79,12 +102,7 @@ public class ChunkedOutputStream extends OutputStream {
             final OutputStream outputStream,
             final int chunkSizeHint,
             final Supplier<List<? extends Header>> trailerSupplier) {
-        super();
-        this.buffer = Args.notNull(buffer, "Session output buffer");
-        this.outputStream = Args.notNull(outputStream, "Output stream");
-        this.cache = new byte[chunkSizeHint > 0 ? chunkSizeHint : 2048];
-        this.lineBuffer = new CharArrayBuffer(32);
-        this.trailerSupplier = trailerSupplier;
+        this(buffer, outputStream, new byte[chunkSizeHint > 0 ? chunkSizeHint : 2048], trailerSupplier);
     }
 
     /**
