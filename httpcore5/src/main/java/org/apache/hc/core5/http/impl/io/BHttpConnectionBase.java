@@ -158,7 +158,7 @@ class BHttpConnectionBase implements BHttpConnection {
     private byte[] getChunkedRequestBuffer() {
         if (chunkedRequestBuffer == null) {
             final int chunkSizeHint = this.http1Config.getChunkSizeHint();
-            chunkedRequestBuffer = new byte[chunkSizeHint > 0 ? chunkSizeHint : 2048];
+            chunkedRequestBuffer = new byte[chunkSizeHint > 0 ? chunkSizeHint : 8192];
         }
         return chunkedRequestBuffer;
     }
