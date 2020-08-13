@@ -64,6 +64,7 @@ public class ChunkedInputStream extends InputStream {
     }
 
     private static final int BUFFER_SIZE = 2048;
+    private static final Header[] EMPTY_FOOTERS = new Header[0];
 
     /** The session input buffer */
     private final SessionInputBuffer buffer;
@@ -85,7 +86,7 @@ public class ChunkedInputStream extends InputStream {
     /** True if this stream is closed */
     private boolean closed = false;
 
-    private Header[] footers = new Header[] {};
+    private Header[] footers = EMPTY_FOOTERS;
 
     /**
      * Default constructor.
@@ -306,6 +307,13 @@ public class ChunkedInputStream extends InputStream {
         if (!closed) {
             try {
                 if (!eof && state != State.CHUNK_INVALID) {
+                    // Optimistically check if the content has been fully read
+                    // when there's no data remaining in the current chunk.
+                    // This is common when self-terminating content (e.g. JSON)
+                    // is parsed from response streams.
+                    if (chunkSize == pos && chunkSize > 0 && read() == -1) {
+                        return;
+                    }
                     // read and discard the remainder of the message
                     final byte[] buff = new byte[BUFFER_SIZE];
                     while (read(buff) >= 0) {
@@ -319,7 +327,7 @@ public class ChunkedInputStream extends InputStream {
     }
 
     public Header[] getFooters() {
-        return this.footers.clone();
+        return footers.length > 0 ? footers.clone() : EMPTY_FOOTERS;
     }
 
 }
