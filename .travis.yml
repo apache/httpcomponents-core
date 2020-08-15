@@ -20,7 +20,7 @@ sudo: false
 services:
   - docker
 
-script: mvn verify -B -P docker
+script: ./mvnw verify -B -P docker
 
 jdk:
   - oraclejdk8
@@ -35,7 +35,7 @@ matrix:
 jobs:
   include:
     - jdk: openjdk7
-      script: mvn verify -B
+      script: ./mvnw verify -B
 
 after_success:
-  - mvn clean cobertura:cobertura coveralls:report
+  - ./mvnw clean cobertura:cobertura coveralls:report
