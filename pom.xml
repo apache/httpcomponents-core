@@ -249,6 +249,7 @@
         </executions>
         <configuration>
           <excludes>
+            <exclude>.mvn/wrapper/maven-wrapper.properties</exclude>
             <exclude>**/.checkstyle</exclude>
             <exclude>**/.pmd</exclude>
             <exclude>**/*.iml</exclude>
