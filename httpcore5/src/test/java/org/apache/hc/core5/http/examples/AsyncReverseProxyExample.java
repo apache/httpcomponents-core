@@ -251,7 +251,7 @@ public class AsyncReverseProxyExample {
         AsyncClientEndpoint clientEndpoint;
 
         ProxyExchangeState() {
-            this.id = String.format("%08X", COUNT.getAndIncrement());
+            this.id = String.format("%010d", COUNT.getAndIncrement());
         }
 
     }
