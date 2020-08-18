@@ -71,7 +71,7 @@ class IOSessionImpl implements IOSession {
         this.commandQueue = new ConcurrentLinkedDeque<>();
         this.lock = new ReentrantLock();
         this.socketTimeout = Timeout.DISABLED;
-        this.id = String.format(type + "-%08X", COUNT.getAndIncrement());
+        this.id = String.format(type + "-%010d", COUNT.getAndIncrement());
         this.handlerRef = new AtomicReference<>();
         this.status = new AtomicReference<>(Status.ACTIVE);
         final long currentTimeMillis = System.currentTimeMillis();
