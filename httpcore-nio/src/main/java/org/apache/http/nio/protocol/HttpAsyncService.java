@@ -291,7 +291,7 @@ public class HttpAsyncService implements NHttpServerEventHandler {
             if (cancellable != null) {
                 cancellable.cancel();
             }
-            if (cause instanceof SocketException) {
+            if (cause instanceof SocketException || cause.getClass() == IOException.class) {
                 // Transport layer is likely unreliable.
                 conn.shutdown();
                 return;
