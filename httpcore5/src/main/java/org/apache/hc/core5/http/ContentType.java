@@ -106,6 +106,10 @@ public final class ContentType implements Serializable {
             "*/*", (Charset) null);
 
 
+    /**
+     * @deprecated To be removed in 6.0
+     */
+    @Deprecated
     private static final Map<String, ContentType> CONTENT_TYPE_MAP;
     static {
 
@@ -344,7 +348,10 @@ public final class ContentType implements Serializable {
      * @return content type or {@code null} if not known.
      *
      * @since 4.5
+     *
+     * @deprecated Do not use. This method was made public by mistake.
      */
+    @Deprecated
     public static ContentType getByMimeType(final String mimeType) {
         if (mimeType == null) {
             return null;
