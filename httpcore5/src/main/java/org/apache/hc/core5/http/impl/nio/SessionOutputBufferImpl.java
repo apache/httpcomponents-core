@@ -169,8 +169,9 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
                     final byte[] b = buffer().array();
                     final int len = lineBuffer.length();
                     final int off = buffer().position();
+                    final int arrayOffset = buffer().arrayOffset();
                     for (int i = 0; i < len; i++) {
-                        b[off + i]  = (byte) lineBuffer.charAt(i);
+                        b[arrayOffset + off + i]  = (byte) lineBuffer.charAt(i);
                     }
                     buffer().position(off + len);
                 } else {
