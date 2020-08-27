@@ -60,16 +60,7 @@ public class BasicAsyncEntityConsumer extends AbstractBinAsyncEntityConsumer<byt
 
     @Override
     protected void data(final ByteBuffer src, final boolean endOfStream) throws IOException {
-        if (src == null) {
-            return;
-        }
-        if (src.hasArray()) {
-            buffer.append(src.array(), src.arrayOffset() + src.position(), src.remaining());
-        } else {
-            while (src.hasRemaining()) {
-                buffer.append(src.get());
-            }
-        }
+        buffer.append(src);
     }
 
     @Override

@@ -125,21 +125,15 @@ public final class HPackDecoder {
     }
 
     static void decodePlainString(final ByteArrayBuffer buffer, final ByteBuffer src) throws HPackException {
-
         final int strLen = decodeInt(src, 7);
-        if (strLen > src.remaining()) {
+        final int remaining = src.remaining();
+        if (strLen > remaining) {
             throw new HPackException(UNEXPECTED_EOS);
         }
-        if (src.hasArray()) {
-            final byte[] b = src.array();
-            final int off = src.position();
-            buffer.append(b, src.arrayOffset() + off, strLen);
-            src.position(off + strLen);
-        } else {
-            for (int i = 0; i < strLen; i++) {
-                buffer.append(src.get());
-            }
-        }
+        final int originalLimit = src.limit();
+        src.limit(originalLimit - (remaining - strLen));
+        buffer.append(src);
+        src.limit(originalLimit);
     }
 
     static void decodeHuffman(final ByteArrayBuffer buffer, final ByteBuffer src) throws HPackException {

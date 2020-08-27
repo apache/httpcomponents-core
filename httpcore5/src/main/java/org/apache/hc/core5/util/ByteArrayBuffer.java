@@ -28,6 +28,7 @@
 package org.apache.hc.core5.util;
 
 import java.io.Serializable;
+import java.nio.ByteBuffer;
 
 /**
  * A resizable byte array.
@@ -169,6 +170,21 @@ public final class ByteArrayBuffer implements Serializable {
             return;
         }
         append(b.array(), off, len);
+    }
+
+    public void append(final ByteBuffer buffer) {
+        if (buffer == null) {
+            return;
+        }
+        final int bufferLength = buffer.remaining();
+        if (bufferLength > 0) {
+            final int newLength = this.len + bufferLength;
+            if (newLength > this.array.length) {
+                expand(newLength);
+            }
+            buffer.get(this.array, this.len, bufferLength);
+            this.len = newLength;
+        }
     }
 
     /**
