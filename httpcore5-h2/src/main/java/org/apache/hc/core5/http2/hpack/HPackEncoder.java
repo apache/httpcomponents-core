@@ -113,7 +113,7 @@ public final class HPackEncoder {
             if (src.hasArray()) {
                 final byte[] b = src.array();
                 final int off = src.position();
-                dst.append(b, off, strLen);
+                dst.append(b, src.arrayOffset() + off, strLen);
                 src.position(off + strLen);
             } else {
                 while (src.hasRemaining()) {

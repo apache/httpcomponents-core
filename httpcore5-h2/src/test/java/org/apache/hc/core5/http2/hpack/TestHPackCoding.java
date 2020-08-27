@@ -66,8 +66,17 @@ public class TestHPackCoding {
     }
 
     static ByteBuffer wrap(final ByteArrayBuffer src) {
+        // Use buffers with array offsets to verify correcness in additional cases
+        final byte[] originalArray = src.array();
+        final byte[] newArray = new byte[originalArray.length + 2];
+        System.arraycopy(originalArray, 0, newArray, 1, src.length());
+        return ByteBuffer.wrap(newArray, 1, src.length()).slice();
+    }
 
-        return ByteBuffer.wrap(src.array(), 0, src.length());
+    private static byte[] toArray(final ByteBuffer buffer) {
+        final byte[] result = new byte[buffer.remaining()];
+        buffer.get(result);
+        return result;
     }
 
     @Test
@@ -192,7 +201,7 @@ public class TestHPackCoding {
         HPackEncoder.encodeHuffman(buffer, createByteBuffer("www.example.com", StandardCharsets.US_ASCII));
         final ByteBuffer expected = createByteBuffer(
                 0xf1, 0xe3, 0xc2, 0xe5, 0xf2, 0x3a, 0x6b, 0xa0, 0xab, 0x90, 0xf4, 0xff);
-        Assert.assertEquals(expected, wrap(buffer));
+        Assert.assertArrayEquals(toArray(expected), buffer.toByteArray());
     }
 
     @Test
@@ -205,13 +214,13 @@ public class TestHPackCoding {
         encoder.encodeString(buffer, "this and that", false);
 
         final StringBuilder strBuf = new StringBuilder();
-        decoder.decodeString(ByteBuffer.wrap(buffer.array(), 0, buffer.length()), strBuf);
+        decoder.decodeString(wrap(buffer), strBuf);
         Assert.assertEquals("this and that", strBuf.toString());
 
         buffer.clear();
         strBuf.setLength(0);
         encoder.encodeString(buffer, "this and that and Huffman", true);
-        decoder.decodeString(ByteBuffer.wrap(buffer.array(), 0, buffer.length()), strBuf);
+        decoder.decodeString(wrap(buffer), strBuf);
         Assert.assertEquals("this and that and Huffman", strBuf.toString());
     }
 
@@ -257,7 +266,7 @@ public class TestHPackCoding {
                     buffer.clear();
                     encoder.encodeString(buffer, hello, b);
                     strBuf.setLength(0);
-                    decoder.decodeString(ByteBuffer.wrap(buffer.array(), 0, buffer.length()), strBuf);
+                    decoder.decodeString(wrap(buffer), strBuf);
                     final String helloBack = strBuf.toString();
                     Assert.assertEquals("charset: " + charset + "; huffman: " + b, hello, helloBack);
                 }
@@ -285,7 +294,7 @@ public class TestHPackCoding {
                     buffer.clear();
                     strBuf.setLength(0);
                     encoder.encodeString(buffer, hello, b);
-                    decoder.decodeString(ByteBuffer.wrap(buffer.array(), 0, buffer.length()), strBuf);
+                    decoder.decodeString(wrap(buffer), strBuf);
                     final String helloBack = strBuf.toString();
                     Assert.assertEquals("charset: " + charset + "; huffman: " + b, hello, helloBack);
                 }
@@ -1004,7 +1013,7 @@ public class TestHPackCoding {
         decoder1.setMaxTableSize(48);
 
         encoder1.encodeHeader(buffer, header);
-        assertHeaderEquals(header, decoder1.decodeHeader(ByteBuffer.wrap(buffer.array(), 0, buffer.length())));
+        assertHeaderEquals(header, decoder1.decodeHeader(wrap(buffer)));
 
         Assert.assertEquals(1, outboundTable1.dynamicLength());
         Assert.assertEquals(1, inboundTable1.dynamicLength());
@@ -1023,7 +1032,7 @@ public class TestHPackCoding {
         decoder2.setMaxTableSize(48);
 
         encoder2.encodeHeader(buffer, header);
-        assertHeaderEquals(header, decoder2.decodeHeader(ByteBuffer.wrap(buffer.array(), 0, buffer.length())));
+        assertHeaderEquals(header, decoder2.decodeHeader(wrap(buffer)));
 
         Assert.assertEquals(0, outboundTable2.dynamicLength());
         Assert.assertEquals(0, inboundTable2.dynamicLength());
@@ -1044,13 +1053,13 @@ public class TestHPackCoding {
                                 "123456789012345678901234567890123456789012345678901234567890")),
                 false);
 
-        Assert.assertThat(decoder.decodeHeaders(ByteBuffer.wrap(buf.toByteArray())).size(), CoreMatchers.equalTo(2));
+        Assert.assertThat(decoder.decodeHeaders(wrap(buf)).size(), CoreMatchers.equalTo(2));
 
         decoder.setMaxListSize(1000000);
-        Assert.assertThat(decoder.decodeHeaders(ByteBuffer.wrap(buf.toByteArray())).size(), CoreMatchers.equalTo(2));
+        Assert.assertThat(decoder.decodeHeaders(wrap(buf)).size(), CoreMatchers.equalTo(2));
 
         decoder.setMaxListSize(200);
-        decoder.decodeHeaders(ByteBuffer.wrap(buf.toByteArray()));
+        decoder.decodeHeaders(wrap(buf));
     }
 
 }

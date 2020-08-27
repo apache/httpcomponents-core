@@ -250,7 +250,7 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
                 final byte[] b = buffer().array();
                 final int off = buffer().position();
                 final int len = buffer().remaining();
-                lineBuffer.append(b, off, len);
+                lineBuffer.append(b, buffer().arrayOffset() + off, len);
                 buffer().position(off + len);
             } else {
                 while (buffer().hasRemaining()) {
@@ -275,7 +275,7 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
                     this.charbuffer.flip();
                     lineBuffer.append(
                             this.charbuffer.array(),
-                            this.charbuffer.position(),
+                            this.charbuffer.arrayOffset() + this.charbuffer.position(),
                             this.charbuffer.remaining());
                     this.charbuffer.clear();
                 }
@@ -291,7 +291,7 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
             if (this.charbuffer.hasRemaining()) {
                 lineBuffer.append(
                         this.charbuffer.array(),
-                        this.charbuffer.position(),
+                        this.charbuffer.arrayOffset() + this.charbuffer.position(),
                         this.charbuffer.remaining());
             }
 
