@@ -133,7 +133,7 @@ public final class HPackDecoder {
         if (src.hasArray()) {
             final byte[] b = src.array();
             final int off = src.position();
-            buffer.append(b, off, strLen);
+            buffer.append(b, src.arrayOffset() + off, strLen);
             src.position(off + strLen);
         } else {
             for (int i = 0; i < strLen; i++) {
