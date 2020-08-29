@@ -127,13 +127,6 @@ public class HttpRequestExecutor {
         try {
             context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
             context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
-            final ProtocolVersion transportVersion = request.getVersion();
-            if (transportVersion != null) {
-                if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
-                    throw new UnsupportedHttpVersionException(transportVersion);
-                }
-                context.setProtocolVersion(transportVersion);
-            }
 
             conn.sendRequestHeader(request);
             if (streamListener != null) {
@@ -244,6 +237,11 @@ public class HttpRequestExecutor {
         Args.notNull(request, "HTTP request");
         Args.notNull(processor, "HTTP processor");
         Args.notNull(context, "HTTP context");
+        final ProtocolVersion transportVersion = request.getVersion();
+        if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+            throw new UnsupportedHttpVersionException(transportVersion);
+        }
+        context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         processor.process(request, request.getEntity(), context);
     }
@@ -273,9 +271,7 @@ public class HttpRequestExecutor {
         Args.notNull(processor, "HTTP processor");
         Args.notNull(context, "HTTP context");
         final ProtocolVersion transportVersion = response.getVersion();
-        if (transportVersion != null) {
-            context.setProtocolVersion(transportVersion);
-        }
+        context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         processor.process(response, response.getEntity(), context);
     }

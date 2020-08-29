@@ -42,7 +42,9 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequestMapper;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.ServerSupport;
@@ -179,9 +181,7 @@ public class HttpService {
             }
             conn.receiveRequestEntity(request);
             final ProtocolVersion transportVersion = request.getVersion();
-            if (transportVersion != null) {
-                context.setProtocolVersion(transportVersion);
-            }
+            context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
             context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
             context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
@@ -207,7 +207,12 @@ public class HttpService {
                 @Override
                 public void submitResponse(final ClassicHttpResponse response) throws HttpException, IOException {
                     try {
+                        final ProtocolVersion transportVersion = response.getVersion();
+                        if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+                            throw new UnsupportedHttpVersionException(transportVersion);
+                        }
                         ServerSupport.validateResponse(response, response.getEntity());
+                        context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
                         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
                         processor.process(response, response.getEntity(), context);
 

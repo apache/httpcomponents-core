@@ -168,6 +168,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
                 throw new HttpException("Invalid response: " + status);
             }
 
+            context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             httpProcessor.process(response, responseEntityDetails, context);
 
@@ -262,7 +263,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
             throw new UnsupportedHttpVersionException(transportVersion);
         }
-        context.setProtocolVersion(transportVersion);
+        context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
         try {

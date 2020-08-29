@@ -149,9 +149,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
                 throw new UnsupportedHttpVersionException(transportVersion);
             }
-            if (transportVersion != null) {
-                context.setProtocolVersion(transportVersion);
-            }
+            context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
             httpProcessor.process(request, entityDetails, context);
@@ -244,6 +242,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             }
         }
 
+        context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         httpProcessor.process(response, entityDetails, context);
 
