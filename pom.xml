@@ -274,7 +274,14 @@
           <comparisonVersion>${api.comparison.version}</comparisonVersion>
         </configuration>
       </plugin>
-
+      <plugin>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>${hc.jxr.version}</version>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>${hc.surefire.version}</version>
+      </plugin>
     </plugins>
   </reporting>
 
