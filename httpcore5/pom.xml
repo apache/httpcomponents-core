@@ -34,7 +34,7 @@
   <name>Apache HttpComponents Core HTTP/1.1</name>
   <inceptionYear>2005</inceptionYear>
   <description>Apache HttpComponents HTTP/1.1 core components</description>
-  <url>http://hc.apache.org/httpcomponents-core-ga</url>
+  <url>https://hc.apache.org/httpcomponents-core-5.0.x/</url>
   <packaging>jar</packaging>
 
   <properties>
