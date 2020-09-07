@@ -108,7 +108,6 @@
               <resources>
                 <resource>
                   <directory>src/test/java/org/apache/hc/core5/http/examples</directory>
-                  <filtering>false</filtering>
                 </resource>
               </resources>
             </configuration>
