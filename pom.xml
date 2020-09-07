@@ -35,7 +35,7 @@
   <name>Apache HttpComponents Core Parent</name>
   <version>5.0.2-SNAPSHOT</version>
   <description>Apache HttpComponents Core is a library of components for building HTTP enabled services</description>
-  <url>http://hc.apache.org/httpcomponents-core-5.0.x/</url>
+  <url>https://hc.apache.org/httpcomponents-core-5.0.x/</url>
   <inceptionYear>2005</inceptionYear>
   <packaging>pom</packaging>
 
@@ -54,7 +54,7 @@
 
   <issueManagement>
     <system>Jira</system>
-    <url>http://issues.apache.org/jira/browse/HTTPCORE</url>
+    <url>https://issues.apache.org/jira/browse/HTTPCORE</url>
   </issueManagement>
 
   <scm>
