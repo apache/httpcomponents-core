@@ -1,3 +1,50 @@
+Release 5.0.2
+------------------
+
+This release reverts changes to early response handling logic introduced in 5.0.1
+and fixes a number of minor defects. Improvement of the early response handling
+by the classic client protocol handler has been moved to 5.1.
+
+Please also note that as of this release HttpCore will use a 3 minute socket timeout
+by default.
+
+Change Log
+-------------------
+
+* HTTP/1.1 protocol handlers fail to consistently set actual protocol version in
+  the execution context.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-648: Buffer array access respects the arrayOffset (#220).
+  Contributed by Carter Kozak <ckozak at ckozak.net>
+
+* HTTPCORE-646: ChunkedInputStream avoids creating unnecessary buffers.
+  Contributed by Carter Kozak <ckozak at ckozak.net>
+
+* Revert "Improved handling of early response messages by the classic client protocol handler".
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-638: SharedOutputBuffer must trigger DataStreamChannel#endStream() once (#204).
+  Contributed by malaysf <malayshah at gmail.com>
+
+* Fixed integer overflow in IOWorkers selector (#203).
+  Contributed by Pavel kaplin <pavel.kaplin@gmail.com>
+
+* HTTPCLIENT-2098: EntityUtils#toByteArray method fails to take into account
+  `maxResultLength` parameter (#202).
+  Contributed by Andriy <a.mahats at gmail.com>
+
+* Add Automatic-Module-Name to the manifest.
+  Contributed by Niels Basjes <niels at basjes.nl>
+
+* HTTPCORE-636: Logging statements use slf4j interpolation over concatenation (#199).
+  Contributed by Carter Kozak <ckozak at ckozak.net>
+
+* HTTPCLIENT-2091: Use finite (3 minutes) socket timeout by default.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 5.0.1
 ------------------
 
