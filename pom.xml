@@ -146,40 +146,7 @@
               <linkXRef>false</linkXRef>
               <sourceDirectories>
                 <sourceDirectory>${basedir}/src/main</sourceDirectory>
-              </sourceDirectories>
-            </configuration>
-            <goals>
-              <goal>checkstyle</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>validate-test</id>
-            <phase>validate</phase>
-            <configuration>
-              <configLocation>hc-stylecheck/default.xml</configLocation>
-              <headerLocation>hc-stylecheck/asl2.header</headerLocation>
-              <consoleOutput>true</consoleOutput>
-              <failsOnError>true</failsOnError>
-              <linkXRef>false</linkXRef>
-              <sourceDirectories>
                 <sourceDirectory>${basedir}/src/test</sourceDirectory>
-              </sourceDirectories>
-            </configuration>
-            <goals>
-              <goal>checkstyle</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>validate-examples</id>
-            <phase>validate</phase>
-            <configuration>
-              <configLocation>hc-stylecheck/minimal.xml</configLocation>
-              <headerLocation>hc-stylecheck/asl2.header</headerLocation>
-              <consoleOutput>true</consoleOutput>
-              <failsOnError>true</failsOnError>
-              <linkXRef>false</linkXRef>
-              <sourceDirectories>
-                <sourceDirectory>${basedir}/src/examples</sourceDirectory>
               </sourceDirectories>
             </configuration>
             <goals>
