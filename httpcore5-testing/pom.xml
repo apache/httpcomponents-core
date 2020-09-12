@@ -33,7 +33,7 @@
   <artifactId>httpcore5-testing</artifactId>
   <name>Apache HttpComponents Core Integration Tests</name>
   <description>Apache HttpComponents HTTP/2 and HTTP/1.1 core component integration tests</description>
-  <url>https://hc.apache.org/httpcomponents-core-5.0.x/</url>
+  <url>https://hc.apache.org/httpcomponents-core-5.1.x/</url>
   <packaging>jar</packaging>
 
   <properties>
