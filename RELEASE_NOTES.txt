@@ -30,16 +30,16 @@ Change Log
 * HTTPCORE-639: Add a configurable ResponseOutOfOrder strategy for DefaultBHttpClientConnection.
   Contributed by Carter Kozak <c4kofony at gmail.com>
 
-* RFC 3986 conformance: support percent-encoded reserved characters in the host component.
+* RFC 3986 conformance: Support percent-encoded reserved characters in the host component.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* RFC 3986 conformance: revised URI parsing and formatting.
+* RFC 3986 conformance: Revised URI parsing and formatting.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Better parse and format methods for URIAuthority.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* HTTPCORE-628: do not encode blanks as + in URI query component.
+* HTTPCORE-628: Do not encode blanks as + in URI query component.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Async connection listeners to support passing attachments to endpoints.
