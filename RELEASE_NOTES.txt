@@ -16,19 +16,19 @@ Change Log
 -------------------
 
 * HTTPCORE-649: Implement ByteArrayBuffer.append(ByteBuffer)
-  Contributed by Carter Kozak <c4kofony at gmail.com>
+  Contributed by Carter Kozak <ckozak at apache.org>
 
 * Use decimal numbers for endpoint/execution IDs
   Contributed by Michael Osipov <michaelo at apache.org>
 
 * HTTPCORE-645: Increase blocking default chunk size from 2 KiB to 8 KiB.
-  Contributed by Carter Kozak <c4kofony at gmail.com>
+  Contributed by Carter Kozak <ckozak at apache.org>
 
 * HTTPCORE-645: Chunked request streams reuse buffers between requests.
-  Contributed by Carter Kozak <c4kofony at gmail.com>
+  Contributed by Carter Kozak <ckozak at apache.org>
 
 * HTTPCORE-639: Add a configurable ResponseOutOfOrder strategy for DefaultBHttpClientConnection.
-  Contributed by Carter Kozak <c4kofony at gmail.com>
+  Contributed by Carter Kozak <ckozak at apache.org>
 
 * RFC 3986 conformance: Support percent-encoded reserved characters in the host component.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
