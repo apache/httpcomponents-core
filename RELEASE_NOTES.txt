@@ -1,3 +1,52 @@
+Release 5.1 BETA1
+------------------
+
+This is the first BETA release in the 5.1 release series that includes a number of
+new features as well performance optimizations in the classic HTTP transport.
+
+Notable changes and features included in the 5.1 series:
+
+* Conditional conformance with RFC 3986 (Uniform Resource Identifier (URI): Generic Syntax).
+
+* Improved support for out of sequence response message handing by the the classic (blocking)
+  HTTP transport.
+
+
+Change Log
+-------------------
+
+* HTTPCORE-649: Implement ByteArrayBuffer.append(ByteBuffer)
+  Contributed by Carter Kozak <c4kofony at gmail.com>
+
+* Use decimal numbers for endpoint/execution IDs
+  Contributed by Michael Osipov <michaelo at apache.org>
+
+* HTTPCORE-645: Increase blocking default chunk size from 2 KiB to 8 KiB.
+  Contributed by Carter Kozak <c4kofony at gmail.com>
+
+* HTTPCORE-645: Chunked request streams reuse buffers between requests.
+  Contributed by Carter Kozak <c4kofony at gmail.com>
+
+* HTTPCORE-639: Add a configurable ResponseOutOfOrder strategy for DefaultBHttpClientConnection.
+  Contributed by Carter Kozak <c4kofony at gmail.com>
+
+* RFC 3986 conformance: support percent-encoded reserved characters in the host component.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 3986 conformance: revised URI parsing and formatting.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Better parse and format methods for URIAuthority.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-628: do not encode blanks as + in URI query component.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Async connection listeners to support passing attachments to endpoints.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 5.0.2
 ------------------
 
