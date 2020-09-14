@@ -31,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.Assert;
@@ -106,6 +107,73 @@ public class TestByteArrayBuffer {
 
         Assert.assertEquals(16, buffer.capacity());
         Assert.assertEquals(10, buffer.length());
+    }
+
+    @Test
+    public void testAppendHeapByteBuffer() {
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        Assert.assertEquals(4, buffer.capacity());
+
+        final ByteBuffer tmp = ByteBuffer.wrap(new byte[] { 1, 2, 3, 4, 5, 6});
+        buffer.append(tmp);
+
+        Assert.assertFalse("The input buffer should be drained", tmp.hasRemaining());
+        Assert.assertEquals(8, buffer.capacity());
+        Assert.assertEquals(6, buffer.length());
+
+        tmp.clear();
+        buffer.append(tmp);
+
+        Assert.assertFalse("The input buffer should be drained", tmp.hasRemaining());
+        Assert.assertEquals(16, buffer.capacity());
+        Assert.assertEquals(12, buffer.length());
+        Assert.assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6}, buffer.toByteArray());
+    }
+
+    @Test
+    public void testAppendHeapByteBufferWithOffset() {
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        Assert.assertEquals(4, buffer.capacity());
+
+        final ByteBuffer tmp = ByteBuffer.wrap(new byte[] { 7, 7, 1, 2, 3, 4, 5, 6, 7, 7}, 2, 6).slice();
+        Assert.assertTrue("Validate this is testing a buffer with an array offset", tmp.arrayOffset() > 0);
+
+        buffer.append(tmp);
+
+        Assert.assertFalse("The input buffer should be drained", tmp.hasRemaining());
+        Assert.assertEquals(8, buffer.capacity());
+        Assert.assertEquals(6, buffer.length());
+
+        tmp.clear();
+        Assert.assertEquals(6, tmp.remaining());
+        buffer.append(tmp);
+
+        Assert.assertFalse("The input buffer should be drained", tmp.hasRemaining());
+        Assert.assertEquals(16, buffer.capacity());
+        Assert.assertEquals(12, buffer.length());
+        Assert.assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6}, buffer.toByteArray());
+    }
+
+    @Test
+    public void testAppendDirectByteBuffer() {
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
+        Assert.assertEquals(4, buffer.capacity());
+
+        final ByteBuffer tmp = ByteBuffer.allocateDirect(6);
+        tmp.put(new byte[] { 1, 2, 3, 4, 5, 6}).flip();
+        buffer.append(tmp);
+
+        Assert.assertFalse("The input buffer should be drained", tmp.hasRemaining());
+        Assert.assertEquals(8, buffer.capacity());
+        Assert.assertEquals(6, buffer.length());
+
+        tmp.clear();
+        buffer.append(tmp);
+
+        Assert.assertFalse("The input buffer should be drained", tmp.hasRemaining());
+        Assert.assertEquals(16, buffer.capacity());
+        Assert.assertEquals(12, buffer.length());
+        Assert.assertArrayEquals(new byte[] {1, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 6}, buffer.toByteArray());
     }
 
     @Test
@@ -247,6 +315,14 @@ public class TestByteArrayBuffer {
     public void testAppendNullCharArrayBuffer() throws Exception {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         buffer.append((CharArrayBuffer)null, 0, 0);
+        Assert.assertEquals(0, buffer.length());
+    }
+
+    @Test
+    public void testAppendNullByteBuffer() throws Exception {
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(8);
+        final ByteBuffer nullBuffer = null;
+        buffer.append(nullBuffer);
         Assert.assertEquals(0, buffer.length());
     }
 

@@ -110,16 +110,7 @@ public final class HPackEncoder {
         } else {
             dst.ensureCapacity(strLen + 8);
             encodeInt(dst, 7, strLen, 0x0);
-            if (src.hasArray()) {
-                final byte[] b = src.array();
-                final int off = src.position();
-                dst.append(b, src.arrayOffset() + off, strLen);
-                src.position(off + strLen);
-            } else {
-                while (src.hasRemaining()) {
-                    dst.append(src.get());
-                }
-            }
+            dst.append(src);
         }
     }
 
