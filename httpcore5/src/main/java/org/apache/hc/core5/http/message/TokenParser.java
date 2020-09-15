@@ -72,13 +72,36 @@ public class TokenParser extends Tokenizer {
         super.copyContent(buf, cursor, delimiters, dst);
     }
 
+    public void copyContent(final CharSequence buf, final Tokenizer.Cursor cursor, final BitSet delimiters,
+                            final StringBuilder dst) {
+        final ParserCursor parserCursor = new ParserCursor(cursor.getLowerBound(), cursor.getUpperBound());
+        parserCursor.updatePos(cursor.getPos());
+        copyContent(buf, parserCursor, delimiters, dst);
+        cursor.updatePos(parserCursor.getPos());
+    }
+
     public void copyUnquotedContent(final CharSequence buf, final ParserCursor cursor, final BitSet delimiters,
                                     final StringBuilder dst) {
         super.copyUnquotedContent(buf, cursor, delimiters, dst);
     }
 
+    public void copyUnquotedContent(final CharSequence buf, final Tokenizer.Cursor cursor, final BitSet delimiters,
+                                    final StringBuilder dst) {
+        final ParserCursor parserCursor = new ParserCursor(cursor.getLowerBound(), cursor.getUpperBound());
+        parserCursor.updatePos(cursor.getPos());
+        copyUnquotedContent(buf, parserCursor, delimiters, dst);
+        cursor.updatePos(parserCursor.getPos());
+    }
+
     public void copyQuotedContent(final CharSequence buf, final ParserCursor cursor, final StringBuilder dst) {
         super.copyQuotedContent(buf, cursor, dst);
+    }
+
+    public void copyQuotedContent(final CharSequence buf, final Tokenizer.Cursor cursor, final StringBuilder dst) {
+        final ParserCursor parserCursor = new ParserCursor(cursor.getLowerBound(), cursor.getUpperBound());
+        parserCursor.updatePos(cursor.getPos());
+        copyQuotedContent(buf, parserCursor, dst);
+        cursor.updatePos(parserCursor.getPos());
     }
 
 }
