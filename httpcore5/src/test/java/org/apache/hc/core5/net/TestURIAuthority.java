@@ -182,6 +182,8 @@ public class TestURIAuthority {
                 CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", 8080)));
         MatcherAssert.assertThat(URIAuthority.parse("@somehost:8080"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
+        MatcherAssert.assertThat(URIAuthority.parse("test:test@localhost:38339"),
+                CoreMatchers.equalTo(new URIAuthority("test:test", "localhost", 38339)));
     }
 
     @Test

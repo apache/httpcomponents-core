@@ -61,7 +61,6 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         TERMINATORS.set('?');
         HOST_SEPARATORS.or(TERMINATORS);
         HOST_SEPARATORS.set('@');
-        HOST_SEPARATORS.set(':');
         PORT_SEPARATORS.or(TERMINATORS);
         PORT_SEPARATORS.set(':');
     }
@@ -77,31 +76,22 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     static URIAuthority parse(final CharSequence s, final Tokenizer.Cursor cursor) throws URISyntaxException {
         final Tokenizer tokenizer = Tokenizer.INSTANCE;
         String userInfo = null;
-        String hostName = null;
-        String portText = null;
+        final int initPos = cursor.getPos();
         final String token = tokenizer.parseContent(s, cursor, HOST_SEPARATORS);
-        if (!cursor.atEnd()) {
-            final char separator1 = s.charAt(cursor.getPos());
-            if (separator1 == '@') {
-                userInfo = !TextUtils.isEmpty(token) ? token : null;
-                cursor.updatePos(cursor.getPos() + 1);
-                hostName = tokenizer.parseContent(s, cursor, PORT_SEPARATORS);
-                if (!cursor.atEnd()) {
-                    final char separator2 = s.charAt(cursor.getPos());
-                    if (separator2 == ':') {
-                        cursor.updatePos(cursor.getPos() + 1);
-                        portText = tokenizer.parseContent(s, cursor, TERMINATORS);
-                    }
-                }
-            } else {
-                hostName = token;
-                if (separator1 == ':') {
-                    cursor.updatePos(cursor.getPos() + 1);
-                    portText = tokenizer.parseContent(s, cursor, TERMINATORS);
-                }
+        if (!cursor.atEnd() && s.charAt(cursor.getPos()) == '@') {
+            cursor.updatePos(cursor.getPos() + 1);
+            if (!TextUtils.isBlank(token)) {
+                userInfo = token;
             }
         } else {
-            hostName = token;
+            //Rewind
+            cursor.updatePos(initPos);
+        }
+        final String hostName = tokenizer.parseContent(s, cursor, PORT_SEPARATORS);
+        String portText = null;
+        if (!cursor.atEnd() && s.charAt(cursor.getPos()) == ':') {
+            cursor.updatePos(cursor.getPos() + 1);
+            portText = tokenizer.parseContent(s, cursor, TERMINATORS);
         }
         final int port;
         if (!TextUtils.isBlank(portText)) {
