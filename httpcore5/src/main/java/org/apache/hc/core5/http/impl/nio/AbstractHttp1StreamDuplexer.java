@@ -346,8 +346,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             ioSession.getLock().unlock();
         }
         if (connState.compareTo(ConnectionState.SHUTDOWN) < 0) {
-            produceOutput();
             final int pendingOutputRequests = outputRequests.get();
+            produceOutput();
             final boolean outputPending = isOutputReady();
             final boolean outputEnd;
             ioSession.getLock().lock();
