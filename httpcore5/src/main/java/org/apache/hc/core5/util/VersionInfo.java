@@ -58,6 +58,10 @@ public class VersionInfo {
     // the property names
     public final static String PROPERTY_MODULE    = "info.module";
     public final static String PROPERTY_RELEASE   = "info.release";
+    /**
+     * @deprecated This will be removed in 6.0.
+     */
+    @Deprecated
     public final static String PROPERTY_TIMESTAMP = "info.timestamp";
 
 
@@ -132,7 +136,9 @@ public class VersionInfo {
      * This data is read from the version information for the package.
      *
      * @return  the timestamp, never {@code null}
+     * @deprecated This will be removed in 6.0.
      */
+    @Deprecated
     public final String getTimestamp() {
         return infoTimestamp;
     }
@@ -169,9 +175,6 @@ public class VersionInfo {
         // is sufficient. Everything else just clutters the output.
         if (!UNAVAILABLE.equals(infoRelease)) {
             sb.append(':').append(infoRelease);
-        }
-        if (!UNAVAILABLE.equals(infoTimestamp)) {
-            sb.append(':').append(infoTimestamp);
         }
 
         sb.append(')');
@@ -263,7 +266,6 @@ public class VersionInfo {
         Args.notNull(pckg, "Package identifier");
         String module = null;
         String release = null;
-        String timestamp = null;
 
         if (info != null) {
             module = (String) info.get(PROPERTY_MODULE);
@@ -273,16 +275,8 @@ public class VersionInfo {
 
             release = (String) info.get(PROPERTY_RELEASE);
             if ((release != null) && ((release.length() < 1) ||
-                                      (release.equals("${pom.version}")))) {
+                                      (release.equals("${project.version}")))) {
                 release = null;
-            }
-
-            timestamp = (String) info.get(PROPERTY_TIMESTAMP);
-            if ((timestamp != null) &&
-                ((timestamp.length() < 1) ||
-                 (timestamp.equals("${mvn.timestamp}")))
-                ) {
-                timestamp = null;
             }
         } // if info
 
@@ -291,7 +285,7 @@ public class VersionInfo {
             clsldrstr = clsldr.toString();
         }
 
-        return new VersionInfo(pckg, module, release, timestamp, clsldrstr);
+        return new VersionInfo(pckg, module, release, null, clsldrstr);
     }
 
     /**
