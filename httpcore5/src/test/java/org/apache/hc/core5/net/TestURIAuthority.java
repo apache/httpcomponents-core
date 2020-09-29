@@ -184,6 +184,11 @@ public class TestURIAuthority {
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
         MatcherAssert.assertThat(URIAuthority.parse("test:test@localhost:38339"),
                 CoreMatchers.equalTo(new URIAuthority("test:test", "localhost", 38339)));
+        try {
+            URIAuthority.create("blah@goggle.com:80@google.com/");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+        }
     }
 
     @Test
