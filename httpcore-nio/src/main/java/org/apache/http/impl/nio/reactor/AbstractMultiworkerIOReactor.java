@@ -122,6 +122,8 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
 
     private int currentWorker = 0;
 
+    private boolean epollBugWorkaround;
+
     /**
      * Creates an instance of AbstractMultiworkerIOReactor with the given configuration.
      *
@@ -145,6 +147,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         }
         this.selectTimeout = this.config.getSelectInterval();
         this.interestOpsQueueing = this.config.isInterestOpQueued();
+        this.epollBugWorkaround = this.config.isEpollBugWorkaround();
         this.statusLock = new Object();
         if (threadFactory != null) {
             this.threadFactory = threadFactory;
@@ -318,7 +321,7 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             this.status = IOReactorStatus.ACTIVE;
             // Start I/O dispatchers
             for (int i = 0; i < this.dispatchers.length; i++) {
-                final BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout, this.interestOpsQueueing);
+                final BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout, this.interestOpsQueueing, epollBugWorkaround);
                 dispatcher.setExceptionHandler(exceptionHandler);
                 this.dispatchers[i] = dispatcher;
             }

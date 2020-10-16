@@ -67,7 +67,7 @@ public class BaseIOReactor extends AbstractIOReactor {
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
     public BaseIOReactor(final long selectTimeout) throws IOReactorException {
-        this(selectTimeout, false);
+        this(selectTimeout, false, false);
     }
 
     /**
@@ -81,8 +81,8 @@ public class BaseIOReactor extends AbstractIOReactor {
      * @since 4.1
      */
     public BaseIOReactor(
-            final long selectTimeout, final boolean interestOpsQueueing) throws IOReactorException {
-        super(selectTimeout, interestOpsQueueing);
+            final long selectTimeout, final boolean interestOpsQueueing, final boolean epollBugWorkaround) throws IOReactorException {
+        super(selectTimeout, interestOpsQueueing, epollBugWorkaround);
         this.bufferingSessions = new HashSet<IOSession>();
         this.timeoutCheckInterval = selectTimeout;
         this.lastTimeoutCheck = System.currentTimeMillis();

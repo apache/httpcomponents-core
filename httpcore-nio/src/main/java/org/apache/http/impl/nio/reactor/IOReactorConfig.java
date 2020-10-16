@@ -52,6 +52,8 @@ public final class IOReactorConfig implements Cloneable {
     private int sndBufSize;
     private int rcvBufSize;
     private final int backlogSize;
+    //the param use to workaround nio bug in windows
+    private boolean epollBugWorkaround;
 
     /**
      * @deprecated Use {@link Builder}.
@@ -72,6 +74,7 @@ public final class IOReactorConfig implements Cloneable {
         this.sndBufSize = 0;
         this.rcvBufSize = 0;
         this.backlogSize = 0;
+        this.epollBugWorkaround = false;
     }
 
     IOReactorConfig(
@@ -87,7 +90,8 @@ public final class IOReactorConfig implements Cloneable {
             final int connectTimeout,
             final int sndBufSize,
             final int rcvBufSize,
-            final int backlogSize) {
+            final int backlogSize,
+            final boolean epollBugWorkaround) {
         super();
         this.selectInterval = selectInterval;
         this.shutdownGracePeriod = shutdownGracePeriod;
@@ -102,6 +106,7 @@ public final class IOReactorConfig implements Cloneable {
         this.sndBufSize = sndBufSize;
         this.rcvBufSize = rcvBufSize;
         this.backlogSize = backlogSize;
+        this.epollBugWorkaround = epollBugWorkaround;
     }
 
     /**
@@ -350,6 +355,17 @@ public final class IOReactorConfig implements Cloneable {
         return backlogSize;
     }
 
+    /**
+     * to fix nio bug in windows
+     * <p>
+     * Default: {@code false}
+     *
+     * @since 4.4
+     */
+    public boolean isEpollBugWorkaround() {
+        return epollBugWorkaround;
+    }
+
     @Override
     protected IOReactorConfig clone() throws CloneNotSupportedException {
         return (IOReactorConfig) super.clone();
@@ -362,19 +378,20 @@ public final class IOReactorConfig implements Cloneable {
     public static Builder copy(final IOReactorConfig config) {
         Args.notNull(config, "I/O reactor config");
         return new Builder()
-            .setSelectInterval(config.getSelectInterval())
-            .setShutdownGracePeriod(config.getShutdownGracePeriod())
-            .setInterestOpQueued(config.isInterestOpQueued())
-            .setIoThreadCount(config.getIoThreadCount())
-            .setSoTimeout(config.getSoTimeout())
-            .setSoReuseAddress(config.isSoReuseAddress())
-            .setSoLinger(config.getSoLinger())
-            .setSoKeepAlive(config.isSoKeepalive())
-            .setTcpNoDelay(config.isTcpNoDelay())
-            .setConnectTimeout(config.getConnectTimeout())
-            .setSndBufSize(config.getSndBufSize())
-            .setRcvBufSize(config.getRcvBufSize())
-            .setBacklogSize(config.getBacklogSize());
+                .setSelectInterval(config.getSelectInterval())
+                .setShutdownGracePeriod(config.getShutdownGracePeriod())
+                .setInterestOpQueued(config.isInterestOpQueued())
+                .setIoThreadCount(config.getIoThreadCount())
+                .setSoTimeout(config.getSoTimeout())
+                .setSoReuseAddress(config.isSoReuseAddress())
+                .setSoLinger(config.getSoLinger())
+                .setSoKeepAlive(config.isSoKeepalive())
+                .setTcpNoDelay(config.isTcpNoDelay())
+                .setConnectTimeout(config.getConnectTimeout())
+                .setSndBufSize(config.getSndBufSize())
+                .setRcvBufSize(config.getRcvBufSize())
+                .setBacklogSize(config.getBacklogSize())
+                .setEpollBugWorkaround(config.isEpollBugWorkaround());
     }
 
     public static class Builder {
@@ -398,8 +415,7 @@ public final class IOReactorConfig implements Cloneable {
          * cause {@link #getDefaultMaxIoThreadCount()} to return
          * {@link Runtime#availableProcessors()}.
          *
-         * @param defaultMaxIoThreadCount
-         *            the default value for ioThreadCount.
+         * @param defaultMaxIoThreadCount the default value for ioThreadCount.
          * @since 4.4.10
          */
         public static void setDefaultMaxIoThreadCount(final int defaultMaxIoThreadCount) {
@@ -419,6 +435,7 @@ public final class IOReactorConfig implements Cloneable {
         private int sndBufSize;
         private int rcvBufSize;
         private int backlogSize;
+        private boolean epollBugWorkaround;
 
         Builder() {
             this.selectInterval = 1000;
@@ -434,6 +451,7 @@ public final class IOReactorConfig implements Cloneable {
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
             this.backlogSize = 0;
+            this.epollBugWorkaround = false;
         }
 
         public Builder setSelectInterval(final long selectInterval) {
@@ -501,11 +519,16 @@ public final class IOReactorConfig implements Cloneable {
             return this;
         }
 
+        public Builder setEpollBugWorkaround(boolean epollBugWorkaround) {
+            this.epollBugWorkaround = epollBugWorkaround;
+            return this;
+        }
+
         public IOReactorConfig build() {
             return new IOReactorConfig(
                     selectInterval, shutdownGracePeriod, interestOpQueued, ioThreadCount,
                     soTimeout, soReuseAddress, soLinger, soKeepAlive, tcpNoDelay,
-                    connectTimeout, sndBufSize, rcvBufSize, backlogSize);
+                    connectTimeout, sndBufSize, rcvBufSize, backlogSize, epollBugWorkaround);
         }
 
     }
@@ -526,6 +549,7 @@ public final class IOReactorConfig implements Cloneable {
                 .append(", sndBufSize=").append(this.sndBufSize)
                 .append(", rcvBufSize=").append(this.rcvBufSize)
                 .append(", backlogSize=").append(this.backlogSize)
+                .append(", epollBugWorkaround=").append(this.epollBugWorkaround)
                 .append("]");
         return builder.toString();
     }
