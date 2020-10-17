@@ -259,20 +259,18 @@ public abstract class AbstractIOReactor implements IOReactor {
             for (;;) {
 
                 final int readyCount;
+                long t0 = 0;
+                if (epollBugWorkaround) {
+                    t0 = System.currentTimeMillis();
+                }
                 try {
-                    if (epollBugWorkaround) {
-                        readyCount = this.selector.select();
-                    } else {
-                        readyCount = this.selector.select(selectTimeout);
-                    }
+                    readyCount = this.selector.select(selectTimeout);
                 } catch (final InterruptedIOException ex) {
                     throw ex;
                 } catch (final IOException ex) {
                     throw new IOReactorException("Unexpected selector failure", ex);
                 }
-
-                if (epollBugWorkaround && readyCount == 0) {
-                    nioBugTimes++;
+                if (epollBugWorkaround && System.currentTimeMillis() - t0 < 100 && readyCount == 0) {
                     if (nioBugTimes == nioBugTimesThreshold) {
                         rebuildSelector();
                     }
