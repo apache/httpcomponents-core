@@ -519,7 +519,7 @@ public final class IOReactorConfig implements Cloneable {
             return this;
         }
 
-        public Builder setEpollBugWorkaround(boolean epollBugWorkaround) {
+        public Builder setEpollBugWorkaround(final boolean epollBugWorkaround) {
             this.epollBugWorkaround = epollBugWorkaround;
             return this;
         }

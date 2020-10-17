@@ -77,7 +77,7 @@ public abstract class AbstractIOReactor implements IOReactor {
      * @param selectTimeout the select timeout.
      * @throws IOReactorException in case if a non-recoverable I/O error.
      */
-    public AbstractIOReactor(final long selectTimeout, boolean epollBugWorkaround) throws IOReactorException {
+    public AbstractIOReactor(final long selectTimeout, final boolean epollBugWorkaround) throws IOReactorException {
         this(selectTimeout, false, false);
     }
 
@@ -337,32 +337,32 @@ public abstract class AbstractIOReactor implements IOReactor {
 
         try {
             newSelector = Selector.open();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return;
         }
 
         // Register all channels to the new Selector.
         for (;;) {
             try {
-                for (SelectionKey key : oldSelector.keys()) {
+                for (final SelectionKey key : oldSelector.keys()) {
                     try {
                         if (key.channel().keyFor(newSelector) != null) {
                             continue;
                         }
 
-                        int interestOps = key.interestOps();
+                        final int interestOps = key.interestOps();
                         key.channel().register(newSelector, interestOps, key.attachment());
                         key.cancel();
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         try {
                             newSelector.close();
-                        } catch (IOException ex) {
+                        } catch (final IOException ex) {
                             //ignore
                         }
                         return;
                     }
                 }
-            } catch (ConcurrentModificationException e) {
+            } catch (final ConcurrentModificationException e) {
                 continue;
             }
             break;
@@ -373,7 +373,7 @@ public abstract class AbstractIOReactor implements IOReactor {
         try {
             // time to close the old selector as everything else is registered to the new one
             oldSelector.close();
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             //ignore
         }
     }
