@@ -35,8 +35,12 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ConcurrentModificationException;
 
 import org.apache.http.nio.reactor.IOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
