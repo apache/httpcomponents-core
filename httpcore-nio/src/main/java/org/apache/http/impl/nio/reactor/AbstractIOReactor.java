@@ -271,6 +271,7 @@ public abstract class AbstractIOReactor implements IOReactor {
                     throw new IOReactorException("Unexpected selector failure", ex);
                 }
                 if (epollBugWorkaround && System.currentTimeMillis() - t0 < 100 && readyCount == 0) {
+                    nioBugTimes++;
                     if (nioBugTimes == nioBugTimesThreshold) {
                         rebuildSelector();
                     }
