@@ -329,6 +329,7 @@ public abstract class AbstractIOReactor implements IOReactor {
 
         final Selector oldSelector = selector;
         final Selector newSelector;
+        nioBugTimes = 0;
 
         if (oldSelector == null) {
             return;
