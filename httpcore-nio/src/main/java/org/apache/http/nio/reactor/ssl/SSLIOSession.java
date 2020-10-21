@@ -421,11 +421,15 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
                 !this.inPlain.hasData() &&
                 (this.appBufferStatus == null || !this.appBufferStatus.hasBufferedInput())) {
             newMask = newMask & ~EventMask.READ;
+        } else if (this.status == CLOSING) {
+            newMask = newMask | EventMask.READ;
         }
 
         // Do we have encrypted data ready to be sent?
         if (this.outEncrypted.hasData()) {
             newMask = newMask | EventMask.WRITE;
+        } else if (this.sslEngine.isOutboundDone()) {
+            newMask = newMask & ~EventMask.WRITE;
         }
 
         // Update the mask if necessary
