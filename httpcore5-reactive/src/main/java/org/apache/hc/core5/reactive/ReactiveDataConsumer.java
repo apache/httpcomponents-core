@@ -67,8 +67,10 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
     private volatile Subscriber<? super ByteBuffer> subscriber;
 
     public void failed(final Exception cause) {
-        exception = cause;
-        flushToSubscriber();
+        if (!completed) {
+            exception = cause;
+            flushToSubscriber();
+        }
     }
 
     @Override
