@@ -80,11 +80,13 @@ public class SSLIOSession implements IOSession {
     private final SSLManagedBuffer inPlain;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
-    private final Callback<SSLIOSession> connectedCallback;
-    private final Callback<SSLIOSession> disconnectedCallback;
+    private final Callback<SSLIOSession> sessionStartCallback;
+    private final Callback<SSLIOSession> sessionEndCallback;
     private final Timeout connectTimeout;
     private final SSLMode sslMode;
     private final AtomicInteger outboundClosedCount;
+    private final IOEventHandler internalEventHandler;
+
     private int appEventMask;
 
     private volatile boolean endOfStream;
@@ -115,8 +117,8 @@ public class SSLIOSession implements IOSession {
             final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier,
-            final Callback<SSLIOSession> connectedCallback,
-            final Callback<SSLIOSession> disconnectedCallback,
+            final Callback<SSLIOSession> sessionStartCallback,
+            final Callback<SSLIOSession> sessionEndCallback,
             final Timeout connectTimeout) {
         super();
         Args.notNull(session, "IO session");
@@ -126,8 +128,8 @@ public class SSLIOSession implements IOSession {
         this.sslMode = sslMode;
         this.initializer = initializer;
         this.verifier = verifier;
-        this.connectedCallback = connectedCallback;
-        this.disconnectedCallback = disconnectedCallback;
+        this.sessionStartCallback = sessionStartCallback;
+        this.sessionEndCallback = sessionEndCallback;
 
         this.appEventMask = session.getEventMask();
         if (this.sslMode == SSLMode.CLIENT && targetEndpoint != null) {
@@ -147,17 +149,7 @@ public class SSLIOSession implements IOSession {
         this.inPlain = SSLManagedBuffer.create(sslBufferMode, appBufferSize);
         this.outboundClosedCount = new AtomicInteger(0);
         this.connectTimeout = connectTimeout;
-    }
-
-    private IOEventHandler ensureHandler() {
-        final IOEventHandler handler = session.getHandler();
-        Asserts.notNull(handler, "IO event handler");
-        return handler;
-    }
-
-    @Override
-    public IOEventHandler getHandler() {
-        return new IOEventHandler() {
+        this.internalEventHandler = new IOEventHandler() {
 
             @Override
             public void connected(final IOSession protocolSession) throws IOException {
@@ -214,9 +206,21 @@ public class SSLIOSession implements IOSession {
             }
 
         };
+
     }
 
-    private void initialize() throws SSLException {
+    private IOEventHandler ensureHandler() {
+        final IOEventHandler handler = session.getHandler();
+        Asserts.notNull(handler, "IO event handler");
+        return handler;
+    }
+
+    @Override
+    public IOEventHandler getHandler() {
+        return internalEventHandler;
+    }
+
+    private void initialize() throws IOException {
         Asserts.check(!this.initialized, "SSL I/O session already initialized");
 
         // Save the initial socketTimeout of the underlying IOSession, to be restored after the handshake is finished
@@ -292,7 +296,7 @@ public class SSLIOSession implements IOSession {
         }
     }
 
-    private void doHandshake() throws SSLException {
+    private void doHandshake() throws IOException {
         boolean handshaking = true;
 
         SSLEngineResult result = null;
@@ -380,8 +384,11 @@ public class SSLIOSession implements IOSession {
                 final String applicationProtocol = ReflectionUtils.callGetter(this.sslEngine, "ApplicationProtocol", String.class);
                 this.tlsDetails = new TlsDetails(sslSession, applicationProtocol);
             }
-            if (this.connectedCallback != null) {
-                this.connectedCallback.execute(this);
+
+            ensureHandler().connected(this);
+
+            if (this.sessionStartCallback != null) {
+                this.sessionStartCallback.execute(this);
             }
         }
     }
@@ -409,8 +416,8 @@ public class SSLIOSession implements IOSession {
             }
             if (this.status == Status.CLOSED) {
                 this.session.close();
-                if (disconnectedCallback != null) {
-                    disconnectedCallback.execute(this);
+                if (sessionEndCallback != null) {
+                    sessionEndCallback.execute(this);
                 }
                 return;
             }

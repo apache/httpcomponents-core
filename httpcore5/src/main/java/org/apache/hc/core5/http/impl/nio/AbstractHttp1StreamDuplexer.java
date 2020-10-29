@@ -230,8 +230,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     public final void onConnect() throws HttpException, IOException {
-        connState = ConnectionState.ACTIVE;
-        processCommands();
+        if (connState == ConnectionState.READY) {
+            connState = ConnectionState.ACTIVE;
+            processCommands();
+        }
     }
 
     IncomingMessage parseMessageHead(final boolean endOfStream) throws IOException, HttpException {

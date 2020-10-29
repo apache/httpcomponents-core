@@ -33,7 +33,7 @@ import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * Represents a TLS capable session layer.
+ * TLS capable session layer interface.
  *
  * @since 5.0
  */

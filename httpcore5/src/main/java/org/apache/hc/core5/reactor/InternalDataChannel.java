@@ -58,7 +58,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     private final IOSessionListener sessionListener;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final Queue<InternalDataChannel> closedSessions;
-    private final AtomicBoolean connected;
     private final AtomicBoolean closed;
 
     InternalDataChannel(
@@ -71,7 +70,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         this.closedSessions = closedSessions;
         this.sessionListener = sessionListener;
         this.tlsSessionRef = new AtomicReference<>(null);
-        this.connected = new AtomicBoolean(false);
         this.closed = new AtomicBoolean(false);
     }
 
@@ -95,6 +93,11 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         ioSession.upgrade(handler);
     }
 
+    private IOSession getSessionImpl() {
+        final SSLIOSession tlsSession = tlsSessionRef.get();
+        return tlsSession != null ? tlsSession : ioSession;
+    }
+
     private IOEventHandler ensureHandler(final IOSession session) {
         final IOEventHandler handler = session.getHandler();
         Asserts.notNull(handler, "IO event handler");
@@ -107,7 +110,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         final IOSession currentSession = tlsSession != null ? tlsSession : ioSession;
         if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
             currentSession.clearEvent(SelectionKey.OP_CONNECT);
-            if (tlsSession == null && connected.compareAndSet(false, true)) {
+            if (tlsSession == null) {
                 if (sessionListener != null) {
                     sessionListener.connected(this);
                 }
@@ -144,8 +147,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (sessionListener != null) {
             sessionListener.timeout(this);
         }
-        final SSLIOSession tlsSession = tlsSessionRef.get();
-        final IOSession currentSession = tlsSession != null ? tlsSession : ioSession;
+        final IOSession currentSession = getSessionImpl();
         final IOEventHandler handler = ensureHandler(currentSession);
         handler.timeout(this, timeout);
     }
@@ -155,11 +157,22 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (sessionListener != null) {
             sessionListener.exception(this, cause);
         }
-        final SSLIOSession tlsSession = tlsSessionRef.get();
-        final IOSession currentSession = tlsSession != null ? tlsSession : ioSession;
+        final IOSession currentSession = getSessionImpl();
         final IOEventHandler handler = currentSession.getHandler();
         if (handler != null) {
             handler.exception(this, cause);
+        }
+    }
+
+    void onTLSSessionStart() {
+        if (sessionListener != null) {
+            sessionListener.connected(this);
+        }
+    }
+
+    void onTLSSessionEnd() {
+        if (closed.compareAndSet(false, true)) {
+            closedSessions.add(this);
         }
     }
 
@@ -195,20 +208,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
                     @Override
                     public void execute(final SSLIOSession sslSession) {
-                        if (connected.compareAndSet(false, true)) {
-                            final IOEventHandler handler = ensureHandler(ioSession);
-                            try {
-                                if (sessionListener != null) {
-                                    sessionListener.connected(InternalDataChannel.this);
-                                }
-                                handler.connected(InternalDataChannel.this);
-                            } catch (final Exception ex) {
-                                if (sessionListener != null) {
-                                    sessionListener.exception(InternalDataChannel.this, ex);
-                                }
-                                handler.exception(InternalDataChannel.this, ex);
-                            }
-                        }
+                        onTLSSessionStart();
                     }
 
                 },
@@ -216,9 +216,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
                     @Override
                     public void execute(final SSLIOSession sslSession) {
-                        if (closed.compareAndSet(false, true)) {
-                            closedSessions.add(InternalDataChannel.this);
-                        }
+                        onTLSSessionEnd();
                     }
 
                 },
@@ -241,11 +239,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     @Override
     public Lock getLock() {
         return ioSession.getLock();
-    }
-
-    private IOSession getSessionImpl() {
-        final SSLIOSession tlsSession = tlsSessionRef.get();
-        return tlsSession != null ? tlsSession : ioSession;
     }
 
     @Override
