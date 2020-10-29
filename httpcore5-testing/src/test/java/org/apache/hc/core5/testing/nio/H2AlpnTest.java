@@ -27,9 +27,17 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -44,6 +52,7 @@ import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
+import org.apache.hc.core5.http2.impl.nio.ProtocolNegotiationException;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequester;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequesterBootstrap;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
@@ -67,15 +76,6 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class H2AlpnTest {
@@ -197,7 +197,7 @@ public class H2AlpnTest {
         } catch (final ExecutionException e) {
             final Throwable cause = e.getCause();
             assertFalse("h2 negotiation was enabled, but h2 was not negotiated", h2Allowed);
-            assertTrue(cause instanceof HttpException);
+            assertTrue(cause instanceof ProtocolNegotiationException);
             assertEquals("ALPN: missing application protocol", cause.getMessage());
             assertTrue("strict ALPN mode was not enabled, but the client negotiator still threw", strictALPN);
             return;

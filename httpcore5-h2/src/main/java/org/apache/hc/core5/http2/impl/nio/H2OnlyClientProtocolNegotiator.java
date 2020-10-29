@@ -28,28 +28,19 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
-
-import javax.net.ssl.SSLSession;
+import java.nio.channels.SelectionKey;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.http.EndpointDetails;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
-import org.apache.hc.core5.http.nio.command.CommandSupport;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
-import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
-import org.apache.hc.core5.util.Timeout;
 
 /**
  * I/O event handler for events fired by {@link ProtocolIOSession} that implements
@@ -59,147 +50,100 @@ import org.apache.hc.core5.util.Timeout;
  * @since 5.0
  */
 @Internal
-public class H2OnlyClientProtocolNegotiator implements HttpConnectionEventHandler {
+public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
 
-    private final ProtocolIOSession ioSession;
     private final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final boolean strictALPNHandshake;
+    private final AtomicBoolean initialized;
 
-    private final ByteBuffer preface;
+    private volatile ByteBuffer preface;
 
     public H2OnlyClientProtocolNegotiator(
             final ProtocolIOSession ioSession,
             final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final boolean strictALPNHandshake) {
-        this.ioSession = Args.notNull(ioSession, "I/O session");
+        this(ioSession, http2StreamHandlerFactory, strictALPNHandshake, null);
+    }
+
+    /**
+     * @since 5.1
+     */
+    public H2OnlyClientProtocolNegotiator(
+            final ProtocolIOSession ioSession,
+            final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
+            final boolean strictALPNHandshake,
+            final FutureCallback<ProtocolIOSession> resultCallback) {
+        super(ioSession, resultCallback);
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.strictALPNHandshake = strictALPNHandshake;
-        this.preface = ByteBuffer.wrap(ClientHttpProtocolNegotiator.PREFACE);
+        this.initialized = new AtomicBoolean();
     }
 
-    @Override
-    public void connected(final IOSession session) {
-        try {
-            final TlsDetails tlsDetails = ioSession.getTlsDetails();
-            if (tlsDetails != null) {
-                final String applicationProtocol = tlsDetails.getApplicationProtocol();
-                if (TextUtils.isEmpty(applicationProtocol)) {
-                    if (strictALPNHandshake) {
-                        throw new HttpException("ALPN: missing application protocol");
-                    }
-                } else {
-                    if (!ApplicationProtocol.HTTP_2.id.equals(applicationProtocol)) {
-                        throw new HttpException("ALPN: unexpected application protocol '" + applicationProtocol + "'");
-                    }
+    private void initialize() throws IOException {
+        final TlsDetails tlsDetails = ioSession.getTlsDetails();
+        if (tlsDetails != null) {
+            final String applicationProtocol = tlsDetails.getApplicationProtocol();
+            if (TextUtils.isEmpty(applicationProtocol)) {
+                if (strictALPNHandshake) {
+                    throw new ProtocolNegotiationException("ALPN: missing application protocol");
+                }
+            } else {
+                if (!ApplicationProtocol.HTTP_2.id.equals(applicationProtocol)) {
+                    throw new ProtocolNegotiationException("ALPN: unexpected application protocol '" + applicationProtocol + "'");
                 }
             }
-            writePreface(session);
-        } catch (final Exception ex) {
-            session.close(CloseMode.IMMEDIATE);
-            exception(session, ex);
         }
+        this.preface = ByteBuffer.wrap(ClientHttpProtocolNegotiator.PREFACE);
+        ioSession.setEvent(SelectionKey.OP_WRITE);
     }
 
-    private void writePreface(final IOSession session) throws IOException  {
+    private void writeOutPreface(final IOSession session) throws IOException  {
         if (preface.hasRemaining()) {
             final ByteChannel channel = session;
             channel.write(preface);
         }
         if (!preface.hasRemaining()) {
+            session.clearEvent(SelectionKey.OP_WRITE);
             final ClientH2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
-            final IOEventHandler newHandler = new ClientH2IOEventHandler(streamMultiplexer);
-            newHandler.connected(session);
-            ioSession.upgrade(newHandler);
+            startProtocol(new ClientH2IOEventHandler(streamMultiplexer), null);
+            preface = null;
         }
     }
 
     @Override
-    public void inputReady(final IOSession session, final ByteBuffer src) {
-        outputReady(session);
-    }
-
-    @Override
-    public void outputReady(final IOSession session) {
-        try {
-            if (preface != null) {
-                writePreface(session);
-            } else {
-                session.close(CloseMode.GRACEFUL);
-            }
-        } catch (final IOException ex) {
-            session.close(CloseMode.IMMEDIATE);
-            exception(session, ex);
+    public void connected(final IOSession session) throws IOException {
+        if (initialized.compareAndSet(false, true)) {
+            initialize();
         }
     }
 
     @Override
-    public void timeout(final IOSession session, final Timeout timeout) {
-        exception(session, SocketTimeoutExceptionFactory.create(timeout));
-    }
-
-    @Override
-    public void exception(final IOSession session, final Exception cause) {
-        try {
-            CommandSupport.failCommands(session, cause);
-        } finally {
-            session.close(CloseMode.IMMEDIATE);
+    public void outputReady(final IOSession session) throws IOException {
+        if (initialized.compareAndSet(false, true)) {
+            initialize();
+        }
+        if (preface != null) {
+            writeOutPreface(session);
+        } else {
+            throw new ProtocolNegotiationException("Unexpected output");
         }
     }
 
     @Override
-    public void disconnected(final IOSession session) {
-        CommandSupport.cancelCommands(session);
+    public void inputReady(final IOSession session, final ByteBuffer src) throws IOException {
+        if (src != null) {
+            throw new ProtocolNegotiationException("Unexpected input");
+        }
+        if (preface != null) {
+            writeOutPreface(session);
+        } else {
+            throw new ProtocolNegotiationException("Unexpected input");
+        }
     }
 
     @Override
-    public SSLSession getSSLSession() {
-        final TlsDetails tlsDetails = ioSession.getTlsDetails();
-        return tlsDetails != null ? tlsDetails.getSSLSession() : null;
-    }
-
-    @Override
-    public EndpointDetails getEndpointDetails() {
-        return null;
-    }
-
-    @Override
-    public void setSocketTimeout(final Timeout timeout) {
-        ioSession.setSocketTimeout(timeout);
-    }
-
-    @Override
-    public Timeout getSocketTimeout() {
-        return ioSession.getSocketTimeout();
-    }
-
-    @Override
-    public ProtocolVersion getProtocolVersion() {
-        return null;
-    }
-
-    @Override
-    public SocketAddress getRemoteAddress() {
-        return ioSession.getRemoteAddress();
-    }
-
-    @Override
-    public SocketAddress getLocalAddress() {
-        return ioSession.getLocalAddress();
-    }
-
-    @Override
-    public boolean isOpen() {
-        return ioSession.isOpen();
-    }
-
-    @Override
-    public void close() throws IOException {
-        ioSession.close();
-    }
-
-    @Override
-    public void close(final CloseMode closeMode) {
-        ioSession.close(closeMode);
+    public String toString() {
+        return getClass().getName();
     }
 
 }

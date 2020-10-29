@@ -28,32 +28,22 @@
 package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.net.ssl.SSLSession;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.http.EndpointDetails;
-import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandler;
-import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexer;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
-import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
-import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Timeout;
 
 /**
  * I/O event handler for events fired by {@link ProtocolIOSession} that implements
@@ -63,7 +53,7 @@ import org.apache.hc.core5.util.Timeout;
  * @since 5.0
  */
 @Internal
-public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler {
+public class ClientHttpProtocolNegotiator extends ProtocolNegotiatorBase {
 
     // PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n
     final static byte[] PREFACE = new byte[] {
@@ -71,11 +61,10 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             0x2f, 0x32, 0x2e, 0x30, 0x0d, 0x0a, 0x0d, 0x0a, 0x53, 0x4d,
             0x0d, 0x0a, 0x0d, 0x0a};
 
-    private final ProtocolIOSession ioSession;
     private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
     private final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
-    private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
+    private final AtomicBoolean initialized;
 
     private volatile ByteBuffer preface;
     private volatile BufferedData inBuf;
@@ -85,62 +74,42 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
             final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final HttpVersionPolicy versionPolicy) {
-        this.ioSession = Args.notNull(ioSession, "I/O session");
+        this(ioSession, http1StreamHandlerFactory, http2StreamHandlerFactory, versionPolicy, null);
+    }
+
+    /**
+     * @since 5.1
+     */
+    public ClientHttpProtocolNegotiator(
+            final ProtocolIOSession ioSession,
+            final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
+            final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
+            final HttpVersionPolicy versionPolicy,
+            final FutureCallback<ProtocolIOSession> resultCallback) {
+        super(ioSession, resultCallback);
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
-        this.protocolHandlerRef = new AtomicReference<>(null);
+        this.initialized = new AtomicBoolean();
     }
 
-    private void startHttp1(final IOSession session) {
-        final ClientHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(ioSession);
-        final HttpConnectionEventHandler protocolHandler = new ClientHttp1IOEventHandler(http1StreamHandler);
-        try {
-            ioSession.upgrade(protocolHandler);
-            protocolHandlerRef.set(protocolHandler);
-            protocolHandler.connected(session);
-            if (inBuf != null) {
-                protocolHandler.inputReady(session, inBuf.data());
-                inBuf.clear();
-            }
-        } catch (final Exception ex) {
-            protocolHandler.exception(session, ex);
-            session.close(CloseMode.IMMEDIATE);
+    private void startHttp1() throws IOException {
+        final ByteBuffer data = inBuf != null ? inBuf.data() : null;
+        startProtocol(new ClientHttp1IOEventHandler(http1StreamHandlerFactory.create(ioSession)), data);
+        if (inBuf != null) {
+            inBuf.clear();
         }
     }
 
-    private void startHttp2(final IOSession session) {
-        final ClientH2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
-        final HttpConnectionEventHandler protocolHandler = new ClientH2IOEventHandler(streamMultiplexer);
-        try {
-            ioSession.upgrade(protocolHandler);
-            protocolHandlerRef.set(protocolHandler);
-            protocolHandler.connected(session);
-            if (inBuf != null) {
-                protocolHandler.inputReady(session, inBuf.data());
-                inBuf.clear();
-            }
-        } catch (final Exception ex) {
-            protocolHandler.exception(session, ex);
-            session.close(CloseMode.IMMEDIATE);
+    private void startHttp2() throws IOException {
+        final ByteBuffer data = inBuf != null ? inBuf.data() : null;
+        startProtocol(new ClientH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), data);
+        if (inBuf != null) {
+            inBuf.clear();
         }
     }
 
-    private void writeOutPreface(final IOSession session) throws IOException {
-        if (preface.hasRemaining()) {
-            final ByteChannel channel = session;
-            channel.write(preface);
-        }
-        if (!preface.hasRemaining()) {
-            session.clearEvent(SelectionKey.OP_WRITE);
-            startHttp2(session);
-        } else {
-            session.setEvent(SelectionKey.OP_WRITE);
-        }
-    }
-
-    @Override
-    public void connected(final IOSession session) throws IOException {
+    private void initialize() throws IOException {
         switch (versionPolicy) {
             case NEGOTIATE:
                 final TlsDetails tlsDetails = ioSession.getTlsDetails();
@@ -156,8 +125,30 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
                 break;
         }
         if (preface == null) {
-            startHttp1(session);
+            startHttp1();
         } else {
+            ioSession.setEvent(SelectionKey.OP_WRITE);
+        }
+    }
+
+    private void writeOutPreface(final IOSession session) throws IOException {
+        if (preface.hasRemaining()) {
+            final ByteChannel channel = session;
+            channel.write(preface);
+        }
+        if (!preface.hasRemaining()) {
+            session.clearEvent(SelectionKey.OP_WRITE);
+            startHttp2();
+            preface = null;
+        }
+    }
+
+    @Override
+    public void connected(final IOSession session) throws IOException {
+        if (initialized.compareAndSet(false, true)) {
+            initialize();
+        }
+        if (preface != null) {
             writeOutPreface(session);
         }
     }
@@ -170,102 +161,28 @@ public class ClientHttpProtocolNegotiator implements HttpConnectionEventHandler 
             }
             inBuf.put(src);
         }
-        outputReady(session);
+        if (preface != null) {
+            writeOutPreface(session);
+        } else {
+            throw new ProtocolNegotiationException("Unexpected input");
+        }
     }
 
     @Override
     public void outputReady(final IOSession session) throws IOException {
+        if (initialized.compareAndSet(false, true)) {
+            initialize();
+        }
         if (preface != null) {
             writeOutPreface(session);
         } else {
-            session.close(CloseMode.GRACEFUL);
+            throw new ProtocolNegotiationException("Unexpected output");
         }
-    }
-
-    @Override
-    public void timeout(final IOSession session, final Timeout timeout) {
-        exception(session, SocketTimeoutExceptionFactory.create(timeout));
-    }
-
-    @Override
-    public void exception(final IOSession session, final Exception cause) {
-        session.close(CloseMode.IMMEDIATE);
-        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
-        if (protocolHandler != null) {
-            protocolHandler.exception(session, cause);
-        } else {
-            CommandSupport.failCommands(session, cause);
-        }
-    }
-
-    @Override
-    public void disconnected(final IOSession session) {
-        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.getAndSet(null);
-        if (protocolHandler != null) {
-            protocolHandler.disconnected(ioSession);
-        } else {
-            CommandSupport.cancelCommands(session);
-        }
-    }
-
-    @Override
-    public SSLSession getSSLSession() {
-        final TlsDetails tlsDetails = ioSession.getTlsDetails();
-        return tlsDetails != null ? tlsDetails.getSSLSession() : null;
-    }
-
-    @Override
-    public EndpointDetails getEndpointDetails() {
-        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
-        return protocolHandler != null ? protocolHandler.getEndpointDetails() : null;
-    }
-
-    @Override
-    public void setSocketTimeout(final Timeout timeout) {
-        ioSession.setSocketTimeout(timeout);
-    }
-
-    @Override
-    public Timeout getSocketTimeout() {
-        return ioSession.getSocketTimeout();
-    }
-
-    @Override
-    public ProtocolVersion getProtocolVersion() {
-        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
-        return protocolHandler != null ? protocolHandler.getProtocolVersion() : null;
-    }
-
-    @Override
-    public SocketAddress getRemoteAddress() {
-        return ioSession.getRemoteAddress();
-    }
-
-    @Override
-    public SocketAddress getLocalAddress() {
-        return ioSession.getLocalAddress();
-    }
-
-    @Override
-    public boolean isOpen() {
-        return ioSession.isOpen();
-    }
-
-    @Override
-    public void close() throws IOException {
-        ioSession.close();
-    }
-
-    @Override
-    public void close(final CloseMode closeMode) {
-        ioSession.close(closeMode);
     }
 
     @Override
     public String toString() {
-        return "[" +
-                "versionPolicy=" + versionPolicy +
-                ']';
+        return getClass().getName() + "/" + versionPolicy;
     }
 
 }
