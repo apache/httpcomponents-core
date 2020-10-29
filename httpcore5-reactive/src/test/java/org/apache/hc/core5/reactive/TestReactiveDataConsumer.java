@@ -206,4 +206,24 @@ public class TestReactiveDataConsumer {
             .blockingGet();
         Assert.assertSame(ex, result.getError());
     }
+
+    @Test
+    public void testFailAfterCompletion() {
+        // Calling consumer.failed() after consumer.streamEnd() must be a no-op.
+        // The exception must be discarded, and the subscriber must see that
+        // the stream was successfully completed.
+        final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
+
+        consumer.streamEnd(null);
+
+        final RuntimeException ex = new RuntimeException();
+        consumer.failed(ex);
+
+        final Notification<ByteBuffer> result = Flowable.fromPublisher(consumer)
+                .materialize()
+                .singleOrError()
+                .blockingGet();
+        Assert.assertFalse(result.isOnError());
+        Assert.assertTrue(result.isOnComplete());
+    }
 }
