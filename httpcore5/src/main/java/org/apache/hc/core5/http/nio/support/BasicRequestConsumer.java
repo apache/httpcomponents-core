@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.concurrent.CallbackContribution;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.EntityDetails;
@@ -85,27 +86,13 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
             }
             dataConsumerRef.set(dataConsumer);
 
-            dataConsumer.streamStart(entityDetails, new FutureCallback<T>() {
+            dataConsumer.streamStart(entityDetails, new CallbackContribution<T>(resultCallback) {
 
                 @Override
                 public void completed(final T body) {
                     final Message<HttpRequest, T> result = new Message<>(request, body);
                     if (resultCallback != null) {
                         resultCallback.completed(result);
-                    }
-                }
-
-                @Override
-                public void failed(final Exception ex) {
-                    if (resultCallback != null) {
-                        resultCallback.failed(ex);
-                    }
-                }
-
-                @Override
-                public void cancelled() {
-                    if (resultCallback != null) {
-                        resultCallback.cancelled();
                     }
                 }
 

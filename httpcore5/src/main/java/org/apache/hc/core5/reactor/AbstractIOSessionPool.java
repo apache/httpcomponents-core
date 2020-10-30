@@ -39,6 +39,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.io.CloseMode;
@@ -140,21 +141,11 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                             future.completed(ioSession);
                         } else {
                             getSessionInternal(poolEntry, true, endpoint, connectTimeout,
-                                new FutureCallback<IOSession>() {
+                                new FutureContribution<IOSession>(future) {
 
                                 @Override
                                 public void completed(final IOSession ioSession) {
                                     future.completed(ioSession);
-                                }
-
-                                @Override
-                                public void failed(final Exception ex) {
-                                    future.failed(ex);
-                                }
-
-                                @Override
-                                public void cancelled() {
-                                    future.cancel();
                                 }
 
                             });

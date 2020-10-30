@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.concurrent.CallbackContribution;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Resolver;
@@ -100,36 +101,32 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final Timeout connectTimeout,
             final FutureCallback<IOSession> callback) {
         final InetSocketAddress remoteAddress = addressResolver.resolve(namedEndpoint);
-        return connectionInitiator.connect(namedEndpoint, remoteAddress, null, connectTimeout, null, new FutureCallback<IOSession>() {
+        return connectionInitiator.connect(
+                namedEndpoint,
+                remoteAddress,
+                null,
+                connectTimeout,
+                null,
+                new CallbackContribution<IOSession>(callback) {
 
-            @Override
-            public void completed(final IOSession ioSession) {
-                if (tlsStrategy != null
-                        && URIScheme.HTTPS.same(namedEndpoint.getSchemeName())
-                        && ioSession instanceof TransportSecurityLayer) {
-                    tlsStrategy.upgrade(
-                            (TransportSecurityLayer) ioSession,
-                            namedEndpoint,
-                            ioSession.getLocalAddress(),
-                            ioSession.getRemoteAddress(),
-                            null,
-                            connectTimeout);
-                    ioSession.setSocketTimeout(connectTimeout);
-                }
-                callback.completed(ioSession);
-            }
+                    @Override
+                    public void completed(final IOSession ioSession) {
+                        if (tlsStrategy != null
+                                && URIScheme.HTTPS.same(namedEndpoint.getSchemeName())
+                                && ioSession instanceof TransportSecurityLayer) {
+                            tlsStrategy.upgrade(
+                                    (TransportSecurityLayer) ioSession,
+                                    namedEndpoint,
+                                    ioSession.getLocalAddress(),
+                                    ioSession.getRemoteAddress(),
+                                    null,
+                                    connectTimeout);
+                            ioSession.setSocketTimeout(connectTimeout);
+                        }
+                        callback.completed(ioSession);
+                    }
 
-            @Override
-            public void failed(final Exception ex) {
-                callback.failed(ex);
-            }
-
-            @Override
-            public void cancelled() {
-                callback.cancelled();
-            }
-
-        });
+                });
     }
 
     @Override

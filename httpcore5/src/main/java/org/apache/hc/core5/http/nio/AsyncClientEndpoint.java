@@ -33,6 +33,7 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -100,21 +101,11 @@ public abstract class AsyncClientEndpoint {
             final FutureCallback<T> callback) {
         final BasicFuture<T> future = new BasicFuture<>(callback);
         execute(new BasicClientExchangeHandler<>(requestProducer, responseConsumer,
-                        new FutureCallback<T>() {
+                        new FutureContribution<T>(future) {
 
                             @Override
                             public void completed(final T result) {
                                 future.completed(result);
-                            }
-
-                            @Override
-                            public void failed(final Exception ex) {
-                                future.failed(ex);
-                            }
-
-                            @Override
-                            public void cancelled() {
-                                future.cancel();
                             }
 
                         }),

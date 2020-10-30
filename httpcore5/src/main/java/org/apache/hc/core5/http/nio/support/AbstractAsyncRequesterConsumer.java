@@ -32,6 +32,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.concurrent.CallbackContribution;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
@@ -95,7 +96,7 @@ public abstract class AbstractAsyncRequesterConsumer<T, E> implements AsyncReque
                 throw new HttpException("Supplied data consumer is null");
             }
             dataConsumerRef.set(dataConsumer);
-            dataConsumer.streamStart(entityDetails, new FutureCallback<E>() {
+            dataConsumer.streamStart(entityDetails, new CallbackContribution<E>(resultCallback) {
 
                 @Override
                 public void completed(final E entity) {
@@ -107,16 +108,6 @@ public abstract class AbstractAsyncRequesterConsumer<T, E> implements AsyncReque
                     } catch (final UnsupportedCharsetException ex) {
                         resultCallback.failed(ex);
                     }
-                }
-
-                @Override
-                public void failed(final Exception ex) {
-                    resultCallback.failed(ex);
-                }
-
-                @Override
-                public void cancelled() {
-                    resultCallback.cancelled();
                 }
 
             });

@@ -74,20 +74,10 @@ public class TestComplexFuture {
     public void testCancelledWithCallback() throws Exception {
         final ComplexFuture<Object> future = new ComplexFuture<>(null);
 
-        final Future<Object> dependency1 = new BasicFuture<>(new FutureCallback<Object>() {
+        final Future<Object> dependency1 = new BasicFuture<>(new FutureContribution<Object>(future) {
 
             @Override
             public void completed(final Object result) {
-            }
-
-            @Override
-            public void failed(final Exception ex) {
-                future.failed(ex);
-            }
-
-            @Override
-            public void cancelled() {
-                future.cancel();
             }
 
         });

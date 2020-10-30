@@ -32,6 +32,7 @@ import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Supplier;
@@ -129,22 +130,13 @@ public class H2TestClient extends AsyncRequester {
             final Timeout timeout,
             final FutureCallback<ClientSessionEndpoint> callback) {
         final BasicFuture<ClientSessionEndpoint> future = new BasicFuture<>(callback);
-        requestSession(host, timeout, new FutureCallback<IOSession>() {
+        requestSession(host, timeout, new FutureContribution<IOSession>(future) {
 
             @Override
             public void completed(final IOSession session) {
                 future.completed(new ClientSessionEndpoint(session));
             }
 
-            @Override
-            public void failed(final Exception cause) {
-                future.failed(cause);
-            }
-
-            @Override
-            public void cancelled() {
-                future.cancel();
-            }
         });
         return future;
     }
