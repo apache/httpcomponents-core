@@ -93,7 +93,7 @@ public class SSLIOSession implements IOSession {
     private volatile Status status = Status.ACTIVE;
     private volatile boolean initialized;
     private volatile Timeout socketTimeout;
-    private TlsDetails tlsDetails;
+    private volatile TlsDetails tlsDetails;
 
     /**
      * Creates new instance of {@code SSLIOSession} class.

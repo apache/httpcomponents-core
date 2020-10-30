@@ -41,7 +41,7 @@ public class H2StreamResetException extends HttpStreamResetException {
 
     public H2StreamResetException(final H2Error error, final String message) {
         super(message);
-        Args.notNull(error, "H2 Error code may not be null");
+        Args.notNull(error, "H2 Error code");
         this.code = error.getCode();
     }
 

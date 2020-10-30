@@ -49,8 +49,9 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.config.Lookup;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
-import org.apache.hc.core5.http.impl.nio.EndpointParameters;
+import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -76,6 +77,9 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
+import org.apache.hc.core5.reactor.ProtocolLayer;
+import org.apache.hc.core5.reactor.ProtocolUpgradeHandler;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -88,6 +92,27 @@ import org.apache.hc.core5.util.Timeout;
 public class HttpAsyncRequester extends AsyncRequester implements ConnPoolControl<HttpHost> {
 
     private final ManagedConnPool<HttpHost, IOSession> connPool;
+    private final Lookup<ProtocolUpgradeHandler> protocolUpgradeHandlerLookup;
+
+    /**
+     * Use {@link AsyncRequesterBootstrap} to create instances of this class.
+     *
+     * @since 5.1
+     */
+    @Internal
+    public HttpAsyncRequester(
+            final IOReactorConfig ioReactorConfig,
+            final IOEventHandlerFactory eventHandlerFactory,
+            final Decorator<IOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
+            final IOSessionListener sessionListener,
+            final ManagedConnPool<HttpHost, IOSession> connPool,
+            final Lookup<ProtocolUpgradeHandler> protocolUpgradeHandlerLookup) {
+        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
+                ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
+        this.connPool = Args.notNull(connPool, "Connection pool");
+        this.protocolUpgradeHandlerLookup = protocolUpgradeHandlerLookup;
+    }
 
     /**
      * Use {@link AsyncRequesterBootstrap} to create instances of this class.
@@ -100,9 +125,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final ManagedConnPool<HttpHost, IOSession> connPool) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
-                ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
-        this.connPool = Args.notNull(connPool, "Connection pool");
+        this(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool, null);
     }
 
     @Override
@@ -192,7 +215,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                             final Future<IOSession> future = requestSession(
                                     host,
                                     timeout,
-                                    new EndpointParameters(host.getSchemeName(), attachment),
+                                    new EndpointParameters(host, attachment),
                                     new FutureCallback<IOSession>() {
 
                                         @Override
@@ -409,7 +432,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         return execute(requestProducer, responseConsumer, null, timeout, null, callback);
     }
 
-    private class InternalAsyncClientEndpoint extends AsyncClientEndpoint {
+    private class InternalAsyncClientEndpoint extends AsyncClientEndpoint implements ProtocolLayer {
 
         final AtomicReference<PoolEntry<HttpHost, IOSession>> poolEntryRef;
 
@@ -417,11 +440,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             this.poolEntryRef = new AtomicReference<>(poolEntry);
         }
 
-        @Override
-        public void execute(
-                final AsyncClientExchangeHandler exchangeHandler,
-                final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
-                final HttpContext context) {
+        private IOSession getIOSession() {
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.get();
             if (poolEntry == null) {
                 throw new IllegalStateException("Endpoint has already been released");
@@ -430,6 +449,15 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             if (ioSession == null) {
                 throw new IllegalStateException("I/O session is invalid");
             }
+            return ioSession;
+        }
+
+        @Override
+        public void execute(
+                final AsyncClientExchangeHandler exchangeHandler,
+                final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+                final HttpContext context) {
+            final IOSession ioSession = getIOSession();
             ioSession.enqueue(new RequestExecutionCommand(exchangeHandler, pushHandlerFactory, null, context), Command.Priority.NORMAL);
             if (!ioSession.isOpen()) {
                 try {
@@ -445,9 +473,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.get();
             if (poolEntry != null) {
                 final IOSession ioSession = poolEntry.getConnection();
-                if (ioSession != null && ioSession.isOpen()) {
-                    return true;
-                }
+                return ioSession != null && ioSession.isOpen();
             }
             return false;
         }
@@ -467,6 +493,32 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             if (poolEntry != null) {
                 poolEntry.discardConnection(CloseMode.GRACEFUL);
                 connPool.release(poolEntry, false);
+            }
+        }
+
+        @Override
+        public void upgrade(final ProtocolUpgradeHandler upgradeHandler, final EndpointParameters parameters) {
+            Args.notNull(upgradeHandler, "Protocol upgrade handler");
+            Args.notNull(parameters, "Endpoint parameters");
+            final IOSession ioSession = getIOSession();
+            if (ioSession instanceof ProtocolIOSession) {
+                upgradeHandler.upgrade((ProtocolIOSession) ioSession, parameters, null);
+            } else {
+                throw new UnsupportedOperationException("Protocol upgrade not supported");
+            }
+        }
+
+        @Override
+        public void upgrade(final String id, final EndpointParameters parameters) {
+            final IOSession ioSession = getIOSession();
+            if (ioSession instanceof ProtocolIOSession) {
+                final ProtocolUpgradeHandler upgradeHandler = protocolUpgradeHandlerLookup.lookup(id);
+                if (upgradeHandler == null) {
+                    throw new IllegalArgumentException("Unsupported protocol: " + id);
+                }
+                upgradeHandler.upgrade((ProtocolIOSession) ioSession, parameters, null);
+            } else {
+                throw new UnsupportedOperationException("Protocol upgrade not supported by the endpoint");
             }
         }
 

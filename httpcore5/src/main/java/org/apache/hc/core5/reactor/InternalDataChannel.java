@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -39,7 +40,9 @@ import java.util.concurrent.locks.Lock;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
@@ -51,13 +54,14 @@ import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
-final class InternalDataChannel extends InternalChannel implements ProtocolIOSession {
+final class InternalDataChannel extends InternalChannel implements ProtocolIOSession, TransportSecurityLayerEx {
 
     private final IOSession ioSession;
     private final NamedEndpoint initialEndpoint;
     private final IOSessionListener sessionListener;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final Queue<InternalDataChannel> closedSessions;
+    private final Queue<FutureCallback<ProtocolIOSession>> callbackQueue;
     private final AtomicBoolean closed;
 
     InternalDataChannel(
@@ -70,6 +74,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         this.closedSessions = closedSessions;
         this.sessionListener = sessionListener;
         this.tlsSessionRef = new AtomicReference<>(null);
+        this.callbackQueue = new LinkedList<>();
         this.closed = new AtomicBoolean(false);
     }
 
@@ -162,18 +167,21 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (handler != null) {
             handler.exception(this, cause);
         }
+        notifySubscribers(cause);
     }
 
-    void onTLSSessionStart() {
+    void onTLSSessionStart(final SSLIOSession sslSession) {
         if (sessionListener != null) {
             sessionListener.connected(this);
         }
+        notifySubscribers();
     }
 
     void onTLSSessionEnd() {
         if (closed.compareAndSet(false, true)) {
             closedSessions.add(this);
         }
+        cancelSubscribers();
     }
 
     void disconnected() {
@@ -208,7 +216,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
                     @Override
                     public void execute(final SSLIOSession sslSession) {
-                        onTLSSessionStart();
+                        onTLSSessionStart(sslSession);
                     }
 
                 },
@@ -234,6 +242,53 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     public TlsDetails getTlsDetails() {
         final SSLIOSession sslIoSession = tlsSessionRef.get();
         return sslIoSession != null ? sslIoSession.getTlsDetails() : null;
+    }
+
+    @Override
+    public void subscribe(final FutureCallback<ProtocolIOSession> callback) {
+        if (callback == null) {
+            return;
+        }
+        synchronized (callbackQueue) {
+            if (getSessionImpl().getStatus() != Status.ACTIVE) {
+                callback.failed(new ConnectionClosedException());
+                return;
+            }
+            final SSLIOSession sslIoSession = tlsSessionRef.get();
+            final TlsDetails tlsDetails = sslIoSession != null ? sslIoSession.getTlsDetails() : null;
+            if (tlsDetails != null) {
+                callback.completed(this);
+            } else {
+                callbackQueue.add(callback);
+            }
+        }
+    }
+
+    void notifySubscribers() {
+        synchronized (callbackQueue) {
+            FutureCallback<ProtocolIOSession> callback;
+            while ((callback = callbackQueue.poll()) != null) {
+                callback.completed(this);
+            }
+        }
+    }
+
+    void notifySubscribers(final Exception ex) {
+        synchronized (callbackQueue) {
+            FutureCallback<ProtocolIOSession> callback;
+            while ((callback = callbackQueue.poll()) != null) {
+                callback.failed(ex);
+            }
+        }
+    }
+
+    void cancelSubscribers() {
+        synchronized (callbackQueue) {
+            FutureCallback<ProtocolIOSession> callback;
+            while ((callback = callbackQueue.poll()) != null) {
+                callback.cancelled();
+            }
+        }
     }
 
     @Override

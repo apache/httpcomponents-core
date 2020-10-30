@@ -32,6 +32,7 @@ import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -65,14 +66,14 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
         String endpointScheme = URIScheme.HTTP.id;
         if (attachment instanceof EndpointParameters) {
             final EndpointParameters params = (EndpointParameters) attachment;
-            endpointScheme = params.scheme;
+            endpointScheme = params.getScheme();
             if (tlsStrategy != null && URIScheme.HTTPS.same(endpointScheme)) {
                 tlsStrategy.upgrade(
                         ioSession,
                         null,
                         ioSession.getLocalAddress(),
                         ioSession.getRemoteAddress(),
-                        params.attachment,
+                        params.getAttachment(),
                         handshakeTimeout);
             }
         } else {

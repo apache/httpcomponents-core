@@ -36,9 +36,15 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
+import org.apache.hc.core5.http.config.Registry;
+import org.apache.hc.core5.http.config.RegistryBuilder;
+import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
+import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
+import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestWriterFactory;
+import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseParserFactory;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -48,10 +54,12 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.ClientH2StreamMultiplexerFactory;
+import org.apache.hc.core5.http2.impl.nio.ClientH2UpgradeHandler;
 import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiatorFactory;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
+import org.apache.hc.core5.http2.ssl.TlsUpgradeHandler;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.DefaultDisposalCallback;
 import org.apache.hc.core5.pool.LaxConnPool;
@@ -63,6 +71,7 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.ProtocolUpgradeHandler;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -309,23 +318,41 @@ public class H2RequesterBootstrap {
         for (final HandlerEntry<Supplier<AsyncPushConsumer>> entry: pushConsumerList) {
             registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }
-        final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ClientHttp1StreamDuplexerFactory(
-                httpProcessor != null ? httpProcessor : HttpProcessors.client(),
-                http1Config != null ? http1Config : Http1Config.DEFAULT,
-                charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
-                http1StreamListener);
+
         final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientH2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : H2Processors.client(),
                 new DefaultAsyncPushConsumerFactory(registry),
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 streamListener);
+
+        final HttpVersionPolicy actualVersionProtocol = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
+        final TlsStrategy actualTlsStrategy = tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy();
+
+        final Registry<ProtocolUpgradeHandler> protocolRegistry = RegistryBuilder.<ProtocolUpgradeHandler>create()
+                .register("TLS", new TlsUpgradeHandler(actualVersionProtocol, actualTlsStrategy, handshakeTimeout))
+                .register("H2", new ClientH2UpgradeHandler(http2StreamHandlerFactory, actualTlsStrategy, handshakeTimeout))
+                .build();
+
+        final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ClientHttp1StreamDuplexerFactory(
+                httpProcessor != null ? httpProcessor : HttpProcessors.client(),
+                http1Config != null ? http1Config : Http1Config.DEFAULT,
+                charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
+                DefaultConnectionReuseStrategy.INSTANCE,
+                new DefaultHttpResponseParserFactory(http1Config),
+                DefaultHttpRequestWriterFactory.INSTANCE,
+                DefaultContentLengthStrategy.INSTANCE,
+                DefaultContentLengthStrategy.INSTANCE,
+                protocolRegistry,
+                http1StreamListener);
+
         final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiatorFactory(
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
-                versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
-                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
+                actualVersionProtocol,
+                actualTlsStrategy,
                 handshakeTimeout);
+
         return new H2AsyncRequester(
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 ioReactorConfig,
@@ -333,7 +360,8 @@ public class H2RequesterBootstrap {
                 ioSessionDecorator,
                 exceptionCallback,
                 sessionListener,
-                connPool);
+                connPool,
+                protocolRegistry);
     }
 
 }

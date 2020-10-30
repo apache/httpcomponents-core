@@ -25,59 +25,65 @@
  *
  */
 
-package org.apache.hc.core5.http.impl.nio;
+package org.apache.hc.core5.http2.ssl;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.reactor.EndpointParameters;
-import org.apache.hc.core5.reactor.IOEventHandler;
-import org.apache.hc.core5.reactor.IOEventHandlerFactory;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
+import org.apache.hc.core5.reactor.ProtocolUpgradeHandler;
+import org.apache.hc.core5.reactor.TransportSecurityLayerEx;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * {@link ClientHttp1IOEventHandler} factory.
+ * Protocol upgrade handler that upgrades the underlying {@link ProtocolIOSession} to TLS
+ * using {@link TlsStrategy}.
  *
- * @since 5.0
+ * @since 5.1
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 @Internal
-public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
+public class TlsUpgradeHandler implements ProtocolUpgradeHandler {
 
-    private final ClientHttp1StreamDuplexerFactory streamDuplexerFactory;
+    private final HttpVersionPolicy versionPolicy;
     private final TlsStrategy tlsStrategy;
     private final Timeout handshakeTimeout;
 
-    public ClientHttp1IOEventHandlerFactory(
-            final ClientHttp1StreamDuplexerFactory streamDuplexerFactory,
+    public TlsUpgradeHandler(
+            final HttpVersionPolicy versionPolicy,
             final TlsStrategy tlsStrategy,
             final Timeout handshakeTimeout) {
-        this.streamDuplexerFactory = Args.notNull(streamDuplexerFactory, "Stream duplexer factory");
+        this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         this.tlsStrategy = tlsStrategy;
         this.handshakeTimeout = handshakeTimeout;
     }
 
     @Override
-    public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
-        if (attachment instanceof EndpointParameters) {
-            final EndpointParameters params = (EndpointParameters) attachment;
-            if (tlsStrategy != null && URIScheme.HTTPS.same(params.getScheme())) {
-                final HttpHost host = new HttpHost(params.getScheme(), params.getHostName(), params.getPort());
-                tlsStrategy.upgrade(
-                        ioSession,
-                        host,
-                        ioSession.getLocalAddress(),
-                        ioSession.getRemoteAddress(),
-                        params.getAttachment(),
-                        handshakeTimeout);
+    public void upgrade(final ProtocolIOSession ioSession,
+                        final EndpointParameters parameters,
+                        final FutureCallback<ProtocolIOSession> callback) {
+        Args.notNull(parameters, "Endpoint parameters");
+        if (ioSession instanceof TransportSecurityLayerEx) {
+            final TransportSecurityLayerEx transportSecurityLayer = (TransportSecurityLayerEx) ioSession;
+            if (callback != null) {
+                transportSecurityLayer.subscribe(callback);
             }
+            tlsStrategy.upgrade(
+                    transportSecurityLayer,
+                    new HttpHost(parameters.getScheme(), parameters.getHostName(), parameters.getPort()),
+                    ioSession.getLocalAddress(),
+                    ioSession.getRemoteAddress(),
+                    versionPolicy,
+                    handshakeTimeout);
+        } else {
+            throw new UnsupportedOperationException("TLS upgrade not supported");
         }
-        return new ClientHttp1IOEventHandler(streamDuplexerFactory.create(ioSession));
     }
 
 }

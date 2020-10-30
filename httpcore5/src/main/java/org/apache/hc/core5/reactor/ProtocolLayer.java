@@ -24,33 +24,27 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.nio;
+
+package org.apache.hc.core5.reactor;
 
 import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.http.URIScheme;
 
 /**
- * Endpoint initialization parameters
+ * Application protocol layer interface.
  *
  * @since 5.1
  */
 @Internal
-public final class EndpointParameters {
+public interface ProtocolLayer {
 
-    public final String scheme;
-    public final Object attachment;
+    /**
+     * Switches to the given application protocol.
+     */
+    void upgrade(ProtocolUpgradeHandler handler, EndpointParameters parameters) throws UnsupportedOperationException;
 
-    public EndpointParameters(final String scheme, final Object attachment) {
-        this.scheme = scheme != null ? scheme : URIScheme.HTTP.id;
-        this.attachment = attachment;
-    }
-
-    @Override
-    public String toString() {
-        return "EndpointParameters{" +
-                "scheme=" + scheme +
-                ", attachment=" + attachment +
-                '}';
-    }
+    /**
+     * Switches to the application protocol with the given protocol id.
+     */
+    void upgrade(String id, EndpointParameters parameters) throws UnsupportedOperationException;
 
 }

@@ -44,7 +44,7 @@ public class H2ConnectionException extends IOException {
 
     public H2ConnectionException(final H2Error error, final String message) {
         super(message);
-        Args.notNull(error, "H2 Error code may not be null");
+        Args.notNull(error, "H2 Error code");
         this.code = error.getCode();
     }
 

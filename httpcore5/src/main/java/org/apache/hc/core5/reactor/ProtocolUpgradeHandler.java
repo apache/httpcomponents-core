@@ -25,38 +25,22 @@
  *
  */
 
-package org.apache.hc.core5.http.nio.ssl;
+package org.apache.hc.core5.reactor;
 
-import java.net.SocketAddress;
-
-import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
-import org.apache.hc.core5.util.Timeout;
+import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.concurrent.FutureCallback;
 
 /**
- * TLS protocol upgrade strategy for non-blocking {@link TransportSecurityLayer} sessions.
+ * Application protocol upgrade handler.
  *
- * @since 5.0
+ * @since 5.1
  */
-public interface TlsStrategy {
+@Internal
+public interface ProtocolUpgradeHandler {
 
     /**
-     * Secures current session layer with TLS security.
-     *
-     * @param sessionLayer the session layer
-     * @param host the name of the opposite endpoint when given or {@code null} otherwise.
-     * @param localAddress the address of the local endpoint.
-     * @param remoteAddress the address of the remote endpoint.
-     * @param attachment arbitrary object passes to the TLS session initialization code.
-     * @param handshakeTimeout the timeout to use while performing the TLS handshake; may be {@code null}.
-     * @return {@code true} if the session has been upgraded, {@code false} otherwise.
+     * Upgrades application protocol of the given I/O session.
      */
-    boolean upgrade(
-            TransportSecurityLayer sessionLayer,
-            HttpHost host,
-            SocketAddress localAddress,
-            SocketAddress remoteAddress,
-            Object attachment,
-            Timeout handshakeTimeout);
+    void upgrade(ProtocolIOSession ioSession, EndpointParameters parameters, FutureCallback<ProtocolIOSession> callback);
 
 }

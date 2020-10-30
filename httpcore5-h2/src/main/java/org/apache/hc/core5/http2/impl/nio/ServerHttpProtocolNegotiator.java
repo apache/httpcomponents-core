@@ -164,7 +164,6 @@ public class ServerHttpProtocolNegotiator extends ProtocolNegotiatorBase {
                 throw new ConnectionClosedException();
             }
         }
-        data.clear();
     }
 
     @Override

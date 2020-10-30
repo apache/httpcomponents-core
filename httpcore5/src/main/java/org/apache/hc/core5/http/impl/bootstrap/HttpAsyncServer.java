@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http.impl.bootstrap;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
 
@@ -34,7 +35,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.impl.nio.EndpointParameters;
+import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -49,6 +50,26 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
  */
 public class HttpAsyncServer extends AsyncServer {
 
+    private final String canonicalName;
+
+    /**
+     * Use {@link AsyncServerBootstrap} to create instances of this class.
+     *
+     * @since 5.1
+     */
+    @Internal
+    public HttpAsyncServer(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig ioReactorConfig,
+            final Decorator<IOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
+            final IOSessionListener sessionListener,
+            final String canonicalName) {
+        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
+                        ShutdownCommand.GRACEFUL_NORMAL_CALLBACK);
+        this.canonicalName = canonicalName;
+    }
+
     /**
      * Use {@link AsyncServerBootstrap} to create instances of this class.
      */
@@ -59,8 +80,7 @@ public class HttpAsyncServer extends AsyncServer {
             final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
-                        ShutdownCommand.GRACEFUL_NORMAL_CALLBACK);
+        this(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener, null);
     }
 
     public Future<ListenerEndpoint> listen(
@@ -68,7 +88,13 @@ public class HttpAsyncServer extends AsyncServer {
             final URIScheme scheme,
             final Object attachment,
             final FutureCallback<ListenerEndpoint> callback) {
-        return super.listen(address, new EndpointParameters(scheme.id, attachment), callback);
+        final InetSocketAddress inetSocketAddress = (InetSocketAddress) address;
+        final EndpointParameters parameters = new EndpointParameters(
+                scheme.id,
+                canonicalName != null ? canonicalName : "localhost",
+                inetSocketAddress.getPort(),
+                attachment);
+        return super.listen(address, parameters, callback);
     }
 
     public Future<ListenerEndpoint> listen(
