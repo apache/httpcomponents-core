@@ -20,6 +20,10 @@ sudo: false
 services:
   - docker
 
+arch:
+  - amd64
+  - arm64-graviton2
+
 script: mvn verify -B -P docker
 
 jdk:
