@@ -178,7 +178,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 try {
                     channel.handleIOEvent(key.readyOps());
                 } catch (final CancelledKeyException ex) {
-                    close(CloseMode.GRACEFUL);
+                    channel.close(CloseMode.GRACEFUL);
                 }
             }
         }
