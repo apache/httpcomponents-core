@@ -28,7 +28,7 @@
 package org.apache.hc.core5.http2.frame;
 
 /**
- * HTTP/2 steam ID generator.
+ * HTTP/2 stream ID generator.
  *
  * @since 5.0
  */
