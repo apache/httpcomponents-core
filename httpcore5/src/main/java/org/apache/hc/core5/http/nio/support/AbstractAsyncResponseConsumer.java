@@ -140,19 +140,27 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
     @Override
     public final void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         final AsyncEntityConsumer<E> dataConsumer = dataConsumerRef.get();
-        dataConsumer.updateCapacity(capacityChannel);
+        if (dataConsumer != null) {
+            dataConsumer.updateCapacity(capacityChannel);
+        } else {
+            capacityChannel.update(Integer.MAX_VALUE);
+        }
     }
 
     @Override
     public final void consume(final ByteBuffer src) throws IOException {
         final AsyncEntityConsumer<E> dataConsumer = dataConsumerRef.get();
-        dataConsumer.consume(src);
+        if (dataConsumer != null) {
+            dataConsumer.consume(src);
+        }
     }
 
     @Override
     public final void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
         final AsyncEntityConsumer<E> dataConsumer = dataConsumerRef.get();
-        dataConsumer.streamEnd(trailers);
+        if (dataConsumer != null) {
+            dataConsumer.streamEnd(trailers);
+        }
     }
 
     @Override
