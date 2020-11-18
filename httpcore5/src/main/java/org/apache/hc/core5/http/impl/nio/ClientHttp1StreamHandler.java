@@ -234,7 +234,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             return;
         }
         if (requestState == MessageState.BODY) {
-            if (keepAlive && status >= HttpStatus.SC_CLIENT_ERROR) {
+            if (status >= HttpStatus.SC_CLIENT_ERROR) {
                 requestState = MessageState.COMPLETE;
                 if (!outputChannel.abortGracefully()) {
                     keepAlive = false;

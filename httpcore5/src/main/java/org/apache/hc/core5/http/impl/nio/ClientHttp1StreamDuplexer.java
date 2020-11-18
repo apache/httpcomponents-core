@@ -164,11 +164,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             @Override
             public boolean abortGracefully() throws IOException {
                 final MessageDelineation messageDelineation = endOutputStream(null);
-                if (messageDelineation == MessageDelineation.MESSAGE_HEAD) {
-                    requestShutdown(CloseMode.GRACEFUL);
-                    return false;
-                }
-                return true;
+                return messageDelineation != MessageDelineation.MESSAGE_HEAD;
             }
 
             @Override

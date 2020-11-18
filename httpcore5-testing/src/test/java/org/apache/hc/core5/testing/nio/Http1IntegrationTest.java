@@ -859,6 +859,72 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
     }
 
     @Test
+    public void testExpectationFailedCloseConnection() throws Exception {
+        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
+
+                    @Override
+                    protected void handle(
+                            final Message<HttpRequest, String> request,
+                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                            final HttpContext context) throws IOException, HttpException {
+                        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"), context);
+
+                    }
+                };
+            }
+
+        });
+        final InetSocketAddress serverEndpoint = server.start(null, new Decorator<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
+
+                return new BasicAsyncServerExpectationDecorator(handler) {
+
+                    @Override
+                    protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
+                        final Header h = request.getFirstHeader("password");
+                        if (h != null && "secret".equals(h.getValue())) {
+                            return null;
+                        } else {
+                            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_UNAUTHORIZED);
+                            response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                            return new BasicResponseProducer(response, "You shall not pass");
+                        }
+                    }
+                };
+
+            }
+        }, Http1Config.DEFAULT);
+
+        client.start();
+        final Future<IOSession> sessionFuture = client.requestSession(
+                new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
+        final IOSession ioSession = sessionFuture.get();
+        final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(ioSession);
+
+        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                new BasicRequestProducer(request1, new MultiBinEntityProducer(
+                        new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'},
+                        100000,
+                        ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assert.assertNotNull(result1);
+        final HttpResponse response1 = result1.getHead();
+        Assert.assertNotNull(response1);
+        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
+        Assert.assertNotNull("You shall not pass", result1.getBody());
+
+        Assert.assertFalse(streamEndpoint.isOpen());
+    }
+
+    @Test
     public void testDelayedExpectationVerification() throws Exception {
         server.register("*", new Supplier<AsyncServerExchangeHandler>() {
 
