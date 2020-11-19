@@ -53,7 +53,7 @@ abstract class InternalChannel implements ModalCloseable {
             close(CloseMode.GRACEFUL);
         } catch (final Exception ex) {
             onException(ex);
-            close(CloseMode.IMMEDIATE);
+            close(CloseMode.GRACEFUL);
         }
     }
 
@@ -69,7 +69,7 @@ abstract class InternalChannel implements ModalCloseable {
                     close(CloseMode.GRACEFUL);
                 } catch (final Exception ex) {
                     onException(ex);
-                    close(CloseMode.IMMEDIATE);
+                    close(CloseMode.GRACEFUL);
                 }
                 return false;
             }

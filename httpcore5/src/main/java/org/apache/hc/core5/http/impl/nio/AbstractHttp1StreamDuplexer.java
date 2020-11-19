@@ -157,12 +157,20 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
     }
 
-    void shutdownSession(final Exception exception) {
+    void shutdownSession(final Exception cause) {
         connState = ConnectionState.SHUTDOWN;
         try {
-            terminate(exception);
+            terminate(cause);
         } finally {
-            ioSession.close();
+            final CloseMode closeMode;
+            if (cause instanceof ConnectionClosedException) {
+                closeMode = CloseMode.GRACEFUL;
+            } else if (cause instanceof IOException) {
+                closeMode = CloseMode.IMMEDIATE;
+            } else {
+                closeMode = CloseMode.GRACEFUL;
+            }
+            ioSession.close(closeMode);
         }
     }
 
