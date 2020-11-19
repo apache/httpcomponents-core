@@ -33,12 +33,15 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
+import java.util.Iterator;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
+import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.LengthRequiredException;
@@ -53,6 +56,7 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.io.ResponseOutOfOrderStrategy;
+import org.apache.hc.core5.http.message.BasicTokenIterator;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -265,6 +269,14 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         final HttpEntity entity = request.getEntity();
         if (entity == null) {
             return;
+        }
+        final Iterator<String> ti = new BasicTokenIterator(request.headerIterator(HttpHeaders.CONNECTION));
+        while (ti.hasNext()) {
+            final String token = ti.next();
+            if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
+                this.consistent = false;
+                return;
+            }
         }
         final long len = this.outgoingContentStrategy.determineLength(request);
         if (len == ContentLengthStrategy.CHUNKED) {
