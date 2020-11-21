@@ -949,7 +949,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 } catch (final H2StreamResetException ex) {
                     promisedStream.localReset(ex);
                 } catch (final HttpStreamResetException ex) {
-                    stream.localReset(ex, ex.getCause() != null ? H2Error.INTERNAL_ERROR : H2Error.NO_ERROR);
+                    promisedStream.localReset(ex, ex.getCause() != null ? H2Error.INTERNAL_ERROR : H2Error.NO_ERROR);
                 }
             }
             break;
@@ -1008,11 +1008,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         if (stream.isRemoteClosed()) {
             throw new H2StreamResetException(H2Error.STREAM_CLOSED, "Stream already closed");
         }
-        if (stream.isLocalReset()) {
-            return;
-        }
         if (frame.isFlagSet(FrameFlag.END_STREAM)) {
             stream.setRemoteEndStream();
+        }
+        if (stream.isLocalReset()) {
+            return;
         }
         stream.consumeData(payload);
     }
