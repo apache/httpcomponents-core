@@ -686,9 +686,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     commitFrame(goAway);
                 }
             }
-            connState = ConnectionHandshake.SHUTDOWN;
         } catch (final IOException ignore) {
         } finally {
+            connState = ConnectionHandshake.SHUTDOWN;
             final CloseMode closeMode;
             if (cause instanceof ConnectionClosedException) {
                 closeMode = CloseMode.GRACEFUL;
