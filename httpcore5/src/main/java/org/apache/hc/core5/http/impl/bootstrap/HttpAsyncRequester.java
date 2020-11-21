@@ -43,6 +43,7 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
@@ -70,6 +71,7 @@ import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.pool.PoolStats;
 import org.apache.hc.core5.reactor.Command;
+import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -446,9 +448,11 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final PoolEntry<HttpHost, IOSession> poolEntry = poolEntryRef.get();
             if (poolEntry != null) {
                 final IOSession ioSession = poolEntry.getConnection();
-                if (ioSession != null && ioSession.isOpen()) {
-                    return true;
+                if (ioSession == null || !ioSession.isOpen()) {
+                    return false;
                 }
+                final IOEventHandler handler = ioSession.getHandler();
+                return (handler instanceof HttpConnection) && ((HttpConnection) handler).isOpen();
             }
             return false;
         }
