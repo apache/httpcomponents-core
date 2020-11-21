@@ -63,6 +63,7 @@ import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.FramePrinter;
+import org.apache.hc.core5.http2.frame.FrameType;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
@@ -372,7 +373,7 @@ public class HttpBenchmark {
                             final List<? extends Header> headers) {
                         if (config.getVerbosity() >= 3) {
                             for (final Header header : headers) {
-                                System.out.println(">> " + header);
+                                System.out.println("<< " + header);
                             }
                             System.out.println();
                         }
@@ -385,7 +386,7 @@ public class HttpBenchmark {
                             final List<? extends Header> headers) {
                         if (config.getVerbosity() >= 3) {
                             for (final Header header : headers) {
-                                System.out.println("<< " + header);
+                                System.out.println(">> " + header);
                             }
                             System.out.println();
                         }
@@ -397,12 +398,16 @@ public class HttpBenchmark {
                             final int streamId,
                             final RawFrame frame) {
                         if (config.getVerbosity() >= 4) {
-                            System.out.print(">> ");
+                            System.out.print("<< ");
                             try {
                                 framePrinter.printFrameInfo(frame, System.out);
+                                System.out.println();
+                                if (!frame.isType(FrameType.DATA)) {
+                                    framePrinter.printPayload(frame, System.out);
+                                    System.out.println();
+                                }
                             } catch (final IOException ignore) {
                             }
-                            System.out.println();
                         }
                     }
 
@@ -412,12 +417,16 @@ public class HttpBenchmark {
                             final int streamId,
                             final RawFrame frame) {
                         if (config.getVerbosity() >= 4) {
-                            System.out.print("<< ");
+                            System.out.print(">> ");
                             try {
                                 framePrinter.printFrameInfo(frame, System.out);
+                                System.out.println();
+                                if (!frame.isType(FrameType.DATA)) {
+                                    framePrinter.printPayload(frame, System.out);
+                                    System.out.println();
+                                }
                             } catch (final IOException ignore) {
                             }
-                            System.out.println();
                         }
                     }
 
@@ -428,7 +437,7 @@ public class HttpBenchmark {
                             final int delta,
                             final int actualSize) {
                         if (config.getVerbosity() >= 5) {
-                            System.out.println(">> stream " + streamId + ": " + actualSize + " " + delta);
+                            System.out.println("<< stream " + streamId + ": " + actualSize + " " + delta);
                         }
                     }
 
@@ -439,7 +448,7 @@ public class HttpBenchmark {
                             final int delta,
                             final int actualSize) {
                         if (config.getVerbosity() >= 5) {
-                            System.out.println("<< stream " + streamId + ": " + actualSize + " " + delta);
+                            System.out.println(">> stream " + streamId + ": " + actualSize + " " + delta);
                         }
                     }
 
