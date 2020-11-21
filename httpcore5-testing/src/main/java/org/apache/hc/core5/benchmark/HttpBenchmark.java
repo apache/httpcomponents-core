@@ -61,6 +61,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.FramePrinter;
 import org.apache.hc.core5.http2.frame.RawFrame;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
@@ -173,6 +174,9 @@ public class HttpBenchmark {
                 .setHttpProcessor(builder.build())
                 .setTlsStrategy(new BasicClientTlsStrategy(sslContext))
                 .setVersionPolicy(versionPolicy)
+                .setH2Config(H2Config.custom()
+                        .setPushEnabled(false)
+                        .build())
                 .setIOSessionDecorator(new Decorator<IOSession>() {
 
                     @Override
@@ -354,9 +358,6 @@ public class HttpBenchmark {
 
                     @Override
                     public void onExchangeComplete(final HttpConnection connection, final boolean keepAlive) {
-                        if (keepAlive) {
-                            stats.incKeepAliveCount();
-                        }
                     }
 
                 })
