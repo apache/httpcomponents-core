@@ -163,7 +163,7 @@ class BenchmarkWorker implements ResourceHolder {
             public void failed(final Exception cause) {
                 stats.incFailureCount();
                 if (config.getVerbosity() >= 1) {
-                    System.out.println("Failed HTTP request : " + cause.getMessage());
+                    System.out.println("Failed HTTP request: " + cause.getMessage());
                 }
             }
 
@@ -326,6 +326,7 @@ class BenchmarkWorker implements ResourceHolder {
 
                 });
             } else {
+                stats.incKeepAliveCount();
                 endpoint.execute(
                         createRequestProducer(),
                         createResponseConsumer(),
