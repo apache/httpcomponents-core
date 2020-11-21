@@ -161,7 +161,6 @@ class BenchmarkWorker implements ResourceHolder {
 
             @Override
             public void failed(final Exception cause) {
-                stats.incFailureCount();
                 if (config.getVerbosity() >= 1) {
                     System.out.println("Failed HTTP request: " + cause.getMessage());
                 }
