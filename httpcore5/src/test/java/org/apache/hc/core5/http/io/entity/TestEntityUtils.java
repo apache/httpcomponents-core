@@ -41,6 +41,7 @@ import java.util.Map;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.junit.Assert;
@@ -259,6 +260,24 @@ public class TestEntityUtils {
             for (int i = 0; i < expectedBytes.length; i++) {
                 Assert.assertEquals(expectedBytes[i], bytes[i]);
             }
+        }
+    }
+
+    @Test
+    public void testStringMaxResultLength() throws IOException, ParseException {
+        final String allMessage = "Message content";
+        final byte[] allBytes = allMessage.getBytes(StandardCharsets.ISO_8859_1);
+        final Map<Integer, String> testCases = new HashMap<>();
+        testCases.put(7, allMessage.substring(0, 7));
+        testCases.put(allMessage.length(), allMessage);
+        testCases.put(Integer.MAX_VALUE, allMessage);
+
+        for (final Map.Entry<Integer, String> tc : testCases.entrySet()) {
+            final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(allBytes), allBytes.length, null);
+            final String string = EntityUtils.toString(entity, StandardCharsets.ISO_8859_1, tc.getKey());
+            final String expectedString = tc.getValue();
+            Assert.assertNotNull(string);
+            Assert.assertEquals(expectedString, string);
         }
     }
 

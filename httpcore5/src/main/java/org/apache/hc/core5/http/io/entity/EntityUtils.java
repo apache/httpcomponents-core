@@ -165,19 +165,20 @@ public final class EntityUtils {
         }
     }
 
-    private static CharArrayBuffer toCharArrayBuffer(final InputStream inStream, final long contentLength,
+    private static CharArrayBuffer toCharArrayBuffer(final InputStream inStream, final int contentLength,
             final Charset charset, final int maxResultLength) throws IOException {
         Args.notNull(inStream, "InputStream");
         Args.positive(maxResultLength, "maxResultLength");
         final Charset actualCharset = charset == null ? DEFAULT_CHARSET : charset;
         final CharArrayBuffer buf = new CharArrayBuffer(
-                Math.min(maxResultLength, contentLength > 0 ? (int) contentLength : DEFAULT_CHAR_BUFFER_SIZE));
+                Math.min(maxResultLength, contentLength > 0 ? contentLength : DEFAULT_CHAR_BUFFER_SIZE));
         final Reader reader = new InputStreamReader(inStream, actualCharset);
         final char[] tmp = new char[DEFAULT_CHAR_BUFFER_SIZE];
         int chReadCount;
-        while ((chReadCount = reader.read(tmp)) != -1) {
+        while ((chReadCount = reader.read(tmp)) != -1 && buf.length() < maxResultLength) {
             buf.append(tmp, 0, chReadCount);
         }
+        buf.setLength(Math.min(buf.length(), maxResultLength));
         return buf;
     }
 
