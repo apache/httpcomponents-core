@@ -1,3 +1,27 @@
+Release 5.2 BETA1
+------------------
+
+This is the second BETA release in the 5.1 release series that includes a number of
+new features as well performance optimizations in the classic HTTP transport.
+
+Notable changes and features included in the 5.1 series:
+
+* ...
+
+Change Log
+-------------------
+
+* PR #232: Master try w res and more.
+  - Use try-with-resources.
+  - Use diamonds.
+  - Add missing @Override.
+  - Make better use of Map APIs.
+  - Remove redundant modifiers. …
+  - Use Collections.addAll() API instead of loops.
+  - Remote extra semicolons (;).
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+
 Release 5.1 BETA1
 ------------------
 
