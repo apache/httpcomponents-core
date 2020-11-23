@@ -545,7 +545,7 @@ public class TestSSLContextBuilder {
             @Override
             public String chooseAlias(final Map<String, PrivateKeyDetails> aliases,
                             final SSLParameters sslParameters) {
-                return aliases.keySet().contains("client2") ? "client2" : null;
+                return aliases.containsKey("client2") ? "client2" : null;
             }
         };
 
