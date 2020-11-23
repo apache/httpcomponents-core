@@ -630,9 +630,7 @@ public class URIBuilder {
         } else {
             this.queryParams.clear();
         }
-        for (final NameValuePair nvp: nvps) {
-            this.queryParams.add(nvp);
-        }
+        Collections.addAll(this.queryParams, nvps);
         this.encodedQuery = null;
         this.encodedSchemeSpecificPart = null;
         this.query = null;
