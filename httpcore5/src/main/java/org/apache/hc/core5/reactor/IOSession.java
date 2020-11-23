@@ -189,6 +189,7 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
      *
      * @return socket timeout.
      */
+    @Override
     Timeout getSocketTimeout();
 
     /**
@@ -201,6 +202,7 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
      *
      * @param timeout socket timeout.
      */
+    @Override
     void setSocketTimeout(Timeout timeout);
 
     /**
