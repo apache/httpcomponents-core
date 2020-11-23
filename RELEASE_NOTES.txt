@@ -1,3 +1,21 @@
+Release 5.0.3
+------------------
+
+Change Log
+-------------------
+
+* PR #232: Master try w res and more.
+  - Use try-with-resources.
+  - Use diamonds.
+  - Add missing @Override.
+  - Make better use of Map APIs.
+  - Remove redundant modifiers. …
+  - Use Collections.addAll() API instead of loops.
+  - Remote extra semicolons (;).
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+
+
 Release 5.0.2
 ------------------
 
