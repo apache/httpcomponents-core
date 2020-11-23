@@ -1,3 +1,21 @@
+Release 4.4.14
+-------------------
+
+This is a maintenance release that corrects a number of defects discovered since release 4.4.13.
+
+Changelog
+-------------------
+
+* PR #231: 4.4.x Use better map apis and more.
+  - Make better use of Map APIs.
+  - Remove redundant modifiers.
+  - Use Collections.addAll() API instead of loops.
+  - Remove redundant returns.
+  - No need to explicitly declare an array when calling a vararg method.
+  - Remote extra semicolons (;).
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+
 Release 4.4.13
 -------------------
 
