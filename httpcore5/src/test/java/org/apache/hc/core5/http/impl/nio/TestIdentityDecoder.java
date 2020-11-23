@@ -154,8 +154,7 @@ public class TestIdentityDecoder {
                 channel, inbuf, metrics);
 
         createTempFile();
-        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
             long pos = 0;
             while (!decoder.isCompleted()) {
@@ -166,8 +165,6 @@ public class TestIdentityDecoder {
             }
 
             Assert.assertEquals(testfile.length(), metrics.getBytesTransferred());
-        } finally {
-            testfile.close();
         }
         Assert.assertEquals("stuff; more stuff; a lot more stuff!",
             CodecTestUtils.readFromFile(this.tmpfile));
@@ -187,8 +184,7 @@ public class TestIdentityDecoder {
         Assert.assertEquals(7, i);
 
         createTempFile();
-        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
             long pos = 0;
             while (!decoder.isCompleted()) {
@@ -200,8 +196,6 @@ public class TestIdentityDecoder {
 
             // count everything except the initial 7 bytes that went to the session buffer
             Assert.assertEquals(testfile.length() - 7, metrics.getBytesTransferred());
-        } finally {
-            testfile.close();
         }
         Assert.assertEquals("stuff; more stuff; a lot more stuff!",
             CodecTestUtils.readFromFile(this.tmpfile));
@@ -267,8 +261,7 @@ public class TestIdentityDecoder {
         Assert.assertEquals(19, i);
 
         createTempFile();
-        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
             long pos = 0;
 
@@ -314,8 +307,6 @@ public class TestIdentityDecoder {
             Assert.assertEquals(-1, bytesRead);
             Assert.assertTrue(decoder.isCompleted());
             Assert.assertEquals(17, metrics.getBytesTransferred());
-        } finally {
-            testfile.close();
         }
         Assert.assertEquals("stuff; more stuff; a lot more stuff!",
                 CodecTestUtils.readFromFile(this.tmpfile));
@@ -332,16 +323,13 @@ public class TestIdentityDecoder {
                 channel, inbuf, metrics);
 
         createTempFile();
-        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             Assert.assertEquals(0, testfile.length());
             final FileChannel fchannel = testfile.getChannel();
             try {
                 decoder.transfer(fchannel, 5, 10);
                 Assert.fail("expected IOException");
             } catch(final IOException iox) {}
-        } finally {
-            testfile.close();
         }
     }
 

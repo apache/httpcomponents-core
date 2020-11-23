@@ -50,8 +50,7 @@ class CodecTestUtils {
 
     public static String readFromFile(final File file) throws Exception {
         final FileInputStream filestream = new FileInputStream(file);
-        final InputStreamReader reader = new InputStreamReader(filestream);
-        try {
+        try (InputStreamReader reader = new InputStreamReader(filestream)) {
             final StringBuilder buffer = new StringBuilder();
             final char[] tmp = new char[2048];
             int l;
@@ -59,8 +58,6 @@ class CodecTestUtils {
                 buffer.append(tmp, 0, l);
             }
             return buffer.toString();
-        } finally {
-            reader.close();
         }
     }
 

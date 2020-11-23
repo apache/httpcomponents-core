@@ -265,8 +265,7 @@ public class TestLengthDelimitedDecoder {
                 channel, inbuf, metrics, 36);
 
         createTempFile();
-        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
             long pos = 0;
             while (!decoder.isCompleted()) {
@@ -275,8 +274,6 @@ public class TestLengthDelimitedDecoder {
                     pos += bytesRead;
                 }
             }
-        } finally {
-            testfile.close();
         }
         Assert.assertEquals(this.tmpfile.length(), metrics.getBytesTransferred());
         Assert.assertEquals("stuff; more stuff; a lot more stuff!",
@@ -297,8 +294,7 @@ public class TestLengthDelimitedDecoder {
         Assert.assertEquals(7, i);
 
         createTempFile();
-        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
             long pos = 0;
             while (!decoder.isCompleted()) {
@@ -307,8 +303,6 @@ public class TestLengthDelimitedDecoder {
                     pos += bytesRead;
                 }
             }
-        } finally {
-            testfile.close();
         }
         Assert.assertEquals(this.tmpfile.length() - 7, metrics.getBytesTransferred());
         Assert.assertEquals("stuff; more stuff; a lot more stuff!",
@@ -375,8 +369,7 @@ public class TestLengthDelimitedDecoder {
         Assert.assertEquals(19, i);
 
         createTempFile();
-        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
             long pos = 0;
 
@@ -422,8 +415,6 @@ public class TestLengthDelimitedDecoder {
             Assert.assertEquals(-1, bytesRead);
             Assert.assertTrue(decoder.isCompleted());
             Assert.assertEquals(17, metrics.getBytesTransferred());
-        } finally {
-            testfile.close();
         }
         Assert.assertEquals("stuff; more stuff; a lot more stuff!",
                 CodecTestUtils.readFromFile(this.tmpfile));
@@ -440,8 +431,7 @@ public class TestLengthDelimitedDecoder {
                 channel, inbuf, metrics, 1);
 
         createTempFile();
-        final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
             Assert.assertEquals(0, testfile.length());
             try {
@@ -449,8 +439,6 @@ public class TestLengthDelimitedDecoder {
                 Assert.fail("IOException should have been thrown");
             } catch(final IOException expected) {
             }
-        } finally {
-            testfile.close();
         }
     }
 
@@ -467,8 +455,7 @@ public class TestLengthDelimitedDecoder {
                 channel, inbuf, metrics, 16);
 
         createTempFile();
-        final RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
 
             long bytesRead = decoder.transfer(fchannel, 0, 6);
@@ -485,8 +472,6 @@ public class TestLengthDelimitedDecoder {
             Assert.assertEquals(-1, bytesRead);
             Assert.assertTrue(decoder.isCompleted());
             Assert.assertEquals(16, metrics.getBytesTransferred());
-        } finally {
-            testfile.close();
         }
     }
 
@@ -588,14 +573,11 @@ public class TestLengthDelimitedDecoder {
                 channel, inbuf, metrics, 20);
 
         createTempFile();
-        final RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
             final long bytesRead = decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
             Assert.assertEquals(10, bytesRead);
             decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
-        } finally {
-            testfile.close();
         }
     }
 
