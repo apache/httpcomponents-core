@@ -41,25 +41,25 @@ public interface ExecutionContext {
      * Attribute name of a {@link org.apache.http.HttpConnection} object that
      * represents the actual HTTP connection.
      */
-    public static final String HTTP_CONNECTION  = "http.connection";
+    String HTTP_CONNECTION  = "http.connection";
 
     /**
      * Attribute name of a {@link org.apache.http.HttpRequest} object that
      * represents the actual HTTP request.
      */
-    public static final String HTTP_REQUEST     = "http.request";
+    String HTTP_REQUEST     = "http.request";
 
     /**
      * Attribute name of a {@link org.apache.http.HttpResponse} object that
      * represents the actual HTTP response.
      */
-    public static final String HTTP_RESPONSE    = "http.response";
+    String HTTP_RESPONSE    = "http.response";
 
     /**
      * Attribute name of a {@link org.apache.http.HttpHost} object that
      * represents the connection target.
      */
-    public static final String HTTP_TARGET_HOST = "http.target_host";
+    String HTTP_TARGET_HOST = "http.target_host";
 
     /**
      * Attribute name of a {@link org.apache.http.HttpHost} object that
@@ -67,14 +67,13 @@ public interface ExecutionContext {
      *
      * @deprecated (4.3) do not use.
      */
-    @Deprecated
-    public static final String HTTP_PROXY_HOST  = "http.proxy_host";
+    @Deprecated String HTTP_PROXY_HOST  = "http.proxy_host";
 
     /**
      * Attribute name of a {@link Boolean} object that represents the
      * the flag indicating whether the actual request has been fully transmitted
      * to the target host.
      */
-    public static final String HTTP_REQ_SENT    = "http.request_sent";
+    String HTTP_REQ_SENT    = "http.request_sent";
 
 }

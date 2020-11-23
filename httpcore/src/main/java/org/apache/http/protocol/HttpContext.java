@@ -48,7 +48,7 @@ package org.apache.http.protocol;
 public interface HttpContext {
 
     /** The prefix reserved for use by HTTP components. "http." */
-    public static final String RESERVED_PREFIX  = "http.";
+    String RESERVED_PREFIX  = "http.";
 
     /**
      * Obtains attribute with the given name.

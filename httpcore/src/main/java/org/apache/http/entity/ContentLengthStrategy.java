@@ -38,8 +38,8 @@ import org.apache.http.HttpMessage;
  */
 public interface ContentLengthStrategy {
 
-    public static final int IDENTITY         = -1;
-    public static final int CHUNKED          = -2;
+    int IDENTITY         = -1;
+    int CHUNKED          = -2;
 
     /**
      * Returns length of the given message in bytes. The returned value

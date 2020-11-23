@@ -44,7 +44,7 @@ public interface CoreProtocolPNames {
      * This parameter expects a value of type {@link org.apache.http.ProtocolVersion}.
      * </p>
      */
-    public static final String PROTOCOL_VERSION = "http.protocol.version";
+    String PROTOCOL_VERSION = "http.protocol.version";
 
     /**
      * Defines the charset to be used for encoding HTTP protocol elements.
@@ -52,7 +52,7 @@ public interface CoreProtocolPNames {
      * This parameter expects a value of type {@link String}.
      * </p>
      */
-    public static final String HTTP_ELEMENT_CHARSET = "http.protocol.element-charset";
+    String HTTP_ELEMENT_CHARSET = "http.protocol.element-charset";
 
     /**
      * Defines the charset to be used per default for encoding content body.
@@ -60,7 +60,7 @@ public interface CoreProtocolPNames {
      * This parameter expects a value of type {@link String}.
      * </p>
      */
-    public static final String HTTP_CONTENT_CHARSET = "http.protocol.content-charset";
+    String HTTP_CONTENT_CHARSET = "http.protocol.content-charset";
 
     /**
      * Defines the content of the {@code User-Agent} header.
@@ -68,7 +68,7 @@ public interface CoreProtocolPNames {
      * This parameter expects a value of type {@link String}.
      * </p>
      */
-    public static final String USER_AGENT = "http.useragent";
+    String USER_AGENT = "http.useragent";
 
     /**
      * Defines the content of the {@code Server} header.
@@ -76,7 +76,7 @@ public interface CoreProtocolPNames {
      * This parameter expects a value of type {@link String}.
      * </p>
      */
-    public static final String ORIGIN_SERVER = "http.origin-server";
+    String ORIGIN_SERVER = "http.origin-server";
 
     /**
      * Defines whether responses with an invalid {@code Transfer-Encoding}
@@ -85,7 +85,7 @@ public interface CoreProtocolPNames {
      * This parameter expects a value of type {@link Boolean}.
      * </p>
      */
-    public static final String STRICT_TRANSFER_ENCODING = "http.protocol.strict-transfer-encoding";
+    String STRICT_TRANSFER_ENCODING = "http.protocol.strict-transfer-encoding";
 
     /**
      * <p>
@@ -112,7 +112,7 @@ public interface CoreProtocolPNames {
      *
      * This parameter expects a value of type {@link Boolean}.
      */
-    public static final String USE_EXPECT_CONTINUE = "http.protocol.expect-continue";
+    String USE_EXPECT_CONTINUE = "http.protocol.expect-continue";
 
     /**
      * <p>
@@ -122,7 +122,7 @@ public interface CoreProtocolPNames {
      *
      * This parameter expects a value of type {@link Integer}.
      */
-    public static final String WAIT_FOR_CONTINUE = "http.protocol.wait-for-continue";
+    String WAIT_FOR_CONTINUE = "http.protocol.wait-for-continue";
 
     /**
      * <p>
@@ -134,7 +134,7 @@ public interface CoreProtocolPNames {
      *
      * @since 4.2
      */
-    public static final String HTTP_MALFORMED_INPUT_ACTION = "http.malformed.input.action";
+    String HTTP_MALFORMED_INPUT_ACTION = "http.malformed.input.action";
 
     /**
      * <p>
@@ -147,6 +147,6 @@ public interface CoreProtocolPNames {
      *
      * @since 4.2
      */
-    public static final String HTTP_UNMAPPABLE_INPUT_ACTION = "http.unmappable.input.action";
+    String HTTP_UNMAPPABLE_INPUT_ACTION = "http.unmappable.input.action";
 
 }

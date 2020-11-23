@@ -105,11 +105,11 @@ public final class BasicHttpProcessor implements
         }
     }
 
-    public final void addInterceptor(final HttpRequestInterceptor interceptor) {
+    public void addInterceptor(final HttpRequestInterceptor interceptor) {
         addRequestInterceptor(interceptor);
     }
 
-     public final void addInterceptor(final HttpRequestInterceptor interceptor, final int index) {
+     public void addInterceptor(final HttpRequestInterceptor interceptor, final int index) {
         addRequestInterceptor(interceptor, index);
     }
 
@@ -139,11 +139,11 @@ public final class BasicHttpProcessor implements
         this.responseInterceptors.add(itcp);
     }
 
-    public final void addInterceptor(final HttpResponseInterceptor interceptor) {
+    public void addInterceptor(final HttpResponseInterceptor interceptor) {
         addResponseInterceptor(interceptor);
     }
 
-    public final void addInterceptor(final HttpResponseInterceptor interceptor, final int index) {
+    public void addInterceptor(final HttpResponseInterceptor interceptor, final int index) {
         addResponseInterceptor(interceptor, index);
     }
 
