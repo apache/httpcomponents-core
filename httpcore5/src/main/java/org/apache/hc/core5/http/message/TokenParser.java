@@ -72,6 +72,7 @@ public class TokenParser extends Tokenizer {
         super.copyContent(buf, cursor, delimiters, dst);
     }
 
+    @Override
     public void copyContent(final CharSequence buf, final Tokenizer.Cursor cursor, final BitSet delimiters,
                             final StringBuilder dst) {
         final ParserCursor parserCursor = new ParserCursor(cursor.getLowerBound(), cursor.getUpperBound());
@@ -85,6 +86,7 @@ public class TokenParser extends Tokenizer {
         super.copyUnquotedContent(buf, cursor, delimiters, dst);
     }
 
+    @Override
     public void copyUnquotedContent(final CharSequence buf, final Tokenizer.Cursor cursor, final BitSet delimiters,
                                     final StringBuilder dst) {
         final ParserCursor parserCursor = new ParserCursor(cursor.getLowerBound(), cursor.getUpperBound());
@@ -97,6 +99,7 @@ public class TokenParser extends Tokenizer {
         super.copyQuotedContent(buf, cursor, dst);
     }
 
+    @Override
     public void copyQuotedContent(final CharSequence buf, final Tokenizer.Cursor cursor, final StringBuilder dst) {
         final ParserCursor parserCursor = new ParserCursor(cursor.getLowerBound(), cursor.getUpperBound());
         parserCursor.updatePos(cursor.getPos());
