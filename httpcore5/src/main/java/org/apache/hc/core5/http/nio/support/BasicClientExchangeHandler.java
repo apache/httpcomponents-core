@@ -175,7 +175,7 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public void failed(final Exception cause) {
         try {
             requestProducer.failed(cause);
             responseConsumer.failed(cause);
@@ -198,7 +198,7 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
     }
 
     @Override
-    public final void releaseResources() {
+    public void releaseResources() {
     }
 
 }
