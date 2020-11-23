@@ -39,16 +39,16 @@ public interface EventMask {
     /**
      * Interest in data input.
      */
-    public static final int READ = SelectionKey.OP_READ;
+    int READ = SelectionKey.OP_READ;
 
     /**
      * Interest in data output.
      */
-    public static final int WRITE = SelectionKey.OP_WRITE;
+    int WRITE = SelectionKey.OP_WRITE;
 
     /**
      * Interest in data input/output.
      */
-    public static final int READ_WRITE = READ | WRITE;
+    int READ_WRITE = READ | WRITE;
 
 }

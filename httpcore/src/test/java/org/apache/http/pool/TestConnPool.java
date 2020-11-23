@@ -43,7 +43,7 @@ public class TestConnPool {
 
     private static final int GRACE_PERIOD = 10000;
 
-    static interface LocalConnFactory extends ConnFactory<String, HttpConnection> {
+    interface LocalConnFactory extends ConnFactory<String, HttpConnection> {
     }
 
     static class LocalPoolEntry extends PoolEntry<String, HttpConnection> {
