@@ -46,6 +46,7 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -210,9 +211,7 @@ public class SSLContextBuilder {
                     }
                 }
             }
-            for (final TrustManager tm : tms) {
-                this.trustManagers.add(tm);
-            }
+            Collections.addAll(this.trustManagers, tms);
         }
         return this;
     }
@@ -282,9 +281,7 @@ public class SSLContextBuilder {
                     }
                 }
             }
-            for (final KeyManager km : kms) {
-                keyManagers.add(km);
-            }
+            Collections.addAll(keyManagers, kms);
         }
         return this;
     }

@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.message;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -47,9 +48,7 @@ public class TestMessageSupport {
             return null;
         }
         final Set<String> set = new LinkedHashSet<>();
-        for (final String token: tokens) {
-            set.add(token);
-        }
+        Collections.addAll(set, tokens);
         return set;
     }
 
