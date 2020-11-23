@@ -64,6 +64,7 @@ public final class EndpointParameters implements NamedEndpoint {
         return scheme;
     }
 
+    @Override
     public String getHostName() {
         return hostName;
     }
