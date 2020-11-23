@@ -210,7 +210,7 @@ public class SocksProxy {
 
     private final int port;
 
-    private final List<SocksProxyHandler> handlers = new ArrayList<SocksProxyHandler>();
+    private final List<SocksProxyHandler> handlers = new ArrayList<>();
     private ServerSocket server;
     private Thread serverThread;
 
