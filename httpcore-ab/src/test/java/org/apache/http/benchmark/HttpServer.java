@@ -35,7 +35,6 @@ import java.net.Socket;
 
 import org.apache.http.ConnectionClosedException;
 import org.apache.http.HttpException;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpServerConnection;
 import org.apache.http.impl.DefaultBHttpServerConnection;
 import org.apache.http.impl.DefaultConnectionReuseStrategy;
@@ -65,12 +64,10 @@ public class HttpServer {
     public HttpServer() throws IOException {
         super();
         this.httpproc = new ImmutableHttpProcessor(
-                new HttpResponseInterceptor[] {
-                        new ResponseDate(),
-                        new ResponseServer("TEST-SERVER/1.1"),
-                        new ResponseContent(),
-                        new ResponseConnControl()
-                });
+                new ResponseDate(),
+                new ResponseServer("TEST-SERVER/1.1"),
+                new ResponseContent(),
+                new ResponseConnControl());
         this.reqistry = new UriHttpRequestHandlerMapper();
         this.serversocket = new ServerSocket(0);
     }

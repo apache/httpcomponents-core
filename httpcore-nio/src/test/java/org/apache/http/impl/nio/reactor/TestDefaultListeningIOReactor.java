@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.config.ConnectionConfig;
 import org.apache.http.impl.nio.DefaultHttpServerIODispatch;
 import org.apache.http.nio.protocol.HttpAsyncService;
@@ -59,12 +58,11 @@ import org.junit.Test;
 public class TestDefaultListeningIOReactor {
 
     private static IOEventDispatch createIOEventDispatch() {
-        final HttpProcessor httpproc = new ImmutableHttpProcessor(new HttpResponseInterceptor[] {
+        final HttpProcessor httpproc = new ImmutableHttpProcessor(
                 new ResponseDate(),
                 new ResponseServer(),
                 new ResponseContent(),
-                new ResponseConnControl()
-        });
+                new ResponseConnControl());
         final HttpAsyncService serviceHandler = new HttpAsyncService(httpproc,
                 new UriHttpAsyncRequestHandlerMapper());
         return new DefaultHttpServerIODispatch(serviceHandler, ConnectionConfig.DEFAULT);

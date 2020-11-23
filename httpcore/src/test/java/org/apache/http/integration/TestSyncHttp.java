@@ -845,11 +845,10 @@ public class TestSyncHttp {
             post.setEntity(null);
 
             this.client = new HttpClient(new ImmutableHttpProcessor(
-                    new HttpRequestInterceptor[] {
-                            new RequestTargetHost(),
-                            new RequestConnControl(),
-                            new RequestUserAgent(),
-                            new RequestExpectContinue(true) }));
+                    new RequestTargetHost(),
+                    new RequestConnControl(),
+                    new RequestUserAgent(),
+                    new RequestExpectContinue(true)));
 
             final HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_OK, response.getStatusLine().getStatusCode());
@@ -898,21 +897,16 @@ public class TestSyncHttp {
             post.setEntity(null);
 
             this.client = new HttpClient(new ImmutableHttpProcessor(
-                    new HttpRequestInterceptor[] {
-                            new HttpRequestInterceptor() {
+                    new HttpRequestInterceptor() {
 
-                                @Override
-                                public void process(
-                                        final HttpRequest request,
-                                        final HttpContext context) throws HttpException, IOException {
-                                    request.addHeader(HTTP.TRANSFER_ENCODING, "identity");
-                                }
+                        @Override
+                        public void process(
+                                final HttpRequest request,
+                                final HttpContext context) throws HttpException, IOException {
+                            request.addHeader(HTTP.TRANSFER_ENCODING, "identity");
+                        }
 
-                            },
-                            new RequestTargetHost(),
-                            new RequestConnControl(),
-                            new RequestUserAgent(),
-                            new RequestExpectContinue(true) }));
+                    }, new RequestTargetHost(), new RequestConnControl(), new RequestUserAgent(), new RequestExpectContinue(true)));
 
             final HttpResponse response = this.client.execute(post, host, conn);
             Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getStatusLine().getStatusCode());
