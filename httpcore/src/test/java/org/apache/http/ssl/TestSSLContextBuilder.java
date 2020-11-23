@@ -562,7 +562,7 @@ public class TestSSLContextBuilder {
         final PrivateKeyStrategy privateKeyStrategy = new PrivateKeyStrategy() {
             @Override
             public String chooseAlias(final Map<String, PrivateKeyDetails> aliases, final Socket socket) {
-                return aliases.keySet().contains("client2") ? "client2" : null;
+                return aliases.containsKey("client2") ? "client2" : null;
             }
         };
 
