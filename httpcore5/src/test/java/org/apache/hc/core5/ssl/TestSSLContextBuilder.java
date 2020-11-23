@@ -249,13 +249,10 @@ public class TestSSLContextBuilder {
         final Future<Boolean> future = this.executorService.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                final Socket socket = serverSocket.accept();
-                try {
+                try (Socket socket = serverSocket.accept()) {
                     final OutputStream outputStream = socket.getOutputStream();
                     outputStream.write(new byte[]{'H', 'i'});
                     outputStream.flush();
-                } finally {
-                    socket.close();
                 }
                 return Boolean.TRUE;
             }
@@ -298,11 +295,8 @@ public class TestSSLContextBuilder {
         this.executorService.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                final SSLSocket socket = (SSLSocket) serverSocket.accept();
-                try {
+                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
                     socket.getSession();
-                } finally {
-                    socket.close();
                 }
                 return Boolean.FALSE;
             }
@@ -350,13 +344,10 @@ public class TestSSLContextBuilder {
         final Future<Boolean> future = this.executorService.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                final Socket socket = serverSocket.accept();
-                try {
+                try (Socket socket = serverSocket.accept()) {
                     final OutputStream outputStream = socket.getOutputStream();
                     outputStream.write(new byte[]{'H', 'i'});
                     outputStream.flush();
-                } finally {
-                    socket.close();
                 }
                 return Boolean.TRUE;
             }
@@ -473,11 +464,8 @@ public class TestSSLContextBuilder {
         this.executorService.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                final SSLSocket socket = (SSLSocket) serverSocket.accept();
-                try {
+                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
                     socket.getSession();
-                } finally {
-                    socket.close();
                 }
                 return Boolean.FALSE;
             }
@@ -517,16 +505,13 @@ public class TestSSLContextBuilder {
         final Future<Principal> future = this.executorService.submit(new Callable<Principal>() {
             @Override
             public Principal call() throws Exception {
-                final SSLSocket socket = (SSLSocket) serverSocket.accept();
-                try {
+                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
                     final SSLSession session = socket.getSession();
                     final Principal clientPrincipal = session.getPeerPrincipal();
                     final OutputStream outputStream = socket.getOutputStream();
                     outputStream.write(new byte[]{'H', 'i'});
                     outputStream.flush();
                     return clientPrincipal;
-                } finally {
-                    socket.close();
                 }
             }
         });
@@ -578,16 +563,13 @@ public class TestSSLContextBuilder {
         final Future<Principal> future = this.executorService.submit(new Callable<Principal>() {
             @Override
             public Principal call() throws Exception {
-                final SSLSocket socket = (SSLSocket) serverSocket.accept();
-                try {
+                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
                     final SSLSession session = socket.getSession();
                     final Principal clientPrincipal = session.getPeerPrincipal();
                     final OutputStream outputStream = socket.getOutputStream();
                     outputStream.write(new byte[]{'H', 'i'});
                     outputStream.flush();
                     return clientPrincipal;
-                } finally {
-                    socket.close();
                 }
             }
         });
@@ -638,11 +620,8 @@ public class TestSSLContextBuilder {
         this.executorService.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                final SSLSocket socket = (SSLSocket) serverSocket.accept();
-                try {
+                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
                     socket.getSession();
-                } finally {
-                    socket.close();
                 }
                 return Boolean.FALSE;
             }
@@ -689,11 +668,8 @@ public class TestSSLContextBuilder {
         this.executorService.submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                final SSLSocket socket = (SSLSocket) serverSocket.accept();
-                try {
+                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
                     socket.getSession();
-                } finally {
-                    socket.close();
                 }
                 return Boolean.FALSE;
             }
