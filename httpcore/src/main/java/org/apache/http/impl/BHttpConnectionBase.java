@@ -289,7 +289,7 @@ public class BHttpConnectionBase implements HttpInetConnection {
             try {
                 return socket.getSoTimeout();
             } catch (final SocketException ignore) {
-                return -1;
+                // ignore
             }
         }
         return -1;

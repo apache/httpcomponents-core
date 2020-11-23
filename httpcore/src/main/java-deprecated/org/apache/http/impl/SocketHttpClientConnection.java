@@ -212,7 +212,7 @@ public class SocketHttpClientConnection
             try {
                 return this.socket.getSoTimeout();
             } catch (final SocketException ignore) {
-                return -1;
+                // ignore
             }
         }
         return -1;

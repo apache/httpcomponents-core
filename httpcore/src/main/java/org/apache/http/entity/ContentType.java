@@ -370,7 +370,7 @@ public final class ContentType implements Serializable {
                     return create(elements[0], false);
                 }
             } catch (final ParseException ex) {
-                return null;
+                // ignore
             }
         }
         return null;
