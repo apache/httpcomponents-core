@@ -50,7 +50,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 public interface HttpContext {
 
     /** The prefix reserved for use by HTTP components. "http." */
-    public static final String RESERVED_PREFIX  = "http.";
+    String RESERVED_PREFIX  = "http.";
 
     /**
      * Returns protocol version used in this context.

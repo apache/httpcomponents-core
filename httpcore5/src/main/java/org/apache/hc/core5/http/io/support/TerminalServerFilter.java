@@ -64,7 +64,7 @@ public final class TerminalServerFilter implements HttpFilterHandler {
     }
 
     @Override
-    public final void handle(
+    public void handle(
             final ClassicHttpRequest request,
             final HttpFilterChain.ResponseTrigger responseTrigger,
             final HttpContext context,

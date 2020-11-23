@@ -47,7 +47,7 @@ public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {
     private volatile FutureCallback<Void> resultCallback;
 
     @Override
-    public final void streamStart(
+    public void streamStart(
             final EntityDetails entityDetails,
             final FutureCallback<Void> resultCallback) throws IOException, HttpException {
         this.resultCallback = resultCallback;
@@ -59,11 +59,11 @@ public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {
     }
 
     @Override
-    public final void consume(final ByteBuffer src) throws IOException {
+    public void consume(final ByteBuffer src) throws IOException {
     }
 
     @Override
-    public final void streamEnd(final List<? extends Header> trailers) throws IOException {
+    public void streamEnd(final List<? extends Header> trailers) throws IOException {
         if (resultCallback != null) {
             resultCallback.completed(null);
         }

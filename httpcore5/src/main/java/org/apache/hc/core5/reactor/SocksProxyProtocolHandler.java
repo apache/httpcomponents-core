@@ -70,7 +70,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     private static final byte ATYP_IPV6 = 4;
 
-    private static enum State {
+    private enum State {
         SEND_AUTH, RECEIVE_AUTH_METHOD, SEND_USERNAME_PASSWORD, RECEIVE_AUTH, SEND_CONNECT, RECEIVE_RESPONSE_CODE, RECEIVE_ADDRESS_TYPE, RECEIVE_ADDRESS, COMPLETE
     }
 
