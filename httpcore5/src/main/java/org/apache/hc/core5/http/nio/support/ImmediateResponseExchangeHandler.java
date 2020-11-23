@@ -91,23 +91,23 @@ public final class ImmediateResponseExchangeHandler implements AsyncServerExchan
     }
 
     @Override
-    public final int available() {
+    public int available() {
         return responseProducer.available();
     }
 
     @Override
-    public final void produce(final DataStreamChannel channel) throws IOException {
+    public void produce(final DataStreamChannel channel) throws IOException {
         responseProducer.produce(channel);
     }
 
     @Override
-    public final void failed(final Exception cause) {
+    public void failed(final Exception cause) {
         responseProducer.failed(cause);
         releaseResources();
     }
 
     @Override
-    public final void releaseResources() {
+    public void releaseResources() {
         responseProducer.releaseResources();
     }
 
