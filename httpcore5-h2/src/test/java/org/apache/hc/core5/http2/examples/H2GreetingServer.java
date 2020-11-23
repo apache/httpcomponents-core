@@ -136,7 +136,7 @@ public class H2GreetingServer {
                 entityConsumer = new StringAsyncEntityConsumer();
             }
             //noinspection unchecked
-            return new BasicRequestConsumer<String>(entityConsumer);
+            return new BasicRequestConsumer<>(entityConsumer);
 
         }
 

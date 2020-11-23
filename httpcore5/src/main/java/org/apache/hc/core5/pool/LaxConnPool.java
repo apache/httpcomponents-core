@@ -419,7 +419,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 prev = allocated.get();
                 next = (prev<poolmax)? prev+1 : prev;
             } while (!allocated.compareAndSet(prev, next));
-            return (prev < next)? new PoolEntry<T,C>(route, timeToLive, disposalCallback) : null;
+            return (prev < next)? new PoolEntry<>(route, timeToLive, disposalCallback) : null;
         }
 
         private void deallocatePoolEntry() {
