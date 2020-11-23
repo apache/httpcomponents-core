@@ -284,7 +284,7 @@ public class DefaultConnectingIOReactor extends AbstractMultiworkerIOReactor
                                 @Override
                                 public Boolean run() throws IOException {
                                     return socketChannel.connect(targetAddress);
-                                };
+                                }
                             });
                 } catch (final PrivilegedActionException e) {
                     Asserts.check(e.getCause() instanceof  IOException,
