@@ -1,7 +1,9 @@
 Release 4.4.14
 -------------------
 
-This is a maintenance release that corrects a number of defects discovered since release 4.4.13.
+This is a maintenance release that corrects a number of defects discovered since release 4.4.13
+including two defects in the async (non-blocking) transport potentially causing an infinite
+event loop and and excessive CPU utilization.
 
 Changelog
 -------------------
@@ -14,6 +16,18 @@ Changelog
   - No need to explicitly declare an array when calling a vararg method.
   - Remote extra semicolons (;).
   Contributed by Gary Gregory <ggregory at apache.org>
+
+* Bug fix: Non-blocking TLSv1.3 connections can end up in an infinite event spin when closed
+  concurrently by the local and the remote endpoints.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-647: Non-blocking connection terminated due to 'java.io.IOException: Broken pipe'
+  can enter an infinite loop flushing buffered output data.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* PR #201, HTTPCORE-634: Fix race condition in AbstractConnPool that can cause internal state
+  corruption when persistent connections are manually removed from the pool.
+  Contributed by djelinski <30433125+djelinski at users.noreply.github.com>
 
 
 Release 4.4.13
