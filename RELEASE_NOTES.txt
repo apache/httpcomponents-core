@@ -1,6 +1,11 @@
 Release 5.0.3
 ------------------
 
+This is a maintenance release that corrects a number of defects discovered since
+release 5.0.2 including a defect in the async (non-blocking) transport potentially
+causing an infinite event loop and and excessive CPU utilization.
+
+
 Change Log
 -------------------
 
@@ -13,6 +18,51 @@ Change Log
   - Use Collections.addAll() API instead of loops.
   - Remote extra semicolons (;).
   Contributed by Gary Gregory <garydgregory at gmail.com>
+
+* Bug fix: Fix ignoring maxResultLength in toString method of EntityUtils.
+  Contributed by Klaw <Klawrar at gmail.com>
+
+* Bug fix: Correct handling of pushed stream refusal by the HTTP/2 protocol handler.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improved Connection re-use (keep-alive) tracking by the benchmark; disabled H2 push
+  when running the benchmark with HTTP/2.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improve detection of disconnected endpoints by HttpAsyncRequester.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-626: In case of an unsuccessful `expect-continue` handshake, do not
+  attempt to keep the client connection in a consistent state if the server intends
+  to close it on its end.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Move decision if the I/O session is to be terminated immediately to the protocol
+  handler by default attempt to terminate the I/O session gracefully.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Optimize request termination by the non-blocking HTTP/1.1 protocol handler in case of
+  a premature response or `expect-continue` handshake failure.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* `AbstractAsyncResponseConsumer` gracefully handles an inconsistent state caused by
+  the caller signalling a response with no entity but subsequently calling methods
+  to consume data.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-653: CancelledKeyException triggers I/O reactor shutdown.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Make `ReactiveDataConsumer#failed` a no-op if it has already been marked as complete
+  (#227).
+  Contributed by Colin Weld <c_weld at backblaze.com>
+
+* HTTPCORE-644: Non-blocking TLSv1.3 connections can end up in an infinite event spin
+  when closed concurrently by the local and the remote endpoints.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Calculate pendingOutputRequests before calling produceOutput to avoid race condition.
+  Contributed by Colin Weld <c_weld at backblaze.com>
 
 
 
