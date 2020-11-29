@@ -93,7 +93,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         new String[3],  // 1xx
         new String[8],  // 2xx
         new String[8],  // 3xx
-        new String[25], // 4xx
+        new String[30], // 4xx
         new String[8]   // 5xx
     };
 
@@ -140,6 +140,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                   "Forbidden");
         setReason(HttpStatus.SC_NOT_FOUND,
                   "Not Found");
+        setReason(HttpStatus.SC_TOO_MANY_REQUESTS,
+                "Too Many Requests");
         setReason(HttpStatus.SC_INTERNAL_SERVER_ERROR,
                   "Internal Server Error");
         setReason(HttpStatus.SC_NOT_IMPLEMENTED,
