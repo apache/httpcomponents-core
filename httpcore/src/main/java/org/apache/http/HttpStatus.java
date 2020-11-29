@@ -156,6 +156,8 @@ public interface HttpStatus {
     int SC_LOCKED = 423;
     /** {@code 424 Failed Dependency} (WebDAV - RFC 2518) */
     int SC_FAILED_DEPENDENCY = 424;
+    /** {@code 429 Too Many Requests} (Additional HTTP Status Codes - RFC 6585) */
+    int SC_TOO_MANY_REQUESTS = 429;
 
     // --- 5xx Server Error ---
 
