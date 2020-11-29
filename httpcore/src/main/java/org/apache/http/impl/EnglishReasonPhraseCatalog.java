@@ -141,7 +141,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
         setReason(HttpStatus.SC_NOT_FOUND,
                   "Not Found");
         setReason(HttpStatus.SC_TOO_MANY_REQUESTS,
-                "Too Many Requests");
+                  "Too Many Requests");
         setReason(HttpStatus.SC_INTERNAL_SERVER_ERROR,
                   "Internal Server Error");
         setReason(HttpStatus.SC_NOT_IMPLEMENTED,
