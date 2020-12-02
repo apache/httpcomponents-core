@@ -69,12 +69,9 @@ import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
-import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -116,13 +113,6 @@ public class H2TLSIntegrationTest {
         }
 
     };
-
-    private static int javaVersion;
-
-    @BeforeClass
-    public static void determineJavaVersion() {
-        javaVersion = ReflectionUtils.determineJRELevel();
-    }
 
     @Test
     public void testTLSSuccess() throws Exception {
@@ -388,7 +378,6 @@ public class H2TLSIntegrationTest {
 
     @Test
     public void testWeakCiphersDisabledByDefault() throws Exception {
-        Assume.assumeTrue("Java version must be 1.8 or lesser",  javaVersion <= 8);
         requester = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)

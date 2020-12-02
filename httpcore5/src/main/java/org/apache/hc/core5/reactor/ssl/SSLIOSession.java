@@ -35,6 +35,7 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 
 import javax.net.ssl.SSLContext;
@@ -70,6 +71,8 @@ import org.apache.hc.core5.util.Timeout;
 @Internal
 public class SSLIOSession implements IOSession {
 
+    enum TLSHandShakeState { READY, INITIALIZED, HANDSHAKING, COMPLETE }
+
     private static final ByteBuffer EMPTY_BUFFER = ByteBuffer.allocate(0);
 
     private final NamedEndpoint targetEndpoint;
@@ -86,12 +89,12 @@ public class SSLIOSession implements IOSession {
     private final SSLMode sslMode;
     private final AtomicInteger outboundClosedCount;
     private final IOEventHandler internalEventHandler;
+    private final AtomicReference<TLSHandShakeState> handshakeStateRef;
 
     private int appEventMask;
 
     private volatile boolean endOfStream;
     private volatile Status status = Status.ACTIVE;
-    private volatile boolean initialized;
     private volatile Timeout socketTimeout;
     private TlsDetails tlsDetails;
 
@@ -148,19 +151,20 @@ public class SSLIOSession implements IOSession {
         final int appBufferSize = sslSession.getApplicationBufferSize();
         this.inPlain = SSLManagedBuffer.create(sslBufferMode, appBufferSize);
         this.outboundClosedCount = new AtomicInteger(0);
+        this.handshakeStateRef = new AtomicReference<>(TLSHandShakeState.READY);
         this.connectTimeout = connectTimeout;
         this.internalEventHandler = new IOEventHandler() {
 
             @Override
             public void connected(final IOSession protocolSession) throws IOException {
-                if (!initialized) {
+                if (handshakeStateRef.compareAndSet(TLSHandShakeState.READY, TLSHandShakeState.INITIALIZED)) {
                     initialize();
                 }
             }
 
             @Override
             public void inputReady(final IOSession protocolSession, final ByteBuffer src) throws IOException {
-                if (!initialized) {
+                if (handshakeStateRef.compareAndSet(TLSHandShakeState.READY, TLSHandShakeState.INITIALIZED)) {
                     initialize();
                 }
                 receiveEncryptedData();
@@ -171,7 +175,7 @@ public class SSLIOSession implements IOSession {
 
             @Override
             public void outputReady(final IOSession protocolSession) throws IOException {
-                if (!initialized) {
+                if (handshakeStateRef.compareAndSet(TLSHandShakeState.READY, TLSHandShakeState.INITIALIZED)) {
                     initialize();
                 }
                 encryptData();
@@ -192,6 +196,10 @@ public class SSLIOSession implements IOSession {
             @Override
             public void exception(final IOSession protocolSession, final Exception cause) {
                 final IOEventHandler handler = session.getHandler();
+                if (handshakeStateRef.get() != TLSHandShakeState.COMPLETE) {
+                    session.close(CloseMode.GRACEFUL);
+                    close(CloseMode.IMMEDIATE);
+                }
                 if (handler != null) {
                     handler.exception(SSLIOSession.this, cause);
                 }
@@ -220,8 +228,6 @@ public class SSLIOSession implements IOSession {
     }
 
     private void initialize() throws IOException {
-        Asserts.check(!this.initialized, "SSL I/O session already initialized");
-
         // Save the initial socketTimeout of the underlying IOSession, to be restored after the handshake is finished
         this.socketTimeout = this.session.getSocketTimeout();
         if (connectTimeout != null) {
@@ -244,7 +250,7 @@ public class SSLIOSession implements IOSession {
             if (this.initializer != null) {
                 this.initializer.initialize(this.targetEndpoint, this.sslEngine);
             }
-            this.initialized = true;
+            this.handshakeStateRef.set(TLSHandShakeState.HANDSHAKING);
             this.sslEngine.beginHandshake();
 
             this.inEncrypted.release();
@@ -588,7 +594,7 @@ public class SSLIOSession implements IOSession {
             if (this.status != Status.ACTIVE) {
                 throw new ClosedChannelException();
             }
-            if (!this.initialized) {
+            if (this.handshakeStateRef.get() == TLSHandShakeState.READY) {
                 return 0;
             }
             final ByteBuffer outEncryptedBuf = this.outEncrypted.acquire();
