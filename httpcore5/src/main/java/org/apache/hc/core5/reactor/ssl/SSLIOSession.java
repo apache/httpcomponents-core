@@ -85,6 +85,8 @@ public class SSLIOSession implements IOSession {
     private final Timeout connectTimeout;
     private final SSLMode sslMode;
     private final AtomicInteger outboundClosedCount;
+    private final IOEventHandler internalEventHandler;
+
     private int appEventMask;
 
     private volatile boolean endOfStream;
@@ -147,17 +149,7 @@ public class SSLIOSession implements IOSession {
         this.inPlain = SSLManagedBuffer.create(sslBufferMode, appBufferSize);
         this.outboundClosedCount = new AtomicInteger(0);
         this.connectTimeout = connectTimeout;
-    }
-
-    private IOEventHandler ensureHandler() {
-        final IOEventHandler handler = session.getHandler();
-        Asserts.notNull(handler, "IO event handler");
-        return handler;
-    }
-
-    @Override
-    public IOEventHandler getHandler() {
-        return new IOEventHandler() {
+        this.internalEventHandler = new IOEventHandler() {
 
             @Override
             public void connected(final IOSession protocolSession) throws IOException {
@@ -216,7 +208,18 @@ public class SSLIOSession implements IOSession {
         };
     }
 
-    private void initialize() throws SSLException {
+    private IOEventHandler ensureHandler() {
+        final IOEventHandler handler = session.getHandler();
+        Asserts.notNull(handler, "IO event handler");
+        return handler;
+    }
+
+    @Override
+    public IOEventHandler getHandler() {
+        return internalEventHandler;
+    }
+
+    private void initialize() throws IOException {
         Asserts.check(!this.initialized, "SSL I/O session already initialized");
 
         // Save the initial socketTimeout of the underlying IOSession, to be restored after the handshake is finished
