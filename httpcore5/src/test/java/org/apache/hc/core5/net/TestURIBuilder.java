@@ -547,10 +547,10 @@ public class TestURIBuilder {
     @Test
     public void testAppendToExistingPath() throws Exception {
         final URI uri = new URIBuilder()
-            .setScheme( "https" )
-            .setHost( "somehost" )
-            .setPath( "api" )
-            .appendPath( "v1/resources" )
+            .setScheme("https")
+            .setHost("somehost")
+            .setPath("api")
+            .appendPath("v1/resources")
             .build();
         MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v1/resources")));
     }
@@ -558,9 +558,9 @@ public class TestURIBuilder {
     @Test
     public void testAppendToNonExistingPath() throws Exception {
         final URI uri = new URIBuilder()
-            .setScheme( "https" )
-            .setHost( "somehost" )
-            .appendPath( "api/v2/customers" )
+            .setScheme("https")
+            .setHost("somehost")
+            .appendPath("api/v2/customers")
             .build();
         MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v2/customers")));
     }
@@ -568,10 +568,10 @@ public class TestURIBuilder {
     @Test
     public void testAppendNullToExistingPath() throws Exception {
         final URI uri = new URIBuilder()
-            .setScheme( "https" )
-            .setHost( "somehost" )
-            .setPath( "api" )
-            .appendPath( null )
+            .setScheme("https")
+            .setHost("somehost")
+            .setPath("api")
+            .appendPath(null)
             .build();
         MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api")));
     }
@@ -579,9 +579,9 @@ public class TestURIBuilder {
     @Test
     public void testAppendNullToNonExistingPath() throws Exception {
         final URI uri = new URIBuilder()
-            .setScheme( "https" )
-            .setHost( "somehost" )
-            .appendPath( null )
+            .setScheme("https")
+            .setHost("somehost")
+            .appendPath(null)
             .build();
         MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost")));
     }
