@@ -545,6 +545,48 @@ public class TestURIBuilder {
     }
 
     @Test
+    public void testAppendToExistingPath() throws Exception {
+        final URI uri = new URIBuilder()
+            .setScheme( "https" )
+            .setHost( "somehost" )
+            .setPath( "api" )
+            .appendPath( "v1/resources" )
+            .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v1/resources")));
+    }
+
+    @Test
+    public void testAppendToNonExistingPath() throws Exception {
+        final URI uri = new URIBuilder()
+            .setScheme( "https" )
+            .setHost( "somehost" )
+            .appendPath( "api/v2/customers" )
+            .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v2/customers")));
+    }
+
+    @Test
+    public void testAppendNullToExistingPath() throws Exception {
+        final URI uri = new URIBuilder()
+            .setScheme( "https" )
+            .setHost( "somehost" )
+            .setPath( "api" )
+            .appendPath( null )
+            .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api")));
+    }
+
+    @Test
+    public void testAppendNullToNonExistingPath() throws Exception {
+        final URI uri = new URIBuilder()
+            .setScheme( "https" )
+            .setHost( "somehost" )
+            .appendPath( null )
+            .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost")));
+    }
+
+    @Test
     public void testNoAuthorityAndPathSegments() throws Exception {
         final URI uri = new URIBuilder()
                 .setScheme("file")

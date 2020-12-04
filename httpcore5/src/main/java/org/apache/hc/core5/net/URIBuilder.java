@@ -500,6 +500,18 @@ public class URIBuilder {
     }
 
     /**
+     * Appends path to URI. The value is expected to be unescaped and may contain non ASCII characters.
+     *
+     * @return this.
+     */
+    public URIBuilder appendPath(final String path) {
+        final List<String> segments = new ArrayList<>(getPathSegments());
+        segments.addAll(path != null ? splitPath(path) : new ArrayList<String>());
+        setPathSegments( segments );
+        return this;
+    }
+
+    /**
      * Sets URI path. The value is expected to be unescaped and may contain non ASCII characters.
      *
      * @return this.
