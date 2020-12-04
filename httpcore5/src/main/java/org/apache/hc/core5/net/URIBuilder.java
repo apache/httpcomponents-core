@@ -507,7 +507,7 @@ public class URIBuilder {
     public URIBuilder appendPath(final String path) {
         final List<String> segments = new ArrayList<>(getPathSegments());
         segments.addAll(path != null ? splitPath(path) : new ArrayList<String>());
-        setPathSegments( segments );
+        setPathSegments(segments);
         return this;
     }
 
