@@ -38,10 +38,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
  * Non-blocking connection acceptor.
  *
  * @since 5.0
- *
- * @deprecated Use {@link ConnectionListener}
  */
-@Deprecated
 public interface ConnectionAcceptor {
 
     /**
