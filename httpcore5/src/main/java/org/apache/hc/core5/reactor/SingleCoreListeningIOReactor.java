@@ -50,7 +50,7 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.Closer;
 
-class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implements ConnectionListener, ConnectionAcceptor {
+class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implements ConnectionAcceptor {
 
     private final IOReactorConfig reactorConfig;
     private final Callback<ChannelEntry> callback;
@@ -136,7 +136,6 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
         }
     }
 
-    @Override
     public Future<ListenerEndpoint> listen(
             final SocketAddress address, final Object attachment, final FutureCallback<ListenerEndpoint> callback) {
         if (getStatus().compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0) {

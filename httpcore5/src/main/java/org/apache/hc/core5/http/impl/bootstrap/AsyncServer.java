@@ -40,7 +40,6 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ConnectionAcceptor;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
-import org.apache.hc.core5.reactor.ConnectionListener;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -54,8 +53,7 @@ import org.apache.hc.core5.util.TimeValue;
 /**
  * Protocol agnostic server side I/O session handler.
  */
-public class AsyncServer extends AbstractConnectionInitiatorBase
-        implements IOReactorService, ConnectionListener, ConnectionAcceptor {
+public class AsyncServer extends AbstractConnectionInitiatorBase implements IOReactorService, ConnectionAcceptor {
 
     private final DefaultListeningIOReactor ioReactor;
 
@@ -88,7 +86,6 @@ public class AsyncServer extends AbstractConnectionInitiatorBase
         return ioReactor;
     }
 
-    @Override
     public Future<ListenerEndpoint> listen(
             final SocketAddress address, final Object attachment, final FutureCallback<ListenerEndpoint> callback) {
         return ioReactor.listen(address, attachment, callback);

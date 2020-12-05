@@ -47,7 +47,6 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.config.Lookup;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
@@ -66,7 +65,6 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.reactor.ProtocolUpgradeHandler;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
@@ -106,30 +104,8 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
             final Http1StreamListener streamListener) {
-        this(ioSession, httpProcessor, exchangeHandlerFactory, scheme, http1Config, charCodingConfig,
-                connectionReuseStrategy, incomingMessageParser, outgoingMessageWriter, incomingContentStrategy,
-                outgoingContentStrategy, null, streamListener);
-    }
-
-    /**
-     * @since 5.1
-     */
-    public ServerHttp1StreamDuplexer(
-            final ProtocolIOSession ioSession,
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final String scheme,
-            final Http1Config http1Config,
-            final CharCodingConfig charCodingConfig,
-            final ConnectionReuseStrategy connectionReuseStrategy,
-            final NHttpMessageParser<HttpRequest> incomingMessageParser,
-            final NHttpMessageWriter<HttpResponse> outgoingMessageWriter,
-            final ContentLengthStrategy incomingContentStrategy,
-            final ContentLengthStrategy outgoingContentStrategy,
-            final Lookup<ProtocolUpgradeHandler> protocolUpgradeHandlerLookup,
-            final Http1StreamListener streamListener) {
         super(ioSession, http1Config, charCodingConfig, incomingMessageParser, outgoingMessageWriter,
-                incomingContentStrategy, outgoingContentStrategy, protocolUpgradeHandlerLookup);
+                incomingContentStrategy, outgoingContentStrategy);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
         this.scheme = scheme;

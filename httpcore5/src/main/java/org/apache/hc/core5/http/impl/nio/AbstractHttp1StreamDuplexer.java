@@ -51,7 +51,6 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.config.Lookup;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
@@ -71,19 +70,16 @@ import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.Command;
-import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.reactor.EventMask;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.reactor.ProtocolLayer;
-import org.apache.hc.core5.reactor.ProtocolUpgradeHandler;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Identifiable;
 import org.apache.hc.core5.util.Timeout;
 
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
-        implements ProtocolLayer, Identifiable, HttpConnection {
+        implements Identifiable, HttpConnection {
 
     private enum ConnectionState { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
 
@@ -100,7 +96,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     private final ContentLengthStrategy outgoingContentStrategy;
     private final ByteBuffer contentBuffer;
     private final AtomicInteger outputRequests;
-    private final Lookup<ProtocolUpgradeHandler> protocolUpgradeHandlerLookup;
 
     private volatile Message<IncomingMessage, ContentDecoder> incomingMessage;
     private volatile Message<OutgoingMessage, ContentEncoder> outgoingMessage;
@@ -117,8 +112,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             final NHttpMessageParser<IncomingMessage> incomingMessageParser,
             final NHttpMessageWriter<OutgoingMessage> outgoingMessageWriter,
             final ContentLengthStrategy incomingContentStrategy,
-            final ContentLengthStrategy outgoingContentStrategy,
-            final Lookup<ProtocolUpgradeHandler> protocolUpgradeHandlerLookup) {
+            final ContentLengthStrategy outgoingContentStrategy) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         final int bufferSize = this.http1Config.getBufferSize();
@@ -136,7 +130,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                 DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
-        this.protocolUpgradeHandlerLookup = protocolUpgradeHandlerLookup;
         this.contentBuffer = ByteBuffer.allocate(this.http1Config.getBufferSize());
         this.outputRequests = new AtomicInteger(0);
         this.connState = ConnectionState.READY;
@@ -592,26 +585,6 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     public SSLSession getSSLSession() {
         final TlsDetails tlsDetails = ioSession.getTlsDetails();
         return tlsDetails != null ? tlsDetails.getSSLSession() : null;
-    }
-
-    @Override
-    public void upgrade(final ProtocolUpgradeHandler upgradeHandler,
-                        final EndpointParameters parameters) throws UnsupportedOperationException {
-        Args.notNull(upgradeHandler, "Protocol upgrade handler");
-        Args.notNull(parameters, "Endpoint parameters");
-        upgradeHandler.upgrade(ioSession, parameters, null);
-    }
-
-    @Override
-    public void upgrade(final String id,
-                        final EndpointParameters parameters) throws UnsupportedOperationException {
-        Args.notNull(id, "Protocol id");
-        Args.notNull(parameters, "Endpoint parameters");
-        final ProtocolUpgradeHandler upgradeHandler = protocolUpgradeHandlerLookup.lookup(id);
-        if (upgradeHandler == null) {
-            throw new IllegalArgumentException("Unsupported protocol: " + id);
-        }
-        upgradeHandler.upgrade(ioSession, parameters, null);
     }
 
     void appendState(final StringBuilder buf) {

@@ -42,15 +42,15 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
- * Multi-core I/O reactor that can ask as both {@link ConnectionInitiator}
- * and {@link ConnectionListener}. Internally this I/O reactor distributes newly created
+ * Multi-core I/O reactor that can act as both {@link ConnectionInitiator}
+ * and {@link ConnectionAcceptor}. Internally this I/O reactor distributes newly created
  * I/O session equally across multiple I/O worker threads for a more optimal resource
  * utilization and a better I/O performance. Usually it is recommended to have
  * one worker I/O reactor per physical CPU core.
  *
  * @since 4.0
  */
-public class DefaultListeningIOReactor extends AbstractIOReactorBase implements ConnectionListener, ConnectionAcceptor {
+public class DefaultListeningIOReactor extends AbstractIOReactorBase implements ConnectionAcceptor {
 
     private final static ThreadFactory DISPATCH_THREAD_FACTORY = new DefaultThreadFactory("I/O server dispatch", true);
     private final static ThreadFactory LISTENER_THREAD_FACTORY = new DefaultThreadFactory("I/O listener", true);
@@ -145,7 +145,6 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
         ioReactor.start();
     }
 
-    @Override
     public Future<ListenerEndpoint> listen(
             final SocketAddress address, final Object attachment, final FutureCallback<ListenerEndpoint> callback) {
         return listener.listen(address, attachment, callback);
