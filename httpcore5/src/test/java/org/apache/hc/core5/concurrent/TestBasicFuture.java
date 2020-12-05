@@ -134,18 +134,13 @@ public class TestBasicFuture {
         final BasicFuture<Object> future = new BasicFuture<>(null);
         final Object result = new Object();
 
-        final Thread t = new Thread() {
-
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(100);
-                    future.completed(result);
-                } catch (final InterruptedException boom) {
-                }
+        final Thread t = new Thread(() -> {
+            try {
+                Thread.sleep(100);
+                future.completed(result);
+            } catch (final InterruptedException boom) {
             }
-
-        };
+        });
         t.setDaemon(true);
         t.start();
         Assert.assertSame(result, future.get(60, TimeUnit.SECONDS));
@@ -158,18 +153,13 @@ public class TestBasicFuture {
         final BasicFuture<Object> future = new BasicFuture<>(null);
         final Exception boom = new Exception();
 
-        final Thread t = new Thread() {
-
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(100);
-                    future.failed(boom);
-                } catch (final InterruptedException ex) {
-                }
+        final Thread t = new Thread(() -> {
+            try {
+                Thread.sleep(100);
+                future.failed(boom);
+            } catch (final InterruptedException ex) {
             }
-
-        };
+        });
         t.setDaemon(true);
         t.start();
         try {
@@ -185,18 +175,13 @@ public class TestBasicFuture {
     public void testAsyncCancelled() throws Exception {
         final BasicFuture<Object> future = new BasicFuture<>(null);
 
-        final Thread t = new Thread() {
-
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(100);
-                    future.cancel(true);
-                } catch (final InterruptedException ex) {
-                }
+        final Thread t = new Thread(() -> {
+            try {
+                Thread.sleep(100);
+                future.cancel(true);
+            } catch (final InterruptedException ex) {
             }
-
-        };
+        });
         t.setDaemon(true);
         t.start();
         future.get(60, TimeUnit.SECONDS);
@@ -207,18 +192,13 @@ public class TestBasicFuture {
         final BasicFuture<Object> future = new BasicFuture<>(null);
         final Object result = new Object();
 
-        final Thread t = new Thread() {
-
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(200);
-                    future.completed(result);
-                } catch (final InterruptedException ex) {
-                }
+        final Thread t = new Thread(() -> {
+            try {
+                Thread.sleep(200);
+                future.completed(result);
+            } catch (final InterruptedException ex) {
             }
-
-        };
+        });
         t.setDaemon(true);
         t.start();
         future.get(1, TimeUnit.MILLISECONDS);

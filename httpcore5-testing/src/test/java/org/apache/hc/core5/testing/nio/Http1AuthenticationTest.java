@@ -34,7 +34,6 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -53,7 +52,6 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncServerAuthFilter;
@@ -110,14 +108,7 @@ public class Http1AuthenticationTest {
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
-                    .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                        @Override
-                        public AsyncServerExchangeHandler get() {
-                            return new EchoHandler(2048);
-                        }
-
-                    })
+                    .register("*", () -> new EchoHandler(2048))
                     .replaceFilter(StandardFilter.EXPECT_CONTINUE.name(), new AbstractAsyncServerAuthFilter<String>(respondImmediately) {
 
                         @Override

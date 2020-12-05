@@ -55,10 +55,7 @@ import org.apache.hc.core5.util.Timeout;
 import org.reactivestreams.Publisher;
 
 import io.reactivex.Flowable;
-import io.reactivex.Notification;
 import io.reactivex.Observable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
 
 /**
  * Example of full-duplex HTTP/1.1 message exchanges using reactive streaming. This demo will stream randomly
@@ -100,23 +97,17 @@ public class ReactiveFullDuplexClientExample {
             })
             .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("HTTP requester shutting down");
-                requester.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("HTTP requester shutting down");
+            requester.close(CloseMode.GRACEFUL);
+        }));
         requester.start();
 
         final Random random = new Random();
         final Flowable<ByteBuffer> publisher = Flowable.range(1, 100)
-            .map(new Function<Integer, ByteBuffer>() {
-                @Override
-                public ByteBuffer apply(final Integer ignored) {
-                    final String str = random.nextDouble() + "\n";
-                    return ByteBuffer.wrap(str.getBytes(UTF_8));
-                }
+            .map(ignored -> {
+                final String str = random.nextDouble() + "\n";
+                return ByteBuffer.wrap(str.getBytes(UTF_8));
             });
         final AsyncRequestProducer requestProducer = AsyncRequestBuilder.post(new URI(endpoint))
                 .setEntity(new ReactiveEntityProducer(publisher, -1, ContentType.TEXT_PLAIN, null))
@@ -133,21 +124,13 @@ public class ReactiveFullDuplexClientExample {
         System.out.println();
 
         Observable.fromPublisher(streamingResponse.getBody())
-            .map(new Function<ByteBuffer, String>() {
-                @Override
-                public String apply(final ByteBuffer byteBuffer) {
-                    final byte[] string = new byte[byteBuffer.remaining()];
-                    byteBuffer.get(string);
-                    return new String(string);
-                }
+            .map(byteBuffer -> {
+                final byte[] string = new byte[byteBuffer.remaining()];
+                byteBuffer.get(string);
+                return new String(string);
             })
             .materialize()
-            .forEach(new Consumer<Notification<String>>() {
-                @Override
-                public void accept(final Notification<String> byteBufferNotification) {
-                    System.out.println(byteBufferNotification);
-                }
-            });
+            .forEach(System.out::println);
 
         responseComplete.get(1, TimeUnit.MINUTES);
         System.out.println("Shutting down I/O reactor");

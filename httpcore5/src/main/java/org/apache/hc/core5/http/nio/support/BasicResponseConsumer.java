@@ -63,14 +63,7 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
     }
 
     public BasicResponseConsumer(final AsyncEntityConsumer<T> dataConsumer) {
-        this(new Supplier<AsyncEntityConsumer<T>>() {
-
-            @Override
-            public AsyncEntityConsumer<T> get() {
-                return dataConsumer;
-            }
-
-        });
+        this(() -> dataConsumer);
     }
 
     @Override

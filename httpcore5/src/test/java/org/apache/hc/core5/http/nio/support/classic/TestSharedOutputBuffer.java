@@ -33,7 +33,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -148,40 +147,30 @@ public class TestSharedOutputBuffer {
         final DataStreamChannelMock dataStreamChannel = new DataStreamChannelMock(channel);
 
         final ExecutorService executorService = Executors.newFixedThreadPool(2);
-        final Future<Boolean> task1 = executorService.submit(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                final byte[] tmp = "1234567890".getBytes(charset);
-                outputBuffer.write(tmp, 0, tmp.length);
-                outputBuffer.write(tmp, 0, tmp.length);
-                outputBuffer.write('1');
-                outputBuffer.write('2');
-                outputBuffer.write(tmp, 0, tmp.length);
-                outputBuffer.write(tmp, 0, tmp.length);
-                outputBuffer.write(tmp, 0, tmp.length);
-                outputBuffer.writeCompleted();
-                outputBuffer.writeCompleted();
-                return Boolean.TRUE;
-            }
-
+        final Future<Boolean> task1 = executorService.submit(() -> {
+            final byte[] tmp = "1234567890".getBytes(charset);
+            outputBuffer.write(tmp, 0, tmp.length);
+            outputBuffer.write(tmp, 0, tmp.length);
+            outputBuffer.write('1');
+            outputBuffer.write('2');
+            outputBuffer.write(tmp, 0, tmp.length);
+            outputBuffer.write(tmp, 0, tmp.length);
+            outputBuffer.write(tmp, 0, tmp.length);
+            outputBuffer.writeCompleted();
+            outputBuffer.writeCompleted();
+            return Boolean.TRUE;
         });
-        final Future<Boolean> task2 = executorService.submit(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                for (;;) {
-                    outputBuffer.flush(dataStreamChannel);
-                    if (outputBuffer.isEndStream()) {
-                        break;
-                    }
-                    if (!outputBuffer.hasData()) {
-                        dataStreamChannel.awaitOutputRequest();
-                    }
+        final Future<Boolean> task2 = executorService.submit(() -> {
+            for (;;) {
+                outputBuffer.flush(dataStreamChannel);
+                if (outputBuffer.isEndStream()) {
+                    break;
                 }
-                return Boolean.TRUE;
+                if (!outputBuffer.hasData()) {
+                    dataStreamChannel.awaitOutputRequest();
+                }
             }
-
+            return Boolean.TRUE;
         });
 
         Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
@@ -197,28 +186,18 @@ public class TestSharedOutputBuffer {
         final SharedOutputBuffer outputBuffer = new SharedOutputBuffer(20);
 
         final ExecutorService executorService = Executors.newFixedThreadPool(2);
-        final Future<Boolean> task1 = executorService.submit(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                final byte[] tmp = "1234567890".getBytes(charset);
-                for (int i = 0; i < 20; i++) {
-                    outputBuffer.write(tmp, 0, tmp.length);
-                }
-                outputBuffer.writeCompleted();
-                return Boolean.TRUE;
+        final Future<Boolean> task1 = executorService.submit(() -> {
+            final byte[] tmp = "1234567890".getBytes(charset);
+            for (int i = 0; i < 20; i++) {
+                outputBuffer.write(tmp, 0, tmp.length);
             }
-
+            outputBuffer.writeCompleted();
+            return Boolean.TRUE;
         });
-        final Future<Boolean> task2 = executorService.submit(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                Thread.sleep(200);
-                outputBuffer.abort();
-                return Boolean.TRUE;
-            }
-
+        final Future<Boolean> task2 = executorService.submit(() -> {
+            Thread.sleep(200);
+            outputBuffer.abort();
+            return Boolean.TRUE;
         });
 
         Assert.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));

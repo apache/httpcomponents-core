@@ -51,7 +51,7 @@ public class TestAsserts {
 
     @Test(expected=IllegalStateException.class)
     public void testExpressionNotEmptyFail1() {
-        Asserts.notEmpty((String) null, "Stuff");
+        Asserts.notEmpty(null, "Stuff");
     }
 
     @Test(expected=IllegalStateException.class)
@@ -61,7 +61,7 @@ public class TestAsserts {
 
     @Test(expected=IllegalStateException.class)
     public void testExpressionNotEmptyBlank1() {
-        Asserts.notBlank((String) null, "Stuff");
+        Asserts.notBlank(null, "Stuff");
     }
 
     @Test(expected=IllegalStateException.class)

@@ -58,8 +58,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.ContentType;
@@ -193,14 +191,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleGet() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -224,14 +215,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleGetConnectionClose() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -258,14 +242,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleGetIdentityTransfer() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
         final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
 
@@ -287,14 +264,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleGetsPipelined() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -322,14 +292,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testLargeGet() throws Exception {
-        server.register("/", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new MultiLineResponseHandler("0123456789abcdef", 5000);
-            }
-
-        });
+        server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 5000));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -372,14 +335,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testLargeGetsPipelined() throws Exception {
-        server.register("/", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new MultiLineResponseHandler("0123456789abcdef", 2000);
-            }
-
-        });
+        server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 2000));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -411,14 +367,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testBasicPost() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi back");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -443,14 +392,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testBasicPostPipelined() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi back");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -479,14 +421,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testHttp10Post() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi back");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -512,14 +447,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testNoEntityPost() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi back");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -544,14 +472,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testLargePost() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new EchoHandler(2048);
-            }
-
-        });
+        server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -580,14 +501,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testPostsPipelinedLargeResponse() throws Exception {
-        server.register("/", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new MultiLineResponseHandler("0123456789abcdef", 2000);
-            }
-
-        });
+        server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 2000));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -621,14 +535,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testLargePostsPipelined() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new EchoHandler(2048);
-            }
-
-        });
+        server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -661,14 +568,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleHead() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -691,14 +591,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleHeadConnectionClose() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -724,14 +617,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testHeadPipelined() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -758,42 +644,27 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testExpectationFailed() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", () -> new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
+            protected void handle(
+                    final Message<HttpRequest, String> request,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws IOException, HttpException {
+                responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"), context);
 
-                    @Override
-                    protected void handle(
-                            final Message<HttpRequest, String> request,
-                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                            final HttpContext context) throws IOException, HttpException {
-                        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"), context);
-
-                    }
-                };
             }
-
         });
-        final InetSocketAddress serverEndpoint = server.start(null, new Decorator<AsyncServerExchangeHandler>() {
+        final InetSocketAddress serverEndpoint = server.start(null, handler -> new BasicAsyncServerExpectationDecorator(handler) {
 
             @Override
-            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
-
-                return new BasicAsyncServerExpectationDecorator(handler) {
-
-                    @Override
-                    protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
-                        final Header h = request.getFirstHeader("password");
-                        if (h != null && "secret".equals(h.getValue())) {
-                            return null;
-                        } else {
-                            return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
-                        }
-                    }
-                };
-
+            protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
+                final Header h = request.getFirstHeader("password");
+                if (h != null && "secret".equals(h.getValue())) {
+                    return null;
+                } else {
+                    return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
+                }
             }
         }, Http1Config.DEFAULT);
 
@@ -860,44 +731,29 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testExpectationFailedCloseConnection() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", () -> new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
+            protected void handle(
+                    final Message<HttpRequest, String> request,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws IOException, HttpException {
+                responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"), context);
 
-                    @Override
-                    protected void handle(
-                            final Message<HttpRequest, String> request,
-                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                            final HttpContext context) throws IOException, HttpException {
-                        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"), context);
-
-                    }
-                };
             }
-
         });
-        final InetSocketAddress serverEndpoint = server.start(null, new Decorator<AsyncServerExchangeHandler>() {
+        final InetSocketAddress serverEndpoint = server.start(null, handler -> new BasicAsyncServerExpectationDecorator(handler) {
 
             @Override
-            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
-
-                return new BasicAsyncServerExpectationDecorator(handler) {
-
-                    @Override
-                    protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
-                        final Header h = request.getFirstHeader("password");
-                        if (h != null && "secret".equals(h.getValue())) {
-                            return null;
-                        } else {
-                            final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_UNAUTHORIZED);
-                            response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-                            return new BasicResponseProducer(response, "You shall not pass");
-                        }
-                    }
-                };
-
+            protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
+                final Header h = request.getFirstHeader("password");
+                if (h != null && "secret".equals(h.getValue())) {
+                    return null;
+                } else {
+                    final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_UNAUTHORIZED);
+                    response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                    return new BasicResponseProducer(response, "You shall not pass");
+                }
             }
         }, Http1Config.DEFAULT);
 
@@ -926,84 +782,74 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testDelayedExpectationVerification() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", () -> new AsyncServerExchangeHandler() {
+
+            private final Random random = new Random(System.currentTimeMillis());
+            private final AsyncEntityProducer entityProducer = AsyncEntityProducers.create(
+                    "All is well");
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new AsyncServerExchangeHandler() {
+            public void handleRequest(
+                    final HttpRequest request,
+                    final EntityDetails entityDetails,
+                    final ResponseChannel responseChannel,
+                    final HttpContext context) throws HttpException, IOException {
 
-                    private final Random random = new Random(System.currentTimeMillis());
-                    private final AsyncEntityProducer entityProducer = AsyncEntityProducers.create(
-                            "All is well");
-
-                    @Override
-                    public void handleRequest(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final ResponseChannel responseChannel,
-                            final HttpContext context) throws HttpException, IOException {
-
-                        Executors.newSingleThreadExecutor().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    if (entityDetails != null) {
-                                        final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-                                        if (h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue())) {
-                                            Thread.sleep(random.nextInt(1000));
-                                            responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), context);
-                                        }
-                                        final HttpResponse response = new BasicHttpResponse(200);
-                                        synchronized (entityProducer) {
-                                            responseChannel.sendResponse(response, entityProducer, context);
-                                        }
-                                    }
-                                } catch (final Exception ignore) {
-                                    // ignore
-                                }
+                Executors.newSingleThreadExecutor().execute(() -> {
+                    try {
+                        if (entityDetails != null) {
+                            final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
+                            if (h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue())) {
+                                Thread.sleep(random.nextInt(1000));
+                                responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), context);
                             }
-                        });
-
-                    }
-
-                    @Override
-                    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                        capacityChannel.update(Integer.MAX_VALUE);
-                    }
-
-                    @Override
-                    public void consume(final ByteBuffer src) throws IOException {
-                    }
-
-                    @Override
-                    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-                    }
-
-                    @Override
-                    public int available() {
-                        synchronized (entityProducer) {
-                            return entityProducer.available();
+                            final HttpResponse response = new BasicHttpResponse(200);
+                            synchronized (entityProducer) {
+                                responseChannel.sendResponse(response, entityProducer, context);
+                            }
                         }
+                    } catch (final Exception ignore) {
+                        // ignore
                     }
-
-                    @Override
-                    public void produce(final DataStreamChannel channel) throws IOException {
-                        synchronized (entityProducer) {
-                            entityProducer.produce(channel);
-                        }
-                    }
-
-                    @Override
-                    public void failed(final Exception cause) {
-                    }
-
-                    @Override
-                    public void releaseResources() {
-                    }
-
-                };
+                });
 
             }
+
+            @Override
+            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                capacityChannel.update(Integer.MAX_VALUE);
+            }
+
+            @Override
+            public void consume(final ByteBuffer src) throws IOException {
+            }
+
+            @Override
+            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+            }
+
+            @Override
+            public int available() {
+                synchronized (entityProducer) {
+                    return entityProducer.available();
+                }
+            }
+
+            @Override
+            public void produce(final DataStreamChannel channel) throws IOException {
+                synchronized (entityProducer) {
+                    entityProducer.produce(channel);
+                }
+            }
+
+            @Override
+            public void failed(final Exception cause) {
+            }
+
+            @Override
+            public void releaseResources() {
+            }
+
         });
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1032,66 +878,59 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testPrematureResponse() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", () -> new AsyncServerExchangeHandler() {
+
+            private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>(null);
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new AsyncServerExchangeHandler() {
-
-                    private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>(null);
-
-                    @Override
-                    public void handleRequest(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final ResponseChannel responseChannel,
-                            final HttpContext context) throws HttpException, IOException {
-                        final AsyncResponseProducer producer;
-                        final Header h = request.getFirstHeader("password");
-                        if (h != null && "secret".equals(h.getValue())) {
-                            producer = new BasicResponseProducer(HttpStatus.SC_OK, "All is well");
-                        } else {
-                            producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
-                        }
-                        responseProducer.set(producer);
-                        producer.sendResponse(responseChannel, context);
-                    }
-
-                    @Override
-                    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                        capacityChannel.update(Integer.MAX_VALUE);
-                    }
-
-                    @Override
-                    public void consume(final ByteBuffer src) throws IOException {
-                    }
-
-                    @Override
-                    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-                    }
-
-                    @Override
-                    public int available() {
-                        final AsyncResponseProducer producer = responseProducer.get();
-                        return producer.available();
-                    }
-
-                    @Override
-                    public void produce(final DataStreamChannel channel) throws IOException {
-                        final AsyncResponseProducer producer = responseProducer.get();
-                        producer.produce(channel);
-                    }
-
-                    @Override
-                    public void failed(final Exception cause) {
-                    }
-
-                    @Override
-                    public void releaseResources() {
-                    }
-                };
+            public void handleRequest(
+                    final HttpRequest request,
+                    final EntityDetails entityDetails,
+                    final ResponseChannel responseChannel,
+                    final HttpContext context) throws HttpException, IOException {
+                final AsyncResponseProducer producer;
+                final Header h = request.getFirstHeader("password");
+                if (h != null && "secret".equals(h.getValue())) {
+                    producer = new BasicResponseProducer(HttpStatus.SC_OK, "All is well");
+                } else {
+                    producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
+                }
+                responseProducer.set(producer);
+                producer.sendResponse(responseChannel, context);
             }
 
+            @Override
+            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                capacityChannel.update(Integer.MAX_VALUE);
+            }
+
+            @Override
+            public void consume(final ByteBuffer src) throws IOException {
+            }
+
+            @Override
+            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+            }
+
+            @Override
+            public int available() {
+                final AsyncResponseProducer producer = responseProducer.get();
+                return producer.available();
+            }
+
+            @Override
+            public void produce(final DataStreamChannel channel) throws IOException {
+                final AsyncResponseProducer producer = responseProducer.get();
+                producer.produce(channel);
+            }
+
+            @Override
+            public void failed(final Exception cause) {
+            }
+
+            @Override
+            public void releaseResources() {
+            }
         });
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1133,14 +972,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSlowResponseConsumer() throws Exception {
-        server.register("/", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new MultiLineResponseHandler("0123456789abcd", 100);
-            }
-
-        });
+        server.register("/", () -> new MultiLineResponseHandler("0123456789abcd", 100));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start(Http1Config.custom().setBufferSize(256).build());
@@ -1194,14 +1026,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSlowRequestProducer() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new EchoHandler(2048);
-            }
-
-        });
+        server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -1250,62 +1075,55 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSlowResponseProducer() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", () -> new AbstractClassicServerExchangeHandler(2048, Executors.newSingleThreadExecutor()) {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new AbstractClassicServerExchangeHandler(2048, Executors.newSingleThreadExecutor()) {
+            protected void handle(
+                    final HttpRequest request,
+                    final InputStream requestStream,
+                    final HttpResponse response,
+                    final OutputStream responseStream,
+                    final HttpContext context) throws IOException, HttpException {
 
-                    @Override
-                    protected void handle(
-                            final HttpRequest request,
-                            final InputStream requestStream,
-                            final HttpResponse response,
-                            final OutputStream responseStream,
-                            final HttpContext context) throws IOException, HttpException {
-
-                        if (!"/hello".equals(request.getPath())) {
-                            response.setCode(HttpStatus.SC_NOT_FOUND);
-                            return;
-                        }
-                        if (!Method.POST.name().equalsIgnoreCase(request.getMethod())) {
-                            response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
-                            return;
-                        }
-                        if (requestStream == null) {
-                            return;
-                        }
-                        final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
-                        final ContentType contentType = h1 != null ? ContentType.parse(h1.getValue()) : null;
-                        Charset charset = contentType != null ? contentType.getCharset() : null;
-                        if (charset == null) {
-                            charset = StandardCharsets.US_ASCII;
-                        }
-                        response.setCode(HttpStatus.SC_OK);
-                        response.setHeader(h1);
-                        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(requestStream, charset));
-                             final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(responseStream, charset))) {
-                            try {
-                                String l;
-                                int count = 0;
-                                while ((l = reader.readLine()) != null) {
-                                    writer.write(l);
-                                    writer.write("\r\n");
-                                    count++;
-                                    if (count % 500 == 0) {
-                                        Thread.sleep(500);
-                                    }
-                                }
-                                writer.flush();
-                            } catch (final InterruptedException ex) {
-                                Thread.currentThread().interrupt();
-                                throw new InterruptedIOException(ex.getMessage());
+                if (!"/hello".equals(request.getPath())) {
+                    response.setCode(HttpStatus.SC_NOT_FOUND);
+                    return;
+                }
+                if (!Method.POST.name().equalsIgnoreCase(request.getMethod())) {
+                    response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
+                    return;
+                }
+                if (requestStream == null) {
+                    return;
+                }
+                final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+                final ContentType contentType = h1 != null ? ContentType.parse(h1.getValue()) : null;
+                Charset charset = contentType != null ? contentType.getCharset() : null;
+                if (charset == null) {
+                    charset = StandardCharsets.US_ASCII;
+                }
+                response.setCode(HttpStatus.SC_OK);
+                response.setHeader(h1);
+                try (final BufferedReader reader = new BufferedReader(new InputStreamReader(requestStream, charset));
+                     final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(responseStream, charset))) {
+                    try {
+                        String l;
+                        int count = 0;
+                        while ((l = reader.readLine()) != null) {
+                            writer.write(l);
+                            writer.write("\r\n");
+                            count++;
+                            if (count % 500 == 0) {
+                                Thread.sleep(500);
                             }
                         }
+                        writer.flush();
+                    } catch (final InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        throw new InterruptedIOException(ex.getMessage());
                     }
-                };
+                }
             }
-
         });
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1334,14 +1152,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testPipelinedConnectionClose() throws Exception {
-        server.register("/hello*", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi back");
-            }
-
-        });
+        server.register("/hello*", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -1401,14 +1212,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testPipelinedInvalidRequest() throws Exception {
-        server.register("/hello*", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi back");
-            }
-
-        });
+        server.register("/hello*", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -1503,24 +1307,15 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
     public void testTruncatedChunk() throws Exception {
         final InetSocketAddress serverEndpoint = server.start(new InternalServerHttp1EventHandlerFactory(
                 HttpProcessors.server(),
-                new HandlerFactory<AsyncServerExchangeHandler>() {
+                (request, context) -> new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
 
                     @Override
-                    public AsyncServerExchangeHandler create(
-                            final HttpRequest request,
-                            final HttpContext context) throws HttpException {
-                        return new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
-
-                            @Override
-                            protected void handle(
-                                    final Message<HttpRequest, String> request,
-                                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                                    final HttpContext context) throws IOException, HttpException {
-                                responseTrigger.submitResponse(
-                                        new BasicResponseProducer(new StringAsyncEntityProducer("useful stuff")), context);
-                            }
-
-                        };
+                    protected void handle(
+                            final Message<HttpRequest, String> request,
+                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                            final HttpContext context) throws IOException, HttpException {
+                        responseTrigger.submitResponse(
+                                new BasicResponseProducer(new StringAsyncEntityProducer("useful stuff")), context);
                     }
 
                 },
@@ -1595,22 +1390,15 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testExceptionInHandler() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there") {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there") {
-
-                    @Override
-                    protected void handle(
-                            final Message<HttpRequest, String> request,
-                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                            final HttpContext context) throws IOException, HttpException {
-                        throw new HttpException("Boom");
-                    }
-                };
+            protected void handle(
+                    final Message<HttpRequest, String> request,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws IOException, HttpException {
+                throw new HttpException("Boom");
             }
-
         });
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1654,23 +1442,16 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testResponseNoContent() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there") {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there") {
-
-                    @Override
-                    protected void handle(
-                            final Message<HttpRequest, String> request,
-                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                            final HttpContext context) throws IOException, HttpException {
-                        final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_NO_CONTENT);
-                        responseTrigger.submitResponse(new BasicResponseProducer(response), context);
-                    }
-                };
+            protected void handle(
+                    final Message<HttpRequest, String> request,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws IOException, HttpException {
+                final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_NO_CONTENT);
+                responseTrigger.submitResponse(new BasicResponseProducer(response), context);
             }
-
         });
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1692,14 +1473,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testAbsentHostHeader() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()), Http1Config.DEFAULT);
@@ -1735,33 +1509,26 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testMessageWithTrailers() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", () -> new AbstractServerExchangeHandler<Message<HttpRequest, String>>() {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new AbstractServerExchangeHandler<Message<HttpRequest, String>>() {
-
-                    @Override
-                    protected AsyncRequestConsumer<Message<HttpRequest, String>> supplyConsumer(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final HttpContext context) throws HttpException {
-                        return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
-                    }
-
-                    @Override
-                    protected void handle(
-                            final Message<HttpRequest, String> requestMessage,
-                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                            final HttpContext context) throws HttpException, IOException {
-                        responseTrigger.submitResponse(new BasicResponseProducer(
-                                HttpStatus.SC_OK,
-                                new DigestingEntityProducer("MD5",
-                                        new StringAsyncEntityProducer("Hello back with some trailers"))), context);
-                    }
-                };
+            protected AsyncRequestConsumer<Message<HttpRequest, String>> supplyConsumer(
+                    final HttpRequest request,
+                    final EntityDetails entityDetails,
+                    final HttpContext context) throws HttpException {
+                return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
             }
 
+            @Override
+            protected void handle(
+                    final Message<HttpRequest, String> requestMessage,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws HttpException, IOException {
+                responseTrigger.submitResponse(new BasicResponseProducer(
+                        HttpStatus.SC_OK,
+                        new DigestingEntityProducer("MD5",
+                                new StringAsyncEntityProducer("Hello back with some trailers"))), context);
+            }
         });
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1797,62 +1564,55 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testProtocolException() throws Exception {
-        server.register("/boom", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/boom", () -> new AsyncServerExchangeHandler() {
+
+            private final StringAsyncEntityProducer entityProducer = new StringAsyncEntityProducer("Everyting is OK");
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new AsyncServerExchangeHandler() {
+            public void releaseResources() {
+                entityProducer.releaseResources();
+            }
 
-                    private final StringAsyncEntityProducer entityProducer = new StringAsyncEntityProducer("Everyting is OK");
+            @Override
+            public void handleRequest(
+                    final HttpRequest request,
+                    final EntityDetails entityDetails,
+                    final ResponseChannel responseChannel,
+                    final HttpContext context) throws HttpException, IOException {
+                final String requestUri = request.getRequestUri();
+                if (requestUri.endsWith("boom")) {
+                    throw new ProtocolException("Boom!!!");
+                }
+                responseChannel.sendResponse(new BasicHttpResponse(200), entityProducer, context);
+            }
 
-                    @Override
-                    public void releaseResources() {
-                        entityProducer.releaseResources();
-                    }
+            @Override
+            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                capacityChannel.update(Integer.MAX_VALUE);
+            }
 
-                    @Override
-                    public void handleRequest(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final ResponseChannel responseChannel,
-                            final HttpContext context) throws HttpException, IOException {
-                        final String requestUri = request.getRequestUri();
-                        if (requestUri.endsWith("boom")) {
-                            throw new ProtocolException("Boom!!!");
-                        }
-                        responseChannel.sendResponse(new BasicHttpResponse(200), entityProducer, context);
-                    }
+            @Override
+            public void consume(final ByteBuffer src) throws IOException {
+            }
 
-                    @Override
-                    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                        capacityChannel.update(Integer.MAX_VALUE);
-                    }
+            @Override
+            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+                // empty
+            }
 
-                    @Override
-                    public void consume(final ByteBuffer src) throws IOException {
-                    }
+            @Override
+            public int available() {
+                return entityProducer.available();
+            }
 
-                    @Override
-                    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-                        // empty
-                    }
+            @Override
+            public void produce(final DataStreamChannel channel) throws IOException {
+                entityProducer.produce(channel);
+            }
 
-                    @Override
-                    public int available() {
-                        return entityProducer.available();
-                    }
-
-                    @Override
-                    public void produce(final DataStreamChannel channel) throws IOException {
-                        entityProducer.produce(channel);
-                    }
-
-                    @Override
-                    public void failed(final Exception cause) {
-                        releaseResources();
-                    }
-
-                };
+            @Override
+            public void failed(final Exception cause) {
+                releaseResources();
             }
 
         });
@@ -1877,14 +1637,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testHeaderTooLarge() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start(null, Http1Config.custom()
                 .setMaxLineLength(100)
                 .build());
@@ -1910,14 +1663,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testHeaderTooLargePost() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start(null, Http1Config.custom()
                 .setMaxLineLength(100)
                 .build());

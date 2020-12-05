@@ -47,12 +47,10 @@ import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.io.HttpFilterChain;
-import org.apache.hc.core5.http.io.HttpFilterHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.SSLTestContexts;
@@ -101,35 +99,24 @@ public class ClassicServerAndRequesterTest {
                             .setSoTimeout(TIMEOUT)
                             .build())
                     .register("*", new EchoHandler())
-                    .addFilterBefore(StandardFilter.MAIN_HANDLER.name(), "no-keep-alive", new HttpFilterHandler() {
+                    .addFilterBefore(StandardFilter.MAIN_HANDLER.name(), "no-keep-alive", (request, responseTrigger, context, chain) -> chain.proceed(request, new HttpFilterChain.ResponseTrigger() {
 
                         @Override
-                        public void handle(
-                                final ClassicHttpRequest request,
-                                final HttpFilterChain.ResponseTrigger responseTrigger,
-                                final HttpContext context,
-                                final HttpFilterChain chain) throws HttpException, IOException {
-                            chain.proceed(request, new HttpFilterChain.ResponseTrigger() {
-
-                                @Override
-                                public void sendInformation(
-                                        final ClassicHttpResponse response) throws HttpException, IOException {
-                                    responseTrigger.sendInformation(response);
-                                }
-
-                                @Override
-                                public void submitResponse(
-                                        final ClassicHttpResponse response) throws HttpException, IOException {
-                                    if (request.getPath().startsWith("/no-keep-alive")) {
-                                        response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-                                    }
-                                    responseTrigger.submitResponse(response);
-                                }
-
-                            }, context);
+                        public void sendInformation(
+                                final ClassicHttpResponse response) throws HttpException, IOException {
+                            responseTrigger.sendInformation(response);
                         }
 
-                    })
+                        @Override
+                        public void submitResponse(
+                                final ClassicHttpResponse response) throws HttpException, IOException {
+                            if (request.getPath().startsWith("/no-keep-alive")) {
+                                response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                            }
+                            responseTrigger.submitResponse(response);
+                        }
+
+                    }, context))
                     .setExceptionListener(LoggingExceptionListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                     .create();

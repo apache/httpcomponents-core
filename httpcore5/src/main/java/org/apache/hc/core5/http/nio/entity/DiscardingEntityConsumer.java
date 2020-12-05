@@ -40,19 +40,16 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 /**
  * No-op {@link AsyncEntityConsumer} that discards all data from the data stream.
  *
- * @since 5.0
- *
- * @deprecated Use {@link DiscardingEntityConsumer}
+ * @since 5.2
  */
-@Deprecated
-public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {
+public final class DiscardingEntityConsumer<T> implements AsyncEntityConsumer<T> {
 
-    private volatile FutureCallback<Void> resultCallback;
+    private volatile FutureCallback<T> resultCallback;
 
     @Override
     public void streamStart(
             final EntityDetails entityDetails,
-            final FutureCallback<Void> resultCallback) throws IOException, HttpException {
+            final FutureCallback<T> resultCallback) throws IOException, HttpException {
         this.resultCallback = resultCallback;
     }
 
@@ -80,7 +77,7 @@ public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {
     }
 
     @Override
-    public Void getContent() {
+    public T getContent() {
         return null;
     }
 

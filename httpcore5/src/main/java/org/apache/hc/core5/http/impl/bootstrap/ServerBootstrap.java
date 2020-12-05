@@ -36,7 +36,6 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocketFactory;
 
 import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ExceptionListener;
@@ -325,15 +324,8 @@ public class ServerBootstrap {
     public HttpServer create() {
         final RequestHandlerRegistry<HttpRequestHandler> handlerRegistry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
-                new Supplier<LookupRegistry<HttpRequestHandler>>() {
-
-                    @Override
-                    public LookupRegistry<HttpRequestHandler> get() {
-                        return lookupRegistry != null ? lookupRegistry :
-                                UriPatternType.<HttpRequestHandler>newMatcher(UriPatternType.URI_PATTERN);
-                    }
-
-                });
+                () -> lookupRegistry != null ? lookupRegistry :
+                        UriPatternType.<HttpRequestHandler>newMatcher(UriPatternType.URI_PATTERN));
         for (final HandlerEntry<HttpRequestHandler> entry: handlerList) {
             handlerRegistry.register(entry.hostname, entry.uriPattern, entry.handler);
         }

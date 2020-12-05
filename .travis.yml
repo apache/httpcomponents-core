@@ -36,10 +36,6 @@ script: mvn verify -B -P docker
 
 jobs:
   include:
-    - name: amd64-jdk7
-      arch: amd64
-      jdk: openjdk7
-      script: mvn verify -B
     - name: arm64
       arch: arm64
       script: mvn verify -B

@@ -26,7 +26,6 @@
  */
 package org.apache.hc.core5.http2.impl.nio;
 
-import javax.net.ssl.SSLSession;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
@@ -43,7 +42,8 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.hc.core5.concurrent.Cancellable;
+import javax.net.ssl.SSLSession;
+
 import org.apache.hc.core5.concurrent.CancellableDependency;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
@@ -628,14 +628,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 }
                 final CancellableDependency cancellableDependency = executableCommand.getCancellableDependency();
                 if (cancellableDependency != null) {
-                    cancellableDependency.setDependency(new Cancellable() {
-
-                        @Override
-                        public boolean cancel() {
-                            return stream.abort();
-                        }
-
-                    });
+                    cancellableDependency.setDependency(stream::abort);
                 }
                 if (!outputQueue.isEmpty()) {
                     return;

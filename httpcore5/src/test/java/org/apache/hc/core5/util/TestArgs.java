@@ -98,7 +98,7 @@ public class TestArgs {
 
     @Test
     public void testArgCollectionNotEmptyPass() {
-        final List<String> list = Arrays.asList("stuff");
+        final List<String> list = Collections.singletonList("stuff");
         Assert.assertSame(list, Args.notEmpty(list, "List"));
     }
 

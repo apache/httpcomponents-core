@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
@@ -45,7 +44,6 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
@@ -121,14 +119,7 @@ public class H2AlpnTest {
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                        @Override
-                        public AsyncServerExchangeHandler get() {
-                            return new EchoHandler(2048);
-                        }
-
-                    })
+                    .register("*", () -> new EchoHandler(2048))
                     .create();
         }
 

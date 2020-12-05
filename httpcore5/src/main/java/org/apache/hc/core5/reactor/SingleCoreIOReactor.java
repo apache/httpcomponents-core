@@ -345,12 +345,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         final boolean connected;
         try {
             connected = AccessController.doPrivileged(
-                        new PrivilegedExceptionAction<Boolean>() {
-                            @Override
-                            public Boolean run() throws IOException {
-                                return socketChannel.connect(targetAddress);
-                            }
-                        });
+                    (PrivilegedExceptionAction<Boolean>) () -> socketChannel.connect(targetAddress));
         } catch (final PrivilegedActionException e) {
             Asserts.check(e.getCause() instanceof  IOException,
                     "method contract violation only checked exceptions are wrapped: " + e.getCause());
@@ -360,26 +355,17 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
 
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
-        final InternalChannel channel = new InternalConnectChannel(key, socketChannel, sessionRequest, new InternalDataChannelFactory() {
-
-            @Override
-            public InternalDataChannel create(
-                    final SelectionKey key,
-                    final SocketChannel socketChannel,
-                    final NamedEndpoint namedEndpoint,
-                    final Object attachment) {
-                final IOSession ioSession = new IOSessionImpl("c", key, socketChannel);
-                final InternalDataChannel dataChannel = new InternalDataChannel(
-                        ioSession,
-                        namedEndpoint,
-                        ioSessionDecorator,
-                        sessionListener,
-                        closedSessions);
-                dataChannel.upgrade(eventHandlerFactory.createHandler(dataChannel, attachment));
-                dataChannel.setSocketTimeout(reactorConfig.getSoTimeout());
-                return dataChannel;
-            }
-
+        final InternalChannel channel = new InternalConnectChannel(key, socketChannel, sessionRequest, (k, sc, namedEndpoint, attachment) -> {
+            final IOSession ioSession = new IOSessionImpl("c", k, sc);
+            final InternalDataChannel dataChannel = new InternalDataChannel(
+                    ioSession,
+                    namedEndpoint,
+                    ioSessionDecorator,
+                    sessionListener,
+                    closedSessions);
+            dataChannel.upgrade(eventHandlerFactory.createHandler(dataChannel, attachment));
+            dataChannel.setSocketTimeout(reactorConfig.getSoTimeout());
+            return dataChannel;
         });
         if (connected) {
             channel.handleIOEvent(SelectionKey.OP_CONNECT);

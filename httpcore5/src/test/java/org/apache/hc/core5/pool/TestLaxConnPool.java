@@ -114,7 +114,7 @@ public class TestLaxConnPool {
     @Test(expected = IllegalStateException.class)
     public void testReleaseUnknownEntry() throws Exception {
         final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
-        pool.release(new PoolEntry<String, HttpConnection>("somehost"), true);
+        pool.release(new PoolEntry<>("somehost"), true);
     }
 
     @Test
@@ -403,7 +403,7 @@ public class TestLaxConnPool {
         } catch (final IllegalStateException expected) {
         }
         // Ignored if shut down
-        pool.release(new PoolEntry<String, HttpConnection>("somehost"), true);
+        pool.release(new PoolEntry<>("somehost"), true);
     }
 
 }

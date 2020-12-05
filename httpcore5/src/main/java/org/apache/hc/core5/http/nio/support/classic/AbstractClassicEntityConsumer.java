@@ -94,22 +94,17 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
             throw new UnsupportedEncodingException(ex.getMessage());
         }
         if (state.compareAndSet(State.IDLE, State.ACTIVE)) {
-            executor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        final T result = consumeData(contentType, new ContentInputStream(buffer));
-                        resultRef.set(result);
-                        resultCallback.completed(result);
-                    } catch (final Exception ex) {
-                        buffer.abort();
-                        resultCallback.failed(ex);
-                    } finally {
-                        state.set(State.COMPLETED);
-                    }
+            executor.execute(() -> {
+                try {
+                    final T result = consumeData(contentType, new ContentInputStream(buffer));
+                    resultRef.set(result);
+                    resultCallback.completed(result);
+                } catch (final Exception ex) {
+                    buffer.abort();
+                    resultCallback.failed(ex);
+                } finally {
+                    state.set(State.COMPLETED);
                 }
-
             });
         }
     }

@@ -45,7 +45,7 @@ import org.junit.rules.ExpectedException;
 public class TestDefaultH2RequestConverter {
 
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    public final ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void testConvertFromFieldsBasic() throws Exception {

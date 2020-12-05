@@ -42,11 +42,9 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.io.HttpFilterChain;
-import org.apache.hc.core5.http.io.HttpFilterHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
@@ -77,14 +75,7 @@ public class ClassicServerBootstrapFilterTest {
                             .setSoTimeout(TIMEOUT)
                             .build())
                     .register("*", new EchoHandler())
-                    .addFilterLast("test-filter", new HttpFilterHandler() {
-
-                        @Override
-                        public void handle(
-                                final ClassicHttpRequest request,
-                                final HttpFilterChain.ResponseTrigger responseTrigger,
-                                final HttpContext context,
-                                final HttpFilterChain chain) throws HttpException, IOException {
+                    .addFilterLast("test-filter", (request, responseTrigger, context, chain) ->
                             chain.proceed(request, new HttpFilterChain.ResponseTrigger() {
 
                                 @Override
@@ -100,10 +91,7 @@ public class ClassicServerBootstrapFilterTest {
                                     responseTrigger.submitResponse(response);
                                 }
 
-                            }, context);
-                        }
-
-                    })
+                            }, context))
                     .setExceptionListener(LoggingExceptionListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                     .create();

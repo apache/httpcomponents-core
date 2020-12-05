@@ -38,15 +38,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Future;
 
-import javax.net.ssl.SSLEngine;
-
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
@@ -54,9 +50,7 @@ import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
-import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.TimeValue;
@@ -157,15 +151,10 @@ public class JSSEProviderIntegrationTest {
                             .loadKeyMaterial(keyStoreURL, storePassword.toCharArray(), storePassword.toCharArray())
                             .setSecureRandom(new SecureRandom())
                             .build(),
-                    new SSLSessionInitializer() {
-
-                        @Override
-                        public void initialize(final NamedEndpoint endpoint, final SSLEngine sslEngine) {
-                            if (protocolVersion != null) {
-                                sslEngine.setEnabledProtocols(new String[]{protocolVersion});
-                            }
+                    (endpoint, sslEngine) -> {
+                        if (protocolVersion != null) {
+                            sslEngine.setEnabledProtocols(new String[]{protocolVersion});
                         }
-
                     },
                     null);
         }
@@ -197,15 +186,10 @@ public class JSSEProviderIntegrationTest {
                             .loadTrustMaterial(keyStoreURL, storePassword.toCharArray())
                             .setSecureRandom(new SecureRandom())
                             .build(),
-                    new SSLSessionInitializer() {
-
-                        @Override
-                        public void initialize(final NamedEndpoint endpoint, final SSLEngine sslEngine) {
-                            if (protocolVersion != null) {
-                                sslEngine.setEnabledProtocols(new String[]{protocolVersion});
-                            }
+                    (endpoint, sslEngine) -> {
+                        if (protocolVersion != null) {
+                            sslEngine.setEnabledProtocols(new String[]{protocolVersion});
                         }
-
                     },
                     null);
         }
@@ -230,14 +214,7 @@ public class JSSEProviderIntegrationTest {
 
     @Test
     public void testSimpleGet() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -261,14 +238,7 @@ public class JSSEProviderIntegrationTest {
 
     @Test
     public void testSimpleGetConnectionClose() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -295,14 +265,7 @@ public class JSSEProviderIntegrationTest {
 
     @Test
     public void testSimpleGetIdentityTransfer() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
         final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
 

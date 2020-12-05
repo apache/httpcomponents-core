@@ -103,11 +103,7 @@ final class OutboundDynamicTable {
         }
         final String key = header.getName();
         final FifoLinkedList.InternalNode node = headers.addFirst(header);
-        LinkedList<HPackEntry> nodes = mapByName.get(key);
-        if (nodes == null) {
-            nodes = new LinkedList<>();
-            mapByName.put(key, nodes);
-        }
+        final LinkedList<HPackEntry> nodes = mapByName.computeIfAbsent(key, k -> new LinkedList<>());
         nodes.addFirst(node);
         currentSize += entrySize;
         evict();

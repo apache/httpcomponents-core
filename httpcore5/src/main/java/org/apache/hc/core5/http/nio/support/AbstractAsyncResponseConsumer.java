@@ -66,14 +66,7 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
     }
 
     public AbstractAsyncResponseConsumer(final AsyncEntityConsumer<E> dataConsumer) {
-        this(new Supplier<AsyncEntityConsumer<E>>() {
-
-            @Override
-            public AsyncEntityConsumer<E> get() {
-                return dataConsumer;
-            }
-
-        });
+        this(() -> dataConsumer);
     }
 
     /**

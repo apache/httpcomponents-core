@@ -43,7 +43,7 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
-import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
+import org.apache.hc.core5.http.nio.entity.DiscardingEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
 import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -88,7 +88,7 @@ public class BenchmarkToolTest {
                             final HttpRequest request,
                             final EntityDetails entityDetails,
                             final HttpContext context) throws HttpException {
-                        return new BasicRequestConsumer<>(entityDetails != null ? new NoopEntityConsumer() : null);
+                        return new BasicRequestConsumer<>(entityDetails != null ? new DiscardingEntityConsumer<>() : null);
                     }
 
                     @Override

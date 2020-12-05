@@ -51,18 +51,7 @@ public final class AsyncServerFilterChainElement {
     public AsyncServerFilterChainElement(final AsyncFilterHandler handler, final AsyncServerFilterChainElement next) {
         this.handler = handler;
         this.next = next;
-        this.filterChain = new AsyncFilterChain() {
-
-            @Override
-            public AsyncDataConsumer proceed(
-                    final HttpRequest request,
-                    final EntityDetails entityDetails,
-                    final HttpContext context,
-                    final ResponseTrigger responseTrigger) throws HttpException, IOException {
-                return next.handle(request, entityDetails, context, responseTrigger);
-            }
-
-        };
+        this.filterChain = next != null ? next::handle : null;
     }
 
     public AsyncDataConsumer handle(

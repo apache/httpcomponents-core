@@ -66,14 +66,7 @@ public abstract class AbstractAsyncRequesterConsumer<T, E> implements AsyncReque
     }
 
     public AbstractAsyncRequesterConsumer(final AsyncEntityConsumer<E> dataConsumer) {
-        this(new Supplier<AsyncEntityConsumer<E>>() {
-
-            @Override
-            public AsyncEntityConsumer<E> get() {
-                return dataConsumer;
-            }
-
-        });
+        this(() -> dataConsumer);
     }
 
     /**

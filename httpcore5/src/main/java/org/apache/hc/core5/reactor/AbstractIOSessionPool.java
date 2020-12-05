@@ -133,25 +133,20 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
 
             @Override
             public void completed(final IOSession ioSession) {
-                validateSession(ioSession, new Callback<Boolean>() {
+                validateSession(ioSession, result -> {
+                    if (result) {
+                        future.completed(ioSession);
+                    } else {
+                        getSessionInternal(poolEntry, true, endpoint, connectTimeout,
+                            new FutureContribution<IOSession>(future) {
 
-                    @Override
-                    public void execute(final Boolean result) {
-                        if (result) {
-                            future.completed(ioSession);
-                        } else {
-                            getSessionInternal(poolEntry, true, endpoint, connectTimeout,
-                                new FutureContribution<IOSession>(future) {
+                            @Override
+                            public void completed(final IOSession ioSession1) {
+                                future.completed(ioSession1);
+                            }
 
-                                @Override
-                                public void completed(final IOSession ioSession) {
-                                    future.completed(ioSession);
-                                }
-
-                            });
-                        }
+                        });
                     }
-
                 });
             }
 

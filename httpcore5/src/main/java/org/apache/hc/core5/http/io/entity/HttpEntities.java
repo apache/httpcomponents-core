@@ -174,14 +174,7 @@ public final class HttpEntities {
 
             @Override
             public Supplier<List<? extends Header>> getTrailers() {
-                return new Supplier<List<? extends Header>>() {
-
-                    @Override
-                    public List<? extends Header> get() {
-                        return Arrays.asList(trailers);
-                    }
-
-                };
+                return () -> Arrays.asList(trailers);
             }
 
             @Override

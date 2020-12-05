@@ -26,19 +26,13 @@
  */
 package org.apache.hc.core5.reactive.examples;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpConnection;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -51,16 +45,11 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
-import org.apache.hc.core5.http.nio.ResponseChannel;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.reactive.ReactiveRequestProcessor;
 import org.apache.hc.core5.reactive.ReactiveServerExchangeHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.util.TimeValue;
-import org.reactivestreams.Publisher;
 
 /**
  * Example of full-duplex HTTP/1.1 message exchanges using reactive streaming. This demo server works out-of-the-box
@@ -102,44 +91,26 @@ public class ReactiveFullDuplexServerExample {
                 }
 
             })
-            .register("/echo", new Supplier<AsyncServerExchangeHandler>() {
-                @Override
-                public AsyncServerExchangeHandler get() {
-                    return new ReactiveServerExchangeHandler(new ReactiveRequestProcessor() {
-                        @Override
-                        public void processRequest(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final ResponseChannel responseChannel,
-                            final HttpContext context,
-                            final Publisher<ByteBuffer> requestBody,
-                            final Callback<Publisher<ByteBuffer>> responseBodyFuture
-                        ) throws HttpException, IOException {
-                            if (new BasicHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE).equals(request.getHeader(HttpHeaders.EXPECT))) {
-                                responseChannel.sendInformation(new BasicHttpResponse(100), context);
-                            }
-
-                            responseChannel.sendResponse(
-                                new BasicHttpResponse(200),
-                                new BasicEntityDetails(-1, ContentType.APPLICATION_OCTET_STREAM),
-                                context);
-
-                            // Simply using the request publisher as the response publisher will
-                            // cause the server to echo the request body.
-                            responseBodyFuture.execute(requestBody);
-                        }
-                    });
+            .register("/echo", () -> new ReactiveServerExchangeHandler((request, entityDetails, responseChannel, context, requestBody, responseBodyFuture) -> {
+                if (new BasicHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE).equals(request.getHeader(HttpHeaders.EXPECT))) {
+                    responseChannel.sendInformation(new BasicHttpResponse(100), context);
                 }
-            })
+
+                responseChannel.sendResponse(
+                        new BasicHttpResponse(200),
+                        new BasicEntityDetails(-1, ContentType.APPLICATION_OCTET_STREAM),
+                        context);
+
+                // Simply using the request publisher as the response publisher will
+                // cause the server to echo the request body.
+                responseBodyFuture.execute(requestBody);
+            }))
             .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("HTTP server shutting down");
-                server.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("HTTP server shutting down");
+            server.close(CloseMode.GRACEFUL);
+        }));
 
         server.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port), URIScheme.HTTP);

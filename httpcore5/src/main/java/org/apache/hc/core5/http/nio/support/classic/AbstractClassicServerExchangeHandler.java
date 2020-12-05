@@ -232,25 +232,20 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
         };
 
         if (state.compareAndSet(State.IDLE, State.ACTIVE)) {
-            executor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        handle(request, inputStream, responseWrapper, outputStream, context);
-                        Closer.close(inputStream);
-                        outputStream.close();
-                    } catch (final Exception ex) {
-                        exception.compareAndSet(null, ex);
-                        if (inputBuffer != null) {
-                            inputBuffer.abort();
-                        }
-                        outputBuffer.abort();
-                    } finally {
-                        state.set(State.COMPLETED);
+            executor.execute(() -> {
+                try {
+                    handle(request, inputStream, responseWrapper, outputStream, context);
+                    Closer.close(inputStream);
+                    outputStream.close();
+                } catch (final Exception ex) {
+                    exception.compareAndSet(null, ex);
+                    if (inputBuffer != null) {
+                        inputBuffer.abort();
                     }
+                    outputBuffer.abort();
+                } finally {
+                    state.set(State.COMPLETED);
                 }
-
             });
         }
     }

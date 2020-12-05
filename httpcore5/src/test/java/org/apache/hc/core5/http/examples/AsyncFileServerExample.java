@@ -49,7 +49,7 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
-import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
+import org.apache.hc.core5.http.nio.entity.DiscardingEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
 import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -94,7 +94,7 @@ public class AsyncFileServerExample {
                             final HttpRequest request,
                             final EntityDetails entityDetails,
                             final HttpContext context) throws HttpException {
-                        return new BasicRequestConsumer<>(entityDetails != null ? new NoopEntityConsumer() : null);
+                        return new BasicRequestConsumer<>(entityDetails != null ? new DiscardingEntityConsumer<>() : null);
                     }
 
                     @Override
@@ -160,13 +160,10 @@ public class AsyncFileServerExample {
                 })
                 .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                println("HTTP server shutting down");
-                server.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            println("HTTP server shutting down");
+            server.close(CloseMode.GRACEFUL);
+        }));
 
         server.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port), URIScheme.HTTP);
@@ -175,7 +172,7 @@ public class AsyncFileServerExample {
         server.awaitShutdown(TimeValue.MAX_VALUE);
     }
 
-    static final void println(final String msg) {
+    static void println(final String msg) {
         System.out.println(HttpDateGenerator.INSTANCE.getCurrentDate() + " | " + msg);
     }
 

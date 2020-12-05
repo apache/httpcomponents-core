@@ -73,16 +73,13 @@ public final class ReactiveServerExchangeHandler implements AsyncServerExchangeH
             final ResponseChannel responseChannel,
             final HttpContext context
     ) throws HttpException, IOException {
-        final Callback<Publisher<ByteBuffer>> callback = new Callback<Publisher<ByteBuffer>>() {
-            @Override
-            public void execute(final Publisher<ByteBuffer> result) {
-                final ReactiveDataProducer producer = new ReactiveDataProducer(result);
-                if (channel != null) {
-                    producer.setChannel(channel);
-                }
-                responseProducer.set(producer);
-                result.subscribe(producer);
+        final Callback<Publisher<ByteBuffer>> callback = result -> {
+            final ReactiveDataProducer producer = new ReactiveDataProducer(result);
+            if (channel != null) {
+                producer.setChannel(channel);
             }
+            responseProducer.set(producer);
+            result.subscribe(producer);
         };
         requestProcessor.processRequest(request, entityDetails, responseChannel, context, requestConsumer, callback);
     }

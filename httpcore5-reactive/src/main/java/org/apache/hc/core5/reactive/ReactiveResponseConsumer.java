@@ -60,7 +60,7 @@ import org.reactivestreams.Publisher;
 public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Void> {
 
     private final ReactiveDataConsumer reactiveDataConsumer = new ReactiveDataConsumer();
-    private final List<Header> trailers = Collections.synchronizedList(new ArrayList<Header>());
+    private final List<Header> trailers = Collections.synchronizedList(new ArrayList<>());
     private final BasicFuture<Message<HttpResponse, Publisher<ByteBuffer>>> responseFuture;
 
     private volatile BasicFuture<Void> responseCompletion;
@@ -124,7 +124,7 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     ) {
         this.entityDetails = entityDetails;
         this.responseCompletion = new BasicFuture<>(resultCallback);
-        this.responseFuture.completed(new Message<HttpResponse, Publisher<ByteBuffer>>(response, reactiveDataConsumer));
+        this.responseFuture.completed(new Message<>(response, reactiveDataConsumer));
         if (entityDetails == null) {
             streamEnd(null);
         }
