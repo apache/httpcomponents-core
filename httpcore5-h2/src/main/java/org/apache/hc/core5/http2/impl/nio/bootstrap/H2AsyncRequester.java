@@ -34,7 +34,6 @@ import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.config.Lookup;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
@@ -43,7 +42,6 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.reactor.ProtocolUpgradeHandler;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -69,26 +67,6 @@ public class H2AsyncRequester extends HttpAsyncRequester {
             final IOSessionListener sessionListener,
             final ManagedConnPool<HttpHost, IOSession> connPool) {
         super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool);
-        this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
-    }
-
-    /**
-     * Use {@link H2RequesterBootstrap} to create instances of this class.
-     *
-     * @since 5.1
-     */
-    @Internal
-    public H2AsyncRequester(
-            final HttpVersionPolicy versionPolicy,
-            final IOReactorConfig ioReactorConfig,
-            final IOEventHandlerFactory eventHandlerFactory,
-            final Decorator<IOSession> ioSessionDecorator,
-            final Callback<Exception> exceptionCallback,
-            final IOSessionListener sessionListener,
-            final ManagedConnPool<HttpHost, IOSession> connPool,
-            final Lookup<ProtocolUpgradeHandler> protocolUpgradeHandlerLookup) {
-        super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool,
-                protocolUpgradeHandlerLookup);
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
     }
 

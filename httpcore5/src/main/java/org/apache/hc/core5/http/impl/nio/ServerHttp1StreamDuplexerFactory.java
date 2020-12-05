@@ -36,7 +36,6 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.config.Lookup;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -46,7 +45,6 @@ import org.apache.hc.core5.http.nio.NHttpMessageParserFactory;
 import org.apache.hc.core5.http.nio.NHttpMessageWriterFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
-import org.apache.hc.core5.reactor.ProtocolUpgradeHandler;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -67,12 +65,8 @@ public final class ServerHttp1StreamDuplexerFactory {
     private final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory;
     private final ContentLengthStrategy incomingContentStrategy;
     private final ContentLengthStrategy outgoingContentStrategy;
-    private final Lookup<ProtocolUpgradeHandler> protocolUpgradeHandlerLookup;
     private final Http1StreamListener streamListener;
 
-    /**
-     * @since 5.1
-     */
     public ServerHttp1StreamDuplexerFactory(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
@@ -83,7 +77,6 @@ public final class ServerHttp1StreamDuplexerFactory {
             final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
             final ContentLengthStrategy incomingContentStrategy,
             final ContentLengthStrategy outgoingContentStrategy,
-            final Lookup<ProtocolUpgradeHandler> protocolUpgradeHandlerLookup,
             final Http1StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
@@ -99,24 +92,7 @@ public final class ServerHttp1StreamDuplexerFactory {
                 DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
-        this.protocolUpgradeHandlerLookup = protocolUpgradeHandlerLookup;
         this.streamListener = streamListener;
-    }
-
-    public ServerHttp1StreamDuplexerFactory(
-            final HttpProcessor httpProcessor,
-            final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
-            final Http1Config http1Config,
-            final CharCodingConfig charCodingConfig,
-            final ConnectionReuseStrategy connectionReuseStrategy,
-            final NHttpMessageParserFactory<HttpRequest> requestParserFactory,
-            final NHttpMessageWriterFactory<HttpResponse> responseWriterFactory,
-            final ContentLengthStrategy incomingContentStrategy,
-            final ContentLengthStrategy outgoingContentStrategy,
-            final Http1StreamListener streamListener) {
-        this(httpProcessor, exchangeHandlerFactory, http1Config, charCodingConfig, connectionReuseStrategy,
-                requestParserFactory, responseWriterFactory, incomingContentStrategy, outgoingContentStrategy,
-                null, streamListener);
     }
 
     public ServerHttp1StreamDuplexerFactory(
@@ -130,7 +106,7 @@ public final class ServerHttp1StreamDuplexerFactory {
             final Http1StreamListener streamListener) {
         this(httpProcessor, exchangeHandlerFactory, http1Config, charCodingConfig,
                 connectionReuseStrategy, requestParserFactory, responseWriterFactory,
-                null, null, null, streamListener);
+                null, null, streamListener);
     }
 
     public ServerHttp1StreamDuplexerFactory(
@@ -152,7 +128,6 @@ public final class ServerHttp1StreamDuplexerFactory {
                 responseWriterFactory.create(),
                 incomingContentStrategy,
                 outgoingContentStrategy,
-                protocolUpgradeHandlerLookup,
                 streamListener);
     }
 

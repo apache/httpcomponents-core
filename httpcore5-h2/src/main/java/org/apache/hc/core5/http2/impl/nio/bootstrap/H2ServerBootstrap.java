@@ -35,8 +35,6 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.config.NamedElementChain;
-import org.apache.hc.core5.http.config.Registry;
-import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
@@ -67,16 +65,13 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.ServerH2StreamMultiplexerFactory;
-import org.apache.hc.core5.http2.impl.nio.ServerH2UpgradeHandler;
 import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiatorFactory;
 import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
-import org.apache.hc.core5.http2.ssl.TlsUpgradeHandler;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.reactor.ProtocolUpgradeHandler;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
@@ -435,11 +430,6 @@ public class H2ServerBootstrap {
         final HttpVersionPolicy actualVersionProtocol = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         final TlsStrategy actualTlsStrategy = tlsStrategy != null ? tlsStrategy : new H2ServerTlsStrategy();
 
-        final Registry<ProtocolUpgradeHandler> protocolRegistry = RegistryBuilder.<ProtocolUpgradeHandler>create()
-                .register("TLS", new TlsUpgradeHandler(actualVersionProtocol, actualTlsStrategy, handshakeTimeout))
-                .register("H2", new ServerH2UpgradeHandler(http2StreamHandlerFactory, actualTlsStrategy, handshakeTimeout))
-                .build();
-
         final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 handlerFactory,
@@ -450,7 +440,6 @@ public class H2ServerBootstrap {
                 DefaultHttpResponseWriterFactory.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
-                protocolRegistry,
                 http1StreamListener);
 
         final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttpProtocolNegotiatorFactory(
