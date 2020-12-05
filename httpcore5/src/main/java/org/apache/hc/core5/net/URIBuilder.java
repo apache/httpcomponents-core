@@ -505,7 +505,9 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder appendPath(final String path) {
-        appendPathSegments(path != null ? splitPath(path) : new ArrayList<String>());
+        if (path != null) {
+            appendPathSegments(splitPath(path));
+        }
         return this;
     }
 
@@ -566,9 +568,11 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder appendPathSegments(final List<String> pathSegments) {
-        final List<String> segments = new ArrayList<>(getPathSegments());
-        segments.addAll(pathSegments != null & pathSegments.size() > 0 ? pathSegments : new ArrayList<String>());
-        setPathSegments(segments);
+        if (pathSegments != null & pathSegments.size() > 0) {
+            final List<String> segments = new ArrayList<>(getPathSegments());
+            segments.addAll(pathSegments);
+            setPathSegments(segments);
+        }
         return this;
     }
 
