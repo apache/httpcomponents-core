@@ -28,7 +28,7 @@
   <parent>
     <groupId>org.apache.httpcomponents.core5</groupId>
     <artifactId>httpcore5-parent</artifactId>
-    <version>5.1-beta3-SNAPSHOT</version>
+    <version>5.2-alpha1-SNAPSHOT</version>
   </parent>
   <artifactId>httpcore5</artifactId>
   <name>Apache HttpComponents Core HTTP/1.1</name>
