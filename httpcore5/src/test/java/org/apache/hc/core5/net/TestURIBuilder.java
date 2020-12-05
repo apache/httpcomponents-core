@@ -587,6 +587,48 @@ public class TestURIBuilder {
     }
 
     @Test
+    public void testAppendSegmentsToExistingPath() throws Exception {
+        final URI uri = new URIBuilder()
+            .setScheme("https")
+            .setHost("myhost")
+            .setPath("api")
+            .appendPathSegments("v3", "products")
+            .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://myhost/api/v3/products")));
+    }
+
+    @Test
+    public void testAppendSegmentsToNonExistingPath() throws Exception {
+        final URI uri = new URIBuilder()
+            .setScheme("https")
+            .setHost("somehost")
+            .appendPathSegments("api", "v2", "customers")
+            .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v2/customers")));
+    }
+
+    @Test
+    public void testAppendSegmentsListToExistingPath() throws Exception {
+        final URI uri = new URIBuilder()
+            .setScheme("http")
+            .setHost("myhost")
+            .setPath("api")
+            .appendPathSegments(Arrays.asList("v3", "products"))
+            .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("http://myhost/api/v3/products")));
+    }
+
+    @Test
+    public void testAppendSegmentsListToNonExistingPath() throws Exception {
+        final URI uri = new URIBuilder()
+            .setScheme("http")
+            .setHost("myhost")
+            .appendPathSegments(Arrays.asList("api", "v3", "customers"))
+            .build();
+        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("http://myhost/api/v3/customers")));
+    }
+
+    @Test
     public void testNoAuthorityAndPathSegments() throws Exception {
         final URI uri = new URIBuilder()
                 .setScheme("file")

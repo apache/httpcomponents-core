@@ -525,6 +525,18 @@ public class URIBuilder {
     }
 
     /**
+     * Appends segments URI path. The value is expected to be unescaped and may contain non ASCII characters.
+     *
+     * @return this.
+     */
+    public URIBuilder appendPathSegments(final String... pathSegments) {
+        final List<String> segments = new ArrayList<>(getPathSegments());
+        segments.addAll(pathSegments.length > 0 ? Arrays.asList(pathSegments) : new ArrayList<String>());
+        setPathSegments(segments);
+        return this;
+    }
+
+    /**
      * Sets rootless URI path (the first segment does not start with a /).
      * The value is expected to be unescaped and may contain non ASCII characters.
      *
@@ -550,6 +562,18 @@ public class URIBuilder {
         this.encodedSchemeSpecificPart = null;
         this.encodedPath = null;
         this.pathRootless = false;
+        return this;
+    }
+
+    /**
+     * Appends segments to URI path. The value is expected to be unescaped and may contain non ASCII characters.
+     *
+     * @return this.
+     */
+    public URIBuilder appendPathSegments(final List<String> pathSegments) {
+        final List<String> segments = new ArrayList<>(getPathSegments());
+        segments.addAll(pathSegments != null & pathSegments.size() > 0 ? pathSegments : new ArrayList<String>());
+        setPathSegments(segments);
         return this;
     }
 
