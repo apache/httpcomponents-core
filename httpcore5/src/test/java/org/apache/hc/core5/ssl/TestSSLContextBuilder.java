@@ -40,13 +40,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -57,7 +54,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSession;
@@ -91,7 +87,7 @@ public class TestSSLContextBuilder {
     }
 
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    public final ExpectedException thrown = ExpectedException.none();
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(5);
     private ExecutorService executorService;
@@ -246,16 +242,13 @@ public class TestSSLContextBuilder {
         serverSocket.bind(new InetSocketAddress(0));
 
         this.executorService = Executors.newSingleThreadExecutor();
-        final Future<Boolean> future = this.executorService.submit(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                try (Socket socket = serverSocket.accept()) {
-                    final OutputStream outputStream = socket.getOutputStream();
-                    outputStream.write(new byte[]{'H', 'i'});
-                    outputStream.flush();
-                }
-                return Boolean.TRUE;
+        final Future<Boolean> future = this.executorService.submit(() -> {
+            try (Socket socket = serverSocket.accept()) {
+                final OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(new byte[]{'H', 'i'});
+                outputStream.flush();
             }
+            return Boolean.TRUE;
         });
 
         final int localPort = serverSocket.getLocalPort();
@@ -292,14 +285,11 @@ public class TestSSLContextBuilder {
         serverSocket.bind(new InetSocketAddress(0));
 
         this.executorService = Executors.newSingleThreadExecutor();
-        this.executorService.submit(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
-                    socket.getSession();
-                }
-                return Boolean.FALSE;
+        this.executorService.submit(() -> {
+            try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
+                socket.getSession();
             }
+            return Boolean.FALSE;
         });
         final int localPort = serverSocket.getLocalPort();
         try (final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket()) {
@@ -321,15 +311,9 @@ public class TestSSLContextBuilder {
 
         final AtomicReference<X509Certificate[]> certChainRef = new AtomicReference<>();
 
-        final TrustStrategy trustStrategy = new TrustStrategy() {
-
-            @Override
-            public boolean isTrusted(
-                    final X509Certificate[] chain, final String authType) throws CertificateException {
-                certChainRef.set(chain);
-                return true;
-            }
-
+        final TrustStrategy trustStrategy = (chain, authType) -> {
+            certChainRef.set(chain);
+            return true;
         };
 
         final SSLContext clientSslContext = SSLContextBuilder.create()
@@ -341,16 +325,13 @@ public class TestSSLContextBuilder {
         serverSocket.bind(new InetSocketAddress(0));
 
         this.executorService = Executors.newSingleThreadExecutor();
-        final Future<Boolean> future = this.executorService.submit(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                try (Socket socket = serverSocket.accept()) {
-                    final OutputStream outputStream = socket.getOutputStream();
-                    outputStream.write(new byte[]{'H', 'i'});
-                    outputStream.flush();
-                }
-                return Boolean.TRUE;
+        final Future<Boolean> future = this.executorService.submit(() -> {
+            try (Socket socket = serverSocket.accept()) {
+                final OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(new byte[]{'H', 'i'});
+                outputStream.flush();
             }
+            return Boolean.TRUE;
         });
 
         final int localPort = serverSocket.getLocalPort();
@@ -404,25 +385,22 @@ public class TestSSLContextBuilder {
         serverSocket.bind(new InetSocketAddress(0));
 
         this.executorService = Executors.newSingleThreadExecutor();
-        final Future<Principal> future = this.executorService.submit(new Callable<Principal>() {
-            @Override
-            public Principal call() throws Exception {
-                final SSLSocket socket = (SSLSocket) serverSocket.accept();
-                Principal clientPrincipal = null;
+        final Future<Principal> future = this.executorService.submit(() -> {
+            final SSLSocket socket = (SSLSocket) serverSocket.accept();
+            Principal clientPrincipal = null;
+            try {
+                final SSLSession session = socket.getSession();
                 try {
-                    final SSLSession session = socket.getSession();
-                    try {
-                        clientPrincipal = session.getPeerPrincipal();
-                    } catch (final SSLPeerUnverifiedException ignore) {
-                    }
-                    final OutputStream outputStream = socket.getOutputStream();
-                    outputStream.write(new byte [] {'H', 'i'});
-                    outputStream.flush();
-                } finally {
-                    socket.close();
+                    clientPrincipal = session.getPeerPrincipal();
+                } catch (final SSLPeerUnverifiedException ignore) {
                 }
-                return clientPrincipal;
+                final OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(new byte [] {'H', 'i'});
+                outputStream.flush();
+            } finally {
+                socket.close();
             }
+            return clientPrincipal;
         });
 
         final int localPort = serverSocket.getLocalPort();
@@ -461,14 +439,11 @@ public class TestSSLContextBuilder {
         serverSocket.bind(new InetSocketAddress(0));
 
         this.executorService = Executors.newSingleThreadExecutor();
-        this.executorService.submit(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
-                    socket.getSession();
-                }
-                return Boolean.FALSE;
+        this.executorService.submit(() -> {
+            try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
+                socket.getSession();
             }
+            return Boolean.FALSE;
         });
 
         final int localPort = serverSocket.getLocalPort();
@@ -502,17 +477,14 @@ public class TestSSLContextBuilder {
         serverSocket.bind(new InetSocketAddress(0));
 
         this.executorService = Executors.newSingleThreadExecutor();
-        final Future<Principal> future = this.executorService.submit(new Callable<Principal>() {
-            @Override
-            public Principal call() throws Exception {
-                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
-                    final SSLSession session = socket.getSession();
-                    final Principal clientPrincipal = session.getPeerPrincipal();
-                    final OutputStream outputStream = socket.getOutputStream();
-                    outputStream.write(new byte[]{'H', 'i'});
-                    outputStream.flush();
-                    return clientPrincipal;
-                }
+        final Future<Principal> future = this.executorService.submit(() -> {
+            try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
+                final SSLSession session = socket.getSession();
+                final Principal clientPrincipal = session.getPeerPrincipal();
+                final OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(new byte[]{'H', 'i'});
+                outputStream.flush();
+                return clientPrincipal;
             }
         });
         final int localPort = serverSocket.getLocalPort();
@@ -541,13 +513,7 @@ public class TestSSLContextBuilder {
                 .build();
         Assert.assertNotNull(serverSslContext);
 
-        final PrivateKeyStrategy privateKeyStrategy = new PrivateKeyStrategy() {
-            @Override
-            public String chooseAlias(final Map<String, PrivateKeyDetails> aliases,
-                            final SSLParameters sslParameters) {
-                return aliases.containsKey("client2") ? "client2" : null;
-            }
-        };
+        final PrivateKeyStrategy privateKeyStrategy = (aliases, sslParameters) -> aliases.containsKey("client2") ? "client2" : null;
 
         final URL resource2 = getResource("/test-client.p12");
         final SSLContext clientSslContext = SSLContextBuilder.create()
@@ -560,17 +526,14 @@ public class TestSSLContextBuilder {
         serverSocket.bind(new InetSocketAddress(0));
 
         this.executorService = Executors.newSingleThreadExecutor();
-        final Future<Principal> future = this.executorService.submit(new Callable<Principal>() {
-            @Override
-            public Principal call() throws Exception {
-                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
-                    final SSLSession session = socket.getSession();
-                    final Principal clientPrincipal = session.getPeerPrincipal();
-                    final OutputStream outputStream = socket.getOutputStream();
-                    outputStream.write(new byte[]{'H', 'i'});
-                    outputStream.flush();
-                    return clientPrincipal;
-                }
+        final Future<Principal> future = this.executorService.submit(() -> {
+            try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
+                final SSLSession session = socket.getSession();
+                final Principal clientPrincipal = session.getPeerPrincipal();
+                final OutputStream outputStream = socket.getOutputStream();
+                outputStream.write(new byte[]{'H', 'i'});
+                outputStream.flush();
+                return clientPrincipal;
             }
         });
         final int localPort = serverSocket.getLocalPort();
@@ -617,14 +580,11 @@ public class TestSSLContextBuilder {
         serverSocket.bind(new InetSocketAddress(0));
 
         this.executorService = Executors.newSingleThreadExecutor();
-        this.executorService.submit(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
-                    socket.getSession();
-                }
-                return Boolean.FALSE;
+        this.executorService.submit(() -> {
+            try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
+                socket.getSession();
             }
+            return Boolean.FALSE;
         });
 
         final int localPort = serverSocket.getLocalPort();
@@ -665,14 +625,11 @@ public class TestSSLContextBuilder {
         serverSocket.bind(new InetSocketAddress(0));
 
         this.executorService = Executors.newSingleThreadExecutor();
-        this.executorService.submit(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
-                    socket.getSession();
-                }
-                return Boolean.FALSE;
+        this.executorService.submit(() -> {
+            try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
+                socket.getSession();
             }
+            return Boolean.FALSE;
         });
 
         final int localPort = serverSocket.getLocalPort();

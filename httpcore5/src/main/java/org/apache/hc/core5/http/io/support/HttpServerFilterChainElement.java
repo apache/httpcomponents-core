@@ -49,16 +49,7 @@ public final class HttpServerFilterChainElement {
     public HttpServerFilterChainElement(final HttpFilterHandler handler, final HttpServerFilterChainElement next) {
         this.handler = handler;
         this.next = next;
-        this.filterChain = new HttpFilterChain() {
-
-            @Override
-            public void proceed(
-                    final ClassicHttpRequest request,
-                    final ResponseTrigger responseTrigger,
-                    final HttpContext context) throws HttpException, IOException {
-                next.handle(request, responseTrigger, context);
-            }
-        };
+        this.filterChain = next != null ? next::handle : null;
     }
 
     public void handle(

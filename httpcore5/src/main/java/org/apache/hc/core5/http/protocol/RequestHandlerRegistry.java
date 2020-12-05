@@ -59,27 +59,13 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
 
     public RequestHandlerRegistry(final String canonicalHostName, final Supplier<LookupRegistry<T>> registrySupplier) {
         this.canonicalHostName = Args.notNull(canonicalHostName, "Canonical hostname").toLowerCase(Locale.ROOT);
-        this.registrySupplier = registrySupplier != null ? registrySupplier : new Supplier<LookupRegistry<T>>() {
-
-            @Override
-            public LookupRegistry<T> get() {
-                return new UriPatternMatcher<>();
-            }
-
-        };
+        this.registrySupplier = registrySupplier != null ? registrySupplier : UriPatternMatcher::new;
         this.primary = this.registrySupplier.get();
         this.virtualMap = new ConcurrentHashMap<>();
     }
 
     public RequestHandlerRegistry(final String canonicalHostName, final UriPatternType patternType) {
-        this(canonicalHostName, new Supplier<LookupRegistry<T>>() {
-
-            @Override
-            public LookupRegistry<T> get() {
-                return UriPatternType.newMatcher(patternType);
-            }
-
-        });
+        this(canonicalHostName, () -> UriPatternType.newMatcher(patternType));
     }
 
     public RequestHandlerRegistry(final UriPatternType patternType) {

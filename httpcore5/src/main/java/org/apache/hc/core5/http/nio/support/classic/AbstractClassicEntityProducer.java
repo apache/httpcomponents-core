@@ -83,20 +83,15 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
     @Override
     public final void produce(final DataStreamChannel channel) throws IOException {
         if (state.compareAndSet(State.IDLE, State.ACTIVE)) {
-            executor.execute(new Runnable() {
-
-                @Override
-                public void run() {
-                    try {
-                        produceData(contentType, new ContentOutputStream(buffer));
-                        buffer.writeCompleted();
-                    } catch (final Exception ex) {
-                        buffer.abort();
-                    } finally {
-                        state.set(State.COMPLETED);
-                    }
+            executor.execute(() -> {
+                try {
+                    produceData(contentType, new ContentOutputStream(buffer));
+                    buffer.writeCompleted();
+                } catch (final Exception ex) {
+                    buffer.abort();
+                } finally {
+                    state.set(State.COMPLETED);
                 }
-
             });
         }
         buffer.flush(channel);

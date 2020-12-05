@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.EntityDetails;
@@ -49,7 +48,6 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
@@ -98,21 +96,13 @@ public class H2GreetingServer {
                 .setVersionPolicy(HttpVersionPolicy.NEGOTIATE) // fallback to HTTP/1 as needed
 
                 // wildcard path matcher:
-                .register("*", new Supplier<AsyncServerExchangeHandler>() {
-                    @Override
-                    public AsyncServerExchangeHandler get() {
-                        return new CustomServerExchangeHandler();
-                    }
-                })
+                .register("*", CustomServerExchangeHandler::new)
                 .create();
 
 
-        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-            @Override
-            public void run() {
-                System.out.println("HTTP server shutting down");
-                server.close(CloseMode.GRACEFUL);
-            }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("HTTP server shutting down");
+            server.close(CloseMode.GRACEFUL);
         }));
 
         server.start();
@@ -155,10 +145,10 @@ public class H2GreetingServer {
             final HttpResponse resp = new BasicHttpResponse(200);
 
             // recording the request
-            System.out.println(String.format("[%s] %s %s %s", new Date(),
+            System.out.printf("[%s] %s %s %s%n", new Date(),
                     endpoint.getRemoteAddress(),
                     req.getMethod(),
-                    req.getPath()));
+                    req.getPath());
 
             // Request without an entity - GET/HEAD/DELETE
             if (httpEntity == null) {

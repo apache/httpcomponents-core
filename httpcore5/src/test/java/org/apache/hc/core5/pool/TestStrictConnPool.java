@@ -33,7 +33,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.DeadlineTimeoutException;
@@ -129,7 +128,7 @@ public class TestStrictConnPool {
     @Test(expected = IllegalStateException.class)
     public void testReleaseUnknownEntry() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
-        pool.release(new PoolEntry<String, HttpConnection>("somehost"), true);
+        pool.release(new PoolEntry<>("somehost"), true);
     }
 
     @Test
@@ -519,21 +518,15 @@ public class TestStrictConnPool {
 
     private static class HoldInternalLockThread extends Thread {
         private HoldInternalLockThread(final StrictConnPool<String, HttpConnection> pool, final CountDownLatch lockHeld) {
-            super(new Runnable() {
-                @Override
-                public void run() {
-                    pool.lease("somehost", null); // lease a connection so we have something to enumLeased()
-                    pool.enumLeased(new Callback<PoolEntry<String, HttpConnection>>() {
-                        @Override
-                        public void execute(final PoolEntry<String, HttpConnection> object) {
-                            try {
-                                lockHeld.countDown();
-                                Thread.sleep(Long.MAX_VALUE);
-                            } catch (final InterruptedException ignored) {
-                            }
-                        }
-                    });
-                }
+            super(() -> {
+                pool.lease("somehost", null); // lease a connection so we have something to enumLeased()
+                pool.enumLeased(object -> {
+                    try {
+                        lockHeld.countDown();
+                        Thread.sleep(Long.MAX_VALUE);
+                    } catch (final InterruptedException ignored) {
+                    }
+                });
             });
         }
     }
@@ -651,7 +644,7 @@ public class TestStrictConnPool {
         } catch (final IllegalStateException expected) {
         }
         // Ignored if shut down
-        pool.release(new PoolEntry<String, HttpConnection>("somehost"), true);
+        pool.release(new PoolEntry<>("somehost"), true);
     }
 
 }

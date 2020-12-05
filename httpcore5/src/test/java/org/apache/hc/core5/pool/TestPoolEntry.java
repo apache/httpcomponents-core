@@ -47,14 +47,7 @@ public class TestPoolEntry {
     @Before
     public void setup() {
         count = new AtomicLong(1);
-        currentTimeSupplier = new Supplier<Long>() {
-
-            @Override
-            public Long get() {
-                return count.addAndGet(1);
-            }
-
-        };
+        currentTimeSupplier = () -> count.addAndGet(1);
     }
 
     @Test

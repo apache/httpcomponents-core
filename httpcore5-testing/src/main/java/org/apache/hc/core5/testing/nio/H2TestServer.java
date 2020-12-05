@@ -84,14 +84,7 @@ public class H2TestServer extends AsyncServer {
     public <T> void register(
             final String uriPattern,
             final AsyncServerRequestHandler<T> requestHandler) {
-        register(uriPattern, new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new BasicServerExchangeHandler<>(requestHandler);
-            }
-
-        });
+        register(uriPattern, () -> new BasicServerExchangeHandler<>(requestHandler));
     }
 
     public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
@@ -106,14 +99,7 @@ public class H2TestServer extends AsyncServer {
                 httpProcessor != null ? httpProcessor : H2Processors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
                         registry,
-                        exchangeHandlerDecorator != null ? exchangeHandlerDecorator : new Decorator<AsyncServerExchangeHandler>() {
-
-                            @Override
-                            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
-                                return new BasicAsyncServerExpectationDecorator(handler);
-                            }
-
-                        }),
+                        exchangeHandlerDecorator != null ? exchangeHandlerDecorator : (Decorator<AsyncServerExchangeHandler>) BasicAsyncServerExpectationDecorator::new),
                 HttpVersionPolicy.FORCE_HTTP_2,
                 h2Config,
                 Http1Config.DEFAULT,
@@ -134,14 +120,7 @@ public class H2TestServer extends AsyncServer {
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
                         registry,
-                        exchangeHandlerDecorator != null ? exchangeHandlerDecorator : new Decorator<AsyncServerExchangeHandler>() {
-
-                    @Override
-                    public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
-                        return new BasicAsyncServerExpectationDecorator(handler);
-                    }
-
-                }),
+                        exchangeHandlerDecorator != null ? exchangeHandlerDecorator : (Decorator<AsyncServerExchangeHandler>) BasicAsyncServerExpectationDecorator::new),
                 HttpVersionPolicy.FORCE_HTTP_1,
                 H2Config.DEFAULT,
                 http1Config,

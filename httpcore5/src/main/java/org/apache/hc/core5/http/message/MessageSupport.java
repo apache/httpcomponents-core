@@ -74,7 +74,7 @@ public class MessageSupport {
         if (tokens == null || tokens.isEmpty()) {
             return;
         }
-        formatTokens(dst, tokens.toArray(new String[tokens.size()]));
+        formatTokens(dst, tokens.toArray(new String[0]));
     }
 
     public static Header format(final String name, final Set<String> tokens) {

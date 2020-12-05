@@ -167,23 +167,20 @@ public class SocksProxy {
                 }
 
                 private Thread pumpStream(final InputStream input, final OutputStream output) {
-                    final Thread t = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            final byte[] buffer = new byte[1024 * 8];
-                            try {
-                                while (true) {
-                                    final int read = input.read(buffer);
-                                    if (read < 0) {
-                                        break;
-                                    }
-                                    output.write(buffer, 0, read);
-                                    output.flush();
+                    final Thread t = new Thread(() -> {
+                        final byte[] buffer = new byte[1024 * 8];
+                        try {
+                            while (true) {
+                                final int read = input.read(buffer);
+                                if (read < 0) {
+                                    break;
                                 }
-                            } catch (final IOException e) {
-                            } finally {
-                                shutdown();
+                                output.write(buffer, 0, read);
+                                output.flush();
                             }
+                        } catch (final IOException e) {
+                        } finally {
+                            shutdown();
                         }
                     });
                     t.start();
@@ -225,23 +222,20 @@ public class SocksProxy {
     public synchronized void start() throws IOException {
         if (this.server == null) {
             this.server = new ServerSocket(this.port);
-            this.serverThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-                            final Socket socket = server.accept();
-                            startSocksProxyHandler(socket);
+            this.serverThread = new Thread(() -> {
+                try {
+                    while (true) {
+                        final Socket socket = server.accept();
+                        startSocksProxyHandler(socket);
+                    }
+                } catch (final IOException e) {
+                } finally {
+                    if (server != null) {
+                        try {
+                            server.close();
+                        } catch (final IOException e) {
                         }
-                    } catch (final IOException e) {
-                    } finally {
-                        if (server != null) {
-                            try {
-                                server.close();
-                            } catch (final IOException e) {
-                            }
-                            server = null;
-                        }
+                        server = null;
                     }
                 }
             });

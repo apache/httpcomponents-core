@@ -39,13 +39,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
-import org.mockito.ArgumentMatcher;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestAbstractIOSessionPool {
@@ -78,15 +75,10 @@ public class TestAbstractIOSessionPool {
                 ArgumentMatchers.<Timeout>any(),
                 ArgumentMatchers.<FutureCallback<IOSession>>any())).thenReturn(connectFuture);
 
-        Mockito.doAnswer(new Answer() {
-
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Callback<Boolean> callback = invocation.getArgument(1);
-                callback.execute(true);
-                return null;
-            }
-
+        Mockito.doAnswer(invocation -> {
+            final Callback<Boolean> callback = invocation.getArgument(1);
+            callback.execute(true);
+            return null;
         }).when(impl).validateSession(ArgumentMatchers.<IOSession>any(), ArgumentMatchers.<Callback<Boolean>>any());
 
         Mockito.when(ioSession1.isOpen()).thenReturn(true);
@@ -109,14 +101,9 @@ public class TestAbstractIOSessionPool {
         Mockito.verify(impl, Mockito.times(1)).connectSession(
                 ArgumentMatchers.eq("somehost"),
                 ArgumentMatchers.<Timeout>any(),
-                ArgumentMatchers.argThat(new ArgumentMatcher<FutureCallback<IOSession>>() {
-
-                    @Override
-                    public boolean matches(final FutureCallback<IOSession> callback) {
-                        callback.completed(ioSession1);
-                        return true;
-                    }
-
+                ArgumentMatchers.argThat(callback -> {
+                    callback.completed(ioSession1);
+                    return true;
                 }));
 
         Assert.assertThat(future1.isDone(), CoreMatchers.equalTo(true));
@@ -166,14 +153,9 @@ public class TestAbstractIOSessionPool {
         Mockito.verify(impl, Mockito.times(1)).connectSession(
                 ArgumentMatchers.eq("somehost"),
                 ArgumentMatchers.<Timeout>any(),
-                ArgumentMatchers.argThat(new ArgumentMatcher<FutureCallback<IOSession>>() {
-
-                    @Override
-                    public boolean matches(final FutureCallback<IOSession> callback) {
-                        callback.failed(new Exception("Boom"));
-                        return true;
-                    }
-
+                ArgumentMatchers.argThat(callback -> {
+                    callback.failed(new Exception("Boom"));
+                    return true;
                 }));
 
         Assert.assertThat(future1.isDone(), CoreMatchers.equalTo(true));
@@ -234,14 +216,7 @@ public class TestAbstractIOSessionPool {
         Assert.assertThat(entry2, CoreMatchers.notNullValue());
         entry2.session = ioSession2;
 
-        impl.enumAvailable(new Callback<IOSession>() {
-
-            @Override
-            public void execute(final IOSession ioSession) {
-                ioSession.close(CloseMode.GRACEFUL);
-            }
-
-        });
+        impl.enumAvailable(ioSession -> ioSession.close(CloseMode.GRACEFUL));
         Mockito.verify(ioSession1).close(CloseMode.GRACEFUL);
         Mockito.verify(ioSession2).close(CloseMode.GRACEFUL);
     }
@@ -253,15 +228,10 @@ public class TestAbstractIOSessionPool {
         entry1.session = ioSession1;
 
         Mockito.when(ioSession1.isOpen()).thenReturn(true);
-        Mockito.doAnswer(new Answer() {
-
-            @Override
-            public Object answer(final InvocationOnMock invocation) throws Throwable {
-                final Callback<Boolean> callback = invocation.getArgument(1);
-                callback.execute(false);
-                return null;
-            }
-
+        Mockito.doAnswer(invocation -> {
+            final Callback<Boolean> callback = invocation.getArgument(1);
+            callback.execute(false);
+            return null;
         }).when(impl).validateSession(ArgumentMatchers.<IOSession>any(), ArgumentMatchers.<Callback<Boolean>>any());
 
         impl.getSession("somehost", Timeout.ofSeconds(123L), null);

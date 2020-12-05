@@ -58,12 +58,9 @@ public final class ReflectionUtils {
     }
 
     private static void setAccessible(final Method method) {
-        AccessController.doPrivileged(new PrivilegedAction<Object>() {
-            @Override
-            public Object run() {
-                method.setAccessible(true);
-                return null;
-            }
+        AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
+            method.setAccessible(true);
+            return null;
         });
     }
 

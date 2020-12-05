@@ -42,10 +42,8 @@ import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
-import org.apache.hc.core5.http.nio.AsyncDataConsumer;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncFilterChain;
-import org.apache.hc.core5.http.nio.AsyncFilterHandler;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
@@ -112,45 +110,35 @@ public class AsyncServerFilterExample {
 
                 // Add a custom request filter at the beginning of the processing pipeline
 
-                .addFilterFirst("my-filter", new AsyncFilterHandler() {
-
-                    @Override
-                    public AsyncDataConsumer handle(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final HttpContext context,
-                            final AsyncFilterChain.ResponseTrigger responseTrigger,
-                            final AsyncFilterChain chain) throws HttpException, IOException {
-                        if (request.getRequestUri().equals("/back-door")) {
-                            responseTrigger.submitResponse(
-                                    new BasicHttpResponse(HttpStatus.SC_OK),
-                                    AsyncEntityProducers.create("Welcome"));
-                            return null;
-                        }
-                        return chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
-
-                            @Override
-                            public void sendInformation(
-                                    final HttpResponse response) throws HttpException, IOException {
-                                responseTrigger.sendInformation(response);
-                            }
-
-                            @Override
-                            public void submitResponse(
-                                    final HttpResponse response, final AsyncEntityProducer entityProducer) throws HttpException, IOException {
-                                response.addHeader("X-Filter", "My-Filter");
-                                responseTrigger.submitResponse(response, entityProducer);
-                            }
-
-                            @Override
-                            public void pushPromise(
-                                    final HttpRequest promise, final AsyncPushProducer responseProducer) throws HttpException, IOException {
-                                responseTrigger.pushPromise(promise, responseProducer);
-                            }
-
-                        });
+                .addFilterFirst("my-filter", (request, entityDetails, context, responseTrigger, chain) -> {
+                    if (request.getRequestUri().equals("/back-door")) {
+                        responseTrigger.submitResponse(
+                                new BasicHttpResponse(HttpStatus.SC_OK),
+                                AsyncEntityProducers.create("Welcome"));
+                        return null;
                     }
+                    return chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
 
+                        @Override
+                        public void sendInformation(
+                                final HttpResponse response) throws HttpException, IOException {
+                            responseTrigger.sendInformation(response);
+                        }
+
+                        @Override
+                        public void submitResponse(
+                                final HttpResponse response, final AsyncEntityProducer entityProducer) throws HttpException, IOException {
+                            response.addHeader("X-Filter", "My-Filter");
+                            responseTrigger.submitResponse(response, entityProducer);
+                        }
+
+                        @Override
+                        public void pushPromise(
+                                final HttpRequest promise, final AsyncPushProducer responseProducer) throws HttpException, IOException {
+                            responseTrigger.pushPromise(promise, responseProducer);
+                        }
+
+                    });
                 })
 
                 // Application request handler
@@ -180,13 +168,10 @@ public class AsyncServerFilterExample {
                 })
                 .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("HTTP server shutting down");
-                server.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("HTTP server shutting down");
+            server.close(CloseMode.GRACEFUL);
+        }));
 
         server.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port), URIScheme.HTTP);

@@ -63,14 +63,7 @@ public final class ComplexFuture<T> extends BasicFuture<T> implements Cancellabl
         if (dependency instanceof Cancellable) {
             setDependency((Cancellable) dependency);
         } else {
-            setDependency(new Cancellable() {
-
-                @Override
-                public boolean cancel() {
-                    return dependency.cancel(true);
-                }
-
-            });
+            setDependency(() -> dependency.cancel(true));
         }
     }
 

@@ -34,7 +34,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Future;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
@@ -45,7 +44,6 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
@@ -105,7 +103,7 @@ public class H2ServerAndRequesterTest {
         protected void before() throws Throwable {
             log.debug("Starting up test server");
             server = H2ServerBootstrap.bootstrap()
-                    .setLookupRegistry(new UriPatternMatcher<Supplier<AsyncServerExchangeHandler>>())
+                    .setLookupRegistry(new UriPatternMatcher<>())
                     .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
@@ -118,14 +116,7 @@ public class H2ServerAndRequesterTest {
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                        @Override
-                        public AsyncServerExchangeHandler get() {
-                            return new EchoHandler(2048);
-                        }
-
-                    })
+                    .register("*", () -> new EchoHandler(2048))
                     .create();
         }
 

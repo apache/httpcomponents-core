@@ -160,13 +160,10 @@ public class AsyncFileServerExample {
                 })
                 .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                println("HTTP server shutting down");
-                server.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            println("HTTP server shutting down");
+            server.close(CloseMode.GRACEFUL);
+        }));
 
         server.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port), URIScheme.HTTP);
@@ -175,7 +172,7 @@ public class AsyncFileServerExample {
         server.awaitShutdown(TimeValue.MAX_VALUE);
     }
 
-    static final void println(final String msg) {
+    static void println(final String msg) {
         System.out.println(HttpDateGenerator.INSTANCE.getCurrentDate() + " | " + msg);
     }
 

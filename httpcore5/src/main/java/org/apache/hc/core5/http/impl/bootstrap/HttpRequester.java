@@ -268,12 +268,9 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         // Run this under a doPrivileged to support lib users that run under a SecurityManager this allows granting connect permissions
         // only to this library
         try {
-            AccessController.doPrivileged(new PrivilegedExceptionAction<Object>() {
-                @Override
-                public Object run() throws IOException {
-                    sock.connect(targetAddress, socketConfig.getSoTimeout().toMillisecondsIntBound());
-                    return null;
-                }
+            AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
+                sock.connect(targetAddress, socketConfig.getSoTimeout().toMillisecondsIntBound());
+                return null;
             });
         } catch (final PrivilegedActionException e) {
             Asserts.check(e.getCause() instanceof  IOException,

@@ -81,25 +81,30 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
                     throw new ProtocolException("Invalid sequence of headers (pseudo-headers must precede message headers)");
                 }
 
-                if (name.equals(H2PseudoRequestHeaders.METHOD)) {
-                    if (method != null) {
-                        throw new ProtocolException("Multiple '%s' request headers are illegal", name);
-                    }
-                    method = value;
-                } else if (name.equals(H2PseudoRequestHeaders.SCHEME)) {
-                    if (scheme != null) {
-                        throw new ProtocolException("Multiple '%s' request headers are illegal", name);
-                    }
-                    scheme = value;
-                } else if (name.equals(H2PseudoRequestHeaders.PATH)) {
-                    if (path != null) {
-                        throw new ProtocolException("Multiple '%s' request headers are illegal", name);
-                    }
-                    path = value;
-                } else if (name.equals(H2PseudoRequestHeaders.AUTHORITY)) {
-                    authority = value;
-                } else {
-                    throw new ProtocolException("Unsupported request header '%s'", name);
+                switch (name) {
+                    case H2PseudoRequestHeaders.METHOD:
+                        if (method != null) {
+                            throw new ProtocolException("Multiple '%s' request headers are illegal", name);
+                        }
+                        method = value;
+                        break;
+                    case H2PseudoRequestHeaders.SCHEME:
+                        if (scheme != null) {
+                            throw new ProtocolException("Multiple '%s' request headers are illegal", name);
+                        }
+                        scheme = value;
+                        break;
+                    case H2PseudoRequestHeaders.PATH:
+                        if (path != null) {
+                            throw new ProtocolException("Multiple '%s' request headers are illegal", name);
+                        }
+                        path = value;
+                        break;
+                    case H2PseudoRequestHeaders.AUTHORITY:
+                        authority = value;
+                        break;
+                    default:
+                        throw new ProtocolException("Unsupported request header '%s'", name);
                 }
             } else {
                 if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {

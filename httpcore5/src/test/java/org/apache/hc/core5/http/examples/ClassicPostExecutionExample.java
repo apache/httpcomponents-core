@@ -27,8 +27,6 @@
 
 package org.apache.hc.core5.http.examples;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
@@ -52,7 +50,6 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.io.IOCallback;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -99,15 +96,8 @@ public class ClassicPostExecutionExample {
                 HttpEntities.create(
                         "This is the second test request".getBytes(StandardCharsets.UTF_8),
                         ContentType.APPLICATION_OCTET_STREAM),
-                HttpEntities.create(new IOCallback<OutputStream>() {
-
-                    @Override
-                    public void execute(final OutputStream outStream) throws IOException {
-                        outStream.write(("This is the third test request " +
-                                "(streaming)").getBytes(StandardCharsets.UTF_8));
-                    }
-
-                }, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8)),
+                HttpEntities.create(outStream -> outStream.write(("This is the third test request " +
+                        "(streaming)").getBytes(StandardCharsets.UTF_8)), ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8)),
                 HttpEntities.create(
                         "This is the fourth test request " +
                                 "(streaming with trailers)",

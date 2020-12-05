@@ -32,8 +32,6 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -46,7 +44,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
@@ -77,7 +74,6 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
-import org.apache.hc.core5.ssl.TrustStrategy;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -134,15 +130,7 @@ public class HttpBenchmark {
             final SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
             sslContextBuilder.setProtocol("SSL");
             if (config.isDisableSSLVerification()) {
-                sslContextBuilder.loadTrustMaterial(null, new TrustStrategy() {
-
-                    @Override
-                    public boolean isTrusted(
-                            final X509Certificate[] chain, final String authType) throws CertificateException {
-                        return true;
-                    }
-
-                });
+                sslContextBuilder.loadTrustMaterial(null, (chain, authType) -> true);
             } else if (config.getTrustStorePath() != null) {
                 sslContextBuilder.loadTrustMaterial(
                         new File(config.getTrustStorePath()),
@@ -178,156 +166,149 @@ public class HttpBenchmark {
                 .setH2Config(H2Config.custom()
                         .setPushEnabled(false)
                         .build())
-                .setIOSessionDecorator(new Decorator<IOSession>() {
+                .setIOSessionDecorator(ioSession -> new IOSession() {
 
                     @Override
-                    public IOSession decorate(final IOSession ioSession) {
-                        return new IOSession() {
+                    public String getId() {
+                        return ioSession.getId();
+                    }
 
-                            @Override
-                            public String getId() {
-                                return ioSession.getId();
-                            }
+                    @Override
+                    public Lock getLock() {
+                        return ioSession.getLock();
+                    }
 
-                            @Override
-                            public Lock getLock() {
-                                return ioSession.getLock();
-                            }
+                    @Override
+                    public void enqueue(final Command command, final Command.Priority priority) {
+                        ioSession.enqueue(command, priority);
+                    }
 
-                            @Override
-                            public void enqueue(final Command command, final Command.Priority priority) {
-                                ioSession.enqueue(command, priority);
-                            }
+                    @Override
+                    public boolean hasCommands() {
+                        return ioSession.hasCommands();
+                    }
 
-                            @Override
-                            public boolean hasCommands() {
-                                return ioSession.hasCommands();
-                            }
+                    @Override
+                    public Command poll() {
+                        return ioSession.poll();
+                    }
 
-                            @Override
-                            public Command poll() {
-                                return ioSession.poll();
-                            }
+                    @Override
+                    public ByteChannel channel() {
+                        return ioSession.channel();
+                    }
 
-                            @Override
-                            public ByteChannel channel() {
-                                return ioSession.channel();
-                            }
+                    @Override
+                    public SocketAddress getRemoteAddress() {
+                        return ioSession.getRemoteAddress();
+                    }
 
-                            @Override
-                            public SocketAddress getRemoteAddress() {
-                                return ioSession.getRemoteAddress();
-                            }
+                    @Override
+                    public SocketAddress getLocalAddress() {
+                        return ioSession.getLocalAddress();
+                    }
 
-                            @Override
-                            public SocketAddress getLocalAddress() {
-                                return ioSession.getLocalAddress();
-                            }
+                    @Override
+                    public int getEventMask() {
+                        return ioSession.getEventMask();
+                    }
 
-                            @Override
-                            public int getEventMask() {
-                                return ioSession.getEventMask();
-                            }
+                    @Override
+                    public void setEventMask(final int ops) {
+                        ioSession.setEventMask(ops);
+                    }
 
-                            @Override
-                            public void setEventMask(final int ops) {
-                                ioSession.setEventMask(ops);
-                            }
+                    @Override
+                    public void setEvent(final int op) {
+                        ioSession.setEvent(op);
+                    }
 
-                            @Override
-                            public void setEvent(final int op) {
-                                ioSession.setEvent(op);
-                            }
+                    @Override
+                    public void clearEvent(final int op) {
+                        ioSession.clearEvent(op);
+                    }
 
-                            @Override
-                            public void clearEvent(final int op) {
-                                ioSession.clearEvent(op);
-                            }
+                    @Override
+                    public void close() {
+                        ioSession.close();
+                    }
 
-                            @Override
-                            public void close() {
-                                ioSession.close();
-                            }
+                    @Override
+                    public Status getStatus() {
+                        return ioSession.getStatus();
+                    }
 
-                            @Override
-                            public Status getStatus() {
-                                return ioSession.getStatus();
-                            }
+                    @Override
+                    public int read(final ByteBuffer dst) throws IOException {
+                        final int bytesRead = ioSession.read(dst);
+                        if (bytesRead > 0) {
+                            stats.incTotalBytesRecv(bytesRead);
+                        }
+                        return bytesRead;
+                    }
 
-                            @Override
-                            public int read(final ByteBuffer dst) throws IOException {
-                                final int bytesRead = ioSession.read(dst);
-                                if (bytesRead > 0) {
-                                    stats.incTotalBytesRecv(bytesRead);
-                                }
-                                return bytesRead;
-                            }
+                    @Override
+                    public int write(final ByteBuffer src) throws IOException {
+                        final int bytesWritten = ioSession.write(src);
+                        if (bytesWritten > 0) {
+                            stats.incTotalBytesSent(bytesWritten);
+                        }
+                        return bytesWritten;
+                    }
 
-                            @Override
-                            public int write(final ByteBuffer src) throws IOException {
-                                final int bytesWritten = ioSession.write(src);
-                                if (bytesWritten > 0) {
-                                    stats.incTotalBytesSent(bytesWritten);
-                                }
-                                return bytesWritten;
-                            }
+                    @Override
+                    public boolean isOpen() {
+                        return ioSession.isOpen();
+                    }
 
-                            @Override
-                            public boolean isOpen() {
-                                return ioSession.isOpen();
-                            }
+                    @Override
+                    public Timeout getSocketTimeout() {
+                        return ioSession.getSocketTimeout();
+                    }
 
-                            @Override
-                            public Timeout getSocketTimeout() {
-                                return ioSession.getSocketTimeout();
-                            }
+                    @Override
+                    public void setSocketTimeout(final Timeout timeout) {
+                        ioSession.setSocketTimeout(timeout);
+                    }
 
-                            @Override
-                            public void setSocketTimeout(final Timeout timeout) {
-                                ioSession.setSocketTimeout(timeout);
-                            }
+                    @Override
+                    public long getLastReadTime() {
+                        return ioSession.getLastReadTime();
+                    }
 
-                            @Override
-                            public long getLastReadTime() {
-                                return ioSession.getLastReadTime();
-                            }
+                    @Override
+                    public long getLastWriteTime() {
+                        return ioSession.getLastWriteTime();
+                    }
 
-                            @Override
-                            public long getLastWriteTime() {
-                                return ioSession.getLastWriteTime();
-                            }
+                    @Override
+                    public long getLastEventTime() {
+                        return ioSession.getLastEventTime();
+                    }
 
-                            @Override
-                            public long getLastEventTime() {
-                                return ioSession.getLastEventTime();
-                            }
+                    @Override
+                    public void updateReadTime() {
+                        ioSession.updateReadTime();
+                    }
 
-                            @Override
-                            public void updateReadTime() {
-                                ioSession.updateReadTime();
-                            }
+                    @Override
+                    public void updateWriteTime() {
+                        ioSession.updateWriteTime();
+                    }
 
-                            @Override
-                            public void updateWriteTime() {
-                                ioSession.updateWriteTime();
-                            }
+                    @Override
+                    public void close(final CloseMode closeMode) {
+                        ioSession.close(closeMode);
+                    }
 
-                            @Override
-                            public void close(final CloseMode closeMode) {
-                                ioSession.close(closeMode);
-                            }
+                    @Override
+                    public IOEventHandler getHandler() {
+                        return ioSession.getHandler();
+                    }
 
-                            @Override
-                            public IOEventHandler getHandler() {
-                                return ioSession.getHandler();
-                            }
-
-                            @Override
-                            public void upgrade(final IOEventHandler handler) {
-                                ioSession.upgrade(handler);
-                            }
-
-                        };
+                    @Override
+                    public void upgrade(final IOEventHandler handler) {
+                        ioSession.upgrade(handler);
                     }
 
                 })

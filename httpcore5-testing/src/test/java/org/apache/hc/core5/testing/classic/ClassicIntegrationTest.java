@@ -41,25 +41,19 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.io.HttpRequestHandler;
-import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
@@ -175,24 +169,16 @@ public class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        this.server.registerHandler("*", (request, response, context) -> {
 
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                String s = request.getPath();
-                if (s.startsWith("/?")) {
-                    s = s.substring(2);
-                }
-                final int index = Integer.parseInt(s);
-                final byte[] data = testData.get(index);
-                final ByteArrayEntity entity = new ByteArrayEntity(data, null);
-                response.setEntity(entity);
+            String s = request.getPath();
+            if (s.startsWith("/?")) {
+                s = s.substring(2);
             }
-
+            final int index = Integer.parseInt(s);
+            final byte[] data = testData.get(index);
+            final ByteArrayEntity entity = new ByteArrayEntity(data, null);
+            response.setEntity(entity);
         });
 
         this.server.start();
@@ -236,21 +222,13 @@ public class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        this.server.registerHandler("*", (request, response, context) -> {
 
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                final HttpEntity entity = request.getEntity();
-                if (entity != null) {
-                    final byte[] data = EntityUtils.toByteArray(entity);
-                    response.setEntity(new ByteArrayEntity(data, null));
-                }
+            final HttpEntity entity = request.getEntity();
+            if (entity != null) {
+                final byte[] data = EntityUtils.toByteArray(entity);
+                response.setEntity(new ByteArrayEntity(data, null));
             }
-
         });
 
         this.server.start();
@@ -297,21 +275,13 @@ public class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        this.server.registerHandler("*", (request, response, context) -> {
 
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                final HttpEntity entity = request.getEntity();
-                if (entity != null) {
-                    final byte[] data = EntityUtils.toByteArray(entity);
-                    response.setEntity(new ByteArrayEntity(data, null, true));
-                }
+            final HttpEntity entity = request.getEntity();
+            if (entity != null) {
+                final byte[] data = EntityUtils.toByteArray(entity);
+                response.setEntity(new ByteArrayEntity(data, null, true));
             }
-
         });
 
         this.server.start();
@@ -357,24 +327,16 @@ public class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        this.server.registerHandler("*", (request, response, context) -> {
 
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                final HttpEntity entity = request.getEntity();
-                if (entity != null) {
-                    final byte[] data = EntityUtils.toByteArray(entity);
-                    response.setEntity(new ByteArrayEntity(data, null));
-                }
-                if (HttpVersion.HTTP_1_0.equals(request.getVersion())) {
-                    response.addHeader("Version", "1.0");
-                }
+            final HttpEntity entity = request.getEntity();
+            if (entity != null) {
+                final byte[] data = EntityUtils.toByteArray(entity);
+                response.setEntity(new ByteArrayEntity(data, null));
             }
-
+            if (HttpVersion.HTTP_1_0.equals(request.getVersion())) {
+                response.addHeader("Version", "1.0");
+            }
         });
 
         this.server.start();
@@ -427,21 +389,13 @@ public class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        this.server.registerHandler("*", (request, response, context) -> {
 
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                final HttpEntity entity = request.getEntity();
-                if (entity != null) {
-                    final byte[] data = EntityUtils.toByteArray(entity);
-                    response.setEntity(new ByteArrayEntity(data, null, true));
-                }
+            final HttpEntity entity = request.getEntity();
+            if (entity != null) {
+                final byte[] data = EntityUtils.toByteArray(entity);
+                response.setEntity(new ByteArrayEntity(data, null, true));
             }
-
         });
 
         this.server.start();
@@ -477,47 +431,29 @@ public class ClassicIntegrationTest {
         final int reqNo = 20;
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        this.server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("No content")));
+
+        this.server.start(null, null, handler -> new BasicHttpServerExpectationDecorator(handler) {
 
             @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                response.setEntity(new StringEntity("No content"));
-            }
-
-        });
-
-        this.server.start(null, null, new Decorator<HttpServerRequestHandler>() {
-
-            @Override
-            public HttpServerRequestHandler decorate(final HttpServerRequestHandler handler) {
-                return new BasicHttpServerExpectationDecorator(handler) {
-
-                    @Override
-                    protected ClassicHttpResponse verify(final ClassicHttpRequest request, final HttpContext context) {
-                        final Header someheader = request.getFirstHeader("Secret");
-                        if (someheader != null) {
-                            final int secretNumber;
-                            try {
-                                secretNumber = Integer.parseInt(someheader.getValue());
-                            } catch (final NumberFormatException ex) {
-                                final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_BAD_REQUEST);
-                                response.setEntity(new StringEntity(ex.toString()));
-                                return response;
-                            }
-                            if (secretNumber >= 2) {
-                                final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED);
-                                response.setEntity(new StringEntity("Wrong secret number", ContentType.TEXT_PLAIN));
-                                return response;
-                            }
-                        }
-                        return null;
+            protected ClassicHttpResponse verify(final ClassicHttpRequest request, final HttpContext context) {
+                final Header someheader = request.getFirstHeader("Secret");
+                if (someheader != null) {
+                    final int secretNumber;
+                    try {
+                        secretNumber = Integer.parseInt(someheader.getValue());
+                    } catch (final NumberFormatException ex) {
+                        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_BAD_REQUEST);
+                        response.setEntity(new StringEntity(ex.toString()));
+                        return response;
                     }
-
-                };
+                    if (secretNumber >= 2) {
+                        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED);
+                        response.setEntity(new StringEntity("Wrong secret number", ContentType.TEXT_PLAIN));
+                        return response;
+                    }
+                }
+                return null;
             }
 
         });
@@ -557,7 +493,7 @@ public class ClassicIntegrationTest {
 
         public RepeatingEntity(final String content, final Charset charset, final int n, final boolean chunked) {
             super(ContentType.TEXT_PLAIN.withCharset(charset), null, chunked);
-            final Charset cs = charset != null ? charset : Charset.forName("US-ASCII");
+            final Charset cs = charset != null ? charset : StandardCharsets.US_ASCII;
             this.raw = content.getBytes(cs);
             this.n = n;
         }
@@ -622,42 +558,34 @@ public class ClassicIntegrationTest {
         };
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        this.server.registerHandler("*", (request, response, context) -> {
 
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                int n = 1;
-                String s = request.getPath();
-                if (s.startsWith("/?n=")) {
-                    s = s.substring(4);
-                    try {
-                        n = Integer.parseInt(s);
-                        if (n <= 0) {
-                            throw new HttpException("Invalid request: " +
-                                    "number of repetitions cannot be negative or zero");
-                        }
-                    } catch (final NumberFormatException ex) {
+            int n = 1;
+            String s = request.getPath();
+            if (s.startsWith("/?n=")) {
+                s = s.substring(4);
+                try {
+                    n = Integer.parseInt(s);
+                    if (n <= 0) {
                         throw new HttpException("Invalid request: " +
-                                "number of repetitions is invalid");
+                                "number of repetitions cannot be negative or zero");
                     }
-                }
-
-                final HttpEntity entity = request.getEntity();
-                if (entity != null) {
-                    final String line = EntityUtils.toString(entity);
-                    final ContentType contentType = ContentType.parse(entity.getContentType());
-                    Charset charset = contentType.getCharset();
-                    if (charset == null) {
-                        charset = StandardCharsets.ISO_8859_1;
-                    }
-                    response.setEntity(new RepeatingEntity(line, charset, n, n % 2 == 0));
+                } catch (final NumberFormatException ex) {
+                    throw new HttpException("Invalid request: " +
+                            "number of repetitions is invalid");
                 }
             }
 
+            final HttpEntity entity = request.getEntity();
+            if (entity != null) {
+                final String line = EntityUtils.toString(entity);
+                final ContentType contentType = ContentType.parse(entity.getContentType());
+                Charset charset = contentType.getCharset();
+                if (charset == null) {
+                    charset = StandardCharsets.ISO_8859_1;
+                }
+                response.setEntity(new RepeatingEntity(line, charset, n, n % 2 == 0));
+            }
         });
 
         this.server.start();
@@ -698,21 +626,13 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHttpPostNoEntity() throws Exception {
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        this.server.registerHandler("*", (request, response, context) -> {
 
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                final HttpEntity entity = request.getEntity();
-                if (entity != null) {
-                    final byte[] data = EntityUtils.toByteArray(entity);
-                    response.setEntity(new ByteArrayEntity(data, null));
-                }
+            final HttpEntity entity = request.getEntity();
+            if (entity != null) {
+                final byte[] data = EntityUtils.toByteArray(entity);
+                response.setEntity(new ByteArrayEntity(data, null));
             }
-
         });
 
         this.server.start();
@@ -733,21 +653,13 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHttpPostNoContentLength() throws Exception {
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        this.server.registerHandler("*", (request, response, context) -> {
 
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                final HttpEntity entity = request.getEntity();
-                if (entity != null) {
-                    final byte[] data = EntityUtils.toByteArray(entity);
-                    response.setEntity(new ByteArrayEntity(data, null));
-                }
+            final HttpEntity entity = request.getEntity();
+            if (entity != null) {
+                final byte[] data = EntityUtils.toByteArray(entity);
+                response.setEntity(new ByteArrayEntity(data, null));
             }
-
         });
 
         this.server.start();
@@ -772,36 +684,18 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHttpPostIdentity() throws Exception {
-        this.server.registerHandler("*", new HttpRequestHandler() {
+        this.server.registerHandler("*", (request, response, context) -> {
 
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-
-                final HttpEntity entity = request.getEntity();
-                if (entity != null) {
-                    final byte[] data = EntityUtils.toByteArray(entity);
-                    response.setEntity(new ByteArrayEntity(data, null));
-                }
+            final HttpEntity entity = request.getEntity();
+            if (entity != null) {
+                final byte[] data = EntityUtils.toByteArray(entity);
+                response.setEntity(new ByteArrayEntity(data, null));
             }
-
         });
 
         this.server.start();
         this.client.start(new DefaultHttpProcessor(
-                new HttpRequestInterceptor() {
-
-                    @Override
-                    public void process(
-                            final HttpRequest request,
-                            final EntityDetails entity,
-                            final HttpContext context) throws HttpException, IOException {
-                        request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity");
-                    }
-
-                },
+                (request, entity, context) -> request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity"),
                 new RequestTargetHost(),
                 new RequestConnControl(),
                 new RequestUserAgent(),
@@ -824,17 +718,7 @@ public class ClassicIntegrationTest {
         final int reqNo = 20;
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
-
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                response.setCode(HttpStatus.SC_NO_CONTENT);
-            }
-
-        });
+        this.server.registerHandler("*", (request, response, context) -> response.setCode(HttpStatus.SC_NO_CONTENT));
 
         this.server.start();
         this.client.start();
@@ -854,17 +738,7 @@ public class ClassicIntegrationTest {
     public void testAbsentHostHeader() throws Exception {
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", new HttpRequestHandler() {
-
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII));
-            }
-
-        });
+        this.server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
 
         this.server.start();
         this.client.start(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()));
@@ -888,17 +762,7 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHeaderTooLarge() throws Exception {
-        this.server.registerHandler("*", new HttpRequestHandler() {
-
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII));
-            }
-
-        });
+        this.server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
 
         this.server.start(
                 Http1Config.custom()
@@ -922,17 +786,7 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHeaderTooLargePost() throws Exception {
-        this.server.registerHandler("*", new HttpRequestHandler() {
-
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII));
-            }
-
-        });
+        this.server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
 
         this.server.start(
                 Http1Config.custom()

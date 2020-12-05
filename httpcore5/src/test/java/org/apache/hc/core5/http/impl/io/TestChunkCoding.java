@@ -33,9 +33,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
@@ -310,16 +308,10 @@ public class TestChunkCoding {
 
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16, 10);
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
-        final ChunkedInputStream in2 = new ChunkedInputStream(inBuffer2, inputStream2);
-        try {
+        try (ChunkedInputStream in2 = new ChunkedInputStream(inBuffer2, inputStream2)) {
             in2.read(buffer);
             Assert.fail("MessageConstraintException expected");
         } catch (final MessageConstraintException ex) {
-        } finally {
-            try {
-                in2.close();
-            } catch (final MessageConstraintException ex) {
-            }
         }
     }
 
@@ -374,14 +366,9 @@ public class TestChunkCoding {
     public void testChunkedOutputStreamWithTrailers() throws IOException {
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        final ChunkedOutputStream out = new ChunkedOutputStream(outbuffer, outputStream, 2, new Supplier<List<? extends Header>>() {
-            @Override
-            public List<? extends Header> get() {
-                return Arrays.asList(
-                        new BasicHeader("E", ""),
-                        new BasicHeader("Y", "Z"));
-                }
-            }
+        final ChunkedOutputStream out = new ChunkedOutputStream(outbuffer, outputStream, 2, () -> Arrays.asList(
+                new BasicHeader("E", ""),
+                new BasicHeader("Y", "Z"))
         );
         out.write('x');
         out.finish();

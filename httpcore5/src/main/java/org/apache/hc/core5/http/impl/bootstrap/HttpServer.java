@@ -106,12 +106,12 @@ public class HttpServer implements ModalCloseable {
         this.exceptionListener = exceptionListener != null ? exceptionListener : ExceptionListener.NO_OP;
         this.listenerExecutorService = new ThreadPoolExecutor(
                 1, 1, 0L, TimeUnit.MILLISECONDS,
-                new SynchronousQueue<Runnable>(),
+                new SynchronousQueue<>(),
                 new DefaultThreadFactory("HTTP-listener-" + this.port));
         this.workerThreads = new ThreadGroup("HTTP-workers");
         this.workerExecutorService = new WorkerPoolExecutor(
                 0, Integer.MAX_VALUE, 1L, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>(),
+                new SynchronousQueue<>(),
                 new DefaultThreadFactory("HTTP-worker", this.workerThreads, true));
         this.status = new AtomicReference<>(Status.READY);
     }

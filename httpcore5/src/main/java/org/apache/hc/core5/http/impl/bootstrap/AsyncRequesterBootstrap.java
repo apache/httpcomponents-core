@@ -218,7 +218,7 @@ public class AsyncRequesterBootstrap {
                         defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                         timeToLive,
                         poolReusePolicy,
-                        new DefaultDisposalCallback<IOSession>(),
+                        new DefaultDisposalCallback<>(),
                         connPoolListener);
                 break;
             case STRICT:
@@ -228,7 +228,7 @@ public class AsyncRequesterBootstrap {
                         maxTotal > 0 ? maxTotal : 50,
                         timeToLive,
                         poolReusePolicy,
-                        new DefaultDisposalCallback<IOSession>(),
+                        new DefaultDisposalCallback<>(),
                         connPoolListener);
                 break;
         }

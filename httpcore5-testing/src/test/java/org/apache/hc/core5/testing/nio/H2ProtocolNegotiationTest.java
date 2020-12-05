@@ -32,7 +32,6 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
@@ -44,7 +43,6 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
@@ -95,14 +93,7 @@ public class H2ProtocolNegotiationTest {
                                     .setSoTimeout(TIMEOUT)
                                     .build())
                     .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
-                    .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                        @Override
-                        public AsyncServerExchangeHandler get() {
-                            return new EchoHandler(2048);
-                        }
-
-                    })
+                    .register("*", () -> new EchoHandler(2048))
                     .setStreamListener(LoggingH2StreamListener.INSTANCE)
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)

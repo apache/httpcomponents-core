@@ -73,7 +73,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                 elements.add(element);
             }
         }
-        return elements.toArray(new HeaderElement[elements.size()]);
+        return elements.toArray(new HeaderElement[0]);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                 break;
             }
         }
-        return params.toArray(new NameValuePair[params.size()]);
+        return params.toArray(new NameValuePair[0]);
     }
 
     @Override

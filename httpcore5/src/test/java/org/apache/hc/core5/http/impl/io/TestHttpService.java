@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.impl.io;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -35,14 +34,12 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.HeaderElements;
-import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequestMapper;
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpResponseFactory;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
@@ -50,14 +47,12 @@ import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.io.entity.InputStreamEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -140,14 +135,7 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(ArgumentMatchers.eq(request), ArgumentMatchers.argThat(new ArgumentMatcher<HttpResponse>() {
-
-            @Override
-            public boolean matches(final HttpResponse errorResponse) {
-                return errorResponse.getCode() == HttpStatus.SC_NOT_IMPLEMENTED;
-            }
-
-        }), ArgumentMatchers.eq(context))).thenReturn(Boolean.TRUE);
+        Mockito.when(connReuseStrategy.keepAlive(ArgumentMatchers.eq(request), ArgumentMatchers.argThat(errorResponse -> errorResponse.getCode() == HttpStatus.SC_NOT_IMPLEMENTED), ArgumentMatchers.eq(context))).thenReturn(Boolean.TRUE);
 
         httpservice.handleRequest(conn, context);
         final ArgumentCaptor<ClassicHttpResponse> responseCaptor = ArgumentCaptor.forClass(ClassicHttpResponse.class);
@@ -180,14 +168,7 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
-        Mockito.when(connReuseStrategy.keepAlive(ArgumentMatchers.eq(request), ArgumentMatchers.argThat(new ArgumentMatcher<HttpResponse>() {
-
-            @Override
-            public boolean matches(final HttpResponse errorResponse) {
-                return errorResponse.getCode() == HttpStatus.SC_NOT_IMPLEMENTED;
-            }
-
-        }), ArgumentMatchers.eq(context))).thenReturn(Boolean.TRUE);
+        Mockito.when(connReuseStrategy.keepAlive(ArgumentMatchers.eq(request), ArgumentMatchers.argThat(errorResponse -> errorResponse.getCode() == HttpStatus.SC_NOT_IMPLEMENTED), ArgumentMatchers.eq(context))).thenReturn(Boolean.TRUE);
 
         httpservice.handleRequest(conn, context);
         final ArgumentCaptor<ClassicHttpResponse> responseCaptor = ArgumentCaptor.forClass(ClassicHttpResponse.class);
@@ -326,16 +307,7 @@ public class TestHttpService {
 
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
         Mockito.when(responseFactory.newHttpResponse(200)).thenReturn(response);
-        Mockito.when(handlerResolver.resolve(request, context)).thenReturn(new HttpRequestHandler() {
-
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws HttpException, IOException {
-                response.setCode(HttpStatus.SC_NO_CONTENT);
-            }
-        });
+        Mockito.when(handlerResolver.resolve(request, context)).thenReturn((request1, response, context1) -> response.setCode(HttpStatus.SC_NO_CONTENT));
         Mockito.when(connReuseStrategy.keepAlive(request, response, context)).thenReturn(Boolean.TRUE);
 
         httpservice.handleRequest(conn, context);

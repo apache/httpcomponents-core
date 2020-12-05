@@ -189,7 +189,7 @@ public class RequesterBootstrap {
                         defaultMaxPerRoute > 0 ? defaultMaxPerRoute : 20,
                         timeToLive,
                         poolReusePolicy,
-                        new DefaultDisposalCallback<HttpClientConnection>(),
+                        new DefaultDisposalCallback<>(),
                         connPoolListener);
                 break;
             case STRICT:
@@ -199,7 +199,7 @@ public class RequesterBootstrap {
                         maxTotal > 0 ? maxTotal : 50,
                         timeToLive,
                         poolReusePolicy,
-                        new DefaultDisposalCallback<HttpClientConnection>(),
+                        new DefaultDisposalCallback<>(),
                         connPoolListener);
                 break;
         }

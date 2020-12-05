@@ -208,7 +208,7 @@ public class VersionInfo {
             }
         }
 
-        return vil.toArray(new VersionInfo[vil.size()]);
+        return vil.toArray(new VersionInfo[0]);
     }
 
 

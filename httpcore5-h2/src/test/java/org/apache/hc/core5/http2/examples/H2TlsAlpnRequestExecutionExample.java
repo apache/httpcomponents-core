@@ -30,9 +30,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
-
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
@@ -51,9 +48,6 @@ import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Timeout;
 
@@ -64,7 +58,7 @@ import org.apache.hc.core5.util.Timeout;
  */
 public class H2TlsAlpnRequestExecutionExample {
 
-    public final static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
         // Create and start requester
         final H2Config h2Config = H2Config.custom()
                 .setPushEnabled(false)
@@ -72,18 +66,13 @@ public class H2TlsAlpnRequestExecutionExample {
 
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
                 .setH2Config(h2Config)
-                .setTlsStrategy(new H2ClientTlsStrategy(SSLContexts.createSystemDefault(), new SSLSessionVerifier() {
-
-                    @Override
-                    public TlsDetails verify(final NamedEndpoint endpoint, final SSLEngine sslEngine) throws SSLException {
-                        // IMPORTANT uncomment the following line when running Java 9 or older
-                        // in order to avoid the illegal reflective access operation warning
-                        // ====
-                        // return new TlsDetails(sslEngine.getSession(), sslEngine.getApplicationProtocol());
-                        // ====
-                        return null;
-                    }
-
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLContexts.createSystemDefault(), (endpoint, sslEngine) -> {
+                    // IMPORTANT uncomment the following line when running Java 9 or older
+                    // in order to avoid the illegal reflective access operation warning
+                    // ====
+                    // return new TlsDetails(sslEngine.getSession(), sslEngine.getApplicationProtocol());
+                    // ====
+                    return null;
                 }))
                 .setStreamListener(new H2StreamListener() {
 
@@ -119,13 +108,10 @@ public class H2TlsAlpnRequestExecutionExample {
 
                 })
                 .create();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("HTTP requester shutting down");
-                requester.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("HTTP requester shutting down");
+            requester.close(CloseMode.GRACEFUL);
+        }));
         requester.start();
 
         final HttpHost target = new HttpHost("https", "nghttp2.org", 443);

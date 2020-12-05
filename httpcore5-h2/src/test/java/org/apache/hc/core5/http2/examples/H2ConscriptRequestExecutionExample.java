@@ -60,7 +60,7 @@ import org.conscrypt.Conscrypt;
  */
 public class H2ConscriptRequestExecutionExample {
 
-    public final static void main(final String[] args) throws Exception {
+    public static void main(final String[] args) throws Exception {
 
         // Create and start requester
         final H2Config h2Config = H2Config.custom()
@@ -108,13 +108,10 @@ public class H2ConscriptRequestExecutionExample {
 
                 })
                 .create();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("HTTP requester shutting down");
-                requester.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("HTTP requester shutting down");
+            requester.close(CloseMode.GRACEFUL);
+        }));
         requester.start();
 
         final HttpHost target = new HttpHost("https", "nghttp2.org", 443);

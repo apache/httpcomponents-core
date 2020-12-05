@@ -51,15 +51,12 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
-import org.apache.hc.core5.http.nio.AsyncPushConsumer;
-import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.entity.NoopEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.AbstractAsyncPushHandler;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
@@ -239,31 +236,24 @@ public class H2CompatibilityTest {
                 final Future<Message<HttpResponse, String>> future = endpoint.execute(
                         new BasicRequestProducer(httpget, null),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                        new HandlerFactory<AsyncPushConsumer>() {
+                        (request, context) -> new AbstractAsyncPushHandler<Message<HttpResponse, Void>>(new BasicResponseConsumer<>(new NoopEntityConsumer())) {
 
                             @Override
-                            public AsyncPushConsumer create(
-                                    final HttpRequest request, final HttpContext context) throws HttpException {
-                                return new AbstractAsyncPushHandler<Message<HttpResponse, Void>>(new BasicResponseConsumer<>(new NoopEntityConsumer())) {
+                            protected void handleResponse(
+                                    final HttpRequest promise,
+                                    final Message<HttpResponse, Void> responseMessage) throws IOException, HttpException {
+                                final HttpResponse response = responseMessage.getHead();
+                                logResult(TestResult.OK, target, promise, response,
+                                        "pushed / " + response.getFirstHeader("server"));
+                                countDownLatch.countDown();
+                            }
 
-                                    @Override
-                                    protected void handleResponse(
-                                            final HttpRequest promise,
-                                            final Message<HttpResponse, Void> responseMessage) throws IOException, HttpException {
-                                        final HttpResponse response = responseMessage.getHead();
-                                        logResult(TestResult.OK, target, promise, response,
-                                                "pushed / " + response.getFirstHeader("server"));
-                                        countDownLatch.countDown();
-                                    }
-
-                                    @Override
-                                    protected void handleError(
-                                            final HttpRequest promise,
-                                            final Exception cause) {
-                                        logResult(TestResult.NOK, target, promise, null, "(" + cause.getMessage() + ")");
-                                        countDownLatch.countDown();
-                                    }
-                                };
+                            @Override
+                            protected void handleError(
+                                    final HttpRequest promise,
+                                    final Exception cause) {
+                                logResult(TestResult.NOK, target, promise, null, "(" + cause.getMessage() + ")");
+                                countDownLatch.countDown();
                             }
                         },
                         null,
@@ -294,28 +284,28 @@ public class H2CompatibilityTest {
             System.out.println("*** httpbin.org HTTP/1.1 simple request execution ***");
 
             final List<Message<HttpRequest, AsyncEntityProducer>> requestMessages = Arrays.asList(
-                    new Message<HttpRequest, AsyncEntityProducer>(
+                    new Message<>(
                             new BasicHttpRequest(Method.GET, target, "/headers"),
                             null),
-                    new Message<HttpRequest, AsyncEntityProducer>(
+                    new Message<>(
                             new BasicHttpRequest(Method.POST, target, "/anything"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
-                    new Message<HttpRequest, AsyncEntityProducer>(
+                    new Message<>(
                             new BasicHttpRequest(Method.PUT, target, "/anything"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
-                    new Message<HttpRequest, AsyncEntityProducer>(
+                    new Message<>(
                             new BasicHttpRequest(Method.GET, target, "/drip"),
                             null),
-                    new Message<HttpRequest, AsyncEntityProducer>(
+                    new Message<>(
                             new BasicHttpRequest(Method.GET, target, "/bytes/20000"),
                             null),
-                    new Message<HttpRequest, AsyncEntityProducer>(
+                    new Message<>(
                             new BasicHttpRequest(Method.GET, target, "/delay/2"),
                             null),
-                    new Message<HttpRequest, AsyncEntityProducer>(
+                    new Message<>(
                             new BasicHttpRequest(Method.POST, target, "/delay/2"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
-                    new Message<HttpRequest, AsyncEntityProducer>(
+                    new Message<>(
                             new BasicHttpRequest(Method.PUT, target, "/delay/2"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN))
             );

@@ -317,7 +317,7 @@ public class TestURIBuilder {
     @Test
     public void testSetParametersWithEmptyList() throws Exception {
         final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
-        final URIBuilder uribuilder = new URIBuilder(uri).setParameters(Arrays.<NameValuePair>asList());
+        final URIBuilder uribuilder = new URIBuilder(uri).setParameters(Collections.<NameValuePair>emptyList());
         final URI result = uribuilder.build();
         Assert.assertEquals(new URI("http://localhost:80/test"), result);
     }

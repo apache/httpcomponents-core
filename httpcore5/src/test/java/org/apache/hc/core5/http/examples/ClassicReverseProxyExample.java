@@ -177,13 +177,10 @@ public class ClassicReverseProxyExample {
                 .create();
 
         server.start();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                server.close(CloseMode.GRACEFUL);
-                requester.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            server.close(CloseMode.GRACEFUL);
+            requester.close(CloseMode.GRACEFUL);
+        }));
 
         System.out.println("Listening on port " + port);
         server.awaitTermination(TimeValue.MAX_VALUE);

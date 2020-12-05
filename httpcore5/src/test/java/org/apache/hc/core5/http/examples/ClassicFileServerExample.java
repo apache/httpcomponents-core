@@ -47,8 +47,8 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
@@ -124,12 +124,7 @@ public class ClassicFileServerExample {
                 .create();
 
         server.start();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                server.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> server.close(CloseMode.GRACEFUL)));
         System.out.println("Listening on port " + port);
 
         server.awaitTermination(TimeValue.MAX_VALUE);

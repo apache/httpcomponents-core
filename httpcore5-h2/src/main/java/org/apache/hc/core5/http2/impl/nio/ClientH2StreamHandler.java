@@ -49,8 +49,6 @@ import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.HandlerFactory;
-import org.apache.hc.core5.http.nio.RequestChannel;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.H2ConnectionException;
@@ -168,15 +166,7 @@ class ClientH2StreamHandler implements H2StreamHandler {
     public void produceOutput() throws HttpException, IOException {
         switch (requestState) {
             case HEADERS:
-                exchangeHandler.produceRequest(new RequestChannel() {
-
-                    @Override
-                    public void sendRequest(
-                            final HttpRequest request, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                        commitRequest(request, entityDetails);
-                    }
-
-                }, context);
+                exchangeHandler.produceRequest((request, entityDetails, httpContext) -> commitRequest(request, entityDetails), context);
                 break;
             case BODY:
                 exchangeHandler.produce(dataChannel);

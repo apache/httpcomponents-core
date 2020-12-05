@@ -60,8 +60,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
@@ -79,14 +77,12 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
 import org.apache.hc.core5.http.nio.AsyncResponseProducer;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityConsumer;
@@ -185,14 +181,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testSimpleGet() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -221,14 +210,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testSimpleHead() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -251,14 +233,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testLargeGet() throws Exception {
-        server.register("/", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new MultiLineResponseHandler("0123456789abcdef", 5000);
-            }
-
-        });
+        server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 5000));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -301,14 +276,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testBasicPost() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi back");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -338,14 +306,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testLargePost() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new EchoHandler(2048);
-            }
-
-        });
+        server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -372,14 +333,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testSlowResponseConsumer() throws Exception {
-        server.register("/", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new MultiLineResponseHandler("0123456789abcd", 3);
-            }
-
-        });
+        server.register("/", () -> new MultiLineResponseHandler("0123456789abcd", 3));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start(H2Config.custom().setInitialWindowSize(16).build());
@@ -431,14 +385,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testSlowRequestProducer() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new EchoHandler(2048);
-            }
-
-        });
+        server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -487,62 +434,55 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testSlowResponseProducer() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", () -> new AbstractClassicServerExchangeHandler(2048, Executors.newSingleThreadExecutor()) {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new AbstractClassicServerExchangeHandler(2048, Executors.newSingleThreadExecutor()) {
+            protected void handle(
+                    final HttpRequest request,
+                    final InputStream requestStream,
+                    final HttpResponse response,
+                    final OutputStream responseStream,
+                    final HttpContext context) throws IOException, HttpException {
 
-                    @Override
-                    protected void handle(
-                            final HttpRequest request,
-                            final InputStream requestStream,
-                            final HttpResponse response,
-                            final OutputStream responseStream,
-                            final HttpContext context) throws IOException, HttpException {
-
-                        if (!"/hello".equals(request.getPath())) {
-                            response.setCode(HttpStatus.SC_NOT_FOUND);
-                            return;
-                        }
-                        if (!Method.POST.name().equalsIgnoreCase(request.getMethod())) {
-                            response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
-                            return;
-                        }
-                        if (requestStream == null) {
-                            return;
-                        }
-                        final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
-                        final ContentType contentType = h1 != null ? ContentType.parse(h1.getValue()) : null;
-                        Charset charset = contentType != null ? contentType.getCharset() : null;
-                        if (charset == null) {
-                            charset = StandardCharsets.US_ASCII;
-                        }
-                        response.setCode(HttpStatus.SC_OK);
-                        response.setHeader(h1);
-                        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(requestStream, charset));
-                            final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(responseStream, charset))) {
-                            try {
-                                String l;
-                                int count = 0;
-                                while ((l = reader.readLine()) != null) {
-                                    writer.write(l);
-                                    writer.write("\r\n");
-                                    count++;
-                                    if (count % 500 == 0) {
-                                        Thread.sleep(500);
-                                    }
-                                }
-                                writer.flush();
-                            } catch (final InterruptedException ex) {
-                                Thread.currentThread().interrupt();
-                                throw new InterruptedIOException(ex.getMessage());
+                if (!"/hello".equals(request.getPath())) {
+                    response.setCode(HttpStatus.SC_NOT_FOUND);
+                    return;
+                }
+                if (!Method.POST.name().equalsIgnoreCase(request.getMethod())) {
+                    response.setCode(HttpStatus.SC_NOT_IMPLEMENTED);
+                    return;
+                }
+                if (requestStream == null) {
+                    return;
+                }
+                final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+                final ContentType contentType = h1 != null ? ContentType.parse(h1.getValue()) : null;
+                Charset charset = contentType != null ? contentType.getCharset() : null;
+                if (charset == null) {
+                    charset = StandardCharsets.US_ASCII;
+                }
+                response.setCode(HttpStatus.SC_OK);
+                response.setHeader(h1);
+                try (final BufferedReader reader = new BufferedReader(new InputStreamReader(requestStream, charset));
+                    final BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(responseStream, charset))) {
+                    try {
+                        String l;
+                        int count = 0;
+                        while ((l = reader.readLine()) != null) {
+                            writer.write(l);
+                            writer.write("\r\n");
+                            count++;
+                            if (count % 500 == 0) {
+                                Thread.sleep(500);
                             }
                         }
+                        writer.flush();
+                    } catch (final InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        throw new InterruptedIOException(ex.getMessage());
                     }
-                };
+                }
             }
-
         });
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -574,28 +514,21 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
     @Test
     public void testPush() throws Exception {
         final InetSocketAddress serverEndpoint = server.start();
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", () -> new MessageExchangeHandler<Void>(new NoopEntityConsumer()) {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new MessageExchangeHandler<Void>(new NoopEntityConsumer()) {
-
-                    @Override
-                    protected void handle(
-                            final Message<HttpRequest, Void> request,
-                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                            final HttpContext context) throws IOException, HttpException {
-                        responseTrigger.pushPromise(
-                                new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/stuff")),
-                                context,
-                                new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)));
-                        responseTrigger.submitResponse(
-                                AsyncResponseBuilder.create(HttpStatus.SC_OK).setEntity("Hi there", ContentType.TEXT_PLAIN).build(),
-                                context);
-                    }
-                };
+            protected void handle(
+                    final Message<HttpRequest, Void> request,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws IOException, HttpException {
+                responseTrigger.pushPromise(
+                        new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/stuff")),
+                        context,
+                        new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)));
+                responseTrigger.submitResponse(
+                        AsyncResponseBuilder.create(HttpStatus.SC_OK).setEntity("Hi there", ContentType.TEXT_PLAIN).build(),
+                        context);
             }
-
         });
 
         client.start(H2Config.custom().setPushEnabled(true).build());
@@ -609,27 +542,20 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                new HandlerFactory<AsyncPushConsumer>() {
+                (request, context) -> new AbstractAsyncPushHandler<Message<HttpResponse, String>>(new BasicResponseConsumer<>(new StringAsyncEntityConsumer())) {
 
                     @Override
-                    public AsyncPushConsumer create(
-                            final HttpRequest request, final HttpContext context) throws HttpException {
-                        return new AbstractAsyncPushHandler<Message<HttpResponse, String>>(new BasicResponseConsumer<>(new StringAsyncEntityConsumer())) {
-
-                            @Override
-                            protected void handleResponse(
-                                    final HttpRequest promise,
-                                    final Message<HttpResponse, String> responseMessage) throws IOException, HttpException {
-                                try {
-                                    pushMessageQueue.put(responseMessage);
-                                } catch (final InterruptedException ex) {
-                                    Thread.currentThread().interrupt();
-                                    throw new InterruptedIOException(ex.getMessage());
-                                }
-                            }
-
-                        };
+                    protected void handleResponse(
+                            final HttpRequest promise,
+                            final Message<HttpResponse, String> responseMessage) throws IOException, HttpException {
+                        try {
+                            pushMessageQueue.put(responseMessage);
+                        } catch (final InterruptedException ex) {
+                            Thread.currentThread().interrupt();
+                            throw new InterruptedIOException(ex.getMessage());
+                        }
                     }
+
                 },
                 null,
                 null);
@@ -730,14 +656,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testExcessOfConcurrentStreams() throws Exception {
-        server.register("/", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new MultiLineResponseHandler("0123456789abcdef", 2000);
-            }
-
-        });
+        server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 2000));
         final InetSocketAddress serverEndpoint = server.start(H2Config.custom().setMaxConcurrentStreams(20).build());
 
         client.start(H2Config.custom().setMaxConcurrentStreams(20).build());
@@ -766,42 +685,27 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testExpectationFailed() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", () -> new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
+            protected void handle(
+                    final Message<HttpRequest, String> request,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws IOException, HttpException {
+                responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"), context);
 
-                    @Override
-                    protected void handle(
-                            final Message<HttpRequest, String> request,
-                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                            final HttpContext context) throws IOException, HttpException {
-                        responseTrigger.submitResponse(new BasicResponseProducer(HttpStatus.SC_OK, "All is well"), context);
-
-                    }
-                };
             }
-
         });
-        final InetSocketAddress serverEndpoint = server.start(null, new Decorator<AsyncServerExchangeHandler>() {
+        final InetSocketAddress serverEndpoint = server.start(null, handler -> new BasicAsyncServerExpectationDecorator(handler) {
 
             @Override
-            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
-
-                return new BasicAsyncServerExpectationDecorator(handler) {
-
-                    @Override
-                    protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
-                        final Header h = request.getFirstHeader("password");
-                        if (h != null && "secret".equals(h.getValue())) {
-                            return null;
-                        } else {
-                            return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
-                        }
-                    }
-                };
-
+            protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
+                final Header h = request.getFirstHeader("password");
+                if (h != null && "secret".equals(h.getValue())) {
+                    return null;
+                } else {
+                    return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
+                }
             }
         }, H2Config.DEFAULT);
 
@@ -918,33 +822,26 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testMessageWithTrailers() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", () -> new AbstractServerExchangeHandler<Message<HttpRequest, String>>() {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new AbstractServerExchangeHandler<Message<HttpRequest, String>>() {
-
-                    @Override
-                    protected AsyncRequestConsumer<Message<HttpRequest, String>> supplyConsumer(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final HttpContext context) throws HttpException {
-                        return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
-                    }
-
-                    @Override
-                    protected void handle(
-                            final Message<HttpRequest, String> requestMessage,
-                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                            final HttpContext context) throws HttpException, IOException {
-                        responseTrigger.submitResponse(new BasicResponseProducer(
-                                HttpStatus.SC_OK,
-                                new DigestingEntityProducer("MD5",
-                                        new StringAsyncEntityProducer("Hello back with some trailers"))), context);
-                    }
-                };
+            protected AsyncRequestConsumer<Message<HttpRequest, String>> supplyConsumer(
+                    final HttpRequest request,
+                    final EntityDetails entityDetails,
+                    final HttpContext context) throws HttpException {
+                return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
             }
 
+            @Override
+            protected void handle(
+                    final Message<HttpRequest, String> requestMessage,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws HttpException, IOException {
+                responseTrigger.submitResponse(new BasicResponseProducer(
+                        HttpStatus.SC_OK,
+                        new DigestingEntityProducer("MD5",
+                                new StringAsyncEntityProducer("Hello back with some trailers"))), context);
+            }
         });
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -980,14 +877,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testConnectionPing() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -1002,16 +892,11 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
             streamEndpoint.execute(
                     new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            streamEndpoint.execute(new PingCommand(new BasicPingHandler(new Callback<Boolean>() {
-
-                @Override
-                public void execute(final Boolean result) {
-                    if (result) {
-                        count.incrementAndGet();
-                    }
-                    latch.countDown();
+            streamEndpoint.execute(new PingCommand(new BasicPingHandler(result -> {
+                if (result) {
+                    count.incrementAndGet();
                 }
-
+                latch.countDown();
             })), Command.Priority.NORMAL);
 
         }
@@ -1021,14 +906,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testRequestWithInvalidConnectionHeader() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -1057,14 +935,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testHeaderTooLarge() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start(H2Config.custom()
                 .setMaxHeaderListSize(100)
                 .build());
@@ -1090,14 +961,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testHeaderTooLargePost() throws Exception {
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new SingleLineResponseHandler("Hi there");
-            }
-
-        });
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start(H2Config.custom()
                 .setMaxHeaderListSize(100)
                 .build());

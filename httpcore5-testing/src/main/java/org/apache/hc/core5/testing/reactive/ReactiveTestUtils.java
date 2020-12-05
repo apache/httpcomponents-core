@@ -40,7 +40,6 @@ import org.reactivestreams.Publisher;
 import io.reactivex.Emitter;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
-import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Consumer;
 
 public class ReactiveTestUtils {
@@ -86,9 +85,9 @@ public class ReactiveTestUtils {
             final AtomicReference<String> hash
     ) {
         return Flowable.generate(new Consumer<Emitter<ByteBuffer>>() {
-            Random random = new Random(length); // Use the length as the random seed for easy reproducibility
+            final Random random = new Random(length); // Use the length as the random seed for easy reproducibility
             long bytesEmitted = 0;
-            MessageDigest md = newMessageDigest();
+            final MessageDigest md = newMessageDigest();
 
             @Override
             public void accept(final Emitter<ByteBuffer> emitter) {
@@ -128,13 +127,10 @@ public class ReactiveTestUtils {
     public static Single<StreamDescription> consumeStream(final Publisher<ByteBuffer> publisher) {
         final StreamDescription seed = new StreamDescription(0, newMessageDigest());
         return Flowable.fromPublisher(publisher)
-                .reduce(seed, new BiFunction<StreamDescription, ByteBuffer, StreamDescription>() {
-                    @Override
-                    public StreamDescription apply(final StreamDescription desc, final ByteBuffer byteBuffer) {
-                        final long length = desc.length + byteBuffer.remaining();
-                        desc.md.update(byteBuffer);
-                        return new StreamDescription(length, desc.md);
-                    }
+                .reduce(seed, (desc, byteBuffer) -> {
+                    final long length = desc.length + byteBuffer.remaining();
+                    desc.md.update(byteBuffer);
+                    return new StreamDescription(length, desc.md);
                 });
     }
 

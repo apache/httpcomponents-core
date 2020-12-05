@@ -30,18 +30,15 @@ package org.apache.hc.core5.http.examples;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
 import org.apache.hc.core5.http.io.HttpFilterChain;
-import org.apache.hc.core5.http.io.HttpFilterHandler;
-import org.apache.hc.core5.http.io.HttpRequestHandler;
+import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.AbstractHttpServerAuthFilter;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
@@ -101,60 +98,40 @@ public class ClassicServerFilterExample {
 
                 // Add a custom request filter at the beginning of the processing pipeline
 
-                .addFilterFirst("my-filter", new HttpFilterHandler() {
+                .addFilterFirst("my-filter", (request, responseTrigger, context, chain) -> {
+                    if (request.getRequestUri().equals("/back-door")) {
+                        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK);
+                        response.setEntity(new StringEntity("Welcome", ContentType.TEXT_PLAIN));
+                        responseTrigger.submitResponse(response);
+                    } else {
+                        chain.proceed(request, new HttpFilterChain.ResponseTrigger() {
 
-                    @Override
-                    public void handle(final ClassicHttpRequest request,
-                                       final HttpFilterChain.ResponseTrigger responseTrigger,
-                                       final HttpContext context, final HttpFilterChain chain) throws HttpException, IOException {
-                        if (request.getRequestUri().equals("/back-door")) {
-                            final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK);
-                            response.setEntity(new StringEntity("Welcome", ContentType.TEXT_PLAIN));
-                            responseTrigger.submitResponse(response);
-                        } else {
-                            chain.proceed(request, new HttpFilterChain.ResponseTrigger() {
+                            @Override
+                            public void sendInformation(final ClassicHttpResponse response) throws HttpException, IOException {
+                                responseTrigger.sendInformation(response);
+                            }
 
-                                @Override
-                                public void sendInformation(final ClassicHttpResponse response) throws HttpException, IOException {
-                                    responseTrigger.sendInformation(response);
-                                }
+                            @Override
+                            public void submitResponse(final ClassicHttpResponse response) throws HttpException, IOException {
+                                response.addHeader("X-Filter", "My-Filter");
+                                responseTrigger.submitResponse(response);
+                            }
 
-                                @Override
-                                public void submitResponse(final ClassicHttpResponse response) throws HttpException, IOException {
-                                    response.addHeader("X-Filter", "My-Filter");
-                                    responseTrigger.submitResponse(response);
-                                }
-
-                            }, context);
-                        }
+                        }, context);
                     }
-
                 })
 
                 // Application request handler
 
-                .register("*", new HttpRequestHandler() {
-
-                    @Override
-                    public void handle(
-                            final ClassicHttpRequest request,
-                            final ClassicHttpResponse response,
-                            final HttpContext context) throws HttpException, IOException {
-                        // do something useful
-                        response.setCode(HttpStatus.SC_OK);
-                        response.setEntity(new StringEntity("Hello"));
-                    }
-
+                .register("*", (request, response, context) -> {
+                    // do something useful
+                    response.setCode(HttpStatus.SC_OK);
+                    response.setEntity(new StringEntity("Hello"));
                 })
                 .create();
 
         server.start();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                server.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> server.close(CloseMode.GRACEFUL)));
         System.out.println("Listening on port " + port);
 
         server.awaitTermination(TimeValue.MAX_VALUE);

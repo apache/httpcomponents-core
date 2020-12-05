@@ -43,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
@@ -184,24 +183,14 @@ public class AsyncReverseProxyExample {
                     }
 
                 })
-                .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                    @Override
-                    public AsyncServerExchangeHandler get() {
-                        return new IncomingExchangeHandler(targetHost, requester);
-                    }
-
-                })
+                .register("*", () -> new IncomingExchangeHandler(targetHost, requester))
                 .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                println("Reverse proxy shutting down");
-                server.close(CloseMode.GRACEFUL);
-                requester.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            println("Reverse proxy shutting down");
+            server.close(CloseMode.GRACEFUL);
+            requester.close(CloseMode.GRACEFUL);
+        }));
 
         requester.start();
         server.start();
@@ -690,7 +679,7 @@ public class AsyncReverseProxyExample {
 
     }
 
-    static final void println(final String msg) {
+    static void println(final String msg) {
         if (!quiet) {
             System.out.println(HttpDateGenerator.INSTANCE.getCurrentDate() + " | " + msg);
         }

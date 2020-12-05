@@ -48,7 +48,6 @@ import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
@@ -150,99 +149,92 @@ public class H2MultiplexingRequester extends AsyncRequester{
         Args.notNull(timeout, "Timeout");
         Args.notNull(context, "Context");
         try {
-            exchangeHandler.produceRequest(new RequestChannel() {
-
-                @Override
-                public void sendRequest(
-                        final HttpRequest request,
-                        final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                    final String scheme = request.getScheme();
-                    final URIAuthority authority = request.getAuthority();
-                    if (authority == null) {
-                        throw new ProtocolException("Request authority not specified");
-                    }
-                    final HttpHost target = new HttpHost(scheme, authority);
-                    connPool.getSession(target, timeout, new FutureCallback<IOSession>() {
-
-                        @Override
-                        public void completed(final IOSession ioSession) {
-                            ioSession.enqueue(new RequestExecutionCommand(new AsyncClientExchangeHandler() {
-
-                                @Override
-                                public void releaseResources() {
-                                    exchangeHandler.releaseResources();
-                                }
-
-                                @Override
-                                public void produceRequest(final RequestChannel channel, final HttpContext httpContext) throws HttpException, IOException {
-                                    channel.sendRequest(request, entityDetails, httpContext);
-                                }
-
-                                @Override
-                                public int available() {
-                                    return exchangeHandler.available();
-                                }
-
-                                @Override
-                                public void produce(final DataStreamChannel channel) throws IOException {
-                                    exchangeHandler.produce(channel);
-                                }
-
-                                @Override
-                                public void consumeInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
-                                    exchangeHandler.consumeInformation(response, httpContext);
-                                }
-
-                                @Override
-                                public void consumeResponse(
-                                        final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                                    exchangeHandler.consumeResponse(response, entityDetails, httpContext);
-                                }
-
-                                @Override
-                                public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                                    exchangeHandler.updateCapacity(capacityChannel);
-                                }
-
-                                @Override
-                                public void consume(final ByteBuffer src) throws IOException {
-                                    exchangeHandler.consume(src);
-                                }
-
-                                @Override
-                                public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-                                    exchangeHandler.streamEnd(trailers);
-                                }
-
-                                @Override
-                                public void cancel() {
-                                    exchangeHandler.cancel();
-                                }
-
-                                @Override
-                                public void failed(final Exception cause) {
-                                    exchangeHandler.failed(cause);
-                                }
-
-                            }, pushHandlerFactory, cancellableDependency, context), Command.Priority.NORMAL);
-                            if (!ioSession.isOpen()) {
-                                exchangeHandler.failed(new ConnectionClosedException());
-                            }
-                        }
-
-                        @Override
-                        public void failed(final Exception ex) {
-                            exchangeHandler.failed(ex);
-                        }
-
-                        @Override
-                        public void cancelled() {
-                            exchangeHandler.cancel();
-                        }
-
-                    });
-
+            exchangeHandler.produceRequest((request, entityDetails, httpContext) -> {
+                final String scheme = request.getScheme();
+                final URIAuthority authority = request.getAuthority();
+                if (authority == null) {
+                    throw new ProtocolException("Request authority not specified");
                 }
+                final HttpHost target = new HttpHost(scheme, authority);
+                connPool.getSession(target, timeout, new FutureCallback<IOSession>() {
+
+                    @Override
+                    public void completed(final IOSession ioSession) {
+                        ioSession.enqueue(new RequestExecutionCommand(new AsyncClientExchangeHandler() {
+
+                            @Override
+                            public void releaseResources() {
+                                exchangeHandler.releaseResources();
+                            }
+
+                            @Override
+                            public void produceRequest(final RequestChannel channel, final HttpContext httpContext) throws HttpException, IOException {
+                                channel.sendRequest(request, entityDetails, httpContext);
+                            }
+
+                            @Override
+                            public int available() {
+                                return exchangeHandler.available();
+                            }
+
+                            @Override
+                            public void produce(final DataStreamChannel channel) throws IOException {
+                                exchangeHandler.produce(channel);
+                            }
+
+                            @Override
+                            public void consumeInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
+                                exchangeHandler.consumeInformation(response, httpContext);
+                            }
+
+                            @Override
+                            public void consumeResponse(
+                                    final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
+                                exchangeHandler.consumeResponse(response, entityDetails, httpContext);
+                            }
+
+                            @Override
+                            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                                exchangeHandler.updateCapacity(capacityChannel);
+                            }
+
+                            @Override
+                            public void consume(final ByteBuffer src) throws IOException {
+                                exchangeHandler.consume(src);
+                            }
+
+                            @Override
+                            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+                                exchangeHandler.streamEnd(trailers);
+                            }
+
+                            @Override
+                            public void cancel() {
+                                exchangeHandler.cancel();
+                            }
+
+                            @Override
+                            public void failed(final Exception cause) {
+                                exchangeHandler.failed(cause);
+                            }
+
+                        }, pushHandlerFactory, cancellableDependency, context), Command.Priority.NORMAL);
+                        if (!ioSession.isOpen()) {
+                            exchangeHandler.failed(new ConnectionClosedException());
+                        }
+                    }
+
+                    @Override
+                    public void failed(final Exception ex) {
+                        exchangeHandler.failed(ex);
+                    }
+
+                    @Override
+                    public void cancelled() {
+                        exchangeHandler.cancel();
+                    }
+
+                });
 
             }, context);
         } catch (final IOException | HttpException ex) {

@@ -89,13 +89,10 @@ public class AsyncPipelinedRequestExecutionExample {
                 })
                 .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("HTTP requester shutting down");
-                requester.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("HTTP requester shutting down");
+            requester.close(CloseMode.GRACEFUL);
+        }));
         requester.start();
 
         final HttpHost target = new HttpHost("httpbin.org");

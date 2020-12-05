@@ -96,24 +96,14 @@ public class TestSharedInputBuffer {
         Mockito.reset(capacityChannel);
 
         final ExecutorService executorService = Executors.newFixedThreadPool(2);
-        final Future<Boolean> task1 = executorService.submit(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                final Charset charset = StandardCharsets.US_ASCII;
-                inputBuffer.fill(charset.encode("1234567890"));
-                return Boolean.TRUE;
-            }
-
+        final Future<Boolean> task1 = executorService.submit(() -> {
+            final Charset charset = StandardCharsets.US_ASCII;
+            inputBuffer.fill(charset.encode("1234567890"));
+            return Boolean.TRUE;
         });
-        final Future<Integer> task2 = executorService.submit(new Callable<Integer>() {
-
-            @Override
-            public Integer call() throws Exception {
-                final byte[] tmp = new byte[20];
-                return inputBuffer.read(tmp, 0, tmp.length);
-            }
-
+        final Future<Integer> task2 = executorService.submit(() -> {
+            final byte[] tmp = new byte[20];
+            return inputBuffer.read(tmp, 0, tmp.length);
         });
 
         Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
@@ -133,24 +123,12 @@ public class TestSharedInputBuffer {
         Mockito.reset(capacityChannel);
 
         final ExecutorService executorService = Executors.newFixedThreadPool(2);
-        final Future<Boolean> task1 = executorService.submit(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                final Charset charset = StandardCharsets.US_ASCII;
-                inputBuffer.fill(charset.encode("a"));
-                return Boolean.TRUE;
-            }
-
+        final Future<Boolean> task1 = executorService.submit(() -> {
+            final Charset charset = StandardCharsets.US_ASCII;
+            inputBuffer.fill(charset.encode("a"));
+            return Boolean.TRUE;
         });
-        final Future<Integer> task2 = executorService.submit(new Callable<Integer>() {
-
-            @Override
-            public Integer call() throws Exception {
-                return inputBuffer.read();
-            }
-
-        });
+        final Future<Integer> task2 = executorService.submit((Callable<Integer>) inputBuffer::read);
 
         Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Assert.assertEquals(Integer.valueOf('a'), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
@@ -169,35 +147,25 @@ public class TestSharedInputBuffer {
         Mockito.reset(capacityChannel);
 
         final ExecutorService executorService = Executors.newFixedThreadPool(2);
-        final Future<Boolean> task1 = executorService.submit(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                final Charset charset = StandardCharsets.US_ASCII;
-                final Random rnd = new Random(System.currentTimeMillis());
-                for (int i = 0; i < 5; i++) {
-                    inputBuffer.fill(charset.encode("1234567890"));
-                    Thread.sleep(rnd.nextInt(250));
-                }
-                inputBuffer.markEndStream();
-                return Boolean.TRUE;
+        final Future<Boolean> task1 = executorService.submit(() -> {
+            final Charset charset = StandardCharsets.US_ASCII;
+            final Random rnd = new Random(System.currentTimeMillis());
+            for (int i = 0; i < 5; i++) {
+                inputBuffer.fill(charset.encode("1234567890"));
+                Thread.sleep(rnd.nextInt(250));
             }
-
+            inputBuffer.markEndStream();
+            return Boolean.TRUE;
         });
-        final Future<String> task2 = executorService.submit(new Callable<String>() {
-
-            @Override
-            public String call() throws Exception {
-                final Charset charset = StandardCharsets.US_ASCII;
-                final StringBuilder buf = new StringBuilder();
-                final byte[] tmp = new byte[10];
-                int l;
-                while ((l = inputBuffer.read(tmp, 0, tmp.length)) != -1) {
-                    buf.append(charset.decode(ByteBuffer.wrap(tmp, 0, l)));
-                }
-                return buf.toString();
+        final Future<String> task2 = executorService.submit(() -> {
+            final Charset charset = StandardCharsets.US_ASCII;
+            final StringBuilder buf = new StringBuilder();
+            final byte[] tmp = new byte[10];
+            int l;
+            while ((l = inputBuffer.read(tmp, 0, tmp.length)) != -1) {
+                buf.append(charset.decode(ByteBuffer.wrap(tmp, 0, l)));
             }
-
+            return buf.toString();
         });
 
         Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
@@ -218,24 +186,12 @@ public class TestSharedInputBuffer {
         Mockito.reset(capacityChannel);
 
         final ExecutorService executorService = Executors.newFixedThreadPool(2);
-        final Future<Boolean> task1 = executorService.submit(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                Thread.sleep(1000);
-                inputBuffer.abort();
-                return Boolean.TRUE;
-            }
-
+        final Future<Boolean> task1 = executorService.submit(() -> {
+            Thread.sleep(1000);
+            inputBuffer.abort();
+            return Boolean.TRUE;
         });
-        final Future<Integer> task2 = executorService.submit(new Callable<Integer>() {
-
-            @Override
-            public Integer call() throws Exception {
-                return inputBuffer.read();
-            }
-
-        });
+        final Future<Integer> task2 = executorService.submit((Callable<Integer>) inputBuffer::read);
 
         Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Assert.assertEquals(Integer.valueOf(-1), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));

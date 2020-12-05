@@ -49,9 +49,7 @@ import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.ResourceHolder;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.util.Timeout;
@@ -182,15 +180,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         switch (requestState) {
             case IDLE:
                 requestState = MessageState.HEADERS;
-                exchangeHandler.produceRequest(new RequestChannel() {
-
-                    @Override
-                    public void sendRequest(
-                            final HttpRequest request, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                        commitRequest(request, entityDetails);
-                    }
-
-                }, context);
+                exchangeHandler.produceRequest((request, entityDetails, httpContext) -> commitRequest(request, entityDetails), context);
                 break;
             case ACK:
                 outputChannel.suspendOutput();

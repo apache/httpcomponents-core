@@ -341,7 +341,7 @@ public class ClassicRequestBuilder {
 
     public List<NameValuePair> getParameters() {
         return parameters != null ? new ArrayList<>(parameters) :
-                new ArrayList<NameValuePair>();
+                new ArrayList<>();
     }
 
     public ClassicRequestBuilder addParameter(final NameValuePair nvp) {

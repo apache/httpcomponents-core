@@ -46,7 +46,6 @@ import io.reactivex.Flowable;
 import io.reactivex.Notification;
 import io.reactivex.Observable;
 import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
 
 public class TestReactiveDataConsumer {
 
@@ -54,21 +53,18 @@ public class TestReactiveDataConsumer {
     public void testStreamThatEndsNormally() throws Exception {
         final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
 
-        final List<ByteBuffer> output = Collections.synchronizedList(new ArrayList<ByteBuffer>());
+        final List<ByteBuffer> output = Collections.synchronizedList(new ArrayList<>());
 
         final CountDownLatch complete = new CountDownLatch(1);
         Observable.fromPublisher(consumer)
             .materialize()
-            .forEach(new Consumer<Notification<ByteBuffer>>() {
-                @Override
-                public void accept(final Notification<ByteBuffer> byteBufferNotification) throws Exception {
-                    if (byteBufferNotification.isOnComplete()) {
-                        complete.countDown();
-                    } else if (byteBufferNotification.isOnNext()) {
-                        output.add(byteBufferNotification.getValue());
-                    } else {
-                        throw new IllegalArgumentException();
-                    }
+            .forEach(byteBufferNotification -> {
+                if (byteBufferNotification.isOnComplete()) {
+                    complete.countDown();
+                } else if (byteBufferNotification.isOnNext()) {
+                    output.add(byteBufferNotification.getValue());
+                } else {
+                    throw new IllegalArgumentException();
                 }
             });
 
@@ -128,12 +124,7 @@ public class TestReactiveDataConsumer {
         final ByteBuffer data = ByteBuffer.wrap(new byte[1024]);
 
         final AtomicInteger lastIncrement = new AtomicInteger(-1);
-        final CapacityChannel channel = new CapacityChannel() {
-            @Override
-            public void update(final int increment) {
-                lastIncrement.set(increment);
-            }
-        };
+        final CapacityChannel channel = lastIncrement::set;
         consumer.updateCapacity(channel);
         Assert.assertEquals("CapacityChannel#update should not have been invoked yet", -1, lastIncrement.get());
 

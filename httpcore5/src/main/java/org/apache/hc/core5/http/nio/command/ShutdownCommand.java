@@ -48,14 +48,7 @@ public final class ShutdownCommand implements Command {
     public static final Callback<IOSession> GRACEFUL_NORMAL_CALLBACK = createIOSessionCallback(Priority.NORMAL);
 
     private static Callback<IOSession> createIOSessionCallback(final Priority priority) {
-        return new Callback<IOSession>() {
-
-            @Override
-            public void execute(final IOSession session) {
-                session.enqueue(ShutdownCommand.GRACEFUL, priority);
-            }
-
-        };
+        return session -> session.enqueue(ShutdownCommand.GRACEFUL, priority);
     }
 
     private final CloseMode type;

@@ -97,14 +97,7 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
         }
         final IOReactor[] ioReactors = new IOReactor[this.workerCount + 1];
         System.arraycopy(this.workers, 0, ioReactors, 1, this.workerCount);
-        this.listener = new SingleCoreListeningIOReactor(exceptionCallback, ioReactorConfig, new Callback<ChannelEntry>() {
-
-            @Override
-            public void execute(final ChannelEntry entry) {
-                enqueueChannel(entry);
-            }
-
-        });
+        this.listener = new SingleCoreListeningIOReactor(exceptionCallback, ioReactorConfig, this::enqueueChannel);
         ioReactors[0] = this.listener;
         threads[0] = (listenerThreadFactory != null ? listenerThreadFactory : LISTENER_THREAD_FACTORY).newThread(new IOReactorWorker(listener));
 

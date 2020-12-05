@@ -39,7 +39,6 @@ import java.util.concurrent.locks.Lock;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
@@ -177,7 +176,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         }
     }
 
-    void onTLSSessionEnd() {
+    void onTLSSessionEnd(final SSLIOSession sslSession) {
         if (closed.compareAndSet(false, true)) {
             closedSessions.add(this);
         }
@@ -210,22 +209,8 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                 sslBufferMode,
                 initializer,
                 verifier,
-                new Callback<SSLIOSession>() {
-
-                    @Override
-                    public void execute(final SSLIOSession sslSession) {
-                        onTLSSessionStart(sslSession);
-                    }
-
-                },
-                new Callback<SSLIOSession>() {
-
-                    @Override
-                    public void execute(final SSLIOSession sslSession) {
-                        onTLSSessionEnd();
-                    }
-
-                },
+                this::onTLSSessionStart,
+                this::onTLSSessionEnd,
                 handshakeTimeout);
         if (tlsSessionRef.compareAndSet(null, sslioSession)) {
             currentSessionRef.set(ioSessionDecorator != null ? ioSessionDecorator.decorate(sslioSession) : sslioSession);

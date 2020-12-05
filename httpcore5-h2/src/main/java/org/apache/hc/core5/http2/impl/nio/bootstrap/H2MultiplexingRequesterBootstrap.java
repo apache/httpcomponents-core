@@ -46,12 +46,9 @@ import org.apache.hc.core5.http2.impl.nio.H2OnlyClientProtocolNegotiator;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
-import org.apache.hc.core5.reactor.IOEventHandler;
-import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
-import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -210,14 +207,7 @@ public class H2MultiplexingRequesterBootstrap {
                 streamListener);
         return new H2MultiplexingRequester(
                 ioReactorConfig,
-                new IOEventHandlerFactory() {
-
-                    @Override
-                    public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
-                        return new H2OnlyClientProtocolNegotiator(ioSession, http2StreamHandlerFactory, strictALPNHandshake);
-                    }
-
-                },
+                (ioSession, attachment) -> new H2OnlyClientProtocolNegotiator(ioSession, http2StreamHandlerFactory, strictALPNHandshake),
                 ioSessionDecorator,
                 exceptionCallback,
                 sessionListener,

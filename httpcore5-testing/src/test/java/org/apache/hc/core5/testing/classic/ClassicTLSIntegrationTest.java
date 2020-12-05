@@ -30,12 +30,9 @@ package org.apache.hc.core5.testing.classic;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
 
-import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -50,7 +47,6 @@ import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.http.io.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpContext;
@@ -120,14 +116,7 @@ public class ClassicTLSIntegrationTest {
 
         requester = RequesterBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createClientSSLContext())
-                .setSslSessionVerifier(new SSLSessionVerifier() {
-
-                    @Override
-                    public void verify(final HttpHost endpoint, final SSLSession sslSession) throws SSLException {
-                        sslSessionRef.set(sslSession);
-                    }
-
-                })
+                .setSslSessionVerifier((endpoint, sslSession) -> sslSessionRef.set(sslSession))
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
@@ -191,14 +180,7 @@ public class ClassicTLSIntegrationTest {
                         .setSoTimeout(TIMEOUT)
                         .build())
                 .setSslContext(SSLTestContexts.createServerSSLContext())
-                .setSslSetupHandler(new Callback<SSLParameters>() {
-
-                    @Override
-                    public void execute(final SSLParameters sslParameters) {
-                        sslParameters.setNeedClientAuth(true);
-                    }
-
-                })
+                .setSslSetupHandler(sslParameters -> sslParameters.setNeedClientAuth(true))
                 .setExceptionListener(LoggingExceptionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
                 .register("*", new EchoHandler())
@@ -227,14 +209,7 @@ public class ClassicTLSIntegrationTest {
     public void testSSLDisabledByDefault() throws Exception {
         server = ServerBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createServerSSLContext())
-                .setSslSetupHandler(new Callback<SSLParameters>() {
-
-                    @Override
-                    public void execute(final SSLParameters sslParameters) {
-                        sslParameters.setProtocols(new String[]{"SSLv3"});
-                    }
-
-                })
+                .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{"SSLv3"}))
                 .create();
         server.start();
 
@@ -289,14 +264,7 @@ public class ClassicTLSIntegrationTest {
         for (final String cipherSuite : weakCiphersSuites) {
             server = ServerBootstrap.bootstrap()
                     .setSslContext(SSLTestContexts.createServerSSLContext())
-                    .setSslSetupHandler(new Callback<SSLParameters>() {
-
-                        @Override
-                        public void execute(final SSLParameters sslParameters) {
-                            sslParameters.setProtocols(new String[]{cipherSuite});
-                        }
-
-                    })
+                    .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{cipherSuite}))
                     .create();
             try {
                 server.start();

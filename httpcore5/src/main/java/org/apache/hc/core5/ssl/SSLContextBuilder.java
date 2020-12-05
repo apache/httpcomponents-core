@@ -338,8 +338,8 @@ public class SSLContextBuilder {
             final Collection<TrustManager> trustManagers,
             final SecureRandom secureRandom) throws KeyManagementException {
         sslContext.init(
-                !keyManagers.isEmpty() ? keyManagers.toArray(new KeyManager[keyManagers.size()]) : null,
-                !trustManagers.isEmpty() ? trustManagers.toArray(new TrustManager[trustManagers.size()]) : null,
+                !keyManagers.isEmpty() ? keyManagers.toArray(new KeyManager[0]) : null,
+                !trustManagers.isEmpty() ? trustManagers.toArray(new TrustManager[0]) : null,
                 secureRandom);
     }
 

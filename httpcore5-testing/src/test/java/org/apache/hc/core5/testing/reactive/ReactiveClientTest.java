@@ -45,7 +45,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.Message;
@@ -53,7 +52,6 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
@@ -85,8 +83,6 @@ import org.slf4j.LoggerFactory;
 
 import io.reactivex.Flowable;
 import io.reactivex.Observable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.Consumer;
 
 @RunWith(Parameterized.class)
 public class ReactiveClientTest {
@@ -130,14 +126,7 @@ public class ReactiveClientTest {
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                    @Override
-                    public AsyncServerExchangeHandler get() {
-                        return new ReactiveServerExchangeHandler(new ReactiveEchoProcessor());
-                    }
-
-                })
+                .register("*", () -> new ReactiveServerExchangeHandler(new ReactiveEchoProcessor()))
                 .create();
         }
 
@@ -285,12 +274,7 @@ public class ReactiveClientTest {
         final InetSocketAddress address = startClientAndServer();
         final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean(false);
         final Publisher<ByteBuffer> publisher = Flowable.<ByteBuffer>never()
-            .doOnCancel(new Action() {
-                @Override
-                public void run() {
-                    requestPublisherWasCancelled.set(true);
-                }
-            });
+            .doOnCancel(() -> requestPublisherWasCancelled.set(true));
         final ReactiveEntityProducer producer = new ReactiveEntityProducer(publisher, -1, null, null);
         final BasicRequestProducer request = getRequestProducer(address, producer);
 
@@ -320,18 +304,8 @@ public class ReactiveClientTest {
         final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean(false);
         final AtomicReference<Throwable> requestStreamError = new AtomicReference<>();
         final Publisher<ByteBuffer> stream = ReactiveTestUtils.produceStream(Long.MAX_VALUE, 1024, null)
-            .doOnCancel(new Action() {
-                @Override
-                public void run() throws Exception {
-                    requestPublisherWasCancelled.set(true);
-                }
-            })
-            .doOnError(new Consumer<Throwable>() {
-                @Override
-                public void accept(final Throwable throwable) throws Exception {
-                    requestStreamError.set(throwable);
-                }
-            });
+            .doOnCancel(() -> requestPublisherWasCancelled.set(true))
+            .doOnError(requestStreamError::set);
         final ReactiveEntityProducer producer = new ReactiveEntityProducer(stream, -1, null, null);
         final BasicRequestProducer request = getRequestProducer(address, producer);
 
@@ -342,12 +316,7 @@ public class ReactiveClientTest {
 
         final AtomicBoolean responsePublisherWasCancelled = new AtomicBoolean(false);
         final List<ByteBuffer> outputBuffers = Flowable.fromPublisher(response.getBody())
-            .doOnCancel(new Action() {
-                @Override
-                public void run() throws Exception {
-                    responsePublisherWasCancelled.set(true);
-                }
-            })
+            .doOnCancel(() -> responsePublisherWasCancelled.set(true))
             .take(3)
             .toList()
             .blockingGet();

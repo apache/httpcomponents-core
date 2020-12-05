@@ -33,12 +33,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.net.ssl.SSLEngine;
-import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
@@ -50,7 +47,6 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
@@ -61,12 +57,8 @@ import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.http.ssl.TLS;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
-import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
-import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
@@ -118,7 +110,7 @@ public class H2TLSIntegrationTest {
     @Test
     public void testTLSSuccess() throws Exception {
         server = AsyncServerBootstrap.bootstrap()
-                .setLookupRegistry(new UriPatternMatcher<Supplier<AsyncServerExchangeHandler>>())
+                .setLookupRegistry(new UriPatternMatcher<>())
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -128,14 +120,7 @@ public class H2TLSIntegrationTest {
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                    @Override
-                    public AsyncServerExchangeHandler get() {
-                        return new EchoHandler(2048);
-                    }
-
-                })
+                .register("*", () -> new EchoHandler(2048))
                 .create();
         server.start();
 
@@ -147,15 +132,9 @@ public class H2TLSIntegrationTest {
                         .build())
                 .setTlsStrategy(new BasicClientTlsStrategy(
                         SSLTestContexts.createClientSSLContext(),
-                        new SSLSessionVerifier() {
-
-                            @Override
-                            public TlsDetails verify(
-                                    final NamedEndpoint endpoint, final SSLEngine sslEngine) throws SSLException {
-                                sslSessionRef.set(sslEngine.getSession());
-                                return null;
-                            }
-
+                        (endpoint, sslEngine) -> {
+                            sslSessionRef.set(sslEngine.getSession());
+                            return null;
                         }))
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                 .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
@@ -192,7 +171,7 @@ public class H2TLSIntegrationTest {
     @Test
     public void testTLSTrustFailure() throws Exception {
         server = AsyncServerBootstrap.bootstrap()
-                .setLookupRegistry(new UriPatternMatcher<Supplier<AsyncServerExchangeHandler>>())
+                .setLookupRegistry(new UriPatternMatcher<>())
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
@@ -202,14 +181,7 @@ public class H2TLSIntegrationTest {
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                    @Override
-                    public AsyncServerExchangeHandler get() {
-                        return new EchoHandler(2048);
-                    }
-
-                })
+                .register("*", () -> new EchoHandler(2048))
                 .create();
         server.start();
 
@@ -248,33 +220,20 @@ public class H2TLSIntegrationTest {
     @Test
     public void testTLSClientAuthFailure() throws Exception {
         server = AsyncServerBootstrap.bootstrap()
-                .setLookupRegistry(new UriPatternMatcher<Supplier<AsyncServerExchangeHandler>>())
+                .setLookupRegistry(new UriPatternMatcher<>())
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
                                 .build())
                 .setTlsStrategy(new BasicServerTlsStrategy(
                         SSLTestContexts.createServerSSLContext(),
-                        new SSLSessionInitializer() {
-
-                            @Override
-                            public void initialize(final NamedEndpoint endpoint, final SSLEngine sslEngine) {
-                                sslEngine.setNeedClientAuth(true);
-                            }
-                        },
+                        (endpoint, sslEngine) -> sslEngine.setNeedClientAuth(true),
                         null))
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                    @Override
-                    public AsyncServerExchangeHandler get() {
-                        return new EchoHandler(2048);
-                    }
-
-                })
+                .register("*", () -> new EchoHandler(2048))
                 .create();
         server.start();
 
@@ -313,33 +272,20 @@ public class H2TLSIntegrationTest {
     @Test
     public void testSSLDisabledByDefault() throws Exception {
         server = AsyncServerBootstrap.bootstrap()
-                .setLookupRegistry(new UriPatternMatcher<Supplier<AsyncServerExchangeHandler>>())
+                .setLookupRegistry(new UriPatternMatcher<>())
                 .setIOReactorConfig(
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
                                 .build())
                 .setTlsStrategy(new BasicServerTlsStrategy(
                         SSLTestContexts.createServerSSLContext(),
-                        new SSLSessionInitializer() {
-
-                            @Override
-                            public void initialize(final NamedEndpoint endpoint, final SSLEngine sslEngine) {
-                                sslEngine.setEnabledProtocols(new String[]{"SSLv3"});
-                            }
-                        },
+                        (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{"SSLv3"}),
                         null))
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                    @Override
-                    public AsyncServerExchangeHandler get() {
-                        return new EchoHandler(2048);
-                    }
-
-                })
+                .register("*", () -> new EchoHandler(2048))
                 .create();
         server.start();
 
@@ -410,33 +356,20 @@ public class H2TLSIntegrationTest {
 
         for (final String cipherSuite : weakCiphersSuites) {
             server = AsyncServerBootstrap.bootstrap()
-                    .setLookupRegistry(new UriPatternMatcher<Supplier<AsyncServerExchangeHandler>>())
+                    .setLookupRegistry(new UriPatternMatcher<>())
                     .setIOReactorConfig(
                             IOReactorConfig.custom()
                                     .setSoTimeout(TIMEOUT)
                                     .build())
                     .setTlsStrategy(new BasicServerTlsStrategy(
                             SSLTestContexts.createServerSSLContext(),
-                            new SSLSessionInitializer() {
-
-                                @Override
-                                public void initialize(final NamedEndpoint endpoint, final SSLEngine sslEngine) {
-                                    sslEngine.setEnabledCipherSuites(new String[]{cipherSuite});
-                                }
-                            },
+                            (endpoint, sslEngine) -> sslEngine.setEnabledCipherSuites(new String[]{cipherSuite}),
                             null))
                     .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                     .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                     .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                     .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .register("*", new Supplier<AsyncServerExchangeHandler>() {
-
-                        @Override
-                        public AsyncServerExchangeHandler get() {
-                            return new EchoHandler(2048);
-                        }
-
-                    })
+                    .register("*", () -> new EchoHandler(2048))
                     .create();
             try {
                 server.start();

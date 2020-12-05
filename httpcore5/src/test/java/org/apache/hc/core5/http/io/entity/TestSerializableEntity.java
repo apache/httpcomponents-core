@@ -42,9 +42,9 @@ public class TestSerializableEntity {
 
         private static final long serialVersionUID = 1833335861188359573L;
 
-        public int intValue = 4;
+        public final int intValue = 4;
 
-        public String stringValue = "Hello";
+        public final String stringValue = "Hello";
 
         public SerializableObject() {}
     }

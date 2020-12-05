@@ -194,13 +194,10 @@ public class H2FileServerExample {
                 })
                 .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("HTTP server shutting down");
-                server.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("HTTP server shutting down");
+            server.close(CloseMode.GRACEFUL);
+        }));
 
         server.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port), URIScheme.HTTP);

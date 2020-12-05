@@ -73,18 +73,10 @@ public class AsyncFullDuplexClientExample {
                 .build();
 
         // Create and start requester
+        // Disable 'Expect: Continue' handshake some servers cannot handle well
         final HttpAsyncRequester requester = AsyncRequesterBootstrap.bootstrap()
                 .setIOReactorConfig(ioReactorConfig)
-                .setHttpProcessor(HttpProcessors.customClient(null).addLast(new HttpRequestInterceptor() {
-
-                    // Disable 'Expect: Continue' handshake some servers cannot handle well
-                    @Override
-                    public void process(
-                            final HttpRequest request, final EntityDetails entity, final HttpContext context) throws HttpException, IOException {
-                        request.removeHeaders(HttpHeaders.EXPECT);
-                    }
-
-                }).build())
+                .setHttpProcessor(HttpProcessors.customClient(null).addLast((HttpRequestInterceptor) (request, entity, context) -> request.removeHeaders(HttpHeaders.EXPECT)).build())
                 .setStreamListener(new Http1StreamListener() {
 
                     @Override
@@ -110,13 +102,10 @@ public class AsyncFullDuplexClientExample {
                 })
                 .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("HTTP requester shutting down");
-                requester.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("HTTP requester shutting down");
+            requester.close(CloseMode.GRACEFUL);
+        }));
         requester.start();
 
         final URI requestUri = new URI("http://httpbin.org/post");

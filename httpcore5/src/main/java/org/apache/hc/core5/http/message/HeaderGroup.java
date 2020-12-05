@@ -220,7 +220,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
                 headersFound.add(header);
             }
         }
-        return headersFound != null ? headersFound.toArray(new Header[headersFound.size()]) : EMPTY;
+        return headersFound != null ? headersFound.toArray(new Header[0]) : EMPTY;
     }
 
     /**
@@ -296,7 +296,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public Header[] getHeaders() {
-        return headers.toArray(new Header[headers.size()]);
+        return headers.toArray(new Header[0]);
     }
 
     /**

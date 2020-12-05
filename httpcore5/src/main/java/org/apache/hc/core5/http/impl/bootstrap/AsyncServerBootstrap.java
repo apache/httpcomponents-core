@@ -246,14 +246,7 @@ public class AsyncServerBootstrap {
     public final <T> AsyncServerBootstrap register(
             final String uriPattern,
             final AsyncServerRequestHandler<T> requestHandler) {
-        register(uriPattern, new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new BasicServerExchangeHandler<>(requestHandler);
-            }
-
-        });
+        register(uriPattern, () -> new BasicServerExchangeHandler<>(requestHandler));
         return this;
     }
 
@@ -269,14 +262,7 @@ public class AsyncServerBootstrap {
             final String hostname,
             final String uriPattern,
             final AsyncServerRequestHandler<T> requestHandler) {
-        registerVirtual(hostname, uriPattern, new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new BasicServerExchangeHandler<>(requestHandler);
-            }
-
-        });
+        registerVirtual(hostname, uriPattern, () -> new BasicServerExchangeHandler<>(requestHandler));
         return this;
     }
 
@@ -335,15 +321,8 @@ public class AsyncServerBootstrap {
     public HttpAsyncServer create() {
         final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
-                new Supplier<LookupRegistry<Supplier<AsyncServerExchangeHandler>>>() {
-
-                    @Override
-                    public LookupRegistry<Supplier<AsyncServerExchangeHandler>> get() {
-                        return lookupRegistry != null ? lookupRegistry :
-                                UriPatternType.<Supplier<AsyncServerExchangeHandler>>newMatcher(UriPatternType.URI_PATTERN);
-                    }
-
-                });
+                () -> lookupRegistry != null ? lookupRegistry :
+                        UriPatternType.<Supplier<AsyncServerExchangeHandler>>newMatcher(UriPatternType.URI_PATTERN));
         for (final HandlerEntry<Supplier<AsyncServerExchangeHandler>> entry: handlerList) {
             registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }
@@ -387,14 +366,7 @@ public class AsyncServerBootstrap {
 
             handlerFactory = new AsyncServerFilterChainExchangeHandlerFactory(execChain, exceptionCallback);
         } else {
-            handlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(registry, new Decorator<AsyncServerExchangeHandler>() {
-
-                @Override
-                public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
-                    return new BasicAsyncServerExpectationDecorator(handler, exceptionCallback);
-                }
-
-            });
+            handlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(registry, handler -> new BasicAsyncServerExpectationDecorator(handler, exceptionCallback));
         }
 
         final ServerHttp1StreamDuplexerFactory streamHandlerFactory = new ServerHttp1StreamDuplexerFactory(

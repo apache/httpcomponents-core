@@ -36,9 +36,9 @@ public class ResultFormatter {
         // Do not allow utility class to be instantiated.
     }
 
-    static NumberFormat nf2 = NumberFormat.getInstance(Locale.ROOT);
-    static NumberFormat nf3 = NumberFormat.getInstance(Locale.ROOT);
-    static NumberFormat nf6 = NumberFormat.getInstance(Locale.ROOT);
+    static final NumberFormat nf2 = NumberFormat.getInstance(Locale.ROOT);
+    static final NumberFormat nf3 = NumberFormat.getInstance(Locale.ROOT);
+    static final NumberFormat nf6 = NumberFormat.getInstance(Locale.ROOT);
 
     static {
         nf2.setMaximumFractionDigits(2);

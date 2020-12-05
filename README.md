@@ -33,7 +33,7 @@ For building from source instructions please refer to BUILDING.txt.
 Dependencies
 ------------
 
-HttpCore requires Java 1.7 compatible runtime.
+HttpCore requires Java 1.8 compatible runtime.
 
 Licensing
 ---------

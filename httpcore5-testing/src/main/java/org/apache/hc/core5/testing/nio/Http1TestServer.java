@@ -82,14 +82,7 @@ public class Http1TestServer extends AsyncServer {
     public <T> void register(
             final String uriPattern,
             final AsyncServerRequestHandler<T> requestHandler) {
-        register(uriPattern, new Supplier<AsyncServerExchangeHandler>() {
-
-            @Override
-            public AsyncServerExchangeHandler get() {
-                return new BasicServerExchangeHandler<>(requestHandler);
-            }
-
-        });
+        register(uriPattern, () -> new BasicServerExchangeHandler<>(requestHandler));
     }
 
     public InetSocketAddress start(final IOEventHandlerFactory handlerFactory) throws Exception {
@@ -107,14 +100,7 @@ public class Http1TestServer extends AsyncServer {
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
                         registry,
-                        exchangeHandlerDecorator != null ? exchangeHandlerDecorator : new Decorator<AsyncServerExchangeHandler>() {
-
-                            @Override
-                            public AsyncServerExchangeHandler decorate(final AsyncServerExchangeHandler handler) {
-                                return new BasicAsyncServerExpectationDecorator(handler);
-                            }
-
-                        }),
+                        exchangeHandlerDecorator != null ? exchangeHandlerDecorator : (Decorator<AsyncServerExchangeHandler>) BasicAsyncServerExpectationDecorator::new),
                 http1Config,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,

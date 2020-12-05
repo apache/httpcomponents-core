@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
@@ -118,122 +117,112 @@ public class H2FullDuplexServerExample {
                     }
 
                 })
-                .register("/echo", new Supplier<AsyncServerExchangeHandler>() {
+                .register("/echo", () -> new AsyncServerExchangeHandler() {
+
+                    ByteBuffer buffer = ByteBuffer.allocate(2048);
+                    CapacityChannel inputCapacityChannel;
+                    DataStreamChannel outputDataChannel;
+                    boolean endStream;
+
+                    private void ensureCapacity(final int chunk) {
+                        if (buffer.remaining() < chunk) {
+                            final ByteBuffer oldBuffer = buffer;
+                            oldBuffer.flip();
+                            buffer = ByteBuffer.allocate(oldBuffer.remaining() + (chunk > 2048 ? chunk : 2048));
+                            buffer.put(oldBuffer);
+                        }
+                    }
 
                     @Override
-                    public AsyncServerExchangeHandler get() {
-                        return new AsyncServerExchangeHandler() {
+                    public void handleRequest(
+                            final HttpRequest request,
+                            final EntityDetails entityDetails,
+                            final ResponseChannel responseChannel,
+                            final HttpContext context) throws HttpException, IOException {
+                        final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
+                        responseChannel.sendResponse(response, entityDetails, context);
+                    }
 
-                            ByteBuffer buffer = ByteBuffer.allocate(2048);
-                            CapacityChannel inputCapacityChannel;
-                            DataStreamChannel outputDataChannel;
-                            boolean endStream;
-
-                            private void ensureCapacity(final int chunk) {
-                                if (buffer.remaining() < chunk) {
-                                    final ByteBuffer oldBuffer = buffer;
-                                    oldBuffer.flip();
-                                    buffer = ByteBuffer.allocate(oldBuffer.remaining() + (chunk > 2048 ? chunk : 2048));
-                                    buffer.put(oldBuffer);
-                                }
+                    @Override
+                    public void consume(final ByteBuffer src) throws IOException {
+                        if (buffer.position() == 0) {
+                            if (outputDataChannel != null) {
+                                outputDataChannel.write(src);
                             }
-
-                            @Override
-                            public void handleRequest(
-                                    final HttpRequest request,
-                                    final EntityDetails entityDetails,
-                                    final ResponseChannel responseChannel,
-                                    final HttpContext context) throws HttpException, IOException {
-                                final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
-                                responseChannel.sendResponse(response, entityDetails, context);
+                        }
+                        if (src.hasRemaining()) {
+                            ensureCapacity(src.remaining());
+                            buffer.put(src);
+                            if (outputDataChannel != null) {
+                                outputDataChannel.requestOutput();
                             }
+                        }
+                    }
 
-                            @Override
-                            public void consume(final ByteBuffer src) throws IOException {
-                                if (buffer.position() == 0) {
-                                    if (outputDataChannel != null) {
-                                        outputDataChannel.write(src);
-                                    }
-                                }
-                                if (src.hasRemaining()) {
-                                    ensureCapacity(src.remaining());
-                                    buffer.put(src);
-                                    if (outputDataChannel != null) {
-                                        outputDataChannel.requestOutput();
-                                    }
-                                }
+                    @Override
+                    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                        if (buffer.hasRemaining()) {
+                            capacityChannel.update(buffer.remaining());
+                            inputCapacityChannel = null;
+                        } else {
+                            inputCapacityChannel = capacityChannel;
+                        }
+                    }
+
+                    @Override
+                    public void streamEnd(final List<? extends Header> trailers) throws IOException {
+                        endStream = true;
+                        if (buffer.position() == 0) {
+                            if (outputDataChannel != null) {
+                                outputDataChannel.endStream();
                             }
-
-                            @Override
-                            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                                if (buffer.hasRemaining()) {
-                                    capacityChannel.update(buffer.remaining());
-                                    inputCapacityChannel = null;
-                                } else {
-                                    inputCapacityChannel = capacityChannel;
-                                }
+                        } else {
+                            if (outputDataChannel != null) {
+                                outputDataChannel.requestOutput();
                             }
+                        }
+                    }
 
-                            @Override
-                            public void streamEnd(final List<? extends Header> trailers) throws IOException {
-                                endStream = true;
-                                if (buffer.position() == 0) {
-                                    if (outputDataChannel != null) {
-                                        outputDataChannel.endStream();
-                                    }
-                                } else {
-                                    if (outputDataChannel != null) {
-                                        outputDataChannel.requestOutput();
-                                    }
-                                }
-                            }
+                    @Override
+                    public int available() {
+                        return buffer.position();
+                    }
 
-                            @Override
-                            public int available() {
-                                return buffer.position();
-                            }
+                    @Override
+                    public void produce(final DataStreamChannel channel) throws IOException {
+                        outputDataChannel = channel;
+                        buffer.flip();
+                        if (buffer.hasRemaining()) {
+                            channel.write(buffer);
+                        }
+                        buffer.compact();
+                        if (buffer.position() == 0 && endStream) {
+                            channel.endStream();
+                        }
+                        final CapacityChannel capacityChannel = inputCapacityChannel;
+                        if (capacityChannel != null && buffer.hasRemaining()) {
+                            capacityChannel.update(buffer.remaining());
+                        }
+                    }
 
-                            @Override
-                            public void produce(final DataStreamChannel channel) throws IOException {
-                                outputDataChannel = channel;
-                                buffer.flip();
-                                if (buffer.hasRemaining()) {
-                                    channel.write(buffer);
-                                }
-                                buffer.compact();
-                                if (buffer.position() == 0 && endStream) {
-                                    channel.endStream();
-                                }
-                                final CapacityChannel capacityChannel = inputCapacityChannel;
-                                if (capacityChannel != null && buffer.hasRemaining()) {
-                                    capacityChannel.update(buffer.remaining());
-                                }
-                            }
+                    @Override
+                    public void failed(final Exception cause) {
+                        if (!(cause instanceof SocketException)) {
+                            cause.printStackTrace(System.out);
+                        }
+                    }
 
-                            @Override
-                            public void failed(final Exception cause) {
-                                if (!(cause instanceof SocketException)) {
-                                    cause.printStackTrace(System.out);
-                                }
-                            }
-
-                            @Override
-                            public void releaseResources() {
-                            }
-
-                        };
+                    @Override
+                    public void releaseResources() {
                     }
 
                 })
                 .create();
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                System.out.println("HTTP server shutting down");
-                server.close(CloseMode.GRACEFUL);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("HTTP server shutting down");
+            server.close(CloseMode.GRACEFUL);
+        }));
 
         server.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(port), URIScheme.HTTP);

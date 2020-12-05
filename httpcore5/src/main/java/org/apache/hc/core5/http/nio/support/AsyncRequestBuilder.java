@@ -316,7 +316,7 @@ public class AsyncRequestBuilder {
     }
 
     public List<NameValuePair> getParameters() {
-        return parameters != null ? new ArrayList<>(parameters) : new ArrayList<NameValuePair>();
+        return parameters != null ? new ArrayList<>(parameters) : new ArrayList<>();
     }
 
     public AsyncRequestBuilder addParameter(final NameValuePair nvp) {

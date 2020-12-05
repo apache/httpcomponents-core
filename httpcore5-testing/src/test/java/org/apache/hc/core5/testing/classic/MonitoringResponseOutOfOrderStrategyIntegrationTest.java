@@ -27,6 +27,12 @@
 
 package org.apache.hc.core5.testing.classic;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -37,12 +43,10 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.MonitoringResponseOutOfOrderStrategy;
-import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.SSLTestContexts;
@@ -53,12 +57,6 @@ import org.junit.Test;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collection;
 
 @RunWith(Parameterized.class)
 public class MonitoringResponseOutOfOrderStrategyIntegrationTest {
@@ -147,17 +145,9 @@ public class MonitoringResponseOutOfOrderStrategyIntegrationTest {
 
     @Test(timeout = 5000) // Failures may hang
     public void testResponseOutOfOrderWithDefaultStrategy() throws Exception {
-        this.server.registerHandler("*", new HttpRequestHandler() {
-
-            @Override
-            public void handle(
-                    final ClassicHttpRequest request,
-                    final ClassicHttpResponse response,
-                    final HttpContext context) throws IOException {
-                response.setCode(400);
-                response.setEntity(new AllOnesHttpEntity(200000));
-            }
-
+        this.server.registerHandler("*", (request, response, context) -> {
+            response.setCode(400);
+            response.setEntity(new AllOnesHttpEntity(200000));
         });
 
         this.server.start(null, null, null);

@@ -139,14 +139,9 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final long deadline = lastAccessTime + timeValue.toMilliseconds();
             if (deadline <= System.currentTimeMillis()) {
                 final Timeout socketTimeoutMillis = ioSession.getSocketTimeout();
-                ioSession.enqueue(new PingCommand(new BasicPingHandler(new Callback<Boolean>() {
-
-                    @Override
-                    public void execute(final Boolean result) {
-                        ioSession.setSocketTimeout(socketTimeoutMillis);
-                        callback.execute(result);
-                    }
-
+                ioSession.enqueue(new PingCommand(new BasicPingHandler(result -> {
+                    ioSession.setSocketTimeout(socketTimeoutMillis);
+                    callback.execute(result);
                 })), Command.Priority.NORMAL);
                 return;
             }

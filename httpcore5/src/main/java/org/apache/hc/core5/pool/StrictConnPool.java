@@ -604,30 +604,20 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     @Override
     public void closeIdle(final TimeValue idleTime) {
         final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
-        enumAvailable(new Callback<PoolEntry<T, C>>() {
-
-            @Override
-            public void execute(final PoolEntry<T, C> entry) {
-                if (entry.getUpdated() <= deadline) {
-                    entry.discardConnection(CloseMode.GRACEFUL);
-                }
+        enumAvailable(entry -> {
+            if (entry.getUpdated() <= deadline) {
+                entry.discardConnection(CloseMode.GRACEFUL);
             }
-
         });
     }
 
     @Override
     public void closeExpired() {
         final long now = System.currentTimeMillis();
-        enumAvailable(new Callback<PoolEntry<T, C>>() {
-
-            @Override
-            public void execute(final PoolEntry<T, C> entry) {
-                if (entry.getExpiryDeadline().isBefore(now)) {
-                    entry.discardConnection(CloseMode.GRACEFUL);
-                }
+        enumAvailable(entry -> {
+            if (entry.getExpiryDeadline().isBefore(now)) {
+                entry.discardConnection(CloseMode.GRACEFUL);
             }
-
         });
     }
 
