@@ -517,11 +517,7 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder setPathSegments(final String... pathSegments) {
-        this.pathSegments = pathSegments.length > 0 ? Arrays.asList(pathSegments) : null;
-        this.encodedSchemeSpecificPart = null;
-        this.encodedPath = null;
-        this.pathRootless = false;
-        return this;
+        return setPathSegments(Arrays.asList(pathSegments));
     }
 
     /**
@@ -542,11 +538,7 @@ public class URIBuilder {
      * @since 5.1
      */
     public URIBuilder setPathSegmentsRootless(final String... pathSegments) {
-        this.pathSegments = pathSegments.length > 0 ? Arrays.asList(pathSegments) : null;
-        this.encodedSchemeSpecificPart = null;
-        this.encodedPath = null;
-        this.pathRootless = true;
-        return this;
+        return setPathSegmentsRootless(Arrays.asList(pathSegments));
     }
 
     /**
@@ -568,7 +560,7 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder appendPathSegments(final List<String> pathSegments) {
-        if (pathSegments != null & pathSegments.size() > 0) {
+        if (pathSegments != null && pathSegments.size() > 0) {
             final List<String> segments = new ArrayList<>(getPathSegments());
             segments.addAll(pathSegments);
             setPathSegments(segments);
