@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.net.InetAddressUtils;
 
 /**
@@ -37,7 +36,6 @@ import org.apache.hc.core5.net.InetAddressUtils;
  *
  * @since 5.0
  */
-@Internal
 public class ServerHttp1IOEventHandler extends AbstractHttp1IOEventHandler {
 
     public ServerHttp1IOEventHandler(final ServerHttp1StreamDuplexer streamDuplexer) {

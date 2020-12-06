@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.impl.nio;
 
 import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
@@ -46,7 +45,6 @@ import org.apache.hc.core5.util.Timeout;
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
-@Internal
 public class ClientHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
 
     private final ClientHttp1StreamDuplexerFactory streamDuplexerFactory;
