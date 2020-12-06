@@ -567,18 +567,18 @@ public class TestURIBuilder {
     @Test
     public void testSetPathSegmentsRootlessList() throws Exception {
         final URI uri = new URIBuilder()
-                .setScheme("file")
-                .setPathSegmentsRootless(Arrays.asList("dir", "foo"))
-                .build();
+            .setScheme("file")
+            .setPathSegmentsRootless(Arrays.asList("dir", "foo"))
+            .build();
         MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:dir/foo")));
     }
 
     @Test
     public void testSetPathSegmentsRootlessVarargs() throws Exception {
         final URI uri = new URIBuilder()
-                .setScheme("file")
-                .setPathSegmentsRootless("dir", "foo")
-                .build();
+            .setScheme("file")
+            .setPathSegmentsRootless("dir", "foo")
+            .build();
         MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:dir/foo")));
     }
 
