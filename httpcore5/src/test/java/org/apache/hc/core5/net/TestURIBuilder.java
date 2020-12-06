@@ -633,7 +633,7 @@ public class TestURIBuilder {
             .setHost("myhost")
             .setPath("api")
             .appendPathSegments("v3", "products")
-            .appendPath("idA")
+            .appendPathSegments("idA")
             .build();
         MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://myhost/api/v3/products/idA")));
     }
@@ -644,7 +644,7 @@ public class TestURIBuilder {
             .setScheme("https")
             .setHost("somehost")
             .appendPathSegments("api", "v2", "customers")
-            .appendPath("idA")
+            .appendPathSegments("idA")
             .build();
         MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v2/customers/idA")));
     }
