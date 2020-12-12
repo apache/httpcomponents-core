@@ -86,6 +86,9 @@ public class AsyncServer extends AbstractConnectionInitiatorBase implements IORe
         return ioReactor;
     }
 
+    /**
+     * @since 5.1
+     */
     public Future<ListenerEndpoint> listen(
             final SocketAddress address, final Object attachment, final FutureCallback<ListenerEndpoint> callback) {
         return ioReactor.listen(address, attachment, callback);

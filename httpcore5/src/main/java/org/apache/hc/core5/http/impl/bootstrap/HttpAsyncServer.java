@@ -83,6 +83,9 @@ public class HttpAsyncServer extends AsyncServer {
         this(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener, null);
     }
 
+    /**
+     * @since 5.1
+     */
     public Future<ListenerEndpoint> listen(
             final SocketAddress address,
             final URIScheme scheme,
@@ -97,6 +100,9 @@ public class HttpAsyncServer extends AsyncServer {
         return super.listen(address, parameters, callback);
     }
 
+    /**
+     * @since 5.1
+     */
     public Future<ListenerEndpoint> listen(
             final SocketAddress address,
             final URIScheme scheme,
@@ -104,6 +110,9 @@ public class HttpAsyncServer extends AsyncServer {
         return listen(address, scheme, null, callback);
     }
 
+    /**
+     * @since 5.1
+     */
     public Future<ListenerEndpoint> listen(final SocketAddress address, final URIScheme scheme) {
         return listen(address, scheme, null, null);
     }
