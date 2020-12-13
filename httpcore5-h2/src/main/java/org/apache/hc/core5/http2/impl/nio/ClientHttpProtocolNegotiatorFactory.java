@@ -30,12 +30,11 @@ package org.apache.hc.core5.http2.impl.nio;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
-import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
@@ -75,14 +74,7 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
         if (attachment instanceof EndpointParameters) {
             final EndpointParameters params = (EndpointParameters) attachment;
             if (tlsStrategy != null && URIScheme.HTTPS.same(params.getScheme())) {
-                final HttpHost host = new HttpHost(params.getScheme(), params.getHostName(), params.getPort());
-                tlsStrategy.upgrade(
-                        ioSession,
-                        host,
-                        ioSession.getLocalAddress(),
-                        ioSession.getRemoteAddress(),
-                        params.getAttachment(),
-                        handshakeTimeout);
+                tlsStrategy.upgrade(ioSession, params, params.getAttachment(), handshakeTimeout, null);
             }
             if (params.getAttachment() instanceof HttpVersionPolicy) {
                 endpointPolicy = (HttpVersionPolicy) params.getAttachment();

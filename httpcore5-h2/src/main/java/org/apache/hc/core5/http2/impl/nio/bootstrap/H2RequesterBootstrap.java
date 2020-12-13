@@ -321,7 +321,6 @@ public class H2RequesterBootstrap {
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 streamListener);
 
-        final HttpVersionPolicy actualVersionProtocol = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
         final TlsStrategy actualTlsStrategy = tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy();
 
         final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory = new ClientHttp1StreamDuplexerFactory(
@@ -338,7 +337,7 @@ public class H2RequesterBootstrap {
         final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiatorFactory(
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
-                actualVersionProtocol,
+                versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,
                 actualTlsStrategy,
                 handshakeTimeout);
 

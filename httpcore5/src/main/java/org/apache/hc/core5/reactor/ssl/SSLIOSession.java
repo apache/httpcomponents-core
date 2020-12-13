@@ -157,16 +157,11 @@ public class SSLIOSession implements IOSession {
 
             @Override
             public void connected(final IOSession protocolSession) throws IOException {
-                if (handshakeStateRef.compareAndSet(TLSHandShakeState.READY, TLSHandShakeState.INITIALIZED)) {
-                    initialize(protocolSession);
-                }
+                beginHandshake(protocolSession);
             }
 
             @Override
             public void inputReady(final IOSession protocolSession, final ByteBuffer src) throws IOException {
-                if (handshakeStateRef.compareAndSet(TLSHandShakeState.READY, TLSHandShakeState.INITIALIZED)) {
-                    initialize(protocolSession);
-                }
                 receiveEncryptedData();
                 doHandshake(protocolSession);
                 decryptData(protocolSession);
@@ -175,9 +170,6 @@ public class SSLIOSession implements IOSession {
 
             @Override
             public void outputReady(final IOSession protocolSession) throws IOException {
-                if (handshakeStateRef.compareAndSet(TLSHandShakeState.READY, TLSHandShakeState.INITIALIZED)) {
-                    initialize(protocolSession);
-                }
                 encryptData(protocolSession);
                 sendEncryptedData();
                 doHandshake(protocolSession);
@@ -226,6 +218,12 @@ public class SSLIOSession implements IOSession {
     @Override
     public IOEventHandler getHandler() {
         return internalEventHandler;
+    }
+
+    public void beginHandshake(final IOSession protocolSession) throws IOException {
+        if (handshakeStateRef.compareAndSet(TLSHandShakeState.READY, TLSHandShakeState.INITIALIZED)) {
+            initialize(protocolSession);
+        }
     }
 
     private void initialize(final IOSession protocolSession) throws IOException {

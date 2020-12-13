@@ -117,13 +117,20 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
                             tlsStrategy.upgrade(
                                     (TransportSecurityLayer) ioSession,
                                     namedEndpoint,
-                                    ioSession.getLocalAddress(),
-                                    ioSession.getRemoteAddress(),
                                     null,
-                                    connectTimeout);
+                                    connectTimeout,
+                                    new CallbackContribution<TransportSecurityLayer>(callback) {
+
+                                        @Override
+                                        public void completed(final TransportSecurityLayer transportSecurityLayer) {
+                                            callback.completed(ioSession);
+                                        }
+
+                                    });
                             ioSession.setSocketTimeout(connectTimeout);
+                        } else {
+                            callback.completed(ioSession);
                         }
-                        callback.completed(ioSession);
                     }
 
                 });
