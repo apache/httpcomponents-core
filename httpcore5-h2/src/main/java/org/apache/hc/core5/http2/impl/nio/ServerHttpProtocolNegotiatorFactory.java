@@ -38,7 +38,6 @@ import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -74,15 +73,8 @@ public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
         HttpVersionPolicy endpointPolicy = versionPolicy;
         if (attachment instanceof EndpointParameters) {
             final EndpointParameters params = (EndpointParameters) attachment;
-            if (URIScheme.HTTPS.same(params.getScheme())) {
-                Asserts.notNull(tlsStrategy, "TLS strategy");
-                tlsStrategy.upgrade(
-                        ioSession,
-                        null,
-                        ioSession.getLocalAddress(),
-                        ioSession.getRemoteAddress(),
-                        params.getAttachment(),
-                        handshakeTimeout);
+            if (tlsStrategy != null && URIScheme.HTTPS.same(params.getScheme())) {
+                tlsStrategy.upgrade(ioSession, params, params.getAttachment(), handshakeTimeout, null);
             }
             if (params.getAttachment() instanceof HttpVersionPolicy) {
                 endpointPolicy = (HttpVersionPolicy) params.getAttachment();

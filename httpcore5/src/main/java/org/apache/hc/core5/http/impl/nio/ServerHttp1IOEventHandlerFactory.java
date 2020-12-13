@@ -68,22 +68,18 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
             if (tlsStrategy != null && URIScheme.HTTPS.same(endpointScheme)) {
                 tlsStrategy.upgrade(
                         ioSession,
-                        null,
-                        ioSession.getLocalAddress(),
-                        ioSession.getRemoteAddress(),
+                        params,
                         params.getAttachment(),
-                        handshakeTimeout);
+                        handshakeTimeout,
+                        null);
             }
         } else {
-            if (tlsStrategy != null) {
-                tlsStrategy.upgrade(
-                        ioSession,
-                        null,
-                        ioSession.getLocalAddress(),
-                        ioSession.getRemoteAddress(),
-                        attachment,
-                        handshakeTimeout);
-            }
+            tlsStrategy.upgrade(
+                    ioSession,
+                    null,
+                    attachment,
+                    handshakeTimeout,
+                    null);
         }
         return new ServerHttp1IOEventHandler(streamDuplexerFactory.create(endpointScheme, ioSession));
     }

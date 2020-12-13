@@ -31,10 +31,12 @@ import java.net.SocketAddress;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.nio.ssl.FixedPortStrategy;
 import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
@@ -145,6 +147,27 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
     }
 
     @Override
+    public void upgrade(
+            final TransportSecurityLayer tlsSession,
+            final NamedEndpoint endpoint,
+            final Object attachment,
+            final Timeout handshakeTimeout,
+            final FutureCallback<TransportSecurityLayer> callback) {
+        tlsSession.startTls(
+                sslContext,
+                endpoint,
+                sslBufferMode,
+                ConscryptSupport.initialize(attachment, initializer),
+                ConscryptSupport.verify(verifier),
+                handshakeTimeout,
+                callback);
+    }
+
+    /**
+     * @deprecated use {@link #upgrade(TransportSecurityLayer, NamedEndpoint, Object, Timeout, FutureCallback)}
+     */
+    @Deprecated
+    @Override
     public boolean upgrade(
             final TransportSecurityLayer tlsSession,
             final HttpHost host,
@@ -153,16 +176,9 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
             final Object attachment,
             final Timeout handshakeTimeout) {
         if (isApplicable(localAddress)) {
-            tlsSession.startTls(
-                    sslContext,
-                    host,
-                    sslBufferMode,
-                    ConscryptSupport.initialize(attachment, initializer),
-                    ConscryptSupport.verify(verifier),
-                    handshakeTimeout);
+            upgrade(tlsSession, host, attachment, handshakeTimeout, null);
             return true;
         }
         return false;
     }
-
 }

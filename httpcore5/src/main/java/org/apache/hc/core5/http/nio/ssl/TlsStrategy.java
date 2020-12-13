@@ -29,7 +29,10 @@ package org.apache.hc.core5.http.nio.ssl;
 
 import java.net.SocketAddress;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Timeout;
 
@@ -41,7 +44,7 @@ import org.apache.hc.core5.util.Timeout;
 public interface TlsStrategy {
 
     /**
-     * Secures current session layer with TLS security.
+     * Secures current session layer with TLS.
      *
      * @param sessionLayer the session layer
      * @param host the name of the opposite endpoint when given or {@code null} otherwise.
@@ -50,7 +53,10 @@ public interface TlsStrategy {
      * @param attachment arbitrary object passes to the TLS session initialization code.
      * @param handshakeTimeout the timeout to use while performing the TLS handshake; may be {@code null}.
      * @return {@code true} if the session has been upgraded, {@code false} otherwise.
+     *
+     * @deprecated use {@link #upgrade(TransportSecurityLayer, NamedEndpoint, Object, Timeout, FutureCallback)}
      */
+    @Deprecated
     boolean upgrade(
             TransportSecurityLayer sessionLayer,
             HttpHost host,
@@ -58,5 +64,29 @@ public interface TlsStrategy {
             SocketAddress remoteAddress,
             Object attachment,
             Timeout handshakeTimeout);
+
+    /**
+     * Secures current session layer with TLS.
+     *
+     * @param sessionLayer the session layer
+     * @param endpoint the name of the opposite endpoint when applicable or {@code null} otherwise.
+     * @param attachment arbitrary object passes to the TLS session initialization code.
+     * @param handshakeTimeout the timeout to use while performing the TLS handshake; may be {@code null}.
+     * @param callback Operation result callback.
+     *
+     * @since 5.2
+     */
+    default void upgrade(
+            TransportSecurityLayer sessionLayer,
+            NamedEndpoint endpoint,
+            Object attachment,
+            Timeout handshakeTimeout,
+            FutureCallback<TransportSecurityLayer> callback) {
+        upgrade(sessionLayer, new HttpHost(URIScheme.HTTPS.id, endpoint.getHostName(), endpoint.getPort()),
+                null, null, attachment, handshakeTimeout);
+        if (callback != null) {
+            callback.completed(sessionLayer);
+        }
+    }
 
 }

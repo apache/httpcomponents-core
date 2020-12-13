@@ -29,6 +29,7 @@ package org.apache.hc.core5.reactor.ssl;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Timeout;
 
@@ -58,6 +59,34 @@ public interface TransportSecurityLayer {
             SSLSessionInitializer initializer,
             SSLSessionVerifier verifier,
             Timeout handshakeTimeout) throws UnsupportedOperationException;
+
+    /**
+     * Starts TLS session over an existing network connection with the given SSL context.
+     * {@link NamedEndpoint} details are applicable for client side connections and
+     * are used for host name verification, when supported by the SSL engine.
+     *
+     * @param sslContext SSL context to be used for this session.
+     * @param endpoint optional endpoint details for outgoing client side connections.
+     * @param sslBufferMode SSL buffer management mode.
+     * @param initializer SSL session initialization callback.
+     * @param verifier SSL session verification callback.
+     * @param handshakeTimeout the timeout to use while performing the TLS handshake; may be {@code null}.
+     *
+     * @since 5.2
+     */
+    default void startTls(
+            SSLContext sslContext,
+            NamedEndpoint endpoint,
+            SSLBufferMode sslBufferMode,
+            SSLSessionInitializer initializer,
+            SSLSessionVerifier verifier,
+            Timeout handshakeTimeout,
+            FutureCallback<TransportSecurityLayer> callback) throws UnsupportedOperationException {
+        startTls(sslContext, endpoint, sslBufferMode, initializer, verifier, handshakeTimeout);
+        if (callback != null) {
+            callback.completed(null);
+        }
+    }
 
     /**
      * Returns details of a fully established TLS session.

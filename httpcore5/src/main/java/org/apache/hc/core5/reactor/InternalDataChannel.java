@@ -39,6 +39,7 @@ import java.util.concurrent.locks.Lock;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
@@ -48,6 +49,7 @@ import org.apache.hc.core5.reactor.ssl.SSLMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
@@ -60,6 +62,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     private final Queue<InternalDataChannel> closedSessions;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final AtomicReference<IOSession> currentSessionRef;
+    private final AtomicReference<FutureCallback<TransportSecurityLayer>> tlsHandshakeCallbackRef;
     private final AtomicBoolean closed;
 
     InternalDataChannel(
@@ -76,6 +79,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         this.tlsSessionRef = new AtomicReference<>(null);
         this.currentSessionRef = new AtomicReference<>(
                 ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession);
+        this.tlsHandshakeCallbackRef = new AtomicReference<>(null);
         this.closed = new AtomicBoolean(false);
     }
 
@@ -167,12 +171,20 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (handler != null) {
             handler.exception(currentSession, cause);
         }
+        final FutureCallback<?> callback = tlsHandshakeCallbackRef.getAndSet(null);
+        if (callback != null) {
+            callback.failed(cause);
+        }
     }
 
     void onTLSSessionStart(final SSLIOSession sslSession) {
         final IOSession currentSession = currentSessionRef.get();
         if (sessionListener != null) {
             sessionListener.connected(currentSession);
+        }
+        final FutureCallback<TransportSecurityLayer> callback = tlsHandshakeCallbackRef.getAndSet(null);
+        if (callback != null) {
+            callback.completed(this);
         }
     }
 
@@ -201,6 +213,18 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier,
             final Timeout handshakeTimeout) {
+        startTls(sslContext, endpoint, sslBufferMode, initializer, verifier, handshakeTimeout, null);
+    }
+
+    @Override
+    public void startTls(
+            final SSLContext sslContext,
+            final NamedEndpoint endpoint,
+            final SSLBufferMode sslBufferMode,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier,
+            final Timeout handshakeTimeout,
+            final FutureCallback<TransportSecurityLayer> callback) {
         final SSLIOSession sslioSession = new SSLIOSession(
                 endpoint != null ? endpoint : initialEndpoint,
                 ioSession,
@@ -214,11 +238,17 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                 handshakeTimeout);
         if (tlsSessionRef.compareAndSet(null, sslioSession)) {
             currentSessionRef.set(ioSessionDecorator != null ? ioSessionDecorator.decorate(sslioSession) : sslioSession);
+            tlsHandshakeCallbackRef.set(callback);
+        } else {
+            throw new IllegalStateException("TLS already activated");
+        }
+        try {
             if (sessionListener != null) {
                 sessionListener.startTls(sslioSession);
             }
-        } else {
-            throw new IllegalStateException("TLS already activated");
+            sslioSession.beginHandshake(this);
+        } catch (final Exception ex) {
+            onException(ex);
         }
     }
 
