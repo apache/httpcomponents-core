@@ -62,21 +62,26 @@ public class TestBasicStatusLine {
         StatusLine statusLine = new StatusLine(new BasicHttpResponse(100, "Continue"));
         Assert.assertTrue(statusLine.is1xxInformational());
         Assert.assertFalse(statusLine.is2xxSuccessful());
+        Assert.assertFalse(statusLine.isError());
 
         statusLine = new StatusLine(new BasicHttpResponse(200, "OK"));
         Assert.assertTrue(statusLine.is2xxSuccessful());
         Assert.assertFalse(statusLine.is3xxRedirection());
+        Assert.assertFalse(statusLine.isError());
 
         statusLine = new StatusLine(new BasicHttpResponse(302, "Found"));
         Assert.assertTrue(statusLine.is3xxRedirection());
         Assert.assertFalse(statusLine.is4xxClientError());
+        Assert.assertFalse(statusLine.isError());
 
         statusLine = new StatusLine(new BasicHttpResponse(409, "Conflict"));
         Assert.assertTrue(statusLine.is4xxClientError());
+        Assert.assertTrue(statusLine.isError());
         Assert.assertFalse(statusLine.is5xxServerError());
 
         statusLine = new StatusLine(new BasicHttpResponse(502, "Bad Gateway"));
         Assert.assertTrue(statusLine.is5xxServerError());
+        Assert.assertTrue(statusLine.isError());
         Assert.assertFalse(statusLine.is2xxSuccessful());
     }
 }

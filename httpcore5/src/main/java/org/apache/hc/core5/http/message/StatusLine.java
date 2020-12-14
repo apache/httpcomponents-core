@@ -134,6 +134,14 @@ public final class StatusLine implements Serializable {
         return getStatusClass() == StatusClass.SERVER_ERROR;
     }
 
+    /**
+     * Whether this status code is in the HTTP series {@link StatusClass#CLIENT_ERROR}
+     * or {@link StatusClass#SERVER_ERROR}.
+     */
+    public boolean isError() {
+        return (is4xxClientError() || is5xxServerError());
+    }
+
     public ProtocolVersion getProtocolVersion() {
         return this.protoVersion;
     }
