@@ -158,29 +158,29 @@ public class SSLIOSession implements IOSession {
             @Override
             public void connected(final IOSession protocolSession) throws IOException {
                 if (handshakeStateRef.compareAndSet(TLSHandShakeState.READY, TLSHandShakeState.INITIALIZED)) {
-                    initialize();
+                    initialize(protocolSession);
                 }
             }
 
             @Override
             public void inputReady(final IOSession protocolSession, final ByteBuffer src) throws IOException {
                 if (handshakeStateRef.compareAndSet(TLSHandShakeState.READY, TLSHandShakeState.INITIALIZED)) {
-                    initialize();
+                    initialize(protocolSession);
                 }
                 receiveEncryptedData();
-                doHandshake();
-                decryptData();
+                doHandshake(protocolSession);
+                decryptData(protocolSession);
                 updateEventMask();
             }
 
             @Override
             public void outputReady(final IOSession protocolSession) throws IOException {
                 if (handshakeStateRef.compareAndSet(TLSHandShakeState.READY, TLSHandShakeState.INITIALIZED)) {
-                    initialize();
+                    initialize(protocolSession);
                 }
-                encryptData();
+                encryptData(protocolSession);
                 sendEncryptedData();
-                doHandshake();
+                doHandshake(protocolSession);
                 updateEventMask();
             }
 
@@ -190,7 +190,7 @@ public class SSLIOSession implements IOSession {
                     // The session failed to terminate cleanly
                     close(CloseMode.IMMEDIATE);
                 }
-                ensureHandler().timeout(SSLIOSession.this, timeout);
+                ensureHandler().timeout(protocolSession, timeout);
             }
 
             @Override
@@ -201,7 +201,7 @@ public class SSLIOSession implements IOSession {
                     close(CloseMode.IMMEDIATE);
                 }
                 if (handler != null) {
-                    handler.exception(SSLIOSession.this, cause);
+                    handler.exception(protocolSession, cause);
                 }
             }
 
@@ -209,7 +209,7 @@ public class SSLIOSession implements IOSession {
             public void disconnected(final IOSession protocolSession) {
                 final IOEventHandler handler = session.getHandler();
                 if (handler != null) {
-                    handler.disconnected(SSLIOSession.this);
+                    handler.disconnected(protocolSession);
                 }
             }
 
@@ -228,7 +228,7 @@ public class SSLIOSession implements IOSession {
         return internalEventHandler;
     }
 
-    private void initialize() throws IOException {
+    private void initialize(final IOSession protocolSession) throws IOException {
         // Save the initial socketTimeout of the underlying IOSession, to be restored after the handshake is finished
         this.socketTimeout = this.session.getSocketTimeout();
         if (connectTimeout != null) {
@@ -256,7 +256,7 @@ public class SSLIOSession implements IOSession {
 
             this.inEncrypted.release();
             this.outEncrypted.release();
-            doHandshake();
+            doHandshake(protocolSession);
         } finally {
             this.session.getLock().unlock();
         }
@@ -302,7 +302,7 @@ public class SSLIOSession implements IOSession {
         }
     }
 
-    private void doHandshake() throws IOException {
+    private void doHandshake(final IOSession protocolSession) throws IOException {
         boolean handshaking = true;
 
         SSLEngineResult result = null;
@@ -391,7 +391,7 @@ public class SSLIOSession implements IOSession {
                 this.tlsDetails = new TlsDetails(sslSession, applicationProtocol);
             }
 
-            ensureHandler().connected(this);
+            ensureHandler().connected(protocolSession);
 
             if (this.sessionStartCallback != null) {
                 this.sessionStartCallback.execute(this);
@@ -530,7 +530,7 @@ public class SSLIOSession implements IOSession {
         return bytesRead;
     }
 
-    private void decryptData() throws IOException {
+    private void decryptData(final IOSession protocolSession) throws IOException {
         final HandshakeStatus handshakeStatus = sslEngine.getHandshakeStatus();
         if ((handshakeStatus == HandshakeStatus.NOT_HANDSHAKING || handshakeStatus == HandshakeStatus.FINISHED)
                 && inEncrypted.hasData()) {
@@ -550,7 +550,7 @@ public class SSLIOSession implements IOSession {
                         if (inPlainBuf.hasRemaining()) {
                             inPlainBuf.flip();
                             try {
-                                ensureHandler().inputReady(this, inPlainBuf.hasRemaining() ? inPlainBuf : null);
+                                ensureHandler().inputReady(protocolSession, inPlainBuf.hasRemaining() ? inPlainBuf : null);
                             } finally {
                                 inPlainBuf.clear();
                             }
@@ -575,7 +575,7 @@ public class SSLIOSession implements IOSession {
         }
     }
 
-    private void encryptData() throws IOException {
+    private void encryptData(final IOSession protocolSession) throws IOException {
         final boolean appReady;
         this.session.getLock().lock();
         try {
@@ -586,7 +586,7 @@ public class SSLIOSession implements IOSession {
             this.session.getLock().unlock();
         }
         if (appReady) {
-            ensureHandler().outputReady(this);
+            ensureHandler().outputReady(protocolSession);
         }
     }
 

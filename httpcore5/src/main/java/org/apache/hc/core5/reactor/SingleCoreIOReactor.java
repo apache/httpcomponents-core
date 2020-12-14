@@ -209,8 +209,9 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             }
             final IOSession ioSession = new IOSessionImpl("a", key, socketChannel);
             final InternalDataChannel dataChannel = new InternalDataChannel(
-                    ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession,
+                    ioSession,
                     null,
+                    ioSessionDecorator,
                     sessionListener,
                     closedSessions);
             dataChannel.upgrade(this.eventHandlerFactory.createHandler(dataChannel, attachment));
@@ -366,8 +367,9 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                     final Object attachment) {
                 final IOSession ioSession = new IOSessionImpl("c", key, socketChannel);
                 final InternalDataChannel dataChannel = new InternalDataChannel(
-                        ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession,
+                        ioSession,
                         namedEndpoint,
+                        ioSessionDecorator,
                         sessionListener,
                         closedSessions);
                 dataChannel.upgrade(eventHandlerFactory.createHandler(dataChannel, attachment));

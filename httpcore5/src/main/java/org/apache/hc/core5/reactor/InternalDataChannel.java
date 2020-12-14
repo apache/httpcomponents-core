@@ -40,6 +40,7 @@ import java.util.concurrent.locks.Lock;
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
@@ -55,21 +56,27 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     private final IOSession ioSession;
     private final NamedEndpoint initialEndpoint;
+    private final Decorator<IOSession> ioSessionDecorator;
     private final IOSessionListener sessionListener;
-    private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final Queue<InternalDataChannel> closedSessions;
+    private final AtomicReference<SSLIOSession> tlsSessionRef;
+    private final AtomicReference<IOSession> currentSessionRef;
     private final AtomicBoolean closed;
 
     InternalDataChannel(
             final IOSession ioSession,
             final NamedEndpoint initialEndpoint,
+            final Decorator<IOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
             final Queue<InternalDataChannel> closedSessions) {
         this.ioSession = ioSession;
         this.initialEndpoint = initialEndpoint;
         this.closedSessions = closedSessions;
+        this.ioSessionDecorator = ioSessionDecorator;
         this.sessionListener = sessionListener;
         this.tlsSessionRef = new AtomicReference<>(null);
+        this.currentSessionRef = new AtomicReference<>(
+                ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession);
         this.closed = new AtomicBoolean(false);
     }
 
@@ -85,17 +92,14 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     public IOEventHandler getHandler() {
-        return ioSession.getHandler();
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.getHandler();
     }
 
     @Override
     public void upgrade(final IOEventHandler handler) {
-        ioSession.upgrade(handler);
-    }
-
-    private IOSession getSessionImpl() {
-        final SSLIOSession tlsSession = tlsSessionRef.get();
-        return tlsSession != null ? tlsSession : ioSession;
+        final IOSession currentSession = currentSessionRef.get();
+        currentSession.upgrade(handler);
     }
 
     private IOEventHandler ensureHandler(final IOSession session) {
@@ -106,67 +110,70 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     void onIOEvent(final int readyOps) throws IOException {
-        final SSLIOSession tlsSession = tlsSessionRef.get();
-        final IOSession currentSession = tlsSession != null ? tlsSession : ioSession;
         if ((readyOps & SelectionKey.OP_CONNECT) != 0) {
+            final IOSession currentSession = currentSessionRef.get();
             currentSession.clearEvent(SelectionKey.OP_CONNECT);
-            if (tlsSession == null) {
+            if (tlsSessionRef.get() == null) {
                 if (sessionListener != null) {
-                    sessionListener.connected(this);
+                    sessionListener.connected(currentSession);
                 }
                 final IOEventHandler handler = ensureHandler(currentSession);
-                handler.connected(this);
+                handler.connected(currentSession);
             }
         }
         if ((readyOps & SelectionKey.OP_READ) != 0) {
+            final IOSession currentSession = currentSessionRef.get();
             currentSession.updateReadTime();
             if (sessionListener != null) {
-                sessionListener.inputReady(this);
+                sessionListener.inputReady(currentSession);
             }
             final IOEventHandler handler = ensureHandler(currentSession);
-            handler.inputReady(this, null);
+            handler.inputReady(currentSession, null);
         }
         if ((readyOps & SelectionKey.OP_WRITE) != 0
                 || (ioSession.getEventMask() & SelectionKey.OP_WRITE) != 0) {
+            final IOSession currentSession = currentSessionRef.get();
             currentSession.updateWriteTime();
             if (sessionListener != null) {
-                sessionListener.outputReady(this);
+                sessionListener.outputReady(currentSession);
             }
             final IOEventHandler handler = ensureHandler(currentSession);
-            handler.outputReady(this);
+            handler.outputReady(currentSession);
         }
     }
 
     @Override
     Timeout getTimeout() {
-        return ioSession.getSocketTimeout();
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.getSocketTimeout();
     }
 
     @Override
     void onTimeout(final Timeout timeout) throws IOException {
+        final IOSession currentSession = currentSessionRef.get();
         if (sessionListener != null) {
-            sessionListener.timeout(this);
+            sessionListener.timeout(currentSession);
         }
-        final IOSession currentSession = getSessionImpl();
         final IOEventHandler handler = ensureHandler(currentSession);
-        handler.timeout(this, timeout);
+        handler.timeout(currentSession, timeout);
     }
 
     @Override
     void onException(final Exception cause) {
+        final IOSession currentSession = currentSessionRef.get();
         if (sessionListener != null) {
-            sessionListener.exception(this, cause);
+            sessionListener.exception(currentSession, cause);
         }
-        final IOSession currentSession = getSessionImpl();
         final IOEventHandler handler = currentSession.getHandler();
         if (handler != null) {
-            handler.exception(this, cause);
+            handler.exception(currentSession, cause);
         }
     }
 
     void onTLSSessionStart(final SSLIOSession sslSession) {
+        final IOSession currentSession = currentSessionRef.get();
         if (sessionListener != null) {
-            sessionListener.connected(this);
+            sessionListener.connected(currentSession);
         }
     }
 
@@ -177,14 +184,13 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     void disconnected() {
+        final IOSession currentSession = currentSessionRef.get();
         if (sessionListener != null) {
-            sessionListener.disconnected(this);
+            sessionListener.disconnected(currentSession);
         }
-        final SSLIOSession tlsSession = tlsSessionRef.get();
-        final IOSession currentSession = tlsSession != null ? tlsSession : ioSession;
         final IOEventHandler handler = currentSession.getHandler();
         if (handler != null) {
-            handler.disconnected(this);
+            handler.disconnected(currentSession);
         }
     }
 
@@ -196,7 +202,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier,
             final Timeout handshakeTimeout) {
-        if (tlsSessionRef.compareAndSet(null, new SSLIOSession(
+        final SSLIOSession sslioSession = new SSLIOSession(
                 endpoint != null ? endpoint : initialEndpoint,
                 ioSession,
                 initialEndpoint != null ? SSLMode.CLIENT : SSLMode.SERVER,
@@ -220,9 +226,11 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                     }
 
                 },
-                handshakeTimeout))) {
+                handshakeTimeout);
+        if (tlsSessionRef.compareAndSet(null, sslioSession)) {
+            currentSessionRef.set(ioSessionDecorator != null ? ioSessionDecorator.decorate(sslioSession) : sslioSession);
             if (sessionListener != null) {
-                sessionListener.startTls(this);
+                sessionListener.startTls(sslioSession);
             }
         } else {
             throw new IllegalStateException("TLS already activated");
@@ -248,13 +256,14 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     public void close(final CloseMode closeMode) {
+        final IOSession currentSession = currentSessionRef.get();
         if (closeMode == CloseMode.IMMEDIATE) {
             closed.set(true);
-            getSessionImpl().close(closeMode);
+            currentSession.close(closeMode);
         } else {
             if (closed.compareAndSet(false, true)) {
                 try {
-                    getSessionImpl().close(closeMode);
+                    currentSession.close(closeMode);
                 } finally {
                     closedSessions.add(this);
                 }
@@ -264,32 +273,38 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     public IOSession.Status getStatus() {
-        return getSessionImpl().getStatus();
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.getStatus();
     }
 
     @Override
     public boolean isOpen() {
-        return getSessionImpl().isOpen();
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.isOpen();
     }
 
     @Override
     public void enqueue(final Command command, final Command.Priority priority) {
-        getSessionImpl().enqueue(command, priority);
+        final IOSession currentSession = currentSessionRef.get();
+        currentSession.enqueue(command, priority);
     }
 
     @Override
     public boolean hasCommands() {
-        return getSessionImpl().hasCommands();
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.hasCommands();
     }
 
     @Override
     public Command poll() {
-        return getSessionImpl().poll();
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.poll();
     }
 
     @Override
     public ByteChannel channel() {
-        return getSessionImpl().channel();
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.channel();
     }
 
     @Override
@@ -304,22 +319,26 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     public int getEventMask() {
-        return getSessionImpl().getEventMask();
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.getEventMask();
     }
 
     @Override
     public void setEventMask(final int ops) {
-        getSessionImpl().setEventMask(ops);
+        final IOSession currentSession = currentSessionRef.get();
+        currentSession.setEventMask(ops);
     }
 
     @Override
     public void setEvent(final int op) {
-        getSessionImpl().setEvent(op);
+        final IOSession currentSession = currentSessionRef.get();
+        currentSession.setEvent(op);
     }
 
     @Override
     public void clearEvent(final int op) {
-        getSessionImpl().clearEvent(op);
+        final IOSession currentSession = currentSessionRef.get();
+        currentSession.clearEvent(op);
     }
 
     @Override
@@ -334,12 +353,14 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     public int read(final ByteBuffer dst) throws IOException {
-        return getSessionImpl().read(dst);
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.read(dst);
     }
 
     @Override
     public int write(final ByteBuffer src) throws IOException {
-        return getSessionImpl().write(src);
+        final IOSession currentSession = currentSessionRef.get();
+        return currentSession.write(src);
     }
 
     @Override
@@ -369,9 +390,9 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     public String toString() {
-        final SSLIOSession tlsSession = tlsSessionRef.get();
-        if (tlsSession != null) {
-            return tlsSession.toString();
+        final IOSession currentSession = currentSessionRef.get();
+        if (currentSession != null) {
+            return currentSession.toString();
         } else {
             return ioSession.toString();
         }

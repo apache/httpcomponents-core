@@ -68,7 +68,6 @@ import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
-import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
@@ -109,6 +108,7 @@ import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityProduce
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicServerExchangeHandler;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2StreamResetException;
 import org.apache.hc.core5.http2.config.H2Config;
@@ -120,7 +120,6 @@ import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
@@ -1040,9 +1039,11 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
         final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
         request.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+        final HttpCoreContext coreContext = HttpCoreContext.create();
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(request, null),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                    coreContext, null);
         try {
             future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assert.fail("ExecutionException is expected");
@@ -1050,8 +1051,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
             Assert.assertThat(ex.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
         }
 
-        final HttpConnection eventHandler = (HttpConnection) ((ProtocolIOSession) session).getHandler();
-        final EndpointDetails endpointDetails = eventHandler.getEndpointDetails();
+        final EndpointDetails endpointDetails = coreContext.getEndpointDetails();
         Assert.assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
     }
 
