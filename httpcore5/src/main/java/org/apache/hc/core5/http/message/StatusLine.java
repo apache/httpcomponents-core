@@ -102,35 +102,35 @@ public final class StatusLine implements Serializable {
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#INFORMATIONAL}.
      */
-    public boolean is1xxInformational() {
+    public boolean isInformational() {
         return getStatusClass() == StatusClass.INFORMATIONAL;
     }
 
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#SUCCESSFUL}.
      */
-    public boolean is2xxSuccessful() {
+    public boolean isSuccessful() {
         return getStatusClass() == StatusClass.SUCCESSFUL;
     }
 
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#REDIRECTION}.
      */
-    public boolean is3xxRedirection() {
+    public boolean isRedirection() {
         return getStatusClass() == StatusClass.REDIRECTION;
     }
 
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#CLIENT_ERROR}.
      */
-    public boolean is4xxClientError() {
+    public boolean isClientError() {
         return getStatusClass() == StatusClass.CLIENT_ERROR;
     }
 
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#SERVER_ERROR}.
      */
-    public boolean is5xxServerError() {
+    public boolean isServerError() {
         return getStatusClass() == StatusClass.SERVER_ERROR;
     }
 
@@ -139,7 +139,7 @@ public final class StatusLine implements Serializable {
      * or {@link StatusClass#SERVER_ERROR}.
      */
     public boolean isError() {
-        return (is4xxClientError() || is5xxServerError());
+        return (isClientError() || isServerError());
     }
 
     public ProtocolVersion getProtocolVersion() {
