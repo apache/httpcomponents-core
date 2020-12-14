@@ -101,6 +101,8 @@ public final class StatusLine implements Serializable {
 
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#INFORMATIONAL}.
+     *
+     * @since 5.1
      */
     public boolean isInformational() {
         return getStatusClass() == StatusClass.INFORMATIONAL;
@@ -108,6 +110,8 @@ public final class StatusLine implements Serializable {
 
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#SUCCESSFUL}.
+     *
+     * @since 5.1
      */
     public boolean isSuccessful() {
         return getStatusClass() == StatusClass.SUCCESSFUL;
@@ -115,6 +119,8 @@ public final class StatusLine implements Serializable {
 
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#REDIRECTION}.
+     *
+     * @since 5.1
      */
     public boolean isRedirection() {
         return getStatusClass() == StatusClass.REDIRECTION;
@@ -122,6 +128,8 @@ public final class StatusLine implements Serializable {
 
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#CLIENT_ERROR}.
+     *
+     * @since 5.1
      */
     public boolean isClientError() {
         return getStatusClass() == StatusClass.CLIENT_ERROR;
@@ -129,6 +137,8 @@ public final class StatusLine implements Serializable {
 
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#SERVER_ERROR}.
+     *
+     * @since 5.1
      */
     public boolean isServerError() {
         return getStatusClass() == StatusClass.SERVER_ERROR;
@@ -137,6 +147,8 @@ public final class StatusLine implements Serializable {
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#CLIENT_ERROR}
      * or {@link StatusClass#SERVER_ERROR}.
+     *
+     * @since 5.1
      */
     public boolean isError() {
         return (isClientError() || isServerError());
