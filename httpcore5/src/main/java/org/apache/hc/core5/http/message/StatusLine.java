@@ -83,8 +83,7 @@ public final class StatusLine implements Serializable {
      * @param reasonPhrase the reason phrase to the status code, or
      *                     {@code null}
      */
-    public StatusLine(final ProtocolVersion version, final int statusCode,
-                      final String reasonPhrase) {
+    public StatusLine(final ProtocolVersion version, final int statusCode, final String reasonPhrase) {
         super();
         this.statusCode = Args.notNegative(statusCode, "Status code");
         this.statusClass = StatusClass.from(this.statusCode);
@@ -98,6 +97,61 @@ public final class StatusLine implements Serializable {
 
     public StatusClass getStatusClass() {
         return this.statusClass;
+    }
+
+    /**
+     * Whether this status code is in the HTTP series {@link StatusClass#INFORMATIONAL}.
+     *
+     * @since 5.1
+     */
+    public boolean isInformational() {
+        return getStatusClass() == StatusClass.INFORMATIONAL;
+    }
+
+    /**
+     * Whether this status code is in the HTTP series {@link StatusClass#SUCCESSFUL}.
+     *
+     * @since 5.1
+     */
+    public boolean isSuccessful() {
+        return getStatusClass() == StatusClass.SUCCESSFUL;
+    }
+
+    /**
+     * Whether this status code is in the HTTP series {@link StatusClass#REDIRECTION}.
+     *
+     * @since 5.1
+     */
+    public boolean isRedirection() {
+        return getStatusClass() == StatusClass.REDIRECTION;
+    }
+
+    /**
+     * Whether this status code is in the HTTP series {@link StatusClass#CLIENT_ERROR}.
+     *
+     * @since 5.1
+     */
+    public boolean isClientError() {
+        return getStatusClass() == StatusClass.CLIENT_ERROR;
+    }
+
+    /**
+     * Whether this status code is in the HTTP series {@link StatusClass#SERVER_ERROR}.
+     *
+     * @since 5.1
+     */
+    public boolean isServerError() {
+        return getStatusClass() == StatusClass.SERVER_ERROR;
+    }
+
+    /**
+     * Whether this status code is in the HTTP series {@link StatusClass#CLIENT_ERROR}
+     * or {@link StatusClass#SERVER_ERROR}.
+     *
+     * @since 5.1
+     */
+    public boolean isError() {
+        return isClientError() || isServerError();
     }
 
     public ProtocolVersion getProtocolVersion() {
