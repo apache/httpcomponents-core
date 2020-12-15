@@ -151,7 +151,7 @@ public final class StatusLine implements Serializable {
      * @since 5.1
      */
     public boolean isError() {
-        return (isClientError() || isServerError());
+        return isClientError() || isServerError();
     }
 
     public ProtocolVersion getProtocolVersion() {
