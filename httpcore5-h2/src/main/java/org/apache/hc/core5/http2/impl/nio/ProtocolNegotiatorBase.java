@@ -72,7 +72,7 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
         if (data != null && data.hasRemaining()) {
             protocolHandler.inputReady(ioSession, data);
         }
-        if (completed.compareAndSet(true, false)) {
+        if (completed.compareAndSet(false, true) && resultCallback != null) {
             resultCallback.completed(ioSession);
         }
     }
@@ -93,7 +93,7 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
                 CommandSupport.failCommands(session, cause);
             }
         } catch (final Exception ex) {
-            if (completed.compareAndSet(true, false)) {
+            if (completed.compareAndSet(false, true) && resultCallback != null) {
                 resultCallback.failed(ex);
             }
         }
@@ -109,7 +109,7 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
                 CommandSupport.cancelCommands(session);
             }
         } finally {
-            if (completed.compareAndSet(true, false)) {
+            if (completed.compareAndSet(false, true) && resultCallback != null) {
                 resultCallback.failed(new ConnectionClosedException());
             }
         }
