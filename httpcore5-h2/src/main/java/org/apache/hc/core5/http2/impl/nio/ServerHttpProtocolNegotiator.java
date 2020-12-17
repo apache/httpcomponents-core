@@ -96,6 +96,7 @@ public class ServerHttpProtocolNegotiator extends ProtocolNegotiatorBase {
                 tlsDetails != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
                 ioSession);
         startProtocol(new ServerHttp1IOEventHandler(http1StreamHandler), data);
+        ioSession.registerProtocol(ApplicationProtocol.HTTP_2.id, new ServerH2UpgradeHandler(http2StreamHandlerFactory));
     }
 
     private void startHttp2(final ByteBuffer data) throws IOException {

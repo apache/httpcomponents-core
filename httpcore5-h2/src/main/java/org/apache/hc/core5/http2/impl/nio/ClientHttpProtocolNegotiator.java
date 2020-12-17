@@ -96,6 +96,7 @@ public class ClientHttpProtocolNegotiator extends ProtocolNegotiatorBase {
     private void startHttp1() throws IOException {
         final ByteBuffer data = inBuf != null ? inBuf.data() : null;
         startProtocol(new ClientHttp1IOEventHandler(http1StreamHandlerFactory.create(ioSession)), data);
+        ioSession.registerProtocol(ApplicationProtocol.HTTP_2.id, new ClientH2UpgradeHandler(http2StreamHandlerFactory));
         if (inBuf != null) {
             inBuf.clear();
         }

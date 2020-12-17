@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -57,6 +58,7 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
     private final AtomicBoolean initialized;
 
     private volatile ByteBuffer preface;
+    private volatile BufferedData inBuf;
 
     public H2OnlyClientProtocolNegotiator(
             final ProtocolIOSession ioSession,
@@ -105,7 +107,11 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
         if (!preface.hasRemaining()) {
             session.clearEvent(SelectionKey.OP_WRITE);
             final ClientH2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
-            startProtocol(new ClientH2IOEventHandler(streamMultiplexer), null);
+            final ByteBuffer data = inBuf != null ? inBuf.data() : null;
+            startProtocol(new ClientH2IOEventHandler(streamMultiplexer), data);
+            if (inBuf != null) {
+                inBuf.clear();
+            }
             preface = null;
         }
     }
@@ -132,7 +138,10 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
     @Override
     public void inputReady(final IOSession session, final ByteBuffer src) throws IOException {
         if (src != null) {
-            throw new ProtocolNegotiationException("Unexpected input");
+            if (inBuf == null) {
+                inBuf = BufferedData.allocate(src.remaining());
+            }
+            inBuf.put(src);
         }
         if (preface != null) {
             writeOutPreface(session);

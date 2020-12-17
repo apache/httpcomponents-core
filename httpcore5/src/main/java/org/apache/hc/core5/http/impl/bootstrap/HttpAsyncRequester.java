@@ -36,6 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.CallbackContribution;
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.concurrent.FutureContribution;
@@ -61,10 +62,13 @@ import org.apache.hc.core5.http.nio.HandlerFactory;
 import org.apache.hc.core5.http.nio.RequestChannel;
 import org.apache.hc.core5.http.nio.command.RequestExecutionCommand;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
+import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
+import org.apache.hc.core5.http.nio.ssl.TlsUpgradeCapable;
 import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
@@ -77,6 +81,8 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
+import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
@@ -89,6 +95,30 @@ import org.apache.hc.core5.util.Timeout;
 public class HttpAsyncRequester extends AsyncRequester implements ConnPoolControl<HttpHost> {
 
     private final ManagedConnPool<HttpHost, IOSession> connPool;
+    private final TlsStrategy tlsStrategy;
+    private final Timeout handshakeTimeout;
+
+    /**
+     * Use {@link AsyncRequesterBootstrap} to create instances of this class.
+     *
+     * @since 5.2
+     */
+    @Internal
+    public HttpAsyncRequester(
+            final IOReactorConfig ioReactorConfig,
+            final IOEventHandlerFactory eventHandlerFactory,
+            final Decorator<IOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
+            final IOSessionListener sessionListener,
+            final ManagedConnPool<HttpHost, IOSession> connPool,
+            final TlsStrategy tlsStrategy,
+            final Timeout handshakeTimeout) {
+        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
+                ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
+        this.connPool = Args.notNull(connPool, "Connection pool");
+        this.tlsStrategy = tlsStrategy;
+        this.handshakeTimeout = handshakeTimeout;
+    }
 
     /**
      * Use {@link AsyncRequesterBootstrap} to create instances of this class.
@@ -101,9 +131,8 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final ManagedConnPool<HttpHost, IOSession> connPool) {
-        super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
-                ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
-        this.connPool = Args.notNull(connPool, "Connection pool");
+        this(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool,
+                null, null);
     }
 
     @Override
@@ -403,7 +432,31 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         return execute(requestProducer, responseConsumer, null, timeout, null, callback);
     }
 
-    private class InternalAsyncClientEndpoint extends AsyncClientEndpoint {
+    protected void doTlsUpgrade(
+            final ProtocolIOSession ioSession,
+            final NamedEndpoint endpoint,
+            final FutureCallback<ProtocolIOSession> callback) {
+        if (tlsStrategy != null) {
+            tlsStrategy.upgrade(ioSession,
+                    endpoint,
+                    null,
+                    handshakeTimeout,
+                    new CallbackContribution<TransportSecurityLayer>(callback) {
+
+                        @Override
+                        public void completed(final TransportSecurityLayer transportSecurityLayer) {
+                            if (callback != null) {
+                                callback.completed(ioSession);
+                            }
+                        }
+
+                    });
+        } else {
+            throw new IllegalStateException("TLS upgrade not supported");
+        }
+    }
+
+    private class InternalAsyncClientEndpoint extends AsyncClientEndpoint implements TlsUpgradeCapable {
 
         final AtomicReference<PoolEntry<HttpHost, IOSession>> poolEntryRef;
 
@@ -471,6 +524,15 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             }
         }
 
+        @Override
+        public void tlsUpgrade(final NamedEndpoint endpoint, final FutureCallback<ProtocolIOSession> callback) {
+            final IOSession ioSession = getIOSession();
+            if (ioSession instanceof ProtocolIOSession) {
+                doTlsUpgrade((ProtocolIOSession) ioSession, endpoint, callback);
+            } else {
+                throw new IllegalStateException("TLS upgrade not supported");
+            }
+        }
     }
 
 }
