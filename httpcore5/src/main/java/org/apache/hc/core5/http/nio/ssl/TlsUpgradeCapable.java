@@ -25,42 +25,21 @@
  *
  */
 
-package org.apache.hc.core5.reactor;
+package org.apache.hc.core5.http.nio.ssl;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.reactor.ProtocolIOSession;
 
 /**
- * TLS capable, protocol upgradable {@link IOSession}.
+ * Capability to upgrade to TLS.
  *
- * @since 5.0
+ * @since 5.2
  */
-public interface ProtocolIOSession extends IOSession, TransportSecurityLayer {
+@Internal
+public interface TlsUpgradeCapable {
 
-    /**
-     * Switches this I/O session to the application protocol with the given ID.
-     * @param protocolId the application protocol ID
-     * @param callback the result callback
-     * @throws UnsupportedOperationException if application protocol switch
-     * is not supported.
-     */
-    default void switchProtocol(String protocolId, FutureCallback<ProtocolIOSession> callback) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Protocol switch not supported");
-    }
-
-    /**
-     * Registers protocol upgrade handler with the given application protocol ID.
-     *
-     * @since 5.2
-     * @param protocolId the application protocol ID
-     * @param upgradeHandler the upgrade handler.
-     *
-     * @since 5.2
-     */
-    default void registerProtocol(String protocolId, ProtocolUpgradeHandler upgradeHandler) {
-    }
-
-    NamedEndpoint getInitialEndpoint();
+    void tlsUpgrade(NamedEndpoint endpoint, final FutureCallback<ProtocolIOSession> callback);
 
 }

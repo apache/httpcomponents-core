@@ -348,7 +348,9 @@ public class H2RequesterBootstrap {
                 ioSessionDecorator,
                 exceptionCallback,
                 sessionListener,
-                connPool);
+                connPool,
+                actualTlsStrategy,
+                handshakeTimeout);
     }
 
 }

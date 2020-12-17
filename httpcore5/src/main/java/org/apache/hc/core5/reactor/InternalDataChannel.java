@@ -32,7 +32,10 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
+import java.util.Locale;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
@@ -50,6 +53,7 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
@@ -63,6 +67,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final AtomicReference<IOSession> currentSessionRef;
     private final AtomicReference<FutureCallback<TransportSecurityLayer>> tlsHandshakeCallbackRef;
+    private final ConcurrentMap<String, ProtocolUpgradeHandler> protocolUpgradeHandlerMap;
     private final AtomicBoolean closed;
 
     InternalDataChannel(
@@ -80,6 +85,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         this.currentSessionRef = new AtomicReference<>(
                 ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession);
         this.tlsHandshakeCallbackRef = new AtomicReference<>(null);
+        this.protocolUpgradeHandlerMap = new ConcurrentHashMap<>();
         this.closed = new AtomicBoolean(false);
     }
 
@@ -401,6 +407,24 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     @Override
     public long getLastEventTime() {
         return ioSession.getLastEventTime();
+    }
+
+    @Override
+    public void switchProtocol(final String protocolId, final FutureCallback<ProtocolIOSession> callback) {
+        Args.notEmpty(protocolId, "Application protocol ID");
+        final ProtocolUpgradeHandler upgradeHandler = protocolUpgradeHandlerMap.get(protocolId.toLowerCase(Locale.ROOT));
+        if (upgradeHandler != null) {
+            upgradeHandler.upgrade(this, callback);
+        } else {
+            throw new IllegalStateException("Unsupported protocol: " + protocolId);
+        }
+    }
+
+    @Override
+    public void registerProtocol(final String protocolId, final ProtocolUpgradeHandler upgradeHandler) {
+        Args.notEmpty(protocolId, "Application protocol ID");
+        Args.notNull(upgradeHandler, "Protocol upgrade handler");
+        protocolUpgradeHandlerMap.put(protocolId.toLowerCase(Locale.ROOT), upgradeHandler);
     }
 
     @Override
