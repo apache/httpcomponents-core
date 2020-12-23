@@ -21,14 +21,14 @@ Apache HttpComponents Core
 
 Welcome to the HttpCore component of the Apache HttpComponents project.
 
-[![Build Status](https://travis-ci.org/apache/httpcomponents-core.svg?branch=trunk)](https://travis-ci.org/apache/httpcomponents-core)
+[![Build Status](https://travis-ci.com/apache/httpcomponents-core.svg?branch=master)](https://travis-ci.com/apache/httpcomponents-core)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apache.httpcomponents.core5/httpcore5/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.apache.httpcomponents.core5/httpcore5)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 Building Instructions
 ---------------------
 
-For building from source instructions please refer to BUILDING.txt.
+For building from source instructions please refer to [BUILDING.txt](./BUILDING.txt).
 
 Dependencies
 ------------
@@ -39,7 +39,17 @@ Licensing
 ---------
 
 Apache HttpComponents Core is licensed under the Apache License 2.0.
-See the files called LICENSE.txt and NOTICE.txt for more information.
+See the files [LICENSE.txt](./LICENSE.txt) and [NOTICE.txt](./NOTICE.txt) for more information.
+
+Contact
+-------
+
+- For general information visit the main project site at  
+  https://hc.apache.org/
+- For current status information visit the status page at  
+  https://hc.apache.org/status.html
+- If you want to contribute visit  
+  https://hc.apache.org/get-involved.html
 
 Cryptographic Software Notice
 -----------------------------
@@ -50,7 +60,7 @@ may have restrictions on the import, possession, use, and/or re-export
 to another country, of encryption software. BEFORE using any encryption
 software, please check your country's laws, regulations and policies
 concerning the import, possession, or use, and re-export of encryption
-software, to see if this is permitted. See <http://www.wassenaar.org/>
+software, to see if this is permitted. See https://www.wassenaar.org/
 for more information.
 
 The U.S. Government Department of Commerce, Bureau of Industry and
@@ -66,19 +76,9 @@ code and source code.
 The following provides more details on the included software that
 may be subject to export controls on cryptographic software:
 
-  Apache HttpComponents Core interfaces with the
-  Java Secure Socket Extension (JSSE) API to provide
-
-    - HTTPS support
-
-  Apache HttpComponents Core does not include any
-  implementation of JSSE.
-
-Contact
--------
-
-  o For general information visit the main project site at
-    http://hc.apache.org/
-
-  o For current status information visit the status page at
-    http://hc.apache.org/status.html
+> Apache HttpComponents Core interfaces with the
+> Java Secure Socket Extension (JSSE) API to provide
+> - HTTPS support
+> 
+> Apache HttpComponents Core does not include any
+> implementation of JSSE.
