@@ -395,7 +395,9 @@ public class H2ServerBootstrap {
                         filterChainDefinition.addFirst(entry.filterHandler, entry.name);
                         break;
                     case LAST:
-                        filterChainDefinition.addLast(entry.filterHandler, entry.name);
+                        // Don't add last, after TerminalAsyncServerFilter, as that does not delegate to the chain
+                        // Instead, add the filter just before it, making it effectively the last filter
+                        filterChainDefinition.addBefore(StandardFilter.MAIN_HANDLER.name(), entry.filterHandler, entry.name);
                         break;
                 }
             }
