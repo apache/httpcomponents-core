@@ -85,12 +85,12 @@ public interface HttpEntity extends EntityDetails, Closeable {
      * to return the same {@link InputStream} instance and therefore
      * may not be consumed more than once.
      * <p>
-     * If this entity belongs to an HTTP response, calling
+     * If this entity belongs to an incoming HTTP message, calling
      * {@link InputStream#close()} on the returned {@code InputStream} will
      * try to consume the complete entity content to keep the connection
      * alive. In cases where this is undesired, e.g. when only a small part
-     * of the response is relevant and consuming the complete entity content
-     * would be too inefficient, <i>only</i> the HTTP response from which
+     * of the content is relevant and consuming the complete entity content
+     * would be too inefficient, <i>only</i> the HTTP message from which
      * this entity was obtained should be closed (if supported).
      * </p>
      * <p>
