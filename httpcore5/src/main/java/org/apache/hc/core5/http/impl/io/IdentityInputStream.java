@@ -41,8 +41,8 @@ import org.apache.hc.core5.util.Args;
  * unlimited length.
  * <p>
  * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, it will read until the end of the stream (until
- * {@code -1} is returned).
+ * gets called.  Instead, the stream will be marked as closed and no further
+ * reading will be permitted.
  *
  * @since 4.0
  */
