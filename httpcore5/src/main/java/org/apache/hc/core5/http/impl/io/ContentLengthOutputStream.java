@@ -82,8 +82,7 @@ public class ContentLengthOutputStream extends OutputStream {
     }
 
     /**
-     * <p>Does not close the underlying socket output.</p>
-     *
+     * Finishes writing to the underlying stream, but does NOT close the underlying stream.
      * @throws IOException If an I/O problem occurs.
      */
     @Override

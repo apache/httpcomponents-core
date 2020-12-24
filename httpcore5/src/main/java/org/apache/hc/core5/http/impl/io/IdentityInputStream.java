@@ -74,6 +74,10 @@ public class IdentityInputStream extends InputStream {
         return n > 0 ? n : this.inputStream.available();
     }
 
+    /**
+     * Marks this stream as closed, but does NOT close the underlying stream.
+     * @throws IOException If an I/O problem occurs.
+     */
     @Override
     public void close() throws IOException {
         this.closed = true;

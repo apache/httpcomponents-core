@@ -88,7 +88,7 @@ public class ContentLengthInputStream extends InputStream {
     /**
      * <p>Reads until the end of the known length of content.</p>
      *
-     * <p>Does not close the underlying socket input, but instead leaves it
+     * <p>Does NOT close the underlying stream, but instead leaves it
      * primed to parse the next response.</p>
      * @throws IOException If an IO problem occurs.
      */

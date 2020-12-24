@@ -297,9 +297,9 @@ public class ChunkedInputStream extends InputStream {
     }
 
     /**
-     * Upon close, this reads the remainder of the chunked message,
-     * leaving the underlying socket at a position to start reading the
-     * next response without scanning.
+     * Reads the remainder of the chunked message, leaving the underlying
+     * stream at a position to start reading the next response without
+     * scanning. But does NOT close the underlying stream.
      * @throws IOException in case of an I/O error
      */
     @Override
