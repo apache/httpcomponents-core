@@ -40,9 +40,9 @@ import org.apache.hc.core5.util.Args;
  * (EOF condition). Entities transferred using this input stream can be of
  * unlimited length.
  * <p>
- * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, the stream will be marked as closed and no further
- * output will be permitted.
+ * Note that this class NEVER closes the underlying stream, even when
+ * {@link #close()} gets called.  Instead, the stream will be marked as
+ * closed and no further output will be permitted.
  *
  * @since 4.0
  */
@@ -67,8 +67,7 @@ public class IdentityOutputStream extends OutputStream {
     }
 
     /**
-     * <p>Does not close the underlying socket output.</p>
-     *
+     * Finishes writing to the underlying stream, but does NOT close the underlying stream.
      * @throws IOException If an I/O problem occurs.
      */
     @Override

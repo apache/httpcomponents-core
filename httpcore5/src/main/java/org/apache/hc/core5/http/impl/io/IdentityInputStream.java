@@ -40,9 +40,9 @@ import org.apache.hc.core5.util.Args;
  * (EOF condition). Entities transferred using this input stream can be of
  * unlimited length.
  * <p>
- * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, it will read until the end of the stream (until
- * {@code -1} is returned).
+ * Note that this class NEVER closes the underlying stream, even when
+ * {@link #close()} gets called.  Instead, the stream will be marked as
+ * closed and no further reading will be permitted.
  *
  * @since 4.0
  */
@@ -74,6 +74,10 @@ public class IdentityInputStream extends InputStream {
         return n > 0 ? n : this.inputStream.available();
     }
 
+    /**
+     * Marks this stream as closed, but does NOT close the underlying stream.
+     * @throws IOException If an I/O problem occurs.
+     */
     @Override
     public void close() throws IOException {
         this.closed = true;
