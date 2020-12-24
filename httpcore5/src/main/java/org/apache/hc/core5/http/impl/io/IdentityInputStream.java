@@ -40,9 +40,9 @@ import org.apache.hc.core5.util.Args;
  * (EOF condition). Entities transferred using this input stream can be of
  * unlimited length.
  * <p>
- * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, the stream will be marked as closed and no further
- * reading will be permitted.
+ * Note that this class NEVER closes the underlying stream, even when
+ * {@link #close()} gets called.  Instead, the stream will be marked as
+ * closed and no further reading will be permitted.
  *
  * @since 4.0
  */

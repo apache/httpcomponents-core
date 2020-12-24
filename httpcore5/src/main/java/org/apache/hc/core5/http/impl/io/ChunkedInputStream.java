@@ -47,11 +47,11 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * After the stream is read to the end, it provides access to the trailers,
  * if any.
  * <p>
- * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, it will read until the "end" of its chunking on
- * close, which allows for the seamless execution of subsequent HTTP 1.1
- * requests, while not requiring the client to remember to read the entire
- * contents of the response.
+ * Note that this class NEVER closes the underlying stream, even when
+ * {@link #close()} gets called.  Instead, it will read until the "end" of its
+ * chunking on close, which allows for the seamless execution of subsequent
+ * HTTP 1.1 requests, while not requiring the client to remember to read the
+ * entire contents of the response.
  *
  *
  * @since 4.0

@@ -41,9 +41,9 @@ import org.apache.hc.core5.util.Args;
  * Entities transferred using this stream can be maximum {@link Long#MAX_VALUE}
  * long.
  * <p>
- * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, the stream will be marked as closed and no further
- * output will be permitted.
+ * Note that this class NEVER closes the underlying stream, even when
+ * {@link #close()} gets called.  Instead, the stream will be marked as closed
+ * and no further output will be permitted.
  *
  * @since 4.0
  */
