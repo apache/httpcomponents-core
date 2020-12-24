@@ -47,11 +47,11 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * After the stream is read to the end, it provides access to the trailers,
  * if any.
  * <p>
- * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, it will read until the "end" of its chunking on
- * close, which allows for the seamless execution of subsequent HTTP 1.1
- * requests, while not requiring the client to remember to read the entire
- * contents of the response.
+ * Note that this class NEVER closes the underlying stream, even when
+ * {@link #close()} gets called.  Instead, it will read until the "end" of its
+ * chunking on close, which allows for the seamless execution of subsequent
+ * HTTP 1.1 requests, while not requiring the client to remember to read the
+ * entire contents of the response.
  *
  *
  * @since 4.0
@@ -297,9 +297,9 @@ public class ChunkedInputStream extends InputStream {
     }
 
     /**
-     * Upon close, this reads the remainder of the chunked message,
-     * leaving the underlying socket at a position to start reading the
-     * next response without scanning.
+     * Reads the remainder of the chunked message, leaving the underlying
+     * stream at a position to start reading the next response without
+     * scanning. But does NOT close the underlying stream.
      * @throws IOException in case of an I/O error
      */
     @Override

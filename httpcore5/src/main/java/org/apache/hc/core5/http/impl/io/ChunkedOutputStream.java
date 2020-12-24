@@ -45,9 +45,9 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * Entities transferred using this output stream can be of unlimited length.
  * Writes are buffered to an internal buffer (2048 default size).
  * <p>
- * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, the stream will be marked as closed and no further
- * output will be permitted.
+ * Note that this class NEVER closes the underlying stream, even when
+ * {@link #close()} gets called.  Instead, the stream will be marked as
+ * closed and no further output will be permitted.
  *
  *
  * @since 4.0

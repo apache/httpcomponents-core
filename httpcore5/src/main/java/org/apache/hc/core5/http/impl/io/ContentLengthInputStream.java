@@ -42,11 +42,11 @@ import org.apache.hc.core5.util.Args;
  * Entities transferred using this stream can be maximum {@link Long#MAX_VALUE}
  * long.
  * <p>
- * Note that this class NEVER closes the underlying stream, even when close
- * gets called.  Instead, it will read until the "end" of its limit on
- * close, which allows for the seamless execution of subsequent HTTP 1.1
- * requests, while not requiring the client to remember to read the entire
- * contents of the response.
+ * Note that this class NEVER closes the underlying stream, even when
+ * {@link #close()} gets called.  Instead, it will read until the "end" of
+ * its limit on close, which allows for the seamless execution of subsequent
+ * HTTP 1.1 requests, while not requiring the client to remember to read the
+ * entire contents of the response.
  *
  *
  * @since 4.0
@@ -88,7 +88,7 @@ public class ContentLengthInputStream extends InputStream {
     /**
      * <p>Reads until the end of the known length of content.</p>
      *
-     * <p>Does not close the underlying socket input, but instead leaves it
+     * <p>Does NOT close the underlying stream, but instead leaves it
      * primed to parse the next response.</p>
      * @throws IOException If an IO problem occurs.
      */
