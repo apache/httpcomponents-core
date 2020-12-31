@@ -40,7 +40,7 @@ class TimeoutByteArrayInputStream extends InputStream {
     private final byte[] buf;
 
     private int pos;
-    protected int count;
+    protected final int count;
 
     public TimeoutByteArrayInputStream(final byte[] buf, final int off, final int len) {
         super();

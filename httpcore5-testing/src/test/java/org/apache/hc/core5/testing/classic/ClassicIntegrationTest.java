@@ -557,7 +557,7 @@ public class ClassicIntegrationTest {
 
         public RepeatingEntity(final String content, final Charset charset, final int n, final boolean chunked) {
             super(ContentType.TEXT_PLAIN.withCharset(charset), null, chunked);
-            final Charset cs = charset != null ? charset : Charset.forName("US-ASCII");
+            final Charset cs = charset != null ? charset : StandardCharsets.US_ASCII;
             this.raw = content.getBytes(cs);
             this.n = n;
         }

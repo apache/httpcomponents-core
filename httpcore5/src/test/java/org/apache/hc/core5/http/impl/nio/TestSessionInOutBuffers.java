@@ -198,7 +198,7 @@ public class TestSessionInOutBuffers {
         final WritableByteChannel outChannel = newChannel(outStream);
         outbuf.flush(outChannel);
 
-        final String s = new String(outStream.toByteArray(), "US-ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("One\r\nTwo\r\nThree\r\nFour\r\n", s);
     }
 
@@ -597,7 +597,7 @@ public class TestSessionInOutBuffers {
         outbuf.writeLine(chbuffer);
         outbuf.flush(channel);
 
-        final String result = new String(baos.toByteArray(), "US-ASCII");
+        final String result = new String(baos.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("This text contains a circumflex !!!\r\n", result);
     }
 
@@ -615,7 +615,7 @@ public class TestSessionInOutBuffers {
         outbuf.writeLine(chbuffer);
         outbuf.flush(channel);
 
-        final String result = new String(baos.toByteArray(), "US-ASCII");
+        final String result = new String(baos.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("This text contains a circumflex ? !!!\r\n", result);
     }
 

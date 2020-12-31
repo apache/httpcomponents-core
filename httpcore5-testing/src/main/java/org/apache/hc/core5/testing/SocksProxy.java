@@ -129,7 +129,7 @@ public class SocksProxy {
                             break;
                         case ATYP_DOMAINNAME:
                             final int length = input.readUnsignedByte();
-                            final StringBuffer domainname = new StringBuffer();
+                            final StringBuilder domainname = new StringBuilder();
                             for (int i = 0; i < length; i++) {
                                 domainname.append((char) input.readUnsignedByte());
                             }

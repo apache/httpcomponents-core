@@ -38,7 +38,7 @@ import org.hamcrest.Matcher;
 
 public class NameValuePairListMatcher extends BaseMatcher<List<NameValuePair>> {
 
-    private List<? extends NameValuePair> nvps;
+    private final List<? extends NameValuePair> nvps;
 
     public NameValuePairListMatcher(final List<? extends NameValuePair> nvps) {
         this.nvps = nvps;

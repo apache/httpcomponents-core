@@ -86,9 +86,9 @@ public class ReactiveTestUtils {
             final AtomicReference<String> hash
     ) {
         return Flowable.generate(new Consumer<Emitter<ByteBuffer>>() {
-            Random random = new Random(length); // Use the length as the random seed for easy reproducibility
+            final Random random = new Random(length); // Use the length as the random seed for easy reproducibility
             long bytesEmitted = 0;
-            MessageDigest md = newMessageDigest();
+            final MessageDigest md = newMessageDigest();
 
             @Override
             public void accept(final Emitter<ByteBuffer> emitter) {
