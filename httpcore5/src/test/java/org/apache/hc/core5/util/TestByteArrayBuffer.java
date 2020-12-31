@@ -294,7 +294,7 @@ public class TestByteArrayBuffer {
         buffer.append(b1, 0, b1.length);
         buffer.append(b2, 0, b2.length);
 
-        Assert.assertEquals(s1 + s2, new String(buffer.toByteArray(), "US-ASCII"));
+        Assert.assertEquals(s1 + s2, new String(buffer.toByteArray(), StandardCharsets.US_ASCII));
     }
 
     @Test

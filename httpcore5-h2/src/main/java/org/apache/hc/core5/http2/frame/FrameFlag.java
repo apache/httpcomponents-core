@@ -39,7 +39,7 @@ public enum FrameFlag {
     PADDED        (0x08),
     PRIORITY      (0x20);
 
-    int value;
+    final int value;
 
     FrameFlag(final int value) {
         this.value = value;

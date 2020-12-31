@@ -624,7 +624,7 @@ public class TestSessionInOutBuffers {
         chbuffer.append(s);
         outbuffer.writeLine(chbuffer, outputStream);
         outbuffer.flush(outputStream);
-        final String result = new String(outputStream.toByteArray(), "ISO-8859-1");
+        final String result = new String(outputStream.toByteArray(), StandardCharsets.ISO_8859_1);
         Assert.assertEquals("This text contains a circumflex ? !!!\r\n", result);
     }
 
@@ -640,7 +640,7 @@ public class TestSessionInOutBuffers {
         chbuffer.append(s);
         outbuffer.writeLine(chbuffer, outputStream);
         outbuffer.flush(outputStream);
-        final String result = new String(outputStream.toByteArray(), "ISO-8859-1");
+        final String result = new String(outputStream.toByteArray(), StandardCharsets.ISO_8859_1);
         Assert.assertEquals("This text contains a circumflex  !!!\r\n", result);
     }
 

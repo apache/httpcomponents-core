@@ -80,7 +80,7 @@ public final class TextUtils {
         if (bytes == null) {
             return null;
         }
-        final StringBuffer buffer = new StringBuffer();
+        final StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
             final byte b = bytes[i];
             if (b < 16) {

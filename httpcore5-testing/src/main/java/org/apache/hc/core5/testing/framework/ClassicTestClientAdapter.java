@@ -95,7 +95,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
 
             // append each parm to the query
             for (final Entry<String, String> parm : queryMap.entrySet()) {
-                newQuery.append("&" + parm.getKey() + "=" + parm.getValue());
+                newQuery.append("&").append(parm.getKey()).append("=").append(parm.getValue());
             }
             // create a uri with the new query.
             uri = new URI(

@@ -310,16 +310,10 @@ public class TestChunkCoding {
 
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16, 10);
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
-        final ChunkedInputStream in2 = new ChunkedInputStream(inBuffer2, inputStream2);
-        try {
+        try (ChunkedInputStream in2 = new ChunkedInputStream(inBuffer2, inputStream2)) {
             in2.read(buffer);
             Assert.fail("MessageConstraintException expected");
         } catch (final MessageConstraintException ex) {
-        } finally {
-            try {
-                in2.close();
-            } catch (final MessageConstraintException ex) {
-            }
         }
     }
 

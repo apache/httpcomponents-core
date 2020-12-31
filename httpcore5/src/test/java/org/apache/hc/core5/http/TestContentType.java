@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http;
 
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.message.BasicNameValuePair;
@@ -54,7 +53,7 @@ public class TestContentType {
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
         Assert.assertEquals("text/plain; charset=US-ASCII", contentType.toString());
-        contentType = contentType.withCharset(Charset.forName("UTF-8"));
+        contentType = contentType.withCharset(StandardCharsets.UTF_8);
         Assert.assertEquals("text/plain", contentType.getMimeType());
         Assert.assertEquals("UTF-8", contentType.getCharset().name());
         Assert.assertEquals("text/plain; charset=UTF-8", contentType.toString());

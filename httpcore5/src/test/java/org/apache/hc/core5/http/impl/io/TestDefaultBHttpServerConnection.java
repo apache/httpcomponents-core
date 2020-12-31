@@ -218,7 +218,7 @@ public class TestDefaultBHttpServerConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getResponseCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("HTTP/1.1 200 OK\r\nUser-Agent: test\r\n\r\n", s);
     }
 
@@ -237,7 +237,7 @@ public class TestDefaultBHttpServerConnection {
         conn.flush();
 
         Assert.assertEquals(0, conn.getEndpointDetails().getResponseCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("HTTP/1.1 100 Go on\r\n\r\n", s);
     }
 
@@ -260,7 +260,7 @@ public class TestDefaultBHttpServerConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getResponseCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\nContent-Length: 3\r\n\r\n123", s);
     }
 
@@ -283,7 +283,7 @@ public class TestDefaultBHttpServerConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getResponseCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: " +
                 "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n", s);
     }
@@ -324,7 +324,7 @@ public class TestDefaultBHttpServerConnection {
         conn.flush();
 
         Assert.assertEquals(1, conn.getEndpointDetails().getResponseCount());
-        final String s = new String(outStream.toByteArray(), "ASCII");
+        final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
         Assert.assertEquals("HTTP/1.1 200 OK\r\nServer: test\r\n\r\n", s);
     }
 

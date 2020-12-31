@@ -108,14 +108,14 @@ public class ClassicReverseProxyExample {
                     @Override
                     public void onLease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
                         final StringBuilder buf = new StringBuilder();
-                        buf.append("[proxy->origin] " + Thread.currentThread()  + " connection leased ").append(route);
+                        buf.append("[proxy->origin] ").append(Thread.currentThread()).append(" connection leased ").append(route);
                         System.out.println(buf);
                     }
 
                     @Override
                     public void onRelease(final HttpHost route, final ConnPoolStats<HttpHost> connPoolStats) {
                         final StringBuilder buf = new StringBuilder();
-                        buf.append("[proxy->origin] " + Thread.currentThread()  + " connection released ").append(route);
+                        buf.append("[proxy->origin] ").append(Thread.currentThread()).append(" connection released ").append(route);
                         final PoolStats totals = connPoolStats.getTotalStats();
                         buf.append("; total kept alive: ").append(totals.getAvailable()).append("; ");
                         buf.append("total allocated: ").append(totals.getLeased() + totals.getAvailable());
