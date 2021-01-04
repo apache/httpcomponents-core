@@ -58,7 +58,7 @@ public class Deadline {
     /**
      * The maximum (longest-lived) deadline.
      */
-    public static final Deadline MAX_VALUE = new Deadline(INTERNAL_MAX_VALUE);
+    public static Deadline MAX_VALUE = new Deadline(INTERNAL_MAX_VALUE);
 
     /**
      * The minimum (shortest-lived) deadline.
