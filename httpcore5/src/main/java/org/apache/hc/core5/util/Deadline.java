@@ -58,12 +58,12 @@ public class Deadline {
     /**
      * The maximum (longest-lived) deadline.
      */
-    public static Deadline MAX_VALUE = new Deadline(INTERNAL_MAX_VALUE);
+    public static final Deadline MAX_VALUE = new Deadline(INTERNAL_MAX_VALUE);
 
     /**
      * The minimum (shortest-lived) deadline.
      */
-    public static Deadline MIN_VALUE = new Deadline(INTERNAL_MIN_VALUE);
+    public static final Deadline MIN_VALUE = new Deadline(INTERNAL_MIN_VALUE);
 
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
 

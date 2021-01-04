@@ -60,8 +60,8 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
     private final AtomicBoolean flushInProgress = new AtomicBoolean(false);
     private final Object flushLock = new Object();
     private final AtomicInteger windowScalingIncrement = new AtomicInteger(0);
-    private volatile boolean cancelled = false;
-    private volatile boolean completed = false;
+    private volatile boolean cancelled;
+    private volatile boolean completed;
     private volatile Exception exception;
     private volatile CapacityChannel capacityChannel;
     private volatile Subscriber<? super ByteBuffer> subscriber;

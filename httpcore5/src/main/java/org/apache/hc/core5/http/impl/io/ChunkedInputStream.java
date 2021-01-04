@@ -81,10 +81,10 @@ public class ChunkedInputStream extends InputStream {
     private long pos;
 
     /** True if we've reached the end of stream */
-    private boolean eof = false;
+    private boolean eof;
 
     /** True if this stream is closed */
-    private boolean closed = false;
+    private boolean closed;
 
     private Header[] footers = EMPTY_FOOTERS;
 

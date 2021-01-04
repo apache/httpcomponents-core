@@ -43,9 +43,9 @@ abstract class AbstractHeaderElementIterator<T> implements Iterator<T> {
 
     private final Iterator<Header> headerIt;
 
-    private T currentElement = null;
-    private CharSequence buffer = null;
-    private ParserCursor cursor = null;
+    private T currentElement;
+    private CharSequence buffer;
+    private ParserCursor cursor;
 
     /**
      * Creates a new instance of BasicHeaderElementIterator

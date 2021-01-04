@@ -41,7 +41,7 @@ abstract class FrameOutputStream extends OutputStream {
     private final OutputStream outputStream;
 
     private final byte[] cache;
-    private int cachePosition = 0;
+    private int cachePosition;
 
     public FrameOutputStream(final int minChunkSize, final OutputStream outputStream) {
         super();

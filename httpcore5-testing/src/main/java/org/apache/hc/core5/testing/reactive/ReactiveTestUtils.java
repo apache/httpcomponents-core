@@ -87,7 +87,7 @@ public class ReactiveTestUtils {
     ) {
         return Flowable.generate(new Consumer<Emitter<ByteBuffer>>() {
             final Random random = new Random(length); // Use the length as the random seed for easy reproducibility
-            long bytesEmitted = 0;
+            long bytesEmitted;
             final MessageDigest md = newMessageDigest();
 
             @Override

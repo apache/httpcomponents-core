@@ -56,8 +56,8 @@ public class HttpDateGenerator {
     public static final HttpDateGenerator INSTANCE = new HttpDateGenerator(PATTERN_RFC1123, Locale.US, GMT);
 
     private final DateFormat dateformat;
-    private long dateAsMillis = 0L;
-    private String dateAsText = null;
+    private long dateAsMillis;
+    private String dateAsText;
 
     HttpDateGenerator() {
         super();

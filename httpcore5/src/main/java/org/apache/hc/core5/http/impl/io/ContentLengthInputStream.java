@@ -65,10 +65,10 @@ public class ContentLengthInputStream extends InputStream {
     private final long contentLength;
 
     /** The current position */
-    private long pos = 0;
+    private long pos;
 
     /** True if the stream is closed. */
-    private boolean closed = false;
+    private boolean closed;
 
     /**
      * Default constructor.

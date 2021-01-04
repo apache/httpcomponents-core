@@ -51,7 +51,7 @@ public class IdentityInputStream extends InputStream {
     private final SessionInputBuffer buffer;
     private final InputStream inputStream;
 
-    private boolean closed = false;
+    private boolean closed;
 
     /**
      * Default constructor.
