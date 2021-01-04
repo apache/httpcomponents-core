@@ -63,7 +63,7 @@ public class Deadline {
     /**
      * The minimum (shortest-lived) deadline.
      */
-    public static final Deadline MIN_VALUE = new Deadline(INTERNAL_MIN_VALUE);
+    public static Deadline MIN_VALUE = new Deadline(INTERNAL_MIN_VALUE);
 
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
 
