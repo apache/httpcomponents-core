@@ -204,7 +204,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
                     final OutputStream socketOutputStream = socketHolder.getOutputStream();
                     final InputStream socketInputStream = socketHolder.getInputStream();
 
-                    long totalBytes = 0;
+                    long totalBytes;
 
                     void checkForEarlyResponse(final long totalBytesSent, final int nextWriteSize) throws IOException {
                         if (responseOutOfOrderStrategy.isEarlyResponseDetected(

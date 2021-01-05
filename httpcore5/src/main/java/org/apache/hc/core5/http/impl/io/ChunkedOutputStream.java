@@ -58,9 +58,9 @@ public class ChunkedOutputStream extends OutputStream {
     private final OutputStream outputStream;
 
     private final byte[] cache;
-    private int cachePosition = 0;
-    private boolean wroteLastChunk = false;
-    private boolean closed = false;
+    private int cachePosition;
+    private boolean wroteLastChunk;
+    private boolean closed;
     private final CharArrayBuffer lineBuffer;
     private final Supplier<List<? extends Header>> trailerSupplier;
 

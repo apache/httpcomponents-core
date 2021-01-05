@@ -52,7 +52,7 @@ public class IdentityOutputStream extends OutputStream {
     private final OutputStream outputStream;
 
     /** True if the stream is closed. */
-    private boolean closed = false;
+    private boolean closed;
 
     /**
      * Default constructor.
