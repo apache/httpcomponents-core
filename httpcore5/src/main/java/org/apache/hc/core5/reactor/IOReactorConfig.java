@@ -53,6 +53,7 @@ public final class IOReactorConfig {
     private final TimeValue soLinger;
     private final boolean soKeepAlive;
     private final boolean tcpNoDelay;
+    private final int trafficClass;
     private final int sndBufSize;
     private final int rcvBufSize;
     private final int backlogSize;
@@ -68,6 +69,7 @@ public final class IOReactorConfig {
             final TimeValue soLinger,
             final boolean soKeepAlive,
             final boolean tcpNoDelay,
+            final int trafficClass,
             final int sndBufSize,
             final int rcvBufSize,
             final int backlogSize,
@@ -82,6 +84,7 @@ public final class IOReactorConfig {
         this.soLinger = soLinger;
         this.soKeepAlive = soKeepAlive;
         this.tcpNoDelay = tcpNoDelay;
+        this.trafficClass = trafficClass;
         this.sndBufSize = sndBufSize;
         this.rcvBufSize = rcvBufSize;
         this.backlogSize = backlogSize;
@@ -137,6 +140,13 @@ public final class IOReactorConfig {
      */
     public boolean isTcpNoDelay() {
         return tcpNoDelay;
+    }
+
+    /**
+     * @see Builder#setTrafficClass(int)
+     */
+    public int getTrafficClass() {
+        return trafficClass;
     }
 
     /**
@@ -239,6 +249,7 @@ public final class IOReactorConfig {
         private TimeValue soLinger;
         private boolean soKeepAlive;
         private boolean tcpNoDelay;
+        private int trafficClass;
         private int sndBufSize;
         private int rcvBufSize;
         private int backlogSize;
@@ -254,6 +265,7 @@ public final class IOReactorConfig {
             this.soLinger = TimeValue.NEG_ONE_SECOND;
             this.soKeepAlive = false;
             this.tcpNoDelay = true;
+            this.trafficClass = 0;
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
             this.backlogSize = 0;
@@ -382,6 +394,20 @@ public final class IOReactorConfig {
         }
 
         /**
+         * Determines the default value of the {@link java.net.SocketOptions#IP_TOS} parameter
+         * for newly created sockets.
+         * <p>
+         * Default: {@code 0}
+         * </p>
+         *
+         * @see java.net.SocketOptions#IP_TOS
+         */
+        public Builder setTrafficClass(final int trafficClass) {
+            this.trafficClass = trafficClass;
+            return this;
+        }
+
+        /**
          * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
          * for newly created sockets.
          * <p>
@@ -455,6 +481,7 @@ public final class IOReactorConfig {
                     TimeValue.defaultsToNegativeOneMillisecond(soLinger),
                     soKeepAlive,
                     tcpNoDelay,
+                    trafficClass,
                     sndBufSize, rcvBufSize, backlogSize,
                     socksProxyAddress, socksProxyUsername, socksProxyPassword);
         }
@@ -471,6 +498,7 @@ public final class IOReactorConfig {
                 .append(", soLinger=").append(this.soLinger)
                 .append(", soKeepAlive=").append(this.soKeepAlive)
                 .append(", tcpNoDelay=").append(this.tcpNoDelay)
+                .append(", trafficClass=").append(this.trafficClass)
                 .append(", sndBufSize=").append(this.sndBufSize)
                 .append(", rcvBufSize=").append(this.rcvBufSize)
                 .append(", backlogSize=").append(this.backlogSize)
