@@ -274,6 +274,9 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         if (this.reactorConfig.getRcvBufSize() > 0) {
             socket.setReceiveBufferSize(this.reactorConfig.getRcvBufSize());
         }
+        if (this.reactorConfig.getTrafficClass() > 0) {
+            socket.setTrafficClass(this.reactorConfig.getTrafficClass());
+        }
         final int linger = this.reactorConfig.getSoLinger().toSecondsIntBound();
         if (linger >= 0) {
             socket.setSoLinger(true, linger);
