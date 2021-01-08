@@ -144,6 +144,8 @@ public final class IOReactorConfig {
 
     /**
      * @see Builder#setTrafficClass(int)
+     *
+     * @since 5.1
      */
     public int getTrafficClass() {
         return trafficClass;
@@ -401,6 +403,8 @@ public final class IOReactorConfig {
          * </p>
          *
          * @see java.net.SocketOptions#IP_TOS
+         *
+         * @since 5.1
          */
         public Builder setTrafficClass(final int trafficClass) {
             this.trafficClass = trafficClass;
