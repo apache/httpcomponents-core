@@ -116,8 +116,6 @@ public class TestBHttpConnectionBase {
 
         Mockito.verify(outStream, Mockito.times(1)).write(
                 ArgumentMatchers.<byte[]>any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
-        Mockito.verify(socket, Mockito.times(1)).shutdownInput();
-        Mockito.verify(socket, Mockito.times(1)).shutdownOutput();
         Mockito.verify(socket, Mockito.times(1)).close();
 
         conn.close();

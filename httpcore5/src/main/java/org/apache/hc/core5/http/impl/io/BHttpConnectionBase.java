@@ -242,18 +242,6 @@ class BHttpConnectionBase implements BHttpConnection {
             try (final Socket socket = socketHolder.getSocket()) {
                 this.inBuffer.clear();
                 this.outbuffer.flush(socketHolder.getOutputStream());
-                try {
-                    try {
-                        socket.shutdownOutput();
-                    } catch (final IOException ignore) {
-                    }
-                    try {
-                        socket.shutdownInput();
-                    } catch (final IOException ignore) {
-                    }
-                } catch (final UnsupportedOperationException ignore) {
-                    // if one isn't supported, the other one isn't either
-                }
             }
         }
     }
