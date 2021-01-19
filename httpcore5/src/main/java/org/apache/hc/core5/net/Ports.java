@@ -46,7 +46,7 @@ public class Ports {
     public final static int MIN_VALUE = 0;
 
     /**
-     * The maxium port value per https://tools.ietf.org/html/rfc6335.
+     * The maximum port value per https://tools.ietf.org/html/rfc6335.
      */
     public final static int MAX_VALUE = 65535;
 
