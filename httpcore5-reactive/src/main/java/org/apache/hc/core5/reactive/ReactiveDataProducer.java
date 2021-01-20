@@ -140,7 +140,7 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
                 } else if (this.complete.get() && buffers.isEmpty()) {
                     channel.endStream();
                 } else {
-                    while (buffers.size() > 0) {
+                    while (!buffers.isEmpty()) {
                         final ByteBuffer nextBuffer = buffers.remove();
                         channel.write(nextBuffer);
                         if (nextBuffer.remaining() > 0) {
