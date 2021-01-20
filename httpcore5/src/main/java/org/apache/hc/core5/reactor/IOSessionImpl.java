@@ -142,20 +142,25 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void setEventMask(final int newValue) {
-        if (isStatusClosed()) {
-            return;
+        lock.lock();
+        try {
+            if (isStatusClosed()) {
+                return;
+            }
+            this.key.interestOps(newValue);
+        } finally {
+            lock.unlock();
         }
-        this.key.interestOps(newValue);
         this.key.selector().wakeup();
     }
 
     @Override
     public void setEvent(final int op) {
-        if (isStatusClosed()) {
-            return;
-        }
         lock.lock();
         try {
+            if (isStatusClosed()) {
+                return;
+            }
             this.key.interestOps(this.key.interestOps() | op);
         } finally {
             lock.unlock();
@@ -165,11 +170,11 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void clearEvent(final int op) {
-        if (isStatusClosed()) {
-            return;
-        }
         lock.lock();
         try {
+            if (isStatusClosed()) {
+                return;
+            }
             this.key.interestOps(this.key.interestOps() & ~op);
         } finally {
             lock.unlock();
