@@ -105,6 +105,11 @@ public final class ContentType implements Serializable {
     public static final ContentType WILDCARD = create(
             "*/*", (Charset) null);
 
+    /**
+     * An empty immutable {@code NameValuePair} array.
+     */
+    private static final NameValuePair[] EMPTY_NAME_VALUE_PAIR_ARRAY = new NameValuePair[0];
+
 
     /**
      * @deprecated To be removed in 6.0
@@ -411,7 +416,7 @@ public final class ContentType implements Serializable {
         for (final Map.Entry<String, String> entry: paramMap.entrySet()) {
             newParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }
-        return create(this.getMimeType(), newParams.toArray(new NameValuePair[newParams.size()]), true);
+        return create(this.getMimeType(), newParams.toArray(EMPTY_NAME_VALUE_PAIR_ARRAY), true);
     }
 
     public boolean isSameMimeType(final ContentType contentType) {

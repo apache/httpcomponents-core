@@ -89,6 +89,18 @@ public class SSLContextBuilder {
     private SecureRandom secureRandom;
     private Provider provider;
 
+    /**
+     * An empty immutable {@code KeyManager} array.
+     */
+    private static final KeyManager[] EMPTY_KEY_MANAGER_ARRAY = new KeyManager[0];
+
+    /**
+     * An empty immutable {@code TrustManager} array.
+     */
+    private static final TrustManager[] EMPTY_TRUST_MANAGER_ARRAY = new TrustManager[0];
+
+
+
     public static SSLContextBuilder create() {
         return new SSLContextBuilder();
     }
@@ -338,8 +350,8 @@ public class SSLContextBuilder {
             final Collection<TrustManager> trustManagers,
             final SecureRandom secureRandom) throws KeyManagementException {
         sslContext.init(
-                !keyManagers.isEmpty() ? keyManagers.toArray(new KeyManager[keyManagers.size()]) : null,
-                !trustManagers.isEmpty() ? trustManagers.toArray(new TrustManager[trustManagers.size()]) : null,
+                !keyManagers.isEmpty() ? keyManagers.toArray(EMPTY_KEY_MANAGER_ARRAY) : null,
+                !trustManagers.isEmpty() ? trustManagers.toArray(EMPTY_TRUST_MANAGER_ARRAY) : null,
                 secureRandom);
     }
 

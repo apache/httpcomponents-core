@@ -55,6 +55,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     /** The list of headers for this group, in the order in which they were added */
     private final List<Header> headers;
 
+
     /**
      * Constructor for HeaderGroup.
      */
@@ -220,7 +221,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
                 headersFound.add(header);
             }
         }
-        return headersFound != null ? headersFound.toArray(new Header[headersFound.size()]) : EMPTY;
+        return headersFound != null ? headersFound.toArray(EMPTY) : EMPTY;
     }
 
     /**
@@ -296,7 +297,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public Header[] getHeaders() {
-        return headers.toArray(new Header[headers.size()]);
+        return headers.toArray(EMPTY);
     }
 
     /**

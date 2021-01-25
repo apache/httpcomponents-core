@@ -54,6 +54,11 @@ import org.apache.hc.core5.util.Tokenizer;
  */
 public class MessageSupport {
 
+    /**
+     * An empty immutable {@code String} array.
+     */
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
     private MessageSupport() {
         // Do not allow utility class to be instantiated.
     }
@@ -74,7 +79,7 @@ public class MessageSupport {
         if (tokens == null || tokens.isEmpty()) {
             return;
         }
-        formatTokens(dst, tokens.toArray(new String[tokens.size()]));
+        formatTokens(dst, tokens.toArray(EMPTY_STRING_ARRAY));
     }
 
     public static Header format(final String name, final Set<String> tokens) {
