@@ -335,7 +335,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         buffer.append(this.hostname);
         if (this.port != -1) {
             buffer.append(':');
-            buffer.append(Integer.toString(this.port));
+            buffer.append(this.port);
         }
         return buffer.toString();
     }
@@ -352,7 +352,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
             final StringBuilder buffer = new StringBuilder(this.hostname.length() + 6);
             buffer.append(this.hostname);
             buffer.append(":");
-            buffer.append(Integer.toString(this.port));
+            buffer.append(this.port);
             return buffer.toString();
         }
         return this.hostname;

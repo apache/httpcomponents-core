@@ -62,6 +62,16 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         this.tokenizer = Tokenizer.INSTANCE;
     }
 
+    /**
+     * An empty immutable {@code HeaderElement} array.
+     */
+    private static final HeaderElement[] EMPTY_HEADER_ELEMENT_ARRAY = new HeaderElement[0];
+
+    /**
+     * An empty immutable {@code NameValuePair} array.
+     */
+    private static final NameValuePair[] EMPTY_NAME_VALUE_ARRAY = new NameValuePair[0];
+
     @Override
     public HeaderElement[] parseElements(final CharSequence buffer, final ParserCursor cursor) {
         Args.notNull(buffer, "Char sequence");
@@ -73,7 +83,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                 elements.add(element);
             }
         }
-        return elements.toArray(new HeaderElement[elements.size()]);
+        return elements.toArray(EMPTY_HEADER_ELEMENT_ARRAY);
     }
 
     @Override
@@ -105,7 +115,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
                 break;
             }
         }
-        return params.toArray(new NameValuePair[params.size()]);
+        return params.toArray(EMPTY_NAME_VALUE_ARRAY);
     }
 
     @Override

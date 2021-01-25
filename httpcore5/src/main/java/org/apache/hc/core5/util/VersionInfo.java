@@ -80,6 +80,11 @@ public class VersionInfo {
     /** The classloader from which the version info was obtained. */
     private final String infoClassloader;
 
+    /**
+     * An empty immutable {@code VersionInfo} array.
+     */
+    private static final VersionInfo[] EMPTY_VERSION_INFO_ARRAY = new VersionInfo[0];
+
 
     /**
      * Instantiates version information.
@@ -208,7 +213,7 @@ public class VersionInfo {
             }
         }
 
-        return vil.toArray(new VersionInfo[vil.size()]);
+        return vil.toArray(EMPTY_VERSION_INFO_ARRAY);
     }
 
 
