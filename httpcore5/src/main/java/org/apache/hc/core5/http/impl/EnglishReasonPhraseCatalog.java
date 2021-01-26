@@ -226,6 +226,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                 "Not Extended");
         setReason(HttpStatus.SC_FAILED_DEPENDENCY,
                   "Failed Dependency");
+        setReason(HttpStatus.SC_UPGRADE_REQUIRED,
+                "Upgrade Required");
 
         // Additional HTTP Status Code - see RFC 6585
         setReason(HttpStatus.SC_PRECONDITION_REQUIRED,
