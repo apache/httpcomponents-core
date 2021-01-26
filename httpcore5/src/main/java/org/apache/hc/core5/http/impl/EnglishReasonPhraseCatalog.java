@@ -198,6 +198,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                   "Requested Range Not Satisfiable");
         setReason(HttpStatus.SC_EXPECTATION_FAILED,
                   "Expectation Failed");
+        setReason(HttpStatus.SC_I_AM_A_TEAPOT,
+                "I'm a teapot");
         setReason(HttpStatus.SC_MISDIRECTED_REQUEST,
                 "Misdirected Request");
 

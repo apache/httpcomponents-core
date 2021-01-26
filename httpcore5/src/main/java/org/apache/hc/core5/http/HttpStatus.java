@@ -42,6 +42,7 @@ package org.apache.hc.core5.http;
  * @see <a href="https://tools.ietf.org/html/rfc7538">RFC 7538 (Permanent Redirect)</a>
  * @see <a href="https://tools.ietf.org/html/rfc7725">RFC 7725 (An HTTP Status Code to Report Legal Obstacles)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2295">RFC 2295 (Transparent Content Negotiation)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc2324">RFC 2324 (Hyper Text Coffee Pot Control Protocol)</a>
  * @since 4.0
  */
 public final class HttpStatus {
@@ -158,6 +159,8 @@ public final class HttpStatus {
     public static final int SC_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
     /** {@code 417 Expectation Failed} (HTTP/1.1 - RFC 7231) */
     public static final int SC_EXPECTATION_FAILED = 417;
+    /** {@code 418 I'm a teapot} (HTTP/1.0 - RFC 2324) */
+    public static final int SC_I_AM_A_TEAPOT = 418;
     /** {@code 421 Misdirected Request} (HTTP/2 - RFC 7540) */
     public static final int SC_MISDIRECTED_REQUEST = 421;
 
