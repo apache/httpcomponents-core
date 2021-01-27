@@ -43,6 +43,7 @@ package org.apache.hc.core5.http;
  * @see <a href="https://tools.ietf.org/html/rfc7725">RFC 7725 (An HTTP Status Code to Report Legal Obstacles)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2295">RFC 2295 (Transparent Content Negotiation)</a>
  * @see <a href="https://tools.ietf.org/html/rfc2817">RFC 2817 (Upgrading to TLS Within HTTP/1.1)</a>
+ * @see <a href="https://tools.ietf.org/html/rfc8470">RFC 8470 (Using Early Data in HTTP)</a>
  * @since 4.0
  */
 public final class HttpStatus {
@@ -182,6 +183,8 @@ public final class HttpStatus {
     public static final int SC_LOCKED = 423;
     /** {@code 424 Failed Dependency} (WebDAV - RFC 2518) */
     public static final int SC_FAILED_DEPENDENCY = 424;
+    /** {@code 425 Too Early} (Using Early Data in HTTP - RFC 8470) */
+    public static final int SC_TOO_EARLY = 425;
     /** {@code 426 Upgrade Dependency} (HTTP/1.1 - RFC 2817) */
     public static final int SC_UPGRADE_REQUIRED = 426;
     /** {@code 428 Precondition Required} (Additional HTTP Status Codes - RFC 6585) */
