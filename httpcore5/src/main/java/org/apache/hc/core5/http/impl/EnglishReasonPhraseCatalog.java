@@ -226,6 +226,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                 "Not Extended");
         setReason(HttpStatus.SC_FAILED_DEPENDENCY,
                   "Failed Dependency");
+        setReason(HttpStatus.SC_TOO_EARLY,
+                "Too Early");
         setReason(HttpStatus.SC_UPGRADE_REQUIRED,
                 "Upgrade Required");
 
