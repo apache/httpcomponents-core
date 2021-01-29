@@ -34,8 +34,6 @@
   <artifactId>httpcore5-reactive</artifactId>
   <name>Apache HttpComponents Core Reactive Extensions</name>
   <description>Apache HttpComponents Reactive Streams Bindings</description>
-  <url>https://hc.apache.org/httpcomponents-core-5.1.x/</url>
-  <packaging>jar</packaging>
 
   <properties>
     <Automatic-Module-Name>org.apache.httpcomponents.core5.httpcore5.reactive</Automatic-Module-Name>
@@ -73,6 +71,7 @@
         <reportSets>
           <reportSet>
             <reports>
+              <report>index</report>
               <report>dependencies</report>
               <report>dependency-info</report>
               <report>summary</report>
