@@ -35,7 +35,7 @@
   <name>Apache HttpComponents Core Parent</name>
   <version>5.1-beta3-SNAPSHOT</version>
   <description>Apache HttpComponents Core is a library of components for building HTTP enabled services</description>
-  <url>https://hc.apache.org/httpcomponents-core-5.1.x/</url>
+  <url>https://hc.apache.org/httpcomponents-core-5.1.x/${project.version}/</url>
   <inceptionYear>2005</inceptionYear>
   <packaging>pom</packaging>
 
@@ -50,6 +50,14 @@
     <url>https://github.com/apache/httpcomponents-core/tree/${project.scm.tag}</url>
     <tag>5.1-beta3-SNAPSHOT</tag>
   </scm>
+
+  <distributionManagement>
+    <site>
+      <id>apache.website</id>
+      <name>Apache HttpComponents Website</name>
+      <url>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/site/components/httpcomponents-core-5.1.x/LATEST/</url>
+    </site>
+  </distributionManagement>
 
   <modules>
     <module>httpcore5</module>
@@ -201,6 +209,7 @@
         <reportSets>
           <reportSet>
             <reports>
+              <report>index</report>
               <report>dependency-info</report>
               <report>dependency-management</report>
               <report>issue-management</report>
