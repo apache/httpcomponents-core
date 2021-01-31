@@ -38,6 +38,8 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Stack;
 
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
@@ -348,7 +350,7 @@ public class URIBuilder {
         }
         this.encodedPath = uri.getRawPath();
         this.pathSegments = parsePath(uri.getRawPath(), charset);
-        this.pathRootless = uri.getRawPath() != null && !uri.getRawPath().startsWith("/");
+        this.pathRootless = uri.getRawPath() == null || !uri.getRawPath().startsWith("/");
         this.encodedQuery = uri.getRawQuery();
         this.queryParams = parseQuery(uri.getRawQuery(), charset, false);
         this.encodedFragment = uri.getRawFragment();
@@ -820,6 +822,69 @@ public class URIBuilder {
 
     public String getFragment() {
         return this.fragment;
+    }
+
+    /**
+     * Normalizes syntax of URI components if the URI is considered non-opaque
+     * (the path component has a root):
+     * <ul>
+     *  <li>characters of scheme and host components are converted to lower case</li>
+     *  <li>dot segments of the path component are removed if the path has a root</li>
+     *  <li>percent encoding of all components is normalized</li>
+     *
+     * @since 5.1
+     */
+    public URIBuilder normalizeSyntax() {
+        final String scheme = this.scheme;
+        if (scheme != null) {
+            this.scheme = scheme.toLowerCase(Locale.ROOT);
+        }
+
+        if (this.pathRootless) {
+            return this;
+        }
+
+        // Force Percent-Encoding normalization
+        this.encodedSchemeSpecificPart = null;
+        this.encodedAuthority = null;
+        this.encodedUserInfo = null;
+        this.encodedPath = null;
+        this.encodedQuery = null;
+        this.encodedFragment = null;
+
+        final String host = this.host;
+        if (host != null) {
+            this.host = host.toLowerCase(Locale.ROOT);
+        }
+
+        if (this.pathSegments != null) {
+            final List<String> inputSegments = this.pathSegments;
+            if (!inputSegments.isEmpty()) {
+                final Stack<String> outputSegments = new Stack<>();
+                for (final String inputSegment : inputSegments) {
+                    if (!inputSegment.isEmpty() && !".".equals(inputSegment)) {
+                        if ("..".equals(inputSegment)) {
+                            if (!outputSegments.isEmpty()) {
+                                outputSegments.pop();
+                            }
+                        } else {
+                            outputSegments.push(inputSegment);
+                        }
+                    }
+                }
+                if (!inputSegments.isEmpty()) {
+                    final String lastSegment = inputSegments.get(inputSegments.size() - 1);
+                    if (lastSegment.isEmpty()) {
+                        outputSegments.push("");
+                    }
+                }
+                this.pathSegments = outputSegments;
+            } else {
+                this.pathSegments = Collections.singletonList("");
+            }
+        }
+
+        return this;
     }
 
     @Override

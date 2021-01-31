@@ -770,4 +770,33 @@ public class TestURIBuilder {
        Assert.assertTrue("mail address as scheme specific part expected", result.contains("my@email.server"));
        Assert.assertTrue("correct parameter encoding expected for that scheme", result.contains("mail%20subject"));
     }
+
+    @Test
+    public void testNormalizeSyntax() throws Exception {
+        Assert.assertEquals("example://a/b/c/%7Bfoo%7D",
+                new URIBuilder("eXAMPLE://a/./b/../b/%63/%7bfoo%7d").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("http://www.example.com/%3C",
+                new URIBuilder("http://www.example.com/%3c").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("http://www.example.com/",
+                new URIBuilder("HTTP://www.EXAMPLE.com/").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("http://www.example.com/a%2F",
+                new URIBuilder("http://www.example.com/a%2f").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("http://www.example.com/?a%2F",
+                new URIBuilder("http://www.example.com/?a%2f").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("http://www.example.com/?q=%26",
+                new URIBuilder("http://www.example.com/?q=%26").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("http://www.example.com/%23?q=%26",
+                new URIBuilder("http://www.example.com/%23?q=%26").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("http://www.example.com/blah-%28%20-blah-%20%26%20-blah-%20%29-blah/",
+                new URIBuilder("http://www.example.com/blah-%28%20-blah-%20&%20-blah-%20)-blah/").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("../../.././",
+                new URIBuilder("../../.././").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("file:../../.././",
+                new URIBuilder("file:../../.././").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("http://host/",
+                new URIBuilder("http://host/../../.././").normalizeSyntax().build().toASCIIString());
+        Assert.assertEquals("http:/",
+                new URIBuilder("http:///../../.././").normalizeSyntax().build().toASCIIString());
+    }
+
 }
