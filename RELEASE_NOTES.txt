@@ -1,3 +1,63 @@
+Release 5.1 BETA3
+------------------
+
+This is likely the last BETA release in the 5.1 release series. The next release is
+expected to be 5.1 GA. This beta includes a number of new features as well as
+bug fixes from the stable 5.0.x branch.
+
+Notable changes and features included in the 5.1 series:
+
+* Conditional conformance with RFC 3986 (Uniform Resource Identifier (URI): Generic Syntax).
+
+* Improved support for out of sequence response message handing by the the classic (blocking)
+  HTTP transport.
+
+
+Change Log
+-------------------
+
+* RFC 3986 conformance: Added `#normalizeSyntax` method to URIBuilder.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-663: Added http status code 425.
+  Contributed by Arturo Bernal <arturobernalg at gmail.com>
+
+* HTTPCORE-661: Added http status code 426.
+  Contributed by Arturo Bernal <arturobernalg at gmail.com>
+
+* HTTPCORE-659: Fixed race condition in IOSessionImpl when setting event.
+  Contributed by Nicolas Capponi <nicolas.capponi at forgerock.com>
+
+* HTTPCORE-658: Removed explicit inbound / outbound socket shutdown from
+  the `#close` method of classic HTTP connections.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-657: Added TrafficClass to IOReactorConfig (#243).
+  Contributed by Desmond Yeung <dyeung at datto.com>
+
+* Add filters before MAIN_HANDLER so they won't be ignored (#236).
+  Contributed by Rob Spoor <robtimus at users.noreply.github.com>
+
+* Bug fix: Fixed broken result callback in ProtocolNegotiatorBase.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed NPE and improve code centralization in URIBuilder (#235).
+  Contributed by Lars Helge Øverland <lars at dhis2.org>
+
+* Added `#appendPath` and `#appendPathSegments` methods to URIBuilder (#234).
+  Contributed by Lars Helge Øverland <lars at dhis2.org>
+
+* Removed connection acceptor API changes (moved to 5.2).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Removed protocol upgrade API changes (moved to 5.2).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Do not attempt to shut down non-blocking TLS session gracefully
+  in case the TLS handshake has not been fully completed.
+  Contributed by Oleg Kalnichevski <olegk@apache.org>
+
+
 Release 5.1 BETA2
 ------------------
 
