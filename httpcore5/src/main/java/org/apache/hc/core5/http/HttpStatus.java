@@ -223,6 +223,11 @@ public final class HttpStatus {
     public static final int SC_LOOP_DETECTED = 508;
 
     /**
+     * {@code 509 Bandwidth Limit Exceeded}
+     */
+    public static final int SC_BANDWIDTH_LIMIT_EXCEEDED = 509;
+
+    /**
      * {@code 510 Not Extended} (An HTTP Extension Framework - RFC 2774, p. 10, section 7)
      */
     public static final int SC_NOT_EXTENDED = 510;
