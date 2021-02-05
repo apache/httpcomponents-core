@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.util;
 
+import java.util.Objects;
+
 /**
  * A set of utility methods to help produce consistent
  * {@link Object#equals equals} and {@link Object#hashCode hashCode} methods.
@@ -63,7 +65,7 @@ public final class LangUtils {
      * @return {@code true} if the objects are equal or both null
      */
     public static boolean equals(final Object obj1, final Object obj2) {
-        return obj1 == null ? obj2 == null : obj1.equals(obj2);
+        return Objects.equals(obj1, obj2);
     }
 
     /**

@@ -41,10 +41,9 @@ public enum UriPatternType {
         switch (type) {
         case REGEX:
             return new UriRegexMatcher<>();
-        case URI_PATTERN:
-            return new UriPatternMatcher<>();
         case URI_PATTERN_IN_ORDER:
             return new UriPatternOrderedMatcher<>();
+        case URI_PATTERN:
         default:
             return new UriPatternMatcher<>();
         }
