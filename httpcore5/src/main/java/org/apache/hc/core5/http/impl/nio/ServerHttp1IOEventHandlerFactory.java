@@ -75,13 +75,15 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
                         handshakeTimeout);
             }
         } else {
-            tlsStrategy.upgrade(
-                    ioSession,
-                    null,
-                    ioSession.getLocalAddress(),
-                    ioSession.getRemoteAddress(),
-                    attachment,
-                    handshakeTimeout);
+            if (tlsStrategy != null) {
+                tlsStrategy.upgrade(
+                        ioSession,
+                        null,
+                        ioSession.getLocalAddress(),
+                        ioSession.getRemoteAddress(),
+                        attachment,
+                        handshakeTimeout);
+            }
         }
         return new ServerHttp1IOEventHandler(streamDuplexerFactory.create(endpointScheme, ioSession));
     }
