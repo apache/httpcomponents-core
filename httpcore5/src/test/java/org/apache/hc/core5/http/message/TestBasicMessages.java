@@ -219,5 +219,13 @@ public class TestBasicMessages {
         new BasicHttpRequest(Method.GET, URI.create("http://host//stuff"));
     }
 
+    @Test
+    public void testRequestAbsoluteRequestUri() throws Exception {
+        final BasicHttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "stuff");
+        Assert.assertEquals("stuff", request.getRequestUri());
+        request.setAbsoluteRequestUri(true);
+        Assert.assertEquals("http://somehost/stuff", request.getRequestUri());
+    }
+
 }
 

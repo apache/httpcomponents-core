@@ -54,6 +54,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     private URIAuthority authority;
     private ProtocolVersion version;
     private URI requestUri;
+    private boolean absoluteRequestUri;
 
     /**
      * Creates request message with the given method and request path.
@@ -218,9 +219,27 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         this.requestUri = null;
     }
 
+    /**
+     * Sets a flag that the {@link #getRequestUri()} method should return the request URI
+     * in an absolute form.
+     * <p>
+     * This flag can used when the request is going to be transmitted via an HTTP/1.1 proxy.
+     *
+     * @since 5.1
+     */
+    public void setAbsoluteRequestUri(final boolean absoluteRequestUri) {
+        this.absoluteRequestUri = absoluteRequestUri;
+    }
+
     @Override
     public String getRequestUri() {
-        return getPath();
+        if (absoluteRequestUri) {
+            final StringBuilder buf = new StringBuilder();
+            assembleRequestUri(buf);
+            return buf.toString();
+        } else {
+            return getPath();
+        }
     }
 
     @Override
@@ -253,25 +272,29 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         this.path = buf.toString();
     }
 
+    private void assembleRequestUri(final StringBuilder buf) {
+        if (this.authority != null) {
+            buf.append(this.scheme != null ? this.scheme : URIScheme.HTTP.id).append("://");
+            buf.append(this.authority.getHostName());
+            if (this.authority.getPort() >= 0) {
+                buf.append(":").append(this.authority.getPort());
+            }
+        }
+        if (this.path == null) {
+            buf.append("/");
+        } else {
+            if (buf.length() > 0 && !this.path.startsWith("/")) {
+                buf.append("/");
+            }
+            buf.append(this.path);
+        }
+    }
+
     @Override
     public URI getUri() throws URISyntaxException {
         if (this.requestUri == null) {
             final StringBuilder buf = new StringBuilder();
-            if (this.authority != null) {
-                buf.append(this.scheme != null ? this.scheme : URIScheme.HTTP.id).append("://");
-                buf.append(this.authority.getHostName());
-                if (this.authority.getPort() >= 0) {
-                    buf.append(":").append(this.authority.getPort());
-                }
-            }
-            if (this.path == null) {
-                buf.append("/");
-            } else {
-                if (buf.length() > 0 && !this.path.startsWith("/")) {
-                    buf.append("/");
-                }
-                buf.append(this.path);
-            }
+            assembleRequestUri(buf);
             this.requestUri = new URI(buf.toString());
         }
         return this.requestUri;
@@ -279,9 +302,10 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(this.method).append(" ").append(this.scheme).append("://").append(this.authority).append(this.path);
-        return sb.toString();
+        final StringBuilder buf = new StringBuilder();
+        buf.append(method).append(" ");
+        assembleRequestUri(buf);
+        return buf.toString();
     }
 
 }

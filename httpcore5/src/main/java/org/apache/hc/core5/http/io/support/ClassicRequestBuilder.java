@@ -273,6 +273,12 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
         return this;
     }
 
+    @Override
+    public ClassicRequestBuilder setAbsoluteRequestUri(final boolean absoluteRequestUri) {
+        super.setAbsoluteRequestUri(absoluteRequestUri);
+        return this;
+    }
+
     public HttpEntity getEntity() {
         return entity;
     }
@@ -328,6 +334,7 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
         result.setVersion(getVersion());
         result.setHeaders(getHeaders());
         result.setEntity(entityCopy);
+        result.setAbsoluteRequestUri(isAbsoluteRequestUri());
         return result;
     }
 

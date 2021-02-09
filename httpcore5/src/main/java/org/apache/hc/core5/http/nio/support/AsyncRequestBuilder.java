@@ -273,6 +273,12 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
         return this;
     }
 
+    @Override
+    public AsyncRequestBuilder setAbsoluteRequestUri(final boolean absoluteRequestUri) {
+        super.setAbsoluteRequestUri(absoluteRequestUri);
+        return this;
+    }
+
     public AsyncEntityProducer getEntity() {
         return entityProducer;
     }
@@ -333,6 +339,7 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
         final BasicHttpRequest request = new BasicHttpRequest(method, uriCopy);
         request.setVersion(getVersion());
         request.setHeaders(getHeaders());
+        request.setAbsoluteRequestUri(isAbsoluteRequestUri());
         return new BasicRequestProducer(request, entityProducerCopy);
     }
 
