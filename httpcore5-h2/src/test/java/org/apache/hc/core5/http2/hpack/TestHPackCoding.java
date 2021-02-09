@@ -27,18 +27,19 @@
 
 package org.apache.hc.core5.http2.hpack;
 
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.message.BasicHeader;
+import org.apache.hc.core5.util.ByteArrayBuffer;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
+import org.junit.Assert;
+import org.junit.Test;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.util.ByteArrayBuffer;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
-import org.junit.Test;
 
 public class TestHPackCoding {
 
@@ -1053,10 +1054,10 @@ public class TestHPackCoding {
                                 "123456789012345678901234567890123456789012345678901234567890")),
                 false);
 
-        Assert.assertThat(decoder.decodeHeaders(wrap(buf)).size(), CoreMatchers.equalTo(2));
+        MatcherAssert.assertThat(decoder.decodeHeaders(wrap(buf)).size(), CoreMatchers.equalTo(2));
 
         decoder.setMaxListSize(1000000);
-        Assert.assertThat(decoder.decodeHeaders(wrap(buf)).size(), CoreMatchers.equalTo(2));
+        MatcherAssert.assertThat(decoder.decodeHeaders(wrap(buf)).size(), CoreMatchers.equalTo(2));
 
         decoder.setMaxListSize(200);
         decoder.decodeHeaders(wrap(buf));

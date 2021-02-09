@@ -27,10 +27,6 @@
 
 package org.apache.hc.core5.testing.classic;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -58,7 +54,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
+import org.hamcrest.MatcherAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -66,6 +62,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 @RunWith(Parameterized.class)
 public class ClassicServerAndRequesterTest {
@@ -189,23 +189,23 @@ public class ClassicServerAndRequesterTest {
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body1 = EntityUtils.toString(response1.getEntity());
-            Assert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+            MatcherAssert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
         }
         final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/other-stuff");
         request2.setEntity(new StringEntity("some other stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
-            Assert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            MatcherAssert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body2 = EntityUtils.toString(response2.getEntity());
-            Assert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
+            MatcherAssert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
         }
         final ClassicHttpRequest request3 = new BasicClassicHttpRequest(Method.POST, "/more-stuff");
         request3.setEntity(new StringEntity("some more stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response3 = requester.execute(target, request3, TIMEOUT, context)) {
-            Assert.assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            MatcherAssert.assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body3 = EntityUtils.toString(response3.getEntity());
-            Assert.assertThat(body3, CoreMatchers.equalTo("some more stuff"));
+            MatcherAssert.assertThat(body3, CoreMatchers.equalTo("some more stuff"));
         }
     }
 
@@ -217,23 +217,23 @@ public class ClassicServerAndRequesterTest {
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body1 = EntityUtils.toString(response1.getEntity());
-            Assert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+            MatcherAssert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
         }
         final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/other-stuff");
         request2.setEntity(new StringEntity("some other stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response2 = requester.execute(target, request2, TIMEOUT, context)) {
-            Assert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            MatcherAssert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body2 = EntityUtils.toString(response2.getEntity());
-            Assert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
+            MatcherAssert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
         }
         final ClassicHttpRequest request3 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/more-stuff");
         request3.setEntity(new StringEntity("some more stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response3 = requester.execute(target, request3, TIMEOUT, context)) {
-            Assert.assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            MatcherAssert.assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body3 = EntityUtils.toString(response3.getEntity());
-            Assert.assertThat(body3, CoreMatchers.equalTo("some more stuff"));
+            MatcherAssert.assertThat(body3, CoreMatchers.equalTo("some more stuff"));
         }
     }
 

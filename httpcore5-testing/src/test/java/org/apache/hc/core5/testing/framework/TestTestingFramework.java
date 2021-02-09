@@ -27,6 +27,23 @@
 
 package org.apache.hc.core5.testing.framework;
 
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.ProtocolVersion;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.MatcherAssert;
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.BODY;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.CONTENT_TYPE;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.HEADERS;
@@ -38,22 +55,6 @@ import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.QUERY;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.REQUEST;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.RESPONSE;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.STATUS;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.ProtocolVersion;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
 public class TestTestingFramework {
 
@@ -179,7 +180,7 @@ public class TestTestingFramework {
                                    final Map<String, Object> request,
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) throws TestingFrameworkException {
-                Assert.assertThat(defaultURI, matchesDefaultURI());
+                MatcherAssert.assertThat(defaultURI, matchesDefaultURI());
 
                 Assert.assertNotNull("request should not be null", request);
 
