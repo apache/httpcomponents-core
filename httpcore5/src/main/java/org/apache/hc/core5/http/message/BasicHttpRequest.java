@@ -189,6 +189,9 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
 
     @Override
     public void setPath(final String path) {
+        if (path != null) {
+            Args.check(!path.startsWith("//"), "URI path begins with multiple slashes");
+        }
         this.path = path;
         this.requestUri = null;
     }
@@ -238,6 +241,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         final StringBuilder buf = new StringBuilder();
         final String rawPath = requestUri.getRawPath();
         if (!TextUtils.isBlank(rawPath)) {
+            Args.check(!rawPath.startsWith("//"), "URI path begins with multiple slashes");
             buf.append(rawPath);
         } else {
             buf.append("/");

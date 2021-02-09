@@ -1029,7 +1029,7 @@ public class TestTestingFramework {
         final Map<String, Object> request = new HashMap<>();
         test.put(REQUEST, request);
 
-        request.put(PATH, "/stuff");
+        request.put(PATH, "stuff");
 
         final Map<String, Object> queryMap = new HashMap<>();
         request.put(QUERY, queryMap);

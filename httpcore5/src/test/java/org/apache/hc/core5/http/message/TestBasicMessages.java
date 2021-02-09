@@ -214,5 +214,10 @@ public class TestBasicMessages {
         Assert.assertEquals(new URI("http://%21example%21.com/stuff"), request.getUri());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testRequestPathWithMultipleLeadingSlashes() throws Exception {
+        new BasicHttpRequest(Method.GET, URI.create("http://host//stuff"));
+    }
+
 }
 
