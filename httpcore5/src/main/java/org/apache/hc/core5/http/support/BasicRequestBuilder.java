@@ -34,10 +34,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.util.Args;
 
@@ -173,6 +175,13 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
         return new BasicRequestBuilder(Method.OPTIONS, uri);
     }
 
+    public static BasicRequestBuilder copy(final HttpRequest request) {
+        Args.notNull(request, "HTTP request");
+        final BasicRequestBuilder builder = new BasicRequestBuilder(request.getMethod());
+        builder.digest(request);
+        return builder;
+    }
+
     @Override
     public BasicRequestBuilder setVersion(final ProtocolVersion version) {
         super.setVersion(version);
@@ -188,6 +197,24 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
     @Override
     public BasicRequestBuilder setUri(final String uri) {
         super.setUri(uri);
+        return this;
+    }
+
+    @Override
+    public BasicRequestBuilder setScheme(final String scheme) {
+        super.setScheme(scheme);
+        return this;
+    }
+
+    @Override
+    public BasicRequestBuilder setAuthority(final URIAuthority authority) {
+        super.setAuthority(authority);
+        return this;
+    }
+
+    @Override
+    public BasicRequestBuilder setPath(final String path) {
+        super.setPath(path);
         return this;
     }
 
@@ -265,19 +292,20 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
 
     @Override
     public BasicHttpRequest build() {
-        URI uri = getUri();
+        String path = getPath();
         final List<NameValuePair> parameters = getParameters();
         if (parameters != null && !parameters.isEmpty()) {
             try {
-                uri = new URIBuilder(uri)
+                final URI uri = new URIBuilder(path)
                         .setCharset(getCharset())
                         .addParameters(parameters)
                         .build();
+                path = uri.toASCIIString();
             } catch (final URISyntaxException ex) {
                 // should never happen
             }
         }
-        final BasicHttpRequest result = new BasicHttpRequest(getMethod(), uri != null ? uri : URI.create("/"));
+        final BasicHttpRequest result = new BasicHttpRequest(getMethod(), getScheme(), getAuthority(), path);
         result.setVersion(getVersion());
         result.setHeaders(getHeaders());
         result.setAbsoluteRequestUri(isAbsoluteRequestUri());
@@ -289,8 +317,12 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
         final StringBuilder builder = new StringBuilder();
         builder.append("BasicRequestBuilder [method=");
         builder.append(getMethod());
-        builder.append(", uri=");
-        builder.append(getUri());
+        builder.append(", scheme=");
+        builder.append(getScheme());
+        builder.append(", authority=");
+        builder.append(getAuthority());
+        builder.append(", path=");
+        builder.append(getPath());
         builder.append(", parameters=");
         builder.append(getParameters());
         builder.append(", headerGroup=");

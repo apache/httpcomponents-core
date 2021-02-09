@@ -28,13 +28,18 @@
 package org.apache.hc.core5.http.support;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.util.TextUtils;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -48,7 +53,9 @@ import java.util.List;
 public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T> {
 
     final private String method;
-    private URI uri;
+    private String scheme;
+    private URIAuthority authority;
+    private String path;
     private Charset charset;
     private List<NameValuePair> parameters;
     private boolean absoluteRequestUri;
@@ -65,7 +72,7 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
     protected AbstractRequestBuilder(final String method, final URI uri) {
         super();
         this.method = method;
-        this.uri = uri;
+        setUri(uri);
     }
 
     protected AbstractRequestBuilder(final Method method, final URI uri) {
@@ -80,6 +87,17 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
         this(method, uri != null ? URI.create(uri) : null);
     }
 
+    protected void digest(final HttpRequest request) {
+        if (request == null) {
+            return;
+        }
+        setScheme(request.getScheme());
+        setAuthority(request.getAuthority());
+        setPath(request.getPath());
+        this.parameters = null;
+        super.digest(request);
+    }
+
     public String getMethod() {
         return method;
     }
@@ -90,17 +108,89 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
         return this;
     }
 
+    public String getScheme() {
+        return scheme;
+    }
+
+    public AbstractRequestBuilder<T> setScheme(final String scheme) {
+        this.scheme = scheme;
+        return this;
+    }
+
+    public URIAuthority getAuthority() {
+        return authority;
+    }
+
+    public AbstractRequestBuilder<T> setAuthority(final URIAuthority authority) {
+        this.authority = authority;
+        return this;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public AbstractRequestBuilder<T> setPath(final String path) {
+        this.path = path;
+        return this;
+    }
+
     public URI getUri() {
-        return uri;
+        final StringBuilder buf = new StringBuilder();
+        if (this.authority != null) {
+            buf.append(this.scheme != null ? this.scheme : URIScheme.HTTP.id).append("://");
+            buf.append(this.authority.getHostName());
+            if (this.authority.getPort() >= 0) {
+                buf.append(":").append(this.authority.getPort());
+            }
+        }
+        if (this.path == null) {
+            buf.append("/");
+        } else {
+            if (buf.length() > 0 && !this.path.startsWith("/")) {
+                buf.append("/");
+            }
+            buf.append(this.path);
+        }
+        return URI.create(buf.toString());
     }
 
     public AbstractRequestBuilder<T> setUri(final URI uri) {
-        this.uri = uri;
+        if (uri == null) {
+            this.scheme = null;
+            this.authority = null;
+            this.path = null;
+        } else {
+            this.scheme = uri.getScheme();
+            if (uri.getHost() != null) {
+                this.authority = new URIAuthority(uri.getRawUserInfo(), uri.getHost(), uri.getPort());
+            } else if (uri.getRawAuthority() != null) {
+                try {
+                    this.authority = URIAuthority.create(uri.getRawAuthority());
+                } catch (final URISyntaxException ignore) {
+                    this.authority = null;
+                }
+            } else {
+                this.authority = null;
+            }
+            final StringBuilder buf = new StringBuilder();
+            final String rawPath = uri.getRawPath();
+            if (!TextUtils.isBlank(rawPath)) {
+                buf.append(rawPath);
+            } else {
+                buf.append("/");
+            }
+            final String query = uri.getRawQuery();
+            if (query != null) {
+                buf.append('?').append(query);
+            }
+            this.path = buf.toString();
+        }
         return this;
     }
 
     public AbstractRequestBuilder<T> setUri(final String uri) {
-        this.uri = uri != null ? URI.create(uri) : null;
+        setUri(uri != null ? URI.create(uri) : null);
         return this;
     }
 

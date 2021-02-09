@@ -39,8 +39,10 @@ import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.support.AbstractRequestBuilder;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -189,6 +191,21 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
         return new ClassicRequestBuilder(Method.OPTIONS, uri);
     }
 
+    /**
+     * @since 5.1
+     */
+    public static ClassicRequestBuilder copy(final ClassicHttpRequest request) {
+        Args.notNull(request, "HTTP request");
+        final ClassicRequestBuilder builder = new ClassicRequestBuilder(request.getMethod());
+        builder.digest(request);
+        return builder;
+    }
+
+    protected void digest(final ClassicHttpRequest request) {
+        super.digest(request);
+        setEntity(request.getEntity());
+    }
+
     @Override
     public ClassicRequestBuilder setVersion(final ProtocolVersion version) {
         super.setVersion(version);
@@ -204,6 +221,24 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
     @Override
     public ClassicRequestBuilder setUri(final String uri) {
         super.setUri(uri);
+        return this;
+    }
+
+    @Override
+    public ClassicRequestBuilder setScheme(final String scheme) {
+        super.setScheme(scheme);
+        return this;
+    }
+
+    @Override
+    public ClassicRequestBuilder setAuthority(final URIAuthority authority) {
+        super.setAuthority(authority);
+        return this;
+    }
+
+    @Override
+    public ClassicRequestBuilder setPath(final String path) {
+        super.setPath(path);
         return this;
     }
 
@@ -304,9 +339,9 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
     }
 
     public ClassicHttpRequest build() {
-        URI uriCopy = getUri();
-        if (uriCopy == null) {
-            uriCopy = URI.create("/");
+        String path = getPath();
+        if (TextUtils.isEmpty(path)) {
+            path = "/";
         }
         HttpEntity entityCopy = this.entity;
         final String method = getMethod();
@@ -316,10 +351,11 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
                 entityCopy = HttpEntities.createUrlEncoded(parameters, getCharset());
             } else {
                 try {
-                    uriCopy = new URIBuilder(uriCopy)
+                    final URI uri = new URIBuilder(path)
                             .setCharset(getCharset())
                             .addParameters(parameters)
                             .build();
+                    path = uri.toASCIIString();
                 } catch (final URISyntaxException ex) {
                     // should never happen
                 }
@@ -330,7 +366,7 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
             throw new IllegalStateException(Method.TRACE + " requests may not include an entity");
         }
 
-        final BasicClassicHttpRequest result = new BasicClassicHttpRequest(method, uriCopy);
+        final BasicClassicHttpRequest result = new BasicClassicHttpRequest(method, getScheme(), getAuthority(), path);
         result.setVersion(getVersion());
         result.setHeaders(getHeaders());
         result.setEntity(entityCopy);
@@ -343,10 +379,12 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
         final StringBuilder builder = new StringBuilder();
         builder.append("ClassicRequestBuilder [method=");
         builder.append(getMethod());
-        builder.append(", version=");
-        builder.append(getVersion());
-        builder.append(", uri=");
-        builder.append(getUri());
+        builder.append(", scheme=");
+        builder.append(getScheme());
+        builder.append(", authority=");
+        builder.append(getAuthority());
+        builder.append(", path=");
+        builder.append(getPath());
         builder.append(", parameters=");
         builder.append(getParameters());
         builder.append(", headerGroup=");

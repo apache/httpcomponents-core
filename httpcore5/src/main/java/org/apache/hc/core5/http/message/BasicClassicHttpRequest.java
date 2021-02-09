@@ -27,12 +27,13 @@
 
 package org.apache.hc.core5.http.message;
 
-import java.net.URI;
-
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.net.URIAuthority;
+
+import java.net.URI;
 
 /**
  * Basic implementation of {@link ClassicHttpRequest}.
@@ -44,6 +45,20 @@ public class BasicClassicHttpRequest extends BasicHttpRequest implements Classic
     private static final long serialVersionUID = 1L;
 
     private HttpEntity entity;
+
+    /**
+     * Creates request message with the given method, host and request path.
+     *
+     * @param method request method.
+     * @param scheme request scheme.
+     * @param authority request authority.
+     * @param path request path.
+     *
+     * @since 5.1
+     */
+    public BasicClassicHttpRequest(final String method, final String scheme, final URIAuthority authority, final String path) {
+        super(method, scheme, authority, path);
+    }
 
     /**
      * Creates request message with the given method and request path.
