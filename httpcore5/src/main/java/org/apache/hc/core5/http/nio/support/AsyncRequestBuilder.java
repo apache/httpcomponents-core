@@ -30,25 +30,20 @@ package org.apache.hc.core5.http.nio.support;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.apache.hc.core5.http.message.HeaderGroup;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
+import org.apache.hc.core5.http.support.AbstractRequestBuilder;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.apache.hc.core5.util.Args;
@@ -65,32 +60,20 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-public class AsyncRequestBuilder {
+public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProducer> {
 
-    private String method;
-    private URI uri;
-    private Charset charset;
-    private ProtocolVersion version;
-    private HeaderGroup headerGroup;
     private AsyncEntityProducer entityProducer;
-    private List<NameValuePair> parameters;
-
-    AsyncRequestBuilder() {
-    }
 
     AsyncRequestBuilder(final String method) {
-        super();
-        this.method = method;
+        super(method);
     }
 
     AsyncRequestBuilder(final Method method) {
-        this(method.name());
+        super(method);
     }
 
     AsyncRequestBuilder(final String method, final URI uri) {
-        super();
-        this.method = method;
-        this.uri = uri;
+        super(method, uri);
     }
 
     AsyncRequestBuilder(final Method method, final URI uri) {
@@ -206,136 +189,87 @@ public class AsyncRequestBuilder {
         return new AsyncRequestBuilder(Method.OPTIONS, uri);
     }
 
-    public AsyncRequestBuilder setCharset(final Charset charset) {
-        this.charset = charset;
-        return this;
-    }
-
-    public Charset getCharset() {
-        return charset;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public URI getUri() {
-        return uri;
-    }
-
-    public AsyncRequestBuilder setUri(final URI uri) {
-        this.uri = uri;
-        return this;
-    }
-
-    public AsyncRequestBuilder setUri(final String uri) {
-        this.uri = uri != null ? URI.create(uri) : null;
-        return this;
-    }
-
-    public ProtocolVersion getVersion() {
-        return version;
-    }
-
+    @Override
     public AsyncRequestBuilder setVersion(final ProtocolVersion version) {
-        this.version = version;
+        super.setVersion(version);
         return this;
     }
 
-    public Header[] getHeaders(final String name) {
-        return headerGroup != null ? headerGroup.getHeaders(name) : null;
+    @Override
+    public AsyncRequestBuilder setUri(final URI uri) {
+        super.setUri(uri);
+        return this;
     }
 
+    @Override
+    public AsyncRequestBuilder setUri(final String uri) {
+        super.setUri(uri);
+        return this;
+    }
+
+    @Override
     public AsyncRequestBuilder setHeaders(final Header... headers) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        headerGroup.setHeaders(headers);
+        super.setHeaders(headers);
         return this;
     }
 
-    public Header getFirstHeader(final String name) {
-        return headerGroup != null ? headerGroup.getFirstHeader(name) : null;
-    }
-
-    public Header getLastHeader(final String name) {
-        return headerGroup != null ? headerGroup.getLastHeader(name) : null;
-    }
-
+    @Override
     public AsyncRequestBuilder addHeader(final Header header) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        headerGroup.addHeader(header);
+        super.addHeader(header);
         return this;
     }
 
+    @Override
     public AsyncRequestBuilder addHeader(final String name, final String value) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        this.headerGroup.addHeader(new BasicHeader(name, value));
+        super.addHeader(name, value);
         return this;
     }
 
+    @Override
     public AsyncRequestBuilder removeHeader(final Header header) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        headerGroup.removeHeader(header);
+        super.removeHeader(header);
         return this;
     }
 
+    @Override
     public AsyncRequestBuilder removeHeaders(final String name) {
-        if (name == null || headerGroup == null) {
-            return this;
-        }
-        for (final Iterator<Header> i = headerGroup.headerIterator(); i.hasNext(); ) {
-            final Header header = i.next();
-            if (name.equalsIgnoreCase(header.getName())) {
-                i.remove();
-            }
-        }
+        super.removeHeaders(name);
         return this;
     }
 
+    @Override
     public AsyncRequestBuilder setHeader(final Header header) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        this.headerGroup.setHeader(header);
+        super.setHeader(header);
         return this;
     }
 
+    @Override
     public AsyncRequestBuilder setHeader(final String name, final String value) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        this.headerGroup.setHeader(new BasicHeader(name, value));
+        super.setHeader(name, value);
         return this;
     }
 
-    public List<NameValuePair> getParameters() {
-        return parameters != null ? new ArrayList<>(parameters) : new ArrayList<NameValuePair>();
+    @Override
+    public AsyncRequestBuilder setCharset(final Charset charset) {
+        super.setCharset(charset);
+        return this;
     }
 
+    @Override
     public AsyncRequestBuilder addParameter(final NameValuePair nvp) {
-        Args.notNull(nvp, "Name value pair");
-        if (parameters == null) {
-            parameters = new LinkedList<>();
-        }
-        parameters.add(nvp);
+        super.addParameter(nvp);
         return this;
     }
 
+    @Override
     public AsyncRequestBuilder addParameter(final String name, final String value) {
-        return addParameter(new BasicNameValuePair(name, value));
+        super.addParameter(name, value);
+        return this;
     }
 
+    @Override
     public AsyncRequestBuilder addParameters(final NameValuePair... nvps) {
-        for (final NameValuePair nvp: nvps) {
-            addParameter(nvp);
-        }
+        super.addParameters(nvps);
         return this;
     }
 
@@ -364,9 +298,15 @@ public class AsyncRequestBuilder {
     }
 
     public AsyncRequestProducer build() {
-        URI uriCopy = uri != null ? uri : URI.create("/");
+        URI uriCopy = getUri();
+        if (uriCopy == null) {
+            uriCopy = URI.create("/");
+        }
         AsyncEntityProducer entityProducerCopy = entityProducer;
+        final String method = getMethod();
+        final List<NameValuePair> parameters = getParameters();
         if (parameters != null && !parameters.isEmpty()) {
+            final Charset charset = getCharset();
             if (entityProducerCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method))) {
                 final String content = WWWFormCodec.format(
                         parameters,
@@ -377,9 +317,9 @@ public class AsyncRequestBuilder {
             } else {
                 try {
                     uriCopy = new URIBuilder(uriCopy)
-                      .setCharset(this.charset)
-                      .addParameters(parameters)
-                      .build();
+                            .setCharset(charset)
+                            .addParameters(parameters)
+                            .build();
                 } catch (final URISyntaxException ex) {
                     // should never happen
                 }
@@ -387,16 +327,12 @@ public class AsyncRequestBuilder {
         }
 
         if (entityProducerCopy != null && Method.TRACE.isSame(method)) {
-            throw new IllegalStateException(Method.TRACE + " requests may not include an entity.");
+            throw new IllegalStateException(Method.TRACE + " requests may not include an entity");
         }
 
-        final HttpRequest request = new BasicHttpRequest(method, uriCopy);
-        if (this.headerGroup != null) {
-            request.setHeaders(this.headerGroup.getHeaders());
-        }
-        if (version != null) {
-            request.setVersion(version);
-        }
+        final BasicHttpRequest request = new BasicHttpRequest(method, uriCopy);
+        request.setVersion(getVersion());
+        request.setHeaders(getHeaders());
         return new BasicRequestProducer(request, entityProducerCopy);
     }
 
@@ -404,19 +340,17 @@ public class AsyncRequestBuilder {
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append("AsyncRequestBuilder [method=");
-        builder.append(method);
-        builder.append(", charset=");
-        builder.append(charset);
+        builder.append(getMethod());
         builder.append(", version=");
-        builder.append(version);
+        builder.append(getVersion());
         builder.append(", uri=");
-        builder.append(uri);
+        builder.append(getUri());
+        builder.append(", parameters=");
+        builder.append(getParameters());
         builder.append(", headerGroup=");
-        builder.append(headerGroup);
+        builder.append(Arrays.toString(getHeaders()));
         builder.append(", entity=");
         builder.append(entityProducer != null ? entityProducer.getClass() : null);
-        builder.append(", parameters=");
-        builder.append(parameters);
         builder.append("]");
         return builder.toString();
     }

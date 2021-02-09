@@ -25,128 +25,94 @@
  *
  */
 
-package org.apache.hc.core5.http.io.support;
+package org.apache.hc.core5.http.support;
+
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.message.BasicHttpResponse;
+import org.apache.hc.core5.util.Args;
 
 import java.util.Arrays;
 
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
-import org.apache.hc.core5.http.io.entity.StringEntity;
-import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
-import org.apache.hc.core5.http.support.AbstractResponseBuilder;
-import org.apache.hc.core5.util.Args;
-
 /**
- * Builder for {@link ClassicHttpResponse} instances.
+ * Builder for {@link BasicHttpResponse} instances.
  *
- * @since 5.0
+ * @since 5.1
  */
-public class ClassicResponseBuilder extends AbstractResponseBuilder<ClassicHttpResponse> {
+public class BasicResponseBuilder extends AbstractResponseBuilder<BasicHttpResponse> {
 
-    private HttpEntity entity;
-
-    ClassicResponseBuilder(final int status) {
+    protected BasicResponseBuilder(final int status) {
         super(status);
     }
 
-    public static ClassicResponseBuilder create(final int status) {
+    public static BasicResponseBuilder create(final int status) {
         Args.checkRange(status, 100, 599, "HTTP status code");
-        return new ClassicResponseBuilder(status);
+        return new BasicResponseBuilder(status);
     }
 
     @Override
-    public ClassicResponseBuilder setVersion(final ProtocolVersion version) {
+    public BasicResponseBuilder setVersion(final ProtocolVersion version) {
         super.setVersion(version);
         return this;
     }
 
     @Override
-    public ClassicResponseBuilder setHeaders(final Header... headers) {
+    public BasicResponseBuilder setHeaders(final Header... headers) {
         super.setHeaders(headers);
         return this;
     }
 
     @Override
-    public ClassicResponseBuilder addHeader(final Header header) {
+    public BasicResponseBuilder addHeader(final Header header) {
         super.addHeader(header);
         return this;
     }
 
     @Override
-    public ClassicResponseBuilder addHeader(final String name, final    String value) {
+    public BasicResponseBuilder addHeader(final String name, final String value) {
         super.addHeader(name, value);
         return this;
     }
 
     @Override
-    public ClassicResponseBuilder removeHeader(final Header header) {
+    public BasicResponseBuilder removeHeader(final Header header) {
         super.removeHeader(header);
         return this;
     }
 
     @Override
-    public ClassicResponseBuilder removeHeaders(final String name) {
+    public BasicResponseBuilder removeHeaders(final String name) {
         super.removeHeaders(name);
         return this;
     }
 
     @Override
-    public ClassicResponseBuilder setHeader(final Header header) {
+    public BasicResponseBuilder setHeader(final Header header) {
         super.setHeader(header);
         return this;
     }
 
     @Override
-    public ClassicResponseBuilder setHeader(final String name, final String value) {
+    public BasicResponseBuilder setHeader(final String name, final String value) {
         super.setHeader(name, value);
         return this;
     }
 
-    public HttpEntity getEntity() {
-        return entity;
-    }
-
-    public ClassicResponseBuilder setEntity(final HttpEntity entity) {
-        this.entity = entity;
-        return this;
-    }
-
-    public ClassicResponseBuilder setEntity(final String content, final ContentType contentType) {
-        this.entity = new StringEntity(content, contentType);
-        return this;
-    }
-
-    public ClassicResponseBuilder setEntity(final String content) {
-        this.entity = new StringEntity(content);
-        return this;
-    }
-
-    public ClassicResponseBuilder setEntity(final byte[] content, final ContentType contentType) {
-        this.entity = new ByteArrayEntity(content, contentType);
-        return this;
-    }
-
-    public ClassicHttpResponse build() {
-        final BasicClassicHttpResponse result = new BasicClassicHttpResponse(getStatus());
+    @Override
+    public BasicHttpResponse build() {
+        final BasicHttpResponse result = new BasicHttpResponse(getStatus());
         result.setVersion(getVersion());
         result.setHeaders(getHeaders());
-        result.setEntity(entity);
         return result;
     }
 
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("ClassicResponseBuilder [status=");
+        builder.append("BasicResponseBuilder [status=");
         builder.append(getStatus());
         builder.append(", headerGroup=");
         builder.append(Arrays.toString(getHeaders()));
-        builder.append(", entity=");
-        builder.append(entity != null ? entity.getClass() : null);
         builder.append("]");
         return builder.toString();
     }
