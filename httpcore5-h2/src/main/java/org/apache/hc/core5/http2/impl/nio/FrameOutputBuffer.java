@@ -51,7 +51,7 @@ public final class FrameOutputBuffer {
     private final ByteBuffer buffer;
 
     public FrameOutputBuffer(final BasicH2TransportMetrics metrics, final int maxFramePayloadSize) {
-        Args.notNull(metrics, "HTTP2 transport metrcis");
+        Args.notNull(metrics, "HTTP2 transport metrics");
         Args.positive(maxFramePayloadSize, "Maximum payload size");
         this.metrics = metrics;
         this.maxFramePayloadSize = maxFramePayloadSize;

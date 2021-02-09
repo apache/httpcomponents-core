@@ -78,7 +78,7 @@ public interface MessageHeaders {
     Header getHeader(String name) throws ProtocolException;
 
     /**
-     * Returns all the headers of this message. Headers are orderd in the sequence
+     * Returns all the headers of this message. Headers are ordered in the sequence
      * they will be sent over a connection.
      *
      * @return all the headers of this message
@@ -87,7 +87,7 @@ public interface MessageHeaders {
 
     /**
      * Returns all the headers with a specified name of this message. Header values
-     * are ignored. Headers are orderd in the sequence they will be sent over a
+     * are ignored. Headers are ordered in the sequence they will be sent over a
      * connection.
      *
      * @param name the name of the headers to return.

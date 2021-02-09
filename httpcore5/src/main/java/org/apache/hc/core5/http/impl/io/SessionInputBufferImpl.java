@@ -87,7 +87,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
             final int minChunkLimit,
             final int maxLineLen,
             final CharsetDecoder charDecoder) {
-        Args.notNull(metrics, "HTTP transport metrcis");
+        Args.notNull(metrics, "HTTP transport metrics");
         Args.positive(bufferSize, "Buffer size");
         this.metrics = metrics;
         this.buffer = new byte[bufferSize];

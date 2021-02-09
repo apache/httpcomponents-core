@@ -35,7 +35,7 @@ abstract class SSLManagedBuffer {
 
     /**
      * Allocates the resources required for this buffer, or returns the resources already allocated for this buffer.
-     * Unless {@link #release() } is called, multiple invokations to this method must return the same
+     * Unless {@link #release() } is called, multiple invocations to this method must return the same
      * {@link java.nio.ByteBuffer}.
      * @return buffer
      */

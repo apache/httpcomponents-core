@@ -141,7 +141,7 @@ public class TimeValue implements Comparable<TimeValue> {
      * Creates a TimeValue.
      *
      * @param duration the time duration in the given {@code timeUnit}.
-     * @param timeUnit the time unit for the given durarion.
+     * @param timeUnit the time unit for the given duration.
      * @return a Timeout
      */
     public static TimeValue of(final long duration, final TimeUnit timeUnit) {
