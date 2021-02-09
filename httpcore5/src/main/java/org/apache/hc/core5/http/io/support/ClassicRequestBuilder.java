@@ -27,19 +27,10 @@
 
 package org.apache.hc.core5.http.io.support;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -47,11 +38,15 @@ import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.apache.hc.core5.http.message.HeaderGroup;
+import org.apache.hc.core5.http.support.AbstractRequestBuilder;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.util.Args;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Builder for {@link ClassicHttpRequest} instances.
@@ -65,44 +60,32 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-public class ClassicRequestBuilder {
+public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpRequest> {
 
-    private String method;
-    private URI uri;
-    private Charset charset;
-    private ProtocolVersion version;
-    private HeaderGroup headerGroup;
     private HttpEntity entity;
-    private List<NameValuePair> parameters;
-
-    ClassicRequestBuilder() {
-    }
 
     ClassicRequestBuilder(final String method) {
-        super();
-        this.method = method;
+        super(method);
     }
 
     ClassicRequestBuilder(final Method method) {
-        this(method.name());
+        super(method);
     }
 
     ClassicRequestBuilder(final String method, final URI uri) {
-        super();
-        this.method = method;
-        this.uri = uri;
+        super(method, uri);
     }
 
     ClassicRequestBuilder(final Method method, final URI uri) {
-        this(method.name(), uri);
+        super(method, uri);
     }
 
     ClassicRequestBuilder(final Method method, final String uri) {
-        this(method.name(), uri != null ? URI.create(uri) : null);
+        super(method, uri);
     }
 
     ClassicRequestBuilder(final String method, final String uri) {
-        this(method, uri != null ? URI.create(uri) : null);
+        super(method, uri);
     }
 
     public static ClassicRequestBuilder create(final String method) {
@@ -206,112 +189,87 @@ public class ClassicRequestBuilder {
         return new ClassicRequestBuilder(Method.OPTIONS, uri);
     }
 
-    public ClassicRequestBuilder setCharset(final Charset charset) {
-        this.charset = charset;
-        return this;
-    }
-
-    public Charset getCharset() {
-        return charset;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public ProtocolVersion getVersion() {
-        return version;
-    }
-
+    @Override
     public ClassicRequestBuilder setVersion(final ProtocolVersion version) {
-        this.version = version;
+        super.setVersion(version);
         return this;
     }
 
-    public URI getUri() {
-        return uri;
-    }
-
+    @Override
     public ClassicRequestBuilder setUri(final URI uri) {
-        this.uri = uri;
+        super.setUri(uri);
         return this;
     }
 
+    @Override
     public ClassicRequestBuilder setUri(final String uri) {
-        this.uri = uri != null ? URI.create(uri) : null;
+        super.setUri(uri);
         return this;
     }
 
-    public Header[] getHeaders(final String name) {
-        return headerGroup != null ? headerGroup.getHeaders(name) : null;
-    }
-
+    @Override
     public ClassicRequestBuilder setHeaders(final Header... headers) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        headerGroup.setHeaders(headers);
+        super.setHeaders(headers);
         return this;
     }
 
-    public Header getFirstHeader(final String name) {
-        return headerGroup != null ? headerGroup.getFirstHeader(name) : null;
-    }
-
-    public Header getLastHeader(final String name) {
-        return headerGroup != null ? headerGroup.getLastHeader(name) : null;
-    }
-
+    @Override
     public ClassicRequestBuilder addHeader(final Header header) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        headerGroup.addHeader(header);
+        super.addHeader(header);
         return this;
     }
 
+    @Override
     public ClassicRequestBuilder addHeader(final String name, final String value) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        this.headerGroup.addHeader(new BasicHeader(name, value));
+        super.addHeader(name, value);
         return this;
     }
 
+    @Override
     public ClassicRequestBuilder removeHeader(final Header header) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        headerGroup.removeHeader(header);
+        super.removeHeader(header);
         return this;
     }
 
+    @Override
     public ClassicRequestBuilder removeHeaders(final String name) {
-        if (name == null || headerGroup == null) {
-            return this;
-        }
-        for (final Iterator<Header> i = headerGroup.headerIterator(); i.hasNext(); ) {
-            final Header header = i.next();
-            if (name.equalsIgnoreCase(header.getName())) {
-                i.remove();
-            }
-        }
+        super.removeHeaders(name);
         return this;
     }
 
+    @Override
     public ClassicRequestBuilder setHeader(final Header header) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        this.headerGroup.setHeader(header);
+        super.setHeader(header);
         return this;
     }
 
+    @Override
     public ClassicRequestBuilder setHeader(final String name, final String value) {
-        if (headerGroup == null) {
-            headerGroup = new HeaderGroup();
-        }
-        this.headerGroup.setHeader(new BasicHeader(name, value));
+        super.setHeader(name, value);
+        return this;
+    }
+
+    @Override
+    public ClassicRequestBuilder setCharset(final Charset charset) {
+        super.setCharset(charset);
+        return this;
+    }
+
+    @Override
+    public ClassicRequestBuilder addParameter(final NameValuePair nvp) {
+        super.addParameter(nvp);
+        return this;
+    }
+
+    @Override
+    public ClassicRequestBuilder addParameter(final String name, final String value) {
+        super.addParameter(name, value);
+        return this;
+    }
+
+    @Override
+    public ClassicRequestBuilder addParameters(final NameValuePair... nvps) {
+        super.addParameters(nvps);
         return this;
     }
 
@@ -339,41 +297,21 @@ public class ClassicRequestBuilder {
         return this;
     }
 
-    public List<NameValuePair> getParameters() {
-        return parameters != null ? new ArrayList<>(parameters) :
-                new ArrayList<NameValuePair>();
-    }
-
-    public ClassicRequestBuilder addParameter(final NameValuePair nvp) {
-        Args.notNull(nvp, "Name value pair");
-        if (parameters == null) {
-            parameters = new LinkedList<>();
-        }
-        parameters.add(nvp);
-        return this;
-    }
-
-    public ClassicRequestBuilder addParameter(final String name, final String value) {
-        return addParameter(new BasicNameValuePair(name, value));
-    }
-
-    public ClassicRequestBuilder addParameters(final NameValuePair... nvps) {
-        for (final NameValuePair nvp : nvps) {
-            addParameter(nvp);
-        }
-        return this;
-    }
-
     public ClassicHttpRequest build() {
-        URI uriCopy = this.uri != null ? this.uri : URI.create("/");
+        URI uriCopy = getUri();
+        if (uriCopy == null) {
+            uriCopy = URI.create("/");
+        }
         HttpEntity entityCopy = this.entity;
+        final String method = getMethod();
+        final List<NameValuePair> parameters = getParameters();
         if (parameters != null && !parameters.isEmpty()) {
             if (entityCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method))) {
-                entityCopy = HttpEntities.createUrlEncoded(parameters, charset);
+                entityCopy = HttpEntities.createUrlEncoded(parameters, getCharset());
             } else {
                 try {
                     uriCopy = new URIBuilder(uriCopy)
-                            .setCharset(this.charset)
+                            .setCharset(getCharset())
                             .addParameters(parameters)
                             .build();
                 } catch (final URISyntaxException ex) {
@@ -386,11 +324,9 @@ public class ClassicRequestBuilder {
             throw new IllegalStateException(Method.TRACE + " requests may not include an entity");
         }
 
-        final ClassicHttpRequest result = new BasicClassicHttpRequest(method, uriCopy);
-        result.setVersion(this.version != null ? this.version : HttpVersion.HTTP_1_1);
-        if (this.headerGroup != null) {
-            result.setHeaders(this.headerGroup.getHeaders());
-        }
+        final BasicClassicHttpRequest result = new BasicClassicHttpRequest(method, uriCopy);
+        result.setVersion(getVersion());
+        result.setHeaders(getHeaders());
         result.setEntity(entityCopy);
         return result;
     }
@@ -399,19 +335,17 @@ public class ClassicRequestBuilder {
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append("ClassicRequestBuilder [method=");
-        builder.append(method);
-        builder.append(", charset=");
-        builder.append(charset);
+        builder.append(getMethod());
         builder.append(", version=");
-        builder.append(version);
+        builder.append(getVersion());
         builder.append(", uri=");
-        builder.append(uri);
+        builder.append(getUri());
+        builder.append(", parameters=");
+        builder.append(getParameters());
         builder.append(", headerGroup=");
-        builder.append(headerGroup);
+        builder.append(Arrays.toString(getHeaders()));
         builder.append(", entity=");
         builder.append(entity != null ? entity.getClass() : null);
-        builder.append(", parameters=");
-        builder.append(parameters);
         builder.append("]");
         return builder.toString();
     }
