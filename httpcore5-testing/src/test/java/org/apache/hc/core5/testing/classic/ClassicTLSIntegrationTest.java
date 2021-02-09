@@ -27,14 +27,6 @@
 
 package org.apache.hc.core5.testing.classic;
 
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLParameters;
-import javax.net.ssl.SSLSession;
-
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -65,6 +57,13 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
+
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSession;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ClassicTLSIntegrationTest {
 

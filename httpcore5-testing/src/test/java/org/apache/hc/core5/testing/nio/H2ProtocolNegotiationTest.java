@@ -27,11 +27,6 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import java.net.InetSocketAddress;
-import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
@@ -72,6 +67,11 @@ import org.junit.Test;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class H2ProtocolNegotiationTest {
 

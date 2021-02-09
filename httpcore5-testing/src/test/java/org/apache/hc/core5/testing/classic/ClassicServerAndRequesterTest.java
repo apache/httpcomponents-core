@@ -27,10 +27,6 @@
 
 package org.apache.hc.core5.testing.classic;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -66,6 +62,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
 
 @RunWith(Parameterized.class)
 public class ClassicServerAndRequesterTest {

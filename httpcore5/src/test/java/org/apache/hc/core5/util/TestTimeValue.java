@@ -27,13 +27,13 @@
 
 package org.apache.hc.core5.util;
 
-import java.text.ParseException;
-import java.util.concurrent.TimeUnit;
-
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.text.ParseException;
+import java.util.concurrent.TimeUnit;
 
 public class TestTimeValue {
 

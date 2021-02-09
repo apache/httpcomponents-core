@@ -26,12 +26,12 @@
  */
 package org.apache.hc.core5.concurrent;
 
-import java.util.concurrent.Future;
-
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.concurrent.Future;
 
 public class TestComplexFuture {
 

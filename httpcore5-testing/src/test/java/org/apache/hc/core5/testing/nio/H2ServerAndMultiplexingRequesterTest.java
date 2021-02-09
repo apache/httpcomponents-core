@@ -27,15 +27,6 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Supplier;
@@ -78,6 +69,15 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 
 @RunWith(Parameterized.class)
 public class H2ServerAndMultiplexingRequesterTest {

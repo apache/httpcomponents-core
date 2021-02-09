@@ -27,14 +27,6 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.concurrent.Future;
-
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EntityDetails;
@@ -84,6 +76,14 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.Future;
 
 @RunWith(Parameterized.class)
 public class Http1ServerAndRequesterTest {

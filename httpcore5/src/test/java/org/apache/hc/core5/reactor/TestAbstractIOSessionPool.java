@@ -26,8 +26,6 @@
  */
 package org.apache.hc.core5.reactor;
 
-import java.util.concurrent.Future;
-
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
@@ -46,6 +44,8 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+
+import java.util.concurrent.Future;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestAbstractIOSessionPool {

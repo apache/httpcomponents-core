@@ -26,14 +26,14 @@
  */
 package org.apache.hc.core5.benchmark;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-
 import org.apache.hc.core5.http.HttpVersion;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 
 public class ResultFormatterTest {
 
