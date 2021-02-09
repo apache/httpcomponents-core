@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.support;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.util.Args;
@@ -48,6 +49,13 @@ public class BasicResponseBuilder extends AbstractResponseBuilder<BasicHttpRespo
     public static BasicResponseBuilder create(final int status) {
         Args.checkRange(status, 100, 599, "HTTP status code");
         return new BasicResponseBuilder(status);
+    }
+
+    public static BasicResponseBuilder copy(final HttpResponse response) {
+        Args.notNull(response, "HTTP response");
+        final BasicResponseBuilder builder = new BasicResponseBuilder(response.getCode());
+        builder.digest(response);
+        return builder;
     }
 
     @Override

@@ -58,6 +58,21 @@ public class ClassicResponseBuilder extends AbstractResponseBuilder<ClassicHttpR
         return new ClassicResponseBuilder(status);
     }
 
+    /**
+     * @since 5.1
+     */
+    public static ClassicResponseBuilder copy(final ClassicHttpResponse response) {
+        Args.notNull(response, "HTTP response");
+        final ClassicResponseBuilder builder = new ClassicResponseBuilder(response.getCode());
+        builder.digest(response);
+        return builder;
+    }
+
+    protected void digest(final ClassicHttpResponse response) {
+        super.digest(response);
+        setEntity(response.getEntity());
+    }
+
     @Override
     public ClassicResponseBuilder setVersion(final ProtocolVersion version) {
         super.setVersion(version);

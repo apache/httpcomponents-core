@@ -27,13 +27,13 @@
 
 package org.apache.hc.core5.http.support;
 
+import java.util.Iterator;
+
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.HeaderGroup;
-
-import java.util.Iterator;
 
 /**
  * Abstract {@link HttpMessage} builder.
@@ -46,6 +46,14 @@ public abstract class AbstractMessageBuilder<T> {
     private HeaderGroup headerGroup;
 
     protected AbstractMessageBuilder() {
+    }
+
+    protected void digest(final HttpMessage message) {
+        if (message == null) {
+            return;
+        }
+        setVersion(message.getVersion());
+        setHeaders(message.headerIterator());
     }
 
     public ProtocolVersion getVersion() {
@@ -70,6 +78,18 @@ public abstract class AbstractMessageBuilder<T> {
             headerGroup = new HeaderGroup();
         }
         headerGroup.setHeaders(headers);
+        return this;
+    }
+
+    public AbstractMessageBuilder<T> setHeaders(final Iterator<Header> it) {
+        if (headerGroup == null) {
+            headerGroup = new HeaderGroup();
+        } else {
+            headerGroup.clear();
+        }
+        while (it.hasNext()) {
+            headerGroup.addHeader(it.next());
+        }
         return this;
     }
 

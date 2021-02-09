@@ -57,6 +57,24 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     private boolean absoluteRequestUri;
 
     /**
+     * Creates request message with the given method, host and request path.
+     *
+     * @param method request method.
+     * @param scheme request scheme.
+     * @param authority request authority.
+     * @param path request path.
+     *
+     * @since 5.1
+     */
+    public BasicHttpRequest(final String method, final String scheme, final URIAuthority authority, final String path) {
+        super();
+        this.method = Args.notNull(method, "Method name");
+        this.scheme = scheme;
+        this.authority = authority;
+        this.path = path;
+    }
+
+    /**
      * Creates request message with the given method and request path.
      *
      * @param method request method.

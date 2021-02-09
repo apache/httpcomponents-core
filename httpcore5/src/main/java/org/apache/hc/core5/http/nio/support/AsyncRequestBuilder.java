@@ -44,9 +44,11 @@ import org.apache.hc.core5.http.nio.AsyncRequestProducer;
 import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.support.AbstractRequestBuilder;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Builder for {@link AsyncRequestProducer} instances.
@@ -208,6 +210,24 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
     }
 
     @Override
+    public AsyncRequestBuilder setScheme(final String scheme) {
+        super.setScheme(scheme);
+        return this;
+    }
+
+    @Override
+    public AsyncRequestBuilder setAuthority(final URIAuthority authority) {
+        super.setAuthority(authority);
+        return this;
+    }
+
+    @Override
+    public AsyncRequestBuilder setPath(final String path) {
+        super.setPath(path);
+        return this;
+    }
+
+    @Override
     public AsyncRequestBuilder setHeaders(final Header... headers) {
         super.setHeaders(headers);
         return this;
@@ -304,9 +324,9 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
     }
 
     public AsyncRequestProducer build() {
-        URI uriCopy = getUri();
-        if (uriCopy == null) {
-            uriCopy = URI.create("/");
+        String path = getPath();
+        if (TextUtils.isEmpty(path)) {
+            path = "/";
         }
         AsyncEntityProducer entityProducerCopy = entityProducer;
         final String method = getMethod();
@@ -322,10 +342,11 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
                         ContentType.APPLICATION_FORM_URLENCODED);
             } else {
                 try {
-                    uriCopy = new URIBuilder(uriCopy)
+                    final URI uri = new URIBuilder(path)
                             .setCharset(charset)
                             .addParameters(parameters)
                             .build();
+                    path = uri.toASCIIString();
                 } catch (final URISyntaxException ex) {
                     // should never happen
                 }
@@ -336,7 +357,7 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
             throw new IllegalStateException(Method.TRACE + " requests may not include an entity");
         }
 
-        final BasicHttpRequest request = new BasicHttpRequest(method, uriCopy);
+        final BasicHttpRequest request = new BasicHttpRequest(method, getScheme(), getAuthority(), path);
         request.setVersion(getVersion());
         request.setHeaders(getHeaders());
         request.setAbsoluteRequestUri(isAbsoluteRequestUri());
@@ -348,10 +369,12 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
         final StringBuilder builder = new StringBuilder();
         builder.append("AsyncRequestBuilder [method=");
         builder.append(getMethod());
-        builder.append(", version=");
-        builder.append(getVersion());
-        builder.append(", uri=");
-        builder.append(getUri());
+        builder.append(", scheme=");
+        builder.append(getScheme());
+        builder.append(", authority=");
+        builder.append(getAuthority());
+        builder.append(", path=");
+        builder.append(getPath());
         builder.append(", parameters=");
         builder.append(getParameters());
         builder.append(", headerGroup=");

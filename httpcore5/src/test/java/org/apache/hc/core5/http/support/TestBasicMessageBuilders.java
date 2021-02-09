@@ -29,7 +29,10 @@ package org.apache.hc.core5.http.support;
 
 import org.apache.hc.core5.http.HeaderMatcher;
 import org.apache.hc.core5.http.HeadersMatcher;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
@@ -109,8 +112,11 @@ public class TestBasicMessageBuilders {
     @Test
     public void testRequestBasics() throws Exception {
         final BasicRequestBuilder builder = BasicRequestBuilder.get();
-        Assert.assertNull(builder.getUri());
+        Assert.assertEquals(URI.create("/"), builder.getUri());
         Assert.assertEquals("GET", builder.getMethod());
+        Assert.assertNull(builder.getScheme());
+        Assert.assertNull(builder.getAuthority());
+        Assert.assertNull(builder.getPath());
         Assert.assertNull(builder.getHeaders());
         Assert.assertNull(builder.getVersion());
         Assert.assertNull(builder.getCharset());
@@ -121,12 +127,15 @@ public class TestBasicMessageBuilders {
         Assert.assertEquals("GET", r1.getMethod());
         Assert.assertNull(r1.getScheme());
         Assert.assertNull(r1.getAuthority());
-        Assert.assertEquals("/", r1.getPath());
+        Assert.assertNull(r1.getPath());
         Assert.assertEquals(URI.create("/"), r1.getUri());
         Assert.assertNull(r1.getVersion());
 
         builder.setUri(URI.create("http://host:1234/blah?param=value"));
         builder.setVersion(HttpVersion.HTTP_1_1);
+        Assert.assertEquals("http", builder.getScheme());
+        Assert.assertEquals(new URIAuthority("host", 1234), builder.getAuthority());
+        Assert.assertEquals("/blah?param=value", builder.getPath());
         Assert.assertEquals(URI.create("http://host:1234/blah?param=value"), builder.getUri());
         Assert.assertEquals(HttpVersion.HTTP_1_1, builder.getVersion());
 
@@ -192,6 +201,39 @@ public class TestBasicMessageBuilders {
         final BasicHttpRequest r6 = builder.build();
         MatcherAssert.assertThat(r6.getHeaders("h1"), HeadersMatcher.same());
         MatcherAssert.assertThat(r6.getHeaders(), HeadersMatcher.same(new BasicHeader("h2", "v2")));
+    }
+
+    @Test
+    public void testResponseCopy() throws Exception {
+        final HttpResponse response = new BasicHttpResponse(400);
+        response.addHeader("h1", "v1");
+        response.addHeader("h1", "v2");
+        response.addHeader("h2", "v2");
+        response.setVersion(HttpVersion.HTTP_2);
+
+        final BasicResponseBuilder builder = BasicResponseBuilder.copy(response);
+        Assert.assertEquals(400, builder.getStatus());
+        Assert.assertEquals(HttpVersion.HTTP_2, builder.getVersion());
+        MatcherAssert.assertThat(builder.getHeaders(), HeadersMatcher.same(
+                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"), new BasicHeader("h2", "v2")));
+    }
+
+    @Test
+    public void testRequestCopy() throws Exception {
+        final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("https://host:3456/stuff?blah")) ;
+        request.addHeader("h1", "v1");
+        request.addHeader("h1", "v2");
+        request.addHeader("h2", "v2");
+        request.setVersion(HttpVersion.HTTP_2);
+
+        final BasicRequestBuilder builder = BasicRequestBuilder.copy(request);
+        Assert.assertEquals("GET", builder.getMethod());
+        Assert.assertEquals("https", builder.getScheme());
+        Assert.assertEquals(new URIAuthority("host", 3456), builder.getAuthority());
+        Assert.assertEquals("/stuff?blah", builder.getPath());
+        Assert.assertEquals(HttpVersion.HTTP_2, builder.getVersion());
+        MatcherAssert.assertThat(builder.getHeaders(), HeadersMatcher.same(
+                new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"), new BasicHeader("h2", "v2")));
     }
 
 }
