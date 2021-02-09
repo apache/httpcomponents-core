@@ -58,7 +58,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
 
     private final BasicHttpTransportMetrics metrics;
     private final ByteArrayBuffer buffer;
-    private final int fragementSizeHint;
+    private final int fragmentSizeHint;
     private final CharsetEncoder encoder;
 
     private ByteBuffer bbuf;
@@ -68,7 +68,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
      *
      * @param metrics HTTP transport metrics.
      * @param bufferSize buffer size. Must be a positive number.
-     * @param fragementSizeHint fragment size hint defining a minimal size of a fragment
+     * @param fragmentSizeHint fragment size hint defining a minimal size of a fragment
      *   that should be written out directly to the socket bypassing the session buffer.
      *   Value {@code 0} disables fragment buffering.
      * @param charEncoder charEncoder to be used for encoding HTTP protocol elements.
@@ -77,14 +77,14 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
     public SessionOutputBufferImpl(
             final BasicHttpTransportMetrics metrics,
             final int bufferSize,
-            final int fragementSizeHint,
+            final int fragmentSizeHint,
             final CharsetEncoder charEncoder) {
         super();
         Args.positive(bufferSize, "Buffer size");
-        Args.notNull(metrics, "HTTP transport metrcis");
+        Args.notNull(metrics, "HTTP transport metrics");
         this.metrics = metrics;
         this.buffer = new ByteArrayBuffer(bufferSize);
-        this.fragementSizeHint = fragementSizeHint >= 0 ? fragementSizeHint : bufferSize;
+        this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : bufferSize;
         this.encoder = charEncoder;
     }
 
@@ -136,7 +136,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
         // Do not want to buffer large-ish chunks
         // if the byte array is larger then MIN_CHUNK_LIMIT
         // write it directly to the output stream
-        if (len > this.fragementSizeHint || len > this.buffer.capacity()) {
+        if (len > this.fragmentSizeHint || len > this.buffer.capacity()) {
             // flush the buffer
             flushBuffer(outputStream);
             // write directly to the out stream
@@ -165,7 +165,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
     @Override
     public void write(final int b, final OutputStream outputStream) throws IOException {
         Args.notNull(outputStream, "Output stream");
-        if (this.fragementSizeHint > 0) {
+        if (this.fragmentSizeHint > 0) {
             if (this.buffer.isFull()) {
                 flushBuffer(outputStream);
             }
