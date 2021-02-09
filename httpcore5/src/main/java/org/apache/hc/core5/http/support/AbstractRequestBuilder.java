@@ -51,6 +51,7 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
     private URI uri;
     private Charset charset;
     private List<NameValuePair> parameters;
+    private boolean absoluteRequestUri;
 
     protected AbstractRequestBuilder(final String method) {
         super();
@@ -177,6 +178,15 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
         for (final NameValuePair nvp : nvps) {
             addParameter(nvp);
         }
+        return this;
+    }
+
+    public boolean isAbsoluteRequestUri() {
+        return absoluteRequestUri;
+    }
+
+    public AbstractRequestBuilder<T> setAbsoluteRequestUri(final boolean absoluteRequestUri) {
+        this.absoluteRequestUri = absoluteRequestUri;
         return this;
     }
 

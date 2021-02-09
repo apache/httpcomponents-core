@@ -258,6 +258,12 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
     }
 
     @Override
+    public BasicRequestBuilder setAbsoluteRequestUri(final boolean absoluteRequestUri) {
+        super.setAbsoluteRequestUri(absoluteRequestUri);
+        return this;
+    }
+
+    @Override
     public BasicHttpRequest build() {
         URI uri = getUri();
         final List<NameValuePair> parameters = getParameters();
@@ -274,6 +280,7 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
         final BasicHttpRequest result = new BasicHttpRequest(getMethod(), uri != null ? uri : URI.create("/"));
         result.setVersion(getVersion());
         result.setHeaders(getHeaders());
+        result.setAbsoluteRequestUri(isAbsoluteRequestUri());
         return result;
     }
 
