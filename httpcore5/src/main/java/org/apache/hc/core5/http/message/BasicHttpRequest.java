@@ -27,9 +27,6 @@
 
 package org.apache.hc.core5.http.message;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Method;
@@ -38,6 +35,9 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Basic implementation of {@link HttpRequest}.
@@ -223,10 +223,18 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     @Override
     public void setUri(final URI requestUri) {
         this.scheme = requestUri.getScheme();
-        this.authority = requestUri.getHost() != null ? new URIAuthority(
-                requestUri.getRawUserInfo(),
-                requestUri.getHost(),
-                requestUri.getPort()) : null;
+        if (requestUri.getHost() != null) {
+            this.authority = new URIAuthority(
+                    requestUri.getRawUserInfo(), requestUri.getHost(), requestUri.getPort());
+        } else if (requestUri.getRawAuthority() != null) {
+            try {
+                this.authority = URIAuthority.create(requestUri.getRawAuthority());
+            } catch (final URISyntaxException ignore) {
+                this.authority = null;
+            }
+        } else {
+            this.authority = null;
+        }
         final StringBuilder buf = new StringBuilder();
         final String rawPath = requestUri.getRawPath();
         if (!TextUtils.isBlank(rawPath)) {

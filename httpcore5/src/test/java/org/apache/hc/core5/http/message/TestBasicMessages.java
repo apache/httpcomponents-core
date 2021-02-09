@@ -27,8 +27,6 @@
 
 package org.apache.hc.core5.http.message;
 
-import java.net.URI;
-
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -37,6 +35,8 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.net.URIAuthority;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.net.URI;
 
 /**
  * Unit tests for {@link org.apache.hc.core5.http.HttpMessage}.
@@ -203,6 +203,15 @@ public class TestBasicMessages {
         Assert.assertEquals("stuff", request.getPath());
         Assert.assertEquals(new URIAuthority("somehost"), request.getAuthority());
         Assert.assertEquals(new URI("http://somehost/stuff"), request.getUri());
+    }
+
+    @Test
+    public void testRequestHostWithReservedChars() throws Exception {
+        final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://someuser%21@%21example%21.com/stuff"));
+        Assert.assertEquals(Method.GET.name(), request.getMethod());
+        Assert.assertEquals("/stuff", request.getPath());
+        Assert.assertEquals(new URIAuthority("someuser%21", "%21example%21.com", -1), request.getAuthority());
+        Assert.assertEquals(new URI("http://%21example%21.com/stuff"), request.getUri());
     }
 
 }
