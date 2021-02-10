@@ -44,8 +44,8 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.PosixParser;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
@@ -92,7 +92,7 @@ public class HttpBenchmark {
     public static void main(final String[] args) throws Exception {
 
         final Options options = CommandLineUtils.getOptions();
-        final CommandLineParser parser = new PosixParser();
+        final CommandLineParser parser = new DefaultParser();
         final CommandLine cmd = parser.parse(options, args);
 
         if (args.length == 0 || cmd.hasOption('h') || cmd.getArgs().length != 1) {

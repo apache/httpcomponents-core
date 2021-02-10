@@ -422,7 +422,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     private int getMax(final T route) {
         final Integer v = this.maxPerRoute.get(route);
         if (v != null) {
-            return v.intValue();
+            return v;
         }
         return this.defaultMaxPerRoute;
     }
@@ -475,7 +475,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         this.lock.lock();
         try {
             if (max > -1) {
-                this.maxPerRoute.put(route, Integer.valueOf(max));
+                this.maxPerRoute.put(route, max);
             } else {
                 this.maxPerRoute.remove(route);
             }
