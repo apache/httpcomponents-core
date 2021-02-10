@@ -62,8 +62,8 @@ public class Args {
     public static int checkRange(final int value, final int lowInclusive, final int highInclusive,
                     final String message) {
         if (value < lowInclusive || value > highInclusive) {
-            throw illegalArgumentException("%s: %d is out of range [%d, %d]", message, Integer.valueOf(value),
-                            Integer.valueOf(lowInclusive), Integer.valueOf(highInclusive));
+            throw illegalArgumentException("%s: %d is out of range [%d, %d]", message, value,
+                    lowInclusive, highInclusive);
         }
         return value;
     }
@@ -71,8 +71,8 @@ public class Args {
     public static long checkRange(final long value, final long lowInclusive, final long highInclusive,
                     final String message) {
         if (value < lowInclusive || value > highInclusive) {
-            throw illegalArgumentException("%s: %d is out of range [%d, %d]", message, Long.valueOf(value),
-                            Long.valueOf(lowInclusive), Long.valueOf(highInclusive));
+            throw illegalArgumentException("%s: %d is out of range [%d, %d]", message, value,
+                    lowInclusive, highInclusive);
         }
         return value;
     }

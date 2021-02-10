@@ -47,7 +47,7 @@ import java.util.List;
  */
 public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T> {
 
-    private String method;
+    final private String method;
     private URI uri;
     private Charset charset;
     private List<NameValuePair> parameters;

@@ -29,7 +29,6 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -99,8 +98,7 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
 
     private void writeOutPreface(final IOSession session) throws IOException  {
         if (preface.hasRemaining()) {
-            final ByteChannel channel = session;
-            channel.write(preface);
+            session.write(preface);
         }
         if (!preface.hasRemaining()) {
             session.clearEvent(SelectionKey.OP_WRITE);
