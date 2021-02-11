@@ -54,6 +54,8 @@ public interface HttpFilterHandler {
      * @param responseTrigger the response trigger.
      * @param context the actual execution context.
      * @param chain the next element in the request processing chain.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void handle(
             ClassicHttpRequest request,

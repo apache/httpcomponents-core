@@ -53,6 +53,8 @@ public interface HttpFilterChain {
          * Sends an intermediate informational HTTP response to the client.
          *
          * @param response an intermediate (1xx) HTTP response.
+         * @throws IOException in case of an I/O error
+         * @throws HttpException in case of HTTP protocol violation
          */
         void sendInformation(ClassicHttpResponse response) throws HttpException, IOException;
 
@@ -60,6 +62,8 @@ public interface HttpFilterChain {
          * Sends a final HTTP response to the client.
          *
          * @param response a final (non 1xx) HTTP response.
+         * @throws IOException in case of an I/O error
+         * @throws HttpException in case of HTTP protocol violation
          */
         void submitResponse(ClassicHttpResponse response) throws HttpException, IOException;
 
@@ -71,6 +75,8 @@ public interface HttpFilterChain {
      * @param request the actual request.
      * @param responseTrigger the response trigger.
      * @param context the actual execution context.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void proceed(
             ClassicHttpRequest request,

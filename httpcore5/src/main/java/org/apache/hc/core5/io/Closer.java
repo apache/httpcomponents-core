@@ -41,7 +41,7 @@ public final class Closer {
      * Closes the given Closeable in a null-safe manner.
      *
      * @param closeable what to close.
-     * @throws IOException
+     * @throws IOException if an error occurs closing the stream
      */
     public static void close(final Closeable closeable) throws IOException {
         if (closeable != null) {

@@ -41,6 +41,15 @@ public class DefaultThreadFactory implements ThreadFactory {
     private final AtomicLong count;
     private final boolean daemon;
 
+    /**
+     * <p>
+     * Public constructor allows an instance of {@code DefaultThreadFactory} to be created.
+     * </p>
+     *
+     * @param namePrefix the prefix name
+     * @param group the {@link ThreadGroup}
+     * @param daemon {@code true} if should be considered a daemon.
+     */
     public DefaultThreadFactory(final String namePrefix, final ThreadGroup group, final boolean daemon) {
         this.namePrefix = namePrefix;
         this.group = group;
@@ -48,10 +57,25 @@ public class DefaultThreadFactory implements ThreadFactory {
         this.count = new AtomicLong();
     }
 
+    /**
+     * <p>
+     * Public constructor allows an instance of {@code DefaultThreadFactory} to be created.
+     * </p>
+     *
+     * @param namePrefix the prefix name
+     * @param daemon {@code true} if should be considered a daemon.
+     */
     public DefaultThreadFactory(final String namePrefix, final boolean daemon) {
         this(namePrefix, null, daemon);
     }
 
+    /**
+     * <p>
+     * Public constructor allows an instance of {@code DefaultThreadFactory} to be created.
+     * </p>
+     *
+     * @param namePrefix the prefix name
+     */
     public DefaultThreadFactory(final String namePrefix) {
         this(namePrefix, null, false);
     }

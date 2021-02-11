@@ -206,7 +206,7 @@ public class ServerBootstrap {
      * Registers the given {@link HttpRequestHandler} as a handler for URIs
      * matching the given host and the pattern.
      *
-     * @param hostname
+     * @param hostname the server name.
      * @param uriPattern the pattern to register the handler for.
      * @param requestHandler the handler.
      */

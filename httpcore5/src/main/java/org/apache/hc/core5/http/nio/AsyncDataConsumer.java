@@ -46,6 +46,7 @@ public interface AsyncDataConsumer extends ResourceHolder {
      * immediately inside the call or asynchronously at some later point.
      *
      * @param capacityChannel the channel for capacity updates.
+     * @throws IOException in case of an I/O error
      */
     void updateCapacity(CapacityChannel capacityChannel) throws IOException;
 
@@ -58,6 +59,7 @@ public interface AsyncDataConsumer extends ResourceHolder {
      * information on the capacity channel.
      *
      * @param src data source.
+     * @throws IOException in case of an I/O error
      */
     void consume(ByteBuffer src) throws IOException;
 
@@ -65,6 +67,8 @@ public interface AsyncDataConsumer extends ResourceHolder {
      * Triggered to signal termination of the data stream.
      *
      * @param trailers data stream trailers.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void streamEnd(List<? extends Header> trailers) throws HttpException, IOException;
 

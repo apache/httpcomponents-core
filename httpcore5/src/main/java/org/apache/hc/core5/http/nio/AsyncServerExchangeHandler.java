@@ -51,6 +51,8 @@ public interface AsyncServerExchangeHandler extends AsyncDataExchangeHandler {
      *                      does not enclose an entity.
      * @param responseChannel the response channel.
      * @param context the actual execution context.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void handleRequest(
             HttpRequest request,

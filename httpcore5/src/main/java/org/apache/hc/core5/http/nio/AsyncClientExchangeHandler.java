@@ -49,6 +49,8 @@ public interface AsyncClientExchangeHandler extends AsyncDataExchangeHandler {
      *
      * @param channel the request channel capable to accepting a request message.
      * @param context the actual execution context.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void produceRequest(RequestChannel channel, HttpContext context) throws HttpException, IOException;
 
@@ -59,6 +61,8 @@ public interface AsyncClientExchangeHandler extends AsyncDataExchangeHandler {
      * @param entityDetails the response entity details or {@code null} if the response
      *                      does not enclose an entity.
      * @param context the actual execution context.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void consumeResponse(HttpResponse response, EntityDetails entityDetails, HttpContext context) throws HttpException, IOException;
 
@@ -67,6 +71,8 @@ public interface AsyncClientExchangeHandler extends AsyncDataExchangeHandler {
      *
      * @param response the intermediate (1xx) HTTP response.
      * @param context the actual execution context.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void consumeInformation(HttpResponse response, HttpContext context) throws HttpException, IOException;
 

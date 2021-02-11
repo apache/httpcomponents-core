@@ -57,61 +57,97 @@ class IncomingHttpEntity implements HttpEntity {
         this.contentEncoding = contentEncoding;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isRepeatable() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isChunked() {
         return chunked;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public long getContentLength() {
         return len;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getContentType() {
         return contentType != null ? contentType.getValue() : null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getContentEncoding() {
         return contentEncoding != null ? contentEncoding.getValue() : null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public InputStream getContent() throws IOException, IllegalStateException {
         return content;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isStreaming() {
         return content != null && content != EmptyInputStream.INSTANCE;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void writeTo(final OutputStream outStream) throws IOException {
         AbstractHttpEntity.writeTo(this, outStream);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Supplier<List<? extends Header>> getTrailers() {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<String> getTrailerNames() {
         return Collections.emptySet();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() throws IOException {
         Closer.close(content);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder();

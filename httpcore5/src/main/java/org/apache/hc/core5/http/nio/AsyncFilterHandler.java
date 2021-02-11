@@ -61,6 +61,8 @@ public interface AsyncFilterHandler {
      * @param chain the next element in the request processing chain.
      * @return the data consumer to be used to process incoming request data. It is
      *  expected to be {@code null} if entityDetails parameter is {@code null}.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     AsyncDataConsumer handle(
             HttpRequest request,

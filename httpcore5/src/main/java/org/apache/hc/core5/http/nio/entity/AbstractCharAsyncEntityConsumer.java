@@ -61,6 +61,8 @@ public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDat
      * Triggered to signal beginning of entity content stream.
      *
      * @param contentType the entity content type
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     protected abstract void streamStart(ContentType contentType) throws HttpException, IOException;
 
@@ -68,6 +70,7 @@ public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDat
      * Triggered to generate entity representation.
      *
      * @return the entity content
+     * @throws IOException in case of an I/O error
      */
     protected abstract T generateContent() throws IOException;
 

@@ -46,6 +46,8 @@ public interface AsyncEntityConsumer<T> extends AsyncDataConsumer {
      *
      * @param entityDetails the details of the incoming message entity.
      * @param resultCallback the result callback.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void streamStart(EntityDetails entityDetails, FutureCallback<T> resultCallback) throws HttpException, IOException;
 

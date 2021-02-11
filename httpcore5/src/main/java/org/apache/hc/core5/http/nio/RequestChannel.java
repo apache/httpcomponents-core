@@ -52,6 +52,8 @@ public interface RequestChannel {
      * @param request the outgoing request.
      * @param entityDetails the details of the entity enclosed in the request
      * @param context the actual execution context.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void sendRequest(HttpRequest request, EntityDetails entityDetails, HttpContext context) throws HttpException, IOException;
 

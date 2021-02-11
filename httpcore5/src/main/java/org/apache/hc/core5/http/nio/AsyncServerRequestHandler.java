@@ -62,6 +62,8 @@ public interface AsyncServerRequestHandler<T> {
          *
          * @param response the intermediate (1xx) HTTP response
          * @param context the actual execution context.
+         * @throws IOException in case of an I/O error
+         * @throws HttpException in case of HTTP protocol violation
          */
         void sendInformation(HttpResponse response, HttpContext context) throws HttpException, IOException;
 
@@ -70,6 +72,8 @@ public interface AsyncServerRequestHandler<T> {
          *
          * @param responseProducer the HTTP response message producer.
          * @param context the actual execution context.
+         * @throws IOException in case of an I/O error
+         * @throws HttpException in case of HTTP protocol violation
          */
         void submitResponse(AsyncResponseProducer responseProducer, HttpContext context) throws HttpException, IOException;
 
@@ -79,6 +83,8 @@ public interface AsyncServerRequestHandler<T> {
          * @param promise the request message header used as a promise.
          * @param context the actual execution context.
          * @param responseProducer the push response message producer.
+         * @throws IOException in case of an I/O error
+         * @throws HttpException in case of HTTP protocol violation
          */
         void pushPromise(HttpRequest promise, HttpContext context, AsyncPushProducer responseProducer) throws HttpException, IOException;
 
@@ -94,6 +100,7 @@ public interface AsyncServerRequestHandler<T> {
      *                      does not enclose an entity.
      * @param context the actual execution context.
      * @return the request handler.
+     * @throws HttpException in case of HTTP protocol violation
      */
     AsyncRequestConsumer<T> prepare(HttpRequest request, EntityDetails entityDetails, HttpContext context) throws HttpException;
 
@@ -105,6 +112,8 @@ public interface AsyncServerRequestHandler<T> {
      * @param requestObject the request object.
      * @param responseTrigger the response trigger.
      * @param context the actual execution context.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void handle(T requestObject, ResponseTrigger responseTrigger, HttpContext context) throws HttpException, IOException;
 

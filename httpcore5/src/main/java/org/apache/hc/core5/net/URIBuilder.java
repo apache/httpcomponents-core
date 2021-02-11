@@ -109,7 +109,7 @@ public class URIBuilder {
 
     /**
      * Construct an instance from the provided URI.
-     * @param uri
+     * @param uri a valid Uniform Resource Identifier (URI) reference
      */
     public URIBuilder(final URI uri) {
         this(uri, StandardCharsets.UTF_8);
@@ -127,7 +127,7 @@ public class URIBuilder {
 
     /**
      * Construct an instance from the provided URI.
-     * @param uri
+     * @param uri a valid Uniform Resource Identifier (URI) reference
      */
     public URIBuilder(final URI uri, final Charset charset) {
         super();
@@ -371,7 +371,7 @@ public class URIBuilder {
     /**
      * Sets the URI scheme specific part.
      *
-     * @param schemeSpecificPart
+     * @param schemeSpecificPart the schema-specific {@code String}
      * @return this.
      * @since 5.1
      */
@@ -383,7 +383,7 @@ public class URIBuilder {
     /**
      * Sets the URI scheme specific part and append a variable arguments list of NameValuePair instance(s) to this part.
      *
-     * @param schemeSpecificPart
+     * @param schemeSpecificPart the schema-specific {@code String}
      * @param nvps Optional, can be null. Variable arguments list of NameValuePair query parameters to be reused by the specific scheme part
      * @return this.
      * @since 5.1
@@ -395,7 +395,7 @@ public class URIBuilder {
     /**
      * Sets the URI scheme specific part and append a list of NameValuePair to this part.
      *
-     * @param schemeSpecificPart
+     * @param schemeSpecificPart the schema-specific {@code String}
      * @param nvps Optional, can be null. List of query parameters to be reused by the specific scheme part
      * @return this.
      * @since 5.1

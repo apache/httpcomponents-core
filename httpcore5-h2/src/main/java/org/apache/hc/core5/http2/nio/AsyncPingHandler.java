@@ -49,6 +49,8 @@ public interface AsyncPingHandler {
      * Triggered to signal receipt of a ping response message.
      *
      * @param feedback the ping message feedback.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void consumeResponse(ByteBuffer feedback) throws HttpException, IOException;
 

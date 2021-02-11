@@ -64,44 +64,104 @@ public final class ContentType implements Serializable {
     private static final long serialVersionUID = -7768694718232371896L;
 
     // constants
+    /**
+     *  Public constant content type for {@code application/atom+xml}.
+     */
     public static final ContentType APPLICATION_ATOM_XML = create(
             "application/atom+xml", StandardCharsets.UTF_8);
+    /**
+     *  Public constant content type for {@code application/x-www-form-urlencoded}.
+     */
     public static final ContentType APPLICATION_FORM_URLENCODED = create(
             "application/x-www-form-urlencoded", StandardCharsets.ISO_8859_1);
+    /**
+     *  Public constant content type for {@code application/json}.
+     */
     public static final ContentType APPLICATION_JSON = create(
             "application/json", StandardCharsets.UTF_8);
+    /**
+     *  Public constant content type for {@code application/octet-stream}.
+     */
     public static final ContentType APPLICATION_OCTET_STREAM = create(
             "application/octet-stream", (Charset) null);
+    /**
+     *  Public constant content type for {@code application/soap+xml}.
+     */
     public static final ContentType APPLICATION_SOAP_XML = create(
             "application/soap+xml", StandardCharsets.UTF_8);
+    /**
+     *  Public constant content type for {@code application/svg+xml}.
+     */
     public static final ContentType APPLICATION_SVG_XML = create(
             "application/svg+xml", StandardCharsets.UTF_8);
+    /**
+     *  Public constant content type for {@code application/xhtml+xml}.
+     */
     public static final ContentType APPLICATION_XHTML_XML = create(
             "application/xhtml+xml", StandardCharsets.UTF_8);
+    /**
+     *  Public constant content type for {@code application/xml}.
+     */
     public static final ContentType APPLICATION_XML = create(
             "application/xml", StandardCharsets.UTF_8);
+    /**
+     *  Public constant content type for {@code image/bmp}.
+     */
     public static final ContentType IMAGE_BMP = create(
             "image/bmp");
+    /**
+     *  Public constant content type for {@code image/gif}.
+     */
     public static final ContentType IMAGE_GIF = create(
             "image/gif");
+    /**
+     *  Public constant content type for {@code image/jpeg}.
+     */
     public static final ContentType IMAGE_JPEG = create(
             "image/jpeg");
+    /**
+     *  Public constant content type for {@code image/png}.
+     */
     public static final ContentType IMAGE_PNG = create(
             "image/png");
+    /**
+     *  Public constant content type for {@code svg+xml}.
+     */
     public static final ContentType IMAGE_SVG = create(
             "image/svg+xml");
+    /**
+     *  Public constant content type for {@code tiff}.
+     */
     public static final ContentType IMAGE_TIFF = create(
             "image/tiff");
+    /**
+     *  Public constant content type for {@code image/webp}.
+     */
     public static final ContentType IMAGE_WEBP = create(
             "image/webp");
+    /**
+     *  Public constant content type for {@code multipart/form-data}.
+     */
     public static final ContentType MULTIPART_FORM_DATA = create(
             "multipart/form-data", StandardCharsets.ISO_8859_1);
+    /**
+     *  Public constant content type for {@code text/html}.
+     */
     public static final ContentType TEXT_HTML = create(
             "text/html", StandardCharsets.ISO_8859_1);
+    /**
+     *  Public constant content type for {@code text/plain}.
+     */
     public static final ContentType TEXT_PLAIN = create(
             "text/plain", StandardCharsets.ISO_8859_1);
+    /**
+     *  Public constant content type for {@code text/xml}.
+     */
     public static final ContentType TEXT_XML = create(
             "text/xml", StandardCharsets.UTF_8);
+    /**
+     *  Public constant content type for {@code "&#42;/&#42;"}.
+     */
     public static final ContentType WILDCARD = create(
             "*/*", (Charset) null);
 
@@ -391,7 +451,7 @@ public final class ContentType implements Serializable {
     /**
      * Creates a new instance with this MIME type and the given parameters.
      *
-     * @param params
+     * @param params Variable arguments list of Content Type param
      * @return a new instance with this MIME type and the given parameters.
      * @since 4.4
      */

@@ -37,13 +37,14 @@ public interface CancellableDependency extends Cancellable {
     /**
      * Sets {@link Cancellable} dependency on another ongoing process or
      * operation represented by {@link Cancellable}.
+     * @param Cancellable the {@link Cancellable} dependency on another ongoing process or operation
      */
-    void setDependency(Cancellable cancellable);
+    void setDependency(Cancellable Cancellable);
 
     /**
      * Determines whether the process or operation has been cancelled.
      *
-     * @return cancelled flag.
+     * @return {@code true} if should be considered cancelled.
      */
     boolean isCancelled();
 

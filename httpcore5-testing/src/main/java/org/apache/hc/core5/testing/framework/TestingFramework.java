@@ -178,7 +178,7 @@ public class TestingFramework {
      * This is not likely to be used except during the testing of this class.
      * It is used to inject a mocked request handler.
      *
-     * @param requestHandler
+     * @param requestHandler the {@link TestingFrameworkRequestHandler}.
      */
     public void setRequestHandler(final TestingFrameworkRequestHandler requestHandler) {
         this.requestHandler = requestHandler;
@@ -396,7 +396,7 @@ public class TestingFramework {
     /**
      * Sets the {@link ClientTestingAdapter}.
      *
-     * @param adapter
+     * @param adapter sets the {@link ClientTestingAdapter}.
      */
     public void setAdapter(final ClientTestingAdapter adapter) {
         this.adapter = adapter;
@@ -412,7 +412,7 @@ public class TestingFramework {
     /**
      * Call to add a test with defaults.
      *
-     * @throws TestingFrameworkException
+     * @throws TestingFrameworkException if there is a test failure or unexpected problem.
      */
     public void addTest() throws TestingFrameworkException {
         addTest(null);
@@ -423,7 +423,7 @@ public class TestingFramework {
      * See {@link ClientPOJOAdapter} for details on the format of the request and response.
      *
      * @param test Map with a REQUEST and a RESPONSE key.
-     * @throws TestingFrameworkException
+     * @throws TestingFrameworkException if there is a test failure or unexpected problem.
      */
     @SuppressWarnings("unchecked")
     public void addTest(final Map<String, Object> test) throws TestingFrameworkException {
@@ -438,7 +438,7 @@ public class TestingFramework {
      *
      * @param orig a serializable object.
      * @return a deep copy of the orig object.
-     * @throws TestingFrameworkException
+     * @throws TestingFrameworkException if there is a test failure or unexpected problem.
      */
     public static Object deepcopy(final Object orig) throws TestingFrameworkException {
         try {

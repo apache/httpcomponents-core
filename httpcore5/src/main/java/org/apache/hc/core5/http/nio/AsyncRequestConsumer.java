@@ -52,6 +52,8 @@ public interface AsyncRequestConsumer<T> extends AsyncDataConsumer {
      * @param context the actual execution context.
      * @param resultCallback the result callback called when request processing
      *                       has been completed successfully or unsuccessfully.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void consumeRequest(HttpRequest request, EntityDetails entityDetails, HttpContext context,
                         FutureCallback<T> resultCallback) throws HttpException, IOException;

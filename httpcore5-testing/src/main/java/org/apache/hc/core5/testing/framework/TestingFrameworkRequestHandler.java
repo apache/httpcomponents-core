@@ -66,7 +66,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
      * Sets the request expectations.
      *
      * @param requestExpectations the expected values of the request.
-     * @throws TestingFrameworkException
+     * @throws TestingFrameworkException if there is a test failure or unexpected problem.
      */
     @SuppressWarnings("unchecked")
     public void setRequestExpectations(final Map<String, Object> requestExpectations) throws TestingFrameworkException {
@@ -77,7 +77,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
      * Sets the desired response.  The handler will return a response that matches this.
      *
      * @param desiredResponse the desired response.
-     * @throws TestingFrameworkException
+     * @throws TestingFrameworkException if there is a test failure or unexpected problem.
      */
     @SuppressWarnings("unchecked")
     public void setDesiredResponse(final Map<String, Object> desiredResponse) throws TestingFrameworkException {
@@ -89,7 +89,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
      * in the member called "thrown".  A testing framework can later call this method
      * which will rethrow the exception that was thrown before.
      *
-     * @throws TestingFrameworkException
+     * @throws TestingFrameworkException previously passed called "thrown". May be null
      */
     public void assertNothingThrown() throws TestingFrameworkException {
         if (thrown != null) {

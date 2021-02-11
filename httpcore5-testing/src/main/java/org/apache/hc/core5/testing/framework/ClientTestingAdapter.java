@@ -44,6 +44,11 @@ public class ClientTestingAdapter {
      */
     protected boolean callAssertNothingThrown;
 
+    /**
+     * <p>
+     * Public constructor allows an instance of {@code ClientTestingAdapter} to be created.
+     * </p>
+     */
     public ClientTestingAdapter() {
     }
 

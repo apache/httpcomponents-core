@@ -54,6 +54,8 @@ public interface AsyncFilterChain {
          * Sends an intermediate informational HTTP response to the client.
          *
          * @param response the intermediate (1xx) HTTP response.
+         * @throws IOException in case of an I/O error
+         * @throws HttpException in case of HTTP protocol violation
          */
         void sendInformation(HttpResponse response) throws HttpException, IOException;
 
@@ -61,6 +63,8 @@ public interface AsyncFilterChain {
          * Sends a final HTTP response to the client.
          *
          * @param response the final (non 1xx) HTTP response.
+         * @throws IOException in case of an I/O error
+         * @throws HttpException in case of HTTP protocol violation
          */
         void submitResponse(HttpResponse response, AsyncEntityProducer entityProducer) throws HttpException, IOException;
 
@@ -69,6 +73,8 @@ public interface AsyncFilterChain {
          *
          * @param promise the request message header used as a promise.
          * @param responseProducer the push response message producer.
+         * @throws IOException in case of an I/O error
+         * @throws HttpException in case of HTTP protocol violation
          */
         void pushPromise(HttpRequest promise, AsyncPushProducer responseProducer) throws HttpException, IOException;
 
@@ -82,6 +88,8 @@ public interface AsyncFilterChain {
      *                      does not enclose an entity.
      * @param responseTrigger the response trigger.
      * @param context the actual execution context.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     AsyncDataConsumer proceed(
             HttpRequest request,

@@ -46,6 +46,8 @@ public interface AsyncRequestProducer extends AsyncDataProducer {
      *
      * @param channel the request channel capable to accepting a request message.
      * @param context the actual execution context.
+     * @throws IOException in case of an I/O error
+     * @throws HttpException in case of HTTP protocol violation
      */
     void sendRequest(RequestChannel channel, HttpContext context) throws HttpException, IOException;
 

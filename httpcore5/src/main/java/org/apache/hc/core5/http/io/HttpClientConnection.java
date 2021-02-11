@@ -67,8 +67,8 @@ public interface HttpClientConnection extends BHttpConnection {
      * the connection in a inconsistent state.
      *
      * @param request the request to be terminated prematurely.
-     * @throws HttpException
-     * @throws IOException
+     * @throws HttpException if an error occurs reading the {@link org.apache.hc.core5.http.HttpMessage}
+     * @throws IOException if an error occurs reading the stream
      *
      * @see #isConsistent()
      *

@@ -41,22 +41,58 @@ import org.apache.hc.core5.util.TimeValue;
  */
 public interface ConnPoolControl<T> extends ConnPoolStats<T> {
 
+    /**
+     * <p>Set the maximum number of allowed connections.
+     * @param max the maximum number of allowed connections.
+     */
     void setMaxTotal(int max);
 
+    /**
+     * Gets the maximum number of allowed connections.
+     *
+     * @return the maximum number of allowed connections.
+     */
     int getMaxTotal();
 
+    /**
+     * Set The maximum number of connections allowed across all routes.
+     * @param max The maximum number of connections allowed across all routes.
+     */
     void setDefaultMaxPerRoute(int max);
 
+    /**
+     * Get The maximum number of connections allowed across all routes.
+     * @return The maximum number of connections allowed across all routes.
+     */
     int getDefaultMaxPerRoute();
 
+    /**
+     * Set The maximum number of connections allowed per route.
+     * @param route the http route
+     * @param max The maximum number of connections allowed per route.
+     */
     void setMaxPerRoute(final T route, int max);
 
+    /**
+     * Get The maximum number of connections allowed per route.
+     * @return the route with maximum number of connections allowed per route.
+     */
     int getMaxPerRoute(final T route);
 
+    /**
+     * Closes connections that have been idle longer than the given period of time them from the pool.
+     * @param idleTime the period of idle time.
+     */
     void closeIdle(TimeValue idleTime);
 
+    /**
+     * Closes expired connections from the pool.
+     */
     void closeExpired();
 
+    /**
+     * Returns all knows routes.
+     */
     Set<T> getRoutes();
 
 }

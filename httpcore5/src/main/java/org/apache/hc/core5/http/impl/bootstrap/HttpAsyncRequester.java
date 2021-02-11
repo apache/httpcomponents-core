@@ -117,46 +117,73 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         return connPool.getStats(route);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setMaxTotal(final int max) {
         connPool.setMaxTotal(max);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getMaxTotal() {
         return connPool.getMaxTotal();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setDefaultMaxPerRoute(final int max) {
         connPool.setDefaultMaxPerRoute(max);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getDefaultMaxPerRoute() {
         return connPool.getDefaultMaxPerRoute();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setMaxPerRoute(final HttpHost route, final int max) {
         connPool.setMaxPerRoute(route, max);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getMaxPerRoute(final HttpHost route) {
         return connPool.getMaxPerRoute(route);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void closeIdle(final TimeValue idleTime) {
         connPool.closeIdle(idleTime);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void closeExpired() {
         connPool.closeExpired();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<HttpHost> getRoutes() {
         return connPool.getRoutes();
