@@ -35,7 +35,7 @@
   <name>Apache HttpComponents Core Reactive Extensions</name>
   <description>Apache HttpComponents Reactive Streams Bindings</description>
   <url>https://hc.apache.org/httpcomponents-core-5.0.x/</url>
-  <packaging>jar</packaging>
+  <packaging>bundle</packaging>
 
   <properties>
     <Automatic-Module-Name>org.apache.httpcomponents.core5.httpcore5.reactive</Automatic-Module-Name>
@@ -64,6 +64,16 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+  </build>
 
   <reporting>
     <plugins>
