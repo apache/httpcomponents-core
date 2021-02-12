@@ -109,6 +109,13 @@ public final class ContentType implements Serializable {
             "text/plain", StandardCharsets.ISO_8859_1);
     public static final ContentType TEXT_XML = create(
             "text/xml", StandardCharsets.UTF_8);
+    /**
+     * Public constant media type for {@code text/event-stream}.
+     * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events W3C recommendation</a>
+     * @since 5.1
+     */
+    public static final String TEXT_EVENT_STREAM = "text/event-stream";
+
     public static final ContentType WILDCARD = create(
             "*/*", (Charset) null);
 
