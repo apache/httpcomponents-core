@@ -80,6 +80,13 @@ public final class ContentType implements Serializable {
             "application/xhtml+xml", StandardCharsets.UTF_8);
     public static final ContentType APPLICATION_XML = create(
             "application/xml", StandardCharsets.UTF_8);
+    /**
+     * Public constant media type for {@code application/problem+json}.
+     * @see <a href="https://tools.ietf.org/html/rfc7807#section-6.1">Problem Details for HTTP APIs, 6.1. application/problem+json</a>
+     * @since 5.1
+     */
+    public static final ContentType APPLICATION_PROBLEM_JSON = create(
+            "application/problem+json", StandardCharsets.UTF_8);
     public static final ContentType IMAGE_BMP = create(
             "image/bmp");
     public static final ContentType IMAGE_GIF = create(
