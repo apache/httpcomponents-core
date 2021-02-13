@@ -63,6 +63,11 @@ public final class ContentType implements Serializable {
 
     private static final long serialVersionUID = -7768694718232371896L;
 
+    /**
+     * Param that represent {@code charset} constant.
+     */
+    private static final String CHARSET = "charset";
+
     // constants
     public static final ContentType APPLICATION_ATOM_XML = create(
             "application/atom+xml", StandardCharsets.UTF_8);
@@ -70,8 +75,23 @@ public final class ContentType implements Serializable {
             "application/x-www-form-urlencoded", StandardCharsets.ISO_8859_1);
     public static final ContentType APPLICATION_JSON = create(
             "application/json", StandardCharsets.UTF_8);
+
+    /**
+     * Public constant media type for {@code application/x-ndjson}.
+     * @since 5.1
+     */
+    public static final ContentType APPLICATION_NDJSON = create(
+            "application/x-ndjson", StandardCharsets.UTF_8);
+
     public static final ContentType APPLICATION_OCTET_STREAM = create(
             "application/octet-stream", (Charset) null);
+    /**
+     * Public constant media type for {@code application/pdf}.
+     * @since 5.1
+     */
+    public static final ContentType APPLICATION_PDF = create(
+            "application/pdf", StandardCharsets.UTF_8);
+
     public static final ContentType APPLICATION_SOAP_XML = create(
             "application/soap+xml", StandardCharsets.UTF_8);
     public static final ContentType APPLICATION_SVG_XML = create(
@@ -87,6 +107,21 @@ public final class ContentType implements Serializable {
      */
     public static final ContentType APPLICATION_PROBLEM_JSON = create(
             "application/problem+json", StandardCharsets.UTF_8);
+    /**
+     * Public constant media type for {@code application/problem+xml}.
+     * @see <a href="https://tools.ietf.org/html/rfc7807#section-6.2">Problem Details for HTTP APIs, 6.2. application/problem+xml</a>
+     * @since 5.1
+     */
+    public static final ContentType APPLICATION_PROBLEM_XML = create(
+            "application/problem+xml", StandardCharsets.UTF_8);
+
+    /**
+     * Public constant media type for {@code application/rss+xml}.
+     * @since 5.1
+     */
+    public static final ContentType APPLICATION_RSS_XML = create(
+            "application/rss+xml", StandardCharsets.UTF_8);
+
     public static final ContentType IMAGE_BMP = create(
             "image/bmp");
     public static final ContentType IMAGE_GIF = create(
@@ -103,8 +138,31 @@ public final class ContentType implements Serializable {
             "image/webp");
     public static final ContentType MULTIPART_FORM_DATA = create(
             "multipart/form-data", StandardCharsets.ISO_8859_1);
+
+    /**
+     * Public constant media type for {@code multipart/mixed}.
+     * @since 5.1
+     */
+    public static final ContentType MULTIPART_MIXED = create(
+            "multipart/mixed", StandardCharsets.ISO_8859_1);
+
+    /**
+     * Public constant media type for {@code multipart/related}.
+     * @since 5.1
+     */
+    public static final ContentType MULTIPART_RELATED = create(
+            "multipart/related", StandardCharsets.ISO_8859_1);
+
     public static final ContentType TEXT_HTML = create(
             "text/html", StandardCharsets.ISO_8859_1);
+
+    /**
+     * Public constant media type for {@code text/markdown}.
+     * @since 5.1
+     */
+    public static final ContentType TEXT_MARKDOWN = create(
+            "text/markdown", StandardCharsets.UTF_8);
+
     public static final ContentType TEXT_PLAIN = create(
             "text/plain", StandardCharsets.ISO_8859_1);
     public static final ContentType TEXT_XML = create(
@@ -114,7 +172,8 @@ public final class ContentType implements Serializable {
      * @see <a href="https://www.w3.org/TR/eventsource/">Server-Sent Events W3C recommendation</a>
      * @since 5.1
      */
-    public static final String TEXT_EVENT_STREAM = "text/event-stream";
+    public static final ContentType TEXT_EVENT_STREAM = create(
+            "text/event-stream", StandardCharsets.UTF_8);
 
     public static final ContentType WILDCARD = create(
             "*/*", (Charset) null);
@@ -123,7 +182,6 @@ public final class ContentType implements Serializable {
      * An empty immutable {@code NameValuePair} array.
      */
     private static final NameValuePair[] EMPTY_NAME_VALUE_PAIR_ARRAY = new NameValuePair[0];
-
 
     /**
      * @deprecated To be removed in 6.0
@@ -287,7 +345,7 @@ public final class ContentType implements Serializable {
         Charset charset = null;
         if (params != null) {
             for (final NameValuePair param : params) {
-                if (param.getName().equalsIgnoreCase("charset")) {
+                if (param.getName().equalsIgnoreCase(CHARSET)) {
                     final String s = param.getValue();
                     if (!TextUtils.isBlank(s)) {
                         try {
@@ -424,8 +482,8 @@ public final class ContentType implements Serializable {
             paramMap.put(param.getName(), param.getValue());
         }
         final List<NameValuePair> newParams = new ArrayList<>(paramMap.size() + 1);
-        if (this.charset != null && !paramMap.containsKey("charset")) {
-            newParams.add(new BasicNameValuePair("charset", this.charset.name()));
+        if (this.charset != null && !paramMap.containsKey(CHARSET)) {
+            newParams.add(new BasicNameValuePair(CHARSET, this.charset.name()));
         }
         for (final Map.Entry<String, String> entry: paramMap.entrySet()) {
             newParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
