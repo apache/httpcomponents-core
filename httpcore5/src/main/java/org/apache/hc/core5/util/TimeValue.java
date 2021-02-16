@@ -28,7 +28,10 @@
 package org.apache.hc.core5.util;
 
 import java.text.ParseException;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -142,10 +145,40 @@ public class TimeValue implements Comparable<TimeValue> {
      *
      * @param duration the time duration in the given {@code timeUnit}.
      * @param timeUnit the time unit for the given duration.
-     * @return a Timeout
+     * @return a Timeout.
      */
     public static TimeValue of(final long duration, final TimeUnit timeUnit) {
         return new TimeValue(duration, timeUnit);
+    }
+
+    /**
+     * Creates a TimeValue from a Duration.
+     *
+     * @param duration the time duration in the given {@code timeUnit}.
+     * @return a Timeout
+     * @since 5.2
+     */
+    public static TimeValue of(final Duration duration) {
+        final long seconds = duration.getSeconds();
+        final long nanoOfSecond = duration.getNano();
+        if (seconds == 0) {
+            // no conversion
+            return of(nanoOfSecond, TimeUnit.NANOSECONDS);
+        } else if (nanoOfSecond == 0) {
+            // no conversion
+            return of(seconds, TimeUnit.SECONDS);
+        }
+        // conversion attempts
+        try {
+            return of(duration.toNanos(), TimeUnit.NANOSECONDS);
+        } catch (final ArithmeticException e) {
+            try {
+                return of(duration.toMillis(), TimeUnit.MILLISECONDS);
+            } catch (final ArithmeticException e1) {
+                // backstop
+                return of(seconds, TimeUnit.SECONDS);
+            }
+        }
     }
 
     public static TimeValue ofDays(final long days) {
@@ -174,6 +207,32 @@ public class TimeValue implements Comparable<TimeValue> {
 
     public static TimeValue ofSeconds(final long seconds) {
         return of(seconds, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Converts a {@link TimeUnit} to the equivalent {@link ChronoUnit}.
+     *
+     * @return the converted equivalent ChronoUnit
+     */
+    static ChronoUnit toChronoUnit(final TimeUnit timeUnit) {
+        switch (Objects.requireNonNull(timeUnit)) {
+        case NANOSECONDS:
+            return ChronoUnit.NANOS;
+        case MICROSECONDS:
+            return ChronoUnit.MICROS;
+        case MILLISECONDS:
+            return ChronoUnit.MILLIS;
+        case SECONDS:
+            return ChronoUnit.SECONDS;
+        case MINUTES:
+            return ChronoUnit.MINUTES;
+        case HOURS:
+            return ChronoUnit.HOURS;
+        case DAYS:
+            return ChronoUnit.DAYS;
+        default:
+            throw new IllegalArgumentException(timeUnit.toString());
+        }
     }
 
     /**
@@ -333,6 +392,16 @@ public class TimeValue implements Comparable<TimeValue> {
 
     public long toDays() {
         return timeUnit.toDays(duration);
+    }
+
+    /**
+     * Converts this instance of to a Duration.
+     *
+     * @return a Duration.
+     * @since 5.2
+     */
+    public Duration toDuration() {
+        return duration == 0 ? Duration.ZERO : Duration.of(duration, toChronoUnit(timeUnit));
     }
 
     public long toHours() {
