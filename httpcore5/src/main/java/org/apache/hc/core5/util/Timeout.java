@@ -28,6 +28,7 @@
 package org.apache.hc.core5.util;
 
 import java.text.ParseException;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -64,6 +65,37 @@ public class Timeout extends TimeValue {
      */
     public static Timeout defaultsToDisabled(final Timeout timeout) {
         return defaultsTo(timeout, DISABLED);
+    }
+
+    /**
+     * Creates a Timeout from a Duration.
+     *
+     * @param duration the time duration in the given {@code timeUnit}.
+     * @param timeUnit the time unit for the given duration.
+     * @return a Timeout.
+     * @since 5.2
+     */
+    public static Timeout of(final Duration duration) {
+        final long seconds = duration.getSeconds();
+        final long nanoOfSecond = duration.getNano();
+        if (seconds == 0) {
+            // no conversion
+            return of(nanoOfSecond, TimeUnit.NANOSECONDS);
+        } else if (nanoOfSecond == 0) {
+            // no conversion
+            return of(seconds, TimeUnit.SECONDS);
+        }
+        // conversion attempts
+        try {
+            return of(duration.toNanos(), TimeUnit.NANOSECONDS);
+        } catch (final ArithmeticException e) {
+            try {
+                return of(duration.toMillis(), TimeUnit.MILLISECONDS);
+            } catch (final ArithmeticException e1) {
+                // backstop
+                return of(seconds, TimeUnit.SECONDS);
+            }
+        }
     }
 
     /**
