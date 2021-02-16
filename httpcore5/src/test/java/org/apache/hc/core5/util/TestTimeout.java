@@ -28,6 +28,7 @@
 package org.apache.hc.core5.util;
 
 import java.text.ParseException;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
@@ -98,6 +99,21 @@ public class TestTimeout {
     @Test
     public void testFactoryForDays() {
         testFactory(TimeUnit.DAYS);
+    }
+
+    @Test
+    public void testFactoryForDuration() {
+        assertConvertion(Duration.ZERO);
+        assertConvertion(Duration.ofDays(1));
+        assertConvertion(Duration.ofHours(1));
+        assertConvertion(Duration.ofMillis(1));
+        assertConvertion(Duration.ofNanos(1));
+        assertConvertion(Duration.ofSeconds(1));
+        assertConvertion(Duration.ofSeconds(1, 1));
+    }
+
+    private void assertConvertion(final Duration duration) {
+        Assert.assertEquals(duration, Timeout.of(duration).toDuration());
     }
 
     @Test
