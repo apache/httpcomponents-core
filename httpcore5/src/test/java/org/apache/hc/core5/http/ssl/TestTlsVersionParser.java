@@ -31,7 +31,7 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Tokenizer;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,19 +49,19 @@ public class TestTlsVersionParser {
 
     @Test
     public void testParseBasic() throws Exception {
-        Assert.assertThat(impl.parse("TLSv1"), CoreMatchers.equalTo(TLS.V_1_0.version));
-        Assert.assertThat(impl.parse("TLSv1.1"), CoreMatchers.equalTo(TLS.V_1_1.version));
-        Assert.assertThat(impl.parse("TLSv1.2"), CoreMatchers.equalTo(TLS.V_1_2.version));
-        Assert.assertThat(impl.parse("TLSv1.3"), CoreMatchers.equalTo(TLS.V_1_3.version));
-        Assert.assertThat(impl.parse("TLSv22.356"), CoreMatchers.equalTo(new ProtocolVersion("TLS", 22, 356)));
+        MatcherAssert.assertThat(impl.parse("TLSv1"), CoreMatchers.equalTo(TLS.V_1_0.version));
+        MatcherAssert.assertThat(impl.parse("TLSv1.1"), CoreMatchers.equalTo(TLS.V_1_1.version));
+        MatcherAssert.assertThat(impl.parse("TLSv1.2"), CoreMatchers.equalTo(TLS.V_1_2.version));
+        MatcherAssert.assertThat(impl.parse("TLSv1.3"), CoreMatchers.equalTo(TLS.V_1_3.version));
+        MatcherAssert.assertThat(impl.parse("TLSv22.356"), CoreMatchers.equalTo(new ProtocolVersion("TLS", 22, 356)));
     }
 
     @Test
     public void testParseBuffer() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
-        Assert.assertThat(impl.parse(" TLSv1.2,0000", cursor, Tokenizer.INIT_BITSET(',')),
+        MatcherAssert.assertThat(impl.parse(" TLSv1.2,0000", cursor, Tokenizer.INIT_BITSET(',')),
                 CoreMatchers.equalTo(TLS.V_1_2.version));
-        Assert.assertThat(cursor.getPos(), CoreMatchers.equalTo(8));
+        MatcherAssert.assertThat(cursor.getPos(), CoreMatchers.equalTo(8));
     }
 
     @Test(expected = ParseException.class)

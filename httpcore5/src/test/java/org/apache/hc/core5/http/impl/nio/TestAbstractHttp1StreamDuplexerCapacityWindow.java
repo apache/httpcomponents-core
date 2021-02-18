@@ -27,21 +27,21 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
-import org.apache.hc.core5.http.impl.nio.AbstractHttp1StreamDuplexer.CapacityWindow;
-import org.apache.hc.core5.reactor.IOSession;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
-import java.io.IOException;
-import java.nio.channels.SelectionKey;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.MockitoAnnotations.initMocks;
+
+import java.io.IOException;
+import java.nio.channels.SelectionKey;
+
+import org.apache.hc.core5.http.impl.nio.AbstractHttp1StreamDuplexer.CapacityWindow;
+import org.apache.hc.core5.reactor.IOSession;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 public class TestAbstractHttp1StreamDuplexerCapacityWindow {
     @Mock private IOSession ioSession;

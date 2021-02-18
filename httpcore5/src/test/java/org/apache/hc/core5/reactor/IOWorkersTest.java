@@ -26,9 +26,9 @@
  */
 package org.apache.hc.core5.reactor;
 
-import org.junit.Test;
-
 import static org.mockito.Mockito.mock;
+
+import org.junit.Test;
 
 public class IOWorkersTest {
 
