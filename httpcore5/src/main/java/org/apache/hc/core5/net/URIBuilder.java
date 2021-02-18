@@ -345,6 +345,7 @@ public class URIBuilder {
                 this.host = PercentCodec.decode(uriAuthority.getHostName(), charset);
                 this.port = uriAuthority.getPort();
             } catch (final URISyntaxException ignore) {
+                // ignore
             }
         }
         this.encodedPath = uri.getRawPath();
@@ -812,6 +813,17 @@ public class URIBuilder {
 
     public List<NameValuePair> getQueryParams() {
         return this.queryParams != null ? new ArrayList<>(this.queryParams) : Collections.<NameValuePair>emptyList();
+    }
+
+    /**
+     * Gets the first {@link NameValuePair} for a given name.
+     *
+     * @param name the name
+     * @return the first named {@link NameValuePair} or null if not found.
+     * @since 5.2
+     */
+    public NameValuePair getFirstQueryParam(final String name) {
+        return queryParams.stream().filter(e -> name.equals(e.getName())).findFirst().orElse(null);
     }
 
     public String getFragment() {
