@@ -67,7 +67,7 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
+import org.hamcrest.MatcherAssert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -217,11 +217,11 @@ public class Http1AuthenticationTest {
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertThat(message1, CoreMatchers.notNullValue());
+        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
+        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
         final String body1 = message1.getBody();
-        Assert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
+        MatcherAssert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
 
         final HttpRequest request2 = new BasicHttpRequest(Method.GET, target, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
@@ -229,11 +229,11 @@ public class Http1AuthenticationTest {
                 new BasicRequestProducer(request2, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertThat(message2, CoreMatchers.notNullValue());
+        MatcherAssert.assertThat(message2, CoreMatchers.notNullValue());
         final HttpResponse response2 = message2.getHead();
-        Assert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        MatcherAssert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body2 = message2.getBody();
-        Assert.assertThat(body2, CoreMatchers.equalTo(""));
+        MatcherAssert.assertThat(body2, CoreMatchers.equalTo(""));
     }
 
     @Test
@@ -255,11 +255,11 @@ public class Http1AuthenticationTest {
                 new BasicRequestProducer(request1, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertThat(message1, CoreMatchers.notNullValue());
+        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
+        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
         final String body1 = message1.getBody();
-        Assert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
+        MatcherAssert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
 
         final HttpRequest request2 = new BasicHttpRequest(Method.POST, target, "/stuff");
         request2.setHeader(HttpHeaders.AUTHORIZATION, "let me pass");
@@ -267,11 +267,11 @@ public class Http1AuthenticationTest {
                 new BasicRequestProducer(request2, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertThat(message2, CoreMatchers.notNullValue());
+        MatcherAssert.assertThat(message2, CoreMatchers.notNullValue());
         final HttpResponse response2 = message2.getHead();
-        Assert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        MatcherAssert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body2 = message2.getBody();
-        Assert.assertThat(body2, CoreMatchers.equalTo(new String(stuff, StandardCharsets.US_ASCII)));
+        MatcherAssert.assertThat(body2, CoreMatchers.equalTo(new String(stuff, StandardCharsets.US_ASCII)));
     }
 
     @Test
@@ -295,11 +295,11 @@ public class Http1AuthenticationTest {
                 new BasicRequestProducer(request1, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertThat(message1, CoreMatchers.notNullValue());
+        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
+        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_UNAUTHORIZED));
         final String body1 = message1.getBody();
-        Assert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
+        MatcherAssert.assertThat(body1, CoreMatchers.equalTo("You shall not pass!!!"));
 
         final HttpRequest request2 = new BasicHttpRequest(Method.POST, target, "/stuff");
         request2.setVersion(HttpVersion.HTTP_1_0);
@@ -308,11 +308,11 @@ public class Http1AuthenticationTest {
                 new BasicRequestProducer(request2, AsyncEntityProducers.create(stuff, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertThat(message2, CoreMatchers.notNullValue());
+        MatcherAssert.assertThat(message2, CoreMatchers.notNullValue());
         final HttpResponse response2 = message2.getHead();
-        Assert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        MatcherAssert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body2 = message2.getBody();
-        Assert.assertThat(body2, CoreMatchers.equalTo(new String(stuff, StandardCharsets.US_ASCII)));
+        MatcherAssert.assertThat(body2, CoreMatchers.equalTo(new String(stuff, StandardCharsets.US_ASCII)));
     }
 
 }

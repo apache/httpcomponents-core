@@ -125,6 +125,7 @@ import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1048,11 +1049,11 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
             future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
             Assert.fail("ExecutionException is expected");
         } catch (final ExecutionException ex) {
-            Assert.assertThat(ex.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
+            MatcherAssert.assertThat(ex.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
         }
 
         final EndpointDetails endpointDetails = coreContext.getEndpointDetails();
-        Assert.assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
+        MatcherAssert.assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
     }
 
     @Test

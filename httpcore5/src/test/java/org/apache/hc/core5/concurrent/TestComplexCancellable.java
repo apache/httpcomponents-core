@@ -27,6 +27,7 @@
 package org.apache.hc.core5.concurrent;
 
 import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,12 +43,12 @@ public class TestComplexCancellable {
         Assert.assertFalse(cancellable.isCancelled());
 
         cancellable.cancel();
-        Assert.assertThat(cancellable.isCancelled(), CoreMatchers.is(true));
-        Assert.assertThat(dependency1.isCancelled(), CoreMatchers.is(true));
+        MatcherAssert.assertThat(cancellable.isCancelled(), CoreMatchers.is(true));
+        MatcherAssert.assertThat(dependency1.isCancelled(), CoreMatchers.is(true));
 
         final BasicFuture<Object> dependency2 = new BasicFuture<>(null);
         cancellable.setDependency(dependency2);
-        Assert.assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
+        MatcherAssert.assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
     }
 
 }

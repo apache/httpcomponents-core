@@ -65,7 +65,7 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -204,10 +204,10 @@ public class H2AlpnTest {
         }
 
         assertTrue("h2 negotiation was disabled, but h2 was negotiated", h2Allowed);
-        Assert.assertThat(message1, CoreMatchers.notNullValue());
+        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        Assert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body1 = message1.getBody();
-        Assert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+        MatcherAssert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
     }
 }

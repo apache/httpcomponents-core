@@ -50,6 +50,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentMatchers;
@@ -179,7 +180,7 @@ public class TestTestingFramework {
                                    final Map<String, Object> request,
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) throws TestingFrameworkException {
-                Assert.assertThat(defaultURI, matchesDefaultURI());
+                MatcherAssert.assertThat(defaultURI, matchesDefaultURI());
 
                 Assert.assertNotNull("request should not be null", request);
 
