@@ -301,9 +301,23 @@ public class TestURIBuilder {
     public void testSetParameter() throws Exception {
         final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff&blah&blah", null);
         final URIBuilder uribuilder = new URIBuilder(uri).setParameter("param", "some other stuff")
-            .setParameter("blah", "blah");
+                .setParameter("blah", "blah")
+                .setParameter("blah", "blah2");
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/?param=some%20other%20stuff&blah=blah"), result);
+        Assert.assertEquals(new URI("http://localhost:80/?param=some%20other%20stuff&blah=blah2"), result);
+    }
+
+    @Test
+    public void testGetFirstNamedParameter() throws Exception {
+        final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff&blah&blah", null);
+        URIBuilder uribuilder = new URIBuilder(uri).setParameter("param", "some other stuff")
+            .setParameter("blah", "blah");
+        Assert.assertEquals("some other stuff", uribuilder.getFirstQueryParam("param").getValue());
+        Assert.assertEquals("blah", uribuilder.getFirstQueryParam("blah").getValue());
+        Assert.assertNull(uribuilder.getFirstQueryParam("DoesNotExist"));
+        //
+        uribuilder = new URIBuilder("http://localhost:80/?param=some%20other%20stuff&blah=blah&blah=blah2");
+        Assert.assertEquals("blah", uribuilder.getFirstQueryParam("blah").getValue());
     }
 
     @Test
