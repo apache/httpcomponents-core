@@ -662,9 +662,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 final Header h = request.getFirstHeader("password");
                 if (h != null && "secret".equals(h.getValue())) {
                     return null;
-                } else {
-                    return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
                 }
+                return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
             }
         }, Http1Config.DEFAULT);
 
@@ -749,11 +748,10 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 final Header h = request.getFirstHeader("password");
                 if (h != null && "secret".equals(h.getValue())) {
                     return null;
-                } else {
-                    final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_UNAUTHORIZED);
-                    response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-                    return new BasicResponseProducer(response, "You shall not pass");
                 }
+                final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_UNAUTHORIZED);
+                response.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+                return new BasicResponseProducer(response, "You shall not pass");
             }
         }, Http1Config.DEFAULT);
 
@@ -1249,7 +1247,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final String entity2 = result2.getBody();
         Assert.assertNotNull(response2);
         Assert.assertEquals(400, response2.getCode());
-        Assert.assertTrue(entity2.length() > 0);
+        Assert.assertFalse(entity2.isEmpty());
 
         try {
             future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
@@ -1352,9 +1350,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                             final BasicHttpTransportMetrics metrics) throws HttpException {
                         if (len == ContentLengthStrategy.CHUNKED) {
                             return new BrokenChunkEncoder(channel, buffer, metrics);
-                        } else {
-                            return super.createContentEncoder(len, channel, buffer, metrics);
                         }
+                        return super.createContentEncoder(len, channel, buffer, metrics);
                     }
 
                 };

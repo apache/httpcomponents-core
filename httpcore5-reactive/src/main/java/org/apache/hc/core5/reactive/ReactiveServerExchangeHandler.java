@@ -111,11 +111,7 @@ public final class ReactiveServerExchangeHandler implements AsyncServerExchangeH
     @Override
     public int available() {
         final ReactiveDataProducer p = responseProducer.get();
-        if (p == null) {
-            return 0;
-        } else {
-            return p.available();
-        }
+        return p == null ? 0 : p.available();
     }
 
     @Override

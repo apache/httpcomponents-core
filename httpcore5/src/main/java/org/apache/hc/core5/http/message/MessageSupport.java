@@ -74,7 +74,7 @@ public class MessageSupport {
         if (tokens == null || tokens.isEmpty()) {
             return;
         }
-        formatTokens(dst, tokens.toArray(new String[0]));
+        formatTokens(dst, tokens.toArray(TextUtils.EMPTY_STRING_ARRAY));
     }
 
     public static Header format(final String name, final Set<String> tokens) {
@@ -164,7 +164,7 @@ public class MessageSupport {
         Args.notNull(header, "Headers");
         final String value = header.getValue();
         if (value == null) {
-            return new HeaderElement[] {};
+            return HeaderElement.EMPTY_ARRAY;
         }
         final ParserCursor cursor = new ParserCursor(0, value.length());
         return BasicHeaderValueParser.INSTANCE.parseElements(value, cursor);

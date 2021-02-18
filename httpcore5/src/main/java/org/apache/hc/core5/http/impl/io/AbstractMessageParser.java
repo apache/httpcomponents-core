@@ -163,7 +163,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
                 current.clear();
             }
             final int readLen = inBuffer.readLine(current, inputStream);
-            if (readLen == -1 || current.length() < 1) {
+            if (readLen == -1 || current.isEmpty()) {
                 break;
             }
             // Parse the header name and value
@@ -242,7 +242,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
                 if (i == -1) {
                     throw createConnectionClosedException();
                 }
-                if (this.headLine.length() > 0) {
+                if (!this.headLine.isEmpty()) {
                     this.message = createMessage(this.headLine);
                     if (this.message != null) {
                         break;

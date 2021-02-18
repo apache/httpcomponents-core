@@ -114,7 +114,7 @@ class BenchmarkWorker implements ResourceHolder {
         if (config.isUseAcceptGZip()) {
             request.addHeader(new BasicHeader(HttpHeaders.ACCEPT_ENCODING, "gzip"));
         }
-        if (config.getSoapAction() != null && config.getSoapAction().length() > 0) {
+        if (config.getSoapAction() != null && !config.getSoapAction().isEmpty()) {
             request.addHeader(new BasicHeader("SOAPAction", config.getSoapAction()));
         }
 

@@ -702,9 +702,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         if (stream == null) {
             if (streamId <= lastStreamId.get()) {
                 throw new H2ConnectionException(H2Error.STREAM_CLOSED, "Stream closed");
-            } else {
-                throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected stream id: " + streamId);
             }
+            throw new H2ConnectionException(H2Error.PROTOCOL_ERROR, "Unexpected stream id: " + streamId);
         }
         return stream;
     }

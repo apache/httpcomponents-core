@@ -32,6 +32,20 @@ package org.apache.hc.core5.util;
  */
 public final class TextUtils {
 
+    /**
+     * Empty char array.
+     *
+     * @since 5.2
+     */
+    public static final char[] EMPTY_CHAR_ARRAY = new char[0];
+
+    /**
+     * Empty string array.
+     *
+     * @since 5.2
+     */
+    public static final String[] EMPTY_STRING_ARRAY = new String[0];
+
     private TextUtils() {
         // Do not allow utility class to be instantiated.
     }
@@ -40,20 +54,14 @@ public final class TextUtils {
      * Returns true if the parameter is null or of zero length
      */
     public static boolean isEmpty(final CharSequence s) {
-        if (s == null) {
-            return true;
-        }
-        return s.length() == 0;
+        return length(s) == 0;
     }
 
     /**
      * Returns true if the parameter is null or contains only whitespace
      */
     public static boolean isBlank(final CharSequence s) {
-        if (s == null) {
-            return true;
-        }
-        for (int i = 0; i < s.length(); i++) {
+        for (int i = 0; i < length(s); i++) {
             if (!Character.isWhitespace(s.charAt(i))) {
                 return false;
             }
@@ -62,13 +70,22 @@ public final class TextUtils {
     }
 
     /**
+     * Gets the length of the given string or 0 if null.
+     *
+     * @param s the input string.
+     * @return the length of the given string or 0 if null.
+     *
+     * @since 5.2
+     */
+    public static int length(final CharSequence s) {
+        return s == null ? 0 : s.length();
+    }
+
+    /**
      * @since 4.4
      */
     public static boolean containsBlanks(final CharSequence s) {
-        if (s == null) {
-            return false;
-        }
-        for (int i = 0; i < s.length(); i++) {
+        for (int i = 0; i < length(s); i++) {
             if (Character.isWhitespace(s.charAt(i))) {
                 return true;
             }

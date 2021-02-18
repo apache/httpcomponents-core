@@ -61,7 +61,7 @@ public class TestEnglishReasonPhraseCatalog {
             final String text = EnglishReasonPhraseCatalog.
                             INSTANCE.getReason(iValue, null);
             Assert.assertNotNull("text is null for HttpStatus."+f.getName(), text);
-            Assert.assertTrue(text.length() > 0);
+            Assert.assertFalse(text.isEmpty());
         }
     }
     }

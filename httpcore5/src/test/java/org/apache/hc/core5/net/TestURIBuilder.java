@@ -579,6 +579,14 @@ public class TestURIBuilder {
     }
 
     @Test
+    public void testGetPath() throws Exception {
+        URIBuilder builder = new URIBuilder("https://somehost");
+        Assert.assertEquals("", builder.getPath());
+        builder = new URIBuilder("https://somehost/api/products");
+        Assert.assertEquals("/api/products", builder.getPath());
+    }
+
+    @Test
     public void testSetPathSegmentsRootlessList() throws Exception {
         final URI uri = new URIBuilder()
             .setScheme("file")

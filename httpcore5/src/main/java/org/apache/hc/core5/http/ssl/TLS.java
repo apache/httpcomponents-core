@@ -32,6 +32,7 @@ import java.util.List;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
 
 /**
@@ -91,7 +92,7 @@ public enum TLS {
         if (enabledProtocols.isEmpty()) {
             enabledProtocols.add(V_1_2.id);
         }
-        return enabledProtocols.toArray(new String[0]);
+        return enabledProtocols.toArray(TextUtils.EMPTY_STRING_ARRAY);
     }
 
 }

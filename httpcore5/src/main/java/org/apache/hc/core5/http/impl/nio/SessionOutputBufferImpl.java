@@ -161,7 +161,7 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
         }
         setInputMode();
         // Do not bother if the buffer is empty
-        if (lineBuffer.length() > 0 ) {
+        if (!lineBuffer.isEmpty()) {
             if (this.charEncoder == null) {
                 final int requiredCapacity = buffer().position() + lineBuffer.length();
                 ensureCapacity(requiredCapacity);

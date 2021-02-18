@@ -36,6 +36,13 @@ package org.apache.hc.core5.http;
 public interface Header extends NameValuePair {
 
     /**
+     * Empty array.
+     *
+     * @since 5.2
+     */
+    public Header[] EMPTY_ARRAY = new Header[0];
+
+    /**
      * Returns {@code true} if the header should be considered sensitive.
      * <p>
      * Some encoding schemes such as HPACK impose restrictions on encoded

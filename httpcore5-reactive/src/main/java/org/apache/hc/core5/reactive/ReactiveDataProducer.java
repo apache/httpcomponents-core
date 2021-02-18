@@ -112,14 +112,13 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
     public int available() {
         if (exception.get() != null || complete.get()) {
             return 1;
-        } else {
-            synchronized (buffers) {
-                int sum = 0;
-                for (final ByteBuffer buffer : buffers) {
-                    sum += buffer.remaining();
-                }
-                return sum;
+        }
+        synchronized (buffers) {
+            int sum = 0;
+            for (final ByteBuffer buffer : buffers) {
+                sum += buffer.remaining();
             }
+            return sum;
         }
     }
 

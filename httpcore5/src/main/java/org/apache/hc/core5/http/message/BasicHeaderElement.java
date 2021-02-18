@@ -38,8 +38,6 @@ import org.apache.hc.core5.util.Args;
  */
 public class BasicHeaderElement implements HeaderElement {
 
-    private static final NameValuePair[] EMPTY_NAME_VALUE_PAIR_ARRAY = new NameValuePair[0];
-
     private final String name;
     private final String value;
     private final NameValuePair[] parameters;
@@ -62,7 +60,7 @@ public class BasicHeaderElement implements HeaderElement {
         if (parameters != null) {
             this.parameters = parameters;
         } else {
-            this.parameters = EMPTY_NAME_VALUE_PAIR_ARRAY;
+            this.parameters = NameValuePair.EMPTY_ARRAY;
         }
     }
 

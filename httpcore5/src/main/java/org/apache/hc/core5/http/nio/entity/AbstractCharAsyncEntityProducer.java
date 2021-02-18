@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.StreamChannel;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Abstract text entity content producer.
@@ -51,7 +52,7 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProducer {
 
-    private static final CharBuffer EMPTY = CharBuffer.wrap(new char[0]);
+    private static final CharBuffer EMPTY = CharBuffer.wrap(TextUtils.EMPTY_CHAR_ARRAY);
 
     enum State { ACTIVE, FLUSHING, END_STREAM }
 

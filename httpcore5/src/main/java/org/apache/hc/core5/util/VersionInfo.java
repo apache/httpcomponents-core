@@ -269,12 +269,12 @@ public class VersionInfo {
 
         if (info != null) {
             module = (String) info.get(PROPERTY_MODULE);
-            if ((module != null) && (module.length() < 1)) {
+            if ((module != null) && (module.isEmpty())) {
                 module = null;
             }
 
             release = (String) info.get(PROPERTY_RELEASE);
-            if ((release != null) && ((release.length() < 1) ||
+            if ((release != null) && ((release.isEmpty()) ||
                                       (release.equals("${project.version}")))) {
                 release = null;
             }

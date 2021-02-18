@@ -36,6 +36,13 @@ package org.apache.hc.core5.http;
 public interface HeaderElement {
 
     /**
+     * Empty array.
+     *
+     * @since 5.2
+     */
+    static final HeaderElement[] EMPTY_ARRAY = new HeaderElement[0];
+
+    /**
      * Returns header element name.
      *
      * @return header element name

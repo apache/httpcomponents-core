@@ -251,7 +251,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     }
                     return totalRead;
                 }
-                if (this.lineBuf.length() > 0) {
+                if (!this.lineBuf.isEmpty()) {
                     final int maxHeaderCount = this.http1Config.getMaxHeaderCount();
                     if (maxHeaderCount > 0 && trailerBufs.size() >= maxHeaderCount) {
                         throw new MessageConstraintException("Maximum header count exceeded");

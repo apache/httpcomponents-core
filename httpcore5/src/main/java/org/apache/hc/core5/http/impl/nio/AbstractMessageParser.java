@@ -170,7 +170,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 }
                 break;
             case READ_HEADERS:
-                if (this.lineBuf.length() > 0) {
+                if (!this.lineBuf.isEmpty()) {
                     final int maxHeaderCount = this.messageConstraints.getMaxHeaderCount();
                     if (maxHeaderCount > 0 && headerBufs.size() >= maxHeaderCount) {
                         throw new MessageConstraintException("Maximum header count exceeded");

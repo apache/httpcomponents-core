@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.hc.core5.util.TextUtils;
+
 /**
  * TLS cipher suite support methods
  *
@@ -355,7 +357,7 @@ public final class TlsCiphers {
                 enabledCiphers.add(cipher);
             }
         }
-        return !enabledCiphers.isEmpty() ? enabledCiphers.toArray(new String[0]) : ciphers;
+        return !enabledCiphers.isEmpty() ? enabledCiphers.toArray(TextUtils.EMPTY_STRING_ARRAY) : ciphers;
     }
 
     public static String[] excludeWeak(final String... ciphers) {
@@ -368,7 +370,7 @@ public final class TlsCiphers {
                 enabledCiphers.add(cipher);
             }
         }
-        return !enabledCiphers.isEmpty() ? enabledCiphers.toArray(new String[0]) : ciphers;
+        return !enabledCiphers.isEmpty() ? enabledCiphers.toArray(TextUtils.EMPTY_STRING_ARRAY) : ciphers;
     }
 
 }

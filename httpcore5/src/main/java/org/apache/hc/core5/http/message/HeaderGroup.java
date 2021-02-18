@@ -50,8 +50,6 @@ public class HeaderGroup implements MessageHeaders, Serializable {
 
     private static final long serialVersionUID = 2608834160639271617L;
 
-    private static final Header[] EMPTY = new Header[] {};
-
     /** The list of headers for this group, in the order in which they were added */
     private final List<Header> headers;
 
@@ -220,7 +218,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
                 headersFound.add(header);
             }
         }
-        return headersFound != null ? headersFound.toArray(new Header[0]) : EMPTY;
+        return headersFound != null ? headersFound.toArray(Header.EMPTY_ARRAY) : Header.EMPTY_ARRAY;
     }
 
     /**
@@ -296,7 +294,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public Header[] getHeaders() {
-        return headers.toArray(new Header[0]);
+        return headers.toArray(Header.EMPTY_ARRAY);
     }
 
     /**

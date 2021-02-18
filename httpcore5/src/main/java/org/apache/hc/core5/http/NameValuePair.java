@@ -35,6 +35,13 @@ package org.apache.hc.core5.http;
 public interface NameValuePair {
 
     /**
+     * Empty array.
+     *
+     * @since 5.2
+     */
+    static final NameValuePair[] EMPTY_ARRAY = new NameValuePair[0];
+
+    /**
      * Gets the name of this pair.
      *
      * @return the name of this pair, never {@code null}.
