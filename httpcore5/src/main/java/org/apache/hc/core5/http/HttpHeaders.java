@@ -48,6 +48,39 @@ public final class HttpHeaders {
 
     public static final String ACCEPT_RANGES = "Accept-Ranges";
 
+    /**
+     * The CORS {@code Access-Control-Allow-Credentials} response header field name.
+     */
+    public static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials";
+    /**
+     * The CORS {@code Access-Control-Allow-Headers} response header field name.
+     */
+    public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
+    /**
+     * The CORS {@code Access-Control-Allow-Methods} response header field name.
+     */
+    public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
+    /**
+     * The CORS {@code Access-Control-Allow-Origin} response header field name.
+     */
+    public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+    /**
+     * The CORS {@code Access-Control-Expose-Headers} response header field name.
+     */
+    public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+    /**
+     * The CORS {@code Access-Control-Max-Age} response header field name.
+     */
+    public static final String ACCESS_CONTROL_MAX_AGE = "Access-Control-Max-Age";
+    /**
+     * The CORS {@code Access-Control-Request-Headers} request header field name.
+     */
+    public static final String ACCESS_CONTROL_REQUEST_HEADERS = "Access-Control-Request-Headers";
+    /**
+     * The CORS {@code Access-Control-Request-Method} request header field name.
+     */
+    public static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method";
+
     public static final String AGE = "Age";
 
     public static final String ALLOW = "Allow";
@@ -59,6 +92,10 @@ public final class HttpHeaders {
     public static final String CONNECTION = "Connection";
 
     public static final String CONTENT_ENCODING = "Content-Encoding";
+    /**
+     * The HTTP {@code Content-Disposition} header field name.
+     */
+    public static final String CONTENT_DISPOSITION = "Content-Disposition";
 
     public static final String CONTENT_LANGUAGE = "Content-Language";
 
@@ -71,6 +108,11 @@ public final class HttpHeaders {
     public static final String CONTENT_RANGE = "Content-Range";
 
     public static final String CONTENT_TYPE = "Content-Type";
+
+    /**
+     * The HTTP {@code Cookie} header field name.
+     */
+    public static final String COOKIE = "Cookie";
 
     public static final String DATE = "Date";
 
@@ -106,6 +148,11 @@ public final class HttpHeaders {
 
     public static final String LAST_MODIFIED = "Last-Modified";
 
+    /**
+     * The HTTP {@code Link} header field name.
+     */
+    public static final String LINK = "Link";
+
     public static final String LOCATION = "Location";
 
     public static final String LOCK_TOKEN = "Lock-Token";
@@ -129,6 +176,11 @@ public final class HttpHeaders {
     public static final String SERVER = "Server";
 
     public static final String STATUS_URI = "Status-URI";
+
+    /**
+     * The HTTP {@code Set-Cookie} header field name.
+     */
+    public static final String SET_COOKIE = "Set-Cookie";
 
     public static final String TE = "TE";
 
