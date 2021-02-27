@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
+import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
@@ -73,6 +74,8 @@ public class ServerSupport {
             code = HttpStatus.SC_NOT_IMPLEMENTED;
         } else if (ex instanceof RequestHeaderFieldsTooLargeException) {
             code = HttpStatus.SC_REQUEST_HEADER_FIELDS_TOO_LARGE;
+        } else if (ex instanceof MisdirectedRequestException) {
+            code = HttpStatus.SC_MISDIRECTED_REQUEST;
         } else if (ex instanceof ProtocolException) {
             code = HttpStatus.SC_BAD_REQUEST;
         } else {
