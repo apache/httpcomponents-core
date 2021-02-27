@@ -82,6 +82,7 @@ public class TestRequestHandlerRegistry {
         handlerRegistry.register("myhost", "/test*", "stuff");
         Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("localhost"), "/test"), context));
         Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("LocalHost"), "/testabc"), context));
+        Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("127.0.0.1"), "/testabc"), context));
     }
 
     @Test(expected = MisdirectedRequestException.class)

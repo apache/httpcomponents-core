@@ -51,6 +51,7 @@ import org.apache.hc.core5.util.Args;
 public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
 
     private final static String LOCALHOST = "localhost";
+    private final static String IP_127_0_0_1 = "127.0.0.1";
 
     private final String canonicalHostName;
     private final Supplier<LookupRegistry<T>> registrySupplier;
@@ -91,10 +92,8 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
     }
 
     private LookupRegistry<T> getPatternMatcher(final String hostname) {
-        if (hostname == null) {
-            return primary;
-        }
-        if (hostname.equals(canonicalHostName) || hostname.equals(LOCALHOST)) {
+        if (hostname == null ||
+                hostname.equals(canonicalHostName) || hostname.equals(LOCALHOST) || hostname.equals(IP_127_0_0_1)) {
             return primary;
         }
         return virtualMap.get(hostname);
