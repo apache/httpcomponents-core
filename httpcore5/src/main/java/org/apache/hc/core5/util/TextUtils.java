@@ -40,20 +40,31 @@ public final class TextUtils {
      * Returns true if the parameter is null or of zero length
      */
     public static boolean isEmpty(final CharSequence s) {
-        if (s == null) {
-            return true;
-        }
-        return s.length() == 0;
+        return length(s) == 0;
     }
 
     /**
-     * Returns true if the parameter is null or contains only whitespace
+     * <p>Checks if a CharSequence is empty (""), null or whitespace only.</p>
+     *
+     * <p>Whitespace is defined by {@link Character#isWhitespace(char)}.</p>
+     *
+     * <pre>
+     * TextUtils.isBlank(null)      = true
+     * TextUtils.isBlank("")        = true
+     * TextUtils.isBlank(" ")       = true
+     * TextUtils.isBlank("abg")     = false
+     * TextUtils.isBlank("  abg  ") = false
+     * </pre>
+     *
+     * @param s  the CharSequence to check, may be null
+     * @return {@code true} if the CharSequence is null, empty or whitespace only
      */
     public static boolean isBlank(final CharSequence s) {
-        if (s == null) {
+        final int strLen = length(s);
+        if (strLen == 0) {
             return true;
         }
-        for (int i = 0; i < s.length(); i++) {
+        for (int i = 0; i < strLen; i++) {
             if (!Character.isWhitespace(s.charAt(i))) {
                 return false;
             }
@@ -62,10 +73,25 @@ public final class TextUtils {
     }
 
     /**
+     * Gets a CharSequence length or {@code 0} if the CharSequence is
+     * {@code null}.
+     *
+     * @param cs
+     *            a CharSequence or {@code null}
+     * @return CharSequence length or {@code 0} if the CharSequence is
+     *         {@code null}.
+     * @since 5.1
+     */
+    public static int length(final CharSequence cs) {
+        return cs == null ? 0 : cs.length();
+    }
+
+    /**
      * @since 4.4
      */
     public static boolean containsBlanks(final CharSequence s) {
-        if (s == null) {
+        final int strLen = length(s);
+        if (strLen == 0) {
             return false;
         }
         for (int i = 0; i < s.length(); i++) {
