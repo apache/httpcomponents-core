@@ -27,9 +27,14 @@
 
 package org.apache.hc.core5.util;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -127,6 +132,11 @@ public class TestArgs {
         Assert.assertEquals(1L, Args.positive(1L, "Number"));
     }
 
+    @Test
+    public void testPositiveTimeValuePass() throws ParseException {
+        final Timeout timeout = Timeout.parse("1200 MILLISECONDS");
+        Assert.assertEquals(timeout, Args.positive(timeout, "No Error"));
+    }
     @Test(expected=IllegalArgumentException.class)
     public void testPositiveLongFail1() {
         Args.positive(-1L, "Number");
@@ -223,6 +233,44 @@ public class TestArgs {
 
     public void testLongFullRangeOK() {
         Args.checkRange(0L, Long.MIN_VALUE, Long.MAX_VALUE, "Number");
+    }
+
+    @Test
+    public void testIsEmpty() {
+
+        final String[] NON_EMPTY_ARRAY = new String[] { "ABG", "NML", };
+
+        final List<String> NON_EMPTY_LIST = Arrays.asList(NON_EMPTY_ARRAY);
+
+        final Set<String> NON_EMPTY_SET = new HashSet<>(NON_EMPTY_LIST);
+
+        final Map<String, String> NON_EMPTY_MAP = new HashMap<>();
+        NON_EMPTY_MAP.put("ABG", "MNL");
+
+        Assert.assertTrue(Args.isEmpty(null));
+        Assert.assertTrue(Args.isEmpty(""));
+        Assert.assertTrue(Args.isEmpty(new int[] {}));
+        Assert.assertTrue(Args.isEmpty(Collections.emptyList()));
+        Assert.assertTrue(Args.isEmpty(Collections.emptySet()));
+        Assert.assertTrue(Args.isEmpty(Collections.emptyMap()));
+
+        Assert.assertFalse(Args.isEmpty("  "));
+        Assert.assertFalse(Args.isEmpty("ab"));
+        Assert.assertFalse(Args.isEmpty(NON_EMPTY_ARRAY));
+        Assert.assertFalse(Args.isEmpty(NON_EMPTY_LIST));
+        Assert.assertFalse(Args.isEmpty(NON_EMPTY_SET));
+        Assert.assertFalse(Args.isEmpty(NON_EMPTY_MAP));
+    }
+
+    @Test
+    public void testcontainsNoBlanks() {
+        final String stuff = "abg";
+        Assert.assertSame(stuff, Args.containsNoBlanks(stuff, "abg"));
+    }
+
+    @Test(expected=IllegalArgumentException.class)
+    public void check() {
+        Args.check(false, "Error,", "ABG");
     }
 
 }

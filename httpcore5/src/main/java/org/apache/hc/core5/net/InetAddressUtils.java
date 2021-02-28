@@ -42,6 +42,19 @@ import org.apache.hc.core5.util.Args;
  */
 public class InetAddressUtils {
 
+    /**
+     * Represents the ipv4
+     *
+     * @since 5.1
+     */
+    public static final byte IPV4 = 1;
+    /**
+     * Represents the ipv6.
+     *
+     * @since 5.1
+     */
+    public static final byte IPV6 = 4;
+
     private InetAddressUtils() {
     }
 

@@ -27,7 +27,10 @@
 
 package org.apache.hc.core5.util;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
 
 import org.apache.hc.core5.http.EntityDetails;
 
@@ -42,12 +45,6 @@ public class Args {
     public static void check(final boolean expression, final String message, final Object... args) {
         if (!expression) {
             throw new IllegalArgumentException(String.format(message, args));
-        }
-    }
-
-    public static void check(final boolean expression, final String message, final Object arg) {
-        if (!expression) {
-            throw new IllegalArgumentException(String.format(message, arg));
         }
     }
 
@@ -78,10 +75,8 @@ public class Args {
     }
 
     public static <T extends CharSequence> T containsNoBlanks(final T argument, final String name) {
-        if (argument == null) {
-            throw NullPointerException(name);
-        }
-        if (argument.length() == 0) {
+        notNull(argument, name);
+        if (isEmpty(argument)) {
             throw illegalArgumentExceptionNotEmpty(name);
         }
         if (TextUtils.containsBlanks(argument)) {
@@ -103,30 +98,16 @@ public class Args {
     }
 
     public static <T extends CharSequence> T notBlank(final T argument, final String name) {
-        if (argument == null) {
-            throw NullPointerException(name);
-        }
+        notNull(argument, name);
         if (TextUtils.isBlank(argument)) {
             throw new IllegalArgumentException(name + " must not be blank");
         }
         return argument;
     }
 
-    public static <T extends CharSequence> T notEmpty(final T argument, final String name) {
-        if (argument == null) {
-            throw NullPointerException(name);
-        }
-        if (TextUtils.isEmpty(argument)) {
-            throw illegalArgumentExceptionNotEmpty(name);
-        }
-        return argument;
-    }
-
-    public static <E, T extends Collection<E>> T notEmpty(final T argument, final String name) {
-        if (argument == null) {
-            throw NullPointerException(name);
-        }
-        if (argument.isEmpty()) {
+    public static <T> T notEmpty(final T argument, final String name) {
+        notNull(argument, name);
+        if (isEmpty(argument)) {
             throw illegalArgumentExceptionNotEmpty(name);
         }
         return argument;
@@ -146,11 +127,64 @@ public class Args {
         return n;
     }
 
+    /**
+     * <p>Validate that the specified argument is not {@code null};
+     * otherwise throwing an exception with the specified message.
+     *
+     * <pre>Args.notNull(myObject, "The object must not be null");</pre>
+     *
+     * @param <T> the object type
+     * @param argument  the object to check
+     * @param name  the {@link String} exception message if invalid, not null
+     * @return the validated object (never {@code null} for method chaining)
+     * @throws NullPointerException if the object is {@code null}
+     */
     public static <T> T notNull(final T argument, final String name) {
-        if (argument == null) {
-            throw NullPointerException(name);
+        return Objects.requireNonNull(argument, name);
+    }
+
+    /**
+     * <p>Checks if an Object is empty or null.</p>
+     *
+     * The following types are supported:
+     * <ul>
+     * <li>{@link CharSequence}: Considered empty if its length is zero.</li>
+     * <li>{@code Array}: Considered empty if its length is zero.</li>
+     * <li>{@link Collection}: Considered empty if it has zero elements.</li>
+     * <li>{@link Map}: Considered empty if it has zero key-value mappings.</li>
+     * </ul>
+     *
+     * <pre>
+     * Args.isEmpty(null)             = true
+     * Args.isEmpty("")               = true
+     * Args.isEmpty("ab")             = false
+     * Args.isEmpty(new int[]{})      = true
+     * Args.isEmpty(new int[]{1,2,3}) = false
+     * Args.isEmpty(1234)             = false
+     * </pre>
+     *
+     * @param object  the {@code Object} to test, may be {@code null}
+     * @return {@code true} if the object has a supported type and is empty or null,
+     * {@code false} otherwise
+     * @since 5.1
+     */
+    public static boolean isEmpty(final Object object) {
+        if (object == null) {
+            return true;
         }
-        return argument;
+        if (object instanceof CharSequence) {
+            return ((CharSequence) object).length() == 0;
+        }
+        if (object.getClass().isArray()) {
+            return Array.getLength(object) == 0;
+        }
+        if (object instanceof Collection<?>) {
+            return ((Collection<?>) object).isEmpty();
+        }
+        if (object instanceof Map<?, ?>) {
+            return ((Map<?, ?>) object).isEmpty();
+        }
+        return false;
     }
 
     public static int positive(final int n, final String name) {
@@ -172,8 +206,11 @@ public class Args {
         return timeValue;
     }
 
+    /**
+     * Private constructor so that no instances can be created. This class
+     * contains only static utility methods.
+     */
     private Args() {
-        // Do not allow utility class to be instantiated.
     }
 
 }
