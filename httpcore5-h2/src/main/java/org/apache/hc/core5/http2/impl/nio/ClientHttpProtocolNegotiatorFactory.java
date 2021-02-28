@@ -33,12 +33,13 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
-import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -65,7 +66,7 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
         this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
         this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
-        this.tlsStrategy = Args.notNull(tlsStrategy, "TLS strategy");
+        this.tlsStrategy = tlsStrategy;
         this.handshakeTimeout = handshakeTimeout;
     }
 
@@ -74,7 +75,8 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
         HttpVersionPolicy endpointPolicy = versionPolicy;
         if (attachment instanceof EndpointParameters) {
             final EndpointParameters params = (EndpointParameters) attachment;
-            if (tlsStrategy != null && URIScheme.HTTPS.same(params.getScheme())) {
+            if (URIScheme.HTTPS.same(params.getScheme())) {
+                Asserts.notNull(tlsStrategy, "TLS strategy");
                 final HttpHost host = new HttpHost(params.getScheme(), params.getHostName(), params.getPort());
                 tlsStrategy.upgrade(
                         ioSession,
