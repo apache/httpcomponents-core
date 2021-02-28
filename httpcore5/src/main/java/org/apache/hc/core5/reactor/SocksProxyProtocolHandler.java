@@ -42,6 +42,7 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.nio.command.CommandSupport;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
+import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -64,11 +65,8 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     private static final byte COMMAND_CONNECT = 1;
 
-    private static final byte ATYP_IPV4 = 1;
-
     private static final byte ATYP_DOMAINNAME = 3;
 
-    private static final byte ATYP_IPV6 = 4;
 
     private enum State {
         SEND_AUTH, RECEIVE_AUTH_METHOD, SEND_USERNAME_PASSWORD, RECEIVE_AUTH, SEND_CONNECT, RECEIVE_RESPONSE_CODE, RECEIVE_ADDRESS_TYPE, RECEIVE_ADDRESS, COMPLETE
@@ -212,9 +210,9 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                     this.buffer.get(); // reserved byte that has no purpose
                     final byte aType = this.buffer.get();
                     final int addressSize;
-                    if (aType == ATYP_IPV4) {
+                    if (aType == InetAddressUtils.IPV4) {
                         addressSize = 4;
-                    } else if (aType == ATYP_IPV6) {
+                    } else if (aType == InetAddressUtils.IPV6) {
                         addressSize = 16;
                     } else if (aType == ATYP_DOMAINNAME) {
                         // mask with 0xFF to convert to unsigned byte value
@@ -263,10 +261,10 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
         this.buffer.put(COMMAND_CONNECT);
         this.buffer.put((byte) 0); // reserved
         if (address instanceof Inet4Address) {
-            this.buffer.put(ATYP_IPV4);
+            this.buffer.put(InetAddressUtils.IPV4);
             this.buffer.put(address.getAddress());
         } else if (address instanceof Inet6Address) {
-            this.buffer.put(ATYP_IPV6);
+            this.buffer.put(InetAddressUtils.IPV6);
             this.buffer.put(address.getAddress());
         } else {
             throw new IOException("Unsupported remote address class: " + address.getClass().getName());
