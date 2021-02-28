@@ -38,6 +38,7 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
@@ -49,9 +50,7 @@ public class SocksProxy {
 
         public static final int VERSION_5 = 5;
         public static final int COMMAND_CONNECT = 1;
-        public static final int ATYP_IPV4 = 1;
         public static final int ATYP_DOMAINNAME = 3;
-        public static final int ATYP_IPV6 = 4;
 
         private final SocksProxy parent;
         private final Socket socket;
@@ -113,14 +112,14 @@ public class SocksProxy {
                     final byte[] targetAddress;
                     final int addressType = input.readUnsignedByte();
                     switch (addressType) {
-                        case ATYP_IPV4:
+                        case InetAddressUtils.IPV4:
                             targetHost = null;
                             targetAddress = new byte[4];
                             for (int i = 0; i < targetAddress.length; i++) {
                                 targetAddress[i] = input.readByte();
                             }
                             break;
-                        case ATYP_IPV6:
+                        case InetAddressUtils.IPV6:
                             targetHost = null;
                             targetAddress = new byte[16];
                             for (int i = 0; i < targetAddress.length; i++) {
@@ -153,9 +152,9 @@ public class SocksProxy {
                     output.writeByte(0); /* reserved */
                     final byte[] localAddress = target.getLocalAddress().getAddress();
                     if (localAddress.length == 4) {
-                        output.writeByte(ATYP_IPV4);
+                        output.writeByte(InetAddressUtils.IPV4);
                     } else if (localAddress.length == 16) {
-                        output.writeByte(ATYP_IPV6);
+                        output.writeByte(InetAddressUtils.IPV6);
                     } else {
                         throw new IOException("Unsupported localAddress byte length: " + localAddress.length);
                     }
