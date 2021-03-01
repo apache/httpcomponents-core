@@ -37,6 +37,13 @@ import org.apache.hc.core5.util.Args;
  */
 public class H2StreamResetException extends HttpStreamResetException {
 
+    /**
+     * Required for serialization support.
+     *
+     * @see java.io.Serializable
+     */
+    private static final long serialVersionUID = 4280996898701236013L;
+
     private final int code;
 
     public H2StreamResetException(final H2Error error, final String message) {

@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.net;
 
+import org.apache.hc.core5.util.Constant;
+
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -46,7 +48,7 @@ public class PercentCodec {
     static final BitSet URIC = new BitSet(256);
 
     static {
-        GEN_DELIMS.set(':');
+        GEN_DELIMS.set(Constant.COLON);
         GEN_DELIMS.set('/');
         GEN_DELIMS.set('?');
         GEN_DELIMS.set('#');

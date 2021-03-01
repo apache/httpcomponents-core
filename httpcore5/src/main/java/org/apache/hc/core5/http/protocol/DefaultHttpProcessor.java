@@ -77,14 +77,12 @@ public final class DefaultHttpProcessor implements HttpProcessor {
             final List<HttpResponseInterceptor> responseInterceptors) {
         super();
         if (requestInterceptors != null) {
-            final int l = requestInterceptors.size();
-            this.requestInterceptors = requestInterceptors.toArray(new HttpRequestInterceptor[l]);
+            this.requestInterceptors = requestInterceptors.toArray(new HttpRequestInterceptor[0]);
         } else {
             this.requestInterceptors = new HttpRequestInterceptor[0];
         }
         if (responseInterceptors != null) {
-            final int l = responseInterceptors.size();
-            this.responseInterceptors = responseInterceptors.toArray(new HttpResponseInterceptor[l]);
+            this.responseInterceptors = responseInterceptors.toArray(new HttpResponseInterceptor[0]);
         } else {
             this.responseInterceptors = new HttpResponseInterceptor[0];
         }

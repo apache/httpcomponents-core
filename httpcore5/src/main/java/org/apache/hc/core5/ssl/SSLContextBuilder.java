@@ -28,11 +28,11 @@
 package org.apache.hc.core5.ssl;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.net.URL;
+import java.nio.file.Files;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -239,7 +239,7 @@ public class SSLContextBuilder {
             final TrustStrategy trustStrategy) throws NoSuchAlgorithmException, KeyStoreException, CertificateException, IOException {
         Args.notNull(file, "Truststore file");
         final KeyStore trustStore = KeyStore.getInstance(keyStoreType);
-        try (final FileInputStream inStream = new FileInputStream(file)) {
+        try (InputStream inStream = Files.newInputStream(file.toPath())) {
             trustStore.load(inStream, storePassword);
         }
         return loadTrustMaterial(trustStore, trustStrategy);
@@ -311,7 +311,7 @@ public class SSLContextBuilder {
             final PrivateKeyStrategy aliasStrategy) throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException, CertificateException, IOException {
         Args.notNull(file, "Keystore file");
         final KeyStore identityStore = KeyStore.getInstance(keyStoreType);
-        try (final FileInputStream inStream = new FileInputStream(file)) {
+        try (InputStream inStream = Files.newInputStream(file.toPath())) {
             identityStore.load(inStream, storePassword);
         }
         return loadKeyMaterial(identityStore, keyPassword, aliasStrategy);

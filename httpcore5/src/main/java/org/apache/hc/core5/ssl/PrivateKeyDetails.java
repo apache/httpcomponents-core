@@ -30,6 +30,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Constant;
 
 /**
  * Private key details.
@@ -57,7 +58,7 @@ public final class PrivateKeyDetails {
 
     @Override
     public String toString() {
-        return type + ':' + Arrays.toString(certChain);
+        return type + Constant.COLON + Arrays.toString(certChain);
     }
 
 }

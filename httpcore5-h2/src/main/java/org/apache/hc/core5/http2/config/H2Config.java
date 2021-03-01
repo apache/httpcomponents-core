@@ -43,6 +43,8 @@ public class H2Config {
     public static final H2Config DEFAULT = custom().build();
     public static final H2Config INIT = initial().build();
 
+    public static final String HTTP_CONTEXT_MSG = "HTTP context";
+
     private final int headerTableSize;
     private final boolean pushEnabled;
     private final int maxConcurrentStreams;

@@ -34,6 +34,7 @@ import java.net.UnknownHostException;
 import java.util.regex.Pattern;
 
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Constant;
 
 /**
  * A collection of utilities relating to InetAddresses.
@@ -66,10 +67,6 @@ public class InetAddressUtils {
                  "::" +
                  "(([0-9A-Fa-f]{1,4}(:[0-9A-Fa-f]{1,4}){0,5})?)$"); // 0-6 hex fields
 
-    /*
-     *  The above pattern is not totally rigorous as it allows for more than 7 hex fields in total
-     */
-    private static final char COLON_CHAR = ':';
 
     // Must not have more than 7 colons (i.e. 8 fields)
     private static final int MAX_COLON_COUNT = 7;
@@ -107,7 +104,7 @@ public class InetAddressUtils {
     public static boolean isIPv6HexCompressedAddress(final String input) {
         int colonCount = 0;
         for(int i = 0; i < input.length(); i++) {
-            if (input.charAt(i) == COLON_CHAR) {
+            if (input.charAt(i) == Constant.COLON) {
                 colonCount++;
             }
         }
@@ -137,7 +134,7 @@ public class InetAddressUtils {
             final InetSocketAddress socketaddr = (InetSocketAddress) socketAddress;
             final InetAddress inetaddr = socketaddr.getAddress();
             if (inetaddr != null) {
-                buffer.append(inetaddr.getHostAddress()).append(':').append(socketaddr.getPort());
+                buffer.append(inetaddr.getHostAddress()).append(Constant.COLON).append(socketaddr.getPort());
             } else {
                 buffer.append(socketAddress);
             }

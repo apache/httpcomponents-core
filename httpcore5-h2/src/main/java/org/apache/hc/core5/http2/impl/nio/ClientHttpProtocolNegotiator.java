@@ -109,19 +109,16 @@ public class ClientHttpProtocolNegotiator extends ProtocolNegotiatorBase {
     }
 
     private void initialize() throws IOException {
-        switch (versionPolicy) {
-            case NEGOTIATE:
-                final TlsDetails tlsDetails = ioSession.getTlsDetails();
-                if (tlsDetails != null) {
-                    if (ApplicationProtocol.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
-                        // Proceed with the H2 preface
-                        preface = ByteBuffer.wrap(PREFACE);
-                    }
+        if (versionPolicy == HttpVersionPolicy.NEGOTIATE) {
+            final TlsDetails tlsDetails = ioSession.getTlsDetails();
+            if (tlsDetails != null) {
+                if (ApplicationProtocol.HTTP_2.id.equals(tlsDetails.getApplicationProtocol())) {
+                    // Proceed with the H2 preface
+                    preface = ByteBuffer.wrap(PREFACE);
                 }
-                break;
-            case FORCE_HTTP_2:
-                preface = ByteBuffer.wrap(PREFACE);
-                break;
+            }
+        } else if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_2) {
+            preface = ByteBuffer.wrap(PREFACE);
         }
         if (preface == null) {
             startHttp1();

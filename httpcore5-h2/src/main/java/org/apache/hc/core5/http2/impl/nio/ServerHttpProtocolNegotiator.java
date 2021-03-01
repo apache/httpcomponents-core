@@ -45,6 +45,7 @@ import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Constant;
 
 /**
  * I/O event handler for events fired by {@link ProtocolIOSession} that implements
@@ -175,7 +176,7 @@ public class ServerHttpProtocolNegotiator extends ProtocolNegotiatorBase {
 
     @Override
     public String toString() {
-        return getClass().getName() + "/" + versionPolicy;
+        return getClass().getName() + Constant.FORWARD_SLASH + versionPolicy;
     }
 
 }

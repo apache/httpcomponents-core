@@ -240,13 +240,10 @@ public class SSLIOSession implements IOSession {
             if (this.status.compareTo(Status.CLOSING) >= 0) {
                 return;
             }
-            switch (this.sslMode) {
-                case CLIENT:
-                    this.sslEngine.setUseClientMode(true);
-                    break;
-                case SERVER:
-                    this.sslEngine.setUseClientMode(false);
-                    break;
+            if (this.sslMode == SSLMode.CLIENT) {
+                this.sslEngine.setUseClientMode(true);
+            } else if (this.sslMode == SSLMode.SERVER) {
+                this.sslEngine.setUseClientMode(false);
             }
             if (this.initializer != null) {
                 this.initializer.initialize(this.targetEndpoint, this.sslEngine);

@@ -33,6 +33,12 @@ package org.apache.hc.core5.http2.hpack;
  * @since 5.0
  */
 public class HeaderListConstraintException extends HPackException {
+    /**
+     * Required for serialization support.
+     *
+     * @see java.io.Serializable
+     */
+    private static final long serialVersionUID = 9130981983188889920L;
 
     /**
      * Creates a HeaderListConstraintException with the specified detail message.

@@ -36,6 +36,7 @@ import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Param;
+import org.apache.hc.core5.util.Constant;
 
 @Internal
 public final class FramePrinter {
@@ -111,7 +112,7 @@ public final class FramePrinter {
                             } else {
                                 appendable.append("0x").append(Integer.toHexString(code));
                             }
-                            appendable.append(": ").append(Integer.toString(value)).append("\r\n");
+                            appendable.append(": ").append(Integer.toString(value)).append(Constant.CRLF);
                         }
                     } else {
                         appendable.append("Invalid\r\n");
@@ -127,7 +128,7 @@ public final class FramePrinter {
                         } else {
                             appendable.append("0x").append(Integer.toHexString(code));
                         }
-                        appendable.append("\r\n");
+                        appendable.append(Constant.CRLF);
                     } else {
                         appendable.append("Invalid\r\n");
                     }
@@ -135,7 +136,7 @@ public final class FramePrinter {
                 case GOAWAY:
                     if (buf.remaining() >= 8) {
                         final int lastStream = buf.getInt();
-                        appendable.append("Last stream ").append(Integer.toString(lastStream)).append("\r\n");
+                        appendable.append("Last stream ").append(Integer.toString(lastStream)).append(Constant.CRLF);
                         appendable.append("Code ");
                         final int code2 = buf.getInt();
                         final H2Error error2 = H2Error.getByCode(code2);
@@ -144,11 +145,11 @@ public final class FramePrinter {
                         } else {
                             appendable.append("0x").append(Integer.toHexString(code2));
                         }
-                        appendable.append("\r\n");
+                        appendable.append(Constant.CRLF);
                         final byte[] tmp = new byte[buf.remaining()];
                         buf.get(tmp);
                         appendable.append(new String(tmp, StandardCharsets.US_ASCII));
-                        appendable.append("\r\n");
+                        appendable.append(Constant.CRLF);
                     } else {
                         appendable.append("Invalid\r\n");
                     }
@@ -156,7 +157,7 @@ public final class FramePrinter {
                 case WINDOW_UPDATE:
                     if (buf.remaining() == 4) {
                         final int increment = buf.getInt();
-                        appendable.append("Increment ").append(Integer.toString(increment)).append("\r\n");
+                        appendable.append("Increment ").append(Integer.toString(increment)).append(Constant.CRLF);
                     } else {
                         appendable.append("Invalid\r\n");
                     }
@@ -164,7 +165,7 @@ public final class FramePrinter {
                 case PUSH_PROMISE:
                     if (buf.remaining() > 4) {
                         final int streamId = buf.getInt();
-                        appendable.append("Promised stream ").append(Integer.toString(streamId)).append("\r\n");
+                        appendable.append("Promised stream ").append(Integer.toString(streamId)).append(Constant.CRLF);
                         printData(buf, appendable);
                     } else {
                         appendable.append("Invalid\r\n");
@@ -206,7 +207,7 @@ public final class FramePrinter {
                     }
                     appendable.append(s);
                 }
-                appendable.append("\r\n");
+                appendable.append(Constant.CRLF);
             }
     }
 

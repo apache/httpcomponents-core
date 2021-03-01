@@ -39,31 +39,35 @@ import org.apache.hc.core5.util.Args;
 public class DefaultFrameFactory extends FrameFactory {
 
     public static final FrameFactory INSTANCE = new DefaultFrameFactory();
+    /**
+     * A String for a {@code "Stream id"}.
+     */
+    private static final String STREAM_ID = "Stream id";
 
     @Override
     public RawFrame createHeaders(final int streamId, final ByteBuffer payload, final boolean endHeaders, final boolean endStream) {
-        Args.positive(streamId, "Stream id");
+        Args.positive(streamId, STREAM_ID);
         final int flags = (endHeaders ? FrameFlag.END_HEADERS.value : 0) | (endStream ? FrameFlag.END_STREAM.value : 0);
         return new RawFrame(FrameType.HEADERS.getValue(), flags, streamId, payload);
     }
 
     @Override
     public RawFrame createContinuation(final int streamId, final ByteBuffer payload, final boolean endHeaders) {
-        Args.positive(streamId, "Stream id");
+        Args.positive(streamId, STREAM_ID);
         final int flags = (endHeaders ? FrameFlag.END_HEADERS.value : 0);
         return new RawFrame(FrameType.CONTINUATION.getValue(), flags, streamId, payload);
     }
 
     @Override
     public RawFrame createPushPromise(final int streamId, final ByteBuffer payload, final boolean endHeaders) {
-        Args.positive(streamId, "Stream id");
+        Args.positive(streamId, STREAM_ID);
         final int flags = (endHeaders ? FrameFlag.END_HEADERS.value : 0);
         return new RawFrame(FrameType.PUSH_PROMISE.getValue(), flags, streamId, payload);
     }
 
     @Override
     public RawFrame createData(final int streamId, final ByteBuffer payload, final boolean endStream) {
-        Args.positive(streamId, "Stream id");
+        Args.positive(streamId, STREAM_ID);
         final int flags = (endStream ? FrameFlag.END_STREAM.value : 0);
         return new RawFrame(FrameType.DATA.getValue(), flags, streamId, payload);
     }

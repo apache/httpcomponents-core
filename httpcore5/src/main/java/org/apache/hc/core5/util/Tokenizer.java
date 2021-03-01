@@ -108,12 +108,6 @@ public class Tokenizer {
         return bitset;
     }
 
-    /** Double quote */
-    public static final char DQUOTE = '\"';
-
-    /** Backward slash / escape character */
-    public static final char ESCAPE = '\\';
-
     public static final int CR = 13; // <US-ASCII CR, carriage return (13)>
     public static final int LF = 10; // <US-ASCII LF, linefeed (10)>
     public static final int SP = 32; // <US-ASCII SP, space (32)>
@@ -196,7 +190,7 @@ public class Tokenizer {
             } else if (isWhitespace(current)) {
                 skipWhiteSpace(buf, cursor);
                 whitespace = true;
-            } else if (current == DQUOTE) {
+            } else if (current == Constant.DOUBLE_QUOTE) {
                 if (whitespace && dst.length() > 0) {
                     dst.append(' ');
                 }
@@ -286,7 +280,7 @@ public class Tokenizer {
         for (int i = indexFrom; i < indexTo; i++) {
             final char current = buf.charAt(i);
             if ((delimiters != null && delimiters.get(current))
-                    || isWhitespace(current) || current == DQUOTE) {
+                    || isWhitespace(current) || current == Constant.DOUBLE_QUOTE) {
                 break;
             }
             pos++;
@@ -314,7 +308,7 @@ public class Tokenizer {
         int indexFrom = cursor.getPos();
         final int indexTo = cursor.getUpperBound();
         char current = buf.charAt(pos);
-        if (current != DQUOTE) {
+        if (current != Constant.DOUBLE_QUOTE) {
             return;
         }
         pos++;
@@ -323,17 +317,17 @@ public class Tokenizer {
         for (int i = indexFrom; i < indexTo; i++, pos++) {
             current = buf.charAt(i);
             if (escaped) {
-                if (current != DQUOTE && current != ESCAPE) {
-                    dst.append(ESCAPE);
+                if (current != Constant.DOUBLE_QUOTE && current != Constant.ESCAPE) {
+                    dst.append(Constant.ESCAPE);
                 }
                 dst.append(current);
                 escaped = false;
             } else {
-                if (current == DQUOTE) {
+                if (current == Constant.DOUBLE_QUOTE) {
                     pos++;
                     break;
                 }
-                if (current == ESCAPE) {
+                if (current == Constant.ESCAPE) {
                     escaped = true;
                 } else if (current != CR && current != LF) {
                     dst.append(current);

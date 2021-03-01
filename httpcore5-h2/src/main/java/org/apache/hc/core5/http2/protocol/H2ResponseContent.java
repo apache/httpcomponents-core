@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.ResponseContent;
+import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -61,7 +62,7 @@ public class H2ResponseContent extends ResponseContent {
             final HttpResponse response,
             final EntityDetails entity,
             final HttpContext context) throws HttpException, IOException {
-        Args.notNull(context, "HTTP context");
+        Args.notNull(context, H2Config.HTTP_CONTEXT_MSG);
         final ProtocolVersion ver = context.getProtocolVersion();
         if (ver.getMajor() < 2) {
             super.process(response, entity, context);

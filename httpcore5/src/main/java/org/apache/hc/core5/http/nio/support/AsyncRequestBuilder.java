@@ -48,6 +48,7 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.net.WWWFormCodec;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
@@ -326,7 +327,7 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
     public AsyncRequestProducer build() {
         String path = getPath();
         if (TextUtils.isEmpty(path)) {
-            path = "/";
+            path = Constant.FORWARD_SLASH;
         }
         AsyncEntityProducer entityProducerCopy = entityProducer;
         final String method = getMethod();

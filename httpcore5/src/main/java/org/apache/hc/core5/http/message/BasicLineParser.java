@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
 
@@ -206,7 +207,7 @@ public class BasicLineParser implements LineParser {
         this.tokenizer.skipWhiteSpace(buffer, cursor);
         final String name = this.tokenizer.parseToken(buffer, cursor, COLON);
         if (cursor.getPos() == cursor.getLowerBound() || cursor.getPos() == cursor.getUpperBound() ||
-                buffer.charAt(cursor.getPos()) != ':' ||
+                buffer.charAt(cursor.getPos()) != Constant.COLON ||
                 TextUtils.isEmpty(name) ||
                 Tokenizer.isWhitespace(buffer.charAt(cursor.getPos() - 1))) {
             throw new ParseException("Invalid header",

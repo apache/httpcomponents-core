@@ -62,6 +62,7 @@ import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.FileEntityProducer;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.util.Constant;
 
 class BenchmarkWorker implements ResourceHolder {
 
@@ -102,7 +103,7 @@ class BenchmarkWorker implements ResourceHolder {
         final String[] headers = config.getHeaders();
         if (headers != null) {
             for (final String s : headers) {
-                final int pos = s.indexOf(':');
+                final int pos = s.indexOf(Constant.COLON);
                 if (pos != -1) {
                     request.addHeader(new BasicHeader(s.substring(0, pos).trim(), s.substring(pos + 1)));
                 }

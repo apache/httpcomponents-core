@@ -197,33 +197,30 @@ class ServerPushH2StreamHandler implements H2StreamHandler {
 
     @Override
     public void produceOutput() throws HttpException, IOException {
-        switch (responseState) {
-            case IDLE:
-                responseState = MessageState.HEADERS;
-                pushProducer.produceResponse(new ResponseChannel() {
+        if (responseState == MessageState.IDLE) {
+            responseState = MessageState.HEADERS;
+            pushProducer.produceResponse(new ResponseChannel() {
 
-                    @Override
-                    public void sendInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
-                        commitInformation(response);
-                    }
+                @Override
+                public void sendInformation(final HttpResponse response, final HttpContext httpContext) throws HttpException, IOException {
+                    commitInformation(response);
+                }
 
-                    @Override
-                    public void sendResponse(
-                            final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                        commitResponse(response, entityDetails);
-                    }
+                @Override
+                public void sendResponse(
+                        final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
+                    commitResponse(response, entityDetails);
+                }
 
-                    @Override
-                    public void pushPromise(
-                            final HttpRequest promise, final AsyncPushProducer pushProducer, final HttpContext httpContext) throws HttpException, IOException {
-                        commitPromise(promise, pushProducer);
-                    }
+                @Override
+                public void pushPromise(
+                        final HttpRequest promise, final AsyncPushProducer pushProducer, final HttpContext httpContext) throws HttpException, IOException {
+                    commitPromise(promise, pushProducer);
+                }
 
-                }, context);
-                break;
-            case BODY:
-                pushProducer.produce(dataChannel);
-                break;
+            }, context);
+        } else if (responseState == MessageState.BODY) {
+            pushProducer.produce(dataChannel);
         }
     }
 

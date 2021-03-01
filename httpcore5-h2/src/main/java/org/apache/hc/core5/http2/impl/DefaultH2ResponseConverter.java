@@ -42,6 +42,7 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http2.H2MessageConverter;
 import org.apache.hc.core5.http2.H2PseudoResponseHeaders;
+import org.apache.hc.core5.util.Constant;
 
 /**
  * HTTP/2 response converter.
@@ -69,7 +70,7 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
                 }
             }
 
-            if (name.startsWith(":")) {
+            if (name.charAt(0) == Constant.COLON) {
                 if (!messageHeaders.isEmpty()) {
                     throw new ProtocolException("Invalid sequence of headers (pseudo-headers must precede message headers)");
                 }

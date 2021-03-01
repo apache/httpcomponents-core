@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.TextUtils;
 
 import java.net.URI;
@@ -281,7 +282,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
             Args.check(!rawPath.startsWith("//"), "URI path begins with multiple slashes");
             buf.append(rawPath);
         } else {
-            buf.append("/");
+            buf.append(Constant.FORWARD_SLASH);
         }
         final String query = requestUri.getRawQuery();
         if (query != null) {
@@ -295,14 +296,14 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
             buf.append(this.scheme != null ? this.scheme : URIScheme.HTTP.id).append("://");
             buf.append(this.authority.getHostName());
             if (this.authority.getPort() >= 0) {
-                buf.append(":").append(this.authority.getPort());
+                buf.append(Constant.COLON).append(this.authority.getPort());
             }
         }
         if (this.path == null) {
-            buf.append("/");
+            buf.append(Constant.FORWARD_SLASH);
         } else {
-            if (buf.length() > 0 && !this.path.startsWith("/")) {
-                buf.append("/");
+            if (buf.length() > 0 && !this.path.startsWith(Constant.FORWARD_SLASH)) {
+                buf.append(Constant.FORWARD_SLASH);
             }
             buf.append(this.path);
         }

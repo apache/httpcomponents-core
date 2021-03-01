@@ -44,6 +44,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.Timeout;
 
 class IOSessionImpl implements IOSession {
@@ -291,7 +292,7 @@ class IOSessionImpl implements IOSession {
         buffer.append("][");
         if (this.key.isValid()) {
             formatOps(buffer, this.key.interestOps());
-            buffer.append(":");
+            buffer.append(Constant.COLON);
             formatOps(buffer, this.key.readyOps());
         }
         buffer.append("]");

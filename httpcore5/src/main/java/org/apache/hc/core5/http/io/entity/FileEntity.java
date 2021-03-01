@@ -28,9 +28,9 @@
 package org.apache.hc.core5.http.io.entity;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -69,7 +69,7 @@ public class FileEntity extends AbstractHttpEntity {
 
     @Override
     public final InputStream getContent() throws IOException {
-        return new FileInputStream(this.file);
+        return Files.newInputStream(this.file.toPath());
     }
 
     @Override

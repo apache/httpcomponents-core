@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.ParserCursor;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
 
@@ -267,7 +268,7 @@ public class URIBuilder {
     private String buildString() {
         final StringBuilder sb = new StringBuilder();
         if (this.scheme != null) {
-            sb.append(this.scheme).append(':');
+            sb.append(this.scheme).append(Constant.COLON);
         }
         if (this.encodedSchemeSpecificPart != null) {
             sb.append(this.encodedSchemeSpecificPart);
@@ -279,17 +280,17 @@ public class URIBuilder {
             } else if (this.host != null) {
                 sb.append("//");
                 if (this.encodedUserInfo != null) {
-                    sb.append(this.encodedUserInfo).append("@");
+                    sb.append(this.encodedUserInfo).append(Constant.AT);
                 } else if (this.userInfo != null) {
-                    final int idx = this.userInfo.indexOf(':');
+                    final int idx = this.userInfo.indexOf(Constant.COLON);
                     if (idx != -1) {
                         PercentCodec.encode(sb, this.userInfo.substring(0, idx), this.charset);
-                        sb.append(':');
+                        sb.append(Constant.COLON);
                         PercentCodec.encode(sb, this.userInfo.substring(idx + 1), this.charset);
                     } else {
                         PercentCodec.encode(sb, this.userInfo, this.charset);
                     }
-                    sb.append("@");
+                    sb.append(Constant.AT);
                 }
                 if (InetAddressUtils.isIPv6Address(this.host)) {
                     sb.append("[").append(this.host).append("]");
@@ -297,7 +298,7 @@ public class URIBuilder {
                     sb.append(PercentCodec.encode(this.host, this.charset));
                 }
                 if (this.port >= 0) {
-                    sb.append(":").append(this.port);
+                    sb.append(Constant.COLON).append(this.port);
                 }
                 authoritySpecified = true;
             } else {
@@ -350,7 +351,7 @@ public class URIBuilder {
         }
         this.encodedPath = uri.getRawPath();
         this.pathSegments = parsePath(uri.getRawPath(), charset);
-        this.pathRootless = uri.getRawPath() == null || !uri.getRawPath().startsWith("/");
+        this.pathRootless = uri.getRawPath() == null || !uri.getRawPath().startsWith(Constant.FORWARD_SLASH);
         this.encodedQuery = uri.getRawQuery();
         this.queryParams = parseQuery(uri.getRawQuery(), charset, false);
         this.encodedFragment = uri.getRawFragment();
@@ -438,7 +439,7 @@ public class URIBuilder {
      */
     @Deprecated
     public URIBuilder setUserInfo(final String username, final String password) {
-        return setUserInfo(username + ':' + password);
+        return setUserInfo(username + Constant.COLON + password);
     }
 
     /**
@@ -497,7 +498,7 @@ public class URIBuilder {
      */
     public URIBuilder setPath(final String path) {
         setPathSegments(path != null ? splitPath(path) : null);
-        this.pathRootless = path != null && !path.startsWith("/");
+        this.pathRootless = path != null && !path.startsWith(Constant.FORWARD_SLASH);
         return this;
     }
 

@@ -198,9 +198,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 }
             }
 
-            switch (this.state) {
-            case READ_CONTENT:
-
+            if (this.state == State.READ_CONTENT) {
                 if (this.chunkSize == -1L) {
                     readChunkHead();
                     if (this.chunkSize == -1L) {
@@ -211,7 +209,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                         // Last chunk. Read footers
                         this.chunkSize = -1L;
                         this.state = State.READ_FOOTERS;
-                        break;
+                        continue;
                     }
                 }
                 final long maxLen = this.chunkSize - this.pos;
@@ -224,8 +222,8 @@ public class ChunkDecoder extends AbstractContentDecoder {
                         this.state = State.COMPLETED;
                         setCompleted();
                         throw new TruncatedChunkException(
-                                        "Truncated chunk (expected size: %d; actual size: %d)",
-                                        chunkSize, pos);
+                                "Truncated chunk (expected size: %d; actual size: %d)",
+                                chunkSize, pos);
                     }
                 }
 
@@ -234,10 +232,10 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     this.chunkSize = -1L;
                     this.pos = 0L;
                     this.endOfChunk = true;
-                    break;
+                    continue;
                 }
                 return totalRead;
-            case READ_FOOTERS:
+            } else if (this.state == State.READ_FOOTERS) {
                 if (this.lineBuf == null) {
                     this.lineBuf = new CharArrayBuffer(32);
                 } else {
@@ -262,7 +260,6 @@ public class ChunkDecoder extends AbstractContentDecoder {
                     setCompleted();
                     processFooters();
                 }
-                break;
             }
 
         }

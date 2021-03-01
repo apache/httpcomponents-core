@@ -34,6 +34,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.hc.core5.http2.H2PseudoRequestHeaders;
 import org.apache.hc.core5.http2.H2PseudoResponseHeaders;
+import org.apache.hc.core5.util.Constant;
 
 final class StaticTable {
 
@@ -41,7 +42,7 @@ final class StaticTable {
             new HPackHeader(H2PseudoRequestHeaders.AUTHORITY, ""),
             new HPackHeader(H2PseudoRequestHeaders.METHOD, "GET"),
             new HPackHeader(H2PseudoRequestHeaders.METHOD, "POST"),
-            new HPackHeader(H2PseudoRequestHeaders.PATH, "/"),
+            new HPackHeader(H2PseudoRequestHeaders.PATH, Constant.FORWARD_SLASH),
             new HPackHeader(H2PseudoRequestHeaders.PATH, "/index.html"),
             new HPackHeader(H2PseudoRequestHeaders.SCHEME, "http"),
             new HPackHeader(H2PseudoRequestHeaders.SCHEME, "https"),

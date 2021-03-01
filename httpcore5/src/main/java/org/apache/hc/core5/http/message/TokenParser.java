@@ -49,9 +49,6 @@ public class TokenParser extends Tokenizer {
 
     public static final TokenParser INSTANCE = new TokenParser();
 
-    /** Double quote */
-    public static final char DQUOTE = '\"';
-
     /** Backward slash / escape character */
     public static final char ESCAPE = '\\';
 

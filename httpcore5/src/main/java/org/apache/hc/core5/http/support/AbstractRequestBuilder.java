@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.TextUtils;
 
 import java.net.URI;
@@ -141,7 +142,7 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
             buf.append(this.scheme != null ? this.scheme : URIScheme.HTTP.id).append("://");
             buf.append(this.authority.getHostName());
             if (this.authority.getPort() >= 0) {
-                buf.append(":").append(this.authority.getPort());
+                buf.append(Constant.COLON).append(this.authority.getPort());
             }
         }
         if (this.path == null) {

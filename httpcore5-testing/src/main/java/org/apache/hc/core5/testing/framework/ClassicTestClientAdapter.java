@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.testing.classic.ClassicTestClient;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.Timeout;
 
 public class ClassicTestClientAdapter extends ClientPOJOAdapter {
@@ -80,8 +81,8 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
 
         // Append the path to the defaultURI.
         String tempDefaultURI = defaultURI;
-        if (! defaultURI.endsWith("/")) {
-            tempDefaultURI += "/";
+        if (! defaultURI.endsWith(Constant.FORWARD_SLASH)) {
+            tempDefaultURI += Constant.FORWARD_SLASH;
         }
         final URI startingURI = new URI(tempDefaultURI + request.get(PATH));
         final URI uri;

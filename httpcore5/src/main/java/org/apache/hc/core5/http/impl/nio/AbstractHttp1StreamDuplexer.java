@@ -402,15 +402,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     void requestShutdown(final CloseMode closeMode) {
-        switch (closeMode) {
-            case GRACEFUL:
-                if (connState == ConnectionState.ACTIVE) {
-                    connState = ConnectionState.GRACEFUL_SHUTDOWN;
-                }
-                break;
-            case IMMEDIATE:
-                connState = ConnectionState.SHUTDOWN;
-                break;
+        if (closeMode == CloseMode.GRACEFUL) {
+            if (connState == ConnectionState.ACTIVE) {
+                connState = ConnectionState.GRACEFUL_SHUTDOWN;
+            }
+        } else if (closeMode == CloseMode.IMMEDIATE) {
+            connState = ConnectionState.SHUTDOWN;
         }
         ioSession.setEvent(SelectionKey.OP_WRITE);
     }

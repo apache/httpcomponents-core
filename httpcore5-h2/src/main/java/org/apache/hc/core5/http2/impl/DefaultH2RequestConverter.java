@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http2.H2MessageConverter;
 import org.apache.hc.core5.http2.H2PseudoRequestHeaders;
 import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
@@ -76,7 +77,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
                 }
             }
 
-            if (name.startsWith(":")) {
+            if (name.charAt(0) == Constant.COLON) {
                 if (!messageHeaders.isEmpty()) {
                     throw new ProtocolException("Invalid sequence of headers (pseudo-headers must precede message headers)");
                 }

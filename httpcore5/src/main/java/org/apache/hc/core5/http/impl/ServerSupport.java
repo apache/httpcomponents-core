@@ -50,12 +50,10 @@ public class ServerSupport {
             final HttpResponse response,
             final EntityDetails responseEntityDetails) throws HttpException {
         final int status = response.getCode();
-        switch (status) {
-            case HttpStatus.SC_NO_CONTENT:
-            case HttpStatus.SC_NOT_MODIFIED:
-                if (responseEntityDetails != null) {
-                    throw new HttpException("Response " + status + " must not enclose an entity");
-                }
+        if (status == HttpStatus.SC_NO_CONTENT || status == HttpStatus.SC_NOT_MODIFIED) {
+            if (responseEntityDetails != null) {
+                throw new HttpException("Response " + status + " must not enclose an entity");
+            }
         }
     }
 

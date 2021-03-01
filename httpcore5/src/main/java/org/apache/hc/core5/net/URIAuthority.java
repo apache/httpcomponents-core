@@ -34,6 +34,7 @@ import java.util.Locale;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
@@ -62,7 +63,7 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         HOST_SEPARATORS.or(TERMINATORS);
         HOST_SEPARATORS.set('@');
         PORT_SEPARATORS.or(TERMINATORS);
-        PORT_SEPARATORS.set(':');
+        PORT_SEPARATORS.set(Constant.COLON);
     }
 
     static URISyntaxException createException(
@@ -89,7 +90,7 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         }
         final String hostName = tokenizer.parseContent(s, cursor, PORT_SEPARATORS);
         String portText = null;
-        if (!cursor.atEnd() && s.charAt(cursor.getPos()) == ':') {
+        if (!cursor.atEnd() && s.charAt(cursor.getPos()) == Constant.COLON) {
             cursor.updatePos(cursor.getPos() + 1);
             portText = tokenizer.parseContent(s, cursor, TERMINATORS);
         }
@@ -114,11 +115,11 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     static void format(final StringBuilder buf, final URIAuthority uriAuthority) {
         if (uriAuthority.userInfo != null) {
             buf.append(uriAuthority.userInfo);
-            buf.append("@");
+            buf.append(Constant.AT);
         }
         buf.append(uriAuthority.hostname);
         if (uriAuthority.port != -1) {
-            buf.append(":");
+            buf.append(Constant.COLON);
             buf.append(uriAuthority.port);
         }
     }

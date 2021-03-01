@@ -162,14 +162,12 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 break;
             }
 
-            switch (this.state) {
-            case READ_HEAD_LINE:
+            if (this.state == State.READ_HEAD_LINE) {
                 this.message = parseHeadLine();
                 if (this.message != null) {
                     this.state = State.READ_HEADERS;
                 }
-                break;
-            case READ_HEADERS:
+            } else if (this.state == State.READ_HEADERS) {
                 if (this.lineBuf.length() > 0) {
                     final int maxHeaderCount = this.messageConstraints.getMaxHeaderCount();
                     if (maxHeaderCount > 0 && headerBufs.size() >= maxHeaderCount) {
@@ -180,7 +178,6 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 } else {
                     this.state = State.COMPLETED;
                 }
-                break;
             }
             if (endOfStream && !sessionBuffer.hasData()) {
                 this.state = State.COMPLETED;

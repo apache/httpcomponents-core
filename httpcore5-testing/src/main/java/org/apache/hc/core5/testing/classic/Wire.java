@@ -30,6 +30,7 @@ package org.apache.hc.core5.testing.classic;
 import java.nio.ByteBuffer;
 
 import org.apache.hc.core5.http.Chars;
+import org.apache.hc.core5.util.Constant;
 import org.slf4j.Logger;
 
 public class Wire {
@@ -64,8 +65,8 @@ public class Wire {
             }
         }
         if (buffer.length() > 0) {
-            buffer.append('\"');
-            buffer.insert(0, '\"');
+            buffer.append(Constant.DOUBLE_QUOTE);
+            buffer.insert(0, Constant.DOUBLE_QUOTE);
             buffer.insert(0, header);
             this.log.debug("{} {}", this.id, buffer);
         }

@@ -33,6 +33,7 @@ import java.util.Locale;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
 
@@ -59,7 +60,7 @@ public final class Host implements NamedEndpoint, Serializable {
 
     public static Host create(final String s) throws URISyntaxException {
         Args.notEmpty(s, "HTTP Host");
-        final int portIdx = s.lastIndexOf(":");
+        final int portIdx = s.lastIndexOf(Constant.COLON);
         final int port;
         if (portIdx > 0) {
             try {
@@ -108,7 +109,7 @@ public final class Host implements NamedEndpoint, Serializable {
 
     @Override
     public String toString() {
-        return name + ":" + port;
+        return name + Constant.COLON + port;
     }
 
 }

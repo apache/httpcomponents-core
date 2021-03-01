@@ -284,19 +284,15 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     boolean isOutputReady() {
-        switch (responseState) {
-            case BODY:
-                return exchangeHandler.available() > 0;
-            default:
-                return false;
+        if (responseState == MessageState.BODY) {
+            return exchangeHandler.available() > 0;
         }
+        return false;
     }
 
     void produceOutput() throws HttpException, IOException {
-        switch (responseState) {
-            case BODY:
-                exchangeHandler.produce(internalDataChannel);
-                break;
+        if (responseState == MessageState.BODY) {
+            exchangeHandler.produce(internalDataChannel);
         }
     }
 

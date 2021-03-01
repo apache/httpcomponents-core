@@ -166,21 +166,18 @@ class ClientH2StreamHandler implements H2StreamHandler {
 
     @Override
     public void produceOutput() throws HttpException, IOException {
-        switch (requestState) {
-            case HEADERS:
-                exchangeHandler.produceRequest(new RequestChannel() {
+        if (requestState == MessageState.HEADERS) {
+            exchangeHandler.produceRequest(new RequestChannel() {
 
-                    @Override
-                    public void sendRequest(
-                            final HttpRequest request, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                        commitRequest(request, entityDetails);
-                    }
+                @Override
+                public void sendRequest(
+                        final HttpRequest request, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
+                    commitRequest(request, entityDetails);
+                }
 
-                }, context);
-                break;
-            case BODY:
-                exchangeHandler.produce(dataChannel);
-                break;
+            }, context);
+        } else if (requestState == MessageState.BODY) {
+            exchangeHandler.produce(dataChannel);
         }
     }
 

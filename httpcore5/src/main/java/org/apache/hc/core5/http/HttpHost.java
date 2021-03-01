@@ -39,6 +39,7 @@ import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.net.Ports;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Constant;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
 
@@ -167,7 +168,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
             text = text.substring(schemeIdx + 3);
         }
         int port = -1;
-        final int portIdx = text.lastIndexOf(":");
+        final int portIdx = text.lastIndexOf(Constant.COLON);
         if (portIdx > 0) {
             try {
                 port = Integer.parseInt(text.substring(portIdx + 1));
@@ -334,7 +335,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         buffer.append("://");
         buffer.append(this.hostname);
         if (this.port != -1) {
-            buffer.append(':');
+            buffer.append(Constant.COLON);
             buffer.append(this.port);
         }
         return buffer.toString();
@@ -351,7 +352,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
             //the highest port number is 65535, which is length 6 with the addition of the colon
             final StringBuilder buffer = new StringBuilder(this.hostname.length() + 6);
             buffer.append(this.hostname);
-            buffer.append(":");
+            buffer.append(Constant.COLON);
             buffer.append(this.port);
             return buffer.toString();
         }

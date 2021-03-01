@@ -174,12 +174,12 @@ public class VersionInfo {
              infoClassloader.length());
 
         sb.append("VersionInfo(")
-            .append(infoPackage).append(':').append(infoModule);
+            .append(infoPackage).append(Constant.COLON).append(infoModule);
 
         // If version info is missing, a single "UNAVAILABLE" for the module
         // is sufficient. Everything else just clutters the output.
         if (!UNAVAILABLE.equals(infoRelease)) {
-            sb.append(':').append(infoRelease);
+            sb.append(Constant.COLON).append(infoRelease);
         }
 
         sb.append(')');
@@ -237,7 +237,7 @@ public class VersionInfo {
         try {
             // org.apache.http becomes
             // org/apache/http/version.properties
-            try (final InputStream is = cl.getResourceAsStream(pckg.replace('.', '/') + "/" + VERSION_PROPERTY_FILE)) {
+            try (final InputStream is = cl.getResourceAsStream(pckg.replace('.', '/') + Constant.FORWARD_SLASH + VERSION_PROPERTY_FILE)) {
                 if (is != null) {
                     final Properties props = new Properties();
                     props.load(is);
@@ -316,7 +316,7 @@ public class VersionInfo {
 
         String nameAndRelease = name;
         if (!UNAVAILABLE.equals(release)) {
-            nameAndRelease += "/" + release;
+            nameAndRelease += Constant.FORWARD_SLASH + release;
         }
 
         return String.format("%s (Java/%s)", nameAndRelease, javaVersion);

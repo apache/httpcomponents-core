@@ -100,6 +100,21 @@ public class H2ServerBootstrap {
     private H2StreamListener h2StreamListener;
     private Http1StreamListener http1StreamListener;
 
+    /**
+     * A String for a {@code "name"}.
+     */
+    private static final String NAME = "name";
+    /**
+     * A String for a {@code "Existing"}.
+     */
+    private static final String EXISTING = "Existing";
+    /**
+     * A String for a {@code "Filter handler"}.
+     */
+    private static final String FILTER_HANDLER = "Filter handler";
+
+
+
     private H2ServerBootstrap() {
         this.handlerList = new ArrayList<>();
         this.filters = new ArrayList<>();
@@ -306,9 +321,9 @@ public class H2ServerBootstrap {
      * Adds the filter before the filter with the given name.
      */
     public final H2ServerBootstrap addFilterBefore(final String existing, final String name, final AsyncFilterHandler filterHandler) {
-        Args.notBlank(existing, "Existing");
-        Args.notBlank(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Args.notBlank(existing, EXISTING);
+        Args.notBlank(name, NAME);
+        Args.notNull(filterHandler, FILTER_HANDLER);
         filters.add(new FilterEntry<>(FilterEntry.Postion.BEFORE, name, filterHandler, existing));
         return this;
     }
@@ -317,9 +332,9 @@ public class H2ServerBootstrap {
      * Adds the filter after the filter with the given name.
      */
     public final H2ServerBootstrap addFilterAfter(final String existing, final String name, final AsyncFilterHandler filterHandler) {
-        Args.notBlank(existing, "Existing");
-        Args.notBlank(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Args.notBlank(existing, EXISTING);
+        Args.notBlank(name, NAME);
+        Args.notNull(filterHandler, FILTER_HANDLER);
         filters.add(new FilterEntry<>(FilterEntry.Postion.AFTER, name, filterHandler, existing));
         return this;
     }
@@ -328,8 +343,8 @@ public class H2ServerBootstrap {
      * Replace an existing filter with the given name with new filter.
      */
     public final H2ServerBootstrap replaceFilter(final String existing, final AsyncFilterHandler filterHandler) {
-        Args.notBlank(existing, "Existing");
-        Args.notNull(filterHandler, "Filter handler");
+        Args.notBlank(existing, EXISTING);
+        Args.notNull(filterHandler, FILTER_HANDLER);
         filters.add(new FilterEntry<>(FilterEntry.Postion.REPLACE, existing, filterHandler, existing));
         return this;
     }
@@ -338,8 +353,8 @@ public class H2ServerBootstrap {
      * Add an filter to the head of the processing list.
      */
     public final H2ServerBootstrap addFilterFirst(final String name, final AsyncFilterHandler filterHandler) {
-        Args.notNull(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Args.notNull(name, NAME);
+        Args.notNull(filterHandler, FILTER_HANDLER);
         filters.add(new FilterEntry<>(FilterEntry.Postion.FIRST, name, filterHandler, null));
         return this;
     }
@@ -348,8 +363,8 @@ public class H2ServerBootstrap {
      * Add an filter to the tail of the processing list.
      */
     public final H2ServerBootstrap addFilterLast(final String name, final AsyncFilterHandler filterHandler) {
-        Args.notNull(name, "Name");
-        Args.notNull(filterHandler, "Filter handler");
+        Args.notNull(name, NAME);
+        Args.notNull(filterHandler, FILTER_HANDLER);
         filters.add(new FilterEntry<>(FilterEntry.Postion.LAST, name, filterHandler, null));
         return this;
     }
