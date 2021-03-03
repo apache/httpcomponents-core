@@ -30,7 +30,7 @@ package org.apache.hc.core5.reactor;
 import org.apache.hc.core5.annotation.Internal;
 
 /**
- * {@link IOSession} even listener.
+ * {@link IOSession} event listener.
  *
  * @since 5.0
  */
