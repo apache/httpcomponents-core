@@ -1,3 +1,45 @@
+Release 5.1
+-----------
+
+This is the first GA release in the 5.1 release series.
+
+Notable changes and features included in the 5.1 series:
+
+* Conditional conformance with RFC 3986 (Uniform Resource Identifier (URI): Generic Syntax).
+
+* Improved support for out of sequence response message handing by the the classic (blocking)
+  HTTP transport.
+
+* Improved message builders.
+
+
+Change Log
+-------------------
+
+* Bug fix: HTTP negotiator factories to accept null TlsStrategy.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RequestHandlerRegistry to resolve 127.0.0.1 as primary host.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-667, HTTPCORE-668, HTTPCORE-670: Added content type and HTTP header constants.
+  Contributed by Arturo Bernal <arturobernalg at gmail.com>
+
+* RFC 3986 conformance: BasicHttpRequest to reject requests whose path component begins with
+  multiple slashes.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* RFC 3986 conformance: BasicHttpRequest to support parsing of valid URI authority components
+  not recognized by java.net.URI.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Improved message builder support.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-666, regression: fixed NPE in ServerHttp1IOEventHandlerFactory.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.1 BETA3
 ------------------
 
