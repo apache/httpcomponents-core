@@ -27,7 +27,15 @@
 
 package org.apache.hc.core5.http.support;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
@@ -37,13 +45,6 @@ import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.TextUtils;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Builder for {@link BasicHttpRequest} instances.
@@ -123,6 +124,15 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
 
     public AbstractRequestBuilder<T> setAuthority(final URIAuthority authority) {
         this.authority = authority;
+        return this;
+    }
+
+    public AbstractRequestBuilder<T> setHttpHost(final HttpHost httpHost) {
+        if (httpHost == null) {
+            return this;
+        }
+        this.authority = new URIAuthority(httpHost);
+        this.scheme = httpHost.getSchemeName();
         return this;
     }
 

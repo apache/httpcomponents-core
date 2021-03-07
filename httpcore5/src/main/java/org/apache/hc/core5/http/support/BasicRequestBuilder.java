@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
@@ -209,6 +210,15 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
     @Override
     public BasicRequestBuilder setAuthority(final URIAuthority authority) {
         super.setAuthority(authority);
+        return this;
+    }
+
+    /**
+     * @since 5.1
+     */
+    @Override
+    public BasicRequestBuilder setHttpHost(final HttpHost httpHost) {
+        super.setHttpHost(httpHost);
         return this;
     }
 

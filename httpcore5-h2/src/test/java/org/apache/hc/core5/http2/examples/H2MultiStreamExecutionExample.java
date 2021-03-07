@@ -37,11 +37,10 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
@@ -125,7 +124,10 @@ public class H2MultiStreamExecutionExample {
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {
             clientEndpoint.execute(
-                    new BasicRequestProducer(Method.GET, target, requestUri),
+                    AsyncRequestBuilder.get()
+                            .setHttpHost(target)
+                            .setPath(requestUri)
+                            .build(),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                     new FutureCallback<Message<HttpResponse, String>>() {
 

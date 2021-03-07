@@ -40,14 +40,13 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.HttpEntities;
-import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
@@ -117,7 +116,10 @@ public class ClassicPostExecutionExample {
 
         final String requestUri = "/post";
         for (int i = 0; i < requestBodies.length; i++) {
-            final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, target, requestUri);
+            final ClassicHttpRequest request = ClassicRequestBuilder.get()
+                    .setHttpHost(target)
+                    .setPath(requestUri)
+                    .build();
             request.setEntity(requestBodies[i]);
             try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
                 System.out.println(requestUri + "->" + response.getCode());

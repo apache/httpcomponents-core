@@ -35,13 +35,12 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
@@ -88,7 +87,10 @@ public class ClassicGetExecutionExample {
 
         for (int i = 0; i < requestUris.length; i++) {
             final String requestUri = requestUris[i];
-            final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, target, requestUri);
+            final ClassicHttpRequest request = ClassicRequestBuilder.get()
+                    .setHttpHost(target)
+                    .setPath(requestUri)
+                    .build();
             try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
                 System.out.println(requestUri + "->" + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));

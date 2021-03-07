@@ -27,10 +27,17 @@
 
 package org.apache.hc.core5.http.io.support;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -43,12 +50,6 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Builder for {@link ClassicHttpRequest} instances.
@@ -233,6 +234,15 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
     @Override
     public ClassicRequestBuilder setAuthority(final URIAuthority authority) {
         super.setAuthority(authority);
+        return this;
+    }
+
+    /**
+     * @since 5.1
+     */
+    @Override
+    public ClassicRequestBuilder setHttpHost(final HttpHost httpHost) {
+        super.setHttpHost(httpHost);
         return this;
     }
 

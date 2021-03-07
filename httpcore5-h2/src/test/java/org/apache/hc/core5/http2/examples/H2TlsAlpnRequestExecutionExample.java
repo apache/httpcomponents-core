@@ -39,11 +39,10 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
-import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
-import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
+import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.frame.RawFrame;
@@ -136,7 +135,10 @@ public class H2TlsAlpnRequestExecutionExample {
             final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
             final AsyncClientEndpoint clientEndpoint = future.get();
             clientEndpoint.execute(
-                    new BasicRequestProducer(Method.GET, target, requestUri),
+                    AsyncRequestBuilder.get()
+                            .setHttpHost(target)
+                            .setPath(requestUri)
+                            .build(),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                     new FutureCallback<Message<HttpResponse, String>>() {
 

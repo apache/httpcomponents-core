@@ -35,6 +35,7 @@ import java.util.List;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -218,6 +219,15 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
     @Override
     public AsyncRequestBuilder setAuthority(final URIAuthority authority) {
         super.setAuthority(authority);
+        return this;
+    }
+
+    /**
+     * @since 5.1
+     */
+    @Override
+    public AsyncRequestBuilder setHttpHost(final HttpHost httpHost) {
+        super.setHttpHost(httpHost);
         return this;
     }
 
