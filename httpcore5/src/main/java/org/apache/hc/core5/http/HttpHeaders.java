@@ -181,6 +181,10 @@ public final class HttpHeaders {
      * The HTTP {@code Set-Cookie} header field name.
      */
     public static final String SET_COOKIE = "Set-Cookie";
+    /**
+     * The HTTP {@code Set-Cookie2} header field name.
+     */
+    public static final String SET_COOKIE2 = "Set-Cookie2";
 
     public static final String TE = "TE";
 
