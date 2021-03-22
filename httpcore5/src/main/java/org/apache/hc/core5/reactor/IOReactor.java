@@ -56,6 +56,8 @@ public interface IOReactor extends ModalCloseable {
      * informed about imminent termination and be given a grace period
      * to complete the ongoing I/O sessions. During immediate shutdown
      * all ongoing I/O sessions get aborted immediately.
+     *
+     * @param closeMode How to close the I/O reactor.
      */
     @Override
     void close(CloseMode closeMode);
