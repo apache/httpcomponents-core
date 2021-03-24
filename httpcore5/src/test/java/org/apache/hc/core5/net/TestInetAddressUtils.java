@@ -79,6 +79,56 @@ public class TestInetAddressUtils {
     }
 
     @Test
+    public void testValidIPv6BracketAddress() {
+        Assert.assertTrue(InetAddressUtils.isIPv6URLBracketedAddress("[2001:0db8:0000:0000:0000:0000:1428:57ab]"));
+        Assert.assertTrue(InetAddressUtils.isIPv6URLBracketedAddress("[2001:db8:0:0:0:0:1428:57ab]"));
+        Assert.assertTrue(InetAddressUtils.isIPv6URLBracketedAddress("[0:0:0:0:0:0:0:0]"));
+        Assert.assertTrue(InetAddressUtils.isIPv6URLBracketedAddress("[0:0:0:0:0:0:0:1]"));
+        Assert.assertTrue(InetAddressUtils.isIPv6URLBracketedAddress("[2001:0db8:0:0::1428:57ab]"));
+        Assert.assertTrue(InetAddressUtils.isIPv6URLBracketedAddress("[2001:0db8::1428:57ab]"));
+        Assert.assertTrue(InetAddressUtils.isIPv6URLBracketedAddress("[2001:db8::1428:57ab]"));
+        Assert.assertTrue(InetAddressUtils.isIPv6URLBracketedAddress("[::1]"));
+        // http://tools.ietf.org/html/rfc4291#section-2.2
+        Assert.assertTrue(InetAddressUtils.isIPv6URLBracketedAddress("[::]"));
+    }
+
+    @Test
+    public void testInvalidIPv6BracketAddress() {
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("2001:0db8:0000:garb:age0:0000:1428:57ab"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("[2001:0db8:0000:garb:age0:0000:1428:57ab]"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("2001:0gb8:0000:0000:0000:0000:1428:57ab"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("[2001:0gb8:0000:0000:0000:0000:1428:57ab]"));
+        // Too many
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("0:0:0:0:0:0:0:0:0"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("[0:0:0:0:0:0:0:0:0]"));
+        // Too few
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("0:0:0:0:0:0:0"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("[0:0:0:0:0:0:0]"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress(":1"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("[:1]"));
+        // Cannot have two contractions
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("2001:0db8::0000::57ab"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("[2001:0db8::0000::57ab]"));
+        // too many fields before ::
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("1:2:3:4:5:6:7::9"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("[1:2:3:4:5:6:7::9]"));
+        // too many fields after ::
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("1::3:4:5:6:7:8:9"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("[1::3:4:5:6:7:8:9]"));
+        // too many fields after ::
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("::3:4:5:6:7:8:9"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("[::3:4:5:6:7:8:9]"));
+        // empty
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress(""));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("[]"));
+
+        // missing brackets
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("::"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("::1"));
+        Assert.assertFalse(InetAddressUtils.isIPv6URLBracketedAddress("2001:db8::1428:57ab"));
+    }
+
+    @Test
     // Test HTTPCLIENT-1319
     public void testInvalidIPv6AddressIncorrectGroupCount() {
         Assert.assertFalse(InetAddressUtils.isIPv6HexCompressedAddress("1:2::4:5:6:7:8:9")); // too many fields in total

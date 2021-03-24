@@ -799,4 +799,47 @@ public class TestURIBuilder {
                 new URIBuilder("http:///../../.././").normalizeSyntax().build().toASCIIString());
     }
 
+    @Test
+    public void testIpv6Host() throws Exception {
+        final URIBuilder builder = new URIBuilder("https://[::1]:432/path");
+        final URI uri = builder.build();
+        Assert.assertEquals(432, builder.getPort());
+        Assert.assertEquals(432, uri.getPort());
+        Assert.assertEquals("https", builder.getScheme());
+        Assert.assertEquals("https", uri.getScheme());
+        Assert.assertEquals("::1", builder.getHost());
+        Assert.assertEquals("[::1]", uri.getHost());
+        Assert.assertEquals("/path", builder.getPath());
+        Assert.assertEquals("/path", uri.getPath());
+    }
+
+    @Test
+    public void testIpv6HostWithPortUpdate() throws Exception {
+        // Updating the port clears URIBuilder.encodedSchemeSpecificPart
+        // and bypasses the fast/simple path which preserves input.
+        final URIBuilder builder = new URIBuilder("https://[::1]:432/path").setPort(123);
+        final URI uri = builder.build();
+        Assert.assertEquals(123, builder.getPort());
+        Assert.assertEquals(123, uri.getPort());
+        Assert.assertEquals("https", builder.getScheme());
+        Assert.assertEquals("https", uri.getScheme());
+        Assert.assertEquals("::1", builder.getHost());
+        Assert.assertEquals("[::1]", uri.getHost());
+        Assert.assertEquals("/path", builder.getPath());
+        Assert.assertEquals("/path", uri.getPath());
+    }
+
+    @Test
+    public void testBuilderWithUnbracketedIpv6Host() throws Exception {
+        final URIBuilder builder = new URIBuilder().setScheme("https").setHost("::1").setPort(443).setPath("/path");
+        final URI uri = builder.build();
+        Assert.assertEquals("https", builder.getScheme());
+        Assert.assertEquals("https", uri.getScheme());
+        Assert.assertEquals(443, builder.getPort());
+        Assert.assertEquals(443, uri.getPort());
+        Assert.assertEquals("::1", builder.getHost());
+        Assert.assertEquals("[::1]", uri.getHost());
+        Assert.assertEquals("/path", builder.getPath());
+        Assert.assertEquals("/path", uri.getPath());
+    }
 }
