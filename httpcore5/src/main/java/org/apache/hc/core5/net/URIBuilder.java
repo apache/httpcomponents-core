@@ -333,7 +333,12 @@ public class URIBuilder {
         this.scheme = uri.getScheme();
         this.encodedSchemeSpecificPart = uri.getRawSchemeSpecificPart();
         this.encodedAuthority = uri.getRawAuthority();
-        this.host = uri.getHost();
+        final String uriHost = uri.getHost();
+        // URI.getHost incorrectly returns bracketed (encoded) IPv6 values. Brackets are an
+        // encoding detail of the URI and not part of the host string.
+        this.host = uriHost != null && InetAddressUtils.isIPv6URLBracketedAddress(uriHost)
+                ? uriHost.substring(1, uriHost.length() - 1)
+                : uriHost;
         this.port = uri.getPort();
         this.encodedUserInfo = uri.getRawUserInfo();
         this.userInfo = uri.getUserInfo();
@@ -454,7 +459,9 @@ public class URIBuilder {
     }
 
     /**
-     * Sets URI host.
+     * Sets URI host. The input value must not already be URI encoded, for example {@code ::1} is valid however
+     * {@code [::1]} is not. It is dangerous to call {@code uriBuilder.setHost(uri.getHost())} due
+     * to {@link URI#getHost()} returning URI encoded values.
      *
      * @return this.
      */
@@ -779,6 +786,12 @@ public class URIBuilder {
         return this.userInfo;
     }
 
+    /**
+     * Gets the host portion of the {@link URI}. This method returns unencoded IPv6 addresses (without brackets).
+     * This behavior differs from values returned by {@link URI#getHost()}.
+     *
+     * @return The host portion of the URI.
+     */
     public String getHost() {
         return this.host;
     }
