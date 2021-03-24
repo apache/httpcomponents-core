@@ -138,6 +138,17 @@ public class InetAddressUtils {
     }
 
     /**
+     * Checks whether the parameter is a valid URL formatted bracketed IPv6 address (including compressed).
+     * This matches only bracketed values e.g. {@code [::1]}.
+     *
+     * @param input the address string to check for validity
+     * @return true if the input parameter is a valid URL-formatted bracketed IPv6 address
+     */
+    public static boolean isIPv6URLBracketedAddress(final String input) {
+        return input.startsWith("[") && input.endsWith("]") && isIPv6Address(input.substring(1, input.length() - 1));
+    }
+
+    /**
      * Formats {@link SocketAddress} as text.
      *
      * @since 5.0
