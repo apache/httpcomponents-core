@@ -102,17 +102,26 @@ public final class TextUtils {
         return false;
     }
 
+    /**
+     * Returns a hexadecimal string with lowercase letters, representing the
+     * values of the {@code bytes}.
+     *
+     * @param bytes whose hex string should be created
+     * @return hex string for the bytes
+     *
+     * @since 5.0
+     */
     public static String toHexString(final byte[] bytes) {
         if (bytes == null) {
             return null;
         }
         final StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
-            final byte b = bytes[i];
-            if (b < 16) {
+            final int unsignedB = bytes[i] & 0xff;
+            if (unsignedB < 16) {
                 buffer.append('0');
             }
-            buffer.append(Integer.toHexString(b & 0xff));
+            buffer.append(Integer.toHexString(unsignedB));
         }
         return buffer.toString();
     }
