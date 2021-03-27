@@ -47,7 +47,7 @@ public class TestDigestingEntityConsumer {
         consumer.streamEnd(null);
 
         Assert.assertEquals("12345", consumer.getContent());
-        Assert.assertEquals("0827c0cb0e0ea08a706c4c340a1680910f84e7b", TextUtils.toHexString(consumer.getDigest()));
+        Assert.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", TextUtils.toHexString(consumer.getDigest()));
     }
 
 }

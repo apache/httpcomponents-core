@@ -10,6 +10,7 @@ new features as well as bug fixes from the stable 5.0.x and 5.1.x branches.
 * Add URIBuilder#getFirstQueryParam(String) to query a parameter by name. #264.
   Contributed by Gary Gregory <garydgregory at gmail.com>
 
+* Bug fix: TextUtils.toHexString(byte[]) returned wrong result for negative byte values
 
 Release 5.1
 -----------
