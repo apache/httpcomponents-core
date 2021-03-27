@@ -63,7 +63,7 @@ public class TestTextUtils {
 
     @Test
     public void testToHexString() {
-        Assert.assertEquals("000c2001", TextUtils.toHexString(new byte[] { 0, 12, 32, 1 }));
+        Assert.assertEquals("000c2001ff", TextUtils.toHexString(new byte[] { 0, 12, 32, 1 , -1}));
         Assert.assertEquals(null, TextUtils.toHexString(null));
     }
 

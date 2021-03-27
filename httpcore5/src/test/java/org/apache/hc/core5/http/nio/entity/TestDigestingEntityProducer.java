@@ -59,7 +59,7 @@ public class TestDigestingEntityProducer {
         Assert.assertEquals("digest-algo", trailers.get(0).getName());
         Assert.assertEquals("MD5", trailers.get(0).getValue());
         Assert.assertEquals("digest", trailers.get(1).getName());
-        Assert.assertEquals("0827c0cb0e0ea08a706c4c340a1680910f84e7b", trailers.get(1).getValue());
+        Assert.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", trailers.get(1).getValue());
     }
 
 }
