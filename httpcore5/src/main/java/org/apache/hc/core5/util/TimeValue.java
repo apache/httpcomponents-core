@@ -154,7 +154,7 @@ public class TimeValue implements Comparable<TimeValue> {
     /**
      * Creates a TimeValue from a Duration.
      *
-     * @param duration the time duration in the given {@code timeUnit}.
+     * @param duration the time duration.
      * @return a Timeout
      * @since 5.2
      */

@@ -70,8 +70,7 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout from a Duration.
      *
-     * @param duration the time duration in the given {@code timeUnit}.
-     * @param timeUnit the time unit for the given duration.
+     * @param duration the time duration.
      * @return a Timeout.
      * @since 5.2
      */
@@ -101,7 +100,7 @@ public class Timeout extends TimeValue {
     /**
      * Creates a Timeout.
      *
-     * @param duration the time duration in the given {@code timeUnit}.
+     * @param duration the time duration.
      * @param timeUnit the time unit for the given duration.
      * @return a Timeout
      */
