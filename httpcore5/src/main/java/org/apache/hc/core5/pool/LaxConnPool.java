@@ -33,7 +33,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -466,7 +469,20 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 final Timeout requestTimeout,
                 final FutureCallback<PoolEntry<T, C>> callback) {
             Asserts.check(!terminated.get(), "Connection pool shut down");
-            final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<>(callback);
+            final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<PoolEntry<T, C>>(callback) {
+
+                @Override
+                public synchronized PoolEntry<T, C> get(
+                        final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                    try {
+                        return super.get(timeout, unit);
+                    } catch (final TimeoutException ex) {
+                        cancel();
+                        throw ex;
+                    }
+                }
+
+            };
             final long releaseState = releaseSeqNum.get();
             PoolEntry<T, C> entry = null;
             if (pending.isEmpty()) {

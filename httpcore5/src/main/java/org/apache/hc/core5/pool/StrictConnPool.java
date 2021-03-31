@@ -34,7 +34,10 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -172,7 +175,20 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         Args.notNull(requestTimeout, "Request timeout");
         Asserts.check(!this.isShutDown.get(), "Connection pool shut down");
         final Deadline deadline = Deadline.calculate(requestTimeout);
-        final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<>(callback);
+        final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<PoolEntry<T, C>>(callback) {
+
+            @Override
+            public synchronized PoolEntry<T, C> get(
+                    final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                try {
+                    return super.get(timeout, unit);
+                } catch (final TimeoutException ex) {
+                    cancel();
+                    throw ex;
+                }
+            }
+
+        };
         final boolean acquiredLock;
 
         try {

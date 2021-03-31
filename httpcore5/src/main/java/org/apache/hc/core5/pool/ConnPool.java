@@ -46,13 +46,17 @@ public interface ConnPool<T, C extends ModalCloseable> {
     /**
      * Attempts to lease a connection for the given route and with the given
      * state from the pool.
+     * <p>
+     * Please note the connection request can get automatically cancelled by the pool
+     * in case of a request timeout.
      *
      * @param route route of the connection.
      * @param state arbitrary object that represents a particular state
      *  (usually a security principal or a unique token identifying
      *  the user whose credentials have been used while establishing the connection).
      *  May be {@code null}.
-     * @param requestTimeout request timeout.
+     * @param requestTimeout request timeout. In case of a timeout the request
+     *                       can get automatically cancelled by the pool.
      * @param callback operation completion callback.
      *
      * @return future for a leased pool entry.
