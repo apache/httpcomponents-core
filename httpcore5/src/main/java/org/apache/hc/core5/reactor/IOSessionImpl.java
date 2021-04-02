@@ -108,6 +108,10 @@ class IOSessionImpl implements IOSession {
             commandQueue.add(command);
         }
         setEvent(SelectionKey.OP_WRITE);
+
+        if (isStatusClosed()) {
+            command.cancel();
+        }
     }
 
     @Override
