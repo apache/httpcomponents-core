@@ -140,20 +140,24 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
     protected void validateSession(
             final IOSession ioSession,
             final Callback<Boolean> callback) {
-        final TimeValue timeValue = validateAfterInactivity;
-        if (TimeValue.isNonNegative(timeValue)) {
-            final long lastAccessTime = Math.min(ioSession.getLastReadTime(), ioSession.getLastWriteTime());
-            final long deadline = lastAccessTime + timeValue.toMilliseconds();
-            if (deadline <= System.currentTimeMillis()) {
-                final Timeout socketTimeoutMillis = ioSession.getSocketTimeout();
-                ioSession.enqueue(new PingCommand(new BasicPingHandler(result -> {
-                    ioSession.setSocketTimeout(socketTimeoutMillis);
-                    callback.execute(result);
-                })), Command.Priority.NORMAL);
-                return;
+        if (ioSession.isOpen()) {
+            final TimeValue timeValue = validateAfterInactivity;
+            if (TimeValue.isNonNegative(timeValue)) {
+                final long lastAccessTime = Math.min(ioSession.getLastReadTime(), ioSession.getLastWriteTime());
+                final long deadline = lastAccessTime + timeValue.toMilliseconds();
+                if (deadline <= System.currentTimeMillis()) {
+                    final Timeout socketTimeoutMillis = ioSession.getSocketTimeout();
+                    ioSession.enqueue(new PingCommand(new BasicPingHandler(result -> {
+                        ioSession.setSocketTimeout(socketTimeoutMillis);
+                        callback.execute(result);
+                    })), Command.Priority.NORMAL);
+                    return;
+                }
             }
+            callback.execute(true);
+        } else {
+            callback.execute(false);
         }
-        callback.execute(true);
     }
 
 }
