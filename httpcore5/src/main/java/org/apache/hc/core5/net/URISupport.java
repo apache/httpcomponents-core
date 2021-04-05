@@ -34,6 +34,7 @@ import org.apache.hc.core5.util.Tokenizer;
 final class URISupport {
 
     static final BitSet HOST_SEPARATORS = new BitSet(256);
+    static final BitSet IPV6_HOST_TERMINATORS = new BitSet(256);
     static final BitSet PORT_SEPARATORS = new BitSet(256);
     static final BitSet TERMINATORS = new BitSet(256);
 
@@ -43,6 +44,7 @@ final class URISupport {
         TERMINATORS.set('?');
         HOST_SEPARATORS.or(TERMINATORS);
         HOST_SEPARATORS.set('@');
+        IPV6_HOST_TERMINATORS.set(']');
         PORT_SEPARATORS.or(TERMINATORS);
         PORT_SEPARATORS.set(':');
     }
