@@ -230,4 +230,44 @@ public class TestHttpHost {
         }
     }
 
+    @Test
+    public void testIpv6HostAndPort() throws Exception {
+        final HttpHost host = HttpHost.create("[::1]:80");
+        Assert.assertEquals("http", host.getSchemeName());
+        Assert.assertEquals("::1", host.getHostName());
+        Assert.assertEquals(80, host.getPort());
+    }
+
+    @Test
+    public void testIpv6HostAndPortWithScheme() throws Exception {
+        final HttpHost host = HttpHost.create("https://[::1]:80");
+        Assert.assertEquals("https", host.getSchemeName());
+        Assert.assertEquals("::1", host.getHostName());
+        Assert.assertEquals(80, host.getPort());
+    }
+
+    @Test
+    public void testIpv6HostAndPortWithoutBrackets() throws Exception {
+        try {
+            // ambiguous
+            HttpHost.create("::1:80");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+        }
+    }
+
+    @Test
+    public void testIpv6HostWithoutPort() throws Exception {
+        try {
+            HttpHost.create("::1");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+        }
+    }
+
+    @Test
+    public void testIpv6HostToString() {
+        Assert.assertEquals("http://[::1]:80", new HttpHost("::1", 80).toString());
+        Assert.assertEquals("http://[::1]", new HttpHost("::1", -1).toString());
+    }
 }

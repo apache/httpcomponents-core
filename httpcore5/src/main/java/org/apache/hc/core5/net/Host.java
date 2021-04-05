@@ -60,7 +60,21 @@ public final class Host implements NamedEndpoint, Serializable {
 
     static Host parse(final CharSequence s, final Tokenizer.Cursor cursor) throws URISyntaxException {
         final Tokenizer tokenizer = Tokenizer.INSTANCE;
-        final String hostName = tokenizer.parseContent(s, cursor, URISupport.PORT_SEPARATORS);
+        final String hostName;
+        final boolean ipv6Brackets = !cursor.atEnd() && s.charAt(cursor.getPos()) == '[';
+        if (ipv6Brackets) {
+            cursor.updatePos(cursor.getPos() + 1);
+            hostName = tokenizer.parseContent(s, cursor, URISupport.IPV6_HOST_TERMINATORS);
+            if (cursor.atEnd() || !(s.charAt(cursor.getPos()) == ']')) {
+                throw URISupport.createException(s, cursor, "Expected an IPv6 closing bracket ']'");
+            }
+            cursor.updatePos(cursor.getPos() + 1);
+            if (!InetAddressUtils.isIPv6Address(hostName)) {
+                throw URISupport.createException(s, cursor, "Expected an IPv6 address");
+            }
+        } else {
+            hostName = tokenizer.parseContent(s, cursor, URISupport.PORT_SEPARATORS);
+        }
         String portText = null;
         if (!cursor.atEnd() && s.charAt(cursor.getPos()) == ':') {
             cursor.updatePos(cursor.getPos() + 1);
@@ -68,6 +82,9 @@ public final class Host implements NamedEndpoint, Serializable {
         }
         final int port;
         if (!TextUtils.isBlank(portText)) {
+            if (!ipv6Brackets && portText.contains(":")) {
+                throw URISupport.createException(s, cursor, "Expected IPv6 address to be enclosed in brackets");
+            }
             try {
                 port = Integer.parseInt(portText);
             } catch (final NumberFormatException ex) {
@@ -85,7 +102,12 @@ public final class Host implements NamedEndpoint, Serializable {
     }
 
     static void format(final StringBuilder buf, final NamedEndpoint endpoint) {
-        buf.append(endpoint.getHostName());
+        final String hostName = endpoint.getHostName();
+        if (InetAddressUtils.isIPv6Address(hostName)) {
+            buf.append('[').append(hostName).append(']');
+        } else {
+            buf.append(hostName);
+        }
         if (endpoint.getPort() != -1) {
             buf.append(":");
             buf.append(endpoint.getPort());
