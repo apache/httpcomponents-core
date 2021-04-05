@@ -129,4 +129,37 @@ public class TestHost {
         }
     }
 
+    @Test
+    public void testIpv6HostAndPort() throws Exception {
+        final Host host = Host.create("[::1]:80");
+        Assert.assertEquals("::1", host.getHostName());
+        Assert.assertEquals(80, host.getPort());
+    }
+
+    @Test
+    public void testIpv6HostAndPortWithoutBrackets() {
+        try {
+            // ambiguous
+            Host.create("::1:80");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+            Assert.assertTrue(expected.getMessage().contains("Expected IPv6 address to be enclosed in brackets"));
+        }
+    }
+
+    @Test
+    public void testIpv6HostWithoutPort() {
+        try {
+            Host.create("::1");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+            Assert.assertTrue(expected.getMessage().contains("Expected IPv6 address to be enclosed in brackets"));
+        }
+    }
+
+    @Test
+    public void testIpv6HostToString() {
+        Assert.assertEquals("[::1]:80", new Host("::1", 80).toString());
+        Assert.assertEquals("[::1]", new Host("::1", -1).toString());
+    }
 }

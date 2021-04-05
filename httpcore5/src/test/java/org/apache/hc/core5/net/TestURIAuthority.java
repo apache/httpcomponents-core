@@ -220,4 +220,35 @@ public class TestURIAuthority {
         }
     }
 
+    @Test
+    public void testCreateFromIPv6String() throws Exception {
+        Assert.assertEquals(new URIAuthority("::1", 8080), URIAuthority.create("[::1]:8080"));
+        Assert.assertEquals(new URIAuthority("::1", -1), URIAuthority.create("[::1]"));
+        try {
+            URIAuthority.create("::1");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+        }
+        try {
+            URIAuthority.create("[::1");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+            Assert.assertTrue(expected.getMessage().contains("Expected an IPv6 closing bracket"));
+        }
+
+        try {
+            URIAuthority.create("[a]:8080");
+            Assert.fail("URISyntaxException expected");
+        } catch (final URISyntaxException expected) {
+            Assert.assertTrue(expected.getMessage().contains("Expected an IPv6 address"));
+        }
+    }
+
+    @Test
+    public void testIpv6HostToString() {
+        Assert.assertEquals("[::1]:80", new URIAuthority("::1", 80).toString());
+        Assert.assertEquals("user@[::1]:80", new URIAuthority("user", "::1", 80).toString());
+        Assert.assertEquals("[::1]", new URIAuthority("::1", -1).toString());
+        Assert.assertEquals("user@[::1]", new URIAuthority("user", "::1", -1).toString());
+    }
 }
