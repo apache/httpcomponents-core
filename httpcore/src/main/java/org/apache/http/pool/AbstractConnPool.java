@@ -78,6 +78,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
     private final LinkedList<E> available;
     private final LinkedList<Future<E>> pending;
     private final Map<T, Integer> maxPerRoute;
+    private int reusedConnections;
 
     private volatile boolean isShutDown;
     private volatile int defaultMaxPerRoute;
@@ -343,6 +344,7 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                 if (entry != null) {
                     this.available.remove(entry);
                     this.leased.add(entry);
+                    this.reusedConnections++;
                     onReuse(entry);
                     return entry;
                 }
@@ -524,7 +526,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                     this.leased.size(),
                     this.pending.size(),
                     this.available.size(),
-                    this.maxTotal);
+                    this.maxTotal,
+                    this.reusedConnections);
         } finally {
             this.lock.unlock();
         }
@@ -540,7 +543,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                     pool.getLeasedCount(),
                     pool.getPendingCount(),
                     pool.getAvailableCount(),
-                    getMax(route));
+                    getMax(route),
+                    pool.getReusedConnections());
         } finally {
             this.lock.unlock();
         }

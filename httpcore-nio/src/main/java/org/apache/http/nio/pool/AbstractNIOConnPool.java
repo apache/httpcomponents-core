@@ -41,6 +41,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -88,6 +89,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
     private final Map<T, Integer> maxPerRoute;
     private final Lock lock;
     private final AtomicBoolean isShutDown;
+    private final AtomicInteger reusedConnections;
 
     private volatile int defaultMaxPerRoute;
     private volatile int maxTotal;
@@ -134,6 +136,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         this.isShutDown = new AtomicBoolean(false);
         this.defaultMaxPerRoute = defaultMaxPerRoute;
         this.maxTotal = maxTotal;
+        this.reusedConnections = new AtomicInteger();
     }
 
     /**
@@ -166,6 +169,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
         this.isShutDown = new AtomicBoolean(false);
         this.defaultMaxPerRoute = defaultMaxPerRoute;
         this.maxTotal = maxTotal;
+        this.reusedConnections = new AtomicInteger();
     }
 
     /**
@@ -433,6 +437,7 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             request.completed(entry);
             onReuse(entry);
             onLease(entry);
+            this.reusedConnections.incrementAndGet();
             return true;
         }
 
@@ -718,7 +723,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                     this.leased.size(),
                     this.pending.size(),
                     this.available.size(),
-                    this.maxTotal);
+                    this.maxTotal,
+                    this.reusedConnections.get());
         } finally {
             this.lock.unlock();
         }
@@ -740,7 +746,8 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                     pool.getLeasedCount(),
                     pendingCount + pool.getPendingCount(),
                     pool.getAvailableCount(),
-                    getMax(route));
+                    getMax(route),
+                    pool.getReusedConnections());
         } finally {
             this.lock.unlock();
         }

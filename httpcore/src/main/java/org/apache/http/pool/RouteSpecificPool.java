@@ -31,6 +31,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.http.util.Args;
 import org.apache.http.util.Asserts;
@@ -41,6 +42,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     private final Set<E> leased;
     private final LinkedList<E> available;
     private final LinkedList<Future<E>> pending;
+    private final AtomicInteger reusedConnections;
 
     RouteSpecificPool(final T route) {
         super();
@@ -48,6 +50,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         this.leased = new HashSet<E>();
         this.available = new LinkedList<E>();
         this.pending = new LinkedList<Future<E>>();
+        this.reusedConnections = new AtomicInteger();
     }
 
     protected abstract E createEntry(C conn);
@@ -72,6 +75,10 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         return this.available.size() + this.leased.size();
     }
 
+    public int getReusedConnections() {
+        return reusedConnections.get();
+    }
+
     public E getFree(final Object state) {
         if (!this.available.isEmpty()) {
             if (state != null) {
@@ -81,6 +88,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
                     if (state.equals(entry.getState())) {
                         it.remove();
                         this.leased.add(entry);
+                        reusedConnections.incrementAndGet();
                         return entry;
                     }
                 }
@@ -91,6 +99,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
                 if (entry.getState() == null) {
                     it.remove();
                     this.leased.add(entry);
+                    reusedConnections.incrementAndGet();
                     return entry;
                 }
             }
@@ -159,6 +168,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
             entry.close();
         }
         this.leased.clear();
+        this.reusedConnections.set(0);
     }
 
     @Override
@@ -172,8 +182,9 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         buffer.append(this.available.size());
         buffer.append("][pending: ");
         buffer.append(this.pending.size());
+        buffer.append("][reused: ");
+        buffer.append(this.reusedConnections.get());
         buffer.append("]");
         return buffer.toString();
     }
-
 }

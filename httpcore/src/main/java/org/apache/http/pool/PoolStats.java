@@ -48,13 +48,15 @@ public class PoolStats implements Serializable {
     private final int pending;
     private final int available;
     private final int max;
+    private final int reusedConnections;
 
-    public PoolStats(final int leased, final int pending, final int free, final int max) {
+    public PoolStats(final int leased, final int pending, final int free, final int max, final int reusedConnections) {
         super();
         this.leased = leased;
         this.pending = pending;
         this.available = free;
         this.max = max;
+        this.reusedConnections = reusedConnections;
     }
 
     /**
@@ -99,6 +101,15 @@ public class PoolStats implements Serializable {
      */
     public int getMax() {
         return this.max;
+    }
+
+    /**
+     * Gets the amount of reused connections
+     *
+     * @return the amount of reused connections
+     */
+    public int getReusedConnections() {
+        return reusedConnections;
     }
 
     @Override

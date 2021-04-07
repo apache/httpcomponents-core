@@ -46,6 +46,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
     private final Set<E> leased;
     private final LinkedList<E> available;
     private final Map<SessionRequest, BasicFuture<E>> pending;
+    private int reusedConnections;
 
     RouteSpecificPool(final T route) {
         super();
@@ -77,6 +78,10 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         return this.available.size() + this.leased.size() + this.pending.size();
     }
 
+    public int getReusedConnections() {
+        return this.reusedConnections;
+    }
+
     public E getFree(final Object state) {
         if (!this.available.isEmpty()) {
             if (state != null) {
@@ -86,6 +91,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
                     if (state.equals(entry.getState())) {
                         it.remove();
                         this.leased.add(entry);
+                        this.reusedConnections++;
                         return entry;
                     }
                 }
@@ -96,6 +102,7 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
                 if (entry.getState() == null) {
                     it.remove();
                     this.leased.add(entry);
+                    this.reusedConnections++;
                     return entry;
                 }
             }
@@ -196,6 +203,8 @@ abstract class RouteSpecificPool<T, C, E extends PoolEntry<T, C>> {
         buffer.append(this.available.size());
         buffer.append("][pending: ");
         buffer.append(this.pending.size());
+        buffer.append("][reused: ");
+        buffer.append(this.reusedConnections);
         buffer.append("]");
         return buffer.toString();
     }
