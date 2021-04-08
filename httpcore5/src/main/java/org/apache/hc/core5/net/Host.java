@@ -35,6 +35,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * Component that holds all details needed to describe a network connection
@@ -52,28 +53,66 @@ public final class Host implements NamedEndpoint, Serializable {
 
     public Host(final String name, final int port) {
         super();
-        this.name   = Args.containsNoBlanks(name, "Host name");
-        this.port = Ports.check(port);
+        this.name = Args.notNull(name, "Host name");
+        this.port = Ports.checkWithDefault(port);
         this.lcName = this.name.toLowerCase(Locale.ROOT);
+    }
+
+    static Host parse(final CharSequence s, final Tokenizer.Cursor cursor) throws URISyntaxException {
+        final Tokenizer tokenizer = Tokenizer.INSTANCE;
+        final String hostName = tokenizer.parseContent(s, cursor, URISupport.PORT_SEPARATORS);
+        String portText = null;
+        if (!cursor.atEnd() && s.charAt(cursor.getPos()) == ':') {
+            cursor.updatePos(cursor.getPos() + 1);
+            portText = tokenizer.parseContent(s, cursor, URISupport.TERMINATORS);
+        }
+        final int port;
+        if (!TextUtils.isBlank(portText)) {
+            try {
+                port = Integer.parseInt(portText);
+            } catch (final NumberFormatException ex) {
+                throw URISupport.createException(s, cursor, "Port is invalid");
+            }
+        } else {
+            port = -1;
+        }
+        return new Host(hostName, port);
+    }
+
+    static Host parse(final CharSequence s) throws URISyntaxException {
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        return parse(s, cursor);
+    }
+
+    static void format(final StringBuilder buf, final NamedEndpoint endpoint) {
+        buf.append(endpoint.getHostName());
+        if (endpoint.getPort() != -1) {
+            buf.append(":");
+            buf.append(endpoint.getPort());
+        }
+    }
+
+    static void format(final StringBuilder buf, final Host host) {
+        format(buf, (NamedEndpoint) host);
+    }
+
+    static String format(final Host host) {
+        final StringBuilder buf = new StringBuilder();
+        format(buf, host);
+        return buf.toString();
     }
 
     public static Host create(final String s) throws URISyntaxException {
         Args.notEmpty(s, "HTTP Host");
-        final int portIdx = s.lastIndexOf(":");
-        final int port;
-        if (portIdx > 0) {
-            try {
-                port = Integer.parseInt(s.substring(portIdx + 1));
-            } catch (final NumberFormatException ex) {
-                throw new URISyntaxException(s, "invalid port");
-            }
-            final String hostname = s.substring(0, portIdx);
-            if (TextUtils.containsBlanks(hostname)) {
-                throw new URISyntaxException(s, "hostname contains blanks");
-            }
-            return new Host(hostname, port);
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        final Host host = parse(s, cursor);
+        if (TextUtils.isBlank(host.getHostName())) {
+            throw URISupport.createException(s, cursor, "Hostname is invalid");
         }
-        throw new URISyntaxException(s, "port not found");
+        if (!cursor.atEnd()) {
+            throw URISupport.createException(s, cursor, "Unexpected content");
+        }
+        return host;
     }
 
     @Override
@@ -108,7 +147,7 @@ public final class Host implements NamedEndpoint, Serializable {
 
     @Override
     public String toString() {
-        return name + ":" + port;
+        return format(this);
     }
 
 }
