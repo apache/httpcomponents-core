@@ -55,11 +55,6 @@ public class TestHost {
             Assert.fail("NullPointerException should have been thrown");
         } catch (final NullPointerException expected) {
         }
-        try {
-            new Host("blah", -1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
     }
 
     @Test

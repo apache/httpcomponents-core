@@ -35,8 +35,8 @@ import java.util.Locale;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.net.Host;
 import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.net.Ports;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
@@ -59,18 +59,8 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     /** The default scheme is "http". */
     public static final URIScheme DEFAULT_SCHEME = URIScheme.HTTP;
 
-    /** The host to use. */
-    private final String hostname;
-
-    /** The lowercase host, for {@link #equals} and {@link #hashCode}. */
-    private final String lcHostname;
-
-    /** The port to use, defaults to -1 if not set. */
-    private final int port;
-
-    /** The scheme (lowercased) */
     private final String schemeName;
-
+    private final Host host;
     private final InetAddress address;
 
     /**
@@ -91,14 +81,9 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @since 5.0
      */
     public HttpHost(final String scheme, final InetAddress address, final String hostname, final int port) {
-        this.hostname   = Args.containsNoBlanks(hostname, "Host name");
-        this.port = Ports.checkWithDefault(port);
-        this.lcHostname = hostname.toLowerCase(Locale.ROOT);
-        if (scheme != null) {
-            this.schemeName = scheme.toLowerCase(Locale.ROOT);
-        } else {
-            this.schemeName = DEFAULT_SCHEME.id;
-        }
+        Args.containsNoBlanks(hostname, "Host name");
+        this.host = new Host(hostname, port);
+        this.schemeName = scheme != null ? scheme.toLowerCase(Locale.ROOT) : DEFAULT_SCHEME.id;
         this.address = address;
     }
 
@@ -166,20 +151,8 @@ public final class HttpHost implements NamedEndpoint, Serializable {
             }
             text = text.substring(schemeIdx + 3);
         }
-        int port = -1;
-        final int portIdx = text.lastIndexOf(":");
-        if (portIdx > 0) {
-            try {
-                port = Integer.parseInt(text.substring(portIdx + 1));
-            } catch (final NumberFormatException ex) {
-                throw new URISyntaxException(s, "invalid port");
-            }
-            text = text.substring(0, portIdx);
-        }
-        if (TextUtils.containsBlanks(text)) {
-            throw new URISyntaxException(s, "hostname contains blanks");
-        }
-        return new HttpHost(scheme, null, text, port);
+        final Host host = Host.create(text);
+        return new HttpHost(scheme, host);
     }
 
     /**
@@ -290,7 +263,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      */
     @Override
     public String getHostName() {
-        return this.hostname;
+        return this.host.getHostName();
     }
 
     /**
@@ -300,7 +273,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      */
     @Override
     public int getPort() {
-        return this.port;
+        return this.host.getPort();
     }
 
     /**
@@ -332,11 +305,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         final StringBuilder buffer = new StringBuilder();
         buffer.append(this.schemeName);
         buffer.append("://");
-        buffer.append(this.hostname);
-        if (this.port != -1) {
-            buffer.append(':');
-            buffer.append(this.port);
-        }
+        buffer.append(this.host.toString());
         return buffer.toString();
     }
 
@@ -347,15 +316,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @return  the host string, for example {@code localhost:8080}
      */
     public String toHostString() {
-        if (this.port != -1) {
-            //the highest port number is 65535, which is length 6 with the addition of the colon
-            final StringBuilder buffer = new StringBuilder(this.hostname.length() + 6);
-            buffer.append(this.hostname);
-            buffer.append(":");
-            buffer.append(this.port);
-            return buffer.toString();
-        }
-        return this.hostname;
+        return this.host.toString();
     }
 
 
@@ -372,10 +333,9 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         }
         if (obj instanceof HttpHost) {
             final HttpHost that = (HttpHost) obj;
-            return this.lcHostname.equals(that.lcHostname)
-                && this.port == that.port
-                && this.schemeName.equals(that.schemeName)
-                && LangUtils.equals(this.address, that.address);
+            return this.schemeName.equals(that.schemeName) &&
+                    this.host.equals(that.host) &&
+                    LangUtils.equals(this.address, that.address);
         }
         return false;
     }
@@ -386,10 +346,9 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     @Override
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, this.lcHostname);
-        hash = LangUtils.hashCode(hash, this.port);
         hash = LangUtils.hashCode(hash, this.schemeName);
-        hash = LangUtils.hashCode(hash, address);
+        hash = LangUtils.hashCode(hash, this.host);
+        hash = LangUtils.hashCode(hash, this.address);
         return hash;
     }
 
