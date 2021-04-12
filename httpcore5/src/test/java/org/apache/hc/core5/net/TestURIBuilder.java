@@ -290,7 +290,30 @@ public class TestURIBuilder {
     }
 
     @Test
-    public void testRemoveParameters() throws Exception {
+    public void testRemoveParameter() throws Exception {
+        final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff&blah&blah", null);
+        URIBuilder uribuilder = new URIBuilder(uri);
+        Assert.assertFalse(uribuilder.isQueryEmpty());
+
+        uribuilder.removeParameter("DoesNotExist");
+        Assert.assertEquals("stuff", uribuilder.getFirstQueryParam("param").getValue());
+        Assert.assertNull(uribuilder.getFirstQueryParam("blah").getValue());
+
+        uribuilder = uribuilder.removeParameter("blah");
+        Assert.assertEquals("stuff", uribuilder.getFirstQueryParam("param").getValue());
+        Assert.assertNull(uribuilder.getFirstQueryParam("blah"));
+
+        uribuilder = uribuilder.removeParameter("param");
+        Assert.assertNull(uribuilder.getFirstQueryParam("param"));
+        Assert.assertTrue(uribuilder.isQueryEmpty());
+
+        uribuilder = uribuilder.removeParameter("AlreadyEmpty");
+        Assert.assertTrue(uribuilder.isQueryEmpty());
+        Assert.assertEquals(new URI("http://localhost:80/"), uribuilder.build());
+    }
+
+    @Test
+    public void testRemoveQuery() throws Exception {
         final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff", null);
         final URIBuilder uribuilder = new URIBuilder(uri).removeQuery();
         final URI result = uribuilder.build();

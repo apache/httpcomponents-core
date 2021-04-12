@@ -695,6 +695,27 @@ public class URIBuilder {
     }
 
     /**
+     * Removes parameter of URI query if set. The parameter name is expected to be unescaped and may
+     * contain non ASCII characters.
+     * <p>
+     * Please note query parameters and custom query component are mutually exclusive. This method
+     * will remove custom query if present, even when no parameter was actually removed.
+     * </p>
+     *
+     * @return this.
+     * @since 5.2
+     */
+    public URIBuilder removeParameter(final String param) {
+        if (this.queryParams != null && !this.queryParams.isEmpty()) {
+            this.queryParams.removeIf(nvp -> nvp.getName().equals(param));
+        }
+        this.encodedQuery = null;
+        this.encodedSchemeSpecificPart = null;
+        this.query = null;
+        return this;
+    }
+
+    /**
      * Sets parameter of URI query overriding existing value if set. The parameter name and value
      * are expected to be unescaped and may contain non ASCII characters.
      * <p>
@@ -850,6 +871,7 @@ public class URIBuilder {
      *  <li>characters of scheme and host components are converted to lower case</li>
      *  <li>dot segments of the path component are removed if the path has a root</li>
      *  <li>percent encoding of all components is normalized</li>
+     * </ul>
      *
      * @since 5.1
      */
