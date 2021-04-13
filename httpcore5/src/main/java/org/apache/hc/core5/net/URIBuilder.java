@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.ParserCursor;
+import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
 
@@ -706,6 +707,7 @@ public class URIBuilder {
      * @since 5.2
      */
     public URIBuilder removeParameter(final String param) {
+        Args.notNull(param, "param");
         if (this.queryParams != null && !this.queryParams.isEmpty()) {
             this.queryParams.removeIf(nvp -> nvp.getName().equals(param));
         }

@@ -295,6 +295,12 @@ public class TestURIBuilder {
         URIBuilder uribuilder = new URIBuilder(uri);
         Assert.assertFalse(uribuilder.isQueryEmpty());
 
+        try {
+            uribuilder.removeParameter(null);
+            Assert.fail("NullPointerException expected");
+        } catch (final NullPointerException e) {
+        }
+
         uribuilder.removeParameter("DoesNotExist");
         Assert.assertEquals("stuff", uribuilder.getFirstQueryParam("param").getValue());
         Assert.assertNull(uribuilder.getFirstQueryParam("blah").getValue());
