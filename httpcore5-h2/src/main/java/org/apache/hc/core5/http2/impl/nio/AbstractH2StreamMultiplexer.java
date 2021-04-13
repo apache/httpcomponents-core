@@ -1126,9 +1126,9 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         final H2Config.Builder configBuilder = H2Config.initial();
         while (payload.hasRemaining()) {
             final int code = payload.getShort();
+            final int value = payload.getInt();
             final H2Param param = H2Param.valueOf(code);
             if (param != null) {
-                final int value = payload.getInt();
                 switch (param) {
                     case HEADER_TABLE_SIZE:
                         try {
