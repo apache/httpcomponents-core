@@ -44,6 +44,7 @@ import org.apache.hc.core5.util.Asserts;
 public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
 
     private final CharBuffer content;
+    private final long length;
     private final AtomicReference<Exception> exception;
 
     public StringAsyncEntityProducer(
@@ -54,6 +55,7 @@ public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
         super(bufferSize, fragmentSizeHint, contentType);
         Args.notNull(content, "Content");
         this.content = CharBuffer.wrap(content);
+        this.length = content.toString().getBytes(contentType.getCharset()).length;
         this.exception = new AtomicReference<>(null);
     }
 
@@ -72,6 +74,11 @@ public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
     @Override
     public boolean isRepeatable() {
         return true;
+    }
+
+    @Override
+    public long getContentLength() {
+        return length;
     }
 
     @Override
