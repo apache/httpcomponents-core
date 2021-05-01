@@ -1,3 +1,48 @@
+Release 5.0.4
+------------------
+
+This is a maintenance release that corrects a number of defects discovered since release 5.0.3
+including a major defect that can cause a connection pool resource leak.
+
+
+Change Log
+-------------------
+
+* HTTPCORE-676: Fixed incorrect handling of TLS renegotiation by non-blocking i/o sessions.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-673: Fixed incorrect handling of unknown parameters in HTTP/2 SETTINGS frame.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-672: H2ConnPool incorrectly handles validation of closed sessions.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed race condition when a connection request completes successfully and times out
+  at the same time causing a pool entry leak.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed TextUtils#toHexString producing incorrect result for negative values.
+  Contributed by Marcono1234 <Marcono1234 at users.noreply.github.com>
+
+* `RequestHandlerRegistry` to resolve 127.0.0.1 as the primary host.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-659: Fixed a race condition in the non-blocking I/O session event management code.
+  Contributed by Nicolas Capponi <nicolas.capponi at forgerock.com>
+
+* HTTPCORE-658: Removed explicit inbound / outbound socket shutdown from the `#close` method
+  of classic HTTP connections.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Add filters before MAIN_HANDLER so they won't be ignored (#236).
+  Contributed by Rob Spoor <robtimus at users.noreply.github.com>
+
+* Bug fix: Do not attempt to shut down non-blocking TLS sessions gracefully in case the TLS
+  handshake has not been fully completed.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 5.0.3
 ------------------
 
