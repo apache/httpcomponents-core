@@ -291,14 +291,10 @@ public class SSLIOSession implements IOSession {
         }
     }
 
-    private void doRunTask() throws SSLException {
-        try {
-            final Runnable r = this.sslEngine.getDelegatedTask();
-            if (r != null) {
-                r.run();
-            }
-        } catch (final RuntimeException ex) {
-            throw convert(ex);
+    private void doRunTask() {
+        final Runnable r = this.sslEngine.getDelegatedTask();
+        if (r != null) {
+            r.run();
         }
     }
 
@@ -427,6 +423,10 @@ public class SSLIOSession implements IOSession {
                 }
                 return;
             }
+            // Is there a task pending?
+            if (this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_TASK) {
+                doRunTask();
+            }
             // Need to toggle the event mask for this channel?
             final int oldMask = this.session.getEventMask();
             int newMask = oldMask;
@@ -439,10 +439,6 @@ public class SSLIOSession implements IOSession {
                     break;
                 case NOT_HANDSHAKING:
                     newMask = this.appEventMask;
-                    break;
-                case NEED_TASK:
-                    break;
-                case FINISHED:
                     break;
             }
 
