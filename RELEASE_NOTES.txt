@@ -1,7 +1,36 @@
 Release 5.1.1
 ------------------
 
-* Bug fix: TextUtils.toHexString(byte[]) returned wrong result for negative byte values
+This is a maintenance release that corrects a number of defects discovered since release 5.1
+including a major defect that can cause a connection pool resource leak.
+
+
+Change Log
+-------------------
+* HTTPCORE-676: Fixed incorrect handling of TLS renegotiation by non-blocking i/o sessions.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-616: Make URI authority parsing IPv6 ready.
+  Contributed by Carter Kozak <ckozak at apache.org>
+
+* Improved parsing and formatting of URI components.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-673: Fixed incorrect handling of unknown parameters in HTTP/2 SETTINGS frame.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-671: URIBuilder does not precent-encode bracketed IPv6 addresses.
+  Contributed by Carter Kozak <ckozak at apache.org>
+
+* HTTPCORE-672: H2ConnPool incorrectly handles validation of closed sessions.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed race condition when a connection request completes successfully and times out
+  at the same time causing a pool entry leak.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed TextUtils#toHexString producing incorrect result for negative values.
+  Contributed by Marcono1234 <Marcono1234 at users.noreply.github.com>
 
 
 Release 5.1
