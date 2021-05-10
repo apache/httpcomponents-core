@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
@@ -226,8 +227,13 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * in case of unexpected connection termination by the peer endpoint.
      *
      * @since 5.0
+     *
+     * @deprecated do not use.
      */
-    protected abstract IOException createConnectionClosedException();
+    @Deprecated
+    protected IOException createConnectionClosedException() {
+        return new ConnectionClosedException();
+    }
 
     @Override
     public T parse(final SessionInputBuffer buffer, final InputStream inputStream) throws IOException, HttpException {
@@ -240,7 +246,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
                 this.headLine.clear();
                 final int i = buffer.readLine(this.headLine, inputStream);
                 if (i == -1) {
-                    throw createConnectionClosedException();
+                    return null;
                 }
                 if (this.headLine.length() > 0) {
                     this.message = createMessage(this.headLine);

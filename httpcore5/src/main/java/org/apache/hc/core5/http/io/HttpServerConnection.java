@@ -47,7 +47,8 @@ public interface HttpServerConnection extends BHttpConnection {
      * request entity as well.
      *
      * @return a new HttpRequest object whose request line and headers are
-     *         initialized.
+     *         initialized or {@code null} if the connection has been closed
+     *         by the opposite endpoint.
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */

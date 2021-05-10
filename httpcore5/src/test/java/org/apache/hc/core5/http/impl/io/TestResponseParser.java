@@ -34,7 +34,6 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MessageConstraintException;
-import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.Assert;
@@ -65,13 +64,14 @@ public class TestResponseParser {
         Assert.assertEquals(3, headers.length);
     }
 
-    @Test(expected = NoHttpResponseException.class)
+    @Test
     public void testConnectionClosedException() throws Exception {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {});
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
-        parser.parse(inBuffer, inputStream);
+        final ClassicHttpResponse response = parser.parse(inBuffer, inputStream);
+        Assert.assertNull(response);
     }
 
     @Test

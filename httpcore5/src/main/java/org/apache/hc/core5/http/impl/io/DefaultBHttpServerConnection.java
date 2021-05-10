@@ -133,6 +133,9 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     public ClassicHttpRequest receiveRequestHeader() throws HttpException, IOException {
         final SocketHolder socketHolder = ensureOpen();
         final ClassicHttpRequest request = this.requestParser.parse(this.inBuffer, socketHolder.getInputStream());
+        if (request == null) {
+            return null;
+        }
         final ProtocolVersion transportVersion = request.getVersion();
         if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
             throw new UnsupportedHttpVersionException(transportVersion);

@@ -32,7 +32,6 @@ import java.io.IOException;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponseFactory;
-import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LineParser;
 import org.apache.hc.core5.http.message.StatusLine;
@@ -80,11 +79,6 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<ClassicHttp
      */
     public DefaultHttpResponseParser() {
         this(Http1Config.DEFAULT);
-    }
-
-    @Override
-    protected IOException createConnectionClosedException() {
-        return new NoHttpResponseException("The target server failed to respond");
     }
 
     @Override

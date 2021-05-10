@@ -92,7 +92,8 @@ public interface HttpClientConnection extends BHttpConnection {
      * find out if it should try to receive a response entity as well.
      *
      * @return a new HttpResponse object with status line and headers
-     *         initialized.
+     *         initialized or {@code null} if the connection has been closed
+     *         by the opposite endpoint.
      * @throws HttpException in case of HTTP protocol violation
      * @throws IOException in case of an I/O error
      */

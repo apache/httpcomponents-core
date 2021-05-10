@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.LengthRequiredException;
+import org.apache.hc.core5.http.NoHttpResponseException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
@@ -296,6 +297,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
     public ClassicHttpResponse receiveResponseHeader() throws HttpException, IOException {
         final SocketHolder socketHolder = ensureOpen();
         final ClassicHttpResponse response = this.responseParser.parse(this.inBuffer, socketHolder.getInputStream());
+        if (response == null) {
+            throw new NoHttpResponseException("The target server failed to respond");
+        }
         final ProtocolVersion transportVersion = response.getVersion();
         if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
             throw new UnsupportedHttpVersionException(transportVersion);

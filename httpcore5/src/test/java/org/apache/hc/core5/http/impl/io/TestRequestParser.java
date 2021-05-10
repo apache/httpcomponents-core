@@ -31,7 +31,6 @@ import java.io.InterruptedIOException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
@@ -65,13 +64,14 @@ public class TestRequestParser {
         Assert.assertEquals(3, headers.length);
     }
 
-    @Test(expected = ConnectionClosedException.class)
+    @Test
     public void testConnectionClosedException() throws Exception {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {});
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
-        parser.parse(inBuffer, inputStream);
+        final ClassicHttpRequest request = parser.parse(inBuffer, inputStream);
+        Assert.assertNull(request);
     }
 
     @Test

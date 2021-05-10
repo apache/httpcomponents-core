@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
-import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequestFactory;
 import org.apache.hc.core5.http.MessageConstraintException;
@@ -84,11 +83,6 @@ public class DefaultHttpRequestParser extends AbstractMessageParser<ClassicHttpR
      */
     public DefaultHttpRequestParser() {
         this(Http1Config.DEFAULT);
-    }
-
-    @Override
-    protected IOException createConnectionClosedException() {
-        return new ConnectionClosedException("Client closed connection");
     }
 
     @Override

@@ -48,7 +48,8 @@ public interface HttpMessageParser<T extends MessageHeaders> {
      *
      * @param buffer Session input buffer
      * @param inputStream Input stream
-     * @return HTTP message head
+     * @return HTTP message head or {@code null} if the input stream has been
+     * closed by the opposite endpoint.
      * @throws IOException in case of an I/O error
      * @throws HttpException in case of HTTP protocol violation
      */

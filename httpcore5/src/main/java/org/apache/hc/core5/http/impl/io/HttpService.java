@@ -176,6 +176,10 @@ public class HttpService {
         final AtomicBoolean responseSubmitted = new AtomicBoolean(false);
         try {
             final ClassicHttpRequest request = conn.receiveRequestHeader();
+            if (request == null) {
+                conn.close();
+                return;
+            }
             if (streamListener != null) {
                 streamListener.onRequestHead(conn, request);
             }
