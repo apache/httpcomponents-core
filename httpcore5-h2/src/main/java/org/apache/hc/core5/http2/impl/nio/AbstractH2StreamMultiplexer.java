@@ -1199,7 +1199,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         initOutputWinSize = remoteConfig.getInitialWindowSize();
 
         if (delta != 0) {
-            updateOutputWindow(0, connOutputWindow, delta);
             if (!streamMap.isEmpty()) {
                 for (final Iterator<Map.Entry<Integer, H2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
                     final Map.Entry<Integer, H2Stream> entry = it.next();
