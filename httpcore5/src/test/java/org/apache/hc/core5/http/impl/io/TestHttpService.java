@@ -317,7 +317,7 @@ public class TestHttpService {
         Mockito.verify(httprocessor).process(response, response.getEntity(), context);
 
         Mockito.verify(conn).sendResponseHeader(response);
-        Mockito.verify(conn, Mockito.never()).sendResponseEntity(ArgumentMatchers.<ClassicHttpResponse>any());
+        Mockito.verify(conn, Mockito.never()).sendResponseEntity(ArgumentMatchers.any());
         Mockito.verify(conn).flush();
         Mockito.verify(conn, Mockito.never()).close();
         Mockito.verify(response).close();
@@ -341,7 +341,7 @@ public class TestHttpService {
         Mockito.verify(requestHandler).handle(request, response, context);
 
         Mockito.verify(conn).sendResponseHeader(response);
-        Mockito.verify(conn, Mockito.never()).sendResponseEntity(ArgumentMatchers.<ClassicHttpResponse>any());
+        Mockito.verify(conn, Mockito.never()).sendResponseEntity(ArgumentMatchers.any());
         Mockito.verify(conn).flush();
         Mockito.verify(conn, Mockito.never()).close();
         Mockito.verify(response).close();

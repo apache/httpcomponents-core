@@ -325,7 +325,7 @@ public class ServerBootstrap {
         final RequestHandlerRegistry<HttpRequestHandler> handlerRegistry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
                 () -> lookupRegistry != null ? lookupRegistry :
-                        UriPatternType.<HttpRequestHandler>newMatcher(UriPatternType.URI_PATTERN));
+                        UriPatternType.newMatcher(UriPatternType.URI_PATTERN));
         for (final HandlerEntry<HttpRequestHandler> entry: handlerList) {
             handlerRegistry.register(entry.hostname, entry.uriPattern, entry.handler);
         }

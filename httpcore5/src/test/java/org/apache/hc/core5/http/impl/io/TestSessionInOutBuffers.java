@@ -377,7 +377,7 @@ public class TestSessionInOutBuffers {
         outbuffer.write(new byte[] {1, 2}, outputStream);
         outbuffer.write(new byte[]{3, 4}, outputStream);
         outbuffer.flush(outputStream);
-        Mockito.verify(outputStream, Mockito.times(1)).write(ArgumentMatchers.<byte[]>any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
+        Mockito.verify(outputStream, Mockito.times(1)).write(ArgumentMatchers.any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
         Mockito.verify(outputStream, Mockito.never()).write(ArgumentMatchers.anyInt());
     }
 
@@ -389,7 +389,7 @@ public class TestSessionInOutBuffers {
         outbuffer.write(2, outputStream);
         outbuffer.write(new byte[] {1, 2}, outputStream);
         outbuffer.write(new byte[]{3, 4}, outputStream);
-        Mockito.verify(outputStream, Mockito.times(2)).write(ArgumentMatchers.<byte []>any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
+        Mockito.verify(outputStream, Mockito.times(2)).write(ArgumentMatchers.any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
         Mockito.verify(outputStream, Mockito.times(2)).write(ArgumentMatchers.anyInt());
     }
 

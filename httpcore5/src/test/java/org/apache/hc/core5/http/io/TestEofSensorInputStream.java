@@ -50,7 +50,7 @@ public class TestEofSensorInputStream {
 
     @Test
     public void testClose() throws Exception {
-        Mockito.when(eofwatcher.streamClosed(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
+        Mockito.when(eofwatcher.streamClosed(Mockito.any())).thenReturn(Boolean.TRUE);
 
         eofstream.close();
 
@@ -65,7 +65,7 @@ public class TestEofSensorInputStream {
 
     @Test
     public void testCloseIOError() throws Exception {
-        Mockito.when(eofwatcher.streamClosed(Mockito.<InputStream>any())).thenThrow(new IOException());
+        Mockito.when(eofwatcher.streamClosed(Mockito.any())).thenThrow(new IOException());
 
         try {
             eofstream.close();
@@ -80,7 +80,7 @@ public class TestEofSensorInputStream {
 
     @Test
     public void testReleaseConnection() throws Exception {
-        Mockito.when(eofwatcher.streamClosed(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
+        Mockito.when(eofwatcher.streamClosed(Mockito.any())).thenReturn(Boolean.TRUE);
 
         eofstream.close();
 
@@ -95,7 +95,7 @@ public class TestEofSensorInputStream {
 
     @Test
     public void testAbortConnection() throws Exception {
-        Mockito.when(eofwatcher.streamAbort(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
+        Mockito.when(eofwatcher.streamAbort(Mockito.any())).thenReturn(Boolean.TRUE);
 
         eofstream.abort();
 
@@ -110,7 +110,7 @@ public class TestEofSensorInputStream {
 
     @Test
     public void testAbortConnectionIOError() throws Exception {
-        Mockito.when(eofwatcher.streamAbort(Mockito.<InputStream>any())).thenThrow(new IOException());
+        Mockito.when(eofwatcher.streamAbort(Mockito.any())).thenThrow(new IOException());
 
         try {
             eofstream.abort();
@@ -125,7 +125,7 @@ public class TestEofSensorInputStream {
 
     @Test
     public void testRead() throws Exception {
-        Mockito.when(eofwatcher.eofDetected(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
+        Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
         Mockito.when(inStream.read()).thenReturn(0, -1);
 
         Assert.assertEquals(0, eofstream.read());
@@ -148,7 +148,7 @@ public class TestEofSensorInputStream {
 
     @Test
     public void testReadIOError() throws Exception {
-        Mockito.when(eofwatcher.eofDetected(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
+        Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
         Mockito.when(inStream.read()).thenThrow(new IOException());
 
         try {
@@ -164,8 +164,8 @@ public class TestEofSensorInputStream {
 
     @Test
     public void testReadByteArray() throws Exception {
-        Mockito.when(eofwatcher.eofDetected(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
-        Mockito.when(inStream.read(Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt()))
+        Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
+        Mockito.when(inStream.read(Mockito.any(), Mockito.anyInt(), Mockito.anyInt()))
             .thenReturn(1, -1);
 
         final byte[] tmp = new byte[1];
@@ -190,8 +190,8 @@ public class TestEofSensorInputStream {
 
     @Test
     public void testReadByteArrayIOError() throws Exception {
-        Mockito.when(eofwatcher.eofDetected(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
-        Mockito.when(inStream.read(Mockito.<byte []>any(), Mockito.anyInt(), Mockito.anyInt()))
+        Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
+        Mockito.when(inStream.read(Mockito.any(), Mockito.anyInt(), Mockito.anyInt()))
             .thenThrow(new IOException());
 
         final byte[] tmp = new byte[1];
@@ -208,7 +208,7 @@ public class TestEofSensorInputStream {
 
     @Test
     public void testReadAfterAbort() throws Exception {
-        Mockito.when(eofwatcher.streamAbort(Mockito.<InputStream>any())).thenReturn(Boolean.TRUE);
+        Mockito.when(eofwatcher.streamAbort(Mockito.any())).thenReturn(Boolean.TRUE);
 
         eofstream.abort();
 

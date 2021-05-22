@@ -345,7 +345,7 @@ public class H2ServerBootstrap {
         final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry = new RequestHandlerRegistry<>(
                 actualCanonicalHostName,
                 () -> lookupRegistry != null ? lookupRegistry :
-                        UriPatternType.<Supplier<AsyncServerExchangeHandler>>newMatcher(UriPatternType.URI_PATTERN));
+                        UriPatternType.newMatcher(UriPatternType.URI_PATTERN));
         for (final HandlerEntry<Supplier<AsyncServerExchangeHandler>> entry: handlerList) {
             registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }

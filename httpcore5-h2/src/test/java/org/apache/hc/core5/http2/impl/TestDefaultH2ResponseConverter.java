@@ -48,7 +48,7 @@ public class TestDefaultH2ResponseConverter {
     @Test
     public void testConvertFromFieldsBasic() throws Exception {
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value"));
@@ -71,7 +71,7 @@ public class TestDefaultH2ResponseConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Header name ':Status' is invalid (header name contains uppercase characters)");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":Status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value"));
@@ -86,7 +86,7 @@ public class TestDefaultH2ResponseConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Invalid response status: boom");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "boom"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value"));
@@ -101,7 +101,7 @@ public class TestDefaultH2ResponseConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Header 'connection: keep-alive' is illegal for HTTP/2 messages");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("connection", "keep-alive"));
@@ -116,7 +116,7 @@ public class TestDefaultH2ResponseConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Mandatory response header ':status' not found");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom", "value"));
 
@@ -130,7 +130,7 @@ public class TestDefaultH2ResponseConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Unsupported response header ':custom'");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader(":custom", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
@@ -146,7 +146,7 @@ public class TestDefaultH2ResponseConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Multiple ':status' response headers are illegal");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader(":status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),

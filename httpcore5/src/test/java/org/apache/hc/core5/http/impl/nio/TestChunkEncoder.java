@@ -128,7 +128,7 @@ public class TestChunkEncoder {
         Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
         Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
 
-        Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.<ByteBuffer>any());
+        Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.any());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);

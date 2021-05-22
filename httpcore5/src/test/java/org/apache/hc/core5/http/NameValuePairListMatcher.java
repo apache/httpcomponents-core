@@ -79,7 +79,7 @@ public class NameValuePairListMatcher extends BaseMatcher<List<NameValuePair>> {
 
     @Factory
     public static Matcher<List<NameValuePair>> isEmpty() {
-        return new NameValuePairListMatcher(Collections.<NameValuePair>emptyList());
+        return new NameValuePairListMatcher(Collections.emptyList());
     }
 
 }

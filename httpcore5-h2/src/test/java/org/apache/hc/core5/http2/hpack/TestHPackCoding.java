@@ -719,7 +719,7 @@ public class TestHPackCoding {
         final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.US_ASCII);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(256);
-        final List<Header> headers1 = Arrays.<Header>asList(
+        final List<Header> headers1 = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":path", "/"),
@@ -736,7 +736,7 @@ public class TestHPackCoding {
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(0));
         Assert.assertEquals(57, dynamicTable.getCurrentSize());
 
-        final List<Header> headers2 = Arrays.<Header>asList(
+        final List<Header> headers2 = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":path", "/"),
@@ -755,7 +755,7 @@ public class TestHPackCoding {
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(1));
         Assert.assertEquals(110, dynamicTable.getCurrentSize());
 
-        final List<Header> headers3 = Arrays.<Header>asList(
+        final List<Header> headers3 = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "https"),
                 new BasicHeader(":path", "/index.html"),
@@ -784,7 +784,7 @@ public class TestHPackCoding {
         final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.US_ASCII);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(256);
-        final List<Header> headers1 = Arrays.<Header>asList(
+        final List<Header> headers1 = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":path", "/"),
@@ -800,7 +800,7 @@ public class TestHPackCoding {
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(0));
         Assert.assertEquals(57, dynamicTable.getCurrentSize());
 
-        final List<Header> headers2 = Arrays.<Header>asList(
+        final List<Header> headers2 = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":path", "/"),
@@ -819,7 +819,7 @@ public class TestHPackCoding {
         assertHeaderEquals(new BasicHeader(":authority", "www.example.com"), dynamicTable.getDynamicEntry(1));
         Assert.assertEquals(110, dynamicTable.getCurrentSize());
 
-        final List<Header> headers3 = Arrays.<Header>asList(
+        final List<Header> headers3 = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "https"),
                 new BasicHeader(":path", "/index.html"),
@@ -849,7 +849,7 @@ public class TestHPackCoding {
         final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.US_ASCII);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(256);
-        final List<Header> headers1 = Arrays.<Header>asList(
+        final List<Header> headers1 = Arrays.asList(
                 new BasicHeader(":status", "302"),
                 new BasicHeader("cache-control", "private"),
                 new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"),
@@ -872,7 +872,7 @@ public class TestHPackCoding {
         assertHeaderEquals(new BasicHeader(":status", "302"), dynamicTable.getDynamicEntry(3));
         Assert.assertEquals(222, dynamicTable.getCurrentSize());
 
-        final List<Header> headers2 = Arrays.<Header>asList(
+        final List<Header> headers2 = Arrays.asList(
                 new BasicHeader(":status", "307"),
                 new BasicHeader("cache-control", "private"),
                 new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"),
@@ -893,7 +893,7 @@ public class TestHPackCoding {
 
         Assert.assertEquals(222, dynamicTable.getCurrentSize());
 
-        final List<Header> headers3 = Arrays.<Header>asList(
+        final List<Header> headers3 = Arrays.asList(
         new BasicHeader(":status", "200"),
                 new BasicHeader("cache-control", "private"),
                 new BasicHeader("date", "Mon, 21 Oct 2013 20:13:22 GMT"),
@@ -929,7 +929,7 @@ public class TestHPackCoding {
         final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.US_ASCII);
 
         final ByteArrayBuffer buf = new ByteArrayBuffer(256);
-        final List<Header> headers1 = Arrays.<Header>asList(
+        final List<Header> headers1 = Arrays.asList(
                 new BasicHeader(":status", "302"),
                 new BasicHeader("cache-control", "private"),
                 new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"),
@@ -951,7 +951,7 @@ public class TestHPackCoding {
         assertHeaderEquals(new BasicHeader(":status", "302"), dynamicTable.getDynamicEntry(3));
         Assert.assertEquals(222, dynamicTable.getCurrentSize());
 
-        final List<Header> headers2 = Arrays.<Header>asList(
+        final List<Header> headers2 = Arrays.asList(
                 new BasicHeader(":status", "307"),
                 new BasicHeader("cache-control", "private"),
                 new BasicHeader("date", "Mon, 21 Oct 2013 20:13:21 GMT"),
@@ -972,7 +972,7 @@ public class TestHPackCoding {
 
         Assert.assertEquals(222, dynamicTable.getCurrentSize());
 
-        final List<Header> headers3 = Arrays.<Header>asList(
+        final List<Header> headers3 = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader("cache-control", "private"),
                 new BasicHeader("date", "Mon, 21 Oct 2013 20:13:22 GMT"),

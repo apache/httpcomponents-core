@@ -178,7 +178,7 @@ public class H2ProtocolNegotiationTest {
         MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
         MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-        MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_1_1));
+        MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_1_1));
     }
 
     @Test
@@ -201,7 +201,7 @@ public class H2ProtocolNegotiationTest {
         MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
         MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-        MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_2));
+        MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_2));
     }
 
     @Test
@@ -226,9 +226,9 @@ public class H2ProtocolNegotiationTest {
         MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
 
         if (isAlpnSupported()) {
-            MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_2));
+            MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_2));
         } else {
-            MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.<ProtocolVersion>equalTo(HttpVersion.HTTP_1_1));
+            MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_1_1));
         }
     }
 

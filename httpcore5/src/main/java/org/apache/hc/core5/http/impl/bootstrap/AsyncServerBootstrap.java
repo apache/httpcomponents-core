@@ -322,7 +322,7 @@ public class AsyncServerBootstrap {
         final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry = new RequestHandlerRegistry<>(
                 canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
                 () -> lookupRegistry != null ? lookupRegistry :
-                        UriPatternType.<Supplier<AsyncServerExchangeHandler>>newMatcher(UriPatternType.URI_PATTERN));
+                        UriPatternType.newMatcher(UriPatternType.URI_PATTERN));
         for (final HandlerEntry<Supplier<AsyncServerExchangeHandler>> entry: handlerList) {
             registry.register(entry.hostname, entry.uriPattern, entry.handler);
         }

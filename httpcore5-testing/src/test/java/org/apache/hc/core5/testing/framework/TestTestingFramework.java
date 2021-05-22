@@ -130,7 +130,7 @@ public class TestTestingFramework {
         final ClientTestingAdapter adapter = Mockito.mock(ClientTestingAdapter.class);
 
         // Have isRequestSupported() return false so no test will run.
-        Mockito.when(adapter.isRequestSupported(ArgumentMatchers.<String, Object>anyMap()))
+        Mockito.when(adapter.isRequestSupported(ArgumentMatchers.anyMap()))
                      .thenReturn(false);
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
@@ -142,8 +142,8 @@ public class TestTestingFramework {
     }
 
     private void verifyCallMethodNeverCalled(final ClientTestingAdapter adapter) throws Exception {
-        Mockito.verify(adapter, Mockito.never()).execute(ArgumentMatchers.anyString(), ArgumentMatchers.<String, Object>anyMap(),
-                       ArgumentMatchers.any(TestingFrameworkRequestHandler.class), ArgumentMatchers.<String, Object>anyMap());
+        Mockito.verify(adapter, Mockito.never()).execute(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap(),
+                       ArgumentMatchers.any(TestingFrameworkRequestHandler.class), ArgumentMatchers.anyMap());
     }
 
     private TestingFramework newFrameworkAndSetAdapter(final ClientTestingAdapter adapter)

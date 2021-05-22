@@ -100,8 +100,8 @@ public class TestStrictConnPool {
         pool.release(entry1, true);
         pool.release(entry2, true);
         pool.release(entry3, false);
-        Mockito.verify(conn1, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
-        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
+        Mockito.verify(conn1, Mockito.never()).close(ArgumentMatchers.any());
+        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.any());
         Mockito.verify(conn3, Mockito.times(1)).close(CloseMode.GRACEFUL);
 
         final PoolStats totals = pool.getTotalStats();
@@ -354,7 +354,7 @@ public class TestStrictConnPool {
         Assert.assertTrue(future5.isDone());
 
         Mockito.verify(conn2).close(CloseMode.GRACEFUL);
-        Mockito.verify(conn1, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
+        Mockito.verify(conn1, Mockito.never()).close(ArgumentMatchers.any());
 
         totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
@@ -424,7 +424,7 @@ public class TestStrictConnPool {
         pool.closeExpired();
 
         Mockito.verify(conn1).close(CloseMode.GRACEFUL);
-        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
+        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.any());
 
         final PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());
@@ -466,7 +466,7 @@ public class TestStrictConnPool {
         pool.closeIdle(TimeValue.of(50, TimeUnit.MILLISECONDS));
 
         Mockito.verify(conn1).close(CloseMode.GRACEFUL);
-        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.<CloseMode>any());
+        Mockito.verify(conn2, Mockito.never()).close(ArgumentMatchers.any());
 
         PoolStats totals = pool.getTotalStats();
         Assert.assertEquals(1, totals.getAvailable());

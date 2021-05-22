@@ -214,7 +214,7 @@ public class H2TLSIntegrationTest {
             Assert.fail("ExecutionException expected");
         } catch (final ExecutionException ex) {
             final Throwable cause = ex.getCause();
-            MatcherAssert.assertThat(cause, CoreMatchers.<Throwable>instanceOf(SSLHandshakeException.class));
+            MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(SSLHandshakeException.class));
         }
     }
 
@@ -266,7 +266,7 @@ public class H2TLSIntegrationTest {
             Assert.fail("ExecutionException expected");
         } catch (final ExecutionException ex) {
             final Throwable cause = ex.getCause();
-            MatcherAssert.assertThat(cause, CoreMatchers.<Throwable>instanceOf(IOException.class));
+            MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
         }
     }
 
@@ -318,7 +318,7 @@ public class H2TLSIntegrationTest {
             Assert.fail("ExecutionException expected");
         } catch (final ExecutionException ex) {
             final Throwable cause = ex.getCause();
-            MatcherAssert.assertThat(cause, CoreMatchers.<Throwable>instanceOf(IOException.class));
+            MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
         }
     }
 
@@ -388,7 +388,7 @@ public class H2TLSIntegrationTest {
                     Assert.fail("ExecutionException expected");
                 } catch (final ExecutionException ex) {
                     final Throwable cause = ex.getCause();
-                    MatcherAssert.assertThat(cause, CoreMatchers.<Throwable>instanceOf(IOException.class));
+                    MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
                 }
             } finally {
                 server.close(CloseMode.IMMEDIATE);

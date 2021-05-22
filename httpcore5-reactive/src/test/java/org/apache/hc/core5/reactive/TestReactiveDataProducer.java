@@ -68,7 +68,7 @@ public class TestReactiveDataProducer {
                 ByteBuffer.wrap(new byte[]{ '4' }),
                 ByteBuffer.wrap(new byte[]{ '5' }),
                 ByteBuffer.wrap(new byte[]{ '6' })),
-            Flowable.<ByteBuffer>error(new RuntimeException())
+            Flowable.error(new RuntimeException())
         );
         final ReactiveDataProducer producer = new ReactiveDataProducer(publisher);
 

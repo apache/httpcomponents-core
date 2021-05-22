@@ -50,7 +50,7 @@ public class TestDefaultH2RequestConverter {
     @Test
     public void testConvertFromFieldsBasic() throws Exception {
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -76,7 +76,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Header name ':Path' is invalid (header name contains uppercase characters)");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -93,7 +93,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Header 'connection: keep-alive' is illegal for HTTP/2 messages");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -110,7 +110,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Invalid sequence of headers (pseudo-headers must precede message headers)");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader("custom", "value"),
@@ -127,7 +127,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Mandatory request header ':method' not found");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":authority", "www.example.com"),
                 new BasicHeader(":path", "/"),
@@ -143,7 +143,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Mandatory request header ':scheme' not found");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":authority", "www.example.com"),
                 new BasicHeader(":path", "/"),
@@ -159,7 +159,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Mandatory request header ':path' not found");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -175,7 +175,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Unsupported request header ':custom'");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -192,7 +192,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Multiple ':method' request headers are illegal");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -210,7 +210,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Multiple ':scheme' request headers are illegal");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":scheme", "https"),
@@ -228,7 +228,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Multiple ':path' request headers are illegal");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "https"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -243,7 +243,7 @@ public class TestDefaultH2RequestConverter {
     @Test
     public void testConvertFromFieldsConnect() throws Exception {
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader(":authority", "www.example.com"),
                 new BasicHeader("custom", "value"));
@@ -258,7 +258,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Header ':authority' is mandatory for CONNECT request");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader("custom", "value"));
 
@@ -272,7 +272,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Header ':scheme' must not be set for CONNECT request");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -288,7 +288,7 @@ public class TestDefaultH2RequestConverter {
         thrown.expect(HttpException.class);
         thrown.expectMessage("Header ':path' must not be set for CONNECT request");
 
-        final List<Header> headers = Arrays.<Header>asList(
+        final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader(":authority", "www.example.com"),
                 new BasicHeader(":path", "/"),
