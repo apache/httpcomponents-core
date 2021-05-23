@@ -65,6 +65,7 @@ import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
 import org.junit.Assume;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
@@ -164,9 +165,16 @@ public class H2AlpnTest {
 
     };
 
+    private static int JAVA_VER;
+
     @BeforeClass
     public static void determineJavaVersion() {
-        Assume.assumeTrue("Java version must be 9 or greater", ReflectionUtils.determineJRELevel() >= 9);
+        JAVA_VER = ReflectionUtils.determineJRELevel();
+    }
+
+    @Before
+    public void checkVersion() {
+        Assume.assumeTrue("Java version must be 9 or greater and less than 16", JAVA_VER >= 9 && JAVA_VER < 16);
     }
 
     @Test

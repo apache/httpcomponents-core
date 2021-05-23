@@ -231,8 +231,8 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testAwaitInputInBuffer() throws Exception {
-        final ByteArrayInputStream inStream = Mockito.spy(new ByteArrayInputStream(
-                new byte[] {1, 2, 3, 4, 5}));
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(
+                new byte[] {1, 2, 3, 4, 5});
         conn.bind(socket);
         conn.ensureOpen();
         conn.inBuffer.read(inStream);
@@ -240,14 +240,12 @@ public class TestBHttpConnectionBase {
         Assert.assertTrue(conn.awaitInput(Timeout.ofMilliseconds(432)));
 
         Mockito.verify(socket, Mockito.never()).setSoTimeout(ArgumentMatchers.anyInt());
-        Mockito.verify(inStream, Mockito.times(1)).read(
-                ArgumentMatchers.any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
     }
 
     @Test
     public void testAwaitInputInSocket() throws Exception {
-        final ByteArrayInputStream inStream = Mockito.spy(new ByteArrayInputStream(
-                new byte[] {1, 2, 3, 4, 5}));
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(
+                new byte[] {1, 2, 3, 4, 5});
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
         Mockito.when(socket.getSoTimeout()).thenReturn(345);
 
@@ -258,9 +256,7 @@ public class TestBHttpConnectionBase {
 
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(432);
         Mockito.verify(socket, Mockito.times(1)).setSoTimeout(345);
-        Mockito.verify(inStream, Mockito.times(1)).read(
-                ArgumentMatchers.any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt());
-    }
+        }
 
     @Test
     public void testAwaitInputNoData() throws Exception {
@@ -289,8 +285,8 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testNotStaleWhenHasData() throws Exception {
-        final ByteArrayInputStream inStream = Mockito.spy(new ByteArrayInputStream(
-                new byte[] {1, 2, 3, 4, 5}));
+        final ByteArrayInputStream inStream = new ByteArrayInputStream(
+                new byte[] {1, 2, 3, 4, 5});
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
 
         conn.bind(socket);
