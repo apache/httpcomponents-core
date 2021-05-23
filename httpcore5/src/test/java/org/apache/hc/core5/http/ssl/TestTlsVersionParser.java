@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Tokenizer;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,29 +65,34 @@ public class TestTlsVersionParser {
         MatcherAssert.assertThat(cursor.getPos(), CoreMatchers.equalTo(8));
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testParseFailure1() throws Exception {
-        impl.parse("Tlsv1");
+        Assert.assertThrows(ParseException.class, () ->
+                impl.parse("Tlsv1"));
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testParseFailure2() throws Exception {
-        impl.parse("TLSV1");
+        Assert.assertThrows(ParseException.class, () ->
+                impl.parse("TLSV1"));
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testParseFailure3() throws Exception {
-        impl.parse("TLSv");
+        Assert.assertThrows(ParseException.class, () ->
+                impl.parse("TLSv"));
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testParseFailure4() throws Exception {
-        impl.parse("TLSv1A");
+        Assert.assertThrows(ParseException.class, () ->
+                impl.parse("TLSv1A"));
     }
 
-    @Test(expected = ParseException.class)
+    @Test
     public void testParseFailure5() throws Exception {
-        impl.parse("TLSv1.A");
+        Assert.assertThrows(ParseException.class, () ->
+                impl.parse("TLSv1.A"));
     }
 
 }

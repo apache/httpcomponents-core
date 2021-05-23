@@ -233,42 +233,44 @@ public class TestFrameInOutBuffers {
         Assert.assertNull(payload);
     }
 
-    @Test(expected = ConnectionClosedException.class)
+    @Test
     public void testReadFrameConnectionClosed() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(new byte[] {});
 
         Assert.assertEquals(null, inBuffer.read(readableChannel));
-        inBuffer.read(readableChannel);
+        Assert.assertThrows(ConnectionClosedException.class, () ->
+                inBuffer.read(readableChannel));
     }
 
-    @Test(expected = H2CorruptFrameException.class)
+    @Test
     public void testReadFrameCorruptFrame() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(new byte[] {0,0});
 
-        Assert.assertEquals(null, inBuffer.read(readableChannel));
-        inBuffer.read(readableChannel);
+        Assert.assertThrows(H2CorruptFrameException.class, () ->
+                inBuffer.read(readableChannel));
     }
 
-    @Test(expected = H2ConnectionException.class)
+    @Test
     public void testWriteFrameExceedingLimit() throws Exception {
         final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(1024);
 
         final RawFrame frame = new RawFrame(FrameType.DATA.getValue(), 0, 1,
                 ByteBuffer.wrap(new byte[2048]));
-        outbuffer.write(frame, writableChannel);
+        Assert.assertThrows(H2ConnectionException.class, () ->
+                outbuffer.write(frame, writableChannel));
     }
 
-    @Test(expected = H2ConnectionException.class)
+    @Test
     public void testReadFrameExceedingLimit() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(
                 new byte[] {0,-128,-128,0,0,0,0,0,1});
 
-        Assert.assertEquals(null, inBuffer.read(readableChannel));
-        inBuffer.read(readableChannel);
+        Assert.assertThrows(H2ConnectionException.class, () ->
+                inBuffer.read(readableChannel));
     }
 
 }

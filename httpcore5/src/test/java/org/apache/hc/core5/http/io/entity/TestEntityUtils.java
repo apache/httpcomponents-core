@@ -53,17 +53,19 @@ import org.junit.Test;
  */
 public class TestEntityUtils {
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullEntityToByteArray() throws Exception {
-        EntityUtils.toByteArray(null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                EntityUtils.toByteArray(null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testMaxIntContentToByteArray() throws Exception {
         final byte[] content = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(content),
                 Integer.MAX_VALUE + 100L, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1));
-        EntityUtils.toByteArray(entity);
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                EntityUtils.toByteArray(entity));
     }
 
     @Test
@@ -100,12 +102,13 @@ public class TestEntityUtils {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testMaxIntContentToString() throws Exception {
         final byte[] content = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(content),
                 Integer.MAX_VALUE + 100L, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1));
-        EntityUtils.toString(entity);
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                EntityUtils.toString(entity));
     }
 
     @Test

@@ -71,9 +71,10 @@ public class TestPoolEntry {
         Assert.assertEquals(Deadline.MIN_VALUE, entry1.getExpiryDeadline());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullConstructor() throws Exception {
-        new PoolEntry<String, HttpConnection>(null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                new PoolEntry<String, HttpConnection>(null));
     }
 
     @Test
@@ -107,11 +108,12 @@ public class TestPoolEntry {
         Assert.assertEquals(validityDeadline, entry2.getExpiryDeadline());
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testInvalidExpiry() throws Exception {
         final PoolEntry<String, HttpConnection> entry = new PoolEntry<>(
                 "route1", TimeValue.of(0L, TimeUnit.MILLISECONDS), currentTimeSupplier);
-        entry.updateExpiry(null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                entry.updateExpiry(null));
     }
 
     @Test

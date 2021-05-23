@@ -30,9 +30,9 @@ package org.apache.hc.core5.http.nio.entity;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.WritableByteChannelMock;
-import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
 import org.junit.Assert;
 import org.junit.Test;

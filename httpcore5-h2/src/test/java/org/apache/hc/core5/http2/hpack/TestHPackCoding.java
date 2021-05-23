@@ -170,14 +170,14 @@ public class TestHPackCoding {
         Assert.assertEquals(4, srcRO.remaining());
     }
 
-    @Test(expected = HPackException.class)
+    @Test
     public void testPlainStringDecodingTruncated() throws Exception {
 
         final ByteBuffer src = createByteBuffer(
                 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65);
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
-        HPackDecoder.decodePlainString(buffer, src);
+        Assert.assertThrows(HPackException.class, () -> HPackDecoder.decodePlainString(buffer, src));
     }
 
     @Test
@@ -1039,7 +1039,7 @@ public class TestHPackCoding {
         Assert.assertEquals(0, inboundTable2.dynamicLength());
     }
 
-    @Test(expected = HeaderListConstraintException.class)
+    @Test
     public void testHeaderSizeLimit() throws Exception {
 
         final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
@@ -1060,7 +1060,8 @@ public class TestHPackCoding {
         MatcherAssert.assertThat(decoder.decodeHeaders(wrap(buf)).size(), CoreMatchers.equalTo(2));
 
         decoder.setMaxListSize(200);
-        decoder.decodeHeaders(wrap(buf));
+        Assert.assertThrows(HeaderListConstraintException.class, () ->
+                decoder.decodeHeaders(wrap(buf)));
     }
 
 }

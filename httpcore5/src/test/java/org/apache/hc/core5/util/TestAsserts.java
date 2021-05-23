@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.util;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -39,39 +40,46 @@ public class TestAsserts {
         Asserts.check(true, "All is well");
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testExpressionCheckFail() {
-        Asserts.check(false, "Oopsie");
+        Assert.assertThrows(IllegalStateException.class, () ->
+                Asserts.check(false, "Oopsie"));
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testExpressionNotNullFail() {
-        Asserts.notNull(null, "Stuff");
+        Assert.assertThrows(IllegalStateException.class, () ->
+                Asserts.notNull(null, "Stuff"));
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testExpressionNotEmptyFail1() {
-        Asserts.notEmpty(null, "Stuff");
+        Assert.assertThrows(IllegalStateException.class, () ->
+                Asserts.notEmpty(null, "Stuff"));
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testExpressionNotEmptyFail2() {
-        Asserts.notEmpty("", "Stuff");
+        Assert.assertThrows(IllegalStateException.class, () ->
+                Asserts.notEmpty("", "Stuff"));
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testExpressionNotEmptyBlank1() {
-        Asserts.notBlank(null, "Stuff");
+        Assert.assertThrows(IllegalStateException.class, () ->
+                Asserts.notBlank(null, "Stuff"));
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testExpressionNotEmptyBlank2() {
-        Asserts.notBlank("", "Stuff");
+        Assert.assertThrows(IllegalStateException.class, () ->
+                Asserts.notBlank("", "Stuff"));
     }
 
-    @Test(expected=IllegalStateException.class)
+    @Test
     public void testExpressionNotBlankFail3() {
-        Asserts.notBlank(" \t \n\r", "Stuff");
+        Assert.assertThrows(IllegalStateException.class, () ->
+                Asserts.notBlank(" \t \n\r", "Stuff"));
     }
 
 }

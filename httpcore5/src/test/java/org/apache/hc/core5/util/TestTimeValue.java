@@ -113,9 +113,10 @@ public class TestTimeValue {
         Assert.assertEquals(30000, TimeValue.ofMinutes(1).divide(2, TimeUnit.MILLISECONDS).toMilliseconds());
     }
 
-    @Test(expected = ArithmeticException.class)
+    @Test
     public void testDivideBy0() {
-        TimeValue.ofMilliseconds(0).divide(0);
+        Assert.assertThrows(ArithmeticException.class, () ->
+                TimeValue.ofMilliseconds(0).divide(0));
     }
 
     private void testFactory(final TimeUnit timeUnit) {

@@ -35,17 +35,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.reactivex.Flowable;
+import io.reactivex.Notification;
+import io.reactivex.Observable;
+import io.reactivex.Single;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.junit.Assert;
 import org.junit.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
-
-import io.reactivex.Flowable;
-import io.reactivex.Notification;
-import io.reactivex.Observable;
-import io.reactivex.Single;
 
 public class TestReactiveDataConsumer {
 
@@ -93,7 +92,7 @@ public class TestReactiveDataConsumer {
         Assert.assertSame(ex, single.blockingGet().get(0).getError());
     }
 
-    @Test(expected = HttpStreamResetException.class)
+    @Test
     public void testCancellation() throws Exception {
         final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
         consumer.subscribe(new Subscriber<ByteBuffer>() {
@@ -115,7 +114,8 @@ public class TestReactiveDataConsumer {
             }
         });
 
-        consumer.consume(ByteBuffer.wrap(new byte[1024]));
+        Assert.assertThrows(HttpStreamResetException.class, () ->
+            consumer.consume(ByteBuffer.wrap(new byte[1024])));
     }
 
     @Test

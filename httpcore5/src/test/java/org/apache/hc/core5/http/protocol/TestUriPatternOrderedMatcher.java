@@ -76,10 +76,11 @@ public class TestUriPatternOrderedMatcher {
         Assert.assertNull(h);
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testRegisterNull() throws Exception {
         final LookupRegistry<Object> matcher = new UriPatternOrderedMatcher<>();
-        matcher.register(null, null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                matcher.register(null, null));
     }
 
     @Test
@@ -154,16 +155,18 @@ public class TestUriPatternOrderedMatcher {
         Assert.assertTrue(h1 == h);
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testRegisterInvalidInput() throws Exception {
         final LookupRegistry<Object> matcher = new UriPatternOrderedMatcher<>();
-        matcher.register(null, null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                matcher.register(null, null));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testLookupInvalidInput() throws Exception {
         final LookupRegistry<Object> matcher = new UriPatternOrderedMatcher<>();
-        matcher.lookup(null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                matcher.lookup(null));
     }
 
     @Test

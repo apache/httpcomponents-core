@@ -95,7 +95,7 @@ public class TestResponseParser {
         Assert.assertEquals(1, headers.length);
     }
 
-    @Test(expected = MessageConstraintException.class)
+    @Test
     public void testBasicMessageParsingTooManyLeadingEmptyLines() throws Exception {
         final String s =
                 "\r\n" +
@@ -109,7 +109,8 @@ public class TestResponseParser {
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
                 Http1Config.custom().setMaxEmptyLineCount(3).build());
-        parser.parse(inBuffer, inputStream);
+        Assert.assertThrows(MessageConstraintException.class, () ->
+                parser.parse(inBuffer, inputStream));
     }
 
     @Test

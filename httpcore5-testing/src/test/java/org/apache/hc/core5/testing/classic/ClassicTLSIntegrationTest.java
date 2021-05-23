@@ -30,7 +30,6 @@ package org.apache.hc.core5.testing.classic;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -142,7 +141,7 @@ public class ClassicTLSIntegrationTest {
                 CoreMatchers.equalTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation"));
     }
 
-    @Test(expected = SSLHandshakeException.class)
+    @Test
     public void testTLSTrustFailure() throws Exception {
         server = ServerBootstrap.bootstrap()
                 .setSocketConfig(SocketConfig.custom()
@@ -168,12 +167,14 @@ public class ClassicTLSIntegrationTest {
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            EntityUtils.consume(response1.getEntity());
-        }
+        Assert.assertThrows(IOException.class, () -> {
+            try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
+                EntityUtils.consume(response1.getEntity());
+            }
+        });
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testTLSClientAuthFailure() throws Exception {
         server = ServerBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createClientSSLContext())
@@ -201,12 +202,14 @@ public class ClassicTLSIntegrationTest {
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            EntityUtils.consume(response1.getEntity());
-        }
+        Assert.assertThrows(IOException.class, () -> {
+            try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
+                EntityUtils.consume(response1.getEntity());
+            }
+        });
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testSSLDisabledByDefault() throws Exception {
         server = ServerBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createServerSSLContext())
@@ -227,9 +230,11 @@ public class ClassicTLSIntegrationTest {
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            EntityUtils.consume(response1.getEntity());
-        }
+        Assert.assertThrows(IOException.class, () -> {
+            try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
+                EntityUtils.consume(response1.getEntity());
+            }
+        });
     }
 
     @Test
@@ -250,7 +255,6 @@ public class ClassicTLSIntegrationTest {
                 "TLS_DH_anon_WITH_AES_128_CBC_SHA",
                 "SSL_RSA_EXPORT_WITH_DES40_CBC_SHA",
                 "SSL_RSA_WITH_NULL_SHA",
-                "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
                 "TLS_ECDHE_ECDSA_WITH_RC4_128_SHA",
                 "TLS_ECDH_ECDSA_WITH_3DES_EDE_CBC_SHA",
                 "TLS_DH_anon_WITH_AES_256_GCM_SHA384",
@@ -267,22 +271,21 @@ public class ClassicTLSIntegrationTest {
                     .setSslContext(SSLTestContexts.createServerSSLContext())
                     .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{cipherSuite}))
                     .create();
-            try {
-                server.start();
+            Assert.assertThrows(Exception.class, () -> {
+                try {
+                    server.start();
 
-                final HttpContext context = new BasicHttpContext();
-                final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
-                final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
-                request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-                try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-                    EntityUtils.consume(response1.getEntity());
+                    final HttpContext context = new BasicHttpContext();
+                    final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
+                    final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
+                    request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
+                    try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
+                        EntityUtils.consume(response1.getEntity());
+                    }
+                } finally {
+                    server.close(CloseMode.IMMEDIATE);
                 }
-
-                Assert.fail("IOException expected");
-            } catch (final IOException | IllegalArgumentException expected) {
-            } finally {
-                server.close(CloseMode.IMMEDIATE);
-            }
+            });
         }
     }
 

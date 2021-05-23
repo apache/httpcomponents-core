@@ -38,8 +38,8 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.io.entity.EmptyInputStream;
 import org.apache.hc.core5.http.io.entity.BasicHttpEntity;
+import org.apache.hc.core5.http.io.entity.EmptyInputStream;
 import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
@@ -311,13 +311,14 @@ public class TestStandardInterceptors {
         Assert.assertEquals("h1, h2", header2.getValue());
     }
 
-    @Test(expected = ProtocolException.class)
+    @Test
     public void testRequestContentTraceWithEntity() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.TRACE, "/");
         request.setEntity(new StringEntity("stuff"));
         final RequestContent interceptor = new RequestContent();
-        interceptor.process(request, request.getEntity(), context);
+        Assert.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
     }
 
     @Test
@@ -1056,22 +1057,24 @@ public class TestStandardInterceptors {
         interceptor.process(request, request.getEntity(), context);
     }
 
-    @Test(expected = ProtocolException.class)
+    @Test
     public void testRequestHttp11HostHeaderAbsent() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         final RequestValidateHost interceptor = new RequestValidateHost();
-        interceptor.process(request, request.getEntity(), context);
+        Assert.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
     }
 
-    @Test(expected = ProtocolException.class)
+    @Test
     public void testRequestHttp11MultipleHostHeaders() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(HttpHeaders.HOST, "blah");
         request.addHeader(HttpHeaders.HOST, "blah");
         final RequestValidateHost interceptor = new RequestValidateHost();
-        interceptor.process(request, request.getEntity(), context);
+        Assert.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
     }
 
 }

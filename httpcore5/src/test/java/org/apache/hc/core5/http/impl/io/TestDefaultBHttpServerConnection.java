@@ -154,7 +154,7 @@ public class TestDefaultBHttpServerConnection {
         Assert.assertTrue(content instanceof ChunkedInputStream);
     }
 
-    @Test(expected = ProtocolException.class)
+    @Test
     public void testReadRequestEntityIdentity() throws Exception {
         final String s = "POST /stuff HTTP/1.1\r\nUser-Agent: test\r\nTransfer-Encoding: " +
                 "identity\r\n\r\n123";
@@ -174,7 +174,8 @@ public class TestDefaultBHttpServerConnection {
         Assert.assertNull(request.getEntity());
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
 
-        conn.receiveRequestEntity(request);
+        Assert.assertThrows(ProtocolException.class, () ->
+                conn.receiveRequestEntity(request));
     }
 
     @Test
@@ -288,7 +289,7 @@ public class TestDefaultBHttpServerConnection {
                 "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n", s);
     }
 
-    @Test(expected = NotImplementedException.class)
+    @Test
     public void testWriteResponseEntityIdentity() throws Exception {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
@@ -303,7 +304,8 @@ public class TestDefaultBHttpServerConnection {
         response.setEntity(new StringEntity("123", ContentType.TEXT_PLAIN));
 
         conn.sendResponseHeader(response);
-        conn.sendResponseEntity(response);
+        Assert.assertThrows(NotImplementedException.class, () ->
+                conn.sendResponseEntity(response));
         conn.flush();
     }
 

@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.net.URI;
+
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -35,8 +37,6 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.net.URIAuthority;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.net.URI;
 
 /**
  * Unit tests for {@link org.apache.hc.core5.http.HttpMessage}.
@@ -214,9 +214,10 @@ public class TestBasicMessages {
         Assert.assertEquals(new URI("http://%21example%21.com/stuff"), request.getUri());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testRequestPathWithMultipleLeadingSlashes() throws Exception {
-        new BasicHttpRequest(Method.GET, URI.create("http://host//stuff"));
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                new BasicHttpRequest(Method.GET, URI.create("http://host//stuff")));
     }
 
     @Test

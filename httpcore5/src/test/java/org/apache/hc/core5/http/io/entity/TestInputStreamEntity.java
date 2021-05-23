@@ -53,9 +53,10 @@ public class TestInputStreamEntity {
         Assert.assertTrue(entity.isStreaming());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testNullConstructor() throws Exception {
-        new InputStreamEntity(null, 0, null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                new InputStreamEntity(null, 0, null));
     }
 
     @Test
@@ -118,9 +119,10 @@ public class TestInputStreamEntity {
         Assert.assertEquals(message, s);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testWriteToNull() throws Exception {
         final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, 0, null);
-        entity.writeTo(null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                entity.writeTo(null));
     }
 }

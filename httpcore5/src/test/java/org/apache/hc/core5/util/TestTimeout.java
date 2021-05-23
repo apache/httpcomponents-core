@@ -156,9 +156,10 @@ public class TestTimeout {
         test(Long.MAX_VALUE);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNegative1() {
-        test(-1);
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                test(-1));
     }
 
     @Test

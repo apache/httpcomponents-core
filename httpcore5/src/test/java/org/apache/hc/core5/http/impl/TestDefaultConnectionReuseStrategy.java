@@ -55,9 +55,10 @@ public class TestDefaultConnectionReuseStrategy {
         context = new BasicHttpContext(null);
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testInvalidResponseArg() throws Exception {
-        reuseStrategy.keepAlive(null, null, this.context);
+        Assert.assertThrows(NullPointerException.class, () ->
+                reuseStrategy.keepAlive(null, null, this.context));
     }
 
     @Test

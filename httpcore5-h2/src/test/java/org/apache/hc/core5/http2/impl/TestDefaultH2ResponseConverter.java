@@ -36,14 +36,9 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class TestDefaultH2ResponseConverter {
-
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void testConvertFromFieldsBasic() throws Exception {
@@ -67,69 +62,52 @@ public class TestDefaultH2ResponseConverter {
 
     @Test
     public void testConvertFromFieldsUpperCaseHeaderName() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header name ':Status' is invalid (header name contains uppercase characters)");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":Status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Header name ':Status' is invalid (header name contains uppercase characters)",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsInvalidStatusCode() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Invalid response status: boom");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "boom"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom123", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        converter.convert(headers);
+        Assert.assertThrows(HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsConnectionHeader() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header 'connection: keep-alive' is illegal for HTTP/2 messages");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("connection", "keep-alive"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Header 'connection: keep-alive' is illegal for HTTP/2 messages",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsMissingStatus() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Mandatory response header ':status' not found");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Mandatory response header ':status' not found",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsUnknownPseudoHeader() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Unsupported response header ':custom'");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader(":custom", "200"),
@@ -137,15 +115,12 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom1", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Unsupported response header ':custom'",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsMultipleStatus() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Multiple ':status' response headers are illegal");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader(":status", "200"),
@@ -153,7 +128,8 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom1", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Multiple ':status' response headers are illegal",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
@@ -177,41 +153,32 @@ public class TestDefaultH2ResponseConverter {
 
     @Test
     public void testConvertFromMessageInvalidStatus() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Response status 99 is invalid");
-
         final HttpResponse response = new BasicHttpResponse(99);
         response.addHeader("Custom123", "Value");
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        converter.convert(response);
+        Assert.assertThrows("Response status 99 is invalid",
+                HttpException.class, () -> converter.convert(response));
     }
 
     @Test
     public void testConvertFromMessageConnectionHeader() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header 'Connection: Keep-Alive' is illegal for HTTP/2 messages");
-
         final HttpResponse response = new BasicHttpResponse(200);
         response.addHeader("Connection", "Keep-Alive");
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        converter.convert(response);
+        Assert.assertThrows("Header 'Connection: Keep-Alive' is illegal for HTTP/2 messages",
+                HttpException.class, () -> converter.convert(response));
     }
 
     @Test
     public void testConvertFromMessageInvalidHeader() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header name ':custom' is invalid");
-
         final HttpResponse response = new BasicHttpResponse(200);
         response.addHeader(":custom", "stuff");
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        converter.convert(response);
+        Assert.assertThrows("Header name ':custom' is invalid",
+                HttpException.class, () -> converter.convert(response));
     }
 
 }

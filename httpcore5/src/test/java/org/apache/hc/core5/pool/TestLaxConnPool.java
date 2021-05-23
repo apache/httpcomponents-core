@@ -111,10 +111,11 @@ public class TestLaxConnPool {
         }
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testReleaseUnknownEntry() throws Exception {
         final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
-        pool.release(new PoolEntry<>("somehost"), true);
+        Assert.assertThrows(IllegalStateException.class, () ->
+                pool.release(new PoolEntry<>("somehost"), true));
     }
 
     @Test
@@ -372,10 +373,11 @@ public class TestLaxConnPool {
         Assert.assertEquals(0, totals.getLeased());
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testGetStatsInvalid() throws Exception {
         final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
-        pool.getStats(null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                pool.getStats(null));
     }
 
     @Test

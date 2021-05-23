@@ -49,9 +49,10 @@ public class TestArgs {
         Args.check(true, "All is well");
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testArgCheckFail() {
-        Args.check(false, "Oopsie");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.check(false, "Oopsie"));
     }
 
     @Test
@@ -60,9 +61,10 @@ public class TestArgs {
         Assert.assertSame(stuff, Args.notNull(stuff, "Stuff"));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testArgNotNullFail() {
-        Args.notNull(null, "Stuff");
+        Assert.assertThrows(NullPointerException.class, () ->
+                Args.notNull(null, "Stuff"));
     }
 
     @Test
@@ -71,29 +73,34 @@ public class TestArgs {
         Assert.assertSame(stuff, Args.notEmpty(stuff, "Stuff"));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testArgNotEmptyFail1() {
-        Args.notEmpty((String) null, "Stuff");
+        Assert.assertThrows(NullPointerException.class, () ->
+                Args.notEmpty((String) null, "Stuff"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testArgNotEmptyFail2() {
-        Args.notEmpty("", "Stuff");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.notEmpty("", "Stuff"));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testArgNotBlankFail1() {
-        Args.notBlank((String) null, "Stuff");
+        Assert.assertThrows(NullPointerException.class, () ->
+                Args.notBlank((String) null, "Stuff"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testArgNotBlankFail2() {
-        Args.notBlank("", "Stuff");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.notBlank("", "Stuff"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testArgNotBlankFail3() {
-        Args.notBlank(" \t \n\r", "Stuff");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.notBlank(" \t \n\r", "Stuff"));
     }
 
     @Test
@@ -102,14 +109,16 @@ public class TestArgs {
         Assert.assertSame(list, Args.notEmpty(list, "List"));
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testArgCollectionNotEmptyFail1() {
-        Args.notEmpty((List<?>) null, "List");
+        Assert.assertThrows(NullPointerException.class, () ->
+                Args.notEmpty((List<?>) null, "List"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testArgCollectionNotEmptyFail2() {
-        Args.notEmpty(Collections.emptyList(), "List");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.notEmpty(Collections.emptyList(), "List"));
     }
 
     @Test
@@ -117,14 +126,16 @@ public class TestArgs {
         Assert.assertEquals(1, Args.positive(1, "Number"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testPositiveIntFail1() {
-        Args.positive(-1, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.positive(-1, "Number"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testPositiveIntFail2() {
-        Args.positive(0, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.positive(0, "Number"));
     }
 
     @Test
@@ -137,14 +148,16 @@ public class TestArgs {
         final Timeout timeout = Timeout.parse("1200 MILLISECONDS");
         Assert.assertEquals(timeout, Args.positive(timeout, "No Error"));
     }
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testPositiveLongFail1() {
-        Args.positive(-1L, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.positive(-1L, "Number"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testPositiveLongFail2() {
-        Args.positive(0L, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.positive(0L, "Number"));
     }
 
     @Test
@@ -157,9 +170,10 @@ public class TestArgs {
         Assert.assertEquals(0, Args.notNegative(0, "Number"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testNotNegativeIntFail1() {
-        Args.notNegative(-1, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.notNegative(-1, "Number"));
     }
 
     @Test
@@ -172,65 +186,76 @@ public class TestArgs {
         Assert.assertEquals(0L, Args.notNegative(0L, "Number"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testNotNegativeLongFail1() {
-        Args.notNegative(-1L, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.notNegative(-1L, "Number"));
     }
 
-    //
+    @Test
     public void testIntSmallestRangeOK() {
         Args.checkRange(0, 0, 0, "Number");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIntSmallestRangeFailLow() {
-        Args.checkRange(-1, 0, 0, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.checkRange(-1, 0, 0, "Number"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIntRangeFailLow() {
-        Args.checkRange(-101, -100, 100, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.checkRange(-101, -100, 100, "Number"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIntRangeFailHigh() {
-        Args.checkRange(101, -100, 100, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.checkRange(101, -100, 100, "Number"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIntSmallestRangeFailHigh() {
-        Args.checkRange(1, 0, 0, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.checkRange(1, 0, 0, "Number"));
     }
 
+    @Test
     public void testIntFullRangeOK() {
         Args.checkRange(0, Integer.MIN_VALUE, Integer.MAX_VALUE, "Number");
     }
 
-    //
+    @Test
     public void testLongSmallestRangeOK() {
         Args.checkRange(0L, 0L, 0L, "Number");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testLongSmallestRangeFailLow() {
-        Args.checkRange(-1L, 0L, 0L, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.checkRange(-1L, 0L, 0L, "Number"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testLongRangeFailLow() {
-        Args.checkRange(-101L, -100L, 100L, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.checkRange(-101L, -100L, 100L, "Number"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testLongRangeFailHigh() {
-        Args.checkRange(101L, -100L, 100L, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.checkRange(101L, -100L, 100L, "Number"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testLongSmallestRangeFailHigh() {
-        Args.checkRange(1L, 0L, 0L, "Number");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.checkRange(1L, 0L, 0L, "Number"));
     }
 
+    @Test
     public void testLongFullRangeOK() {
         Args.checkRange(0L, Long.MIN_VALUE, Long.MAX_VALUE, "Number");
     }
@@ -268,9 +293,10 @@ public class TestArgs {
         Assert.assertSame(stuff, Args.containsNoBlanks(stuff, "abg"));
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void check() {
-        Args.check(false, "Error,", "ABG");
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                Args.check(false, "Error,", "ABG"));
     }
 
 }

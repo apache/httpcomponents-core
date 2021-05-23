@@ -38,14 +38,9 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.net.URIAuthority;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 public class TestDefaultH2RequestConverter {
-
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void testConvertFromFieldsBasic() throws Exception {
@@ -72,10 +67,6 @@ public class TestDefaultH2RequestConverter {
 
     @Test
     public void testConvertFromFieldsUpperCaseHeaderName() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header name ':Path' is invalid (header name contains uppercase characters)");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -84,15 +75,13 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+
+        Assert.assertThrows("Header name ':Path' is invalid (header name contains uppercase characters)",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsConnectionHeader() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header 'connection: keep-alive' is illegal for HTTP/2 messages");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -101,15 +90,12 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader("connection", "keep-alive"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Header 'connection: keep-alive' is illegal for HTTP/2 messages",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsPseudoHeaderSequence() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Invalid sequence of headers (pseudo-headers must precede message headers)");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -118,15 +104,12 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":path", "/"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Invalid sequence of headers (pseudo-headers must precede message headers)",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsMissingMethod() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Mandatory request header ':method' not found");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -134,15 +117,12 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Mandatory request header ':method' not found",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsMissingScheme() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Mandatory request header ':scheme' not found");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -150,15 +130,12 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Mandatory request header ':scheme' not found",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsMissingPath() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Mandatory request header ':path' not found");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -166,15 +143,12 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Mandatory request header ':path' not found",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsUnknownPseudoHeader() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Unsupported request header ':custom'");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -183,15 +157,12 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader(":custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Unsupported request header ':custom'",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsMultipleMethod() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Multiple ':method' request headers are illegal");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":method", "GET"),
@@ -201,15 +172,12 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Multiple ':method' request headers are illegal",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsMultipleScheme() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Multiple ':scheme' request headers are illegal");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -219,15 +187,12 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Multiple ':scheme' request headers are illegal",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsMultiplePath() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Multiple ':path' request headers are illegal");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "https"),
@@ -237,7 +202,8 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Multiple ':path' request headers are illegal",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
@@ -254,24 +220,17 @@ public class TestDefaultH2RequestConverter {
 
     @Test
     public void testConvertFromFieldsConnectMissingAuthority() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header ':authority' is mandatory for CONNECT request");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Header ':authority' is mandatory for CONNECT request",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsConnectPresentScheme() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header ':scheme' must not be set for CONNECT request");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader(":scheme", "http"),
@@ -279,15 +238,12 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Header ':scheme' must not be set for CONNECT request",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
     public void testConvertFromFieldsConnectPresentPath() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header ':path' must not be set for CONNECT request");
-
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -295,7 +251,8 @@ public class TestDefaultH2RequestConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(headers);
+        Assert.assertThrows("Header ':path' must not be set for CONNECT request",
+                HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
@@ -328,30 +285,24 @@ public class TestDefaultH2RequestConverter {
 
     @Test
     public void testConvertFromMessageMissingScheme() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Request scheme is not set");
-
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Custom123", "Value");
         request.setScheme(null);
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(request);
+        Assert.assertThrows("Request scheme is not set",
+                HttpException.class, () -> converter.convert(request));
     }
 
     @Test
     public void testConvertFromMessageMissingPath() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Request path is not set");
-
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Custom123", "Value");
         request.setPath(null);
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(request);
+        Assert.assertThrows("Request path is not set",
+                HttpException.class, () -> converter.convert(request));
     }
 
     @Test
@@ -378,55 +329,43 @@ public class TestDefaultH2RequestConverter {
 
     @Test
     public void testConvertFromMessageConnectMissingAuthority() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("CONNECT request authority is not set");
-
         final HttpRequest request = new BasicHttpRequest("CONNECT", null, null);
         request.addHeader("Custom123", "Value");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(request);
+        Assert.assertThrows("CONNECT request authority is not set",
+                HttpException.class, () -> converter.convert(request));
     }
 
     @Test
     public void testConvertFromMessageConnectWithPath() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("CONNECT request path must be null");
-
         final HttpRequest request = new BasicHttpRequest("CONNECT", "/");
         request.setAuthority(new URIAuthority("host"));
         request.addHeader("Custom123", "Value");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(request);
+        Assert.assertThrows("CONNECT request path must be null",
+                HttpException.class, () -> converter.convert(request));
     }
 
     @Test
     public void testConvertFromMessageConnectionHeader() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header 'Connection: Keep-Alive' is illegal for HTTP/2 messages");
-
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Connection", "Keep-Alive");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(request);
+        Assert.assertThrows("Header 'Connection: Keep-Alive' is illegal for HTTP/2 messages",
+                HttpException.class, () -> converter.convert(request));
     }
 
     @Test
     public void testConvertFromMessageInvalidHeader() throws Exception {
-
-        thrown.expect(HttpException.class);
-        thrown.expectMessage("Header name ':custom' is invalid");
-
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader(":custom", "stuff");
 
         final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
-        converter.convert(request);
+        Assert.assertThrows("Header name ':custom' is invalid",
+                HttpException.class, () -> converter.convert(request));
     }
 
 }

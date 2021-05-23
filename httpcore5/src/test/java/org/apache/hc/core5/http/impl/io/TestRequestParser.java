@@ -95,7 +95,7 @@ public class TestRequestParser {
         Assert.assertEquals(1, headers.length);
     }
 
-    @Test(expected = RequestHeaderFieldsTooLargeException.class)
+    @Test
     public void testBasicMessageParsingTooManyLeadingEmptyLines() throws Exception {
         final String s =
                 "\r\n" +
@@ -109,7 +109,8 @@ public class TestRequestParser {
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 Http1Config.custom().setMaxEmptyLineCount(3).build());
-        parser.parse(inBuffer, inputStream);
+        Assert.assertThrows(RequestHeaderFieldsTooLargeException.class, () ->
+                parser.parse(inBuffer, inputStream));
     }
 
     @Test

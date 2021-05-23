@@ -61,27 +61,31 @@ public class TestByteArrayEntity {
         Assert.assertFalse(entity.isStreaming());
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testIllegalConstructorNullByteArray() throws Exception {
-        new ByteArrayEntity(null, null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                new ByteArrayEntity(null, null));
     }
 
-    @Test(expected=IndexOutOfBoundsException.class)
+    @Test
     public void testIllegalConstructorBadLen() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        new ByteArrayEntity(bytes, 0, bytes.length + 1, null);
+        Assert.assertThrows(IndexOutOfBoundsException.class, () ->
+                new ByteArrayEntity(bytes, 0, bytes.length + 1, null));
     }
 
-    @Test(expected=IndexOutOfBoundsException.class)
+    @Test
     public void testIllegalConstructorBadOff1() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        new ByteArrayEntity(bytes, -1, bytes.length, null);
+        Assert.assertThrows(IndexOutOfBoundsException.class, () ->
+                new ByteArrayEntity(bytes, -1, bytes.length, null));
     }
 
-    @Test(expected=IndexOutOfBoundsException.class)
+    @Test
     public void testIllegalConstructorBadOff2() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        new ByteArrayEntity(bytes, bytes.length + 1, bytes.length, null);
+        Assert.assertThrows(IndexOutOfBoundsException.class, () ->
+                new ByteArrayEntity(bytes, bytes.length + 1, bytes.length, null));
     }
 
     @Test

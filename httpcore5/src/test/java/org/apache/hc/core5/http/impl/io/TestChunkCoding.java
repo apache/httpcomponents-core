@@ -39,7 +39,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MalformedChunkCodingException;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.StreamClosedException;
-import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicHeader;
@@ -167,7 +166,7 @@ public class TestChunkCoding {
     }
 
     // Missing closing chunk
-    @Test(expected=ConnectionClosedException.class)
+    @Test
     public void testChunkedInputStreamNoClosingChunk() throws IOException {
         final String s = "5\r\n01234\r\n";
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
@@ -175,12 +174,12 @@ public class TestChunkCoding {
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         final byte[] tmp = new byte[5];
         Assert.assertEquals(5, in.read(tmp));
-        in.read();
-        in.close();
+        Assert.assertThrows(ConnectionClosedException.class, () -> in.read());
+        Assert.assertThrows(ConnectionClosedException.class, () -> in.close());
     }
 
     // Truncated stream (missing closing CRLF)
-    @Test(expected=MalformedChunkCodingException.class)
+    @Test
     public void testCorruptChunkedInputStreamTruncatedCRLF() throws IOException {
         final String s = "5\r\n01234";
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
@@ -188,12 +187,12 @@ public class TestChunkCoding {
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         final byte[] tmp = new byte[5];
         Assert.assertEquals(5, in.read(tmp));
-        in.read();
+        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read());
         in.close();
     }
 
     // Missing \r\n at the end of the first chunk
-    @Test(expected=MalformedChunkCodingException.class)
+    @Test
     public void testCorruptChunkedInputStreamMissingCRLF() throws IOException {
         final String s = "5\r\n012345\r\n56789\r\n0\r\n";
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
@@ -201,48 +200,50 @@ public class TestChunkCoding {
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         final byte[] buffer = new byte[300];
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int len;
-        while ((len = in.read(buffer)) > 0) {
-            out.write(buffer, 0, len);
-        }
+        Assert.assertThrows(MalformedChunkCodingException.class, () -> {
+            int len;
+            while ((len = in.read(buffer)) > 0) {
+                out.write(buffer, 0, len);
+            }
+        });
         in.close();
     }
 
     // Missing LF
-    @Test(expected=MalformedChunkCodingException.class)
+    @Test
     public void testCorruptChunkedInputStreamMissingLF() throws IOException {
         final String s = "5\r01234\r\n5\r\n56789\r\n0\r\n";
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        in.read();
+        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read());
         in.close();
     }
 
     // Invalid chunk size
-    @Test(expected = MalformedChunkCodingException.class)
+    @Test
     public void testCorruptChunkedInputStreamInvalidSize() throws IOException {
         final String s = "whatever\r\n01234\r\n5\r\n56789\r\n0\r\n";
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        in.read();
+        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read());
         in.close();
     }
 
     // Negative chunk size
-    @Test(expected = MalformedChunkCodingException.class)
+    @Test
     public void testCorruptChunkedInputStreamNegativeSize() throws IOException {
         final String s = "-5\r\n01234\r\n5\r\n56789\r\n0\r\n";
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        in.read();
+        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read());
         in.close();
     }
 
     // Truncated chunk
-    @Test(expected = TruncatedChunkException.class)
+    @Test
     public void testCorruptChunkedInputStreamTruncatedChunk() throws IOException {
         final String s = "3\r\n12";
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
@@ -250,19 +251,19 @@ public class TestChunkCoding {
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         final byte[] buffer = new byte[300];
         Assert.assertEquals(2, in.read(buffer));
-        in.read(buffer);
+        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read(buffer));
         in.close();
     }
 
     // Invalid footer
-    @Test(expected = MalformedChunkCodingException.class)
+    @Test
     public void testCorruptChunkedInputStreamInvalidFooter() throws IOException {
         final String s = "1\r\n0\r\n0\r\nstuff\r\n";
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         in.read();
-        in.read();
+        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read());
         in.close();
     }
 

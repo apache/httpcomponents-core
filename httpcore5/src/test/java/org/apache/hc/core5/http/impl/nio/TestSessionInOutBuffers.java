@@ -521,7 +521,7 @@ public class TestSessionInOutBuffers {
         outbuf.writeLine(chbuffer);
     }
 
-    @Test(expected=CharacterCodingException.class)
+    @Test
     public void testMalformedInputActionReport() throws Exception {
         final String s = constructString(SWISS_GERMAN_HELLO);
         final byte[] tmp = s.getBytes(StandardCharsets.ISO_8859_1);
@@ -534,7 +534,8 @@ public class TestSessionInOutBuffers {
         while (inbuf.fill(channel) > 0) {
         }
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        inbuf.readLine(chbuffer, true);
+        Assert.assertThrows(CharacterCodingException.class, () ->
+                inbuf.readLine(chbuffer, true));
     }
 
     @Test
@@ -571,7 +572,7 @@ public class TestSessionInOutBuffers {
         Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", chbuffer.toString());
     }
 
-    @Test(expected=CharacterCodingException.class)
+    @Test
     public void testUnmappableInputActionReport() throws Exception {
         final String s = "This text contains a circumflex \u0302!!!";
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
@@ -580,7 +581,8 @@ public class TestSessionInOutBuffers {
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append(s);
-        outbuf.writeLine(chbuffer);
+        Assert.assertThrows(CharacterCodingException.class, () ->
+                outbuf.writeLine(chbuffer));
     }
 
     @Test

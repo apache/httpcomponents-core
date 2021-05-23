@@ -215,7 +215,7 @@ public class TestChunkDecoder {
         Assert.assertTrue(decoder.isCompleted());
     }
 
-    @Test(expected=MalformedChunkCodingException.class)
+    @Test
     public void testMalformedChunkSizeDecoding() throws Exception {
         final String s = "5\r\n01234\r\n5zz\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -226,10 +226,11 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
-        decoder.read(dst);
+        Assert.assertThrows(MalformedChunkCodingException.class, () ->
+                decoder.read(dst));
     }
 
-    @Test(expected=MalformedChunkCodingException.class)
+    @Test
     public void testMalformedChunkEndingDecoding() throws Exception {
         final String s = "5\r\n01234\r\n5\r\n56789\r\r6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -240,10 +241,11 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
-        decoder.read(dst);
+        Assert.assertThrows(MalformedChunkCodingException.class, () ->
+                decoder.read(dst));
     }
 
-    @Test(expected=TruncatedChunkException.class)
+    @Test
     public void testMalformedChunkTruncatedChunk() throws Exception {
         final String s = "3\r\n12";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -255,7 +257,8 @@ public class TestChunkDecoder {
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
         Assert.assertEquals(2, decoder.read(dst));
-        decoder.read(dst);
+        Assert.assertThrows(TruncatedChunkException.class, () ->
+                decoder.read(dst));
     }
 
     @Test
@@ -281,7 +284,7 @@ public class TestChunkDecoder {
         Assert.assertEquals("abcde  fghij", trailers.get(0).getValue());
     }
 
-    @Test(expected=IOException.class)
+    @Test
     public void testMalformedFooters() throws Exception {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
@@ -293,10 +296,11 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
-        decoder.read(dst);
+        Assert.assertThrows(IOException.class, () ->
+                decoder.read(dst));
     }
 
-    @Test(expected=MalformedChunkCodingException.class)
+    @Test
     public void testMissingLastCRLF() throws Exception {
         final String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345";
@@ -309,12 +313,14 @@ public class TestChunkDecoder {
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
-        while (dst.hasRemaining() && !decoder.isCompleted()) {
-            decoder.read(dst);
-        }
+        Assert.assertThrows(MalformedChunkCodingException.class, () -> {
+            while (dst.hasRemaining() && !decoder.isCompleted()) {
+                decoder.read(dst);
+            }
+        });
     }
 
-    @Test(expected=ConnectionClosedException.class)
+    @Test
     public void testMissingClosingChunk() throws Exception {
         final String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n";
@@ -327,20 +333,22 @@ public class TestChunkDecoder {
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
-        long bytesRead = 0;
-        try {
-            while (dst.hasRemaining() && !decoder.isCompleted()) {
-                final int i = decoder.read(dst);
-                if (i > 0) {
-                    bytesRead += i;
+        Assert.assertThrows(ConnectionClosedException.class, () -> {
+            long bytesRead = 0;
+            try {
+                while (dst.hasRemaining() && !decoder.isCompleted()) {
+                    final int i = decoder.read(dst);
+                    if (i > 0) {
+                        bytesRead += i;
+                    }
                 }
+            } catch (final MalformedChunkCodingException ex) {
+                Assert.assertEquals(26L, bytesRead);
+                Assert.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
+                Assert.assertTrue(decoder.isCompleted());
+                throw ex;
             }
-        } catch (final MalformedChunkCodingException ex) {
-            Assert.assertEquals(26L, bytesRead);
-            Assert.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
-            Assert.assertTrue(decoder.isCompleted());
-            throw ex;
-        }
+        });
     }
 
     @Test
@@ -570,7 +578,7 @@ public class TestChunkDecoder {
         }
     }
 
-    @Test(expected=NullPointerException.class)
+    @Test
     public void testInvalidInput() throws Exception {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
@@ -580,7 +588,8 @@ public class TestChunkDecoder {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.US_ASCII);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
-        decoder.read(null);
+        Assert.assertThrows(NullPointerException.class, () ->
+                decoder.read(null));
     }
 
     @Test

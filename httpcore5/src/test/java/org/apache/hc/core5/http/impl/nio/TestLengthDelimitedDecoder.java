@@ -545,7 +545,7 @@ public class TestLengthDelimitedDecoder {
         Assert.assertEquals(0, metrics.getBytesTransferred());
     }
 
-    @Test(expected=ConnectionClosedException.class)
+    @Test
     public void testTruncatedContent() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"1234567890"}, StandardCharsets.US_ASCII);
@@ -559,10 +559,11 @@ public class TestLengthDelimitedDecoder {
 
         final int bytesRead = decoder.read(dst);
         Assert.assertEquals(10, bytesRead);
-        decoder.read(dst);
+        Assert.assertThrows(ConnectionClosedException.class, () ->
+                decoder.read(dst));
     }
 
-    @Test(expected=ConnectionClosedException.class)
+    @Test
     public void testTruncatedContentWithFile() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"1234567890"}, StandardCharsets.US_ASCII);
@@ -577,7 +578,8 @@ public class TestLengthDelimitedDecoder {
             final FileChannel fchannel = testfile.getChannel();
             final long bytesRead = decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
             Assert.assertEquals(10, bytesRead);
-            decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
+            Assert.assertThrows(ConnectionClosedException.class, () ->
+                    decoder.transfer(fchannel, 0, Integer.MAX_VALUE));
         }
     }
 

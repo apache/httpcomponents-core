@@ -171,7 +171,7 @@ public class TestBasicFuture {
         Assert.assertFalse(future.isCancelled());
     }
 
-    @Test(expected = CancellationException.class)
+    @Test
     public void testAsyncCancelled() throws Exception {
         final BasicFuture<Object> future = new BasicFuture<>(null);
 
@@ -184,10 +184,11 @@ public class TestBasicFuture {
         });
         t.setDaemon(true);
         t.start();
-        future.get(60, TimeUnit.SECONDS);
+        Assert.assertThrows(CancellationException.class, () ->
+                future.get(60, TimeUnit.SECONDS));
     }
 
-    @Test(expected=TimeoutException.class)
+    @Test
     public void testAsyncTimeout() throws Exception {
         final BasicFuture<Object> future = new BasicFuture<>(null);
         final Object result = new Object();
@@ -201,13 +202,15 @@ public class TestBasicFuture {
         });
         t.setDaemon(true);
         t.start();
-        future.get(1, TimeUnit.MILLISECONDS);
+        Assert.assertThrows(TimeoutException.class, () ->
+                future.get(1, TimeUnit.MILLISECONDS));
     }
 
-    @Test(expected=TimeoutValueException.class)
+    @Test
     public void testAsyncNegativeTimeout() throws Exception {
         final BasicFuture<Object> future = new BasicFuture<>(null);
-        future.get(-1, TimeUnit.MILLISECONDS);
+        Assert.assertThrows(TimeoutValueException.class, () ->
+                future.get(-1, TimeUnit.MILLISECONDS));
     }
 
 }

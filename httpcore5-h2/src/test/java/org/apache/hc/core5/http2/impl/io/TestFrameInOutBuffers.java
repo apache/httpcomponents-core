@@ -209,39 +209,39 @@ public class TestFrameInOutBuffers {
         Assert.assertNull(payload);
     }
 
-    @Test(expected = ConnectionClosedException.class)
+    @Test
     public void testReadFrameConnectionClosed() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {});
 
-        inBuffer.read(inputStream);
+        Assert.assertThrows(ConnectionClosedException.class, () -> inBuffer.read(inputStream));
     }
 
-    @Test(expected = H2CorruptFrameException.class)
+    @Test
     public void testReadFrameCorruptFrame() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {0,0});
 
-        inBuffer.read(inputStream);
+        Assert.assertThrows(H2CorruptFrameException.class, () -> inBuffer.read(inputStream));
     }
 
-    @Test(expected = H2ConnectionException.class)
+    @Test
     public void testWriteFrameExceedingLimit() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(1024);
 
         final RawFrame frame = new RawFrame(FrameType.DATA.getValue(), 0, 1,
                 ByteBuffer.wrap(new byte[2048]));
-        outbuffer.write(frame, outputStream);
+        Assert.assertThrows(H2ConnectionException.class, () -> outbuffer.write(frame, outputStream));
     }
 
-    @Test(expected = H2ConnectionException.class)
+    @Test
     public void testReadFrameExceedingLimit() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(
                 new byte[] {0,-128,-128,0,0,0,0,0,1});
 
-        inBuffer.read(inputStream);
+        Assert.assertThrows(H2ConnectionException.class, () -> inBuffer.read(inputStream));
     }
 
 }
