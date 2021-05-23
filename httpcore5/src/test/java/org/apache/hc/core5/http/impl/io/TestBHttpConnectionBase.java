@@ -45,11 +45,13 @@ import org.apache.hc.core5.util.Timeout;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TestBHttpConnectionBase {
 
     @Mock
@@ -58,8 +60,7 @@ public class TestBHttpConnectionBase {
     private BHttpConnectionBase conn;
 
     @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void prepareMocks() {
         conn = new BHttpConnectionBase(Http1Config.DEFAULT, null, null);
     }
 
@@ -81,10 +82,6 @@ public class TestBHttpConnectionBase {
         final InetSocketAddress remoteSockAddress = new InetSocketAddress(remoteAddress, remotePort);
         Mockito.when(socket.getLocalSocketAddress()).thenReturn(localSockAddress);
         Mockito.when(socket.getRemoteSocketAddress()).thenReturn(remoteSockAddress);
-        Mockito.when(socket.getLocalAddress()).thenReturn(localAddress);
-        Mockito.when(socket.getLocalPort()).thenReturn(localPort);
-        Mockito.when(socket.getInetAddress()).thenReturn(remoteAddress);
-        Mockito.when(socket.getPort()).thenReturn(remotePort);
         conn.bind(socket);
 
         Assert.assertEquals("127.0.0.1:8888<->10.0.0.2:80", conn.toString());
@@ -98,10 +95,7 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testConnectionClose() throws Exception {
-        final InputStream inStream = Mockito.mock(InputStream.class);
         final OutputStream outStream = Mockito.mock(OutputStream.class);
-
-        Mockito.when(socket.getInputStream()).thenReturn(inStream);
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
@@ -126,10 +120,7 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testConnectionShutdown() throws Exception {
-        final InputStream inStream = Mockito.mock(InputStream.class);
         final OutputStream outStream = Mockito.mock(OutputStream.class);
-        Mockito.when(socket.getInputStream()).thenReturn(inStream);
-        Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
         conn.bind(socket);
         conn.ensureOpen();
@@ -242,8 +233,6 @@ public class TestBHttpConnectionBase {
     public void testAwaitInputInBuffer() throws Exception {
         final ByteArrayInputStream inStream = Mockito.spy(new ByteArrayInputStream(
                 new byte[] {1, 2, 3, 4, 5}));
-        Mockito.when(socket.getInputStream()).thenReturn(inStream);
-
         conn.bind(socket);
         conn.ensureOpen();
         conn.inBuffer.read(inStream);

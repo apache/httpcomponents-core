@@ -47,10 +47,12 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TestDefaultBHttpClientConnection {
 
     @Mock
@@ -59,14 +61,13 @@ public class TestDefaultBHttpClientConnection {
     private DefaultBHttpClientConnection conn;
 
     @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+    public void prepareMocks() {
         conn = new DefaultBHttpClientConnection(Http1Config.DEFAULT,
-            null, null,
-            DefaultContentLengthStrategy.INSTANCE,
-            DefaultContentLengthStrategy.INSTANCE,
-            DefaultHttpRequestWriterFactory.INSTANCE,
-            DefaultHttpResponseParserFactory.INSTANCE);
+                null, null,
+                DefaultContentLengthStrategy.INSTANCE,
+                DefaultContentLengthStrategy.INSTANCE,
+                DefaultHttpRequestWriterFactory.INSTANCE,
+                DefaultHttpResponseParserFactory.INSTANCE);
     }
 
     @Test

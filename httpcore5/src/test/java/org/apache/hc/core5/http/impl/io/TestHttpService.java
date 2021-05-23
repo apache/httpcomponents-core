@@ -52,13 +52,15 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
 
+@RunWith(MockitoJUnitRunner.class)
 public class TestHttpService {
 
     @Mock
@@ -79,8 +81,7 @@ public class TestHttpService {
     private HttpService httpservice;
 
     @Before
-    public void settup() {
-        MockitoAnnotations.initMocks(this);
+    public void prepareMocks() {
         httpservice = new HttpService(
                 httprocessor,
                 handlerResolver,

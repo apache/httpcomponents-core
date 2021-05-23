@@ -95,7 +95,7 @@ public class TestSharedOutputBuffer {
         final DataStreamChannel dataStreamChannel = Mockito.spy(new DataStreamChannelMock(channel));
         outputBuffer.flush(dataStreamChannel);
 
-        Mockito.verifyZeroInteractions(dataStreamChannel);
+        Mockito.verifyNoInteractions(dataStreamChannel);
 
         Assert.assertEquals(0, outputBuffer.length());
         Assert.assertEquals(30, outputBuffer.capacity());
@@ -109,7 +109,7 @@ public class TestSharedOutputBuffer {
         Assert.assertEquals(22, outputBuffer.length());
         Assert.assertEquals(8, outputBuffer.capacity());
 
-        Mockito.verifyZeroInteractions(dataStreamChannel);
+        Mockito.verifyNoInteractions(dataStreamChannel);
     }
 
     @Test

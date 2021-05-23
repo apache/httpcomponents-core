@@ -58,18 +58,18 @@ public class TestSharedInputBuffer {
         final CapacityChannel capacityChannel = Mockito.mock(CapacityChannel.class);
 
         inputBuffer.updateCapacity(capacityChannel);
-        Mockito.verifyZeroInteractions(capacityChannel);
+        Mockito.verifyNoInteractions(capacityChannel);
 
         inputBuffer.fill(charset.encode("1234567890"));
         inputBuffer.fill(charset.encode("1234567890"));
         Assert.assertEquals(30, inputBuffer.length());
 
-        Mockito.verifyZeroInteractions(capacityChannel);
+        Mockito.verifyNoInteractions(capacityChannel);
 
         final byte[] tmp = new byte[20];
         final int bytesRead1 = inputBuffer.read(tmp, 0, tmp.length);
         Assert.assertEquals(20, bytesRead1);
-        Mockito.verifyZeroInteractions(capacityChannel);
+        Mockito.verifyNoInteractions(capacityChannel);
 
         inputBuffer.markEndStream();
 
@@ -77,7 +77,7 @@ public class TestSharedInputBuffer {
         Assert.assertEquals('2', inputBuffer.read());
         final int bytesRead2 = inputBuffer.read(tmp, 0, tmp.length);
         Assert.assertEquals(8, bytesRead2);
-        Mockito.verifyZeroInteractions(capacityChannel);
+        Mockito.verifyNoInteractions(capacityChannel);
         Assert.assertEquals(-1, inputBuffer.read(tmp, 0, tmp.length));
         Assert.assertEquals(-1, inputBuffer.read(tmp, 0, tmp.length));
         Assert.assertEquals(-1, inputBuffer.read());
