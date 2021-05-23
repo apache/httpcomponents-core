@@ -155,16 +155,16 @@ public class H2ProtocolNegotiationTest {
 
     };
 
-    private static int javaVersion;
+    private static int JAVA_VER;
 
     @BeforeClass
     public static void determineJavaVersion() {
-        javaVersion = ReflectionUtils.determineJRELevel();
+        JAVA_VER = ReflectionUtils.determineJRELevel();
     }
 
     @Before
     public void checkVersion() {
-        Assume.assumeTrue("Java version must be 1.8 or greater", javaVersion > 7);
+        Assume.assumeTrue("Java version must be 1.8 or greater", JAVA_VER >= 8);
     }
 
     @Test
@@ -242,7 +242,7 @@ public class H2ProtocolNegotiationTest {
     }
 
     private boolean isAlpnSupported() {
-        if (javaVersion == 8) {
+        if (JAVA_VER == 8) {
             // The 'java.version' property values are structured "1.8.0_[BUILD NUMBER]" in java 8 releases.
             final Matcher matcher = Pattern.compile("^1\\.8\\.0_(\\d+)$")
                     .matcher(System.getProperty("java.version"));
@@ -253,7 +253,7 @@ public class H2ProtocolNegotiationTest {
                 return java8Build >= 251;
             }
         }
-        return javaVersion > 8;
+        return JAVA_VER > 8 && JAVA_VER < 16;
     }
 
 }

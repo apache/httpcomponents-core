@@ -24,6 +24,7 @@ jdk:
   - oraclejdk8
   - openjdk11
   - oraclejdk11
+  - oraclejdk16
   - openjdk-ea
 
 addons:
@@ -45,7 +46,3 @@ jobs:
       script: mvn verify -B
   allow_failures:
     - jdk: openjdk-ea
-          
-
-after_success:
-  - mvn clean cobertura:cobertura coveralls:report

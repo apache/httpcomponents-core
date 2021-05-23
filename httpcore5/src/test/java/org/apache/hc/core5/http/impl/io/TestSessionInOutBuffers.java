@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
@@ -370,7 +371,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testWriteSmallFragmentBuffering() throws Exception {
-        final ByteArrayOutputStream outputStream = Mockito.spy(new ByteArrayOutputStream());
+        final OutputStream outputStream = Mockito.mock(OutputStream.class);
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(new BasicHttpTransportMetrics(), 16, 16, null);
         outbuffer.write(1, outputStream);
         outbuffer.write(2, outputStream);
@@ -383,7 +384,7 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testWriteSmallFragmentNoBuffering() throws Exception {
-        final ByteArrayOutputStream outputStream = Mockito.spy(new ByteArrayOutputStream());
+        final OutputStream outputStream = Mockito.mock(OutputStream.class);
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(new BasicHttpTransportMetrics(), 16, 0, null);
         outbuffer.write(1, outputStream);
         outbuffer.write(2, outputStream);
