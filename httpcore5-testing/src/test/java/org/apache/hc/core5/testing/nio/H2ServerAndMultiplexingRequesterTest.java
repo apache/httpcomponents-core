@@ -61,14 +61,10 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -159,20 +155,6 @@ public class H2ServerAndMultiplexingRequesterTest {
         }
 
     };
-
-    private static int javaVersion;
-
-    @BeforeClass
-    public static void determineJavaVersion() {
-        javaVersion = ReflectionUtils.determineJRELevel();
-    }
-
-    @Before
-    public void checkVersion() {
-        if (scheme == URIScheme.HTTPS) {
-            Assume.assumeTrue("Java version must be 1.8 or greater",  javaVersion > 7);
-        }
-    }
 
     @Test
     public void testSequentialRequests() throws Exception {

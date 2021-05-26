@@ -59,12 +59,9 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManagerFactory;
 
-import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -76,11 +73,6 @@ public class TestSSLContextBuilder {
 
     private static boolean isWindows() {
         return System.getProperty("os.name").contains("Windows");
-    }
-
-    @BeforeClass
-    public static void determineJavaVersion() {
-        Assume.assumeTrue("Java version must be 8 or greater", ReflectionUtils.determineJRELevel() >= 8);
     }
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(5);

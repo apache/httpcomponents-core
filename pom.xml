@@ -78,6 +78,7 @@
     <log4j.version>2.8.2</log4j.version>
     <rxjava.version>2.2.8</rxjava.version>
     <api.comparison.version>5.1</api.comparison.version>
+    <hc.animal-sniffer.signature.ignores>javax.net.ssl.SSLEngine,javax.net.ssl.SSLParameters</hc.animal-sniffer.signature.ignores>
   </properties>
 
   <dependencyManagement>
