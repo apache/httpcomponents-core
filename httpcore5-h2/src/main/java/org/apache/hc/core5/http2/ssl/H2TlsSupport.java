@@ -46,6 +46,10 @@ public final class H2TlsSupport {
         ReflectionUtils.callSetter(sslParameters, "EnableRetransmissions", Boolean.TYPE, value);
     }
 
+    /**
+     * @deprecated Use {@link SSLParameters#setApplicationProtocols(String[])}.
+     */
+    @Deprecated
     public static void setApplicationProtocols(final SSLParameters sslParameters, final String[] values) {
         ReflectionUtils.callSetter(sslParameters, "ApplicationProtocols", String[].class, values);
     }
@@ -71,7 +75,7 @@ public final class H2TlsSupport {
             sslParameters.setProtocols(TLS.excludeWeak(sslParameters.getProtocols()));
             sslParameters.setCipherSuites(TlsCiphers.excludeH2Blacklisted(sslParameters.getCipherSuites()));
             setEnableRetransmissions(sslParameters, false);
-            setApplicationProtocols(sslParameters, selectApplicationProtocols(attachment));
+            sslParameters.setApplicationProtocols(selectApplicationProtocols(attachment));
             sslEngine.setSSLParameters(sslParameters);
             if (initializer != null) {
                 initializer.initialize(endpoint, sslEngine);

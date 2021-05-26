@@ -52,13 +52,11 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
-import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.conscrypt.Conscrypt;
 import org.junit.Assert;
 import org.junit.Assume;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -98,11 +96,6 @@ public class JSSEProviderIntegrationTest {
     private Provider securityProvider;
     private Http1TestServer server;
     private Http1TestClient client;
-
-    @BeforeClass
-    public static void determineJavaVersion() {
-        Assume.assumeTrue("Java version must be 8 or greater", ReflectionUtils.determineJRELevel() >= 8);
-    }
 
     @Rule
     public TestRule resourceRules = RuleChain.outerRule(new ExternalResource() {

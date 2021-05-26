@@ -57,7 +57,6 @@ import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
-import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
 
 /**
@@ -381,7 +380,7 @@ public class SSLIOSession implements IOSession {
             }
             if (this.tlsDetails == null) {
                 final SSLSession sslSession = this.sslEngine.getSession();
-                final String applicationProtocol = ReflectionUtils.callGetter(this.sslEngine, "ApplicationProtocol", String.class);
+                final String applicationProtocol = this.sslEngine.getApplicationProtocol();
                 this.tlsDetails = new TlsDetails(sslSession, applicationProtocol);
             }
 

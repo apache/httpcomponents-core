@@ -29,8 +29,6 @@ package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
@@ -57,13 +55,9 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
-import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.Assume;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExternalResource;
@@ -145,18 +139,6 @@ public class H2ProtocolNegotiationTest {
 
     };
 
-    private static int JAVA_VER;
-
-    @BeforeClass
-    public static void determineJavaVersion() {
-        JAVA_VER = ReflectionUtils.determineJRELevel();
-    }
-
-    @Before
-    public void checkVersion() {
-        Assume.assumeTrue("Java version must be 1.8 or greater", JAVA_VER >= 8);
-    }
-
     @Test
     public void testForceHttp1() throws Exception {
         server.start();
@@ -223,27 +205,7 @@ public class H2ProtocolNegotiationTest {
         MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
         MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-
-        if (isAlpnSupported()) {
-            MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_2));
-        } else {
-            MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_1_1));
-        }
-    }
-
-    private boolean isAlpnSupported() {
-        if (JAVA_VER == 8) {
-            // The 'java.version' property values are structured "1.8.0_[BUILD NUMBER]" in java 8 releases.
-            final Matcher matcher = Pattern.compile("^1\\.8\\.0_(\\d+)$")
-                    .matcher(System.getProperty("java.version"));
-            if (matcher.matches()) {
-                final int java8Build = Integer.parseInt(matcher.group(1));
-                // jep244 (alpn) was backported to java 8u251.
-                // https://bugs.java.com/bugdatabase/view_bug.do?bug_id=8230977
-                return java8Build >= 251;
-            }
-        }
-        return JAVA_VER > 8 && JAVA_VER < 16;
+        MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_2));
     }
 
 }

@@ -56,7 +56,7 @@ public final class ConscryptSupport {
                 sslEngine.setSSLParameters(sslParameters);
                 Conscrypt.setApplicationProtocols(sslEngine, appProtocols);
             } else {
-                H2TlsSupport.setApplicationProtocols(sslParameters, appProtocols);
+                sslParameters.setApplicationProtocols(appProtocols);
                 sslEngine.setSSLParameters(sslParameters);
             }
             if (initializer != null) {
