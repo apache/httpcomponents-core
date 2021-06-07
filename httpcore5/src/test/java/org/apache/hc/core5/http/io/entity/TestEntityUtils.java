@@ -94,12 +94,7 @@ public class TestEntityUtils {
 
     @Test
     public void testNullEntityToString() throws Exception {
-        try {
-            EntityUtils.toString(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> EntityUtils.toString(null));
     }
 
     @Test

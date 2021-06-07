@@ -80,12 +80,7 @@ public class TestSerializableEntity {
         Assert.assertEquals(4, serIn.intValue);
         Assert.assertEquals("Hello", serIn.stringValue);
 
-        try {
-            httpentity.writeTo(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
     }
 
 }

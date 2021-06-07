@@ -192,18 +192,8 @@ public class TestChunkEncoder {
         encoder.write(CodecTestUtils.wrap("90"));
         encoder.complete();
 
-        try {
-            encoder.write(CodecTestUtils.wrap("more stuff"));
-            Assert.fail("IllegalStateException should have been thrown");
-        } catch (final IllegalStateException ex) {
-            // ignore
-        }
-        try {
-            encoder.complete();
-            Assert.fail("IllegalStateException should have been thrown");
-        } catch (final IllegalStateException ex) {
-            // ignore
-        }
+        Assert.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assert.assertThrows(IllegalStateException.class, () -> encoder.complete());
     }
 
     @Test
@@ -211,24 +201,9 @@ public class TestChunkEncoder {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
 
-        try {
-            new ChunkEncoder(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new ChunkEncoder(channel, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new ChunkEncoder(channel, outbuf, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new ChunkEncoder(null, null, null));
+        Assert.assertThrows(NullPointerException.class, () -> new ChunkEncoder(channel, null, null));
+        Assert.assertThrows(NullPointerException.class, () -> new ChunkEncoder(channel, outbuf, null));
     }
 
     @Test

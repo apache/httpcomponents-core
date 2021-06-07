@@ -112,25 +112,12 @@ public class TestContentLengthInputStream {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 16L);
-
         in.close();
         in.close();
-        try {
-            in.read();
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
+        Assert.assertThrows(StreamClosedException.class, in::read);
         final byte[] tmp = new byte[10];
-        try {
-            in.read(tmp);
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
-        try {
-            in.read(tmp, 0, tmp.length);
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
+        Assert.assertThrows(StreamClosedException.class, () -> in.read(tmp));
+        Assert.assertThrows(StreamClosedException.class, () -> in.read(tmp, 0, tmp.length));
         Assert.assertEquals('-', inBuffer.read(inputStream));
     }
 
@@ -140,25 +127,12 @@ public class TestContentLengthInputStream {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 32L);
-
         final byte[] tmp = new byte[32];
         final int byteRead = in.read(tmp);
         Assert.assertEquals(16, byteRead);
-        try {
-            in.read(tmp);
-            Assert.fail("ConnectionClosedException should have been closed");
-        } catch (final ConnectionClosedException ex) {
-        }
-        try {
-            in.read();
-            Assert.fail("ConnectionClosedException should have been closed");
-        } catch (final ConnectionClosedException ex) {
-        }
-        try {
-            in.close();
-            Assert.fail("ConnectionClosedException should have been closed");
-        } catch (final ConnectionClosedException ex) {
-        }
+        Assert.assertThrows(ConnectionClosedException.class, () -> in.read(tmp));
+        Assert.assertThrows(ConnectionClosedException.class, () -> in.read());
+        Assert.assertThrows(ConnectionClosedException.class, () -> in.close());
     }
 
 }

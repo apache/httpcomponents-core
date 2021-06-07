@@ -61,20 +61,10 @@ public class TestBasicHeaderElementIterator {
                 "value1", elem.getName());
 
         Assert.assertFalse(hei.hasNext());
-        try {
-            hei.next();
-            Assert.fail("NoSuchElementException should have been thrown");
-        } catch (final NoSuchElementException ex) {
-            // expected
-        }
+        Assert.assertThrows(NoSuchElementException.class, () -> hei.next());
 
         Assert.assertFalse(hei.hasNext());
-        try {
-            hei.next();
-            Assert.fail("NoSuchElementException should have been thrown");
-        } catch (final NoSuchElementException ex) {
-            // expected
-        }
+        Assert.assertThrows(NoSuchElementException.class, () -> hei.next());
     }
 
     @Test
@@ -118,20 +108,9 @@ public class TestBasicHeaderElementIterator {
                 new BasicHeaderIterator(headers, "Name"));
 
         Assert.assertFalse(hei.hasNext());
-        try {
-            hei.next();
-            Assert.fail("NoSuchElementException should have been thrown");
-        } catch (final NoSuchElementException ex) {
-            // expected
-        }
-
+        Assert.assertThrows(NoSuchElementException.class, () -> hei.next());
         Assert.assertFalse(hei.hasNext());
-        try {
-            hei.next();
-            Assert.fail("NoSuchElementException should have been thrown");
-        } catch (final NoSuchElementException ex) {
-            // expected
-        }
+        Assert.assertThrows(NoSuchElementException.class, () -> hei.next());
     }
 
 }

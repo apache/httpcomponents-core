@@ -60,11 +60,8 @@ public class TestLaxConnPool {
 
     @Test
     public void testInvalidConstruction() throws Exception {
-        try {
-            new LaxConnPool<String, HttpConnection>(-1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                new LaxConnPool<String, HttpConnection>(-1));
     }
 
     @Test
@@ -104,11 +101,8 @@ public class TestLaxConnPool {
     @Test
     public void testLeaseInvalid() throws Exception {
         final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
-        try {
-            pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException expected) {
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null));
     }
 
     @Test
@@ -383,27 +377,15 @@ public class TestLaxConnPool {
     @Test
     public void testSetMaxInvalid() throws Exception {
         final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
-        try {
-            pool.setMaxPerRoute(null, 1);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException expected) {
-        }
-        try {
-            pool.setDefaultMaxPerRoute(-1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
+        Assert.assertThrows(NullPointerException.class, () -> pool.setMaxPerRoute(null, 1));
+        Assert.assertThrows(IllegalArgumentException.class, () -> pool.setDefaultMaxPerRoute(-1));
     }
 
     @Test
     public void testShutdown() throws Exception {
         final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
         pool.close(CloseMode.GRACEFUL);
-        try {
-            pool.lease("somehost", null);
-            Assert.fail("IllegalStateException should have been thrown");
-        } catch (final IllegalStateException expected) {
-        }
+        Assert.assertThrows(IllegalStateException.class, () -> pool.lease("somehost", null));
         // Ignored if shut down
         pool.release(new PoolEntry<>("somehost"), true);
     }

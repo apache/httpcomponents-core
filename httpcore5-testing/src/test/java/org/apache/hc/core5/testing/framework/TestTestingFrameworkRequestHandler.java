@@ -64,14 +64,9 @@ public class TestTestingFrameworkRequestHandler {
         };
 
         handler.handle(null, null, null);
-        try {
-            handler.assertNothingThrown();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-            Assert.assertEquals("Unexpected message", errorMessage, e.getMessage());
-        }
-
+        final TestingFrameworkException exception = Assert.assertThrows(TestingFrameworkException.class,
+                () -> handler.assertNothingThrown());
+        Assert.assertEquals("Unexpected message", errorMessage, exception.getMessage());
         // a second call should not throw
         handler.assertNothingThrown();
     }

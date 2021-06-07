@@ -66,12 +66,7 @@ public class TestTestingFramework {
 
     private void assertUnmodifiable(final Map<String, String> map) {
         final String aKey = (String) map.keySet().toArray()[0];
-        try {
-            map.remove(aKey);
-            Assert.fail("UnsupportedOperationException should have been thrown.");
-        } catch (final UnsupportedOperationException e) {
-            // expected
-        }
+        Assert.assertThrows(UnsupportedOperationException.class, () -> map.remove(aKey));
     }
 
     private TestingFramework newWebServerTestingFramework(final ClientTestingAdapter adapter)
@@ -90,12 +85,7 @@ public class TestTestingFramework {
     @Test
     public void runTestsWithoutSettingAdapterThrows() throws Exception {
         final TestingFramework framework = newWebServerTestingFramework();
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -103,12 +93,7 @@ public class TestTestingFramework {
         final ClientTestingAdapter adapter = null;
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -117,12 +102,7 @@ public class TestTestingFramework {
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
         framework.setAdapter(adapter);
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -257,12 +237,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     private Map<String, Object> alreadyCheckedResponse() {
@@ -321,12 +296,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -357,12 +327,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -420,12 +385,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -461,12 +421,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     private Object deepcopy(final Object obj) {
@@ -503,26 +458,21 @@ public class TestTestingFramework {
 
         framework.addTest(test);
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-
-            // make sure the HTTP Client name is in the message.
-            final String message = e.getMessage();
-            final ClientPOJOAdapter pojoAdapter = adapter.getClientPOJOAdapter();
-            final String httpClientName = pojoAdapter == null ?
-                                          TestingFrameworkException.NO_HTTP_CLIENT :
-                                          pojoAdapter.getClientName();
-            Assert.assertTrue(
+        final TestingFrameworkException exception = Assert.assertThrows(TestingFrameworkException.class, () ->
+                framework.runTests());
+        // make sure the HTTP Client name is in the message.
+        final String message = exception.getMessage();
+        final ClientPOJOAdapter pojoAdapter = adapter.getClientPOJOAdapter();
+        final String httpClientName = pojoAdapter == null ?
+                TestingFrameworkException.NO_HTTP_CLIENT :
+                pojoAdapter.getClientName();
+        Assert.assertTrue(
                 "Message should contain httpClientName of " + httpClientName + "; message=" + message,
                 message.contains(httpClientName));
 
-            Assert.assertTrue(
+        Assert.assertTrue(
                 "Message should contain the test. message=" + message,
                 message.contains("MyName"));
-        }
     }
 
     @Test
@@ -595,12 +545,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -625,12 +570,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -655,12 +595,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -685,12 +620,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -714,12 +644,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -743,12 +668,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -772,12 +692,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -805,12 +720,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        try {
-            framework.runTests();
-            Assert.fail("HttpServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException e) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test

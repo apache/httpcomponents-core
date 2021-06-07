@@ -54,19 +54,12 @@ public class TestFileEntity {
         content.close();
         Assert.assertTrue(httpentity.isRepeatable());
         Assert.assertFalse(httpentity.isStreaming());
-        if (!tmpfile.delete()){
-            Assert.fail("Failed to delete: "+tmpfile);
-        }
+        Assert.assertTrue("Failed to delete " + tmpfile, tmpfile.delete());
     }
 
     @Test
     public void testNullConstructor() throws Exception {
-        try {
-            new FileEntity(null, ContentType.TEXT_PLAIN);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new FileEntity(null, ContentType.TEXT_PLAIN));
     }
 
     @Test
@@ -91,16 +84,9 @@ public class TestFileEntity {
         for (int i = 0; i < 4; i++) {
             Assert.assertEquals(i, bytes[i]);
         }
-        if (!tmpfile.delete()){
-            Assert.fail("Failed to delete: "+tmpfile);
-        }
+        Assert.assertTrue("Failed to delete: " + tmpfile, tmpfile.delete());
 
-        try {
-            httpentity.writeTo(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
     }
 
 }

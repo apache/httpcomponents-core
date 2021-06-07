@@ -130,6 +130,8 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -1191,23 +1193,21 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(200, response2.getCode());
         Assert.assertEquals("Hi back", entity2);
 
-        try {
-            future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.fail("ExecutionException expected");
-        } catch (final CancellationException | ExecutionException ignore) {
-        }
+        final Exception exception = Assert.assertThrows(Exception.class, () ->
+                future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        MatcherAssert.assertThat(exception, CoreMatchers.anyOf(
+                CoreMatchers.instanceOf(CancellationException.class),
+                CoreMatchers.instanceOf(ExecutionException.class)));
 
         final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
                 new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/hello-3"),
                         AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        try {
-            future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.fail("CancellationException or ExecutionException expected");
-        } catch (final CancellationException ignore) {
-            Assert.assertTrue(future4.isCancelled());
-        } catch (final ExecutionException ignore) {
-        }
+        final Exception exception2 = Assert.assertThrows(Exception.class, () ->
+                future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        MatcherAssert.assertThat(exception2, CoreMatchers.anyOf(
+                CoreMatchers.instanceOf(CancellationException.class),
+                CoreMatchers.instanceOf(ExecutionException.class)));
     }
 
     @Test
@@ -1251,11 +1251,12 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(400, response2.getCode());
         Assert.assertTrue(entity2.length() > 0);
 
-        try {
-            future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.fail("ExecutionException expected");
-        } catch (final CancellationException | ExecutionException ignore) {
-        }
+
+        final Exception exception = Assert.assertThrows(Exception.class, () ->
+                future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        MatcherAssert.assertThat(exception, CoreMatchers.anyOf(
+                CoreMatchers.instanceOf(CancellationException.class),
+                CoreMatchers.instanceOf(ExecutionException.class)));
     }
 
     private static final byte[] GARBAGE = "garbage".getBytes(StandardCharsets.US_ASCII);
@@ -1378,14 +1379,11 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         };
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(entityConsumer);
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(requestProducer, responseConsumer, null);
-        try {
-            future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.fail("ExecutionException should have been thrown");
-        } catch (final ExecutionException ex) {
-            final Throwable cause = ex.getCause();
-            Assert.assertTrue(cause instanceof MalformedChunkCodingException);
-            Assert.assertEquals("garbage", entityConsumer.generateContent());
-        }
+        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+                future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final Throwable cause = exception.getCause();
+        Assert.assertTrue(cause instanceof MalformedChunkCodingException);
+        Assert.assertEquals("garbage", entityConsumer.generateContent());
     }
 
     @Test

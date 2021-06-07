@@ -82,12 +82,8 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        try {
-            adapter.execute(defaultURI, request, requestHandler, responseExpectations);
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException ex) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () ->
+                adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
     @Test
@@ -99,12 +95,8 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        try {
-            adapter.execute(defaultURI, request, requestHandler, responseExpectations);
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException ex) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () ->
+                adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
     @Test
@@ -116,12 +108,8 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = null;
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        try {
-            adapter.execute(defaultURI, request, requestHandler, responseExpectations);
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException ex) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () ->
+                adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
     @Test
@@ -133,12 +121,8 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = null;
 
-        try {
-            adapter.execute(defaultURI, request, requestHandler, responseExpectations);
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException ex) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () ->
+                adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
     @Test
@@ -150,12 +134,8 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        try {
-            adapter.execute(defaultURI, request, requestHandler, responseExpectations);
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException ex) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () ->
+                adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
     @Test
@@ -170,12 +150,8 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        try {
-            adapter.execute(defaultURI, request, requestHandler, responseExpectations);
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException ex) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () ->
+                adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
     @Test
@@ -191,12 +167,8 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        try {
-            adapter.execute(defaultURI, request, requestHandler, responseExpectations);
-            Assert.fail("WebServerTestingFrameworkException should have been thrown");
-        } catch (final TestingFrameworkException ex) {
-            // expected
-        }
+        Assert.assertThrows(TestingFrameworkException.class, () ->
+                adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
     @Test

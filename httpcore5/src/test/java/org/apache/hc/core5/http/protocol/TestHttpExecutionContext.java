@@ -75,24 +75,9 @@ public class TestHttpExecutionContext {
     @Test
     public void testContextInvalidInput() throws Exception {
         final HttpContext currentContext = new BasicHttpContext(null);
-        try {
-            currentContext.setAttribute(null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            currentContext.getAttribute(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            currentContext.removeAttribute(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> currentContext.setAttribute(null, null));
+        Assert.assertThrows(NullPointerException.class, () -> currentContext.getAttribute(null));
+        Assert.assertThrows(NullPointerException.class, () -> currentContext.removeAttribute(null));
     }
 
 }

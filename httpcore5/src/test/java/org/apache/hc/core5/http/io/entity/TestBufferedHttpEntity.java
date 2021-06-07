@@ -72,12 +72,7 @@ public class TestBufferedHttpEntity {
 
     @Test
     public void testIllegalConstructor() throws Exception {
-        try {
-            new BufferedHttpEntity(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new BufferedHttpEntity(null));
     }
 
     @Test
@@ -104,12 +99,7 @@ public class TestBufferedHttpEntity {
             Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
-        try {
-            bufentity.writeTo(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> bufentity.writeTo(null));
     }
 
     @Test
@@ -136,12 +126,7 @@ public class TestBufferedHttpEntity {
             Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
-        try {
-            bufentity.writeTo(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> bufentity.writeTo(null));
     }
 
 }

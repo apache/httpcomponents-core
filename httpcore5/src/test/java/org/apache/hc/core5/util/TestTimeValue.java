@@ -329,12 +329,7 @@ public class TestTimeValue {
         MatcherAssert.assertThat(tv1.compareTo(tv5) < 0, CoreMatchers.equalTo(true));
         MatcherAssert.assertThat(tv6.compareTo(tv5) == 0, CoreMatchers.equalTo(true));
         MatcherAssert.assertThat(tv6.compareTo(tv4) > 0, CoreMatchers.equalTo(true));
-        try {
-            tv1.compareTo(null);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-            // TODO Use JUnit 5 assertThrows instead.
-        }
+        Assert.assertThrows(NullPointerException.class, () -> tv1.compareTo(null));
     }
 
 }

@@ -63,12 +63,7 @@ public class TestHeaderElement {
 
     @Test
     public void testInvalidName() {
-        try {
-            new BasicHeaderElement(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            //expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new BasicHeaderElement(null, null, null));
     }
 
     @Test
@@ -81,12 +76,7 @@ public class TestHeaderElement {
         Assert.assertEquals("value1", element.getParameterByName("param1").getValue());
         Assert.assertEquals("value2", element.getParameterByName("param2").getValue());
         Assert.assertNull(element.getParameterByName("param3"));
-        try {
-            element.getParameterByName(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            //expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> element.getParameterByName(null));
     }
 
     @Test

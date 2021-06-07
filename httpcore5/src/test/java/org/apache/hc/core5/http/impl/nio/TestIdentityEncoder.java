@@ -115,12 +115,7 @@ public class TestIdentityEncoder {
         encoder.write(CodecTestUtils.wrap("stuff"));
         encoder.complete();
 
-        try {
-            encoder.write(CodecTestUtils.wrap("more stuff"));
-            Assert.fail("IllegalStateException should have been thrown");
-        } catch (final IllegalStateException ex) {
-            // ignore
-        }
+        Assert.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
     }
 
     @Test
@@ -128,24 +123,9 @@ public class TestIdentityEncoder {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
 
-        try {
-            new IdentityEncoder(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new IdentityEncoder(channel, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new IdentityEncoder(channel, outbuf, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new IdentityEncoder(null, null, null));
+        Assert.assertThrows(NullPointerException.class, () -> new IdentityEncoder(channel, null, null));
+        Assert.assertThrows(NullPointerException.class, () -> new IdentityEncoder(channel, outbuf, null));
     }
 
     @Test

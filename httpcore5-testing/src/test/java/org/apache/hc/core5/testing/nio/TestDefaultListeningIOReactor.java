@@ -147,11 +147,7 @@ public class TestDefaultListeningIOReactor {
         final int port = ((InetSocketAddress) endpoint1.getAddress()).getPort();
 
         final Future<ListenerEndpoint> future2 = ioReactor.listen(new InetSocketAddress(port));
-        try {
-            future2.get();
-            Assert.fail("ExecutionException expected");
-        } catch (final ExecutionException expected) {
-        }
+        Assert.assertThrows(ExecutionException.class, () -> future2.get());
         ioReactor.close(CloseMode.GRACEFUL);
         ioReactor.awaitShutdown(TimeValue.ofSeconds(5));
 

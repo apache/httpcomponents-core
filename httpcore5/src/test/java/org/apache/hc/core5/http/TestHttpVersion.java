@@ -71,18 +71,8 @@ public class TestHttpVersion {
     @SuppressWarnings("unused")
     @Test
     public void testHttpVersionInvalidConstructorInput() throws Exception {
-        try {
-            new HttpVersion(-1, -1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException e) {
-            // expected
-        }
-        try {
-            new HttpVersion(0, -1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException e) {
-            // expected
-        }
+        Assert.assertThrows(IllegalArgumentException.class, () -> new HttpVersion(-1, -1));
+        Assert.assertThrows(IllegalArgumentException.class, () -> new HttpVersion(0, -1));
     }
 
     @Test

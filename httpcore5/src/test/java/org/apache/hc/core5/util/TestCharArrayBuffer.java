@@ -49,12 +49,7 @@ public class TestCharArrayBuffer {
         Assert.assertEquals(0, buffer.length());
         Assert.assertNotNull(buffer.array());
         Assert.assertEquals(16, buffer.array().length);
-        try {
-            new CharArrayBuffer(-1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
+        Assert.assertThrows(IllegalArgumentException.class, () -> new CharArrayBuffer(-1));
     }
 
     @Test
@@ -163,36 +158,11 @@ public class TestCharArrayBuffer {
         buffer.append((char[])null, 0, 0);
 
         final char[] tmp = new char[] { '1', '2', '3', '4'};
-        try {
-            buffer.append(tmp, -1, 0);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.append(tmp, 0, -1);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.append(tmp, 0, 8);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.append(tmp, 10, Integer.MAX_VALUE);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.append(tmp, 2, 4);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, -1, 0));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, -1));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, 8));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 10, Integer.MAX_VALUE));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 2, 4));
     }
 
     @Test
@@ -205,18 +175,8 @@ public class TestCharArrayBuffer {
     @Test
     public void testSetInvalidLength() throws Exception {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
-        try {
-            buffer.setLength(-2);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.setLength(200);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.setLength(-2));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.setLength(200));
     }
 
     @Test
@@ -255,42 +215,12 @@ public class TestCharArrayBuffer {
     public void testSubstringIndexOfOutBound() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("stuff");
-        try {
-            buffer.substring(-2, 10);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.substringTrimmed(-2, 10);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.substring(12, 10);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.substringTrimmed(12, 10);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.substring(2, 1);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.substringTrimmed(2, 1);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substring(-2, 10));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substringTrimmed(-2, 10));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substring(12, 10));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substringTrimmed(12, 10));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substring(2, 1));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substringTrimmed(2, 1));
     }
 
     @Test
@@ -343,36 +273,11 @@ public class TestCharArrayBuffer {
         buffer.append((byte[])null, 0, 0);
 
         final byte[] tmp = new byte[] { '1', '2', '3', '4'};
-        try {
-            buffer.append(tmp, -1, 0);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.append(tmp, 0, -1);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.append(tmp, 0, 8);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.append(tmp, 10, Integer.MAX_VALUE);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.append(tmp, 2, 4);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, -1, 0));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, -1));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, 8));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 10, Integer.MAX_VALUE));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 2, 4));
     }
 
     @Test
@@ -413,24 +318,9 @@ public class TestCharArrayBuffer {
     public void testSubSequenceIndexOfOutBound() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("stuff");
-        try {
-            buffer.subSequence(-2, 10);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.subSequence(12, 10);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
-        try {
-            buffer.subSequence(2, 1);
-            Assert.fail("IndexOutOfBoundsException should have been thrown");
-        } catch (final IndexOutOfBoundsException ex) {
-            // expected
-        }
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.subSequence(-2, 10));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.subSequence(12, 10));
+        Assert.assertThrows(IndexOutOfBoundsException.class, () -> buffer.subSequence(2, 1));
     }
 
 }

@@ -76,60 +76,25 @@ public class TestBufferedHeader {
         final CharArrayBuffer buf = new CharArrayBuffer(16);
         buf.clear();
         buf.append("");
-        try {
-            new BufferedHeader(buf, false);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append("blah");
-        try {
-            new BufferedHeader(buf, false);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append(":");
-        try {
-            new BufferedHeader(buf, false);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append("   :");
-        try {
-            new BufferedHeader(buf, false);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append(": blah");
-        try {
-            new BufferedHeader(buf, false);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append(" : blah");
-        try {
-            new BufferedHeader(buf, false);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append("header : blah");
-        try {
-            new BufferedHeader(buf, true);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, true));
     }
 
 }

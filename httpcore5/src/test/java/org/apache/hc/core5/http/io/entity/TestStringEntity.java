@@ -54,12 +54,7 @@ public class TestStringEntity {
 
     @Test
     public void testNullConstructor() throws Exception {
-        try {
-            new StringEntity(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new StringEntity(null));
     }
 
     @Test
@@ -124,12 +119,7 @@ public class TestStringEntity {
             Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
-        try {
-            httpentity.writeTo(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
     }
 
 }

@@ -409,12 +409,9 @@ public class TestSessionInOutBuffers {
         // 15 char limit
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(5, 15);
         final InputStream inputStream2 = new ByteArrayInputStream(tmp);
-        try {
-            chbuffer.clear();
-            inBuffer2.readLine(chbuffer, inputStream2);
-            Assert.fail("MessageConstraintException expected");
-        } catch (final MessageConstraintException ex) {
-        }
+        chbuffer.clear();
+        Assert.assertThrows(MessageConstraintException.class, () ->
+                inBuffer2.readLine(chbuffer, inputStream2));
     }
 
     @Test
@@ -432,12 +429,9 @@ public class TestSessionInOutBuffers {
         // 10 char limit
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(25, 10);
         final InputStream inputStream2 = new ByteArrayInputStream(tmp);
-        try {
-            chbuffer.clear();
-            inBuffer2.readLine(chbuffer, inputStream2);
-            Assert.fail("MessageConstraintException expected");
-        } catch (final MessageConstraintException ex) {
-        }
+        chbuffer.clear();
+        Assert.assertThrows(MessageConstraintException.class, () ->
+                inBuffer2.readLine(chbuffer, inputStream2));
     }
 
     @Test //HTTPCORE-472

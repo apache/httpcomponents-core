@@ -66,21 +66,9 @@ public class TestHttpHost {
         Assert.assertEquals("somehost", host5.getHostName());
         Assert.assertEquals(-1, host5.getPort());
         Assert.assertEquals("https", host5.getSchemeName());
-        try {
-            new HttpHost(null, (String) null, -1);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException expected) {
-        }
-        try {
-            new HttpHost(null, "   ", -1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
-            new HttpHost(null, (InetAddress) null, -1);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException expected) {
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new HttpHost(null, (String) null, -1));
+        Assert.assertThrows(IllegalArgumentException.class, () -> new HttpHost(null, "   ", -1));
+        Assert.assertThrows(NullPointerException.class, () -> new HttpHost(null, (InetAddress) null, -1));
     }
 
     @Test
@@ -213,21 +201,9 @@ public class TestHttpHost {
 
     @Test
     public void testCreateFromStringInvalid() throws Exception {
-        try {
-            HttpHost.create(" host ");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
-        try {
-            HttpHost.create("host :8080");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
-        try {
-            HttpHost.create("");
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
+        Assert.assertThrows(URISyntaxException.class, () -> HttpHost.create(" host "));
+        Assert.assertThrows(URISyntaxException.class, () -> HttpHost.create("host :8080"));
+        Assert.assertThrows(IllegalArgumentException.class, () -> HttpHost.create(""));
     }
 
     @Test
@@ -248,21 +224,12 @@ public class TestHttpHost {
 
     @Test
     public void testIpv6HostAndPortWithoutBrackets() throws Exception {
-        try {
-            // ambiguous
-            HttpHost.create("::1:80");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
+        Assert.assertThrows(URISyntaxException.class, () -> HttpHost.create("::1:80"));
     }
 
     @Test
     public void testIpv6HostWithoutPort() throws Exception {
-        try {
-            HttpHost.create("::1");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
+        Assert.assertThrows(URISyntaxException.class, () -> HttpHost.create("::1"));
     }
 
     @Test

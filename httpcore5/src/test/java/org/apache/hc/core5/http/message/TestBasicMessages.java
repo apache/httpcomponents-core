@@ -46,52 +46,43 @@ public class TestBasicMessages {
 
     @Test
     public void testDefaultResponseConstructors() {
-        HttpResponse response = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getCode());
+        final HttpResponse response1 = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response1.getCode());
 
-        response = new BasicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever");
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getCode());
-        Assert.assertEquals("whatever", response.getReasonPhrase());
+        final HttpResponse response2 = new BasicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever");
+        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response2.getCode());
+        Assert.assertEquals("whatever", response2.getReasonPhrase());
     }
 
     @Test
     public void testSetResponseStatus() {
-        HttpResponse response = new BasicHttpResponse(200, "OK");
-        Assert.assertNotNull(response.getCode());
-        Assert.assertEquals(200, response.getCode());
+        final HttpResponse response1 = new BasicHttpResponse(200, "OK");
+        Assert.assertNotNull(response1.getCode());
+        Assert.assertEquals(200, response1.getCode());
 
-        response = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
-        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response.getCode());
+        final HttpResponse response2 = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
+        Assert.assertEquals(HttpStatus.SC_BAD_REQUEST, response2.getCode());
 
-        response = new BasicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever");
-        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response.getCode());
-        Assert.assertEquals("whatever", response.getReasonPhrase());
+        final HttpResponse response3 = new BasicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR, "whatever");
+        Assert.assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, response3.getCode());
+        Assert.assertEquals("whatever", response3.getReasonPhrase());
 
-        response = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
-        try {
-            response.setCode(-23);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
+        final HttpResponse response4 = new BasicHttpResponse(HttpStatus.SC_OK, "OK");
+        Assert.assertThrows(IllegalArgumentException.class, () -> response4.setCode(-23));
     }
 
     @Test
     public void testDefaultRequestConstructors() {
-        HttpRequest request = new BasicHttpRequest("WHATEVER", "/");
-        Assert.assertEquals("WHATEVER", request.getMethod());
-        Assert.assertEquals("/", request.getPath());
+        final HttpRequest request1 = new BasicHttpRequest("WHATEVER", "/");
+        Assert.assertEquals("WHATEVER", request1.getMethod());
+        Assert.assertEquals("/", request1.getPath());
 
-        request = new BasicHttpRequest(Method.GET, "/");
-        Assert.assertEquals(Method.GET.name(), request.getMethod());
-        Assert.assertEquals("/", request.getPath());
+        final HttpRequest request2 = new BasicHttpRequest(Method.GET, "/");
+        Assert.assertEquals(Method.GET.name(), request2.getMethod());
+        Assert.assertEquals("/", request2.getPath());
 
-        try {
-            new BasicHttpRequest(Method.GET, (URI) null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                new BasicHttpRequest(Method.GET, (URI) null));
     }
 
     @Test
@@ -116,17 +107,9 @@ public class TestBasicMessages {
 
     @Test
     public void testResponseInvalidStatusCode() {
-        try {
-            new BasicHttpResponse(-200, "OK");
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
+        Assert.assertThrows(IllegalArgumentException.class, () -> new BasicHttpResponse(-200, "OK"));
         final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
-        try {
-            response.setCode(-1);
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
+        Assert.assertThrows(IllegalArgumentException.class, () -> response.setCode(-1));
     }
 
     @Test

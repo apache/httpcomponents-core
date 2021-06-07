@@ -169,55 +169,22 @@ public class TestBasicHeaderValueFormatter {
         final HeaderElement element = new BasicHeaderElement("name1", "value1", null);
         final HeaderElement[] elements = new HeaderElement[] {element};
 
-        try {
-            this.formatter.formatNameValuePair(null, param, false);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            this.formatter.formatNameValuePair(buf, null, false);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            this.formatter.formatParameters(null, params, false);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            this.formatter.formatParameters(buf, null, false);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-
-        try {
-            this.formatter.formatHeaderElement(null, element, false);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            this.formatter.formatHeaderElement(buf, null, false);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            this.formatter.formatElements(null, elements, false);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            this.formatter.formatElements(buf, null, false);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatNameValuePair(null, param, false));
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatNameValuePair(buf, null, false));
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatParameters(null, params, false));
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatParameters(buf, null, false));
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatHeaderElement(null, element, false));
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatHeaderElement(buf, null, false));
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatElements(null, elements, false));
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatElements(buf, null, false));
     }
 
 }

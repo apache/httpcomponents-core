@@ -120,11 +120,7 @@ public class TestBasicFuture {
         Assert.assertNull(callback.getException());
         Assert.assertTrue(callback.isCancelled());
 
-        try {
-            future.get();
-            Assert.fail("CancellationException expected");
-        } catch (final CancellationException ex) {
-        }
+        Assert.assertThrows(CancellationException.class, future::get);
         Assert.assertTrue(future.isDone());
         Assert.assertTrue(future.isCancelled());
     }

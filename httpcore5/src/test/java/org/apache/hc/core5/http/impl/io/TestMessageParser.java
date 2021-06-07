@@ -84,23 +84,15 @@ public class TestMessageParser {
             "\r\n";
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(s1.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        try {
-            AbstractMessageParser.parseHeaders(inBuffer1, inputStream1, -1, -1, null);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (final ProtocolException ex) {
-            // expected
-        }
+        Assert.assertThrows(ProtocolException.class, () ->
+                AbstractMessageParser.parseHeaders(inBuffer1, inputStream1, -1, -1, null));
         final String s2 = "  :  stuff\r\n" +
             "header1: stuff\r\n" +
             "\r\n";
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s2.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        try {
-            AbstractMessageParser.parseHeaders(inBuffer2, inputStream2, -1, -1, null);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (final ProtocolException ex) {
-            // expected
-        }
+        Assert.assertThrows(ProtocolException.class, () ->
+                AbstractMessageParser.parseHeaders(inBuffer2, inputStream2, -1, -1, null));
     }
 
     @Test
@@ -138,12 +130,8 @@ public class TestMessageParser {
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        try {
-            AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, -1, null);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
-        }
+        Assert.assertThrows(IOException.class, () ->
+                AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, -1, null));
     }
 
     @Test
@@ -155,12 +143,8 @@ public class TestMessageParser {
             "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
-        try {
-            AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, 15, null);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
-        }
+        Assert.assertThrows(IOException.class, () ->
+                AbstractMessageParser.parseHeaders(inBuffer, inputStream, 2, 15, null));
     }
 
 }

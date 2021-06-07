@@ -923,12 +923,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                     new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                     coreContext, null);
-        try {
-            future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.fail("ExecutionException is expected");
-        } catch (final ExecutionException ex) {
-            MatcherAssert.assertThat(ex.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
-        }
+        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+                future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        MatcherAssert.assertThat(exception.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
 
         final EndpointDetails endpointDetails = coreContext.getEndpointDetails();
         MatcherAssert.assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));

@@ -65,18 +65,8 @@ public class TestIdentityOutputStream {
         out.close();
         out.close();
         final byte[] tmp = new byte[10];
-        try {
-            out.write(tmp);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
-        }
-        try {
-            out.write(1);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
-        }
+        Assert.assertThrows(IOException.class, () -> out.write(tmp));
+        Assert.assertThrows(IOException.class, () -> out.write(1));
     }
 
     @Test
@@ -106,18 +96,9 @@ public class TestIdentityOutputStream {
         final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);
         out.close();
         out.close();
-
-        try {
-            final byte[] tmp = new byte[2];
-            out.write(tmp, 0, tmp.length);
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
-        try {
-            out.write('a');
-            Assert.fail("StreamClosedException expected");
-        } catch (final IOException expected) {
-        }
+        final byte[] tmp = new byte[2];
+        Assert.assertThrows(StreamClosedException.class, () -> out.write(tmp, 0, tmp.length));
+        Assert.assertThrows(StreamClosedException.class, () -> out.write('a'));
     }
 
 }

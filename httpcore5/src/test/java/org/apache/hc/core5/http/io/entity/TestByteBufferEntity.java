@@ -77,11 +77,6 @@ public class TestByteBufferEntity {
             Assert.assertEquals(bytes.get(i), bytes2[i]);
         }
 
-        try {
-            httpentity.writeTo(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
     }
 }

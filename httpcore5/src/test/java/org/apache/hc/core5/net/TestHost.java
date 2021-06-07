@@ -50,11 +50,7 @@ public class TestHost {
         final Host host2 = new Host("somehost", 0);
         Assert.assertEquals("somehost", host2.getHostName());
         Assert.assertEquals(0, host2.getPort());
-        try {
-            new Host(null, 0);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException expected) {
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new Host(null, 0));
     }
 
     @Test
@@ -112,21 +108,9 @@ public class TestHost {
 
     @Test
     public void testCreateFromStringInvalid() throws Exception {
-        try {
-            Host.create(" host ");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
-        try {
-            Host.create("host :8080");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
-        try {
-            Host.create("");
-            Assert.fail("IllegalArgumentException expected");
-        } catch (final IllegalArgumentException expected) {
-        }
+        Assert.assertThrows(URISyntaxException.class, () -> Host.create(" host "));
+        Assert.assertThrows(URISyntaxException.class, () -> Host.create("host :8080"));
+        Assert.assertThrows(IllegalArgumentException.class, () -> Host.create(""));
     }
 
     @Test
@@ -138,23 +122,13 @@ public class TestHost {
 
     @Test
     public void testIpv6HostAndPortWithoutBrackets() {
-        try {
-            // ambiguous
-            Host.create("::1:80");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-            Assert.assertTrue(expected.getMessage().contains("Expected IPv6 address to be enclosed in brackets"));
-        }
+        // ambiguous
+        Assert.assertThrows(URISyntaxException.class, () -> Host.create("::1:80"));
     }
 
     @Test
     public void testIpv6HostWithoutPort() {
-        try {
-            Host.create("::1");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-            Assert.assertTrue(expected.getMessage().contains("Expected IPv6 address to be enclosed in brackets"));
-        }
+        Assert.assertThrows(URISyntaxException.class, () -> Host.create("::1"));
     }
 
     @Test

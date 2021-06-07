@@ -71,6 +71,8 @@ import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
 import org.apache.hc.core5.testing.reactive.ReactiveTestUtils.StreamDescription;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.MatcherAssert;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -260,13 +262,10 @@ public class ReactiveClientTest {
 
         final Future<Void> future = requester.execute(request, consumer, SOCKET_TIMEOUT, null);
 
-        try {
-            future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
-            Assert.fail("Expected exception");
-        } catch (final ExecutionException ex) {
-            Assert.assertTrue(ex.getCause() instanceof HttpStreamResetException);
-            Assert.assertSame(exceptionThrown, ex.getCause().getCause());
-        }
+        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
+        Assert.assertTrue(exception.getCause() instanceof HttpStreamResetException);
+        Assert.assertSame(exceptionThrown, exception.getCause().getCause());
     }
 
     @Test
@@ -281,20 +280,18 @@ public class ReactiveClientTest {
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
         final Future<Void> future = requester.execute(request, consumer, Timeout.ofSeconds(1), null);
 
-        try {
-            future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
-        } catch (final ExecutionException ex) {
-            Assert.assertTrue(requestPublisherWasCancelled.get());
-            final Throwable cause = ex.getCause();
-            if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_1) {
-                Assert.assertTrue("Expected SocketTimeoutException, but got " + cause.getClass().getName(),
+        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
+        Assert.assertTrue(requestPublisherWasCancelled.get());
+        final Throwable cause = exception.getCause();
+        if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_1) {
+            Assert.assertTrue("Expected SocketTimeoutException, but got " + cause.getClass().getName(),
                     cause instanceof SocketTimeoutException);
-            } else if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_2) {
-                Assert.assertTrue(format("Expected RST_STREAM, but %s was thrown", cause.getClass().getName()),
+        } else if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_2) {
+            Assert.assertTrue(format("Expected RST_STREAM, but %s was thrown", cause.getClass().getName()),
                     cause instanceof HttpStreamResetException);
-            } else {
-                Assert.fail("Unknown HttpVersionPolicy: " + versionPolicy);
-            }
+        } else {
+            Assert.fail("Unknown HttpVersionPolicy: " + versionPolicy);
         }
     }
 
@@ -322,14 +319,14 @@ public class ReactiveClientTest {
             .blockingGet();
         Assert.assertEquals(3, outputBuffers.size());
         Assert.assertTrue("The response subscription should have been cancelled", responsePublisherWasCancelled.get());
-        try {
-            future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
-            Assert.fail("Expected exception");
-        } catch (final ExecutionException | CancellationException ex) {
-            Assert.assertTrue(ex.getCause() instanceof HttpStreamResetException);
-            Assert.assertTrue(requestPublisherWasCancelled.get());
-            Assert.assertNull(requestStreamError.get());
-        }
+        final Exception exception = Assert.assertThrows(Exception.class, () ->
+                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
+        MatcherAssert.assertThat(exception, CoreMatchers.anyOf(
+                CoreMatchers.instanceOf(CancellationException.class),
+                CoreMatchers.instanceOf(ExecutionException.class)));
+        Assert.assertTrue(exception.getCause() instanceof HttpStreamResetException);
+        Assert.assertTrue(requestPublisherWasCancelled.get());
+        Assert.assertNull(requestStreamError.get());
     }
 
     private InetSocketAddress startClientAndServer() throws InterruptedException, ExecutionException {

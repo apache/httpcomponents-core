@@ -101,12 +101,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestConnControlInvalidInput() throws Exception {
         final RequestConnControl interceptor = new RequestConnControl();
-        try {
-            interceptor.process(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> interceptor.process(null, null, null));
     }
 
     @Test
@@ -118,18 +113,10 @@ public class TestStandardInterceptors {
         request2.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "12"));
 
         final RequestContent interceptor = new RequestContent();
-        try {
-            interceptor.process(request1, request1.getEntity(), context);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (final ProtocolException ex) {
-            // expected
-        }
-        try {
-            interceptor.process(request2, request2.getEntity(), context);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (final ProtocolException ex) {
-            // expected
-        }
+        Assert.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request1, request1.getEntity(), context));
+        Assert.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request2, request2.getEntity(), context));
    }
 
     @Test
@@ -194,12 +181,8 @@ public class TestStandardInterceptors {
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII, true));
 
         final RequestContent interceptor = new RequestContent();
-        try {
-            interceptor.process(request, request.getEntity(), context);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (final ProtocolException ex) {
-            // expected
-        }
+        Assert.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
     }
 
     @Test
@@ -239,23 +222,15 @@ public class TestStandardInterceptors {
         request.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, -1, null));
 
         final RequestContent interceptor = new RequestContent();
-        try {
-            interceptor.process(request, request.getEntity(), context);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (final ProtocolException ex) {
-            // expected
-        }
+        Assert.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
    }
 
     @Test
     public void testRequestContentInvalidInput() throws Exception {
         final RequestContent interceptor = new RequestContent();
-        try {
-            interceptor.process(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                interceptor.process(null, null, null));
     }
 
     @Test
@@ -359,12 +334,8 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestExpectContinueInvalidInput() throws Exception {
         final RequestExpectContinue interceptor = new RequestExpectContinue();
-        try {
-            interceptor.process(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                interceptor.process(null, null, null));
     }
 
     @Test
@@ -417,29 +388,17 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         final RequestTargetHost interceptor = new RequestTargetHost();
-        try {
-            interceptor.process(request, request.getEntity(), context);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (final ProtocolException ex) {
-            // expected
-        }
+        Assert.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
     }
 
     @Test
     public void testRequestTargetHostInvalidInput() throws Exception {
         final RequestTargetHost interceptor = new RequestTargetHost();
-        try {
-            interceptor.process(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            interceptor.process(new BasicClassicHttpRequest(Method.GET, "/"), null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                interceptor.process(null, null, null));
+        Assert.assertThrows(NullPointerException.class, () ->
+                interceptor.process(new BasicClassicHttpRequest(Method.GET, "/"), null, null));
     }
 
     @Test
@@ -502,12 +461,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestUserAgentInvalidInput() throws Exception {
         final RequestUserAgent interceptor = new RequestUserAgent();
-        try {
-            interceptor.process(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> interceptor.process(null, null, null));
     }
 
     @Test
@@ -698,19 +652,11 @@ public class TestStandardInterceptors {
     @Test
     public void testResponseConnControlHostInvalidInput() throws Exception {
         final ResponseConnControl interceptor = new ResponseConnControl();
-        try {
-            interceptor.process(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
-            interceptor.process(response, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                interceptor.process(null, null, null));
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
+        Assert.assertThrows(NullPointerException.class, () ->
+                interceptor.process(response, null, null));
     }
 
     @Test
@@ -834,34 +780,21 @@ public class TestStandardInterceptors {
     @Test
     public void testResponseContentInvalidInput() throws Exception {
         final ResponseContent interceptor = new ResponseContent();
-        try {
-            interceptor.process(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> interceptor.process(null, null, null));
     }
 
     @Test
     public void testResponseContentInvalidResponseState() throws Exception {
         final ResponseContent interceptor = new ResponseContent();
         final HttpContext context = new BasicHttpContext(null);
-        try {
-            final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
-            response.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "10"));
-            interceptor.process(response, response.getEntity(), context);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (final ProtocolException ex) {
-            // expected
-        }
-        try {
-            final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
-            response.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "stuff"));
-            interceptor.process(response, response.getEntity(), context);
-            Assert.fail("ProtocolException should have been thrown");
-        } catch (final ProtocolException ex) {
-            // expected
-        }
+        final ClassicHttpResponse response1 = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
+        response1.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "10"));
+        Assert.assertThrows(ProtocolException.class, () ->
+                interceptor.process(response1, response1.getEntity(), context));
+        final ClassicHttpResponse response2 = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
+        response2.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "stuff"));
+        Assert.assertThrows(ProtocolException.class, () ->
+                interceptor.process(response2, response2.getEntity(), context));
     }
 
     @Test
@@ -928,12 +861,8 @@ public class TestStandardInterceptors {
     @Test
     public void testResponseDateInvalidInput() throws Exception {
         final ResponseDate interceptor = new ResponseDate();
-        try {
-            interceptor.process(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                interceptor.process(null, null, null));
     }
 
     @Test
@@ -965,12 +894,8 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestDateInvalidInput() throws Exception {
         final RequestDate interceptor = new RequestDate();
-        try {
-            interceptor.process(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                interceptor.process(null, null, null));
     }
 
     @Test
@@ -1009,12 +934,7 @@ public class TestStandardInterceptors {
     @Test
     public void testResponseServerInvalidInput() throws Exception {
         final ResponseServer interceptor = new ResponseServer();
-        try {
-            interceptor.process(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> interceptor.process(null, null, null));
     }
 
     @Test

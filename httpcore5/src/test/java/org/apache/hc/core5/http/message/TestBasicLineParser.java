@@ -84,44 +84,19 @@ public class TestBasicLineParser {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         buf.clear();
         buf.append("    ");
-        try {
-            this.parser.parseRequestLine(buf);
-            Assert.fail();
-        } catch (final ParseException e) {
-            // expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseRequestLine(buf));
         buf.clear();
         buf.append("  GET");
-        try {
-            this.parser.parseRequestLine(buf);
-            Assert.fail();
-        } catch (final ParseException e) {
-            // expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseRequestLine(buf));
         buf.clear();
         buf.append("GET /stuff");
-        try {
-            this.parser.parseRequestLine(buf);
-            Assert.fail();
-        } catch (final ParseException e) {
-            // expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseRequestLine(buf));
         buf.clear();
         buf.append("GET/stuff HTTP/1.1");
-        try {
-            this.parser.parseRequestLine(buf);
-            Assert.fail();
-        } catch (final ParseException e) {
-            // expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseRequestLine(buf));
         buf.clear();
         buf.append("GET /stuff HTTP/1.1 Oooooooooooppsie");
-        try {
-            this.parser.parseRequestLine(buf);
-            Assert.fail();
-        } catch (final ParseException e) {
-            // expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseRequestLine(buf));
     }
 
     @Test
@@ -198,44 +173,19 @@ public class TestBasicLineParser {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         buf.clear();
         buf.append("xxx 200 OK");
-        try {
-            this.parser.parseStatusLine(buf);
-            Assert.fail();
-        } catch (final ParseException e) {
-            // expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseStatusLine(buf));
         buf.clear();
         buf.append("HTTP/1.1 xxx OK");
-        try {
-            this.parser.parseStatusLine(buf);
-            Assert.fail();
-        } catch (final ParseException e) {
-            // expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseStatusLine(buf));
         buf.clear();
         buf.append("HTTP/1.1    ");
-        try {
-            this.parser.parseStatusLine(buf);
-            Assert.fail();
-        } catch (final ParseException e) {
-            // expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseStatusLine(buf));
         buf.clear();
         buf.append("HTTP/1.1");
-        try {
-            this.parser.parseStatusLine(buf);
-            Assert.fail();
-        } catch (final ParseException e) {
-            // expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseStatusLine(buf));
         buf.clear();
         buf.append("HTTP/1.1 -200 OK");
-        try {
-            this.parser.parseStatusLine(buf);
-            Assert.fail();
-        } catch (final ParseException e) {
-            // expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseStatusLine(buf));
     }
 
     @Test
@@ -271,85 +221,49 @@ public class TestBasicLineParser {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.clear();
         buffer.append("    ");
-        ParserCursor cursor = new ParserCursor(0, buffer.length());
-        try {
-            this.parser.parseProtocolVersion(buffer, cursor);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        final ParserCursor cursor1 = new ParserCursor(0, buffer.length());
+        Assert.assertThrows(ParseException.class, () ->
+                parser.parseProtocolVersion(buffer, cursor1));
         buffer.clear();
         buffer.append("HTT");
-        cursor = new ParserCursor(0, buffer.length());
-        try {
-            this.parser.parseProtocolVersion(buffer, cursor);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        final ParserCursor cursor2 = new ParserCursor(0, buffer.length());
+        Assert.assertThrows(ParseException.class, () ->
+                parser.parseProtocolVersion(buffer, cursor2));
         buffer.clear();
         buffer.append("crap");
-        cursor = new ParserCursor(0, buffer.length());
-        try {
-            this.parser.parseProtocolVersion(buffer, cursor);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        final ParserCursor cursor3 = new ParserCursor(0, buffer.length());
+        Assert.assertThrows(ParseException.class, () ->
+                parser.parseProtocolVersion(buffer, cursor3));
         buffer.clear();
         buffer.append("HTTP/crap");
-        cursor = new ParserCursor(0, buffer.length());
-        try {
-            this.parser.parseProtocolVersion(buffer, cursor);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        final ParserCursor cursor4 = new ParserCursor(0, buffer.length());
+        Assert.assertThrows(ParseException.class, () ->
+                parser.parseProtocolVersion(buffer, cursor4));
         buffer.clear();
         buffer.append("HTTP/1");
-        cursor = new ParserCursor(0, buffer.length());
-        try {
-            this.parser.parseProtocolVersion(buffer, cursor);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        final ParserCursor cursor5 = new ParserCursor(0, buffer.length());
+        Assert.assertThrows(ParseException.class, () ->
+                parser.parseProtocolVersion(buffer, cursor5));
         buffer.clear();
         buffer.append("HTTP/1234");
-        cursor = new ParserCursor(0, buffer.length());
-        try {
-            this.parser.parseProtocolVersion(buffer, cursor);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        final ParserCursor cursor6 = new ParserCursor(0, buffer.length());
+        Assert.assertThrows(ParseException.class, () ->
+                parser.parseProtocolVersion(buffer, cursor6));
         buffer.clear();
         buffer.append("HTTP/1.");
-        cursor = new ParserCursor(0, buffer.length());
-        try {
-            this.parser.parseProtocolVersion(buffer, cursor);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        final ParserCursor cursor7 = new ParserCursor(0, buffer.length());
+        Assert.assertThrows(ParseException.class, () ->
+                parser.parseProtocolVersion(buffer, cursor7));
         buffer.clear();
         buffer.append("HTTP/whatever.whatever whatever");
-        cursor = new ParserCursor(0, buffer.length());
-        try {
-            this.parser.parseProtocolVersion(buffer, cursor);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        final ParserCursor cursor8 = new ParserCursor(0, buffer.length());
+        Assert.assertThrows(ParseException.class, () ->
+                parser.parseProtocolVersion(buffer, cursor8));
         buffer.clear();
         buffer.append("HTTP/1.whatever whatever");
-        cursor = new ParserCursor(0, buffer.length());
-        try {
-            this.parser.parseProtocolVersion(buffer, cursor);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        final ParserCursor cursor9 = new ParserCursor(0, buffer.length());
+        Assert.assertThrows(ParseException.class, () ->
+                parser.parseProtocolVersion(buffer, cursor9));
     }
 
     @Test
@@ -375,60 +289,25 @@ public class TestBasicLineParser {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.clear();
         buffer.append("");
-        try {
-            this.parser.parseHeader(buffer);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseHeader(buffer));
         buffer.clear();
         buffer.append("blah");
-        try {
-            this.parser.parseHeader(buffer);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseHeader(buffer));
         buffer.clear();
         buffer.append(":");
-        try {
-            this.parser.parseHeader(buffer);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseHeader(buffer));
         buffer.clear();
         buffer.append("   :");
-        try {
-            this.parser.parseHeader(buffer);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseHeader(buffer));
         buffer.clear();
         buffer.append(": blah");
-        try {
-            this.parser.parseHeader(buffer);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseHeader(buffer));
         buffer.clear();
         buffer.append(" : blah");
-        try {
-            this.parser.parseHeader(buffer);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseHeader(buffer));
         buffer.clear();
         buffer.append("header : blah");
-        try {
-            this.parser.parseHeader(buffer);
-            Assert.fail("ParseException should have been thrown");
-        } catch (final ParseException e) {
-            //expected
-        }
+        Assert.assertThrows(ParseException.class, () -> parser.parseHeader(buffer));
     }
 
 }

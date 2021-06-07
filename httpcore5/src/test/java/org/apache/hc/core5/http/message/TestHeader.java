@@ -57,12 +57,7 @@ public class TestHeader {
 
     @Test
     public void testInvalidName() {
-        try {
-            new BasicHeader(null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            //expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new BasicHeader(null, null));
     }
 
     @Test

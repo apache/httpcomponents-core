@@ -91,15 +91,12 @@ public class TestHttpService {
 
     @Test
     public void testInvalidInitialization() throws Exception {
-        try {
-            new HttpService(
-                    null,
-                    handlerResolver,
-                    connReuseStrategy,
-                    responseFactory);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                new HttpService(
+                        null,
+                        handlerResolver,
+                        connReuseStrategy,
+                        responseFactory));
     }
 
     @Test

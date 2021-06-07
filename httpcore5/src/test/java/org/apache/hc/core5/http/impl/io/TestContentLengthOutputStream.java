@@ -65,16 +65,8 @@ public class TestContentLengthOutputStream {
         out.close();
         out.close();
         final byte[] tmp = new byte[10];
-        try {
-            out.write(tmp);
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
-        try {
-            out.write(1);
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
+        Assert.assertThrows(StreamClosedException.class, () -> out.write(tmp));
+        Assert.assertThrows(StreamClosedException.class, () -> out.write(1));
     }
 
 }

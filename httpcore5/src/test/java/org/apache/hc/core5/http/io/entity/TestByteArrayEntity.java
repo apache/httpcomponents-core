@@ -111,12 +111,7 @@ public class TestByteArrayEntity {
             Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
-        try {
-            entity.writeTo(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> entity.writeTo(null));
     }
 
     @Test
@@ -144,12 +139,7 @@ public class TestByteArrayEntity {
             Assert.assertEquals(bytes[i+off], bytes2[i]);
         }
 
-        try {
-            entity.writeTo(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> entity.writeTo(null));
     }
 
 }

@@ -55,19 +55,13 @@ public class TestPathEntity {
             Assert.assertTrue(httpEntity.isRepeatable());
             Assert.assertFalse(httpEntity.isStreaming());
             // If we can't delete the file now, then the PathEntity or test is hanging on to a file handle.
-            if (!Files.deleteIfExists(tmpPath)) {
-                Assert.fail("Failed to delete: " + tmpPath);
-            }
+            Assert.assertTrue("Failed to delete " + tmpPath, Files.deleteIfExists(tmpPath));
         }
     }
 
     @Test
     public void testNullConstructor() throws Exception {
-        try (final PathEntity httpEntity = new PathEntity(null, ContentType.TEXT_PLAIN)) {
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new PathEntity(null, ContentType.TEXT_PLAIN));
     }
 
     @Test
@@ -92,16 +86,8 @@ public class TestPathEntity {
                 Assert.assertEquals(i, bytes[i]);
             }
             // If we can't delete the file now, then the PathEntity or test is hanging on to a file handle
-            if (!Files.deleteIfExists(tmpPath)) {
-                Assert.fail("Failed to delete: " + tmpPath);
-            }
-
-            try {
-                httpEntity.writeTo(null);
-                Assert.fail("NullPointerException should have been thrown");
-            } catch (final NullPointerException ex) {
-                // expected
-            }
+            Assert.assertTrue("Failed to delete " + tmpPath, Files.deleteIfExists(tmpPath));
+            Assert.assertThrows(NullPointerException.class, () -> httpEntity.writeTo(null));
         }
     }
 }

@@ -120,11 +120,7 @@ public class TestSessionInOutBuffers {
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(128, 128, 10);
         final ReadableByteChannel channel2 = newChannel(s);
         inbuf2.fill(channel2);
-        try {
-            inbuf2.readLine(line, false);
-            Assert.fail("MessageConstraintException expected");
-        } catch (final MessageConstraintException ex) {
-        }
+        Assert.assertThrows(MessageConstraintException.class, () -> inbuf2.readLine(line, false));
     }
 
     @Test
@@ -141,11 +137,7 @@ public class TestSessionInOutBuffers {
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(32, 32,10);
         final ReadableByteChannel channel2 = newChannel(s);
         inbuf2.fill(channel2);
-        try {
-            inbuf2.readLine(line, false);
-            Assert.fail("MessageConstraintException expected");
-        } catch (final MessageConstraintException ex) {
-        }
+        Assert.assertThrows(MessageConstraintException.class, () -> inbuf2.readLine(line, false));
     }
 
     @Test

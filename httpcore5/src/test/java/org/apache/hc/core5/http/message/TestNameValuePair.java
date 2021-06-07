@@ -46,12 +46,7 @@ public class TestNameValuePair {
 
     @Test
     public void testInvalidName() {
-        try {
-            new BasicNameValuePair(null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            //expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new BasicNameValuePair(null, null));
     }
 
     @Test

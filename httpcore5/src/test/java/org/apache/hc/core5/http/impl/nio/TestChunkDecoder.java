@@ -160,12 +160,7 @@ public class TestChunkDecoder {
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
-        try {
-            decoder.read(dst);
-            Assert.fail("MalformedChunkCodingException should have been thrown");
-        } catch (final MalformedChunkCodingException ex) {
-            // expected
-        }
+        Assert.assertThrows(MalformedChunkCodingException.class, () -> decoder.read(dst));
     }
 
     @Test
@@ -436,19 +431,13 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, metrics2);
 
         dst.clear();
-        try {
-            decoder2.read(dst);
-            Assert.fail("MessageConstraintException expected");
-        } catch (final MessageConstraintException ex) {
-        }
+        Assert.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
     }
 
     @Test
     public void testTooLongFooter() throws Exception {
         final String s = "10\r\n1234567890123456\r\n" +
                 "0\r\nFooter1: looooooooooooooooooooooooooooooooooooooooooooooooooooooog\r\n\r\n";
-//        final String s = "10\r\n1234567890123456\r\n" +
-//                "0\r\nFooter1: looooooooooooooooooooooooooooooooooooooooog\r\n   \r\n  fghij\r\n\r\n";
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(1024, 256, 0);
@@ -472,11 +461,7 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, metrics2);
 
         dst.clear();
-        try {
-            decoder2.read(dst);
-            Assert.fail("MessageConstraintException expected");
-        } catch (final MessageConstraintException ex) {
-        }
+        Assert.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
     }
 
     @Test
@@ -509,11 +494,7 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, http1Config, metrics2);
 
         dst.clear();
-        try {
-            decoder2.read(dst);
-            Assert.fail("MessageConstraintException expected");
-        } catch (final MessageConstraintException ex) {
-        }
+        Assert.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
     }
 
     @Test
@@ -545,11 +526,7 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, http1Config, metrics2);
 
         dst.clear();
-        try {
-            decoder2.read(dst);
-            Assert.fail("MessageConstraintException expected");
-        } catch (final MessageConstraintException ex) {
-        }
+        Assert.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
     }
 
     @Test
@@ -558,24 +535,8 @@ public class TestChunkDecoder {
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.US_ASCII);
-        try {
-            new ChunkDecoder(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new ChunkDecoder(channel, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new ChunkDecoder(channel, inbuf, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new ChunkDecoder(null, null, null));
+        Assert.assertThrows(NullPointerException.class, () -> new ChunkDecoder(channel, inbuf, null));
     }
 
     @Test

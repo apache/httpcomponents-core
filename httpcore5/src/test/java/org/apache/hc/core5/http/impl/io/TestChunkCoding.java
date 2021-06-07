@@ -147,22 +147,10 @@ public class TestChunkCoding {
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         in.close();
         in.close();
-        try {
-            in.read();
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
+        Assert.assertThrows(StreamClosedException.class, () -> in.read());
         final byte[] tmp = new byte[10];
-        try {
-            in.read(tmp);
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
-        try {
-            in.read(tmp, 0, tmp.length);
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
+        Assert.assertThrows(StreamClosedException.class, () -> in.read(tmp));
+        Assert.assertThrows(StreamClosedException.class, () -> in.read(tmp, 0, tmp.length));
     }
 
     // Missing closing chunk
@@ -216,7 +204,7 @@ public class TestChunkCoding {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read());
+        Assert.assertThrows(MalformedChunkCodingException.class, in::read);
         in.close();
     }
 
@@ -227,7 +215,7 @@ public class TestChunkCoding {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read());
+        Assert.assertThrows(MalformedChunkCodingException.class, in::read);
         in.close();
     }
 
@@ -238,7 +226,7 @@ public class TestChunkCoding {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read());
+        Assert.assertThrows(MalformedChunkCodingException.class, in::read);
         in.close();
     }
 
@@ -263,7 +251,7 @@ public class TestChunkCoding {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         in.read();
-        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read());
+        Assert.assertThrows(MalformedChunkCodingException.class, in::read);
         in.close();
     }
 
@@ -273,12 +261,7 @@ public class TestChunkCoding {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        try {
-            in.read();
-            Assert.fail("MalformedChunkCodingException expected");
-        } catch (final MalformedChunkCodingException ex) {
-        }
-        in.close();
+        Assert.assertThrows(MalformedChunkCodingException.class, in::read);
     }
 
     @Test
@@ -309,11 +292,8 @@ public class TestChunkCoding {
 
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16, 10);
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
-        try (ChunkedInputStream in2 = new ChunkedInputStream(inBuffer2, inputStream2)) {
-            in2.read(buffer);
-            Assert.fail("MessageConstraintException expected");
-        } catch (final MessageConstraintException ex) {
-        }
+        final ChunkedInputStream in2 = new ChunkedInputStream(inBuffer2, inputStream2);
+        Assert.assertThrows(MessageConstraintException.class, () -> in2.read(buffer));
     }
 
     @Test
@@ -323,18 +303,8 @@ public class TestChunkCoding {
         final ChunkedOutputStream out = new ChunkedOutputStream(outbuffer, outputStream, 2048);
         out.close();
         out.close();
-        try {
-            out.write(new byte[] {1,2,3});
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
-        }
-        try {
-            out.write(1);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            // expected
-        }
+        Assert.assertThrows(IOException.class, () -> out.write(new byte[] {1,2,3}));
+        Assert.assertThrows(IOException.class, () -> out.write(1));
     }
 
     @Test

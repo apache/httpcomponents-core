@@ -64,16 +64,10 @@ public class TestStrictConnPool {
 
     @Test
     public void testInvalidConstruction() throws Exception {
-        try {
-            new StrictConnPool<String, HttpConnection>(-1, 1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
-            new StrictConnPool<String, HttpConnection>(1, -1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                new StrictConnPool<String, HttpConnection>(-1, 1));
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                new StrictConnPool<String, HttpConnection>(1, -1));
     }
 
     @Test
@@ -113,16 +107,10 @@ public class TestStrictConnPool {
     @Test
     public void testLeaseInvalid() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10);
-        try {
-            pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException expected) {
-        }
-        try {
-            pool.lease("somehost", null, null, null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final NullPointerException expected) {
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null));
+        Assert.assertThrows(NullPointerException.class, () ->
+                pool.lease("somehost", null, null, null));
     }
 
     @Test
@@ -544,14 +532,10 @@ public class TestStrictConnPool {
         // Attempt to get a connection while lock is held
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
 
-        try {
-            future2.get();
-        } catch (final ExecutionException executionException) {
-            Assert.assertTrue(executionException.getCause() instanceof DeadlineTimeoutException);
-            holdInternalLock.interrupt(); // Cleanup
-            return;
-        }
-        Assert.fail("Expected deadline timeout.");
+        final ExecutionException executionException = Assert.assertThrows(ExecutionException.class, () ->
+                future2.get());
+        Assert.assertTrue(executionException.getCause() instanceof DeadlineTimeoutException);
+        holdInternalLock.interrupt(); // Cleanup
     }
 
     @Test
@@ -568,13 +552,8 @@ public class TestStrictConnPool {
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
 
         Assert.assertTrue(Thread.interrupted());
-        try {
-            future2.get();
-        } catch (final CancellationException cancellationException) {
-            holdInternalLock.interrupt(); // Cleanup
-            return;
-        }
-        Assert.fail("Expected interrupted exception.");
+        Assert.assertThrows(CancellationException.class, () -> future2.get());
+        holdInternalLock.interrupt(); // Cleanup
     }
 
     @Test
@@ -608,21 +587,12 @@ public class TestStrictConnPool {
     @Test
     public void testSetMaxInvalid() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
-        try {
-            pool.setMaxTotal(-1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
-        try {
-            pool.setMaxPerRoute(null, 1);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException expected) {
-        }
-        try {
-            pool.setDefaultMaxPerRoute(-1);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException expected) {
-        }
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                pool.setMaxTotal(-1));
+        Assert.assertThrows(NullPointerException.class, () ->
+                pool.setMaxPerRoute(null, 1));
+        Assert.assertThrows(IllegalArgumentException.class, () ->
+                pool.setDefaultMaxPerRoute(-1));
     }
 
     @Test
@@ -640,11 +610,7 @@ public class TestStrictConnPool {
     public void testShutdown() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
         pool.close(CloseMode.GRACEFUL);
-        try {
-            pool.lease("somehost", null);
-            Assert.fail("IllegalStateException should have been thrown");
-        } catch (final IllegalStateException expected) {
-        }
+        Assert.assertThrows(IllegalStateException.class, () -> pool.lease("somehost", null));
         // Ignored if shut down
         pool.release(new PoolEntry<>("somehost"), true);
     }

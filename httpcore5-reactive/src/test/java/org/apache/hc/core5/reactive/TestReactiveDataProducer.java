@@ -78,12 +78,9 @@ public class TestReactiveDataProducer {
         producer.produce(streamChannel);
         Assert.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        try {
-            producer.produce(streamChannel);
-            Assert.fail("Expected ProtocolException");
-        } catch (final HttpStreamResetException ex) {
-            Assert.assertTrue("Expected published exception to be rethrown", ex.getCause() instanceof RuntimeException);
-            Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
-        }
+        final HttpStreamResetException exception = Assert.assertThrows(HttpStreamResetException.class, () ->
+                producer.produce(streamChannel));
+        Assert.assertTrue("Expected published exception to be rethrown", exception.getCause() instanceof RuntimeException);
+        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
     }
 }

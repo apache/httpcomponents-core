@@ -143,16 +143,8 @@ public class TestURIAuthority {
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
         MatcherAssert.assertThat(URIAuthority.parse("somehost:008080"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
-        try {
-            URIAuthority.create("somehost:aaaaa");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
-        try {
-            URIAuthority.create("somehost:90ab");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
+        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("somehost:aaaaa"));
+        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("somehost:90ab"));
 
         MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost"),
                 CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
@@ -184,11 +176,8 @@ public class TestURIAuthority {
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
         MatcherAssert.assertThat(URIAuthority.parse("test:test@localhost:38339"),
                 CoreMatchers.equalTo(new URIAuthority("test:test", "localhost", 38339)));
-        try {
-            URIAuthority.create("blah@goggle.com:80@google.com/");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
+        Assert.assertThrows(URISyntaxException.class, () ->
+                URIAuthority.create("blah@goggle.com:80@google.com/"));
     }
 
     @Test
@@ -198,50 +187,19 @@ public class TestURIAuthority {
         Assert.assertEquals(new URIAuthority("somehost", 1234), URIAuthority.create("somehost:1234"));
         Assert.assertEquals(new URIAuthority("somehost", -1), URIAuthority.create("somehost"));
         Assert.assertEquals(new URIAuthority("user", "somehost", -1), URIAuthority.create("user@somehost"));
-        try {
-            URIAuthority.create(" host");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
-        try {
-            URIAuthority.create("host  ");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
-        try {
-            URIAuthority.create("host :8080");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
-        try {
-            URIAuthority.create("user @ host:8080");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
+        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create(" host"));
+        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("host  "));
+        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("host :8080"));
+        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("user @ host:8080"));
     }
 
     @Test
     public void testCreateFromIPv6String() throws Exception {
         Assert.assertEquals(new URIAuthority("::1", 8080), URIAuthority.create("[::1]:8080"));
         Assert.assertEquals(new URIAuthority("::1", -1), URIAuthority.create("[::1]"));
-        try {
-            URIAuthority.create("::1");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-        }
-        try {
-            URIAuthority.create("[::1");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-            Assert.assertTrue(expected.getMessage().contains("Expected an IPv6 closing bracket"));
-        }
-
-        try {
-            URIAuthority.create("[a]:8080");
-            Assert.fail("URISyntaxException expected");
-        } catch (final URISyntaxException expected) {
-            Assert.assertTrue(expected.getMessage().contains("Expected an IPv6 address"));
-        }
+        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("::1"));
+        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("[::1"));
+        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("[a]:8080"));
     }
 
     @Test

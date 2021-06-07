@@ -80,30 +80,10 @@ public class TestContentType {
 
     @Test
     public void testCreateInvalidInput() throws Exception {
-        try {
-            ContentType.create(null, (String) null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            ContentType.create("  ", (String) null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            ContentType.create("stuff;", (String) null);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
-        try {
-            ContentType.create("text/plain", ",");
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> ContentType.create(null, (String) null));
+        Assert.assertThrows(IllegalArgumentException.class, () -> ContentType.create("  ", (String) null));
+        Assert.assertThrows(IllegalArgumentException.class, () -> ContentType.create("stuff;", (String) null));
+        Assert.assertThrows(IllegalArgumentException.class, () -> ContentType.create("text/plain", ","));
     }
 
     @Test

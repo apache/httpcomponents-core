@@ -209,13 +209,10 @@ public class H2TLSIntegrationTest {
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        try {
-            resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.fail("ExecutionException expected");
-        } catch (final ExecutionException ex) {
-            final Throwable cause = ex.getCause();
-            MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(SSLHandshakeException.class));
-        }
+        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+                resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final Throwable cause = exception.getCause();
+        MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(SSLHandshakeException.class));
     }
 
     @Test
@@ -261,13 +258,10 @@ public class H2TLSIntegrationTest {
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        try {
-            resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.fail("ExecutionException expected");
-        } catch (final ExecutionException ex) {
-            final Throwable cause = ex.getCause();
-            MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
-        }
+        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+                resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final Throwable cause = exception.getCause();
+        MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
     }
 
     @Test
@@ -313,13 +307,10 @@ public class H2TLSIntegrationTest {
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        try {
-            resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.fail("ExecutionException expected");
-        } catch (final ExecutionException ex) {
-            final Throwable cause = ex.getCause();
-            MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
-        }
+        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+                resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final Throwable cause = exception.getCause();
+        MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
     }
 
     @Test
@@ -383,13 +374,10 @@ public class H2TLSIntegrationTest {
                         new BasicRequestProducer(Method.POST, target, "/stuff",
                                 new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-                try {
-                    resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-                    Assert.fail("ExecutionException expected");
-                } catch (final ExecutionException ex) {
-                    final Throwable cause = ex.getCause();
-                    MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
-                }
+                final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+                        resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+                final Throwable cause = exception.getCause();
+                MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
             } finally {
                 server.close(CloseMode.IMMEDIATE);
             }

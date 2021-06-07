@@ -131,12 +131,7 @@ public class TestLengthDelimitedEncoder {
                 channel, outbuf, metrics, 5);
         encoder.write(CodecTestUtils.wrap("stuff"));
 
-        try {
-            encoder.write(CodecTestUtils.wrap("more stuff"));
-            Assert.fail("IllegalStateException should have been thrown");
-        } catch (final IllegalStateException ex) {
-            // ignore
-        }
+        Assert.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
     }
 
     @Test
@@ -145,30 +140,10 @@ public class TestLengthDelimitedEncoder {
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
-        try {
-            new LengthDelimitedEncoder(null, null, null, 10);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new LengthDelimitedEncoder(channel, null, null, 10);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new LengthDelimitedEncoder(channel, outbuf, null, 10);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new LengthDelimitedEncoder(channel, outbuf, metrics, -10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // ignore
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new LengthDelimitedEncoder(null, null, null, 10));
+        Assert.assertThrows(NullPointerException.class, () -> new LengthDelimitedEncoder(channel, null, null, 10));
+        Assert.assertThrows(NullPointerException.class, () -> new LengthDelimitedEncoder(channel, outbuf, null, 10));
+        Assert.assertThrows(IllegalArgumentException.class, () -> new LengthDelimitedEncoder(channel, outbuf, metrics, -10));
     }
 
     @Test
@@ -244,22 +219,12 @@ public class TestLengthDelimitedEncoder {
         encoder.write(CodecTestUtils.wrap("stuff"));
 
         createTempFile();
-        RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
+        try (final RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             testfile.write("more stuff".getBytes(StandardCharsets.US_ASCII));
-        } finally {
-            testfile.close();
         }
 
-        testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
-            final FileChannel fchannel = testfile.getChannel();
-            encoder.transfer(fchannel, 0, 10);
-            Assert.fail("IllegalStateException should have been thrown");
-        } catch (final IllegalStateException ex) {
-            // ignore
-        } finally {
-            testfile.close();
+        try (final FileChannel fchannel = new RandomAccessFile(this.tmpfile, "rw").getChannel()) {
+            Assert.assertThrows(IllegalStateException.class, () -> encoder.transfer(fchannel, 0, 10));
         }
     }
 

@@ -326,10 +326,7 @@ public class TestIdentityDecoder {
         try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             Assert.assertEquals(0, testfile.length());
             final FileChannel fchannel = testfile.getChannel();
-            try {
-                decoder.transfer(fchannel, 5, 10);
-                Assert.fail("expected IOException");
-            } catch(final IOException iox) {}
+            Assert.assertThrows(IOException.class, () -> decoder.transfer(fchannel, 5, 10));
         }
     }
 
@@ -339,24 +336,9 @@ public class TestIdentityDecoder {
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.US_ASCII);
-        try {
-            new IdentityDecoder(null, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new IdentityDecoder(channel, null, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new IdentityDecoder(channel, inbuf, null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new IdentityDecoder(null, null, null));
+        Assert.assertThrows(NullPointerException.class, () -> new IdentityDecoder(channel, null, null));
+        Assert.assertThrows(NullPointerException.class, () -> new IdentityDecoder(channel, inbuf, null));
     }
 
     @Test
@@ -369,12 +351,7 @@ public class TestIdentityDecoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
 
-        try {
-            decoder.read(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> decoder.read(null));
     }
 
 }

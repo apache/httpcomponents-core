@@ -56,12 +56,7 @@ public class TestHttpEntityWrapper {
 
     @Test
     public void testIllegalConstructor() throws Exception {
-        try {
-            new HttpEntityWrapper(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new HttpEntityWrapper(null));
     }
 
     @Test
@@ -89,12 +84,7 @@ public class TestHttpEntityWrapper {
             Assert.assertEquals(bytes[i], bytes2[i]);
         }
 
-        try {
-            wrapped.writeTo(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> wrapped.writeTo(null));
     }
 
     @Test

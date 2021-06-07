@@ -67,18 +67,10 @@ public class TestBasicLineFormatter {
     public void testRLFormattingInvalidInput() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final RequestLine requestline = new RequestLine(Method.GET.name(), "/stuff", HttpVersion.HTTP_1_1);
-        try {
-            this.formatter.formatRequestLine(null, requestline);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            this.formatter.formatRequestLine(buf, null);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatRequestLine(null, requestline));
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatRequestLine(buf, null));
     }
 
     @Test
@@ -100,18 +92,10 @@ public class TestBasicLineFormatter {
     public void testSLFormattingInvalidInput() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
-        try {
-            this.formatter.formatStatusLine(null, statusline);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            this.formatter.formatStatusLine(buf, null);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatStatusLine(null, statusline));
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatStatusLine(buf, null));
     }
 
     @Test
@@ -131,18 +115,10 @@ public class TestBasicLineFormatter {
     public void testHeaderFormattingInvalidInput() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final Header header = new BasicHeader("name", "value");
-        try {
-            this.formatter.formatHeader(null, header);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
-        try {
-            this.formatter.formatHeader(buf, null);
-            Assert.fail("NullPointerException should habe been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatHeader(null, header));
+        Assert.assertThrows(NullPointerException.class, () ->
+                formatter.formatHeader(buf, null));
     }
 
     @Test

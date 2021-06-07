@@ -72,11 +72,6 @@ public class TestClientPojoAdapter {
             }
         };
 
-        try {
-            adapter.assertRequestSupported(null);
-            Assert.fail("A Exception should have been thrown");
-        } catch (final Exception e) {
-            // expected
-        }
+        Assert.assertThrows(Exception.class, () -> adapter.assertRequestSupported(null));
     }
 }

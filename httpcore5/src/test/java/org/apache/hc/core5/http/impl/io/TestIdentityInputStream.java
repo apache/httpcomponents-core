@@ -70,16 +70,8 @@ public class TestIdentityInputStream {
 
         Assert.assertEquals(0, in.available());
         final byte[] tmp = new byte[2];
-        try {
-            in.read(tmp, 0, tmp.length);
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
-        try {
-            in.read();
-            Assert.fail("StreamClosedException expected");
-        } catch (final StreamClosedException expected) {
-        }
+        Assert.assertThrows(StreamClosedException.class, () -> in.read(tmp, 0, tmp.length));
+        Assert.assertThrows(StreamClosedException.class, () -> in.read());
     }
 
     @Test

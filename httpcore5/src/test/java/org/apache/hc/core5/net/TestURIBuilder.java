@@ -292,28 +292,24 @@ public class TestURIBuilder {
     @Test
     public void testRemoveParameter() throws Exception {
         final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff&blah&blah", null);
-        URIBuilder uribuilder = new URIBuilder(uri);
+        final URIBuilder uribuilder = new URIBuilder(uri);
         Assert.assertFalse(uribuilder.isQueryEmpty());
 
-        try {
-            uribuilder.removeParameter(null);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException e) {
-        }
+        Assert.assertThrows(NullPointerException.class, () -> uribuilder.removeParameter(null));
 
         uribuilder.removeParameter("DoesNotExist");
         Assert.assertEquals("stuff", uribuilder.getFirstQueryParam("param").getValue());
         Assert.assertNull(uribuilder.getFirstQueryParam("blah").getValue());
 
-        uribuilder = uribuilder.removeParameter("blah");
+        uribuilder.removeParameter("blah");
         Assert.assertEquals("stuff", uribuilder.getFirstQueryParam("param").getValue());
         Assert.assertNull(uribuilder.getFirstQueryParam("blah"));
 
-        uribuilder = uribuilder.removeParameter("param");
+        uribuilder.removeParameter("param");
         Assert.assertNull(uribuilder.getFirstQueryParam("param"));
         Assert.assertTrue(uribuilder.isQueryEmpty());
 
-        uribuilder = uribuilder.removeParameter("AlreadyEmpty");
+        uribuilder.removeParameter("AlreadyEmpty");
         Assert.assertTrue(uribuilder.isQueryEmpty());
         Assert.assertEquals(new URI("http://localhost:80/"), uribuilder.build());
     }

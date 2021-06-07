@@ -216,28 +216,14 @@ public class TestBasicHeaderIterator {
 
     @Test
     public void testInvalid() {
-
-        Iterator<Header> hit = null;
-        try {
-            hit = new BasicHeaderIterator(null, "whatever");
-            Assert.fail("null headers not detected");
-        } catch (final NullPointerException iax) {
-            // expected
-        }
-
+        Assert.assertThrows(NullPointerException.class, () -> new BasicHeaderIterator(null, "whatever"));
         // this is not invalid
-        hit = new BasicHeaderIterator(new Header[0], "whatever");
+        final Iterator<Header> hit = new BasicHeaderIterator(new Header[0], "whatever");
         Assert.assertFalse(hit.hasNext());
 
         // but this is
-        try {
-            hit.next();
-            Assert.fail("next beyond end not detected");
-        } catch (final NoSuchElementException nsx) {
-            // expected
-        }
+        Assert.assertThrows(NoSuchElementException.class, () -> hit.next());
     }
-
 
     @Test
     public void testRemaining() {
@@ -251,7 +237,7 @@ public class TestBasicHeaderIterator {
         };
 
         // without filter, using plain next()
-        Iterator<Header> hit = new BasicHeaderIterator(headers, null);
+        final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         Assert.assertTrue(hit.hasNext());
         Assert.assertEquals("0", headers[0], hit.next());
         Assert.assertTrue(hit.hasNext());
@@ -262,13 +248,8 @@ public class TestBasicHeaderIterator {
         Assert.assertEquals("3", headers[3], hit.next());
         Assert.assertFalse(hit.hasNext());
 
-        hit = new BasicHeaderIterator(headers, null);
-        Assert.assertTrue(hit.hasNext());
-        try {
-            hit.remove();
-            Assert.fail("remove not detected");
-        } catch (final UnsupportedOperationException uox) {
-            // expected
-        }
+        final Iterator<Header> hit2 = new BasicHeaderIterator(headers, null);
+        Assert.assertTrue(hit2.hasNext());
+        Assert.assertThrows(UnsupportedOperationException.class, () -> hit2.remove());
     }
 }

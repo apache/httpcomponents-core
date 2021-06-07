@@ -59,62 +59,43 @@ public class TestHttpRequestExecutor {
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
-        try {
+        Assert.assertThrows(NullPointerException.class, () -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.execute(null, conn, context);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-        }
-        try {
+        });
+        Assert.assertThrows(NullPointerException.class, () -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.execute(request, null, context);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-        }
-        try {
+        });
+        Assert.assertThrows(NullPointerException.class, () -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.execute(request, conn, null);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-        }
+        });
 
-        try {
+        Assert.assertThrows(NullPointerException.class, () -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.preProcess(null, httprocessor, context);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-        }
-        try {
+        });
+        Assert.assertThrows(NullPointerException.class, () -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.preProcess(request, null, context);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-        }
-        try {
+        });
+        Assert.assertThrows(NullPointerException.class, () -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.preProcess(request, httprocessor, null);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-        }
-
-        try {
+        });
+        Assert.assertThrows(NullPointerException.class, () -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.postProcess(null, httprocessor, context);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-        }
-        try {
+        });
+        Assert.assertThrows(NullPointerException.class, () -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.postProcess(response, null, context);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-        }
-        try {
+        });
+        Assert.assertThrows(NullPointerException.class, () -> {
             final HttpRequestExecutor executor = new HttpRequestExecutor();
             executor.postProcess(response, httprocessor, null);
-            Assert.fail("NullPointerException expected");
-        } catch (final NullPointerException expected) {
-        }
+        });
     }
 
     @Test
@@ -420,12 +401,8 @@ public class TestHttpRequestExecutor {
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
 
         Mockito.doThrow(new IOException("Oopsie")).when(conn).sendRequestHeader(request);
-        try {
-            executor.execute(request, conn, context);
-            Assert.fail("IOException should have been thrown");
-        } catch (final IOException ex) {
-            Mockito.verify(conn).close();
-        }
+        Assert.assertThrows(IOException.class, () -> executor.execute(request, conn, context));
+        Mockito.verify(conn).close();
     }
 
     @Test
@@ -437,12 +414,8 @@ public class TestHttpRequestExecutor {
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
 
         Mockito.doThrow(new RuntimeException("Oopsie")).when(conn).receiveResponseHeader();
-        try {
-            executor.execute(request, conn, context);
-            Assert.fail("IOException should have been thrown");
-        } catch (final RuntimeException ex) {
-            Mockito.verify(conn).close();
-        }
+        Assert.assertThrows(RuntimeException.class, () -> executor.execute(request, conn, context));
+        Mockito.verify(conn).close();
     }
 
 }

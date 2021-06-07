@@ -434,11 +434,7 @@ public class TestLengthDelimitedDecoder {
         try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
             Assert.assertEquals(0, testfile.length());
-            try {
-                decoder.transfer(fchannel, 5, 10);
-                Assert.fail("IOException should have been thrown");
-            } catch(final IOException expected) {
-            }
+            Assert.assertThrows(IOException.class, () -> decoder.transfer(fchannel, 5, 10));
         }
     }
 
@@ -482,30 +478,10 @@ public class TestLengthDelimitedDecoder {
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.US_ASCII);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
-        try {
-            new LengthDelimitedDecoder(null, null, null, 10);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new LengthDelimitedDecoder(channel, null, null, 10);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new LengthDelimitedDecoder(channel, inbuf, null, 10);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // ignore
-        }
-        try {
-            new LengthDelimitedDecoder(channel, inbuf, metrics, -10);
-            Assert.fail("IllegalArgumentException should have been thrown");
-        } catch (final IllegalArgumentException ex) {
-            // ignore
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new LengthDelimitedDecoder(null, null, null, 10));
+        Assert.assertThrows(NullPointerException.class, () -> new LengthDelimitedDecoder(channel, null, null, 10));
+        Assert.assertThrows(NullPointerException.class, () -> new LengthDelimitedDecoder(channel, inbuf, null, 10));
+        Assert.assertThrows(IllegalArgumentException.class, () -> new LengthDelimitedDecoder(channel, inbuf, metrics, -10));
     }
 
     @Test
@@ -519,12 +495,7 @@ public class TestLengthDelimitedDecoder {
         final LengthDelimitedDecoder decoder = new LengthDelimitedDecoder(
                 channel, inbuf, metrics, 3);
 
-        try {
-            decoder.read(null);
-            Assert.fail("NullPointerException should have been thrown");
-        } catch (final NullPointerException ex) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> decoder.read(null));
     }
 
     @Test

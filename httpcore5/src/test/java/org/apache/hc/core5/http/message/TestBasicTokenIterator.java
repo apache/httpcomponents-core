@@ -180,13 +180,7 @@ public class TestBasicTokenIterator {
 
     @Test
     public void testWrongPublic() {
-
-        try {
-            new BasicTokenIterator(null);
-            Assert.fail("null argument not detected");
-        } catch (final NullPointerException iax) {
-            // expected
-        }
+        Assert.assertThrows(NullPointerException.class, () -> new BasicTokenIterator(null));
 
         final Header[] headers = new Header[]{
             new BasicHeader("Name", " "),
@@ -197,20 +191,8 @@ public class TestBasicTokenIterator {
         final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         final Iterator<String>  ti  = new BasicTokenIterator(hit);
 
-        try {
-            // call next() instead of next() to get that covered, too
-            ti.next();
-            Assert.fail("next after end not detected");
-        } catch (final NoSuchElementException nsx) {
-            // expected
-        }
-
-        try {
-            ti.remove();
-            Assert.fail("unsupported remove not detected");
-        } catch (final UnsupportedOperationException uox) {
-            // expected
-        }
+        Assert.assertThrows(NoSuchElementException.class, () -> ti.next());
+        Assert.assertThrows(UnsupportedOperationException.class, () -> ti.remove());
     }
 
 }

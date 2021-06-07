@@ -67,11 +67,7 @@ public class TestEofSensorInputStream {
     public void testCloseIOError() throws Exception {
         Mockito.when(eofwatcher.streamClosed(Mockito.any())).thenThrow(new IOException());
 
-        try {
-            eofstream.close();
-            Assert.fail("IOException expected");
-        } catch (final IOException ex) {
-        }
+        Assert.assertThrows(IOException.class, () -> eofstream.close());
         Assert.assertTrue(eofstream.isSelfClosed());
         Assert.assertNull(eofstream.getWrappedStream());
 
@@ -112,11 +108,7 @@ public class TestEofSensorInputStream {
     public void testAbortConnectionIOError() throws Exception {
         Mockito.when(eofwatcher.streamAbort(Mockito.any())).thenThrow(new IOException());
 
-        try {
-            eofstream.abort();
-            Assert.fail("IOException expected");
-        } catch (final IOException ex) {
-        }
+        Assert.assertThrows(IOException.class, () -> eofstream.abort());
         Assert.assertTrue(eofstream.isSelfClosed());
         Assert.assertNull(eofstream.getWrappedStream());
 
@@ -151,11 +143,7 @@ public class TestEofSensorInputStream {
         Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
         Mockito.when(inStream.read()).thenThrow(new IOException());
 
-        try {
-            eofstream.read();
-            Assert.fail("IOException expected");
-        } catch (final IOException ex) {
-        }
+        Assert.assertThrows(IOException.class, () -> eofstream.read());
         Assert.assertFalse(eofstream.isSelfClosed());
         Assert.assertNull(eofstream.getWrappedStream());
 
@@ -195,11 +183,7 @@ public class TestEofSensorInputStream {
             .thenThrow(new IOException());
 
         final byte[] tmp = new byte[1];
-        try {
-            eofstream.read(tmp);
-            Assert.fail("IOException expected");
-        } catch (final IOException ex) {
-        }
+        Assert.assertThrows(IOException.class, () -> eofstream.read(tmp));
         Assert.assertFalse(eofstream.isSelfClosed());
         Assert.assertNull(eofstream.getWrappedStream());
 
@@ -212,17 +196,9 @@ public class TestEofSensorInputStream {
 
         eofstream.abort();
 
-        try {
-            eofstream.read();
-            Assert.fail("IOException expected");
-        } catch (final IOException ex) {
-        }
+        Assert.assertThrows(IOException.class, () -> eofstream.read());
         final byte[] tmp = new byte[1];
-        try {
-            eofstream.read(tmp);
-            Assert.fail("IOException expected");
-        } catch (final IOException ex) {
-        }
+        Assert.assertThrows(IOException.class, () -> eofstream.read(tmp));
     }
 
 }
