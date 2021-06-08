@@ -685,10 +685,24 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder addParameter(final String param, final String value) {
+        return addParameter(new BasicNameValuePair(param, value));
+    }
+
+    /**
+     * Adds parameter to URI query. The parameter name and value are expected to be unescaped
+     * and may contain non ASCII characters.
+     * <p>
+     * Please note query parameters and custom query component are mutually exclusive. This method
+     * will remove custom query if present.
+     * </p>
+     *
+     * @return this.
+     */
+    public URIBuilder addParameter(final NameValuePair nvp) {
         if (this.queryParams == null) {
             this.queryParams = new ArrayList<>();
         }
-        this.queryParams.add(new BasicNameValuePair(param, value));
+        this.queryParams.add(nvp);
         this.encodedQuery = null;
         this.encodedSchemeSpecificPart = null;
         this.query = null;
