@@ -697,6 +697,7 @@ public class URIBuilder {
      * </p>
      *
      * @return this.
+     * @since 5.2
      */
     public URIBuilder addParameter(final NameValuePair nvp) {
         if (this.queryParams == null) {
