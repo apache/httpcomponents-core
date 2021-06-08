@@ -229,4 +229,24 @@ public final class HttpStatus {
 
     /** {@code  511 Network Authentication Required} (Additional HTTP Status Codes - RFC 6585) */
     public static final int SC_NETWORK_AUTHENTICATION_REQUIRED = 511;
+
+    public static boolean is1xx(int statusCode) {
+        return statusCode >= 100 && statusCode < 200;
+    }
+
+    public static boolean is2xx(int statusCode) {
+        return statusCode >= 200 && statusCode < 300;
+    }
+
+    public static boolean is3xx(int statusCode) {
+        return statusCode >= 300 && statusCode < 400;
+    }
+
+    public static boolean is4xx(int statusCode) {
+        return statusCode >= 400 && statusCode < 500;
+    }
+
+    public static boolean is5xx(int statusCode) {
+        return statusCode >= 500 && statusCode < 600;
+    }
 }
