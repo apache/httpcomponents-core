@@ -67,6 +67,7 @@ import org.apache.hc.core5.util.Timeout;
 
 class BHttpConnectionBase implements BHttpConnection {
 
+    private static final Timeout STALE_CHECK_TIMEOUT = Timeout.ofMilliseconds(1);
     final Http1Config http1Config;
     final SessionInputBufferImpl inBuffer;
     final SessionOutputBufferImpl outbuffer;
@@ -292,7 +293,7 @@ class BHttpConnectionBase implements BHttpConnection {
             return true;
         }
         try {
-            final int bytesRead = fillInputBuffer(Timeout.ofMilliseconds(1));
+            final int bytesRead = fillInputBuffer(STALE_CHECK_TIMEOUT);
             return bytesRead < 0;
         } catch (final SocketTimeoutException ex) {
             return false;
