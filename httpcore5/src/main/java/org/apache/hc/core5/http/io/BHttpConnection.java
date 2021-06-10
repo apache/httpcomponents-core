@@ -62,9 +62,9 @@ public interface BHttpConnection extends HttpConnection {
      * method may block for a small amount of time before returning a result.
      * It is therefore an <i>expensive</i> operation.
      *
-     * @return  {@code true} if attempts to use this connection are
-     *          likely to succeed, or {@code false} if they are likely
-     *          to fail and this connection should be closed
+     * @return  {@code true} if attempts to use this connection are likely
+     *          to fail and this connection should be closed,
+     *          or {@code false} if they are likely to succeed
      */
     boolean isStale() throws IOException;
 
