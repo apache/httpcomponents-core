@@ -67,8 +67,8 @@ public class TestBHttpConnectionBase {
     @Test
     public void testBasics() throws Exception {
         Assert.assertFalse(conn.isOpen());
-        Assert.assertEquals(null, conn.getLocalAddress());
-        Assert.assertEquals(null, conn.getRemoteAddress());
+        Assert.assertNull(conn.getLocalAddress());
+        Assert.assertNull(conn.getRemoteAddress());
         Assert.assertEquals("[Not bound]", conn.toString());
     }
 

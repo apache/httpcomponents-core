@@ -52,7 +52,7 @@ public class TestHeader {
     public void testBasicConstructorNullValue() {
         final Header header = new BasicHeader("name", null);
         Assert.assertEquals("name", header.getName());
-        Assert.assertEquals(null, header.getValue());
+        Assert.assertNull(header.getValue());
     }
 
     @Test

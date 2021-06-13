@@ -443,7 +443,7 @@ public class TestTestingFramework {
                     final TestingFrameworkRequestHandler requestHandler,
                     final Map<String, Object> responseExpectations) throws TestingFrameworkException {
                 // change the request from what is expected.
-                Assert.assertTrue(request.get(METHOD).equals("GET"));
+                Assert.assertEquals("GET", request.get(METHOD));
                 request.put(METHOD, "POST");
                 return super.execute(defaultURI, request, requestHandler, responseExpectations);
             }

@@ -105,7 +105,7 @@ public class TestAbstractBinAsyncEntityConsumer {
         consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
         consumer.consume(ByteBuffer.wrap(new byte[]{}));
 
-        Assert.assertEquals(null, consumer.getContent());
+        Assert.assertNull(consumer.getContent());
         consumer.streamEnd(null);
 
         Assert.assertArrayEquals(new byte[] {'1', '2', '3', '4', '5'}, consumer.getContent());

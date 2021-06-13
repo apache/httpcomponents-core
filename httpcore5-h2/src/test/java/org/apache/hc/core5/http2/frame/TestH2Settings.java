@@ -39,8 +39,8 @@ public class TestH2Settings {
             Assert.assertEquals(param, H2Param.valueOf(param.getCode()));
             Assert.assertEquals(param.name(), H2Param.toString(param.getCode()));
         }
-        Assert.assertEquals(null, H2Param.valueOf(0));
-        Assert.assertEquals(null, H2Param.valueOf(10));
+        Assert.assertNull(H2Param.valueOf(0));
+        Assert.assertNull(H2Param.valueOf(10));
         Assert.assertEquals("0", H2Param.toString(0));
         Assert.assertEquals("10", H2Param.toString(10));
     }

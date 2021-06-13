@@ -106,7 +106,7 @@ public class TestAbstractCharAsyncEntityConsumer {
         consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
         consumer.consume(ByteBuffer.wrap(new byte[]{}));
 
-        Assert.assertEquals(null, consumer.getContent());
+        Assert.assertNull(consumer.getContent());
         consumer.streamEnd(null);
 
         Assert.assertEquals("12345", consumer.getContent());

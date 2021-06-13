@@ -46,12 +46,12 @@ public class TestHttpExecutionContext {
 
         Assert.assertEquals("1", parentContext.getAttribute("param1"));
         Assert.assertEquals("2", parentContext.getAttribute("param2"));
-        Assert.assertEquals(null, parentContext.getAttribute("param3"));
+        Assert.assertNull(parentContext.getAttribute("param3"));
 
         Assert.assertEquals("1", currentContext.getAttribute("param1"));
         Assert.assertEquals("4", currentContext.getAttribute("param2"));
         Assert.assertEquals("3", currentContext.getAttribute("param3"));
-        Assert.assertEquals(null, currentContext.getAttribute("param4"));
+        Assert.assertNull(currentContext.getAttribute("param4"));
 
         currentContext.removeAttribute("param1");
         currentContext.removeAttribute("param2");
@@ -60,16 +60,16 @@ public class TestHttpExecutionContext {
 
         Assert.assertEquals("1", currentContext.getAttribute("param1"));
         Assert.assertEquals("2", currentContext.getAttribute("param2"));
-        Assert.assertEquals(null, currentContext.getAttribute("param3"));
-        Assert.assertEquals(null, currentContext.getAttribute("param4"));
+        Assert.assertNull(currentContext.getAttribute("param3"));
+        Assert.assertNull(currentContext.getAttribute("param4"));
     }
 
     @Test
     public void testEmptyContextOperations() {
         final HttpContext currentContext = new BasicHttpContext(null);
-        Assert.assertEquals(null, currentContext.getAttribute("param1"));
+        Assert.assertNull(currentContext.getAttribute("param1"));
         currentContext.removeAttribute("param1");
-        Assert.assertEquals(null, currentContext.getAttribute("param1"));
+        Assert.assertNull(currentContext.getAttribute("param1"));
     }
 
     @Test

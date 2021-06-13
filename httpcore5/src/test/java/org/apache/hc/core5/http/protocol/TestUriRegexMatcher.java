@@ -47,13 +47,13 @@ public class TestUriRegexMatcher {
 
         h = matcher.lookup("/h1");
         Assert.assertNotNull(h);
-        Assert.assertTrue(h1 == h);
+        Assert.assertSame(h1, h);
         h = matcher.lookup("/h2");
         Assert.assertNotNull(h);
-        Assert.assertTrue(h2 == h);
+        Assert.assertSame(h2, h);
         h = matcher.lookup("/h3");
         Assert.assertNotNull(h);
-        Assert.assertTrue(h3 == h);
+        Assert.assertSame(h3, h);
 
         matcher.unregister("/h1");
         h = matcher.lookup("/h1");
@@ -84,19 +84,19 @@ public class TestUriRegexMatcher {
 
         h = matcher.lookup("/one/request");
         Assert.assertNotNull(h);
-        Assert.assertTrue(def == h);
+        Assert.assertSame(def, h);
 
         h = matcher.lookup("/one/two/request");
         Assert.assertNotNull(h);
-        Assert.assertTrue(def == h);
+        Assert.assertSame(def, h);
 
         h = matcher.lookup("/one/two/three/request");
         Assert.assertNotNull(h);
-        Assert.assertTrue(def == h);
+        Assert.assertSame(def, h);
 
         h = matcher.lookup("default/request");
         Assert.assertNotNull(h);
-        Assert.assertTrue(def == h);
+        Assert.assertSame(def, h);
     }
 
     @Test
@@ -116,19 +116,19 @@ public class TestUriRegexMatcher {
 
         h = matcher.lookup("/one/request");
         Assert.assertNotNull(h);
-        Assert.assertTrue(h1 == h);
+        Assert.assertSame(h1, h);
 
         h = matcher.lookup("/one/two/request");
         Assert.assertNotNull(h);
-        Assert.assertTrue(h2 == h);
+        Assert.assertSame(h2, h);
 
         h = matcher.lookup("/one/two/three/request");
         Assert.assertNotNull(h);
-        Assert.assertTrue(h3 == h);
+        Assert.assertSame(h3, h);
 
         h = matcher.lookup("default/request");
         Assert.assertNotNull(h);
-        Assert.assertTrue(def == h);
+        Assert.assertSame(def, h);
     }
 
     @Test
@@ -146,15 +146,15 @@ public class TestUriRegexMatcher {
 
         h = matcher.lookup("/that.view");
         Assert.assertNotNull(h);
-        Assert.assertTrue(def == h);
+        Assert.assertSame(def, h);
 
         h = matcher.lookup("/that.form");
         Assert.assertNotNull(h);
-        Assert.assertTrue(def == h);
+        Assert.assertSame(def, h);
 
         h = matcher.lookup("/whatever");
         Assert.assertNotNull(h);
-        Assert.assertTrue(def == h);
+        Assert.assertSame(def, h);
     }
 
     @Test
@@ -172,15 +172,15 @@ public class TestUriRegexMatcher {
 
         h = matcher.lookup("/that.view");
         Assert.assertNotNull(h);
-        Assert.assertTrue(h1 == h);
+        Assert.assertSame(h1, h);
 
         h = matcher.lookup("/that.form");
         Assert.assertNotNull(h);
-        Assert.assertTrue(h2 == h);
+        Assert.assertSame(h2, h);
 
         h = matcher.lookup("/whatever");
         Assert.assertNotNull(h);
-        Assert.assertTrue(def == h);
+        Assert.assertSame(def, h);
     }
 
     @Test
@@ -194,7 +194,7 @@ public class TestUriRegexMatcher {
 
         final Object h = matcher.lookup("/match");
         Assert.assertNotNull(h);
-        Assert.assertTrue(h1 == h);
+        Assert.assertSame(h1, h);
     }
 
     @Test

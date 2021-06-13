@@ -192,7 +192,7 @@ public class TestStrictConnPool {
         Assert.assertTrue(future8.isDone());
         final PoolEntry<String, HttpConnection> entry8 = future8.get();
         Assert.assertNotNull(entry8);
-        Assert.assertEquals(null, entry8.getConnection());
+        Assert.assertNull(entry8.getConnection());
 
         Assert.assertTrue(future9.isDone());
         final PoolEntry<String, HttpConnection> entry9 = future9.get();

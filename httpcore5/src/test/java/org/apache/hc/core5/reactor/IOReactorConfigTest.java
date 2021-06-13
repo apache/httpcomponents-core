@@ -56,10 +56,10 @@ public class IOReactorConfigTest {
         Assert.assertEquals(TimeValue.ofMilliseconds(500), reactorConfig.getSelectInterval());
         Assert.assertEquals(2, reactorConfig.getIoThreadCount());
         Assert.assertEquals(Timeout.ofSeconds(10), reactorConfig.getSoTimeout());
-        Assert.assertEquals(true, reactorConfig.isSoReuseAddress());
+        Assert.assertTrue(reactorConfig.isSoReuseAddress());
         Assert.assertEquals(TimeValue.ofSeconds(30), reactorConfig.getSoLinger());
-        Assert.assertEquals(true, reactorConfig.isSoKeepalive());
-        Assert.assertEquals(false, reactorConfig.isTcpNoDelay());
+        Assert.assertTrue(reactorConfig.isSoKeepalive());
+        Assert.assertFalse(reactorConfig.isTcpNoDelay());
         Assert.assertEquals(0x02, reactorConfig.getTrafficClass());
         Assert.assertEquals(32767, reactorConfig.getSndBufSize());
         Assert.assertEquals(8192, reactorConfig.getRcvBufSize());
