@@ -238,7 +238,7 @@ public class TestFrameInOutBuffers {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ReadableByteChannelMock readableChannel = new ReadableByteChannelMock(new byte[] {});
 
-        Assert.assertEquals(null, inBuffer.read(readableChannel));
+        Assert.assertNull(inBuffer.read(readableChannel));
         Assert.assertThrows(ConnectionClosedException.class, () ->
                 inBuffer.read(readableChannel));
     }

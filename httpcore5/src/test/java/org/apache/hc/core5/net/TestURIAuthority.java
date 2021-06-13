@@ -67,13 +67,13 @@ public class TestURIAuthority {
         final URIAuthority host6 = new URIAuthority("user", "SomeHost", 80);
         final URIAuthority host7 = new URIAuthority("user", "somehost", 80);
 
-        Assert.assertTrue(host1.hashCode() == host1.hashCode());
+        Assert.assertEquals(host1.hashCode(), host1.hashCode());
         Assert.assertTrue(host1.hashCode() != host2.hashCode());
         Assert.assertTrue(host1.hashCode() != host3.hashCode());
-        Assert.assertTrue(host2.hashCode() == host4.hashCode());
-        Assert.assertTrue(host2.hashCode() == host5.hashCode());
+        Assert.assertEquals(host2.hashCode(), host4.hashCode());
+        Assert.assertEquals(host2.hashCode(), host5.hashCode());
         Assert.assertTrue(host5.hashCode() != host6.hashCode());
-        Assert.assertTrue(host6.hashCode() == host7.hashCode());
+        Assert.assertEquals(host6.hashCode(), host7.hashCode());
     }
 
     @Test
@@ -86,13 +86,13 @@ public class TestURIAuthority {
         final URIAuthority host6 = new URIAuthority("user", "SomeHost", 80);
         final URIAuthority host7 = new URIAuthority("user", "somehost", 80);
 
-        Assert.assertTrue(host1.equals(host1));
-        Assert.assertFalse(host1.equals(host2));
-        Assert.assertFalse(host1.equals(host3));
-        Assert.assertTrue(host2.equals(host4));
-        Assert.assertTrue(host2.equals(host5));
-        Assert.assertFalse(host5.equals(host6));
-        Assert.assertTrue(host6.equals(host7));
+        Assert.assertEquals(host1, host1);
+        Assert.assertNotEquals(host1, host2);
+        Assert.assertNotEquals(host1, host3);
+        Assert.assertEquals(host2, host4);
+        Assert.assertEquals(host2, host5);
+        Assert.assertNotEquals(host5, host6);
+        Assert.assertEquals(host6, host7);
     }
 
     @Test

@@ -102,7 +102,7 @@ public class TestBasicMessages {
         Assert.assertEquals("Kind of OK", response.getReasonPhrase());
         response.setCode(299);
         Assert.assertEquals(299, response.getCode());
-        Assert.assertEquals(null, response.getReasonPhrase());
+        Assert.assertNull(response.getReasonPhrase());
     }
 
     @Test
@@ -117,7 +117,7 @@ public class TestBasicMessages {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "/stuff");
         Assert.assertEquals(Method.GET.name(), request.getMethod());
         Assert.assertEquals("/stuff", request.getPath());
-        Assert.assertEquals(null, request.getAuthority());
+        Assert.assertNull(request.getAuthority());
         Assert.assertEquals(new URI("/stuff"), request.getUri());
     }
 
@@ -126,7 +126,7 @@ public class TestBasicMessages {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("/stuff"));
         Assert.assertEquals(Method.GET.name(), request.getMethod());
         Assert.assertEquals("/stuff", request.getPath());
-        Assert.assertEquals(null, request.getAuthority());
+        Assert.assertNull(request.getAuthority());
         Assert.assertEquals(new URI("/stuff"), request.getUri());
     }
 

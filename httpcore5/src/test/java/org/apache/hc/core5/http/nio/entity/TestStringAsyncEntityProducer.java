@@ -47,7 +47,7 @@ public class TestStringAsyncEntityProducer {
 
         Assert.assertEquals(-1, producer.getContentLength());
         Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
-        Assert.assertEquals(null, producer.getContentEncoding());
+        Assert.assertNull(producer.getContentEncoding());
 
         final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
         final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
@@ -65,7 +65,7 @@ public class TestStringAsyncEntityProducer {
 
         Assert.assertEquals(-1, producer.getContentLength());
         Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
-        Assert.assertEquals(null, producer.getContentEncoding());
+        Assert.assertNull(producer.getContentEncoding());
 
         for (int i = 0; i < 3; i++) {
             final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);

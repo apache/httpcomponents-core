@@ -148,7 +148,7 @@ public class TestDefaultBHttpServerConnection {
         final HttpEntity entity = request.getEntity();
         Assert.assertNotNull(entity);
         Assert.assertEquals(-1, entity.getContentLength());
-        Assert.assertEquals(true, entity.isChunked());
+        Assert.assertTrue(entity.isChunked());
         Assert.assertEquals(1, conn.getEndpointDetails().getRequestCount());
         final InputStream content = entity.getContent();
         Assert.assertNotNull(content);

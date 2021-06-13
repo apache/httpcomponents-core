@@ -83,7 +83,7 @@ public class TestStandardInterceptors {
         final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
         Assert.assertEquals("close", header.getValue());
-        Assert.assertTrue(header == myheader);
+        Assert.assertSame(header, myheader);
     }
 
     @Test

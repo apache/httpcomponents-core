@@ -36,8 +36,8 @@ public class TestRegistry {
         final Registry<String> reg = RegistryBuilder.<String>create().register("Stuff", "Stuff").build();
         Assert.assertEquals("Stuff", reg.lookup("Stuff"));
         Assert.assertEquals("Stuff", reg.lookup("stuff"));
-        Assert.assertEquals(null, reg.lookup("miss"));
-        Assert.assertEquals(null, reg.lookup(null));
+        Assert.assertNull(reg.lookup("miss"));
+        Assert.assertNull(reg.lookup(null));
     }
 
 }

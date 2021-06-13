@@ -66,7 +66,7 @@ public class TestContentLengthInputStream {
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(16);
         final InputStream in1 = new ContentLengthInputStream(inBuffer1, inputStream1, 10L);
         Assert.assertEquals(10, in1.skip(10));
-        Assert.assertTrue(in1.read() == -1);
+        Assert.assertEquals(-1, in1.read());
         in1.close();
 
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(new byte[20]);
@@ -74,7 +74,7 @@ public class TestContentLengthInputStream {
         final InputStream in2 = new ContentLengthInputStream(inBuffer2, inputStream2, 10L);
         in2.read();
         Assert.assertEquals(9, in2.skip(10));
-        Assert.assertTrue(in2.read() == -1);
+        Assert.assertEquals(-1, in2.read());
         in2.close();
 
         final ByteArrayInputStream inputStream3 = new ByteArrayInputStream(new byte[20]);
@@ -83,8 +83,8 @@ public class TestContentLengthInputStream {
         in3.read();
         in3.read();
         Assert.assertTrue(in3.skip(10) <= 0);
-        Assert.assertTrue(in3.skip(-1) == 0);
-        Assert.assertTrue(in3.read() == -1);
+        Assert.assertEquals(0, in3.skip(-1));
+        Assert.assertEquals(-1, in3.read());
         in3.close();
 
         final ByteArrayInputStream inputStream4 = new ByteArrayInputStream(new byte[20]);

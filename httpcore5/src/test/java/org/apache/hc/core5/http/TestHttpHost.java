@@ -89,15 +89,15 @@ public class TestHttpHost {
         final HttpHost host11 = new HttpHost(
                         "http", InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80);
 
-        Assert.assertTrue(host1.hashCode() == host1.hashCode());
+        Assert.assertEquals(host1.hashCode(), host1.hashCode());
         Assert.assertTrue(host1.hashCode() != host2.hashCode());
         Assert.assertTrue(host1.hashCode() != host3.hashCode());
-        Assert.assertTrue(host2.hashCode() == host4.hashCode());
-        Assert.assertTrue(host2.hashCode() == host5.hashCode());
+        Assert.assertEquals(host2.hashCode(), host4.hashCode());
+        Assert.assertEquals(host2.hashCode(), host5.hashCode());
         Assert.assertTrue(host5.hashCode() != host6.hashCode());
         Assert.assertTrue(host7.hashCode() != host8.hashCode());
         Assert.assertTrue(host8.hashCode() != host9.hashCode());
-        Assert.assertTrue(host9.hashCode() == host10.hashCode());
+        Assert.assertEquals(host9.hashCode(), host10.hashCode());
         Assert.assertTrue(host10.hashCode() != host11.hashCode());
         Assert.assertTrue(host9.hashCode() != host11.hashCode());
     }
@@ -120,20 +120,20 @@ public class TestHttpHost {
         final HttpHost host11 = new HttpHost(
                         "http", InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80);
 
-        Assert.assertTrue(host1.equals(host1));
-        Assert.assertFalse(host1.equals(host2));
-        Assert.assertFalse(host1.equals(host3));
-        Assert.assertTrue(host2.equals(host4));
-        Assert.assertTrue(host2.equals(host5));
-        Assert.assertFalse(host5.equals(host6));
-        Assert.assertFalse(host7.equals(host8));
-        Assert.assertTrue(!host7.equals(host9));
-        Assert.assertFalse(host1.equals(null));
-        Assert.assertFalse(host1.equals("http://somehost"));
-        Assert.assertFalse(host9.equals("http://somehost"));
-        Assert.assertFalse(host8.equals(host9));
-        Assert.assertTrue(host9.equals(host10));
-        Assert.assertFalse(host9.equals(host11));
+        Assert.assertEquals(host1, host1);
+        Assert.assertNotEquals(host1, host2);
+        Assert.assertNotEquals(host1, host3);
+        Assert.assertEquals(host2, host4);
+        Assert.assertEquals(host2, host5);
+        Assert.assertNotEquals(host5, host6);
+        Assert.assertNotEquals(host7, host8);
+        Assert.assertFalse(host7.equals(host9));
+        Assert.assertNotEquals(null, host1);
+        Assert.assertNotEquals("http://somehost", host1);
+        Assert.assertNotEquals("http://somehost", host9);
+        Assert.assertNotEquals(host8, host9);
+        Assert.assertEquals(host9, host10);
+        Assert.assertNotEquals(host9, host11);
     }
 
     @Test

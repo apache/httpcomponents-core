@@ -65,7 +65,7 @@ public class TestChunkDecoder {
         Assert.assertEquals(16, bytesRead);
         Assert.assertEquals("0123456789abcdef", CodecTestUtils.convert(dst));
         final List<? extends Header> trailers = decoder.getTrailers();
-        Assert.assertEquals(null, trailers);
+        Assert.assertNull(trailers);
 
         dst.clear();
         bytesRead = decoder.read(dst);

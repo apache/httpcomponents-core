@@ -102,26 +102,26 @@ public class TestContentType {
         Assert.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
         Assert.assertEquals("text/plain; charset=ascii; p0; p1=blah-blah; p2=\" yada yada \"",
                 contentType.toString());
-        Assert.assertEquals(null, contentType.getParameter("p0"));
+        Assert.assertNull(contentType.getParameter("p0"));
         Assert.assertEquals("blah-blah", contentType.getParameter("p1"));
         Assert.assertEquals(" yada yada ", contentType.getParameter("p2"));
-        Assert.assertEquals(null, contentType.getParameter("p3"));
+        Assert.assertNull(contentType.getParameter("p3"));
     }
 
     @Test
     public void testParseEmptyCharset() throws Exception {
         final ContentType contentType = ContentType.parse("text/plain; charset=\" \"");
         Assert.assertEquals("text/plain", contentType.getMimeType());
-        Assert.assertEquals(null, contentType.getCharset());
+        Assert.assertNull(contentType.getCharset());
     }
 
     @Test
     public void testParseEmptyValue() throws Exception {
-        Assert.assertEquals(null, ContentType.parse(null));
-        Assert.assertEquals(null, ContentType.parse(""));
-        Assert.assertEquals(null, ContentType.parse("   "));
-        Assert.assertEquals(null, ContentType.parse(";"));
-        Assert.assertEquals(null, ContentType.parse("="));
+        Assert.assertNull(ContentType.parse(null));
+        Assert.assertNull(ContentType.parse(""));
+        Assert.assertNull(ContentType.parse("   "));
+        Assert.assertNull(ContentType.parse(";"));
+        Assert.assertNull(ContentType.parse("="));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class TestContentType {
         contentType = ContentType.create("text/blah").withParameters(
                 new BasicNameValuePair("p", "blah"));
         Assert.assertEquals("text/blah", contentType.getMimeType());
-        Assert.assertEquals(null, contentType.getCharset());
+        Assert.assertNull(contentType.getCharset());
         Assert.assertEquals("text/blah; p=blah", contentType.toString());
 
         contentType = ContentType.create("text/blah", StandardCharsets.ISO_8859_1).withParameters(

@@ -60,10 +60,10 @@ public class TestHost {
         final Host host3 = new Host("someotherhost", 8080);
         final Host host4 = new Host("somehost", 80);
 
-        Assert.assertTrue(host1.hashCode() == host1.hashCode());
+        Assert.assertEquals(host1.hashCode(), host1.hashCode());
         Assert.assertTrue(host1.hashCode() != host2.hashCode());
         Assert.assertTrue(host1.hashCode() != host3.hashCode());
-        Assert.assertTrue(host2.hashCode() == host4.hashCode());
+        Assert.assertEquals(host2.hashCode(), host4.hashCode());
     }
 
     @Test
@@ -73,10 +73,10 @@ public class TestHost {
         final Host host3 = new Host("someotherhost", 8080);
         final Host host4 = new Host("somehost", 80);
 
-        Assert.assertTrue(host1.equals(host1));
-        Assert.assertFalse(host1.equals(host2));
-        Assert.assertFalse(host1.equals(host3));
-        Assert.assertTrue(host2.equals(host4));
+        Assert.assertEquals(host1, host1);
+        Assert.assertNotEquals(host1, host2);
+        Assert.assertNotEquals(host1, host3);
+        Assert.assertEquals(host2, host4);
     }
 
     @Test

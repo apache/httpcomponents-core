@@ -61,14 +61,14 @@ public class TestNameValuePair {
     public void testNullNotEqual() throws Exception {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
 
-        Assert.assertFalse(NameValuePair.equals(null));
+        Assert.assertNotEquals(null, NameValuePair);
     }
 
     @Test
     public void testObjectNotEqual() throws Exception {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
 
-        Assert.assertFalse(NameValuePair.equals(new Object()));
+        Assert.assertNotEquals(NameValuePair, new Object());
     }
 
     @Test

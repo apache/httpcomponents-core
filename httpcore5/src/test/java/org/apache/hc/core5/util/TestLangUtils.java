@@ -41,14 +41,14 @@ public class TestLangUtils {
         final Integer i = Integer.valueOf(1234);
         final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, i.hashCode());
         final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, i);
-        Assert.assertTrue(h1 == h2);
+        Assert.assertEquals(h1, h2);
     }
 
     @Test
     public void testNullObjectHash() {
         final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, null);
         final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, 0);
-        Assert.assertTrue(h1 == h2);
+        Assert.assertEquals(h1, h2);
     }
 
     @Test
@@ -58,8 +58,8 @@ public class TestLangUtils {
         final int h3 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
         final int h4 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
         Assert.assertTrue(h1 != h2);
-        Assert.assertTrue(h1 == h3);
-        Assert.assertTrue(h2 == h4);
+        Assert.assertEquals(h1, h3);
+        Assert.assertEquals(h2, h4);
     }
 
     @Test
