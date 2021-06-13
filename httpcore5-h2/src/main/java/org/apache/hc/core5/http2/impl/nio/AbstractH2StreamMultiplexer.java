@@ -227,13 +227,12 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         return newSize;
     }
 
-    private int updateOutputWindow(
+    private void updateOutputWindow(
             final int streamId, final AtomicInteger window, final int delta) throws ArithmeticException {
         final int newSize = updateWindow(window, delta);
         if (streamListener != null) {
             streamListener.onOutputFlowControl(this, streamId, delta, newSize);
         }
-        return newSize;
     }
 
     private void commitFrameInternal(final RawFrame frame) throws IOException {

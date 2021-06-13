@@ -461,7 +461,7 @@ public class SSLIOSession implements IOSession {
         }
     }
 
-    private int sendEncryptedData() throws IOException {
+    private void sendEncryptedData() throws IOException {
         this.session.getLock().lock();
         try {
             if (!this.outEncrypted.hasData()) {
@@ -469,7 +469,8 @@ public class SSLIOSession implements IOSession {
                 // This will ensure that tests performed by write() still take place without
                 // having to acquire and release an empty buffer (e.g. connection closed,
                 // interrupted thread, etc..)
-                return this.session.write(EMPTY_BUFFER);
+                this.session.write(EMPTY_BUFFER);
+                return;
             }
 
             // Acquire buffer
@@ -496,15 +497,14 @@ public class SSLIOSession implements IOSession {
             if (outEncryptedBuf.position() == 0) {
                 this.outEncrypted.release();
             }
-            return bytesWritten;
         } finally {
             this.session.getLock().unlock();
         }
     }
 
-    private int receiveEncryptedData() throws IOException {
+    private void receiveEncryptedData() throws IOException {
         if (this.endOfStream) {
-            return -1;
+            return;
         }
 
         // Acquire buffer
@@ -520,7 +520,6 @@ public class SSLIOSession implements IOSession {
         if (bytesRead == -1) {
             this.endOfStream = true;
         }
-        return bytesRead;
     }
 
     private void decryptData(final IOSession protocolSession) throws IOException {
