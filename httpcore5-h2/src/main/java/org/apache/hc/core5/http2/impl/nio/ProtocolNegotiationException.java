@@ -37,6 +37,13 @@ import java.io.IOException;
 public class ProtocolNegotiationException extends IOException {
 
     /**
+     * Required for serialization support.
+     *
+     * @see java.io.Serializable
+     */
+    private static final long serialVersionUID = 6211774735704945037L;
+
+    /**
      * Creates a MessageConstraintException with the specified detail message.
      *
      * @param message The exception detail message
