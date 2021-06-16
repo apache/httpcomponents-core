@@ -34,6 +34,13 @@ import java.io.IOException;
  */
 class ResponseOutOfOrderException extends IOException {
 
+    /**
+     * Required for serialization support.
+     *
+     * @see java.io.Serializable
+     */
+    private static final long serialVersionUID = 7802054516041674757L;
+
     public ResponseOutOfOrderException() {
         super();
     }
