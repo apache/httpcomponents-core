@@ -73,7 +73,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     private final DisposalCallback<C> disposalCallback;
     private final ConnPoolListener<T> connPoolListener;
     private final Map<T, PerRoutePool<T, C>> routeToPool;
-    private final LinkedList<LeaseRequest<T, C>> leasingRequests;
+    private final LinkedList<LeaseRequest<T, C>> pendingRequests;
     private final Set<PoolEntry<T, C>> leased;
     private final LinkedList<PoolEntry<T, C>> available;
     private final ConcurrentLinkedQueue<LeaseRequest<T, C>> completedRequests;
@@ -102,7 +102,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         this.disposalCallback = disposalCallback;
         this.connPoolListener = connPoolListener;
         this.routeToPool = new HashMap<>();
-        this.leasingRequests = new LinkedList<>();
+        this.pendingRequests = new LinkedList<>();
         this.leased = new HashSet<>();
         this.available = new LinkedList<>();
         this.completedRequests = new ConcurrentLinkedQueue<>();
@@ -145,7 +145,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
                 this.routeToPool.clear();
                 this.leased.clear();
                 this.available.clear();
-                this.leasingRequests.clear();
+                this.pendingRequests.clear();
             } finally {
                 this.lock.unlock();
             }
@@ -204,7 +204,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
                 final LeaseRequest<T, C> request = new LeaseRequest<>(route, state, requestTimeout, future);
                 final boolean completed = processPendingRequest(request);
                 if (!request.isDone() && !completed) {
-                    this.leasingRequests.add(request);
+                    this.pendingRequests.add(request);
                 }
                 if (request.isDone()) {
                     this.completedRequests.add(request);
@@ -269,7 +269,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     }
 
     private void processPendingRequests() {
-        final ListIterator<LeaseRequest<T, C>> it = this.leasingRequests.listIterator();
+        final ListIterator<LeaseRequest<T, C>> it = this.pendingRequests.listIterator();
         while (it.hasNext()) {
             final LeaseRequest<T, C> request = it.next();
             final BasicFuture<PoolEntry<T, C>> future = request.getFuture();
@@ -288,7 +288,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     }
 
     private void processNextPendingRequest() {
-        final ListIterator<LeaseRequest<T, C>> it = this.leasingRequests.listIterator();
+        final ListIterator<LeaseRequest<T, C>> it = this.pendingRequests.listIterator();
         while (it.hasNext()) {
             final LeaseRequest<T, C> request = it.next();
             final BasicFuture<PoolEntry<T, C>> future = request.getFuture();
@@ -412,7 +412,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         this.lock.lock();
         try {
             final long now = System.currentTimeMillis();
-            final ListIterator<LeaseRequest<T, C>> it = this.leasingRequests.listIterator();
+            final ListIterator<LeaseRequest<T, C>> it = this.pendingRequests.listIterator();
             while (it.hasNext()) {
                 final LeaseRequest<T, C> request = it.next();
                 final BasicFuture<PoolEntry<T, C>> future = request.getFuture();
@@ -517,7 +517,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         try {
             return new PoolStats(
                     this.leased.size(),
-                    this.leasingRequests.size(),
+                    this.pendingRequests.size(),
                     this.available.size(),
                     this.maxTotal);
         } finally {
@@ -532,7 +532,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         try {
             final PerRoutePool<T, C> pool = getPool(route);
             int pendingCount = 0;
-            for (final LeaseRequest<T, C> request: leasingRequests) {
+            for (final LeaseRequest<T, C> request: pendingRequests) {
                 if (LangUtils.equals(route, request.getRoute())) {
                     pendingCount++;
                 }
@@ -645,7 +645,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         buffer.append("][available: ");
         buffer.append(this.available.size());
         buffer.append("][pending: ");
-        buffer.append(this.leasingRequests.size());
+        buffer.append(this.pendingRequests.size());
         buffer.append("]");
         return buffer.toString();
     }
