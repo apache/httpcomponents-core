@@ -699,14 +699,18 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         }
 
         public void failed(final Exception ex) {
-            if (this.completed.compareAndSet(false, true)) {
-                this.ex = ex;
+            synchronized (this.completed) {
+                if (this.completed.compareAndSet(false, true)) {
+                    this.ex = ex;
+                }
             }
         }
 
         public void completed(final PoolEntry<T, C> result) {
-            if (this.completed.compareAndSet(false, true)) {
-                this.result = result;
+            synchronized (this.completed) {
+                if (this.completed.compareAndSet(false, true)) {
+                    this.result = result;
+                }
             }
         }
 
@@ -715,11 +719,15 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         }
 
         public PoolEntry<T, C> getResult() {
-            return this.result;
+            synchronized (this.completed) {
+                return this.result;
+            }
         }
 
         public Exception getException() {
-            return this.ex;
+            synchronized (this.completed) {
+                return this.ex;
+            }
         }
 
         @Override
