@@ -657,6 +657,8 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         private final Object state;
         private final Deadline deadline;
         private final BasicFuture<PoolEntry<T, C>> future;
+        // 'completed' is used internally to guard setting
+        // 'result' and 'ex', but mustn't be used by 'isDone()'.
         private final AtomicBoolean completed;
         private volatile PoolEntry<T, C> result;
         private volatile Exception ex;
@@ -695,7 +697,10 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         }
 
         public boolean isDone() {
-            return this.completed.get();
+            // This method must not use 'completed.get()' which would result in a race
+            // where a caller may observe completed=true while neither result nor ex
+            // have been set yet.
+            return ex != null || result != null;
         }
 
         public void failed(final Exception ex) {
