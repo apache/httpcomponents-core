@@ -27,6 +27,22 @@
 
 package org.apache.http.ssl;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,6 +53,7 @@ import java.net.URL;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.Principal;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
@@ -53,29 +70,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLHandshakeException;
-import javax.net.ssl.SSLPeerUnverifiedException;
-import javax.net.ssl.SSLServerSocket;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManagerFactory;
-
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
 /**
  * Unit tests for {@link org.apache.http.ssl.SSLContextBuilder}.
  */
 public class TestSSLContextBuilder {
 
-    private static final String PROVIDER_SUN_JSSE = "SunJSSE";
+    static final String PROVIDER_SUN_JSSE = "SunJSSE";
+    static final String PROVIDER_SUN_JCE = "SunJCE";
 
     private static boolean isWindows() {
         return System.getProperty("os.name").contains("Windows");
@@ -723,27 +724,116 @@ public class TestSSLContextBuilder {
     }
 
     @Test
+    public void testBuildKSWithNoSuchProvider() throws Exception {
+        thrown.expect(NoSuchProviderException.class);
+        SSLContextBuilder.create()
+                .setKeyStoreProvider("no-such-provider")
+                .build();
+    }
+
+    @Test
+    public void testBuildKSWithProvider() throws Exception {
+        final URL resource1 = getResource("/test-server.keystore");
+        final String storePassword = "nopassword";
+        final String keyPassword = "nopassword";
+        final DummyProvider provider = new DummyProvider();
+        SSLContextBuilder.create()
+                .setKeyStoreProvider(provider)
+                .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
+                .build();
+        Assert.assertTrue(provider.hasBeenRequested("KeyManagerFactory"));
+    }
+
+    @Test
+    public void testBuildKSWithProviderName() throws Exception {
+
+        final DummyProvider provider = new DummyProvider();
+        Security.insertProviderAt(provider, 1);
+        try {
+
+            final URL resource1 = getResource("/test-server.keystore");
+            final String storePassword = "nopassword";
+            final String keyPassword = "nopassword";
+            SSLContextBuilder.create()
+                    .setKeyStoreProvider(DummyProvider.NAME)
+                    .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
+                    .build();
+            Assert.assertTrue(provider.hasBeenRequested("KeyManagerFactory"));
+
+        } finally {
+            Security.removeProvider(DummyProvider.NAME);
+        }
+    }
+
+    @Test
+    public void testBuildTSWithNoSuchProvider() throws Exception {
+        thrown.expect(NoSuchProviderException.class);
+        SSLContextBuilder.create()
+                .setTrustStoreProvider("no-such-provider")
+                .build();
+    }
+
+    @Test
+    public void testBuildTSWithProvider() throws Exception {
+        final DummyProvider provider = new DummyProvider();
+        SSLContextBuilder.create()
+                .setTrustStoreProvider(provider)
+                .loadTrustMaterial((KeyStore) null, null)
+                .build();
+        Assert.assertTrue(provider.hasBeenRequested("TrustManagerFactory"));
+    }
+
+    @Test
+    public void testBuildTSWithProviderName() throws Exception {
+
+        final DummyProvider provider = new DummyProvider();
+        Security.insertProviderAt(provider, 1);
+        try {
+
+            SSLContextBuilder.create()
+                    .setTrustStoreProvider(DummyProvider.NAME)
+                    .loadTrustMaterial((KeyStore) null, null)
+                    .build();
+            Assert.assertTrue(provider.hasBeenRequested("TrustManagerFactory"));
+
+        } finally {
+            Security.removeProvider(DummyProvider.NAME);
+        }
+    }
+
+
+    @Test
     public void testBuildWithProvider() throws Exception {
         final URL resource1 = getResource("/test-server.keystore");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
-        final SSLContext sslContext=SSLContextBuilder.create()
-                .setProvider(Security.getProvider(PROVIDER_SUN_JSSE))
+        final DummyProvider provider = new DummyProvider();
+        SSLContextBuilder.create()
+                .setProvider(provider)
                 .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
                 .build();
-        Assert.assertEquals(PROVIDER_SUN_JSSE,  sslContext.getProvider().getName());
+        Assert.assertTrue(provider.hasBeenRequested("SSLContext"));
     }
 
     @Test
     public void testBuildWithProviderName() throws Exception {
-        final URL resource1 = getResource("/test-server.keystore");
-        final String storePassword = "nopassword";
-        final String keyPassword = "nopassword";
-        final SSLContext sslContext=SSLContextBuilder.create()
-                .setProvider(PROVIDER_SUN_JSSE)
-                .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
-                .build();
-        Assert.assertEquals(PROVIDER_SUN_JSSE,  sslContext.getProvider().getName());
+
+        final DummyProvider provider = new DummyProvider();
+        Security.insertProviderAt(provider, 1);
+        try {
+
+            final URL resource1 = getResource("/test-server.keystore");
+            final String storePassword = "nopassword";
+            final String keyPassword = "nopassword";
+            SSLContextBuilder.create()
+                    .setProvider(DummyProvider.NAME)
+                    .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
+                    .build();
+            Assert.assertTrue(provider.hasBeenRequested("SSLContext"));
+
+        } finally {
+            Security.removeProvider(DummyProvider.NAME);
+        }
     }
 
 }

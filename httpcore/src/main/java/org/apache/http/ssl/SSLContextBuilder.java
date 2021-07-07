@@ -37,6 +37,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.Provider;
@@ -89,6 +90,8 @@ public class SSLContextBuilder {
     private String trustManagerFactoryAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
     private SecureRandom secureRandom;
     private Provider provider;
+    private Provider tsProvider;
+    private Provider ksProvider;
 
     public static SSLContextBuilder create() {
         return new SSLContextBuilder();
@@ -156,6 +159,32 @@ public class SSLContextBuilder {
         return this;
     }
 
+    public SSLContextBuilder setTrustStoreProvider(final Provider provider) {
+        this.tsProvider = provider;
+        return this;
+    }
+
+    public SSLContextBuilder setTrustStoreProvider(final String name) throws NoSuchProviderException {
+        this.tsProvider = Security.getProvider(name);
+        if (this.tsProvider == null) {
+            throw new NoSuchProviderException(name);
+        }
+        return this;
+    }
+
+    public SSLContextBuilder setKeyStoreProvider(final Provider provider) {
+        this.ksProvider = provider;
+        return this;
+    }
+
+    public SSLContextBuilder setKeyStoreProvider(final String name) throws NoSuchProviderException {
+        this.ksProvider = Security.getProvider(name);
+        if (this.ksProvider == null) {
+            throw new NoSuchProviderException(name);
+        }
+        return this;
+    }
+
     /**
      * Sets the key store type.
      *
@@ -219,11 +248,15 @@ public class SSLContextBuilder {
     public SSLContextBuilder loadTrustMaterial(
             final KeyStore truststore,
             final TrustStrategy trustStrategy) throws NoSuchAlgorithmException, KeyStoreException {
-        final TrustManagerFactory tmfactory = TrustManagerFactory
-                .getInstance(trustManagerFactoryAlgorithm == null ? TrustManagerFactory.getDefaultAlgorithm()
-                        : trustManagerFactoryAlgorithm);
-        tmfactory.init(truststore);
-        final TrustManager[] tms = tmfactory.getTrustManagers();
+
+        final String alg = trustManagerFactoryAlgorithm == null ?
+                TrustManagerFactory.getDefaultAlgorithm() : trustManagerFactoryAlgorithm;
+
+        final TrustManagerFactory tmFactory = tsProvider == null ?
+                TrustManagerFactory.getInstance(alg) : TrustManagerFactory.getInstance(alg, tsProvider);
+
+        tmFactory.init(truststore);
+        final TrustManager[] tms = tmFactory.getTrustManagers();
         if (tms != null) {
             if (trustStrategy != null) {
                 for (int i = 0; i < tms.length; i++) {
@@ -295,11 +328,15 @@ public class SSLContextBuilder {
             final char[] keyPassword,
             final PrivateKeyStrategy aliasStrategy)
             throws NoSuchAlgorithmException, KeyStoreException, UnrecoverableKeyException {
-        final KeyManagerFactory kmfactory = KeyManagerFactory
-                .getInstance(keyManagerFactoryAlgorithm == null ? KeyManagerFactory.getDefaultAlgorithm()
-                        : keyManagerFactoryAlgorithm);
-        kmfactory.init(keystore, keyPassword);
-        final KeyManager[] kms = kmfactory.getKeyManagers();
+
+        final String alg = keyManagerFactoryAlgorithm == null ?
+                KeyManagerFactory.getDefaultAlgorithm() : keyManagerFactoryAlgorithm;
+
+        final KeyManagerFactory kmFactory = ksProvider == null ?
+                KeyManagerFactory.getInstance(alg) : KeyManagerFactory.getInstance(alg, ksProvider);
+
+        kmFactory.init(keystore, keyPassword);
+        final KeyManager[] kms = kmFactory.getKeyManagers();
         if (kms != null) {
             if (aliasStrategy != null) {
                 for (int i = 0; i < kms.length; i++) {
