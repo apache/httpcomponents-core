@@ -51,7 +51,7 @@ import org.apache.hc.core5.util.TimeValue;
 public interface IOReactor extends ModalCloseable {
 
     /**
-     * Shuts down the I/O reactor either gracefully or immediately.
+     * Closes the I/O reactor either gracefully or immediately.
      * During graceful shutdown individual I/O sessions should be
      * informed about imminent termination and be given a grace period
      * to complete the ongoing I/O sessions. During immediate shutdown

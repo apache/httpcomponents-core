@@ -35,6 +35,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 class MultiCoreIOReactor implements IOReactor {
 
@@ -109,10 +110,24 @@ class MultiCoreIOReactor implements IOReactor {
 
     @Override
     public final void close(final CloseMode closeMode) {
+        close(closeMode, Timeout.ofSeconds(5));
+    }
+
+    /**
+     * Closes the IO reactor either gracefully or immediately. During graceful
+     * shutdown individual I/O sessions should be informed about imminent
+     * termination and be given a grace period to complete the ongoing I/O sessions.
+     * During immediate shutdown all ongoing IO sessions get aborted immediately.
+     *
+     * @param closeMode How to close the IO reactor.
+     * @param timeout  How long to wait for the IO reactor to close gracefully.
+     * @since 5.1.2
+     */
+    public void close(final CloseMode closeMode, final Timeout timeout) {
         if (closeMode == CloseMode.GRACEFUL) {
             initiateShutdown();
             try {
-                awaitShutdown(TimeValue.ofSeconds(5));
+                awaitShutdown(timeout);
             } catch (final InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
