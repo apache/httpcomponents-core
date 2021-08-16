@@ -34,9 +34,14 @@ install: skip
 script: mvn verify -B -P docker
 
 jobs:
+  fast_finish: true
   include:
     - name: arm64
       arch: arm64
       script: mvn verify -B
   allow_failures:
     - jdk: openjdk-ea
+
+cache:
+  directories:
+  - $HOME/.m2
