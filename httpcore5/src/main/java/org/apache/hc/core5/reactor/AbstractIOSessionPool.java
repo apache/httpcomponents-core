@@ -187,6 +187,9 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                 callback.completed(poolEntry.session);
             } else {
                 poolEntry.requestQueue.add(callback);
+                if (poolEntry.sessionFuture != null && poolEntry.sessionFuture.isDone()) {
+                    poolEntry.sessionFuture = null;
+                }
                 if (poolEntry.sessionFuture == null) {
                     poolEntry.sessionFuture = connectSession(
                             namedEndpoint,
@@ -197,7 +200,6 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                                 public void completed(final IOSession result) {
                                     synchronized (poolEntry) {
                                         poolEntry.session = result;
-                                        poolEntry.sessionFuture = null;
                                         for (;;) {
                                             final FutureCallback<IOSession> callback = poolEntry.requestQueue.poll();
                                             if (callback != null) {
@@ -213,7 +215,6 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                                 public void failed(final Exception ex) {
                                     synchronized (poolEntry) {
                                         poolEntry.session = null;
-                                        poolEntry.sessionFuture = null;
                                         for (;;) {
                                             final FutureCallback<IOSession> callback = poolEntry.requestQueue.poll();
                                             if (callback != null) {
