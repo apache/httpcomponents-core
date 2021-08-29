@@ -1,16 +1,104 @@
 Release 5.2 ALPHA1
 ------------------
 
-This is the first ALPHA release in the 5.2 release series that includes a number of
-new features as well as bug fixes from the stable 5.0.x and 5.1.x branches.
+This is the first ALPHA release in the 5.2 release series that upgrades minimal JRE
+level to version 1.8 (8u251 is required) and includes several protocol level and
+API improvements. It also includes all bug fixes from the 5.1 branch.
 
-* Let TimeValue/Timeout convert to and from Duration. #263.
+Notable changes and features included in the 5.2 series:
+
+* Upgrade to Java 1.8.
+
+* Improved support for TLS upgrade and HTTP protocol upgrade (async).
+
+* Improved customization of HTTP listeners (async).
+
+* Improved parsing and formatting of URI components.
+
+
+Change Log
+-------------------
+
+* Improved Travis CI build Performance.
+  Contributed by Chen Zhang <340355960 at qq.com>
+
+* HTTPCORE-682: Custom provider for key manager/trust manager initialization (#296)
+  Contributed by Pawel Veselov <pawel.veselov at gmail.com>
+
+* Bug fix: fix data race in StrictConnPool.
+  Contributed by Carter Kozak <ckozak at apache.org>
+
+* Added utility method to add name value pair for uri builder (#288).
+  Contributed by Anurag Agarwal <anurag.agarwal561994 at gmail.com>
+
+* Use jep244 (ALPN support) back-ported to java 8u251.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Don't change conn flow control window based on remote SETTINGS.
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+* HTTPCLIENT-1916: Add URIBuilder.removeParameter (#283).
+  Contributed by Peter Dettman <peter.dettman at bouncycastle.org>
+
+* Improved parsing and formatting of URI components.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Let TimeValue/Timeout convert to and from Duration (#263).
   Contributed by Gary Gregory <garydgregory at gmail.com>
 
-* Add URIBuilder#getFirstQueryParam(String) to query a parameter by name. #264.
+* Add URIBuilder#getFirstQueryParam(String) to query a parameter by name (#264).
   Contributed by Gary Gregory <garydgregory at gmail.com>
 
-* Bug fix: TextUtils.toHexString(byte[]) returned wrong result for negative byte values
+* Protocol upgrade APIs redesign.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* TLS upgrade and TLS strategy APIs redesign.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Added default `ConnectionAcceptor#listen` method that takes an optional attachment
+  as a parameter.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Upgrade to Java 1.8.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
+Release 5.1.1
+------------------
+
+This is a maintenance release that corrects a number of defects discovered since release 5.1
+including a major defect that can cause a connection pool resource leak.
+
+
+Change Log
+-------------------
+
+* HTTPCORE-676: Fixed incorrect handling of TLS renegotiation by non-blocking i/o sessions.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-616: Make URI authority parsing IPv6 ready.
+  Contributed by Carter Kozak <ckozak at apache.org>
+
+* Improved parsing and formatting of URI components.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-673: Fixed incorrect handling of unknown parameters in HTTP/2 SETTINGS frame.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-671: URIBuilder does not precent-encode bracketed IPv6 addresses.
+  Contributed by Carter Kozak <ckozak at apache.org>
+
+* HTTPCORE-672: H2ConnPool incorrectly handles validation of closed sessions.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed race condition when a connection request completes successfully and times out
+  at the same time causing a pool entry leak.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Fixed TextUtils#toHexString producing incorrect result for negative values.
+  Contributed by Marcono1234 <Marcono1234 at users.noreply.github.com>
+
 
 Release 5.1
 -----------
