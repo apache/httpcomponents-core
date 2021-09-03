@@ -140,6 +140,14 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         return ioSession.getId();
     }
 
+    boolean isActive() {
+        return connState == ConnectionState.ACTIVE;
+    }
+
+    boolean isShuttingDown() {
+        return connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0;
+    }
+
     void shutdownSession(final CloseMode closeMode) {
         if (closeMode == CloseMode.GRACEFUL) {
             connState = ConnectionState.GRACEFUL_SHUTDOWN;
