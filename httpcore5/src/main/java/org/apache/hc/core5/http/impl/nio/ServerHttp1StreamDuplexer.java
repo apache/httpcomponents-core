@@ -393,6 +393,9 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
             incoming = null;
         }
+        if (isShuttingDown() && outputIdle() && inputIdle()) {
+            shutdownSession(CloseMode.IMMEDIATE);
+        }
     }
 
     @Override
@@ -423,7 +426,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             }
             outgoing = null;
         }
-        if (outgoing == null && isOpen()) {
+        if (outgoing == null && isActive()) {
             final ServerHttp1StreamHandler handler = pipeline.poll();
             if (handler != null) {
                 outgoing = handler;
@@ -432,6 +435,9 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                     handler.produceOutput();
                 }
             }
+        }
+        if (isShuttingDown() && outputIdle() && inputIdle()) {
+            shutdownSession(CloseMode.IMMEDIATE);
         }
     }
 

@@ -114,6 +114,7 @@ import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.nio.support.BasicResponseProducer;
+import org.apache.hc.core5.http.nio.support.ImmediateResponseExchangeHandler;
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityConsumer;
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicEntityProducer;
 import org.apache.hc.core5.http.nio.support.classic.AbstractClassicServerExchangeHandler;
@@ -270,19 +271,106 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
 
         client.start();
-        final Future<ClientSessionEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), TIMEOUT);
-        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
 
-        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result);
-        final HttpResponse response = result.getHead();
-        final String entity = result.getBody();
-        Assert.assertNotNull(response);
-        Assert.assertEquals(200, response.getCode());
-        Assert.assertEquals("Hi there", entity);
+        final int reqNo = 5;
+
+        for (int i = 0; i < reqNo; i++) {
+            final Future<ClientSessionEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), TIMEOUT);
+            final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+            final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                    new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+
+            streamEndpoint.close();
+
+            Assert.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            final String entity = result.getBody();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(200, response.getCode());
+            Assert.assertEquals("Hi there", entity);
+        }
+
+    }
+
+    @Test
+    public void testPostIdentityTransfer() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new SingleLineResponseHandler("Hi there");
+            }
+
+        });
+        final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
+        final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
+
+        client.start();
+
+        final int reqNo = 5;
+
+        for (int i = 0; i < reqNo; i++) {
+            final Future<ClientSessionEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), TIMEOUT);
+            final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+            final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                    new BasicRequestProducer(Method.POST,
+                            createRequestURI(serverEndpoint, "/hello"),
+                            new MultiLineEntityProducer("Hello", 16 * i)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+
+            streamEndpoint.close();
+
+            Assert.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            final String entity = result.getBody();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(200, response.getCode());
+            Assert.assertEquals("Hi there", entity);
+        }
+    }
+
+    @Test
+    public void testPostIdentityTransferOutOfSequenceResponse() throws Exception {
+        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+
+            @Override
+            public AsyncServerExchangeHandler get() {
+                return new ImmediateResponseExchangeHandler(500, "Go away");
+            }
+
+        });
+        final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
+        final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
+
+        client.start();
+
+        final int reqNo = 5;
+
+        for (int i = 0; i < reqNo; i++) {
+            final Future<ClientSessionEndpoint> connectFuture = client.connect("localhost", serverEndpoint.getPort(), TIMEOUT);
+            final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+            final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                    new BasicRequestProducer(Method.POST,
+                            createRequestURI(serverEndpoint, "/hello"),
+                            new MultiLineEntityProducer("Hello", 16 * i)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+
+            streamEndpoint.close();
+
+            Assert.assertNotNull(result);
+            final HttpResponse response = result.getHead();
+            final String entity = result.getBody();
+            Assert.assertNotNull(response);
+            Assert.assertEquals(500, response.getCode());
+            Assert.assertEquals("Go away", entity);
+        }
     }
 
     @Test
