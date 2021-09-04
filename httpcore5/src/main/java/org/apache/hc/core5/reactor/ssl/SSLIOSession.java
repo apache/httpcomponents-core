@@ -569,6 +569,9 @@ public class SSLIOSession implements IOSession {
                 }
             }
         }
+        if (endOfStream && !inEncrypted.hasData()) {
+            ensureHandler().inputReady(protocolSession, null);
+        }
     }
 
     private void encryptData(final IOSession protocolSession) throws IOException {
