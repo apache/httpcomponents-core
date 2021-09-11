@@ -811,7 +811,7 @@ public class URIBuilder {
     }
 
     public List<String> getPathSegments() {
-        return this.pathSegments != null ? new ArrayList<>(this.pathSegments) : Collections.<String>emptyList();
+        return this.pathSegments != null ? new ArrayList<>(this.pathSegments) : new ArrayList<String>();
     }
 
     public String getPath() {
@@ -830,7 +830,7 @@ public class URIBuilder {
     }
 
     public List<NameValuePair> getQueryParams() {
-        return this.queryParams != null ? new ArrayList<>(this.queryParams) : Collections.<NameValuePair>emptyList();
+        return this.queryParams != null ? new ArrayList<>(this.queryParams) : new ArrayList<NameValuePair>();
     }
 
     public String getFragment() {
