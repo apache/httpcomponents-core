@@ -570,9 +570,12 @@ public class URIBuilder {
      */
     public URIBuilder appendPathSegments(final List<String> pathSegments) {
         if (pathSegments != null && !pathSegments.isEmpty()) {
-            final List<String> segments = new ArrayList<>(getPathSegments());
-            segments.addAll(pathSegments);
-            setPathSegments(segments);
+            if (this.pathSegments == null) {
+                this.pathSegments = new ArrayList<>();
+            }
+            this.pathSegments.addAll(pathSegments);
+            this.encodedSchemeSpecificPart = null;
+            this.encodedPath = null;
         }
         return this;
     }
