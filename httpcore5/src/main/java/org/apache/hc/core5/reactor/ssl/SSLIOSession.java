@@ -48,8 +48,10 @@ import javax.net.ssl.SSLSession;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.EventMask;
@@ -84,7 +86,8 @@ public class SSLIOSession implements IOSession {
     private final SSLSessionVerifier verifier;
     private final Callback<SSLIOSession> sessionStartCallback;
     private final Callback<SSLIOSession> sessionEndCallback;
-    private final Timeout connectTimeout;
+    private final AtomicReference<FutureCallback<SSLSession>> handshakeCallbackRef;
+    private final Timeout handshakeTimeout;
     private final SSLMode sslMode;
     private final AtomicInteger outboundClosedCount;
     private final AtomicReference<TLSHandShakeState> handshakeStateRef;
@@ -122,6 +125,37 @@ public class SSLIOSession implements IOSession {
             final Callback<SSLIOSession> sessionStartCallback,
             final Callback<SSLIOSession> sessionEndCallback,
             final Timeout connectTimeout) {
+        this(targetEndpoint, session, sslMode, sslContext, sslBufferMode, initializer, verifier, connectTimeout,
+                sessionStartCallback, sessionEndCallback, null);
+    }
+
+    /**
+     * Creates new instance of {@code SSLIOSession} class.
+     *
+     * @param session I/O session to be decorated with the TLS/SSL capabilities.
+     * @param sslMode SSL mode (client or server)
+     * @param targetEndpoint target endpoint (applicable in client mode only). May be {@code null}.
+     * @param sslContext SSL context to use for this I/O session.
+     * @param sslBufferMode buffer management mode
+     * @param initializer optional SSL session initializer. May be {@code null}.
+     * @param verifier optional SSL session verifier. May be {@code null}.
+     * @param handshakeTimeout timeout to apply for the TLS/SSL handshake. May be {@code null}.
+     * @param resultCallback result callback. May be {@code null}.
+     *
+     * @since 5.2
+     */
+    public SSLIOSession(
+            final NamedEndpoint targetEndpoint,
+            final IOSession session,
+            final SSLMode sslMode,
+            final SSLContext sslContext,
+            final SSLBufferMode sslBufferMode,
+            final SSLSessionInitializer initializer,
+            final SSLSessionVerifier verifier,
+            final Timeout handshakeTimeout,
+            final Callback<SSLIOSession> sessionStartCallback,
+            final Callback<SSLIOSession> sessionEndCallback,
+            final FutureCallback<SSLSession> resultCallback) {
         super();
         Args.notNull(session, "IO session");
         Args.notNull(sslContext, "SSL context");
@@ -132,6 +166,7 @@ public class SSLIOSession implements IOSession {
         this.verifier = verifier;
         this.sessionStartCallback = sessionStartCallback;
         this.sessionEndCallback = sessionEndCallback;
+        this.handshakeCallbackRef = new AtomicReference<>(resultCallback);
 
         this.appEventMask = session.getEventMask();
         if (this.sslMode == SSLMode.CLIENT && targetEndpoint != null) {
@@ -151,7 +186,7 @@ public class SSLIOSession implements IOSession {
         this.inPlain = SSLManagedBuffer.create(sslBufferMode, appBufferSize);
         this.outboundClosedCount = new AtomicInteger(0);
         this.handshakeStateRef = new AtomicReference<>(TLSHandShakeState.READY);
-        this.connectTimeout = connectTimeout;
+        this.handshakeTimeout = handshakeTimeout;
         this.internalEventHandler = new IOEventHandler() {
 
             @Override
@@ -181,7 +216,11 @@ public class SSLIOSession implements IOSession {
                     // The session failed to terminate cleanly
                     close(CloseMode.IMMEDIATE);
                 }
-                ensureHandler().timeout(protocolSession, timeout);
+                if (handshakeStateRef.get() != TLSHandShakeState.COMPLETE) {
+                    exception(protocolSession, SocketTimeoutExceptionFactory.create(handshakeTimeout));
+                } else {
+                    ensureHandler().timeout(protocolSession, timeout);
+                }
             }
 
             @Override
@@ -193,6 +232,10 @@ public class SSLIOSession implements IOSession {
                 }
                 if (handler != null) {
                     handler.exception(protocolSession, cause);
+                }
+                final FutureCallback<SSLSession> resultCallback = handshakeCallbackRef.getAndSet(null);
+                if (resultCallback != null) {
+                    resultCallback.failed(cause);
                 }
             }
 
@@ -228,8 +271,8 @@ public class SSLIOSession implements IOSession {
     private void initialize(final IOSession protocolSession) throws IOException {
         // Save the initial socketTimeout of the underlying IOSession, to be restored after the handshake is finished
         this.socketTimeout = this.session.getSocketTimeout();
-        if (connectTimeout != null) {
-            this.session.setSocketTimeout(connectTimeout);
+        if (handshakeTimeout != null) {
+            this.session.setSocketTimeout(handshakeTimeout);
         }
 
         this.session.getLock().lock();
@@ -388,6 +431,10 @@ public class SSLIOSession implements IOSession {
 
             if (this.sessionStartCallback != null) {
                 this.sessionStartCallback.execute(this);
+            }
+            final FutureCallback<SSLSession> resultCallback = handshakeCallbackRef.getAndSet(null);
+            if (resultCallback != null) {
+                resultCallback.completed(sslEngine.getSession());
             }
         }
     }

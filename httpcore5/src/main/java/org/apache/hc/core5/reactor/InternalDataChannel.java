@@ -41,7 +41,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 
+import org.apache.hc.core5.concurrent.CallbackContribution;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.io.CloseMode;
@@ -66,7 +68,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     private final Queue<InternalDataChannel> closedSessions;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final AtomicReference<IOSession> currentSessionRef;
-    private final AtomicReference<FutureCallback<TransportSecurityLayer>> tlsHandshakeCallbackRef;
     private final ConcurrentMap<String, ProtocolUpgradeHandler> protocolUpgradeHandlerMap;
     private final AtomicBoolean closed;
 
@@ -84,7 +85,6 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         this.tlsSessionRef = new AtomicReference<>(null);
         this.currentSessionRef = new AtomicReference<>(
                 ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession);
-        this.tlsHandshakeCallbackRef = new AtomicReference<>(null);
         this.protocolUpgradeHandlerMap = new ConcurrentHashMap<>();
         this.closed = new AtomicBoolean(false);
     }
@@ -177,20 +177,12 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         if (handler != null) {
             handler.exception(currentSession, cause);
         }
-        final FutureCallback<?> callback = tlsHandshakeCallbackRef.getAndSet(null);
-        if (callback != null) {
-            callback.failed(cause);
-        }
     }
 
     void onTLSSessionStart(final SSLIOSession sslSession) {
         final IOSession currentSession = currentSessionRef.get();
         if (sessionListener != null) {
             sessionListener.connected(currentSession);
-        }
-        final FutureCallback<TransportSecurityLayer> callback = tlsHandshakeCallbackRef.getAndSet(null);
-        if (callback != null) {
-            callback.completed(this);
         }
     }
 
@@ -239,12 +231,21 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                 sslBufferMode,
                 initializer,
                 verifier,
+                handshakeTimeout,
                 this::onTLSSessionStart,
                 this::onTLSSessionEnd,
-                handshakeTimeout);
+                new CallbackContribution<SSLSession>(callback) {
+
+                    @Override
+                    public void completed(final SSLSession sslSession) {
+                        if (callback != null) {
+                            callback.completed(InternalDataChannel.this);
+                        }
+                    }
+
+                });
         if (tlsSessionRef.compareAndSet(null, sslioSession)) {
             currentSessionRef.set(ioSessionDecorator != null ? ioSessionDecorator.decorate(sslioSession) : sslioSession);
-            tlsHandshakeCallbackRef.set(callback);
         } else {
             throw new IllegalStateException("TLS already activated");
         }
