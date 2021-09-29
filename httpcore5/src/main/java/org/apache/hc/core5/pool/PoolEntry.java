@@ -125,6 +125,13 @@ public final class PoolEntry<T, C extends ModalCloseable> {
         return this.state;
     }
 
+    /**
+     * @since 5.2
+     */
+    public long getCreated() {
+        return created;
+    }
+
     public long getUpdated() {
         return this.updated;
     }
