@@ -509,6 +509,8 @@ public class NHttpConnectionBase
             return;
         }
         this.status = CLOSING;
+        this.inbuf.clear();
+        this.hasBufferedInput = false;
         if (this.outbuf.hasData()) {
             this.session.setEvent(EventMask.WRITE);
         } else {

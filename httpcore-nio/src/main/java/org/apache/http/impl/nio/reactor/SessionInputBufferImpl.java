@@ -412,4 +412,9 @@ public class SessionInputBufferImpl extends ExpandableBuffer implements SessionI
         return found ? tmpBuffer.toString() : null;
     }
 
+    @Override
+    public void clear() {
+        super.clear();
+    }
+
 }

@@ -307,4 +307,9 @@ public class SessionOutputBufferImpl extends ExpandableBuffer implements Session
         }
     }
 
+    @Override
+    public void clear() {
+        super.clear();
+    }
+
 }
