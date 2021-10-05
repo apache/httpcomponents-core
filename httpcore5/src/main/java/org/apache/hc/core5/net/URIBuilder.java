@@ -98,47 +98,59 @@ public class URIBuilder {
     }
 
     /**
-     * Construct an instance from the string which must be a valid URI.
+     * Constructs an instance from the string which must be a valid URI.
      *
-     * @param string a valid URI in string form
-     * @throws URISyntaxException if the input is not a valid URI
+     * @param uriString a valid URI in string form.
+     * @throws URISyntaxException if the input is not a valid URI.
      */
-    public URIBuilder(final String string) throws URISyntaxException {
-        this(new URI(string), StandardCharsets.UTF_8);
+    public URIBuilder(final String uriString) throws URISyntaxException {
+        this(new URI(uriString), StandardCharsets.UTF_8);
     }
 
     /**
-     * Construct an instance from the provided URI.
-     * @param uri
+     * Constructs an instance from the provided URI.
+     * @param uri a URI.
      */
     public URIBuilder(final URI uri) {
         this(uri, StandardCharsets.UTF_8);
     }
 
     /**
-     * Construct an instance from the string which must be a valid URI.
+     * Constructs an instance from the string which must be a valid URI.
      *
-     * @param string a valid URI in string form
+     * @param uriString a valid URI in string form.
      * @throws URISyntaxException if the input is not a valid URI
      */
-    public URIBuilder(final String string, final Charset charset) throws URISyntaxException {
-        this(new URI(string), charset);
+    public URIBuilder(final String uriString, final Charset charset) throws URISyntaxException {
+        this(new URI(uriString), charset);
     }
 
     /**
-     * Construct an instance from the provided URI.
-     * @param uri
+     * Constructs an instance from the provided URI.
+     *
+     * @param uri a URI.
      */
     public URIBuilder(final URI uri, final Charset charset) {
         super();
         digestURI(uri, charset);
     }
 
+    /**
+     * Sets the Charset.
+     *
+     * @param charset the Charset.
+     * @return this.
+     */
     public URIBuilder setCharset(final Charset charset) {
         this.charset = charset;
         return this;
     }
 
+    /**
+     * Gets the Charset.
+     *
+     * @return the Charset.
+     */
     public Charset getCharset() {
         return charset;
     }
@@ -801,20 +813,35 @@ public class URIBuilder {
         return this;
     }
 
+    /**
+     * Tests whether the URI is absolute.
+     *
+     * @return whether the URI is absolute.
+     */
     public boolean isAbsolute() {
         return this.scheme != null;
     }
 
+    /**
+     * Tests whether the URI is opaque.
+     *
+     * @return whether the URI is opaque.
+     */
     public boolean isOpaque() {
         return this.pathSegments == null && this.encodedPath == null;
     }
 
+    /**
+     * Gets the scheme.
+     *
+     * @return the scheme.
+     */
     public String getScheme() {
         return this.scheme;
     }
 
     /**
-     * Gets the scheme specific part
+     * Gets the scheme specific part.
      *
      * @return String
      * @since 5.1
@@ -823,6 +850,11 @@ public class URIBuilder {
         return this.encodedSchemeSpecificPart;
     }
 
+    /**
+     * Gets the user info.
+     *
+     * @return  the user info.
+     */
     public String getUserInfo() {
         return this.userInfo;
     }
@@ -837,19 +869,39 @@ public class URIBuilder {
         return this.host;
     }
 
+    /**
+     * Gets the port.
+     *
+     * @return  the port.
+     */
     public int getPort() {
         return this.port;
     }
 
+    /**
+     * Tests whether the path is empty.
+     *
+     * @return whether the path is empty.
+     */
     public boolean isPathEmpty() {
         return (this.pathSegments == null || this.pathSegments.isEmpty()) &&
                 (this.encodedPath == null || this.encodedPath.isEmpty());
     }
 
+    /**
+     * Gets the path segments.
+     *
+     * @return the path segments.
+     */
     public List<String> getPathSegments() {
         return this.pathSegments != null ? new ArrayList<>(this.pathSegments) : new ArrayList<>();
     }
 
+    /**
+     * Gets the path.
+     *
+     * @return the path.
+     */
     public String getPath() {
         if (this.pathSegments == null) {
             return null;
@@ -861,10 +913,20 @@ public class URIBuilder {
         return result.toString();
     }
 
+    /**
+     * Tests whether the query is empty.
+     *
+     * @return whether the query is empty.
+     */
     public boolean isQueryEmpty() {
         return (this.queryParams == null || this.queryParams.isEmpty()) && this.encodedQuery == null;
     }
 
+    /**
+     * Gets the query parameters as a List.
+     *
+     * @return the query parameters as a List.
+     */
     public List<NameValuePair> getQueryParams() {
         return this.queryParams != null ? new ArrayList<>(this.queryParams) : new ArrayList<>();
     }
@@ -880,6 +942,11 @@ public class URIBuilder {
         return queryParams.stream().filter(e -> name.equals(e.getName())).findFirst().orElse(null);
     }
 
+    /**
+     * Gets the fragments.
+     *
+     * @return the fragments.
+     */
     public String getFragment() {
         return this.fragment;
     }
@@ -948,6 +1015,11 @@ public class URIBuilder {
         return this;
     }
 
+    /**
+     * Converts this instance to a URI string.
+     *
+     * @return this instance to a URI string.
+     */
     @Override
     public String toString() {
         return buildString();
