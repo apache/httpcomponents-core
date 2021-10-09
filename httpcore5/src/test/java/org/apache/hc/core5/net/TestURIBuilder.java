@@ -346,9 +346,17 @@ public class TestURIBuilder {
     }
 
     @Test
-    public void testSetParametersWithEmptyArg() throws Exception {
+    public void testSetParametersWithEmptyArrayArg() throws Exception {
         final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
         final URIBuilder uribuilder = new URIBuilder(uri).setParameters();
+        final URI result = uribuilder.build();
+        Assert.assertEquals(new URI("http://localhost:80/test"), result);
+    }
+
+    @Test
+    public void testSetParametersWithNullArrayArg() throws Exception {
+        final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
+        final URIBuilder uribuilder = new URIBuilder(uri).setParameters((NameValuePair[]) null);
         final URI result = uribuilder.build();
         Assert.assertEquals(new URI("http://localhost:80/test"), result);
     }
@@ -357,6 +365,14 @@ public class TestURIBuilder {
     public void testSetParametersWithEmptyList() throws Exception {
         final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
         final URIBuilder uribuilder = new URIBuilder(uri).setParameters(Collections.emptyList());
+        final URI result = uribuilder.build();
+        Assert.assertEquals(new URI("http://localhost:80/test"), result);
+    }
+
+    @Test
+    public void testSetParametersWithNullList() throws Exception {
+        final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
+        final URIBuilder uribuilder = new URIBuilder(uri).setParameters((List<NameValuePair>) null);
         final URI result = uribuilder.build();
         Assert.assertEquals(new URI("http://localhost:80/test"), result);
     }
@@ -454,9 +470,15 @@ public class TestURIBuilder {
     public void assertAddParameters(final Charset charset) throws Exception {
         final URI uri = new URIBuilder("https://somehost.com/stuff")
                 .setCharset(charset)
-                .addParameters(createParameters()).build();
+                .addParameters(createParameterList()).build();
 
         assertBuild(charset, uri);
+        // null addParameters
+        final URI uri2 = new URIBuilder("https://somehost.com/stuff")
+                .setCharset(charset)
+                .addParameters(null).build();
+
+        Assert.assertEquals("https://somehost.com/stuff", uri2.toString());
     }
 
     @Test
@@ -472,7 +494,7 @@ public class TestURIBuilder {
     public void assertSetParameters(final Charset charset) throws Exception {
         final URI uri = new URIBuilder("https://somehost.com/stuff")
                 .setCharset(charset)
-                .setParameters(createParameters()).build();
+                .setParameters(createParameterList()).build();
 
         assertBuild(charset, uri);
     }
@@ -486,7 +508,7 @@ public class TestURIBuilder {
         Assert.assertEquals(uriExpected, uri.toString());
     }
 
-    private List<NameValuePair> createParameters() {
+    private List<NameValuePair> createParameterList() {
         final List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("parameter1", "value1"));
         parameters.add(new BasicNameValuePair("parameter2", "\"1\u00aa position\""));

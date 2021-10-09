@@ -632,13 +632,15 @@ public class URIBuilder {
      *
      * @return this.
      */
-    public URIBuilder setParameters(final List <NameValuePair> nvps) {
+    public URIBuilder setParameters(final List <NameValuePair> nameValuePairs) {
         if (this.queryParams == null) {
             this.queryParams = new ArrayList<>();
         } else {
             this.queryParams.clear();
         }
-        this.queryParams.addAll(nvps);
+        if (nameValuePairs != null) {
+            this.queryParams.addAll(nameValuePairs);
+        }
         this.encodedQuery = null;
         this.encodedSchemeSpecificPart = null;
         this.query = null;
@@ -655,11 +657,13 @@ public class URIBuilder {
      *
      * @return this.
      */
-    public URIBuilder addParameters(final List <NameValuePair> nvps) {
+    public URIBuilder addParameters(final List<NameValuePair> nameValuePairs) {
         if (this.queryParams == null) {
             this.queryParams = new ArrayList<>();
         }
-        this.queryParams.addAll(nvps);
+        if (nameValuePairs != null) {
+            this.queryParams.addAll(nameValuePairs);
+        }
         this.encodedQuery = null;
         this.encodedSchemeSpecificPart = null;
         this.query = null;
@@ -676,13 +680,15 @@ public class URIBuilder {
      *
      * @return this.
      */
-    public URIBuilder setParameters(final NameValuePair... nvps) {
+    public URIBuilder setParameters(final NameValuePair... nameValuePairs) {
         if (this.queryParams == null) {
             this.queryParams = new ArrayList<>();
         } else {
             this.queryParams.clear();
         }
-        Collections.addAll(this.queryParams, nvps);
+        if (nameValuePairs != null) {
+            Collections.addAll(this.queryParams, nameValuePairs);
+        }
         this.encodedQuery = null;
         this.encodedSchemeSpecificPart = null;
         this.query = null;
@@ -714,11 +720,13 @@ public class URIBuilder {
      * @return this.
      * @since 5.2
      */
-    public URIBuilder addParameter(final NameValuePair nvp) {
+    public URIBuilder addParameter(final NameValuePair nameValuePair) {
         if (this.queryParams == null) {
             this.queryParams = new ArrayList<>();
         }
-        this.queryParams.add(nvp);
+        if (nameValuePair != null) {
+            this.queryParams.add(nameValuePair);
+        }
         this.encodedQuery = null;
         this.encodedSchemeSpecificPart = null;
         this.query = null;
