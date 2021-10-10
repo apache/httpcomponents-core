@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -138,7 +139,7 @@ public class HttpBenchmark {
             }
             if (config.getIdentityStorePath() != null) {
                 sslContextBuilder.loadKeyMaterial(
-                        new File(config.getIdentityStorePath()),
+                        Paths.get(config.getIdentityStorePath()),
                         config.getIdentityStorePassword() != null ? config.getIdentityStorePassword().toCharArray() : null,
                         config.getIdentityStorePassword() != null ? config.getIdentityStorePassword().toCharArray() : null);
             }
