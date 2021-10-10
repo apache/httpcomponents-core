@@ -78,6 +78,7 @@
     <log4j.version>2.8.2</log4j.version>
     <rxjava.version>2.2.8</rxjava.version>
     <api.comparison.version>5.1</api.comparison.version>
+    <japicmp.version>0.15.4</japicmp.version>
     <hc.animal-sniffer.signature.ignores>javax.net.ssl.SSLEngine,javax.net.ssl.SSLParameters</hc.animal-sniffer.signature.ignores>
   </properties>
 
@@ -167,7 +168,7 @@
       <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
-        <version>0.15.3</version>
+        <version>${japicmp.version}</version>
         <configuration>
           <oldVersion>
             <dependency>
@@ -298,7 +299,7 @@
       <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
-        <version>0.15.3</version>
+        <version>${japicmp.version}</version>
         <reportSets>
           <reportSet>
             <reports>
