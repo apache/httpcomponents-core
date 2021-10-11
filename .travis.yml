@@ -14,15 +14,15 @@
 # limitations under the License.
 
 language: java
-dist: trusty
 sudo: false
 
 services:
   - docker
 
 jdk:
+  - openjdk8
   - openjdk11
-  - oraclejdk16
+  - oraclejdk17
   - openjdk-ea
 
 addons:
@@ -38,6 +38,7 @@ jobs:
   include:
     - name: arm64
       arch: arm64
+      jdk: openjdk11
       script: mvn verify -B
   allow_failures:
     - jdk: openjdk-ea
