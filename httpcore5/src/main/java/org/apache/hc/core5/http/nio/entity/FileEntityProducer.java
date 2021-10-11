@@ -63,8 +63,8 @@ public final class FileEntityProducer implements AsyncEntityProducer {
         this.byteBuffer = ByteBuffer.allocate(bufferSize);
         this.contentType = contentType;
         this.chunked = chunked;
-        this.accessFileRef = new AtomicReference<>(null);
-        this.exception = new AtomicReference<>(null);
+        this.accessFileRef = new AtomicReference<>();
+        this.exception = new AtomicReference<>();
     }
 
     public FileEntityProducer(final File file, final ContentType contentType, final boolean chunked) {

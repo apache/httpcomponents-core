@@ -62,7 +62,7 @@ public abstract class AbstractAsyncRequesterConsumer<T, E> implements AsyncReque
 
     public AbstractAsyncRequesterConsumer(final Supplier<AsyncEntityConsumer<E>> dataConsumerSupplier) {
         this.dataConsumerSupplier = Args.notNull(dataConsumerSupplier, "Data consumer supplier");
-        this.dataConsumerRef = new AtomicReference<>(null);
+        this.dataConsumerRef = new AtomicReference<>();
     }
 
     public AbstractAsyncRequesterConsumer(final AsyncEntityConsumer<E> dataConsumer) {

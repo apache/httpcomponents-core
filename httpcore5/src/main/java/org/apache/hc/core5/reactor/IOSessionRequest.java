@@ -66,7 +66,7 @@ final class IOSessionRequest implements Future<IOSession> {
         this.timeout = timeout;
         this.attachment = attachment;
         this.future = new BasicFuture<>(callback);
-        this.closeableRef = new AtomicReference<>(null);
+        this.closeableRef = new AtomicReference<>();
     }
 
     public void completed(final ProtocolIOSession ioSession) {

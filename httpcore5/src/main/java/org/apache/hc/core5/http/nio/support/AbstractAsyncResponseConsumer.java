@@ -62,7 +62,7 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
 
     public AbstractAsyncResponseConsumer(final Supplier<AsyncEntityConsumer<E>> dataConsumerSupplier) {
         this.dataConsumerSupplier = Args.notNull(dataConsumerSupplier, "Data consumer supplier");
-        this.dataConsumerRef = new AtomicReference<>(null);
+        this.dataConsumerRef = new AtomicReference<>();
     }
 
     public AbstractAsyncResponseConsumer(final AsyncEntityConsumer<E> dataConsumer) {

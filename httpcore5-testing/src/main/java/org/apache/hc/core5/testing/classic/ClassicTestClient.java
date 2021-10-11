@@ -64,7 +64,7 @@ public class ClassicTestClient {
         super();
         this.sslContext = sslContext;
         this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
-        this.requesterRef = new AtomicReference<>(null);
+        this.requesterRef = new AtomicReference<>();
     }
 
     public ClassicTestClient(final SocketConfig socketConfig) {

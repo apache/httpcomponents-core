@@ -65,7 +65,7 @@ public class BasicAsyncServerExpectationDecorator implements AsyncServerExchange
                                                 final Callback<Exception> exceptionCallback) {
         this.handler = Args.notNull(handler, "Handler");
         this.exceptionCallback = exceptionCallback;
-        this.responseProducerRef = new AtomicReference<>(null);
+        this.responseProducerRef = new AtomicReference<>();
     }
 
     public BasicAsyncServerExpectationDecorator(final AsyncServerExchangeHandler handler) {

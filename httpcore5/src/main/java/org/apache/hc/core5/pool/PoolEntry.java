@@ -66,7 +66,7 @@ public final class PoolEntry<T, C extends ModalCloseable> {
         super();
         this.route = Args.notNull(route, "Route");
         this.timeToLive = TimeValue.defaultsToNegativeOneMillisecond(timeToLive);
-        this.connRef = new AtomicReference<>(null);
+        this.connRef = new AtomicReference<>();
         this.disposalCallback = disposalCallback;
         this.currentTimeSupplier = currentTimeSupplier;
     }

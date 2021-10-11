@@ -56,7 +56,7 @@ abstract class IOReactorExecutor<T extends IOReactorService> implements AutoClos
         super();
         this.ioReactorConfig = ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT;
         this.workerThreadFactory = workerThreadFactory;
-        this.ioReactorRef = new AtomicReference<>(null);
+        this.ioReactorRef = new AtomicReference<>();
         this.status = new AtomicReference<>(Status.READY);
     }
 

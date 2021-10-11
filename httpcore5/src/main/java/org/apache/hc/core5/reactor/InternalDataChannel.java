@@ -82,7 +82,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         this.closedSessions = closedSessions;
         this.ioSessionDecorator = ioSessionDecorator;
         this.sessionListener = sessionListener;
-        this.tlsSessionRef = new AtomicReference<>(null);
+        this.tlsSessionRef = new AtomicReference<>();
         this.currentSessionRef = new AtomicReference<>(
                 ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession);
         this.protocolUpgradeHandlerMap = new ConcurrentHashMap<>();

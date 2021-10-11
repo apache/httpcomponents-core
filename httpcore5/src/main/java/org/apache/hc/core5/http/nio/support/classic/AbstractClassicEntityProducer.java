@@ -59,7 +59,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
         this.contentType = contentType;
         this.executor = Args.notNull(executor, "Executor");
         this.state = new AtomicReference<>(State.IDLE);
-        this.exception = new AtomicReference<>(null);
+        this.exception = new AtomicReference<>();
     }
 
     /**

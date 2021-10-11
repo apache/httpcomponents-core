@@ -51,7 +51,7 @@ import org.reactivestreams.Publisher;
 public final class ReactiveServerExchangeHandler implements AsyncServerExchangeHandler {
 
     private final ReactiveRequestProcessor requestProcessor;
-    private final AtomicReference<ReactiveDataProducer> responseProducer = new AtomicReference<>(null);
+    private final AtomicReference<ReactiveDataProducer> responseProducer = new AtomicReference<>();
     private final ReactiveDataConsumer requestConsumer;
     private volatile DataStreamChannel channel;
 

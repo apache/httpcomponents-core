@@ -59,7 +59,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
         this.length = this.bytebuf.remaining();
         this.contentType = contentType;
         this.chunked = chunked;
-        this.exception = new AtomicReference<>(null);
+        this.exception = new AtomicReference<>();
     }
 
     public BasicAsyncEntityProducer(final byte[] content, final ContentType contentType) {
@@ -80,7 +80,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
         this.bytebuf = charset.encode(CharBuffer.wrap(content));
         this.length = this.bytebuf.remaining();
         this.chunked = chunked;
-        this.exception = new AtomicReference<>(null);
+        this.exception = new AtomicReference<>();
     }
 
     public BasicAsyncEntityProducer(final CharSequence content, final ContentType contentType) {

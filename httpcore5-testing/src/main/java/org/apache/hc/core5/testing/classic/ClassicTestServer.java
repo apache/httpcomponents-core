@@ -64,7 +64,7 @@ public class ClassicTestServer {
         this.sslContext = sslContext;
         this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
         this.registry = new RequestHandlerRegistry<>();
-        this.serverRef = new AtomicReference<>(null);
+        this.serverRef = new AtomicReference<>();
     }
 
     public ClassicTestServer(final SocketConfig socketConfig) {

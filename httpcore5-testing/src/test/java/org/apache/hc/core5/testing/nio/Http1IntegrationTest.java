@@ -956,7 +956,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
     public void testPrematureResponse() throws Exception {
         server.register("*", () -> new AsyncServerExchangeHandler() {
 
-            private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>(null);
+            private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>();
 
             @Override
             public void handleRequest(
