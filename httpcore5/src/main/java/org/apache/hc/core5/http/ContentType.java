@@ -181,7 +181,7 @@ public final class ContentType implements Serializable {
     /**
      * An empty immutable {@code NameValuePair} array.
      */
-    private static final NameValuePair[] EMPTY_NAME_VALUE_PAIR_ARRAY = new NameValuePair[0];
+    private static final NameValuePair[] EMPTY_NAME_VALUE_PAIR_ARRAY = {};
 
     /**
      * @deprecated To be removed in 6.0

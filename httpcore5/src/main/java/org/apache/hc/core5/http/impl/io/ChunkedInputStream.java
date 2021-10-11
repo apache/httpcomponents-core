@@ -64,7 +64,7 @@ public class ChunkedInputStream extends InputStream {
     }
 
     private static final int BUFFER_SIZE = 2048;
-    private static final Header[] EMPTY_FOOTERS = new Header[0];
+    private static final Header[] EMPTY_FOOTERS = {};
 
     /** The session input buffer */
     private final SessionInputBuffer buffer;

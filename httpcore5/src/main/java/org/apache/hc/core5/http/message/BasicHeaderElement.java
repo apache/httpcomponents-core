@@ -38,7 +38,7 @@ import org.apache.hc.core5.util.Args;
  */
 public class BasicHeaderElement implements HeaderElement {
 
-    private static final NameValuePair[] EMPTY_NAME_VALUE_PAIR_ARRAY = new NameValuePair[0];
+    private static final NameValuePair[] EMPTY_NAME_VALUE_PAIR_ARRAY = {};
 
     private final String name;
     private final String value;

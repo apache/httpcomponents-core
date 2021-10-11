@@ -65,12 +65,12 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     /**
      * An empty immutable {@code HeaderElement} array.
      */
-    private static final HeaderElement[] EMPTY_HEADER_ELEMENT_ARRAY = new HeaderElement[0];
+    private static final HeaderElement[] EMPTY_HEADER_ELEMENT_ARRAY = {};
 
     /**
      * An empty immutable {@code NameValuePair} array.
      */
-    private static final NameValuePair[] EMPTY_NAME_VALUE_ARRAY = new NameValuePair[0];
+    private static final NameValuePair[] EMPTY_NAME_VALUE_ARRAY = {};
 
     @Override
     public HeaderElement[] parseElements(final CharSequence buffer, final ParserCursor cursor) {

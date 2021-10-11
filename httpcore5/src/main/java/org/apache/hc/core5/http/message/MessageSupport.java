@@ -57,7 +57,7 @@ public class MessageSupport {
     /**
      * An empty immutable {@code String} array.
      */
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+    private static final String[] EMPTY_STRING_ARRAY = {};
 
     private MessageSupport() {
         // Do not allow utility class to be instantiated.

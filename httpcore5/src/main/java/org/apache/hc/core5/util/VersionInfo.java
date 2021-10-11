@@ -83,7 +83,7 @@ public class VersionInfo {
     /**
      * An empty immutable {@code VersionInfo} array.
      */
-    private static final VersionInfo[] EMPTY_VERSION_INFO_ARRAY = new VersionInfo[0];
+    private static final VersionInfo[] EMPTY_VERSION_INFO_ARRAY = {};
 
 
     /**
