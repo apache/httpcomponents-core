@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -216,6 +219,20 @@ public final class AsyncEntityProducers {
 
     public static AsyncEntityProducer create(final File content, final ContentType contentType, final Header... trailers) {
         return withTrailers(create(content, contentType), trailers);
+    }
+
+    /**
+     * @since 5.2
+     */
+    public static AsyncEntityProducer create(final Path content, final ContentType contentType, final Header... trailers) throws IOException {
+        return withTrailers(new PathEntityProducer(content, contentType, StandardOpenOption.READ), trailers);
+    }
+
+    /**
+     * @since 5.2
+     */
+    public static AsyncEntityProducer create(final Path content, final ContentType contentType, final OpenOption... options) throws IOException {
+        return new PathEntityProducer(content, contentType, options);
     }
 
     public static AsyncEntityProducer createBinary(
