@@ -60,7 +60,7 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
             final ProtocolIOSession ioSession,
             final FutureCallback<ProtocolIOSession> resultCallback) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
-        this.protocolHandlerRef = new AtomicReference<>(null);
+        this.protocolHandlerRef = new AtomicReference<>();
         this.resultCallback = resultCallback;
         this.completed = new AtomicBoolean();
     }

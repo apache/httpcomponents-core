@@ -78,7 +78,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
     public AbstractClassicServerExchangeHandler(final int initialBufferSize, final Executor executor) {
         this.initialBufferSize = Args.positive(initialBufferSize, "Initial buffer size");
         this.executor = Args.notNull(executor, "Executor");
-        this.exception = new AtomicReference<>(null);
+        this.exception = new AtomicReference<>();
         this.state = new AtomicReference<>(State.IDLE);
     }
 

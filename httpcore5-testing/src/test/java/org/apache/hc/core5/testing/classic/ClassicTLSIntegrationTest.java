@@ -117,7 +117,7 @@ public class ClassicTLSIntegrationTest {
                 .create();
         server.start();
 
-        final AtomicReference<SSLSession> sslSessionRef = new AtomicReference<>(null);
+        final AtomicReference<SSLSession> sslSessionRef = new AtomicReference<>();
 
         requester = RequesterBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createClientSSLContext())

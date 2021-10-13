@@ -53,10 +53,10 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
     private static final int BUFFER_WINDOW_SIZE = 5;
 
     private final AtomicReference<DataStreamChannel> requestChannel = new AtomicReference<>();
-    private final AtomicReference<Throwable> exception = new AtomicReference<>(null);
+    private final AtomicReference<Throwable> exception = new AtomicReference<>();
     private final AtomicBoolean complete = new AtomicBoolean(false);
     private final Publisher<ByteBuffer> publisher;
-    private final AtomicReference<Subscription> subscription = new AtomicReference<>(null);
+    private final AtomicReference<Subscription> subscription = new AtomicReference<>();
     private final ArrayDeque<ByteBuffer> buffers = new ArrayDeque<>(); // This field requires synchronization
 
     public ReactiveDataProducer(final Publisher<ByteBuffer> publisher) {

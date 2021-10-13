@@ -843,7 +843,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
             public AsyncServerExchangeHandler get() {
                 return new AsyncServerExchangeHandler() {
 
-                    private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>(null);
+                    private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>();
 
                     @Override
                     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {

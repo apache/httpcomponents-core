@@ -39,7 +39,7 @@ final class CancellableExecution implements CancellableDependency {
 
     CancellableExecution() {
         this.cancelled = new AtomicBoolean(false);
-        this.dependencyRef = new AtomicReference<>(null);
+        this.dependencyRef = new AtomicReference<>();
     }
 
     @Override

@@ -45,7 +45,7 @@ public final class ComplexFuture<T> extends BasicFuture<T> implements Cancellabl
 
     public ComplexFuture(final FutureCallback<T> callback) {
         super(callback);
-        this.dependencyRef = new AtomicReference<>(null);
+        this.dependencyRef = new AtomicReference<>();
     }
 
     @Override

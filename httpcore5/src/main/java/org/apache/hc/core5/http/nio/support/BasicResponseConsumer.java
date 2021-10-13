@@ -59,7 +59,7 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
 
     public BasicResponseConsumer(final Supplier<AsyncEntityConsumer<T>> dataConsumerSupplier) {
         this.dataConsumerSupplier = Args.notNull(dataConsumerSupplier, "Data consumer supplier");
-        this.dataConsumerRef = new AtomicReference<>(null);
+        this.dataConsumerRef = new AtomicReference<>();
     }
 
     public BasicResponseConsumer(final AsyncEntityConsumer<T> dataConsumer) {

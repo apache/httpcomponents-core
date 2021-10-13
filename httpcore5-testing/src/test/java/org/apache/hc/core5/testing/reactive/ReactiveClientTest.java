@@ -217,7 +217,7 @@ public class ReactiveClientTest {
     public void testLongRunningRequest() throws Exception {
         final InetSocketAddress address = startClientAndServer();
         final long expectedLength = 6_554_200L;
-        final AtomicReference<String> expectedHash = new AtomicReference<>(null);
+        final AtomicReference<String> expectedHash = new AtomicReference<>();
         final Flowable<ByteBuffer> stream = ReactiveTestUtils.produceStream(expectedLength, expectedHash);
         final ReactiveEntityProducer producer = new ReactiveEntityProducer(stream, -1, null, null);
         final BasicRequestProducer request = getRequestProducer(address, producer);
@@ -242,7 +242,7 @@ public class ReactiveClientTest {
         for (int i = 0; i < 10; i++) {
             final long expectedLength = 1_024_000;
             final int maximumBlockSize = 1024;
-            final AtomicReference<String> expectedHash = new AtomicReference<>(null);
+            final AtomicReference<String> expectedHash = new AtomicReference<>();
             final Publisher<ByteBuffer> stream = ReactiveTestUtils.produceStream(expectedLength, maximumBlockSize, expectedHash);
             final ReactiveEntityProducer producer = new ReactiveEntityProducer(stream, -1, null, null);
             final BasicRequestProducer request = getRequestProducer(address, producer);

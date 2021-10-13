@@ -140,7 +140,7 @@ public class H2TLSIntegrationTest {
                 .create();
         server.start();
 
-        final AtomicReference<SSLSession> sslSessionRef = new AtomicReference<>(null);
+        final AtomicReference<SSLSession> sslSessionRef = new AtomicReference<>();
 
         requester = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(IOReactorConfig.custom()

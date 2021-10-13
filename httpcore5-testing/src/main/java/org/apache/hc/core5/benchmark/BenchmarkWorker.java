@@ -89,7 +89,7 @@ class BenchmarkWorker implements ResourceHolder {
         this.completionLatch = completionLatch;
         this.stats = stats;
         this.config = config;
-        this.endpointRef = new AtomicReference<>(null);
+        this.endpointRef = new AtomicReference<>();
     }
 
     private AsyncRequestProducer createRequestProducer() {
@@ -183,7 +183,7 @@ class BenchmarkWorker implements ResourceHolder {
             volatile int status;
             volatile Charset charset;
             final AtomicLong contentLength = new AtomicLong();
-            final AtomicReference<FutureCallback<Void>> resultCallbackRef = new AtomicReference<>(null);
+            final AtomicReference<FutureCallback<Void>> resultCallbackRef = new AtomicReference<>();
 
             @Override
             public void consumeResponse(

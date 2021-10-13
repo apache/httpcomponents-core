@@ -49,8 +49,8 @@ public class SocketHolder {
 
     public SocketHolder(final Socket socket) {
         this.socket = Args.notNull(socket, "Socket");
-        this.inputStreamRef = new AtomicReference<>(null);
-        this.outputStreamRef = new AtomicReference<>(null);
+        this.inputStreamRef = new AtomicReference<>();
+        this.outputStreamRef = new AtomicReference<>();
     }
 
     public final Socket getSocket() {

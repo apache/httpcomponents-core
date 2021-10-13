@@ -54,7 +54,7 @@ public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
         super(bufferSize, fragmentSizeHint, contentType);
         Args.notNull(content, "Content");
         this.content = CharBuffer.wrap(content);
-        this.exception = new AtomicReference<>(null);
+        this.exception = new AtomicReference<>();
     }
 
     public StringAsyncEntityProducer(final CharSequence content, final int bufferSize, final ContentType contentType) {

@@ -60,8 +60,8 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
     private final AtomicReference<AsyncResponseProducer> responseProducerRef;
 
     public AbstractServerExchangeHandler() {
-        this.requestConsumerRef = new AtomicReference<>(null);
-        this.responseProducerRef = new AtomicReference<>(null);
+        this.requestConsumerRef = new AtomicReference<>();
+        this.responseProducerRef = new AtomicReference<>();
     }
 
     /**

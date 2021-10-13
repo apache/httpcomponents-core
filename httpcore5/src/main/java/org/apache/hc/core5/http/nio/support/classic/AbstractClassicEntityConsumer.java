@@ -67,8 +67,8 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
         this.executor = Args.notNull(executor, "Executor");
         this.buffer = new SharedInputBuffer(initialBufferSize);
         this.state = new AtomicReference<>(State.IDLE);
-        this.resultRef = new AtomicReference<>(null);
-        this.exceptionRef = new AtomicReference<>(null);
+        this.resultRef = new AtomicReference<>();
+        this.exceptionRef = new AtomicReference<>();
     }
 
     /**
