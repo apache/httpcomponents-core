@@ -71,7 +71,7 @@ public class TestAbstractBinAsyncEntityConsumer {
         }
 
         @Override
-        public void releaseResources() {
+        public void close() {
         }
 
     }
@@ -79,37 +79,39 @@ public class TestAbstractBinAsyncEntityConsumer {
     @Test
     public void testConsumeData() throws Exception {
 
-        final AsyncEntityConsumer<byte[]> consumer = new ByteArrayAsyncEntityConsumer();
+        try (final AsyncEntityConsumer<byte[]> consumer = new ByteArrayAsyncEntityConsumer()) {
 
-        final AtomicLong count = new AtomicLong(0);
-        consumer.streamStart(new BasicEntityDetails(-1, ContentType.APPLICATION_OCTET_STREAM), new FutureCallback<byte[]>() {
+            final AtomicLong count = new AtomicLong(0);
+            consumer.streamStart(new BasicEntityDetails(-1, ContentType.APPLICATION_OCTET_STREAM),
+                    new FutureCallback<byte[]>() {
 
-            @Override
-            public void completed(final byte[] result) {
-                count.incrementAndGet();
-            }
+                        @Override
+                        public void completed(final byte[] result) {
+                            count.incrementAndGet();
+                        }
 
-            @Override
-            public void failed(final Exception ex) {
-                count.incrementAndGet();
-            }
+                        @Override
+                        public void failed(final Exception ex) {
+                            count.incrementAndGet();
+                        }
 
-            @Override
-            public void cancelled() {
-                count.incrementAndGet();
-            }
+                        @Override
+                        public void cancelled() {
+                            count.incrementAndGet();
+                        }
 
-        });
+                    });
 
-        consumer.consume(ByteBuffer.wrap(new byte[]{'1', '2', '3'}));
-        consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
-        consumer.consume(ByteBuffer.wrap(new byte[]{}));
+            consumer.consume(ByteBuffer.wrap(new byte[] { '1', '2', '3' }));
+            consumer.consume(ByteBuffer.wrap(new byte[] { '4', '5' }));
+            consumer.consume(ByteBuffer.wrap(new byte[] {}));
 
-        Assert.assertNull(consumer.getContent());
-        consumer.streamEnd(null);
+            Assert.assertNull(consumer.getContent());
+            consumer.streamEnd(null);
 
-        Assert.assertArrayEquals(new byte[] {'1', '2', '3', '4', '5'}, consumer.getContent());
-        Assert.assertEquals(1L, count.longValue());
+            Assert.assertArrayEquals(new byte[] { '1', '2', '3', '4', '5' }, consumer.getContent());
+            Assert.assertEquals(1L, count.longValue());
+        }
     }
 
 }

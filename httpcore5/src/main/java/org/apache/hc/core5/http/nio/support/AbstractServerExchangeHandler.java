@@ -158,7 +158,7 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
 
             @Override
             public void cancelled() {
-                releaseResources();
+                close();
             }
 
         });
@@ -211,20 +211,32 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
                 dataProducer.failed(cause);
             }
         } finally {
-            releaseResources();
+            close();
         }
     }
 
     @Override
-    public final void releaseResources() {
+    public final void close() {
         final AsyncRequestConsumer<T> requestConsumer = requestConsumerRef.getAndSet(null);
         if (requestConsumer != null) {
-            requestConsumer.releaseResources();
+            requestConsumer.close();
         }
         final AsyncResponseProducer dataProducer = responseProducerRef.getAndSet(null);
         if (dataProducer != null) {
-            dataProducer.releaseResources();
+            dataProducer.close();
         }
+    }
+
+    /**
+     * Deprecated, use {@link #close()}.
+     *
+     * @deprecated use {@link #close()}.
+     */
+    @Deprecated
+    @Override
+    // JApicmp can't handle default this method use case? releaseResources() was abstract, now is default.
+    public final void releaseResources() {
+        close();
     }
 
 }

@@ -42,24 +42,25 @@ public class TestDigestingEntityProducer {
     @Test
     public void testProduceData() throws Exception {
 
-        final DigestingEntityProducer producer = new DigestingEntityProducer("MD5",
-                new StringAsyncEntityProducer("12345", ContentType.TEXT_PLAIN));
+        try (final DigestingEntityProducer producer = new DigestingEntityProducer("MD5",
+                new StringAsyncEntityProducer("12345", ContentType.TEXT_PLAIN))) {
 
-        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
-        final BasicDataStreamChannel dataStreamChannel = new BasicDataStreamChannel(byteChannel);
-        while (byteChannel.isOpen()) {
-            producer.produce(dataStreamChannel);
+            final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+            final BasicDataStreamChannel dataStreamChannel = new BasicDataStreamChannel(byteChannel);
+            while (byteChannel.isOpen()) {
+                producer.produce(dataStreamChannel);
+            }
+
+            Assert.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
+            final List<Header> trailers = dataStreamChannel.getTrailers();
+            Assert.assertNotNull(trailers);
+            Assert.assertEquals(2, trailers.size());
+
+            Assert.assertEquals("digest-algo", trailers.get(0).getName());
+            Assert.assertEquals("MD5", trailers.get(0).getValue());
+            Assert.assertEquals("digest", trailers.get(1).getName());
+            Assert.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", trailers.get(1).getValue());
         }
-
-        Assert.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
-        final List<Header> trailers = dataStreamChannel.getTrailers();
-        Assert.assertNotNull(trailers);
-        Assert.assertEquals(2, trailers.size());
-
-        Assert.assertEquals("digest-algo", trailers.get(0).getName());
-        Assert.assertEquals("MD5", trailers.get(0).getValue());
-        Assert.assertEquals("digest", trailers.get(1).getName());
-        Assert.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", trailers.get(1).getValue());
     }
 
 }

@@ -94,7 +94,7 @@ public final class RequestExecutionCommand extends ExecutableCommand {
         try {
             exchangeHandler.failed(ex);
         } finally {
-            exchangeHandler.releaseResources();
+            exchangeHandler.close();
         }
     }
 

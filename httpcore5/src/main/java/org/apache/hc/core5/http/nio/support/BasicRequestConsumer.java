@@ -118,14 +118,14 @@ public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<Htt
 
     @Override
     public void failed(final Exception cause) {
-        releaseResources();
+        close();
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         final AsyncEntityConsumer<T> dataConsumer = dataConsumerRef.getAndSet(null);
         if (dataConsumer != null) {
-            dataConsumer.releaseResources();
+            dataConsumer.close();
         }
     }
 

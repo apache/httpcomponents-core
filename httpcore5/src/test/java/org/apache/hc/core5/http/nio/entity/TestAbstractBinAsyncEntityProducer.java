@@ -85,63 +85,65 @@ public class TestAbstractBinAsyncEntityProducer {
     @Test
     public void testProduceDataNoBuffering() throws Exception {
 
-        final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
+        try (final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
                 0, ContentType.TEXT_PLAIN,
                 new byte[] { '1', '2', '3' },
-                new byte[] { '4', '5', '6' });
+                new byte[] { '4', '5', '6' })) {
 
-        Assert.assertEquals(-1, producer.getContentLength());
-        Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
-        Assert.assertNull(producer.getContentEncoding());
+            Assert.assertEquals(-1, producer.getContentLength());
+            Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
+            Assert.assertNull(producer.getContentEncoding());
 
-        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
-        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+            final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+            final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
-        producer.produce(streamChannel);
+            producer.produce(streamChannel);
 
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("123", byteChannel.dump(StandardCharsets.US_ASCII));
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("123", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
+            producer.produce(streamChannel);
 
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("456", byteChannel.dump(StandardCharsets.US_ASCII));
+            Assert.assertFalse(byteChannel.isOpen());
+            Assert.assertEquals("456", byteChannel.dump(StandardCharsets.US_ASCII));
+        }
     }
 
     @Test
     public void testProduceDataWithBuffering1() throws Exception {
 
-        final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
+        try (final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
                 5, ContentType.TEXT_PLAIN,
                 new byte[] { '1', '2', '3' },
                 new byte[] { '4', '5', '6' },
                 new byte[] { '7', '8' },
-                new byte[] { '9', '0' });
+                new byte[] { '9', '0' })) {
 
-        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
-        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+            final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+            final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
-        producer.produce(streamChannel);
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("123", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("123", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("45678", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("45678", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("90", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertFalse(byteChannel.isOpen());
+            Assert.assertEquals("90", byteChannel.dump(StandardCharsets.US_ASCII));
+        }
     }
 
     @Test
     public void testProduceDataWithBuffering2() throws Exception {
 
-        final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
+        try (final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
                 5, ContentType.TEXT_PLAIN,
                 new byte[] { '1' },
                 new byte[] { '2' },
@@ -149,39 +151,40 @@ public class TestAbstractBinAsyncEntityProducer {
                 new byte[] { '4', '5' },
                 new byte[] { '6' },
                 new byte[] { '7', '8' },
-                new byte[] { '9', '0' });
+                new byte[] { '9', '0' })) {
 
-        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
-        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+            final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+            final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
-        producer.produce(streamChannel);
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("67890", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertFalse(byteChannel.isOpen());
+            Assert.assertEquals("67890", byteChannel.dump(StandardCharsets.US_ASCII));
 
+        }
     }
 
 }

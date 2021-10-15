@@ -92,7 +92,7 @@ public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDat
         if (resultCallback != null) {
             resultCallback.completed(content);
         }
-        releaseResources();
+        close();
     }
 
     @Override
@@ -100,7 +100,7 @@ public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDat
         if (resultCallback != null) {
             resultCallback.failed(cause);
         }
-        releaseResources();
+        close();
     }
 
     @Override

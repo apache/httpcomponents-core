@@ -194,7 +194,7 @@ public class AsyncFullDuplexServerExample {
                     }
 
                     @Override
-                    public void releaseResources() {
+                    public void close() {
                     }
 
                 })

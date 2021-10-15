@@ -94,75 +94,77 @@ public class TestReactiveDataConsumer {
 
     @Test
     public void testCancellation() throws Exception {
-        final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
-        consumer.subscribe(new Subscriber<ByteBuffer>() {
-            @Override
-            public void onSubscribe(final Subscription s) {
-                s.cancel();
-            }
+        try (final ReactiveDataConsumer consumer = new ReactiveDataConsumer()) {
+            consumer.subscribe(new Subscriber<ByteBuffer>() {
+                @Override
+                public void onSubscribe(final Subscription s) {
+                    s.cancel();
+                }
 
-            @Override
-            public void onNext(final ByteBuffer byteBuffer) {
-            }
+                @Override
+                public void onNext(final ByteBuffer byteBuffer) {
+                }
 
-            @Override
-            public void onError(final Throwable throwable) {
-            }
+                @Override
+                public void onError(final Throwable throwable) {
+                }
 
-            @Override
-            public void onComplete() {
-            }
-        });
+                @Override
+                public void onComplete() {
+                }
+            });
 
-        Assert.assertThrows(HttpStreamResetException.class, () ->
-            consumer.consume(ByteBuffer.wrap(new byte[1024])));
+            Assert.assertThrows(HttpStreamResetException.class,
+                    () -> consumer.consume(ByteBuffer.wrap(new byte[1024])));
+        }
     }
 
     @Test
     public void testCapacityIncrements() throws Exception {
-        final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
-        final ByteBuffer data = ByteBuffer.wrap(new byte[1024]);
+        try (final ReactiveDataConsumer consumer = new ReactiveDataConsumer()) {
+            final ByteBuffer data = ByteBuffer.wrap(new byte[1024]);
 
-        final AtomicInteger lastIncrement = new AtomicInteger(-1);
-        final CapacityChannel channel = lastIncrement::set;
-        consumer.updateCapacity(channel);
-        Assert.assertEquals("CapacityChannel#update should not have been invoked yet", -1, lastIncrement.get());
+            final AtomicInteger lastIncrement = new AtomicInteger(-1);
+            final CapacityChannel channel = lastIncrement::set;
+            consumer.updateCapacity(channel);
+            Assert.assertEquals("CapacityChannel#update should not have been invoked yet", -1, lastIncrement.get());
 
-        final AtomicInteger received = new AtomicInteger(0);
-        final AtomicReference<Subscription> subscription = new AtomicReference<>();
-        consumer.subscribe(new Subscriber<ByteBuffer>() {
-            @Override
-            public void onSubscribe(final Subscription s) {
-                subscription.set(s);
-            }
+            final AtomicInteger received = new AtomicInteger(0);
+            final AtomicReference<Subscription> subscription = new AtomicReference<>();
+            consumer.subscribe(new Subscriber<ByteBuffer>() {
+                @Override
+                public void onSubscribe(final Subscription s) {
+                    subscription.set(s);
+                }
 
-            @Override
-            public void onNext(final ByteBuffer byteBuffer) {
-                received.incrementAndGet();
-            }
+                @Override
+                public void onNext(final ByteBuffer byteBuffer) {
+                    received.incrementAndGet();
+                }
 
-            @Override
-            public void onError(final Throwable throwable) {
-            }
+                @Override
+                public void onError(final Throwable throwable) {
+                }
 
-            @Override
-            public void onComplete() {
-            }
-        });
+                @Override
+                public void onComplete() {
+                }
+            });
 
-        consumer.consume(data.duplicate());
-        consumer.consume(data.duplicate());
-        consumer.consume(data.duplicate());
-        consumer.consume(data.duplicate());
+            consumer.consume(data.duplicate());
+            consumer.consume(data.duplicate());
+            consumer.consume(data.duplicate());
+            consumer.consume(data.duplicate());
 
-        subscription.get().request(1);
-        Assert.assertEquals(1024, lastIncrement.get());
+            subscription.get().request(1);
+            Assert.assertEquals(1024, lastIncrement.get());
 
-        subscription.get().request(2);
-        Assert.assertEquals(2 * 1024, lastIncrement.get());
+            subscription.get().request(2);
+            Assert.assertEquals(2 * 1024, lastIncrement.get());
 
-        subscription.get().request(99);
-        Assert.assertEquals(1024, lastIncrement.get());
+            subscription.get().request(99);
+            Assert.assertEquals(1024, lastIncrement.get());
+        }
     }
 
     @Test

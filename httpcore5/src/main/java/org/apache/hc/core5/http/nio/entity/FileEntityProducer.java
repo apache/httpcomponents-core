@@ -135,14 +135,14 @@ public final class FileEntityProducer implements AsyncEntityProducer {
         }
         if (eof && byteBuffer.position() == 0) {
             channel.endStream();
-            releaseResources();
+            close();
         }
     }
 
     @Override
     public void failed(final Exception cause) {
         if (exception.compareAndSet(null, cause)) {
-            releaseResources();
+            close();
         }
     }
 
@@ -151,7 +151,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         eof = false;
         Closer.closeQuietly(accessFileRef.getAndSet(null));
     }

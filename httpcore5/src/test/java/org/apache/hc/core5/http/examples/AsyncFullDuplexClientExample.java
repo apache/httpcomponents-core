@@ -119,9 +119,9 @@ public class AsyncFullDuplexClientExample {
         requester.execute(new AsyncClientExchangeHandler() {
 
             @Override
-            public void releaseResources() {
-                requestProducer.releaseResources();
-                responseConsumer.releaseResources();
+            public void close() {
+                requestProducer.close();
+                responseConsumer.close();
                 latch.countDown();
             }
 

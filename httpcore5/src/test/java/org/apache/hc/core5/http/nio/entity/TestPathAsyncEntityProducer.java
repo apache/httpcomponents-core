@@ -70,20 +70,22 @@ public class TestPathAsyncEntityProducer {
     public void testTextContent() throws Exception {
 
         final Path tempPath = tempFile.toPath();
-        final AsyncEntityProducer producer = new PathEntityProducer(tempPath, ContentType.TEXT_PLAIN, StandardOpenOption.READ);
+        try (final AsyncEntityProducer producer = new PathEntityProducer(tempPath, ContentType.TEXT_PLAIN,
+                StandardOpenOption.READ)) {
 
-        Assert.assertEquals(6, producer.getContentLength());
-        Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
-        Assert.assertNull(producer.getContentEncoding());
+            Assert.assertEquals(6, producer.getContentLength());
+            Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
+            Assert.assertNull(producer.getContentEncoding());
 
-        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
-        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+            final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+            final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
-        producer.produce(streamChannel);
-        producer.produce(streamChannel);
+            producer.produce(streamChannel);
+            producer.produce(streamChannel);
 
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
+            Assert.assertFalse(byteChannel.isOpen());
+            Assert.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
+        }
     }
 
     @Test
@@ -105,7 +107,7 @@ public class TestPathAsyncEntityProducer {
             Assert.assertFalse(byteChannel.isOpen());
             Assert.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
 
-            producer.releaseResources();
+            producer.close();
         }
     }
 

@@ -94,7 +94,7 @@ public final class PathEntityProducer implements AsyncEntityProducer {
     @Override
     public void failed(final Exception cause) {
         if (exception.compareAndSet(null, cause)) {
-            releaseResources();
+            close();
         }
     }
 
@@ -152,12 +152,12 @@ public final class PathEntityProducer implements AsyncEntityProducer {
         }
         if (eof && byteBuffer.position() == 0) {
             dataStreamChannel.endStream();
-            releaseResources();
+            close();
         }
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         eof = false;
         Closer.closeQuietly(channelRef.getAndSet(null));
     }

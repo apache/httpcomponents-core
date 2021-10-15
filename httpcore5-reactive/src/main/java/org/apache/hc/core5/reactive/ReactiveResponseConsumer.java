@@ -164,11 +164,24 @@ public final class ReactiveResponseConsumer implements AsyncResponseConsumer<Voi
     }
 
     @Override
-    public void releaseResources() {
-        reactiveDataConsumer.releaseResources();
+    public void close() {
+        reactiveDataConsumer.close();
         responseFuture.cancel();
         if (responseCompletion != null) {
             responseCompletion.cancel();
         }
     }
+
+    /**
+     * Deprecated, use {@link #close()}.
+     *
+     * @deprecated use {@link #close()}.
+     */
+    @Deprecated
+    @Override
+    // JApicmp can't handle default this method use case? releaseResources() was abstract, now is default.
+    public void releaseResources() {
+        close();
+    }
+
 }

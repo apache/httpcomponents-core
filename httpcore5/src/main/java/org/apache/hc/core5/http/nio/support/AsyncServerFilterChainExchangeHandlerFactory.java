@@ -163,14 +163,14 @@ public final class AsyncServerFilterChainExchangeHandlerFactory implements Handl
             }
 
             @Override
-            public void releaseResources() {
+            public void close() {
                 final AsyncDataConsumer dataConsumer = dataConsumerRef.getAndSet(null);
                 if (dataConsumer != null) {
-                    dataConsumer.releaseResources();
+                    dataConsumer.close();
                 }
                 final AsyncResponseProducer responseProducer = responseProducerRef.getAndSet(null);
                 if (responseProducer != null) {
-                    responseProducer.releaseResources();
+                    responseProducer.close();
                 }
             }
         };

@@ -83,8 +83,8 @@ public final class ReactiveEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
-    public void releaseResources() {
-        reactiveDataProducer.releaseResources();
+    public void close() {
+        reactiveDataProducer.close();
     }
 
     @Override
@@ -94,7 +94,7 @@ public final class ReactiveEntityProducer implements AsyncEntityProducer {
 
     @Override
     public void failed(final Exception cause) {
-        releaseResources();
+        close();
     }
 
     @Override
@@ -121,4 +121,17 @@ public final class ReactiveEntityProducer implements AsyncEntityProducer {
     public Set<String> getTrailerNames() {
         return null;
     }
+
+    /**
+     * Deprecated, use {@link #close()}.
+     *
+     * @deprecated use {@link #close()}.
+     */
+    @Deprecated
+    @Override
+    // JApicmp can't handle default this method use case? releaseResources() was abstract, now is default.
+    public void releaseResources() {
+        close();
+    }
+
 }

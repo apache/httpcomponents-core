@@ -122,7 +122,7 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
     @Override
     public final void failed(final Exception cause) {
         if (exceptionRef.compareAndSet(null, cause)) {
-            releaseResources();
+            close();
         }
     }
 
@@ -136,7 +136,7 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
     }
 
 }

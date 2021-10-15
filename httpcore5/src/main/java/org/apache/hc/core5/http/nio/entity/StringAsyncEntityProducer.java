@@ -91,7 +91,7 @@ public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
     @Override
     public void failed(final Exception cause) {
         if (exception.compareAndSet(null, cause)) {
-            releaseResources();
+            close();
         }
     }
 
@@ -100,9 +100,21 @@ public class StringAsyncEntityProducer extends AbstractCharAsyncEntityProducer {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         this.content.clear();
-        super.releaseResources();
+        super.close();
+    }
+
+    /**
+     * Deprecated, use {@link #close()}.
+     *
+     * @deprecated use {@link #close()}.
+     */
+    @Deprecated
+    @Override
+    // JApicmp can't handle default this method use case? releaseResources() was abstract, now is default.
+    public void releaseResources() {
+        close();
     }
 
 }

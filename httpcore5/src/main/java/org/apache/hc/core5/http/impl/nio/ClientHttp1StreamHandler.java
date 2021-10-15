@@ -287,11 +287,11 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         if (done.compareAndSet(false, true)) {
             responseState = MessageState.COMPLETE;
             requestState = MessageState.COMPLETE;
-            exchangeHandler.releaseResources();
+            exchangeHandler.close();
         }
     }
 

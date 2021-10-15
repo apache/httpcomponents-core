@@ -1663,7 +1663,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
 
         void releaseResources() {
-            handler.releaseResources();
+            handler.close();
             channel.requestOutput();
         }
 

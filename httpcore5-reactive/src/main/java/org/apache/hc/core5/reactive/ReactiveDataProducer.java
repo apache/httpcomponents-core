@@ -161,7 +161,7 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         final Subscription s = subscription.getAndSet(null);
         if (s != null) {
             s.cancel();

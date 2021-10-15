@@ -254,16 +254,16 @@ class ClientH2StreamHandler implements H2StreamHandler {
                 }
             }
         } finally {
-            releaseResources();
+            close();
         }
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         if (done.compareAndSet(false, true)) {
             responseState = MessageState.COMPLETE;
             requestState = MessageState.COMPLETE;
-            exchangeHandler.releaseResources();
+            exchangeHandler.close();
         }
     }
 

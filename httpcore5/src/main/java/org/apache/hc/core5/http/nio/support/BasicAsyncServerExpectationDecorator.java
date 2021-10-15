@@ -155,11 +155,11 @@ public class BasicAsyncServerExpectationDecorator implements AsyncServerExchange
     }
 
     @Override
-    public final void releaseResources() {
-        handler.releaseResources();
+    public final void close() {
+        handler.close();
         final AsyncResponseProducer dataProducer = responseProducerRef.getAndSet(null);
         if (dataProducer != null) {
-            dataProducer.releaseResources();
+            dataProducer.close();
         }
     }
 

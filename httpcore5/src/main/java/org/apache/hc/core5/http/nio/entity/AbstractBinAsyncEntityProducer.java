@@ -203,7 +203,7 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         state = State.ACTIVE;
     }
 

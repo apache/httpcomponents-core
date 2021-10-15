@@ -328,17 +328,17 @@ class ServerH2StreamHandler implements H2StreamHandler {
                 }
             }
         } finally {
-            releaseResources();
+            close();
         }
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         if (done.compareAndSet(false, true)) {
             requestState = MessageState.COMPLETE;
             responseState = MessageState.COMPLETE;
             if (exchangeHandler != null) {
-                exchangeHandler.releaseResources();
+                exchangeHandler.close();
             }
         }
     }

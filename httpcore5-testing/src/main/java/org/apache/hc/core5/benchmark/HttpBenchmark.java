@@ -488,7 +488,7 @@ public class HttpBenchmark {
         final long endTime = System.currentTimeMillis();
 
         for (int i = 0; i < workers.length; i++) {
-            workers[i].releaseResources();
+            workers[i].close();
         }
 
         return new Results(

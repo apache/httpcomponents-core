@@ -796,7 +796,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                     }
 
                     @Override
-                    public void releaseResources() {
+                    public void close() {
                     }
                 };
             }
@@ -912,23 +912,25 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
         client.start();
 
-        final Future<IOSession> sessionFuture = client.requestSession(new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
+        final Future<IOSession> sessionFuture = client
+                .requestSession(new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
         final IOSession session = sessionFuture.get();
-        final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(session);
+        try (final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(session)) {
 
-        final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
-        request.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-        final HttpCoreContext coreContext = HttpCoreContext.create();
-        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(request, null),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                    coreContext, null);
-        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
-                future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        MatcherAssert.assertThat(exception.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
+            final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
+            request.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+            final HttpCoreContext coreContext = HttpCoreContext.create();
+            final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                        new BasicRequestProducer(request, null),
+                        new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                        coreContext, null);
+            final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+                    future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+            MatcherAssert.assertThat(exception.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
 
-        final EndpointDetails endpointDetails = coreContext.getEndpointDetails();
-        MatcherAssert.assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
+            final EndpointDetails endpointDetails = coreContext.getEndpointDetails();
+            MatcherAssert.assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
+        }
     }
 
     @Test

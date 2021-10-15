@@ -81,8 +81,4 @@ public final class DiscardingEntityConsumer<T> implements AsyncEntityConsumer<T>
         return null;
     }
 
-    @Override
-    public void releaseResources() {
-    }
-
 }

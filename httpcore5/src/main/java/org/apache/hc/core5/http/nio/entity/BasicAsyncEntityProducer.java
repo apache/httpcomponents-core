@@ -139,7 +139,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
     @Override
     public final void failed(final Exception cause) {
         if (exception.compareAndSet(null, cause)) {
-            releaseResources();
+            close();
         }
     }
 
@@ -148,7 +148,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         bytebuf.clear();
     }
 

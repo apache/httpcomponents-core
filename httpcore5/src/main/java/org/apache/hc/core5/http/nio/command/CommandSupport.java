@@ -54,7 +54,7 @@ public final class CommandSupport {
                 try {
                     exchangeHandler.failed(ex);
                 } finally {
-                    exchangeHandler.releaseResources();
+                    exchangeHandler.close();
                 }
             } else {
                 command.cancel();
@@ -78,7 +78,7 @@ public final class CommandSupport {
                         exchangeHandler.cancel();
                     }
                 } finally {
-                    exchangeHandler.releaseResources();
+                    exchangeHandler.close();
                 }
             } else {
                 command.cancel();

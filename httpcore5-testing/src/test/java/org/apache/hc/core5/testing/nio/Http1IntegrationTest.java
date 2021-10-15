@@ -748,61 +748,70 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<IOSession> sessionFuture = client.requestSession(
                 new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
         final IOSession ioSession = sessionFuture.get();
-        final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(ioSession);
+        try (final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(ioSession)) {
 
-        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
-        request1.addHeader("password", "secret");
-        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 1000)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
-        final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
-        Assert.assertNotNull("All is well", result1.getBody());
+            final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+            request1.addHeader("password", "secret");
+            // @formatter:off
+            final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                    new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 1000)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            // @formatter:on
+            final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.assertNotNull(result1);
+            final HttpResponse response1 = result1.getHead();
+            Assert.assertNotNull(response1);
+            Assert.assertEquals(200, response1.getCode());
+            Assert.assertNotNull("All is well", result1.getBody());
 
-        Assert.assertTrue(ioSession.isOpen());
+            Assert.assertTrue(ioSession.isOpen());
 
-        final HttpRequest request2 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
-        final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
-                new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result2);
-        final HttpResponse response2 = result2.getHead();
-        Assert.assertNotNull(response2);
-        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response2.getCode());
-        Assert.assertNotNull("You shall not pass", result2.getBody());
+            final HttpRequest request2 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+            // @formatter:off
+            final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
+                    new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            // @formatter:on
+            final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.assertNotNull(result2);
+            final HttpResponse response2 = result2.getHead();
+            Assert.assertNotNull(response2);
+            Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response2.getCode());
+            Assert.assertNotNull("You shall not pass", result2.getBody());
 
-        Assert.assertTrue(ioSession.isOpen());
+            Assert.assertTrue(ioSession.isOpen());
 
-        final HttpRequest request3 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
-        request3.addHeader("password", "secret");
-        final Future<Message<HttpResponse, String>> future3 = streamEndpoint.execute(
-                new BasicRequestProducer(request3, new MultiLineEntityProducer("0123456789abcdef", 1000)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result3 = future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result3);
-        final HttpResponse response3 = result3.getHead();
-        Assert.assertNotNull(response3);
-        Assert.assertEquals(200, response3.getCode());
-        Assert.assertNotNull("All is well", result3.getBody());
+            final HttpRequest request3 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+            request3.addHeader("password", "secret");
+            // @formatter:off
+            final Future<Message<HttpResponse, String>> future3 = streamEndpoint.execute(
+                    new BasicRequestProducer(request3, new MultiLineEntityProducer("0123456789abcdef", 1000)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            // @formatter:on
+            final Message<HttpResponse, String> result3 = future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.assertNotNull(result3);
+            final HttpResponse response3 = result3.getHead();
+            Assert.assertNotNull(response3);
+            Assert.assertEquals(200, response3.getCode());
+            Assert.assertNotNull("All is well", result3.getBody());
 
-        Assert.assertTrue(ioSession.isOpen());
+            Assert.assertTrue(ioSession.isOpen());
 
-        final HttpRequest request4 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
-        final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
-                new BasicRequestProducer(request4, AsyncEntityProducers.create("blah")),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result4 = future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result4);
-        final HttpResponse response4 = result4.getHead();
-        Assert.assertNotNull(response4);
-        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response4.getCode());
-        Assert.assertNotNull("You shall not pass", result4.getBody());
+            final HttpRequest request4 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+            // @formatter:off
+            final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
+                    new BasicRequestProducer(request4, AsyncEntityProducers.create("blah")),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            // @formatter:on
+            final Message<HttpResponse, String> result4 = future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.assertNotNull(result4);
+            final HttpResponse response4 = result4.getHead();
+            Assert.assertNotNull(response4);
+            Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response4.getCode());
+            Assert.assertNotNull("You shall not pass", result4.getBody());
 
-        Assert.assertFalse(ioSession.isOpen());
+            Assert.assertFalse(ioSession.isOpen());
+        }
     }
 
     @Test
@@ -837,23 +846,26 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<IOSession> sessionFuture = client.requestSession(
                 new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
         final IOSession ioSession = sessionFuture.get();
-        final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(ioSession);
+        try (final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(ioSession)) {
 
-        final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
-        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, new MultiBinEntityProducer(
-                        new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'},
-                        100000,
-                        ContentType.TEXT_PLAIN)),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
-        final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
-        Assert.assertNotNull("You shall not pass", result1.getBody());
+            final HttpRequest request1 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
+            // @formatter:off
+            final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
+                    new BasicRequestProducer(request1, new MultiBinEntityProducer(
+                            new byte[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'},
+                            100000,
+                            ContentType.TEXT_PLAIN)),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+            // @formatter:on
+            final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            Assert.assertNotNull(result1);
+            final HttpResponse response1 = result1.getHead();
+            Assert.assertNotNull(response1);
+            Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
+            Assert.assertNotNull("You shall not pass", result1.getBody());
 
-        Assert.assertFalse(streamEndpoint.isOpen());
+            Assert.assertFalse(streamEndpoint.isOpen());
+        }
     }
 
     @Test
@@ -923,7 +935,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             }
 
             @Override
-            public void releaseResources() {
+            public void close() {
             }
 
         });
@@ -1005,7 +1017,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             }
 
             @Override
-            public void releaseResources() {
+            public void close() {
             }
         });
         final InetSocketAddress serverEndpoint = server.start();
@@ -1446,7 +1458,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final StringAsyncEntityConsumer entityConsumer = new StringAsyncEntityConsumer() {
 
             @Override
-            public void releaseResources() {
+            public void close() {
                 // Do not clear internal content buffer
             }
 
@@ -1641,8 +1653,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             private final StringAsyncEntityProducer entityProducer = new StringAsyncEntityProducer("Everyting is OK");
 
             @Override
-            public void releaseResources() {
-                entityProducer.releaseResources();
+            public void close() {
+                entityProducer.close();
             }
 
             @Override
@@ -1684,7 +1696,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
             @Override
             public void failed(final Exception cause) {
-                releaseResources();
+                close();
             }
 
         });

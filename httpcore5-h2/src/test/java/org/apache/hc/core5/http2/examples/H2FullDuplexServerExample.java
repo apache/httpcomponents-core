@@ -213,7 +213,7 @@ public class H2FullDuplexServerExample {
                     }
 
                     @Override
-                    public void releaseResources() {
+                    public void close() {
                     }
 
                 })

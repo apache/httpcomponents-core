@@ -163,8 +163,8 @@ public class H2MultiplexingRequester extends AsyncRequester{
                         ioSession.enqueue(new RequestExecutionCommand(new AsyncClientExchangeHandler() {
 
                             @Override
-                            public void releaseResources() {
-                                exchangeHandler.releaseResources();
+                            public void close() {
+                                exchangeHandler.close();
                             }
 
                             @Override

@@ -95,12 +95,12 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
             @Override
             public void failed(final Exception cause) {
                 handleError(promise, cause);
-                releaseResources();
+                close();
             }
 
             @Override
             public void cancelled() {
-                releaseResources();
+                close();
             }
 
         });
@@ -124,13 +124,13 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
     @Override
     public final void failed(final Exception cause) {
         responseConsumer.failed(cause);
-        releaseResources();
+        close();
     }
 
     @Override
-    public final void releaseResources() {
+    public final void close() {
         if (responseConsumer != null) {
-            responseConsumer.releaseResources();
+            responseConsumer.close();
         }
     }
 

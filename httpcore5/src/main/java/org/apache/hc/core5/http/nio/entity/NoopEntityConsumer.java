@@ -85,7 +85,7 @@ public final class NoopEntityConsumer implements AsyncEntityConsumer<Void> {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
     }
 
 }

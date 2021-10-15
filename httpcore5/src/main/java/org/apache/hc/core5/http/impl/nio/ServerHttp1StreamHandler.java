@@ -329,11 +329,11 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         if (done.compareAndSet(false, true)) {
             requestState = MessageState.COMPLETE;
             responseState = MessageState.COMPLETE;
-            exchangeHandler.releaseResources();
+            exchangeHandler.close();
         }
     }
 

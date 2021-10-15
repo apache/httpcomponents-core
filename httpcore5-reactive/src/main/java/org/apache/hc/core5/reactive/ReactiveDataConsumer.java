@@ -114,7 +114,7 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         this.capacityChannel = null;
     }
 

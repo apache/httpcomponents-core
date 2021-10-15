@@ -239,16 +239,16 @@ class ServerPushH2StreamHandler implements H2StreamHandler {
                 pushProducer.failed(cause);
             }
         } finally {
-            releaseResources();
+            close();
         }
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         if (done.compareAndSet(false, true)) {
             requestState = MessageState.COMPLETE;
             responseState = MessageState.COMPLETE;
-            pushProducer.releaseResources();
+            pushProducer.close();
         }
     }
 

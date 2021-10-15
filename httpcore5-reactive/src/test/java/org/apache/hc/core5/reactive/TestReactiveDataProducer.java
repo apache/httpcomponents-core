@@ -42,20 +42,21 @@ public class TestReactiveDataProducer {
         final Flowable<ByteBuffer> publisher = Flowable.just(
             ByteBuffer.wrap(new byte[]{ '1', '2', '3' }),
             ByteBuffer.wrap(new byte[]{ '4', '5', '6' }));
-        final ReactiveDataProducer producer = new ReactiveDataProducer(publisher);
+        try (final ReactiveDataProducer producer = new ReactiveDataProducer(publisher)) {
 
-        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
-        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+            final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+            final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
-        producer.produce(streamChannel);
+            producer.produce(streamChannel);
 
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("123456", byteChannel.dump(StandardCharsets.US_ASCII));
+            Assert.assertTrue(byteChannel.isOpen());
+            Assert.assertEquals("123456", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        producer.produce(streamChannel);
+            producer.produce(streamChannel);
 
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+            Assert.assertFalse(byteChannel.isOpen());
+            Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+        }
     }
 
     @Test
@@ -70,17 +71,19 @@ public class TestReactiveDataProducer {
                 ByteBuffer.wrap(new byte[]{ '6' })),
             Flowable.error(new RuntimeException())
         );
-        final ReactiveDataProducer producer = new ReactiveDataProducer(publisher);
+        try (final ReactiveDataProducer producer = new ReactiveDataProducer(publisher)) {
 
-        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
-        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+            final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+            final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
-        producer.produce(streamChannel);
-        Assert.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
+            producer.produce(streamChannel);
+            Assert.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        final HttpStreamResetException exception = Assert.assertThrows(HttpStreamResetException.class, () ->
-                producer.produce(streamChannel));
-        Assert.assertTrue("Expected published exception to be rethrown", exception.getCause() instanceof RuntimeException);
-        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+            final HttpStreamResetException exception = Assert.assertThrows(HttpStreamResetException.class,
+                    () -> producer.produce(streamChannel));
+            Assert.assertTrue("Expected published exception to be rethrown",
+                    exception.getCause() instanceof RuntimeException);
+            Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+        }
     }
 }

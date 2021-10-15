@@ -38,16 +38,17 @@ public class TestDigestingEntityConsumer {
     @Test
     public void testConsumeData() throws Exception {
 
-        final DigestingEntityConsumer<String> consumer = new DigestingEntityConsumer<>("MD5",
-                new StringAsyncEntityConsumer());
+        try (final DigestingEntityConsumer<String> consumer = new DigestingEntityConsumer<>("MD5",
+                new StringAsyncEntityConsumer())) {
 
-        consumer.consume(ByteBuffer.wrap(new byte[]{'1', '2', '3'}));
-        consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
-        consumer.consume(ByteBuffer.wrap(new byte[]{}));
-        consumer.streamEnd(null);
+            consumer.consume(ByteBuffer.wrap(new byte[] { '1', '2', '3' }));
+            consumer.consume(ByteBuffer.wrap(new byte[] { '4', '5' }));
+            consumer.consume(ByteBuffer.wrap(new byte[] {}));
+            consumer.streamEnd(null);
 
-        Assert.assertEquals("12345", consumer.getContent());
-        Assert.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", TextUtils.toHexString(consumer.getDigest()));
+            Assert.assertEquals("12345", consumer.getContent());
+            Assert.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", TextUtils.toHexString(consumer.getDigest()));
+        }
     }
 
 }

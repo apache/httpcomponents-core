@@ -185,7 +185,7 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
                 }
             }
         } finally {
-            releaseResources();
+            close();
         }
     }
 
@@ -195,12 +195,12 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         if (done.compareAndSet(false, true)) {
             responseState = MessageState.COMPLETE;
             requestState = MessageState.COMPLETE;
             if (exchangeHandler != null) {
-                exchangeHandler.releaseResources();
+                exchangeHandler.close();
             }
         }
     }

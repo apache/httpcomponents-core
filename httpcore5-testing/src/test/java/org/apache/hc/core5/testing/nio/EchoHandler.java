@@ -140,7 +140,7 @@ public class EchoHandler implements AsyncServerExchangeHandler {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
     }
 
 }

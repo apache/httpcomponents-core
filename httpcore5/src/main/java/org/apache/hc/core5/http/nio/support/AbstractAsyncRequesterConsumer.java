@@ -130,14 +130,14 @@ public abstract class AbstractAsyncRequesterConsumer<T, E> implements AsyncReque
 
     @Override
     public final void failed(final Exception cause) {
-        releaseResources();
+        close();
     }
 
     @Override
-    public final void releaseResources() {
+    public final void close() {
         final AsyncEntityConsumer<E> dataConsumer = dataConsumerRef.getAndSet(null);
         if (dataConsumer != null) {
-            dataConsumer.releaseResources();
+            dataConsumer.close();
         }
     }
 

@@ -160,9 +160,9 @@ public abstract class AbstractAsyncServerAuthFilter<T> implements AsyncFilterHan
             }
 
             @Override
-            public void releaseResources() {
+            public void close() {
                 if (responseContentProducer != null) {
-                    responseContentProducer.releaseResources();
+                    responseContentProducer.close();
                 }
             }
 

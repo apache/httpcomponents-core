@@ -83,7 +83,7 @@ public abstract class AbstractBinAsyncEntityConsumer<T> extends AbstractBinDataC
         if (resultCallback != null) {
             resultCallback.completed(content);
         }
-        releaseResources();
+        close();
     }
 
     @Override
@@ -91,7 +91,7 @@ public abstract class AbstractBinAsyncEntityConsumer<T> extends AbstractBinDataC
         if (resultCallback != null) {
             resultCallback.failed(cause);
         }
-        releaseResources();
+        close();
     }
 
     @Override

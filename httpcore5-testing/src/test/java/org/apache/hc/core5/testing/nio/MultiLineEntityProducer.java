@@ -86,10 +86,10 @@ public class MultiLineEntityProducer extends AbstractCharAsyncEntityProducer {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         count = 0;
         charbuf.clear();
-        super.releaseResources();
+        super.close();
     }
 
 }

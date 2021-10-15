@@ -49,8 +49,9 @@ public class TestFileEntityProducer {
         try (RandomAccessFile raFile = new RandomAccessFile(file, "rw")) {
             final long expectedLength = 1L + Integer.MAX_VALUE;
             raFile.setLength(expectedLength);
-            final FileEntityProducer fileEntityProducer = new FileEntityProducer(file);
-            Assert.assertEquals(expectedLength, fileEntityProducer.getContentLength());
+            try (final FileEntityProducer fileEntityProducer = new FileEntityProducer(file)) {
+                Assert.assertEquals(expectedLength, fileEntityProducer.getContentLength());
+            }
         }
     }
 

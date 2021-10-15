@@ -52,8 +52,9 @@ public class TestPathEntityProducer {
         try (RandomAccessFile raFile = new RandomAccessFile(file, "rw")) {
             final long expectedLength = 1L + Integer.MAX_VALUE;
             raFile.setLength(expectedLength);
-            final PathEntityProducer fileEntityProducer = new PathEntityProducer(path, StandardOpenOption.READ);
-            Assert.assertEquals(expectedLength, fileEntityProducer.getContentLength());
+            try (final PathEntityProducer fileEntityProducer = new PathEntityProducer(path, StandardOpenOption.READ)) {
+                Assert.assertEquals(expectedLength, fileEntityProducer.getContentLength());
+            }
         }
     }
 

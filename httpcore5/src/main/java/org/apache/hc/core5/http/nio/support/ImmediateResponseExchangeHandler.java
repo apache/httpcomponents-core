@@ -103,12 +103,12 @@ public final class ImmediateResponseExchangeHandler implements AsyncServerExchan
     @Override
     public void failed(final Exception cause) {
         responseProducer.failed(cause);
-        releaseResources();
+        close();
     }
 
     @Override
-    public void releaseResources() {
-        responseProducer.releaseResources();
+    public void close() {
+        responseProducer.close();
     }
 
 }

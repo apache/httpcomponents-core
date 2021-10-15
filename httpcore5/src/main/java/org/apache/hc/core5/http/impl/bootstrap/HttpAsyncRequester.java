@@ -297,9 +297,9 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                         endpoint.execute(new AsyncClientExchangeHandler() {
 
                             @Override
-                            public void releaseResources() {
+                            public void close() {
                                 endpoint.releaseAndDiscard();
-                                exchangeHandler.releaseResources();
+                                exchangeHandler.close();
                             }
 
                             @Override
@@ -487,7 +487,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                 try {
                     exchangeHandler.failed(new ConnectionClosedException());
                 } finally {
-                    exchangeHandler.releaseResources();
+                    exchangeHandler.close();
                 }
             }
         }

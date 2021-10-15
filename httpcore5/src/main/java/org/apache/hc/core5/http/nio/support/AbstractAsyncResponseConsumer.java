@@ -145,14 +145,14 @@ public abstract class AbstractAsyncResponseConsumer<T, E> implements AsyncRespon
 
     @Override
     public final void failed(final Exception cause) {
-        releaseResources();
+        close();
     }
 
     @Override
-    public final void releaseResources() {
+    public final void close() {
         final AsyncEntityConsumer<E> dataConsumer = dataConsumerRef.getAndSet(null);
         if (dataConsumer != null) {
-            dataConsumer.releaseResources();
+            dataConsumer.close();
         }
     }
 

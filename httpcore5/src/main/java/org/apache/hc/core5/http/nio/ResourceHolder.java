@@ -40,10 +40,29 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
  * </p>
  *
  * @since 5.0
+ * @since 5.2 extends AutoCloseable. This interface could go away in a future major release.
  */
 @Contract(threading = ThreadingBehavior.SAFE)
-public interface ResourceHolder {
+public interface ResourceHolder extends AutoCloseable {
 
-    void releaseResources();
+    /**
+     * Closes this resource. The default implementation calls {@link #releaseResources()}.
+     *
+     * @since 5.2
+     */
+    @Override
+    default void close() {
+        releaseResources();
+    }
+
+    /**
+     * Releases resources. The default implementation does nothing.
+     *
+     * @deprecated Use {@link #close()}.
+     */
+    @Deprecated
+    default void releaseResources() {
+        // do nothing
+    }
 
 }

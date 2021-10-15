@@ -42,20 +42,20 @@ public class TestStringAsyncEntityProducer {
     @Test
     public void testTextContent() throws Exception {
 
-        final AsyncEntityProducer producer = new StringAsyncEntityProducer(
-                "abc", ContentType.TEXT_PLAIN);
+        try (final AsyncEntityProducer producer = new StringAsyncEntityProducer("abc", ContentType.TEXT_PLAIN)) {
 
-        Assert.assertEquals(-1, producer.getContentLength());
-        Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
-        Assert.assertNull(producer.getContentEncoding());
+            Assert.assertEquals(-1, producer.getContentLength());
+            Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
+            Assert.assertNull(producer.getContentEncoding());
 
-        final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
-        final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+            final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+            final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
-        producer.produce(streamChannel);
+            producer.produce(streamChannel);
 
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
+            Assert.assertFalse(byteChannel.isOpen());
+            Assert.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
+        }
     }
 
     @Test
@@ -76,7 +76,7 @@ public class TestStringAsyncEntityProducer {
             Assert.assertFalse(byteChannel.isOpen());
             Assert.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
 
-            producer.releaseResources();
+            producer.close();
         }
     }
 

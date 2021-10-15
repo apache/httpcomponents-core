@@ -82,13 +82,13 @@ public class BasicPushProducer implements AsyncPushProducer {
 
     @Override
     public void failed(final Exception cause) {
-        releaseResources();
+        close();
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         if (dataProducer != null) {
-            dataProducer.releaseResources();
+            dataProducer.close();
         }
     }
 

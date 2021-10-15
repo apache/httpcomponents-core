@@ -126,14 +126,14 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
         if (dataConsumer != null) {
             dataConsumer.failed(cause);
         }
-        releaseResources();
+        close();
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         final AsyncEntityConsumer<T> dataConsumer = dataConsumerRef.getAndSet(null);
         if (dataConsumer != null) {
-            dataConsumer.releaseResources();
+            dataConsumer.close();
         }
     }
 

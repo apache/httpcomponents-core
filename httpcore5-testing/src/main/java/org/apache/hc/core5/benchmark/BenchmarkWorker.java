@@ -167,9 +167,9 @@ class BenchmarkWorker implements ResourceHolder {
             }
 
             @Override
-            public void releaseResources() {
+            public void close() {
                 if (entityProducer != null) {
-                    entityProducer.releaseResources();
+                    entityProducer.close();
                 }
             }
 
@@ -266,7 +266,7 @@ class BenchmarkWorker implements ResourceHolder {
             }
 
             @Override
-            public void releaseResources() {
+            public void close() {
             }
 
         };
@@ -355,7 +355,7 @@ class BenchmarkWorker implements ResourceHolder {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         final AsyncClientEndpoint endpoint = endpointRef.getAndSet(null);
         if (endpoint != null) {
             endpoint.releaseAndDiscard();

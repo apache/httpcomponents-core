@@ -71,7 +71,7 @@ public class TestAbstractCharAsyncEntityConsumer {
         }
 
         @Override
-        public void releaseResources() {
+        public void close() {
             buffer.setLength(0);
         }
 
@@ -80,37 +80,38 @@ public class TestAbstractCharAsyncEntityConsumer {
     @Test
     public void testConsumeData() throws Exception {
 
-        final AsyncEntityConsumer<String> consumer = new StringBuilderAsyncEntityConsumer();
+        try (final AsyncEntityConsumer<String> consumer = new StringBuilderAsyncEntityConsumer()) {
 
-        final AtomicLong count = new AtomicLong(0);
-        consumer.streamStart(new BasicEntityDetails(-1, ContentType.TEXT_PLAIN), new FutureCallback<String>() {
+            final AtomicLong count = new AtomicLong(0);
+            consumer.streamStart(new BasicEntityDetails(-1, ContentType.TEXT_PLAIN), new FutureCallback<String>() {
 
-            @Override
-            public void completed(final String result) {
-                count.incrementAndGet();
-            }
+                @Override
+                public void completed(final String result) {
+                    count.incrementAndGet();
+                }
 
-            @Override
-            public void failed(final Exception ex) {
-                count.incrementAndGet();
-            }
+                @Override
+                public void failed(final Exception ex) {
+                    count.incrementAndGet();
+                }
 
-            @Override
-            public void cancelled() {
-                count.incrementAndGet();
-            }
+                @Override
+                public void cancelled() {
+                    count.incrementAndGet();
+                }
 
-        });
+            });
 
-        consumer.consume(ByteBuffer.wrap(new byte[]{'1', '2', '3'}));
-        consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
-        consumer.consume(ByteBuffer.wrap(new byte[]{}));
+            consumer.consume(ByteBuffer.wrap(new byte[] { '1', '2', '3' }));
+            consumer.consume(ByteBuffer.wrap(new byte[] { '4', '5' }));
+            consumer.consume(ByteBuffer.wrap(new byte[] {}));
 
-        Assert.assertNull(consumer.getContent());
-        consumer.streamEnd(null);
+            Assert.assertNull(consumer.getContent());
+            consumer.streamEnd(null);
 
-        Assert.assertEquals("12345", consumer.getContent());
-        Assert.assertEquals(1L, count.longValue());
+            Assert.assertEquals("12345", consumer.getContent());
+            Assert.assertEquals(1L, count.longValue());
+        }
     }
 
 }

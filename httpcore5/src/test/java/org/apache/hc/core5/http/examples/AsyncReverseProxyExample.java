@@ -436,7 +436,7 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
-        public void releaseResources() {
+        public void close() {
             synchronized (exchangeState) {
                 exchangeState.responseMessageChannel = null;
                 exchangeState.responseDataChannel = null;
@@ -669,7 +669,7 @@ public class AsyncReverseProxyExample {
         }
 
         @Override
-        public void releaseResources() {
+        public void close() {
             synchronized (exchangeState) {
                 exchangeState.requestDataChannel = null;
                 exchangeState.responseCapacityChannel = null;

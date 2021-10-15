@@ -108,13 +108,13 @@ public class BasicResponseProducer implements AsyncResponseProducer {
         if (dataProducer != null) {
             dataProducer.failed(cause);
         }
-        releaseResources();
+        close();
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         if (dataProducer != null) {
-            dataProducer.releaseResources();
+            dataProducer.close();
         }
     }
 

@@ -190,19 +190,19 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     void terminate(final Exception exception) {
         if (incoming != null) {
             incoming.failed(exception);
-            incoming.releaseResources();
+            incoming.close();
             incoming = null;
         }
         if (outgoing != null) {
             outgoing.failed(exception);
-            outgoing.releaseResources();
+            outgoing.close();
             outgoing = null;
         }
         for (;;) {
             final ServerHttp1StreamHandler handler = pipeline.poll();
             if (handler != null) {
                 handler.failed(exception);
-                handler.releaseResources();
+                handler.close();
             } else {
                 break;
             }
@@ -215,21 +215,21 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             if (!incoming.isCompleted()) {
                 incoming.failed(new ConnectionClosedException());
             }
-            incoming.releaseResources();
+            incoming.close();
             incoming = null;
         }
         if (outgoing != null) {
             if (!outgoing.isCompleted()) {
                 outgoing.failed(new ConnectionClosedException());
             }
-            outgoing.releaseResources();
+            outgoing.close();
             outgoing = null;
         }
         for (;;) {
             final ServerHttp1StreamHandler handler = pipeline.poll();
             if (handler != null) {
                 handler.failed(new ConnectionClosedException());
-                handler.releaseResources();
+                handler.close();
             } else {
                 break;
             }
@@ -389,7 +389,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     void inputEnd() throws HttpException, IOException {
         if (incoming != null) {
             if (incoming.isCompleted()) {
-                incoming.releaseResources();
+                incoming.close();
             }
             incoming = null;
         }
@@ -422,7 +422,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                 streamListener.onExchangeComplete(this, outgoing.keepAlive());
             }
             if (outgoing.isCompleted()) {
-                outgoing.releaseResources();
+                outgoing.close();
             }
             outgoing = null;
         }

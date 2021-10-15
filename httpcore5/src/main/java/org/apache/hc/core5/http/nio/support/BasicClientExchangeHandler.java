@@ -100,7 +100,7 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
     public void consumeResponse(final HttpResponse response, final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
         if (response.getCode() >= HttpStatus.SC_CLIENT_ERROR) {
             outputTerminated.set(true);
-            requestProducer.releaseResources();
+            requestProducer.close();
         }
         responseConsumer.consumeResponse(response, entityDetails, httpContext, new FutureCallback<T>() {
 
@@ -193,12 +193,12 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
     }
 
     private void internalReleaseResources() {
-        requestProducer.releaseResources();
-        responseConsumer.releaseResources();
+        requestProducer.close();
+        responseConsumer.close();
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
     }
 
 }

@@ -56,7 +56,7 @@ public class TestAsyncEntityProducers {
             Assert.assertEquals(Files.size(path), producer.getContentLength());
             Assert.assertEquals(ContentType.APPLICATION_OCTET_STREAM.toString(), producer.getContentType());
         } finally {
-            producer.releaseResources();
+            producer.close();
         }
     }
 
@@ -72,7 +72,7 @@ public class TestAsyncEntityProducers {
             Assert.assertEquals(-1, producer.getContentLength());
             Assert.assertEquals(ContentType.APPLICATION_OCTET_STREAM.toString(), producer.getContentType());
         } finally {
-            producer.releaseResources();
+            producer.close();
         }
     }
 }

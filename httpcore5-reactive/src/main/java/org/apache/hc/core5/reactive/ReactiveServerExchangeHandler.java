@@ -128,11 +128,23 @@ public final class ReactiveServerExchangeHandler implements AsyncServerExchangeH
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         final ReactiveDataProducer p = responseProducer.get();
         if (p != null) {
-            p.releaseResources();
+            p.close();
         }
-        requestConsumer.releaseResources();
+        requestConsumer.close();
+    }
+
+    /**
+     * Deprecated, use {@link #close()}.
+     *
+     * @deprecated use {@link #close()}.
+     */
+    @Deprecated
+    @Override
+    // JApicmp can't handle default this method use case? releaseResources() was abstract, now is default.
+    public void releaseResources() {
+        close();
     }
 }

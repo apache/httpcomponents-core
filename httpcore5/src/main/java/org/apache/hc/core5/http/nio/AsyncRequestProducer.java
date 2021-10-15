@@ -51,7 +51,7 @@ public interface AsyncRequestProducer extends AsyncDataProducer {
 
     /**
      * Determines whether the producer can consistently produce the same content
-     * after invocation of {@link ResourceHolder#releaseResources()}.
+     * after invocation of {@link ResourceHolder#close()}.
      */
     boolean isRepeatable();
 

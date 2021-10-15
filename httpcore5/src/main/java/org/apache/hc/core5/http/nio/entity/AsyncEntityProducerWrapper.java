@@ -99,8 +99,8 @@ public class AsyncEntityProducerWrapper implements AsyncEntityProducer {
     }
 
     @Override
-    public void releaseResources() {
-        wrappedEntityProducer.releaseResources();
+    public void close() {
+        wrappedEntityProducer.close();
     }
 
     @Override

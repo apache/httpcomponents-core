@@ -117,14 +117,14 @@ public class BasicRequestProducer implements AsyncRequestProducer {
                 dataProducer.failed(cause);
             }
         } finally {
-            releaseResources();
+            close();
         }
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         if (dataProducer != null) {
-            dataProducer.releaseResources();
+            dataProducer.close();
         }
     }
 }

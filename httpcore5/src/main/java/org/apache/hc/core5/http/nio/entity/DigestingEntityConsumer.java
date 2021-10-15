@@ -104,8 +104,8 @@ public class DigestingEntityConsumer<T> implements AsyncEntityConsumer<T> {
     }
 
     @Override
-    public void releaseResources() {
-        wrapped.releaseResources();
+    public void close() {
+        wrapped.close();
     }
 
     /**

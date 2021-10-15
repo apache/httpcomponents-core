@@ -154,8 +154,8 @@ public class DigestingEntityProducer implements AsyncEntityProducer {
     }
 
     @Override
-    public void releaseResources() {
-        wrapped.releaseResources();
+    public void close() {
+        wrapped.close();
     }
 
     /**

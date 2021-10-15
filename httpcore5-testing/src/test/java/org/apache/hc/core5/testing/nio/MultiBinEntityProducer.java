@@ -90,10 +90,10 @@ public class MultiBinEntityProducer extends AbstractBinAsyncEntityProducer {
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
         count = 0;
         bytebuf.clear();
-        super.releaseResources();
+        super.close();
     }
 
 }

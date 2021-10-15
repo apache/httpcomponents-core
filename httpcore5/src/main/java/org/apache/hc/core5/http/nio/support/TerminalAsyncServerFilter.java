@@ -132,8 +132,8 @@ public final class TerminalAsyncServerFilter implements AsyncFilterHandler {
                         }
 
                         @Override
-                        public void releaseResources() {
-                            exchangeHandler.releaseResources();
+                        public void close() {
+                            exchangeHandler.close();
                         }
 
                     } : null);

@@ -125,7 +125,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
     @Override
     public final void failed(final Exception cause) {
         if (exception.compareAndSet(null, cause)) {
-            releaseResources();
+            close();
         }
     }
 
@@ -134,7 +134,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
     }
 
     @Override
-    public void releaseResources() {
+    public void close() {
     }
 
 }
