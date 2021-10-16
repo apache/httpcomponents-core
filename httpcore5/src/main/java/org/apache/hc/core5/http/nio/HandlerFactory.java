@@ -43,7 +43,7 @@ public interface HandlerFactory<T extends ResourceHolder> {
      * Creates a new handler instance based on properties of
      * an incoming request message..
      *
-     * @param request the incoming reqquest head.
+     * @param request the incoming request head.
      * @param context the actual execution context.
      * @return handler
      */

@@ -209,10 +209,10 @@ public class URLEncodedUtils {
             if (i > 0) {
                 buf.append(parameterSeparator);
             }
-            PercentCodec.encode(buf, parameter.getName(), charset, URLENCODER, true);
+            PercentCodec.encode(buf, parameter.getName(), charset, URL_ENCODER, true);
             if (parameter.getValue() != null) {
                 buf.append('=');
-                PercentCodec.encode(buf, parameter.getValue(), charset, URLENCODER, true);
+                PercentCodec.encode(buf, parameter.getValue(), charset, URL_ENCODER, true);
             }
             i++;
         }
@@ -235,25 +235,25 @@ public class URLEncodedUtils {
         return format(parameters, QP_SEP_A, charset);
     }
 
-    private static final BitSet URLENCODER   = new BitSet(256);
+    private static final BitSet URL_ENCODER = new BitSet(256);
 
     static {
         // unreserved chars
         // alpha characters
         for (int i = 'a'; i <= 'z'; i++) {
-            URLENCODER.set(i);
+            URL_ENCODER.set(i);
         }
         for (int i = 'A'; i <= 'Z'; i++) {
-            URLENCODER.set(i);
+            URL_ENCODER.set(i);
         }
         // numeric characters
         for (int i = '0'; i <= '9'; i++) {
-            URLENCODER.set(i);
+            URL_ENCODER.set(i);
         }
-        URLENCODER.set('_'); // these are the characters of the "mark" list
-        URLENCODER.set('-');
-        URLENCODER.set('.');
-        URLENCODER.set('*');
+        URL_ENCODER.set('_'); // these are the characters of the "mark" list
+        URL_ENCODER.set('-');
+        URL_ENCODER.set('.');
+        URL_ENCODER.set('*');
     }
 
 }

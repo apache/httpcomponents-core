@@ -276,7 +276,7 @@ public class ServerBootstrap {
         Args.notBlank(existing, "Existing");
         Args.notBlank(name, "Name");
         Args.notNull(filterHandler, "Filter handler");
-        filters.add(new FilterEntry<>(FilterEntry.Postion.BEFORE, name, filterHandler, existing));
+        filters.add(new FilterEntry<>(FilterEntry.Position.BEFORE, name, filterHandler, existing));
         return this;
     }
 
@@ -287,7 +287,7 @@ public class ServerBootstrap {
         Args.notBlank(existing, "Existing");
         Args.notBlank(name, "Name");
         Args.notNull(filterHandler, "Filter handler");
-        filters.add(new FilterEntry<>(FilterEntry.Postion.AFTER, name, filterHandler, existing));
+        filters.add(new FilterEntry<>(FilterEntry.Position.AFTER, name, filterHandler, existing));
         return this;
     }
 
@@ -297,7 +297,7 @@ public class ServerBootstrap {
     public final ServerBootstrap replaceFilter(final String existing, final HttpFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
         Args.notNull(filterHandler, "Filter handler");
-        filters.add(new FilterEntry<>(FilterEntry.Postion.REPLACE, existing, filterHandler, existing));
+        filters.add(new FilterEntry<>(FilterEntry.Position.REPLACE, existing, filterHandler, existing));
         return this;
     }
 
@@ -307,7 +307,7 @@ public class ServerBootstrap {
     public final ServerBootstrap addFilterFirst(final String name, final HttpFilterHandler filterHandler) {
         Args.notNull(name, "Name");
         Args.notNull(filterHandler, "Filter handler");
-        filters.add(new FilterEntry<>(FilterEntry.Postion.FIRST, name, filterHandler, null));
+        filters.add(new FilterEntry<>(FilterEntry.Position.FIRST, name, filterHandler, null));
         return this;
     }
 
@@ -317,7 +317,7 @@ public class ServerBootstrap {
     public final ServerBootstrap addFilterLast(final String name, final HttpFilterHandler filterHandler) {
         Args.notNull(name, "Name");
         Args.notNull(filterHandler, "Filter handler");
-        filters.add(new FilterEntry<>(FilterEntry.Postion.LAST, name, filterHandler, null));
+        filters.add(new FilterEntry<>(FilterEntry.Position.LAST, name, filterHandler, null));
         return this;
     }
 
@@ -343,7 +343,7 @@ public class ServerBootstrap {
                     StandardFilter.EXPECT_CONTINUE.name());
 
             for (final FilterEntry<HttpFilterHandler> entry: filters) {
-                switch (entry.postion) {
+                switch (entry.position) {
                     case AFTER:
                         filterChainDefinition.addAfter(entry.existing, entry.filterHandler, entry.name);
                         break;

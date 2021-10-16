@@ -47,7 +47,7 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
     private static final byte[] CRLF = new byte[] {Chars.CR, Chars.LF};
 
     private final CharsetEncoder charEncoder;
-    private final int lineBuffersize;
+    private final int lineBufferSize;
 
     private CharBuffer charbuffer;
 
@@ -55,7 +55,7 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
      *  Creates SessionOutputBufferImpl instance.
      *
      * @param bufferSize input buffer size
-     * @param lineBuffersize buffer size for line operations. Has effect only if
+     * @param lineBufferSize buffer size for line operations. Has effect only if
      *   {@code charEncoder} is not {@code null}.
      * @param charEncoder charEncoder to be used for encoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for char to byte conversion.
@@ -64,10 +64,10 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
      */
     public SessionOutputBufferImpl(
             final int bufferSize,
-            final int lineBuffersize,
+            final int lineBufferSize,
             final CharsetEncoder charEncoder) {
         super(bufferSize);
-        this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
+        this.lineBufferSize = Args.positive(lineBufferSize, "Line buffer size");
         this.charEncoder = charEncoder;
     }
 
@@ -181,7 +181,7 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
                 }
             } else {
                 if (this.charbuffer == null) {
-                    this.charbuffer = CharBuffer.allocate(this.lineBuffersize);
+                    this.charbuffer = CharBuffer.allocate(this.lineBufferSize);
                 }
                 this.charEncoder.reset();
                 // transfer the string in small chunks
