@@ -205,7 +205,7 @@ class BenchmarkWorker implements ResourceHolder {
                     if (config.getVerbosity() >= 6) {
                         if (entityDetails.getContentType() != null) {
                             final ContentType contentType = ContentType.parseLenient(entityDetails.getContentType());
-                            charset = contentType.getCharset();
+                            charset = ContentType.getCharset(contentType, null);
                         }
                     }
                 } else {

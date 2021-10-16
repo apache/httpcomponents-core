@@ -349,10 +349,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                     @Override
                     protected String consumeData(
                             final ContentType contentType, final InputStream inputStream) throws IOException {
-                        Charset charset = contentType != null ? contentType.getCharset() : null;
-                        if (charset == null) {
-                            charset = StandardCharsets.US_ASCII;
-                        }
+                        final Charset charset = ContentType.getCharset(contentType, StandardCharsets.US_ASCII);
 
                         final StringBuilder buffer = new StringBuilder();
                         try {
@@ -400,10 +397,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
                     @Override
                     protected void produceData(final ContentType contentType, final OutputStream outputStream) throws IOException {
-                        Charset charset = contentType.getCharset();
-                        if (charset == null) {
-                            charset = StandardCharsets.US_ASCII;
-                        }
+                        final Charset charset = ContentType.getCharset(contentType, StandardCharsets.US_ASCII);
                         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream, charset))) {
                             for (int i = 0; i < 500; i++) {
                                 if (i % 100 == 0) {
@@ -458,10 +452,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 }
                 final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
                 final ContentType contentType = h1 != null ? ContentType.parse(h1.getValue()) : null;
-                Charset charset = contentType != null ? contentType.getCharset() : null;
-                if (charset == null) {
-                    charset = StandardCharsets.US_ASCII;
-                }
+                final Charset charset = ContentType.getCharset(contentType, StandardCharsets.US_ASCII);
                 response.setCode(HttpStatus.SC_OK);
                 response.setHeader(h1);
                 try (final BufferedReader reader = new BufferedReader(new InputStreamReader(requestStream, charset));

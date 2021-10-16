@@ -249,6 +249,17 @@ public final class ContentType implements Serializable {
     }
 
     /**
+     * Gets this Charset if it's non-null, otherwise, return the given {@code defaultCharset}.
+     *
+     * @param defaultCharset A default Charset.
+     * @return this Charset if it's non-null, or the given {@code defaultCharset}.
+     * @since 5.2
+     */
+    public Charset getCharset(final Charset defaultCharset) {
+        return this.charset != null ? this.charset : defaultCharset;
+    }
+
+    /**
      * @since 4.3
      */
     public String getParameter(final String name) {
@@ -384,8 +395,7 @@ public final class ContentType implements Serializable {
      * Parses textual representation of {@code Content-Type} value.
      *
      * @param s text
-     * @return content type
-     * {@code Content-Type} value.
+     * @return content type {@code Content-Type} value or null.
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
@@ -397,8 +407,7 @@ public final class ContentType implements Serializable {
      * Parses textual representation of {@code Content-Type} value ignoring invalid charsets.
      *
      * @param s text
-     * @return content type
-     * {@code Content-Type} value.
+     * @return content type {@code Content-Type} value or null.
      * @throws UnsupportedCharsetException Thrown when the named charset is not available in
      * this instance of the Java virtual machine
      */
@@ -434,6 +443,18 @@ public final class ContentType implements Serializable {
             return null;
         }
         return CONTENT_TYPE_MAP.get(mimeType);
+    }
+
+    /**
+     * Gets a ContentType's Charset if neither are null, otherwise, return the given {@code defaultCharset}.
+     *
+     * @param contentType the ContentType to test and query.
+     * @param defaultCharset a default Charset.
+     * @return the ContentType's Charset if neither are null, otherwise, return the given {@code defaultCharset}.
+     * @since 5.2
+     */
+    public static Charset getCharset(final ContentType contentType, final Charset defaultCharset) {
+        return contentType != null ? contentType.getCharset(defaultCharset) : defaultCharset;
     }
 
     /**
