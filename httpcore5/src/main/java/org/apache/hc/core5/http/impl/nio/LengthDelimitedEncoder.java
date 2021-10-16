@@ -77,7 +77,7 @@ public class LengthDelimitedEncoder extends AbstractContentEncoder implements Fi
         super(channel, buffer, metrics);
         Args.notNegative(contentLength, "Content length");
         this.contentLength = contentLength;
-        this.fragHint = chunkSizeHint > 0 ? chunkSizeHint : 0;
+        this.fragHint = Math.max(chunkSizeHint, 0);
         this.remaining = contentLength;
     }
 
