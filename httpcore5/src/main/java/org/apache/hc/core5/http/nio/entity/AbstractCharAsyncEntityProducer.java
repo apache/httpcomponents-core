@@ -70,10 +70,7 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
         this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : 0;
         this.bytebuf = ByteBuffer.allocate(bufferSize);
         this.contentType = contentType;
-        Charset charset = contentType != null ? contentType.getCharset() : null;
-        if (charset == null) {
-            charset = StandardCharsets.US_ASCII;
-        }
+        final Charset charset = ContentType.getCharset(contentType, StandardCharsets.US_ASCII);
         this.charsetEncoder = charset.newEncoder();
         this.state = State.ACTIVE;
     }

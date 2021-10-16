@@ -62,10 +62,7 @@ public class StringEntity extends AbstractHttpEntity {
             final String string, final ContentType contentType, final String contentEncoding, final boolean chunked) {
         super(contentType, contentEncoding, chunked);
         Args.notNull(string, "Source string");
-        Charset charset = contentType != null ? contentType.getCharset() : null;
-        if (charset == null) {
-            charset = StandardCharsets.ISO_8859_1;
-        }
+        final Charset charset = ContentType.getCharset(contentType, StandardCharsets.ISO_8859_1);
         this.content = string.getBytes(charset);
     }
 
