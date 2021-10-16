@@ -68,7 +68,7 @@ public class IdentityEncoder extends AbstractContentEncoder implements FileConte
             final BasicHttpTransportMetrics metrics,
             final int chunkSizeHint) {
         super(channel, buffer, metrics);
-        this.fragHint = chunkSizeHint > 0 ? chunkSizeHint : 0;
+        this.fragHint = Math.max(chunkSizeHint, 0);
     }
 
     public IdentityEncoder(

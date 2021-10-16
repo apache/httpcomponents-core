@@ -69,7 +69,7 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
             final CharsetDecoder charDecoder) {
         super(bufferSize);
         this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
-        this.maxLineLen = maxLineLen > 0 ? maxLineLen : 0;
+        this.maxLineLen = Math.max(maxLineLen, 0);
         this.charDecoder = charDecoder;
     }
 

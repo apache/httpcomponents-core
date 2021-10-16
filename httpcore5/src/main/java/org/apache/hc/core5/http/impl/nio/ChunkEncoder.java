@@ -63,7 +63,7 @@ public class ChunkEncoder extends AbstractContentEncoder {
             final BasicHttpTransportMetrics metrics,
             final int chunkSizeHint) {
         super(channel, buffer, metrics);
-        this.chunkSizeHint = chunkSizeHint > 0 ? chunkSizeHint : 0;
+        this.chunkSizeHint = Math.max(chunkSizeHint, 0);
         this.lineBuffer = new CharArrayBuffer(16);
     }
 

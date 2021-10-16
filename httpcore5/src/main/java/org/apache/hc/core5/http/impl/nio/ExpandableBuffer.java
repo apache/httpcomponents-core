@@ -123,7 +123,7 @@ public class ExpandableBuffer {
             final int vmBytes = Long.SIZE >> 3;
             final int javaBytes = 8; // this is to be checked when the JVM version changes
             @SuppressWarnings("unused") // we really need the 8 if we're going to make this foolproof
-            final int headRoom = (vmBytes >= javaBytes) ? vmBytes : javaBytes;
+            final int headRoom = Math.max(vmBytes, javaBytes);
             // Reason: In GC the size of objects is passed as int (2 bytes).
             // Then, the header size of the objects is added to the size.
             // Long has the longest header available. Object header seems to be linked to it.

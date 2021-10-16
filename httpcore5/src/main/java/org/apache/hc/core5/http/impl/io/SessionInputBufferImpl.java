@@ -94,7 +94,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         this.bufferPos = 0;
         this.bufferLen = 0;
         this.minChunkLimit = minChunkLimit >= 0 ? minChunkLimit : 512;
-        this.maxLineLen = maxLineLen > 0 ? maxLineLen : 0;
+        this.maxLineLen = Math.max(maxLineLen, 0);
         this.lineBuffer = new ByteArrayBuffer(bufferSize);
         this.decoder = charDecoder;
     }
