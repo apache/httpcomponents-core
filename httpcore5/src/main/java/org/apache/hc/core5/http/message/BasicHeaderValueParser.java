@@ -53,8 +53,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     // IMPORTANT!
     // These private static variables must be treated as immutable and never exposed outside this class
-    private static final BitSet TOKEN_DELIMS = Tokenizer.INIT_BITSET('=', PARAM_DELIMITER, ELEM_DELIMITER);
-    private static final BitSet VALUE_DELIMS = Tokenizer.INIT_BITSET(PARAM_DELIMITER, ELEM_DELIMITER);
+    private static final BitSet TOKEN_DELIMITER = Tokenizer.INIT_BITSET('=', PARAM_DELIMITER, ELEM_DELIMITER);
+    private static final BitSet VALUE_DELIMITER = Tokenizer.INIT_BITSET(PARAM_DELIMITER, ELEM_DELIMITER);
 
     private final Tokenizer tokenizer;
 
@@ -123,7 +123,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         Args.notNull(buffer, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
 
-        final String name = tokenizer.parseToken(buffer, cursor, TOKEN_DELIMS);
+        final String name = tokenizer.parseToken(buffer, cursor, TOKEN_DELIMITER);
         if (cursor.atEnd()) {
             return new BasicNameValuePair(name, null);
         }
@@ -132,7 +132,7 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         if (delim != '=') {
             return new BasicNameValuePair(name, null);
         }
-        final String value = tokenizer.parseValue(buffer, cursor, VALUE_DELIMS);
+        final String value = tokenizer.parseValue(buffer, cursor, VALUE_DELIMITER);
         if (!cursor.atEnd()) {
             cursor.updatePos(cursor.getPos() + 1);
         }

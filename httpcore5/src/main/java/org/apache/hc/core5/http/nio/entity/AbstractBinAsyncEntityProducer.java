@@ -49,23 +49,23 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
     enum State { ACTIVE, FLUSHING, END_STREAM }
 
     private final int fragmentSizeHint;
-    private final ByteBuffer bytebuf;
+    private final ByteBuffer byteBuffer;
     private final ContentType contentType;
 
     private volatile State state;
 
     public AbstractBinAsyncEntityProducer(final int fragmentSizeHint, final ContentType contentType) {
         this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : 0;
-        this.bytebuf = ByteBuffer.allocate(this.fragmentSizeHint);
+        this.byteBuffer = ByteBuffer.allocate(this.fragmentSizeHint);
         this.contentType = contentType;
         this.state = State.ACTIVE;
     }
 
     private void flush(final StreamChannel<ByteBuffer> channel) throws IOException {
-        if (bytebuf.position() > 0) {
-            bytebuf.flip();
-            channel.write(bytebuf);
-            bytebuf.compact();
+        if (byteBuffer.position() > 0) {
+            byteBuffer.flip();
+            channel.write(byteBuffer);
+            byteBuffer.compact();
         }
     }
 
@@ -80,7 +80,7 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
 
             // flush the buffer if not empty
             flush(channel);
-            if (bytebuf.position() == 0) {
+            if (byteBuffer.position() == 0) {
                 return channel.write(src);
             }
         } else {
@@ -88,12 +88,12 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
             // attempt to buffer it
 
             // flush the buffer if there is not enough space to store the chunk
-            if (bytebuf.remaining() < chunk) {
+            if (byteBuffer.remaining() < chunk) {
                 flush(channel);
             }
-            if (bytebuf.remaining() >= chunk) {
-                bytebuf.put(src);
-                if (!bytebuf.hasRemaining()) {
+            if (byteBuffer.remaining() >= chunk) {
+                byteBuffer.put(src);
+                if (!byteBuffer.hasRemaining()) {
                     flush(channel);
                 }
                 return chunk;
@@ -106,7 +106,7 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
         if (state == State.ACTIVE) {
             state = State.FLUSHING;
             flush(channel);
-            if (bytebuf.position() == 0) {
+            if (byteBuffer.position() == 0) {
                 state = State.END_STREAM;
                 channel.endStream();
             }
@@ -163,29 +163,29 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
         if (state == State.ACTIVE) {
             return availableData();
         } else {
-            synchronized (bytebuf) {
-                return bytebuf.position();
+            synchronized (byteBuffer) {
+                return byteBuffer.position();
             }
         }
     }
 
     @Override
     public final void produce(final DataStreamChannel channel) throws IOException {
-        synchronized (bytebuf) {
+        synchronized (byteBuffer) {
             if (state == State.ACTIVE) {
                 produceData(new StreamChannel<ByteBuffer>() {
 
                     @Override
                     public int write(final ByteBuffer src) throws IOException {
                         Args.notNull(src, "Buffer");
-                        synchronized (bytebuf) {
+                        synchronized (byteBuffer) {
                             return writeData(channel, src);
                         }
                     }
 
                     @Override
                     public void endStream() throws IOException {
-                        synchronized (bytebuf) {
+                        synchronized (byteBuffer) {
                             streamEnd(channel);
                         }
                     }
@@ -194,7 +194,7 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
             }
             if (state == State.FLUSHING) {
                 flush(channel);
-                if (bytebuf.position() == 0) {
+                if (byteBuffer.position() == 0) {
                     state = State.END_STREAM;
                     channel.endStream();
                 }

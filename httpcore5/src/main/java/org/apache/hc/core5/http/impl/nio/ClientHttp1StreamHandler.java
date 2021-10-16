@@ -154,13 +154,13 @@ class ClientHttp1StreamHandler implements ResourceHolder {
 
             final boolean endStream = entityDetails == null;
             if (endStream) {
-                outputChannel.submit(request, endStream, FlushMode.IMMEDIATE);
+                outputChannel.submit(request, true, FlushMode.IMMEDIATE);
                 committedRequest = request;
                 requestState = MessageState.COMPLETE;
             } else {
                 final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
                 final boolean expectContinue = h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue());
-                outputChannel.submit(request, endStream, expectContinue ? FlushMode.IMMEDIATE : FlushMode.BUFFER);
+                outputChannel.submit(request, false, expectContinue ? FlushMode.IMMEDIATE : FlushMode.BUFFER);
                 committedRequest = request;
                 if (expectContinue) {
                     requestState = MessageState.ACK;

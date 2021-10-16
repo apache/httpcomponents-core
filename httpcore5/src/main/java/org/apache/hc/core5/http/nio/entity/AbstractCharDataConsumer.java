@@ -52,14 +52,14 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
     protected static final int DEF_BUF_SIZE = 8192;
     private static final ByteBuffer EMPTY_BIN = ByteBuffer.wrap(new byte[0]);
 
-    private final CharBuffer charbuf;
+    private final CharBuffer charBuffer;
     private final CharCodingConfig charCodingConfig;
 
     private volatile Charset charset;
     private volatile CharsetDecoder charsetDecoder;
 
     protected AbstractCharDataConsumer(final int bufSize, final CharCodingConfig charCodingConfig) {
-        this.charbuf = CharBuffer.allocate(Args.positive(bufSize, "Buffer size"));
+        this.charBuffer = CharBuffer.allocate(Args.positive(bufSize, "Buffer size"));
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
     }
 
@@ -104,9 +104,9 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
     }
 
     private void doDecode(final boolean endOfStream) throws IOException {
-        charbuf.flip();
-        data(charbuf, endOfStream);
-        charbuf.clear();
+        charBuffer.flip();
+        data(charBuffer, endOfStream);
+        charBuffer.clear();
     }
 
     private CharsetDecoder getCharsetDecoder() {
@@ -133,7 +133,7 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
     public final void consume(final ByteBuffer src) throws IOException {
         final CharsetDecoder charsetDecoder = getCharsetDecoder();
         while (src.hasRemaining()) {
-            checkResult(charsetDecoder.decode(src, charbuf, false));
+            checkResult(charsetDecoder.decode(src, charBuffer, false));
             doDecode(false);
         }
     }
@@ -141,9 +141,9 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
     @Override
     public final void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
         final CharsetDecoder charsetDecoder = getCharsetDecoder();
-        checkResult(charsetDecoder.decode(EMPTY_BIN, charbuf, true));
+        checkResult(charsetDecoder.decode(EMPTY_BIN, charBuffer, true));
         doDecode(false);
-        checkResult(charsetDecoder.flush(charbuf));
+        checkResult(charsetDecoder.flush(charBuffer));
         doDecode(true);
         completed();
     }
