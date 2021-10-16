@@ -1,19 +1,52 @@
-Release 5.2 ALPHA1
+Release 5.2 ALPHA2
 ------------------
 
-This is the first ALPHA release in the 5.2 release series that upgrades minimal JRE
-level to version 1.8 (8u251 is required) and includes several protocol level and
-API improvements. It also includes all bug fixes from the 5.1 branch.
+This is the second ALPHA release in the 5.2 release series that fixes a regression
+in the TLS layer introduced by the previous ALPHA and adds a number of incremental
+improvements.
+
+Please note that 5.2 upgrades minimal JRE level to version 8 (8u251 is required).
+
 
 Notable changes and features included in the 5.2 series:
 
-* Upgrade to Java 1.8.
+* Upgrade to Java 8.
 
 * Improved support for TLS upgrade and HTTP protocol upgrade (async).
 
 * Improved customization of HTTP listeners (async).
 
 * Improved parsing and formatting of URI components.
+
+
+Change Log
+-------------------
+
+* Add PathEntityProducer, an NIO entity provider (#302).
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+* Add SSLContextBuilder NIO Path versions of IO File APIs and re-implement
+  internals with NIO (#301).
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+* Allow setting parameters to null arrays and lists to behave like empty (#300).
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+* Bug fix, regression: TLS handshake result callback does not get called
+  in case of a timeout.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-2174: URUBuilder to return a new empty list instead of unmodifiable
+  Collections#emptyList.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+Release 5.2 ALPHA1
+------------------
+
+This is the first ALPHA release in the 5.2 release series that upgrades minimal JRE
+level to version 1.8 (8u251 is required) and includes several protocol level and
+API improvements. It also includes all bug fixes from the 5.1 branch.
 
 
 Change Log
