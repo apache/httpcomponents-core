@@ -32,7 +32,12 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -274,6 +279,25 @@ public class TimeValue implements Comparable<TimeValue> {
         this.timeUnit = Args.notNull(timeUnit, "timeUnit");
     }
 
+    /**
+     * Causes the current thread to wait until the given latch has counted down to
+     * zero, unless the thread is {@linkplain Thread#interrupt interrupted}, or the
+     * specified waiting time elapses.
+     * <p>
+     * Delegates to {@link CountDownLatch#await(long, TimeUnit)}.
+     * </p>
+     *
+     * @param countDownLatch the latch to await on
+     * @return {@code true} if the count reached zero and {@code false} if the
+     *         waiting time elapsed before the count reached zero
+     * @throws InterruptedException if the current thread is interrupted while
+     *                              waiting
+     * @since 5.2
+     */
+    public boolean await(final CountDownLatch countDownLatch) throws InterruptedException {
+        return countDownLatch.await(getDuration(), getTimeUnit());
+    }
+
     public long convert(final TimeUnit targetTimeUnit) {
         Args.notNull(targetTimeUnit, "timeUnit");
         return targetTimeUnit.convert(duration, timeUnit);
@@ -320,6 +344,26 @@ public class TimeValue implements Comparable<TimeValue> {
      */
     public TimeValue divide(final long divisor, final TimeUnit targetTimeUnit) {
         return of(convert(targetTimeUnit) / divisor, targetTimeUnit);
+    }
+
+    /**
+     * Waits if necessary for at most this timeout for the given computation to
+     * complete, and then retrieves its result, if available.
+     * <p>
+     * Delegates to {@link Future#get(long, TimeUnit)}.
+     * </p>
+     *
+     * @param future the computation
+     * @return the computed result
+     * @throws CancellationException if the computation was cancelled
+     * @throws ExecutionException    if the computation threw an exception
+     * @throws InterruptedException  if the current thread was interrupted while
+     *                               waiting
+     * @throws TimeoutException      if the wait timed out
+     * @since 5.2
+     */
+    public <T> T get(final Future<T> future) throws InterruptedException, ExecutionException, TimeoutException {
+        return future.get(getDuration(), getTimeUnit());
     }
 
     public long getDuration() {

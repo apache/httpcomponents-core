@@ -175,7 +175,7 @@ public class AsyncServerBootstrapFilterTest {
                 new BasicRequestProducer(Method.POST, target, "/filters",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> message = TIMEOUT.get(resultFuture);
         MatcherAssert.assertThat(message, CoreMatchers.notNullValue());
         final HttpResponse response = message.getHead();
         MatcherAssert.assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));

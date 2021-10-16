@@ -187,8 +187,7 @@ public class ReactiveClientTest {
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
         requester.execute(request, consumer, SOCKET_TIMEOUT, null);
 
-        final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
-                .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, Publisher<ByteBuffer>> response = RESULT_TIMEOUT.get(consumer.getResponseFuture());
 
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final WritableByteChannel writableByteChannel = Channels.newChannel(byteArrayOutputStream);
@@ -215,8 +214,7 @@ public class ReactiveClientTest {
 
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
         requester.execute(request, consumer, SOCKET_TIMEOUT, null);
-        final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
-                .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, Publisher<ByteBuffer>> response = RESULT_TIMEOUT.get(consumer.getResponseFuture());
         final StreamDescription desc = ReactiveTestUtils.consumeStream(response.getBody()).blockingGet();
 
         Assert.assertEquals(expectedLength, desc.length);
@@ -240,8 +238,7 @@ public class ReactiveClientTest {
 
             final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
             requester.execute(request, consumer, SOCKET_TIMEOUT, null);
-            final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
-                .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, Publisher<ByteBuffer>> response = RESULT_TIMEOUT.get(consumer.getResponseFuture());
             final StreamDescription desc = ReactiveTestUtils.consumeStream(response.getBody()).blockingGet();
 
             Assert.assertEquals(expectedLength, desc.length);
@@ -263,7 +260,7 @@ public class ReactiveClientTest {
         final Future<Void> future = requester.execute(request, consumer, SOCKET_TIMEOUT, null);
 
         final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
-                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
+                RESULT_TIMEOUT.get(future));
         Assert.assertTrue(exception.getCause() instanceof HttpStreamResetException);
         Assert.assertSame(exceptionThrown, exception.getCause().getCause());
     }
@@ -281,7 +278,7 @@ public class ReactiveClientTest {
         final Future<Void> future = requester.execute(request, consumer, Timeout.ofSeconds(1), null);
 
         final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
-                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
+                RESULT_TIMEOUT.get(future));
         Assert.assertTrue(requestPublisherWasCancelled.get());
         final Throwable cause = exception.getCause();
         if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_1) {
@@ -308,8 +305,7 @@ public class ReactiveClientTest {
 
         final ReactiveResponseConsumer consumer = new ReactiveResponseConsumer();
         final Future<Void> future = requester.execute(request, consumer, SOCKET_TIMEOUT, null);
-        final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
-                .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, Publisher<ByteBuffer>> response = RESULT_TIMEOUT.get(consumer.getResponseFuture());
 
         final AtomicBoolean responsePublisherWasCancelled = new AtomicBoolean(false);
         final List<ByteBuffer> outputBuffers = Flowable.fromPublisher(response.getBody())
@@ -320,7 +316,7 @@ public class ReactiveClientTest {
         Assert.assertEquals(3, outputBuffers.size());
         Assert.assertTrue("The response subscription should have been cancelled", responsePublisherWasCancelled.get());
         final Exception exception = Assert.assertThrows(Exception.class, () ->
-                future.get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit()));
+                RESULT_TIMEOUT.get(future));
         MatcherAssert.assertThat(exception, CoreMatchers.anyOf(
                 CoreMatchers.instanceOf(CancellationException.class),
                 CoreMatchers.instanceOf(ExecutionException.class)));

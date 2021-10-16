@@ -219,7 +219,7 @@ public class JSSEProviderIntegrationTest {
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response1 = result.getHead();
             final String entity1 = result.getBody();
@@ -245,7 +245,7 @@ public class JSSEProviderIntegrationTest {
                                 .addHeader(HttpHeaders.CONNECTION, "close")
                                 .build(),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-                final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                final Message<HttpResponse, String> result = TIMEOUT.get(future);
                 Assert.assertNotNull(result);
                 final HttpResponse response1 = result.getHead();
                 final String entity1 = result.getBody();
@@ -271,7 +271,7 @@ public class JSSEProviderIntegrationTest {
                 final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                         new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-                final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                final Message<HttpResponse, String> result = TIMEOUT.get(future);
                 Assert.assertNotNull(result);
                 final HttpResponse response = result.getHead();
                 final String entity = result.getBody();

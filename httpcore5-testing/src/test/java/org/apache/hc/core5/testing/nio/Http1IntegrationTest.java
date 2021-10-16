@@ -206,7 +206,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response1 = result.getHead();
             final String entity1 = result.getBody();
@@ -232,7 +232,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                                 .addHeader(HttpHeaders.CONNECTION, "close")
                                 .build(),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-                final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
                 Assert.assertNotNull(result);
                 final HttpResponse response1 = result.getHead();
                 final String entity1 = result.getBody();
@@ -260,7 +260,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
 
             streamEndpoint.close();
 
@@ -293,7 +293,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                             createRequestURI(serverEndpoint, "/hello"),
                             new MultiLineEntityProducer("Hello", 16 * i)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
 
             streamEndpoint.close();
 
@@ -325,7 +325,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                             createRequestURI(serverEndpoint, "/hello"),
                             new MultiLineEntityProducer("Hello", 16 * i)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
 
             streamEndpoint.close();
 
@@ -356,7 +356,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         }
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response = result.getHead();
             final String entity = result.getBody();
@@ -380,7 +380,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -396,7 +396,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer(512)), null);
 
-        final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result2 = TIMEOUT.get(future2);
         Assert.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
         Assert.assertNotNull(response2);
@@ -427,7 +427,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         }
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
-            final Message<HttpResponse, String> result = future.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response = result.getHead();
             Assert.assertNotNull(response);
@@ -456,7 +456,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/hello"),
                             AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response1 = result.getHead();
             final String entity1 = result.getBody();
@@ -485,7 +485,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         }
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response = result.getHead();
             final String entity = result.getBody();
@@ -511,7 +511,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(request, AsyncEntityProducers.create("Hi there")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response1 = result.getHead();
             final String entity1 = result.getBody();
@@ -536,7 +536,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response1 = result.getHead();
             final String entity1 = result.getBody();
@@ -561,7 +561,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                     new BasicRequestProducer(Method.POST, createRequestURI(serverEndpoint, "/echo"),
                             new MultiLineEntityProducer("0123456789abcdef", 5000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response = result.getHead();
             Assert.assertNotNull(response);
@@ -594,7 +594,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         }
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response = result.getHead();
             Assert.assertNotNull(response);
@@ -628,7 +628,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         }
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response = result.getHead();
             Assert.assertNotNull(response);
@@ -656,7 +656,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                     new BasicRequestProducer(Method.HEAD, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response1 = result.getHead();
             Assert.assertNotNull(response1);
@@ -681,7 +681,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                                 .addHeader(HttpHeaders.CONNECTION, "close")
                                 .build(),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-                final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+                final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
                 Assert.assertNotNull(result);
                 final HttpResponse response1 = result.getHead();
                 Assert.assertNotNull(response1);
@@ -709,7 +709,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         }
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
-            final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response1 = result.getHead();
             Assert.assertNotNull(response1);
@@ -755,7 +755,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 1000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -768,7 +768,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result2 = TIMEOUT.get(future2);
         Assert.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
         Assert.assertNotNull(response2);
@@ -782,7 +782,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future3 = streamEndpoint.execute(
                 new BasicRequestProducer(request3, new MultiLineEntityProducer("0123456789abcdef", 1000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result3 = future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result3 = TIMEOUT.get(future3);
         Assert.assertNotNull(result3);
         final HttpResponse response3 = result3.getHead();
         Assert.assertNotNull(response3);
@@ -795,7 +795,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future4 = streamEndpoint.execute(
                 new BasicRequestProducer(request4, AsyncEntityProducers.create("blah")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result4 = future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result4 = TIMEOUT.get(future4);
         Assert.assertNotNull(result4);
         final HttpResponse response4 = result4.getHead();
         Assert.assertNotNull(response4);
@@ -846,7 +846,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                         100000,
                         ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -943,7 +943,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         }
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
-            final Message<HttpResponse, String> result = future.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
             Assert.assertNotNull(result);
             final HttpResponse response = result.getHead();
             Assert.assertNotNull(response);
@@ -1020,7 +1020,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
             final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                     new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 100000)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-            final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
             Assert.assertNotNull(result1);
             final HttpResponse response1 = result1.getHead();
             Assert.assertNotNull(response1);
@@ -1036,7 +1036,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                         100000,
                         ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -1084,7 +1084,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 }),
                 null);
 
-        final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = LONG_TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -1130,7 +1130,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
                 }),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = LONG_TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -1204,7 +1204,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcd", 2000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = LONG_TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -1242,7 +1242,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                         AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         final String entity1 = result1.getBody();
@@ -1250,7 +1250,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(200, response1.getCode());
         Assert.assertEquals("Hi back", entity1);
 
-        final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result2 = TIMEOUT.get(future2);
         Assert.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
         final String entity2 = result2.getBody();
@@ -1259,7 +1259,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals("Hi back", entity2);
 
         final Exception exception = Assert.assertThrows(Exception.class, () ->
-                future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+                TIMEOUT.get(future3));
         MatcherAssert.assertThat(exception, CoreMatchers.anyOf(
                 CoreMatchers.instanceOf(CancellationException.class),
                 CoreMatchers.instanceOf(ExecutionException.class)));
@@ -1269,7 +1269,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                         AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Exception exception2 = Assert.assertThrows(Exception.class, () ->
-                future4.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+                TIMEOUT.get(future4));
         MatcherAssert.assertThat(exception2, CoreMatchers.anyOf(
                 CoreMatchers.instanceOf(CancellationException.class),
                 CoreMatchers.instanceOf(ExecutionException.class)));
@@ -1300,7 +1300,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                         AsyncEntityProducers.create("Hi there")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
 
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         final String entity1 = result1.getBody();
@@ -1308,7 +1308,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertEquals(200, response1.getCode());
         Assert.assertEquals("Hi back", entity1);
 
-        final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result2 = TIMEOUT.get(future2);
         Assert.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
         final String entity2 = result2.getBody();
@@ -1318,7 +1318,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
 
         final Exception exception = Assert.assertThrows(Exception.class, () ->
-                future3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+                TIMEOUT.get(future3));
         MatcherAssert.assertThat(exception, CoreMatchers.anyOf(
                 CoreMatchers.instanceOf(CancellationException.class),
                 CoreMatchers.instanceOf(ExecutionException.class)));
@@ -1445,7 +1445,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final BasicResponseConsumer<String> responseConsumer = new BasicResponseConsumer<>(entityConsumer);
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(requestProducer, responseConsumer, null);
         final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
-                future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+                TIMEOUT.get(future1));
         final Throwable cause = exception.getCause();
         Assert.assertTrue(cause instanceof MalformedChunkCodingException);
         Assert.assertEquals("garbage", entityConsumer.generateContent());
@@ -1473,7 +1473,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                 new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
         Assert.assertNotNull(result);
         final HttpResponse response1 = result.getHead();
         final String entity1 = result.getBody();
@@ -1494,7 +1494,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                 new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
         Assert.assertNotNull(result);
         final HttpResponse response1 = result.getHead();
         final String entity1 = result.getBody();
@@ -1526,7 +1526,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                 new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
         Assert.assertNotNull(result);
         final HttpResponse response1 = result.getHead();
         Assert.assertNotNull(response1);
@@ -1550,7 +1550,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -1562,7 +1562,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result2 = TIMEOUT.get(future2);
         Assert.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
         Assert.assertNotNull(response2);
@@ -1606,7 +1606,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(entityConsumer), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -1689,7 +1689,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                 new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/boom")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result = LONG_TIMEOUT.get(future);
         Assert.assertNotNull(result);
         final HttpResponse response1 = result.getHead();
         final String entity1 = result.getBody();
@@ -1716,7 +1716,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
@@ -1749,7 +1749,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
                 new BasicRequestProducer(request1, AsyncEntityProducers.create(b, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final Message<HttpResponse, String> result1 = TIMEOUT.get(future1);
         Assert.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         Assert.assertNotNull(response1);
