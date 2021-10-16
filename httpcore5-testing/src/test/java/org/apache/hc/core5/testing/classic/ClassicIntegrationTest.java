@@ -580,10 +580,7 @@ public class ClassicIntegrationTest {
             if (entity != null) {
                 final String line = EntityUtils.toString(entity);
                 final ContentType contentType = ContentType.parse(entity.getContentType());
-                Charset charset = contentType.getCharset();
-                if (charset == null) {
-                    charset = StandardCharsets.ISO_8859_1;
-                }
+                final Charset charset = ContentType.getCharset(contentType, StandardCharsets.ISO_8859_1);
                 response.setEntity(new RepeatingEntity(line, charset, n, n % 2 == 0));
             }
         });
@@ -605,10 +602,7 @@ public class ClassicIntegrationTest {
                     Assert.assertNotNull(entity);
                     final InputStream inStream = entity.getContent();
                     final ContentType contentType = ContentType.parse(entity.getContentType());
-                    Charset charset = contentType.getCharset();
-                    if (charset == null) {
-                        charset = StandardCharsets.ISO_8859_1;
-                    }
+                    final Charset charset = ContentType.getCharset(contentType, StandardCharsets.ISO_8859_1);
                     Assert.assertNotNull(inStream);
                     final BufferedReader reader = new BufferedReader(new InputStreamReader(inStream, charset));
 

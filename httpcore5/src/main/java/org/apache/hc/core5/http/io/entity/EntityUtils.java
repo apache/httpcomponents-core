@@ -400,8 +400,7 @@ public final class EntityUtils {
         if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {
             return Collections.emptyList();
         }
-        final Charset charset = contentType.getCharset() != null ? contentType.getCharset()
-                        : DEFAULT_CHARSET;
+        final Charset charset = contentType.getCharset(DEFAULT_CHARSET);
         final CharArrayBuffer buf;
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {

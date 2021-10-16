@@ -79,7 +79,7 @@ public abstract class AbstractCharAsyncEntityConsumer<T> extends AbstractCharDat
         this.resultCallback = resultCallback;
         try {
             final ContentType contentType = entityDetails != null ? ContentType.parse(entityDetails.getContentType()) : null;
-            setCharset(contentType != null ? contentType.getCharset() : null);
+            setCharset(ContentType.getCharset(contentType, null));
             streamStart(contentType);
         } catch (final UnsupportedCharsetException ex) {
             throw new UnsupportedEncodingException(ex.getMessage());

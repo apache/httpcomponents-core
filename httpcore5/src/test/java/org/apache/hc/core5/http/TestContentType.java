@@ -116,6 +116,18 @@ public class TestContentType {
     }
 
     @Test
+    public void testParseDefaultCharset() throws Exception {
+        final ContentType contentType = ContentType.parse("text/plain; charset=\" \"");
+        Assert.assertEquals("text/plain", contentType.getMimeType());
+        Assert.assertNull(contentType.getCharset());
+        Assert.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset(StandardCharsets.US_ASCII));
+        Assert.assertNull(contentType.getCharset(null));
+        //
+        Assert.assertNull(ContentType.getCharset(contentType, null));
+        Assert.assertEquals(StandardCharsets.US_ASCII, ContentType.getCharset(contentType, StandardCharsets.US_ASCII));
+    }
+
+    @Test
     public void testParseEmptyValue() throws Exception {
         Assert.assertNull(ContentType.parse(null));
         Assert.assertNull(ContentType.parse(""));
