@@ -87,6 +87,8 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     }
 
     /**
+     * Constructs a new instance.
+     *
      * @throws IllegalArgumentException
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
      *             65535, inclusive. {@code -1} indicates the scheme default port.
@@ -133,7 +135,7 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     }
 
     /**
-     * Creates {@code URIHost} instance from string. Text may not contain any blanks.
+     * Creates a {@code URIAuthority} instance from a string. Text may not contain any blanks.
      */
     public static URIAuthority create(final String s) throws URISyntaxException {
         if (TextUtils.isBlank(s)) {

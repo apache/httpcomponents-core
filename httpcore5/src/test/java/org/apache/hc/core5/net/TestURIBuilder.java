@@ -38,6 +38,7 @@ import java.util.List;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.NameValuePairListMatcher;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
@@ -320,6 +321,53 @@ public class TestURIBuilder {
         final URIBuilder uribuilder = new URIBuilder(uri).removeQuery();
         final URI result = uribuilder.build();
         Assert.assertEquals(new URI("http://localhost:80/"), result);
+    }
+
+    @Test
+    public void testSetAuthorityFromNamedEndpointHost() throws Exception {
+        final Host host = Host.create("localhost:88");
+        final URIBuilder uribuilder = new URIBuilder().setScheme(URIScheme.HTTP.id).setAuthority(host);
+        // Check builder
+        Assert.assertNull(uribuilder.getUserInfo());
+        Assert.assertEquals(host.getHostName(), uribuilder.getAuthority().getHostName());
+        Assert.assertEquals(host.getHostName(), uribuilder.getHost());
+        // Check result
+        final URI result = uribuilder.build();
+        Assert.assertEquals(host.getHostName(), result.getHost());
+        Assert.assertEquals(host.getPort(), result.getPort());
+        Assert.assertEquals(new URI("http://localhost:88"), result);
+    }
+
+    @Test
+    public void testSetAuthorityFromNamedEndpointHttpHost() throws Exception {
+        final HttpHost httpHost = HttpHost.create("localhost:88");
+        final URIBuilder uribuilder = new URIBuilder().setScheme(URIScheme.HTTP.id).setAuthority(httpHost);
+        // Check builder
+        Assert.assertNull(uribuilder.getUserInfo());
+        Assert.assertEquals(httpHost.getHostName(), uribuilder.getAuthority().getHostName());
+        Assert.assertEquals(httpHost.getHostName(), uribuilder.getHost());
+        // Check result
+        final URI result = uribuilder.build();
+        Assert.assertEquals(httpHost.getHostName(), result.getHost());
+        Assert.assertEquals(httpHost.getPort(), result.getPort());
+        Assert.assertEquals(new URI("http://localhost:88"), result);
+    }
+
+    @Test
+    public void testSetAuthorityFromURIAuthority() throws Exception {
+        final URIAuthority authority = URIAuthority.create("u:p@localhost:88");
+        final URIBuilder uribuilder = new URIBuilder().setScheme(URIScheme.HTTP.id).setAuthority(authority);
+        // Check builder
+        Assert.assertEquals(authority.getUserInfo(), uribuilder.getAuthority().getUserInfo());
+        Assert.assertEquals(authority.getHostName(), uribuilder.getAuthority().getHostName());
+        Assert.assertEquals(authority.getHostName(), uribuilder.getHost());
+        // Check result
+        final URI result = uribuilder.build();
+        Assert.assertEquals(authority.getUserInfo(), result.getUserInfo());
+        Assert.assertEquals(authority.getHostName(), result.getHost());
+        Assert.assertEquals(authority.getPort(), result.getPort());
+        Assert.assertEquals(authority.toString(), result.getAuthority());
+        Assert.assertEquals(new URI("http://u:p@localhost:88"), result);
     }
 
     @Test
