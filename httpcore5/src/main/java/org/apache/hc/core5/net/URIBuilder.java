@@ -136,6 +136,34 @@ public class URIBuilder {
     }
 
     /**
+     * Sets the authority.
+     *
+     * @param charset the authority.
+     * @return this.
+     * @since 5.2
+     */
+    public URIBuilder setAuthority(final NamedEndpoint authority) {
+        setUserInfo(null);
+        setHost(authority.getHostName());
+        setPort(authority.getPort());
+        return this;
+    }
+
+    /**
+     * Sets the authority.
+     *
+     * @param charset the authority.
+     * @return this.
+     * @since 5.2
+     */
+    public URIBuilder setAuthority(final URIAuthority authority) {
+        setUserInfo(authority.getUserInfo());
+        setHost(authority.getHostName());
+        setPort(authority.getPort());
+        return this;
+    }
+
+    /**
      * Sets the Charset.
      *
      * @param charset the Charset.
@@ -144,6 +172,16 @@ public class URIBuilder {
     public URIBuilder setCharset(final Charset charset) {
         this.charset = charset;
         return this;
+    }
+
+    /**
+     * Gets the authority.
+     *
+     * @return the authority.
+     * @since 5.2
+     */
+    public URIAuthority getAuthority() {
+        return new URIAuthority(getUserInfo(), getHost(), getPort());
     }
 
     /**
@@ -491,7 +529,7 @@ public class URIBuilder {
      * @param httpHost the scheme, host name, and port.
      * @return this.
      */
-    public URIBuilder setHttpHost(final HttpHost httpHost ) {
+    public URIBuilder setHttpHost(final HttpHost httpHost) {
         setScheme(httpHost.getSchemeName());
         setHost(httpHost.getHostName());
         setPort(httpHost.getPort());
