@@ -56,10 +56,11 @@ public class ByteArrayEntity extends AbstractHttpEntity {
             final boolean chunked) {
         super(contentType, contentEncoding, chunked);
         Args.notNull(b, "Source byte array");
-        if ((off < 0) || (off > b.length) || (len < 0) ||
-                ((off + len) < 0) || ((off + len) > b.length)) {
-            throw new IndexOutOfBoundsException("off: " + off + " len: " + len + " b.length: " + b.length);
-        }
+        Args.notNegative(off, "offset");
+        Args.notNegative(len, "length");
+        Args.notNegative(off + len, "off + len");
+        Args.check(off <= b.length, "off %s cannot be greater then b.length %s ", off, b.length);
+        Args.check(off + len <= b.length, "off + len  %s cannot be less then b.length %s ", off + len, b.length);
         this.b = b;
         this.off = off;
         this.len = len;

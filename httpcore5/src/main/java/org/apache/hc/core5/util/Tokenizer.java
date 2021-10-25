@@ -72,12 +72,8 @@ public class Tokenizer {
         }
 
         public void updatePos(final int pos) {
-            if (pos < this.lowerBound) {
-                throw new IndexOutOfBoundsException("pos: "+pos+" < lowerBound: "+this.lowerBound);
-            }
-            if (pos > this.upperBound) {
-                throw new IndexOutOfBoundsException("pos: "+pos+" > upperBound: "+this.upperBound);
-            }
+            Args.check(pos >= this.lowerBound, "pos: %s < lowerBound: %s", pos, this.lowerBound);
+            Args.check(pos <= this.upperBound, "pos: %s > upperBound: %s", pos, this.upperBound);
             this.pos = pos;
         }
 

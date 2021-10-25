@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 final class OutboundDynamicTable {
@@ -86,9 +87,9 @@ final class OutboundDynamicTable {
     }
 
     public Header getHeader(final int index) {
-        if (index < 1 || index > length()) {
-            throw new IndexOutOfBoundsException();
-        }
+        final int length = length();
+        Args.check(index >= 1, "index %s cannot be less then 1", index);
+        Args.check(index <= length, "index %s cannot be greater then length %s ", index, length);
         return index <= staticTable.length()
                         ? staticTable.get(index)
                         : headers.get(index - staticTable.length() - 1);

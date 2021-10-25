@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http2.hpack;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 final class InboundDynamicTable {
@@ -79,9 +80,9 @@ final class InboundDynamicTable {
     }
 
     public HPackHeader getHeader(final int index) {
-        if (index < 1 || index > length()) {
-            throw new IndexOutOfBoundsException();
-        }
+        final int length = length();
+        Args.check(index >= 1, "index %s cannot be less than 1", index);
+        Args.check(index <= length, "length %s cannot be greater than index %s", length, index);
         return index <= staticTable.length()
                         ? staticTable.get(index)
                         : headers.get(index - staticTable.length() - 1);

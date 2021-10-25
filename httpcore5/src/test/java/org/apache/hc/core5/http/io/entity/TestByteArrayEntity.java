@@ -70,21 +70,21 @@ public class TestByteArrayEntity {
     @Test
     public void testIllegalConstructorBadLen() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        Assert.assertThrows(IndexOutOfBoundsException.class, () ->
+        Assert.assertThrows(IllegalArgumentException.class, () ->
                 new ByteArrayEntity(bytes, 0, bytes.length + 1, null));
     }
 
     @Test
     public void testIllegalConstructorBadOff1() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        Assert.assertThrows(IndexOutOfBoundsException.class, () ->
+        Assert.assertThrows(IllegalArgumentException.class, () ->
                 new ByteArrayEntity(bytes, -1, bytes.length, null));
     }
 
     @Test
     public void testIllegalConstructorBadOff2() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
-        Assert.assertThrows(IndexOutOfBoundsException.class, () ->
+        Assert.assertThrows(IllegalArgumentException.class, () ->
                 new ByteArrayEntity(bytes, bytes.length + 1, bytes.length, null));
     }
 
