@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http2.hpack;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.util.Args;
 
 final class FifoLinkedList {
 
@@ -41,9 +42,8 @@ final class FifoLinkedList {
     }
 
     public Header get(final int index) {
-        if (index < 0 || index >= length) {
-            throw new IndexOutOfBoundsException();
-        }
+        Args.check(index <= length, "Length %s cannot be greater then index %s ", length, index);
+        Args.notNegative(index, "index");
         InternalNode current = master.next;
         int n = 0;
         while (current != master) {
