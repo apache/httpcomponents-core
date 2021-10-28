@@ -29,6 +29,8 @@ package org.apache.hc.core5.util;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -48,12 +50,22 @@ public class Deadline {
     /**
      * A special internal value that marks a deadline as the longest possible.
      */
-    private static final long INTERNAL_MAX_VALUE = Long.MAX_VALUE;
+    private static final Instant INTERNAL_MAX_VALUE = Instant.MAX;
+
+    /**
+     * A special internal value that marks a deadline as the longest possible.
+     */
+    private static final long INTERNAL_MAX_VALUE_MILLIS = Instant.ofEpochMilli(Long.MAX_VALUE).toEpochMilli();
 
     /**
      * A special internal value that marks a deadline as the shortest possible.
      */
-    private static final long INTERNAL_MIN_VALUE = 0;
+    private static final Instant INTERNAL_MIN_VALUE = Instant.MIN;
+
+    /**
+     * A special internal value that marks a deadline as the shortest possible.
+     */
+    private static final long INTERNAL_MIN_VALUE_MILLIS = Instant.EPOCH.toEpochMilli();
 
     /**
      * The maximum (longest-lived) deadline.
@@ -96,16 +108,33 @@ public class Deadline {
     }
 
     /**
+     * Creates a deadline from an instant.
+     *
+     * @param value an instant.
+     * @return a deadline.
+     * @since 5.2
+     */
+    public static Deadline from(final Instant value) {
+        if (value.equals(INTERNAL_MAX_VALUE)) {
+            return MAX_VALUE;
+        }
+        if (value.equals(INTERNAL_MIN_VALUE)) {
+            return MIN_VALUE;
+        }
+        return new Deadline(value);
+    }
+
+    /**
      * Creates a deadline from a UNIX time in milliseconds.
      *
      * @param value a UNIX time in milliseconds.
-     * @return a new deadline.
+     * @return a deadline.
      */
     public static Deadline fromUnixMilliseconds(final long value) {
-        if (value == INTERNAL_MAX_VALUE) {
+        if (value == INTERNAL_MAX_VALUE_MILLIS) {
             return MAX_VALUE;
         }
-        if (value == INTERNAL_MIN_VALUE) {
+        if (value == INTERNAL_MIN_VALUE_MILLIS) {
             return MIN_VALUE;
         }
         return new Deadline(value);
@@ -124,21 +153,30 @@ public class Deadline {
 
     private volatile boolean frozen;
 
-    private volatile long lastCheck;
+    private volatile Instant lastCheck;
 
     /*
-     * Internal representation is a UNIX time.
+     * Internal representation is an Instant.
      */
-    private final long value;
+    private final Instant value;
 
     /**
      * Constructs a new instance with the given UNIX time in milliseconds.
      *
-     * @param deadlineMillis UNIX time in milliseconds.
+     * @param epochMilli UNIX time in milliseconds.
      */
-    private Deadline(final long deadlineMillis) {
-        super();
-        this.value = deadlineMillis;
+    private Deadline(final long epochMilli) {
+        this(Instant.ofEpochMilli(epochMilli));
+    }
+
+    /**
+     * Constructs a new instance with the given UNIX time in milliseconds.
+     *
+     * @param instant UNIX time in milliseconds.
+     * @since 5.2
+     */
+    private Deadline(final Instant instant) {
+        this.value = instant;
         setLastCheck();
     }
 
@@ -155,7 +193,7 @@ public class Deadline {
             return false;
         }
         final Deadline other = (Deadline) obj;
-        return value == other.value;
+        return value.equals(other.value);
     }
 
     /**
@@ -174,7 +212,7 @@ public class Deadline {
      * @return a formatted string in the format {@value #DATE_FORMAT}.
      */
     public String formatTarget() {
-        return simpleDateFormat.format(value);
+        return simpleDateFormat.format(value.toEpochMilli());
     }
 
     public Deadline freeze() {
@@ -188,7 +226,7 @@ public class Deadline {
      * @return the last time we checked the current time.
      */
     long getLastCheck() {
-        return lastCheck;
+        return lastCheck.toEpochMilli();
     }
 
     /**
@@ -197,6 +235,16 @@ public class Deadline {
      * @return the UNIX time deadline value.
      */
     public long getValue() {
+        return value.toEpochMilli();
+    }
+
+    /**
+     * Gets the deadline Instant.
+     *
+     * @return the deadline Instant.
+     * @since 5.2
+     */
+    public Instant getInstant() {
         return value;
     }
 
@@ -213,7 +261,17 @@ public class Deadline {
      * @return whether this deadline occurs before the given time in milliseconds.
      */
     public boolean isBefore(final long millis) {
-        return value < millis;
+        return getValue() < millis;
+    }
+
+    /**
+     * Returns whether this deadline occurs before the given instant.
+     *
+     * @param instant the time to compare.
+     * @return whether this deadline occurs before the given instant.
+     */
+    public boolean isBefore(final Instant instant) {
+        return value.isBefore(instant);
     }
 
     /**
@@ -223,7 +281,7 @@ public class Deadline {
      */
     public boolean isExpired() {
         setLastCheck();
-        return value < this.lastCheck;
+        return value.isBefore(lastCheck);
     }
 
     /**
@@ -251,7 +309,7 @@ public class Deadline {
      */
     public boolean isNotExpired() {
         setLastCheck();
-        return value >= this.lastCheck;
+        return !isExpired();
     }
 
     /**
@@ -261,7 +319,7 @@ public class Deadline {
      * @return the smaller of {@code this} and {@code other}.
      */
     public Deadline min(final Deadline other) {
-        return value <= other.value ? this : other;
+        return value.compareTo(other.value) < 0 ? this : other;
     }
 
     /**
@@ -271,7 +329,17 @@ public class Deadline {
      */
     public long remaining() {
         setLastCheck();
-        return value - lastCheck;
+        return remainingDuration().toMillis();
+    }
+
+    /**
+     * Returns the difference in milliseconds between the deadline and now.
+     *
+     * @return the different in milliseconds between the deadline and now.
+     */
+    public Duration remainingDuration() {
+        setLastCheck();
+        return Duration.between(lastCheck, value);
     }
 
     /**
@@ -285,7 +353,7 @@ public class Deadline {
 
     private void setLastCheck() {
         if (!frozen) {
-            this.lastCheck = System.currentTimeMillis();
+            this.lastCheck = Instant.now();
         }}
 
     @Override

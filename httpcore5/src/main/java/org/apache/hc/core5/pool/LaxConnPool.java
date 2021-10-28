@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.time.Instant;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -276,7 +277,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
 
     @Override
     public void closeExpired() {
-        final long now = System.currentTimeMillis();
+        final Instant now = Instant.now();
         enumAvailable(entry -> {
             if (entry.getExpiryDeadline().isBefore(now)) {
                 entry.discardConnection(CloseMode.GRACEFUL);

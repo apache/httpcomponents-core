@@ -28,6 +28,8 @@
 package org.apache.hc.core5.util;
 
 import java.text.ParseException;
+import java.time.Duration;
+import java.time.Instant;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -45,7 +47,14 @@ public class TestDeadline {
     }
 
     @Test
-    public void testIsBefore() {
+    public void testIsBeforeInstant() {
+        final Instant nowPlusOneMin = Instant.now().plusMillis(60_000);
+        final Deadline deadline = Deadline.from(nowPlusOneMin);
+        Assert.assertTrue(deadline.isBefore(nowPlusOneMin.plusMillis(1)));
+    }
+
+    @Test
+    public void testIsBeforeLong() {
         final long nowPlusOneMin = System.currentTimeMillis() + 60000;
         final Deadline deadline = Deadline.fromUnixMilliseconds(nowPlusOneMin);
         Assert.assertTrue(deadline.isBefore(nowPlusOneMin + 1));
@@ -110,8 +119,10 @@ public class TestDeadline {
         final Deadline deadline = Deadline.fromUnixMilliseconds(nowPlusOneHour);
         Assert.assertEquals(nowPlusOneHour, deadline.getValue());
         Assert.assertTrue(deadline.remaining() > 0);
+        Assert.assertTrue(deadline.remainingDuration().compareTo(Duration.ZERO) > 0);
         Assert.assertTrue(deadline.remaining() <= oneHourInMillis);
-    }
+        Assert.assertTrue(deadline.remainingDuration().compareTo(Duration.ofMillis(oneHourInMillis)) <= 0);
+            }
 
     @Test
     public void testRemainingTimeValue() {
