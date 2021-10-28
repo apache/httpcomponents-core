@@ -49,6 +49,7 @@ import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Deadline;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -144,11 +145,10 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             final TimeValue timeValue = validateAfterInactivity;
             if (TimeValue.isNonNegative(timeValue)) {
                 final long lastAccessTime = Math.min(ioSession.getLastReadTime(), ioSession.getLastWriteTime());
-                final long deadline = lastAccessTime + timeValue.toMilliseconds();
-                if (deadline <= System.currentTimeMillis()) {
-                    final Timeout socketTimeoutMillis = ioSession.getSocketTimeout();
+                if (Deadline.calculate(lastAccessTime, timeValue).isNotExpired()) {
+                    final Timeout socketTimeout = ioSession.getSocketTimeout();
                     ioSession.enqueue(new PingCommand(new BasicPingHandler(result -> {
-                        ioSession.setSocketTimeout(socketTimeoutMillis);
+                        ioSession.setSocketTimeout(socketTimeout);
                         callback.execute(result);
                     })), Command.Priority.NORMAL);
                     return;

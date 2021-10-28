@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
+import java.time.Instant;
 import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -401,13 +402,28 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     }
 
     @Override
+    public Instant getLastReadInstant() {
+        return ioSession.getLastReadInstant();
+    }
+
+    @Override
     public long getLastWriteTime() {
         return ioSession.getLastWriteTime();
     }
 
     @Override
+    public Instant getLastWriteInstant() {
+        return ioSession.getLastWriteInstant();
+    }
+
+    @Override
     public long getLastEventTime() {
         return ioSession.getLastEventTime();
+    }
+
+    @Override
+    public Instant getLastEventInstant() {
+        return ioSession.getLastEventInstant();
     }
 
     @Override

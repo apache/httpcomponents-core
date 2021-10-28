@@ -34,6 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.time.Instant;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
@@ -60,9 +61,9 @@ class IOSessionImpl implements IOSession {
     private final AtomicReference<IOSession.Status> status;
 
     private volatile Timeout socketTimeout;
-    private volatile long lastReadTime;
-    private volatile long lastWriteTime;
-    private volatile long lastEventTime;
+    private volatile Instant lastReadTime = Instant.EPOCH;
+    private volatile Instant lastWriteTime = Instant.EPOCH;
+    private volatile Instant lastEventTime = Instant.EPOCH;
 
     public IOSessionImpl(final String type, final SelectionKey key, final SocketChannel socketChannel) {
         super();
@@ -74,10 +75,10 @@ class IOSessionImpl implements IOSession {
         this.id = String.format(type + "-%010d", COUNT.getAndIncrement());
         this.handlerRef = new AtomicReference<>();
         this.status = new AtomicReference<>(Status.ACTIVE);
-        final long currentTimeMillis = System.currentTimeMillis();
-        this.lastReadTime = currentTimeMillis;
-        this.lastWriteTime = currentTimeMillis;
-        this.lastEventTime = currentTimeMillis;
+        final Instant now = Instant.now();
+        this.lastReadTime = now;
+        this.lastWriteTime = now;
+        this.lastEventTime = now;
     }
 
     @Override
@@ -194,7 +195,7 @@ class IOSessionImpl implements IOSession {
     @Override
     public void setSocketTimeout(final Timeout timeout) {
         this.socketTimeout = Timeout.defaultsToDisabled(timeout);
-        this.lastEventTime = System.currentTimeMillis();
+        this.lastEventTime = Instant.now();
     }
 
     @Override
@@ -209,28 +210,43 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void updateReadTime() {
-        lastReadTime = System.currentTimeMillis();
+        lastReadTime = Instant.now();
         lastEventTime = lastReadTime;
     }
 
     @Override
     public void updateWriteTime() {
-        lastWriteTime = System.currentTimeMillis();
+        lastWriteTime = Instant.now();
         lastEventTime = lastWriteTime;
     }
 
     @Override
     public long getLastReadTime() {
+        return lastReadTime.toEpochMilli();
+    }
+
+    @Override
+    public Instant getLastReadInstant() {
         return lastReadTime;
     }
 
     @Override
     public long getLastWriteTime() {
+        return lastWriteTime.toEpochMilli();
+    }
+
+    @Override
+    public Instant getLastWriteInstant() {
         return lastWriteTime;
     }
 
     @Override
     public long getLastEventTime() {
+        return lastEventTime.toEpochMilli();
+    }
+
+    @Override
+    public Instant getLastEventInstant() {
         return lastEventTime;
     }
 

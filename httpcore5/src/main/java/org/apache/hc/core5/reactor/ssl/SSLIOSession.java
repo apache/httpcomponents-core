@@ -34,6 +34,7 @@ import java.nio.channels.ByteChannel;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
@@ -835,17 +836,32 @@ public class SSLIOSession implements IOSession {
 
     @Override
     public long getLastReadTime() {
-        return this.session.getLastReadTime();
+        return session.getLastReadTime();
+    }
+
+    @Override
+    public Instant getLastReadInstant() {
+        return session.getLastReadInstant();
     }
 
     @Override
     public long getLastWriteTime() {
-        return this.session.getLastWriteTime();
+        return session.getLastWriteTime();
+    }
+
+    @Override
+    public Instant getLastWriteInstant() {
+        return session.getLastWriteInstant();
     }
 
     @Override
     public long getLastEventTime() {
-        return this.session.getLastEventTime();
+        return session.getLastEventTime();
+    }
+
+    @Override
+    public Instant getLastEventInstant() {
+        return session.getLastEventInstant();
     }
 
     private static void formatOps(final StringBuilder buffer, final int ops) {

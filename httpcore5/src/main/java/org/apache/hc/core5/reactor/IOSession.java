@@ -29,6 +29,7 @@ package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
 import java.nio.channels.ByteChannel;
+import java.time.Instant;
 import java.util.concurrent.locks.Lock;
 
 import org.apache.hc.core5.annotation.Internal;
@@ -198,7 +199,7 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
      * <p>
      * Please note this operation may affect the last event time.
      *
-     * @see #getLastEventTime()
+     * @see #getLastEventInstant()
      *
      * @param timeout socket timeout.
      */
@@ -213,6 +214,16 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
     long getLastReadTime();
 
     /**
+     * Returns timestamp of the last read event.
+     *
+     * @return timestamp.
+     * @since 5.2
+     */
+    default Instant getLastReadInstant() {
+        return Instant.ofEpochMilli(getLastReadTime());
+    }
+
+    /**
      * Returns timestamp of the last write event.
      *
      * @return timestamp.
@@ -220,13 +231,34 @@ public interface IOSession extends ByteChannel, SocketModalCloseable, Identifiab
     long getLastWriteTime();
 
     /**
+     * Returns timestamp of the last write event.
+     *
+     * @return timestamp.
+     * @since 5.2
+     */
+    default Instant getLastWriteInstant() {
+        return Instant.ofEpochMilli(getLastWriteTime());
+    }
+
+    /**
      * Returns timestamp of the last I/O event including socket timeout reset.
      *
      * @see #getSocketTimeout()
-     *
      * @return timestamp.
      */
     long getLastEventTime();
+
+    /**
+     * Returns timestamp of the last I/O event including socket timeout reset.
+     *
+     * @see #getSocketTimeout()
+     * @return timestamp.
+     * @since 5.2
+     */
+    default Instant getLastEventInstant() {
+        return Instant.ofEpochMilli(getLastEventTime());
+    }
+
 
     /**
      * Updates the timestamp of the last read event
