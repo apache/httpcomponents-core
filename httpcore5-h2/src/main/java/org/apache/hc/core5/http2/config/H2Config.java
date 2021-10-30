@@ -114,6 +114,7 @@ public class H2Config {
     private static final boolean  INIT_ENABLE_PUSH         = true;
     private static final int      INIT_MAX_FRAME_SIZE      = FrameConsts.MIN_FRAME_SIZE;
     private static final int      INIT_WINDOW_SIZE         = 65535;
+    private static final int      INIT_CONCURRENT_STREAM   = 250;
 
     public static H2Config.Builder initial() {
         return new Builder()
@@ -150,7 +151,7 @@ public class H2Config {
         Builder() {
             this.headerTableSize = INIT_HEADER_TABLE_SIZE * 2;
             this.pushEnabled = INIT_ENABLE_PUSH;
-            this.maxConcurrentStreams = 250;
+            this.maxConcurrentStreams = INIT_CONCURRENT_STREAM;
             this.initialWindowSize = INIT_WINDOW_SIZE;
             this.maxFrameSize  = FrameConsts.MIN_FRAME_SIZE * 4;
             this.maxHeaderListSize = FrameConsts.MAX_FRAME_SIZE;
