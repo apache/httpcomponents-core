@@ -85,4 +85,60 @@ public final class ClientH2StreamMultiplexerFactory {
                 pushHandlerFactory, h2Config, charCodingConfig, streamListener);
     }
 
+    /**
+     * Create a new {@link Builder}.
+     *
+     * @since 5.2
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+    /**
+     * Builder for {@link ClientH2StreamMultiplexerFactory}.
+     *
+     * @since 5.2
+     */
+    public static final class Builder {
+        private HttpProcessor httpProcessor;
+        private HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
+        private H2Config h2Config;
+        private CharCodingConfig charCodingConfig;
+        private H2StreamListener streamListener;
+
+        private Builder() {}
+
+        public Builder withHttpProcessor(final HttpProcessor httpProcessor){
+            this.httpProcessor = httpProcessor;
+            return this;
+        }
+
+        public Builder withPushHandlerFactory(final HandlerFactory<AsyncPushConsumer> pushHandlerFactory){
+            this.pushHandlerFactory = pushHandlerFactory;
+            return this;
+        }
+
+        public Builder withH2Config(final H2Config h2Config){
+            this.h2Config = h2Config;
+            return this;
+        }
+
+        public Builder withCharCodingConfig(final CharCodingConfig charCodingConfig){
+            this.charCodingConfig = charCodingConfig;
+            return this;
+        }
+
+        public Builder withH2StreamListener(final H2StreamListener streamListener){
+            this.streamListener = streamListener;
+            return this;
+        }
+
+        public ClientH2StreamMultiplexerFactory build(){
+            return new ClientH2StreamMultiplexerFactory(
+                    httpProcessor,
+                    pushHandlerFactory,
+                    h2Config,
+                    charCodingConfig,
+                    streamListener);
+        }
+    }
 }

@@ -78,4 +78,61 @@ public final class ServerH2StreamMultiplexerFactory {
                 streamListener);
     }
 
+    /**
+     * Create a new {@link Builder}.
+     *
+     * @since 5.2
+     */
+    public static Builder builder() {
+        return new ServerH2StreamMultiplexerFactory.Builder();
+    }
+    /**
+     * Builder for {@link ServerH2StreamMultiplexerFactory}.
+     *
+     * @since 5.2
+     */
+    public static final class Builder {
+        private HttpProcessor httpProcessor;
+        private HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
+        private H2Config h2Config;
+        private CharCodingConfig charCodingConfig;
+        private H2StreamListener streamListener;
+
+        private Builder() {}
+
+        public Builder withHttpProcessor(final HttpProcessor httpProcessor){
+            this.httpProcessor = httpProcessor;
+            return this;
+        }
+
+        public Builder withExchangeHandlerFactory(final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory){
+            this.exchangeHandlerFactory = exchangeHandlerFactory;
+            return this;
+        }
+
+        public Builder withH2Config(final H2Config h2Config){
+            this.h2Config = h2Config;
+            return this;
+        }
+
+        public Builder withCharCodingConfig(final CharCodingConfig charCodingConfig){
+            this.charCodingConfig = charCodingConfig;
+            return this;
+        }
+
+        public Builder withH2StreamListener(final H2StreamListener streamListener){
+            this.streamListener = streamListener;
+            return this;
+        }
+
+        public ServerH2StreamMultiplexerFactory build(){
+            return new ServerH2StreamMultiplexerFactory(
+                    httpProcessor,
+                    exchangeHandlerFactory,
+                    h2Config,
+                    charCodingConfig,
+                    streamListener);
+        }
+    }
+
 }
