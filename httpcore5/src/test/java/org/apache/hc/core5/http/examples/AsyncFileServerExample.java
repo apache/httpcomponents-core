@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Locale;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -58,6 +57,7 @@ import org.apache.hc.core5.http.protocol.HttpDateGenerator;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
+import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 
 /**
@@ -133,7 +133,7 @@ public class AsyncFileServerExample {
                         } else {
 
                             final ContentType contentType;
-                            final String filename = file.getName().toLowerCase(Locale.ROOT);
+                            final String filename = TextUtils.toLowerCase(file.getName());
                             if (filename.endsWith(".txt")) {
                                 contentType = ContentType.TEXT_PLAIN;
                             } else if (filename.endsWith(".html") || filename.endsWith(".htm")) {

@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.util;
 
+import java.util.Locale;
+
 /**
  * @since 4.3
  */
@@ -124,6 +126,19 @@ public final class TextUtils {
             buffer.append(Integer.toHexString(unsignedB));
         }
         return buffer.toString();
+    }
+
+    /**
+     * Returns lower case representation of the given string
+     * using {@link Locale#ROOT}.
+     *
+     * @since 5.2
+     */
+    public static String toLowerCase(final String s) {
+        if (s == null) {
+            return null;
+        }
+        return s.toLowerCase(Locale.ROOT);
     }
 
 }

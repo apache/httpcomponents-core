@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Set;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -61,6 +60,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.pool.ConnPoolListener;
 import org.apache.hc.core5.pool.ConnPoolStats;
 import org.apache.hc.core5.pool.PoolStats;
+import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
@@ -187,15 +187,15 @@ public class ClassicReverseProxyExample {
     }
 
     private final static Set<String> HOP_BY_HOP = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
-            HttpHeaders.HOST.toLowerCase(Locale.ROOT),
-            HttpHeaders.CONTENT_LENGTH.toLowerCase(Locale.ROOT),
-            HttpHeaders.TRANSFER_ENCODING.toLowerCase(Locale.ROOT),
-            HttpHeaders.CONNECTION.toLowerCase(Locale.ROOT),
-            HttpHeaders.KEEP_ALIVE.toLowerCase(Locale.ROOT),
-            HttpHeaders.PROXY_AUTHENTICATE.toLowerCase(Locale.ROOT),
-            HttpHeaders.TE.toLowerCase(Locale.ROOT),
-            HttpHeaders.TRAILER.toLowerCase(Locale.ROOT),
-            HttpHeaders.UPGRADE.toLowerCase(Locale.ROOT))));
+            TextUtils.toLowerCase(HttpHeaders.HOST),
+            TextUtils.toLowerCase(HttpHeaders.CONTENT_LENGTH),
+            TextUtils.toLowerCase(HttpHeaders.TRANSFER_ENCODING),
+            TextUtils.toLowerCase(HttpHeaders.CONNECTION),
+            TextUtils.toLowerCase(HttpHeaders.KEEP_ALIVE),
+            TextUtils.toLowerCase(HttpHeaders.PROXY_AUTHENTICATE),
+            TextUtils.toLowerCase(HttpHeaders.TE),
+            TextUtils.toLowerCase(HttpHeaders.TRAILER),
+            TextUtils.toLowerCase(HttpHeaders.UPGRADE))));
 
 
     static class ProxyHandler implements HttpRequestHandler  {
@@ -224,7 +224,7 @@ public class ClassicReverseProxyExample {
                     incomingRequest.getPath());
             for (final Iterator<Header> it = incomingRequest.headerIterator(); it.hasNext(); ) {
                 final Header header = it.next();
-                if (!HOP_BY_HOP.contains(header.getName().toLowerCase(Locale.ROOT))) {
+                if (!HOP_BY_HOP.contains(TextUtils.toLowerCase(header.getName()))) {
                     outgoingRequest.addHeader(header);
                 }
             }
@@ -234,7 +234,7 @@ public class ClassicReverseProxyExample {
             outgoingResponse.setCode(incomingResponse.getCode());
             for (final Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
                 final Header header = it.next();
-                if (!HOP_BY_HOP.contains(header.getName().toLowerCase(Locale.ROOT))) {
+                if (!HOP_BY_HOP.contains(TextUtils.toLowerCase(header.getName()))) {
                     outgoingResponse.addHeader(header);
                 }
             }

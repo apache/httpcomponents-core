@@ -28,7 +28,6 @@ package org.apache.hc.core5.net;
 
 import java.io.Serializable;
 import java.net.URISyntaxException;
-import java.util.Locale;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -55,7 +54,7 @@ public final class Host implements NamedEndpoint, Serializable {
         super();
         this.name = Args.notNull(name, "Host name");
         this.port = Ports.checkWithDefault(port);
-        this.lcName = this.name.toLowerCase(Locale.ROOT);
+        this.lcName = TextUtils.toLowerCase(this.name);
     }
 
     static Host parse(final CharSequence s, final Tokenizer.Cursor cursor) throws URISyntaxException {

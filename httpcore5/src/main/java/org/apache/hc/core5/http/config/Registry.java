@@ -27,12 +27,12 @@
 
 package org.apache.hc.core5.http.config;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Generic registry of items keyed by low-case string ID.
@@ -54,7 +54,7 @@ public final class Registry<I> implements Lookup<I> {
         if (key == null) {
             return null;
         }
-        return map.get(key.toLowerCase(Locale.ROOT));
+        return map.get(TextUtils.toLowerCase(key));
     }
 
     @Override

@@ -31,7 +31,6 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Locale;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -83,7 +82,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     public HttpHost(final String scheme, final InetAddress address, final String hostname, final int port) {
         Args.containsNoBlanks(hostname, "Host name");
         this.host = new Host(hostname, port);
-        this.schemeName = scheme != null ? scheme.toLowerCase(Locale.ROOT) : DEFAULT_SCHEME.id;
+        this.schemeName = scheme != null ? TextUtils.toLowerCase(scheme) : DEFAULT_SCHEME.id;
         this.address = address;
     }
 

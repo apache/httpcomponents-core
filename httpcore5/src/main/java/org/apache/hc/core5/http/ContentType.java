@@ -36,7 +36,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -312,7 +311,7 @@ public final class ContentType implements Serializable {
      * @return content type
      */
     public static ContentType create(final String mimeType, final Charset charset) {
-        final String normalizedMimeType = Args.notBlank(mimeType, "MIME type").toLowerCase(Locale.ROOT);
+        final String normalizedMimeType = TextUtils.toLowerCase(Args.notBlank(mimeType, "MIME type"));
         Args.check(valid(normalizedMimeType), "MIME type may not contain reserved characters");
         return new ContentType(normalizedMimeType, charset);
     }
@@ -386,7 +385,7 @@ public final class ContentType implements Serializable {
      */
     public static ContentType create(
             final String mimeType, final NameValuePair... params) throws UnsupportedCharsetException {
-        final String type = Args.notBlank(mimeType, "MIME type").toLowerCase(Locale.ROOT);
+        final String type = TextUtils.toLowerCase(Args.notBlank(mimeType, "MIME type"));
         Args.check(valid(type), "MIME type may not contain reserved characters");
         return create(mimeType, params, true);
     }

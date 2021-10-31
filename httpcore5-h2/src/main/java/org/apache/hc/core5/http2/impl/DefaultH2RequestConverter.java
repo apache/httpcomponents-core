@@ -31,7 +31,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -193,7 +192,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {
                 throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", name, value);
             }
-            headers.add(new BasicHeader(name.toLowerCase(Locale.ROOT), value));
+            headers.add(new BasicHeader(TextUtils.toLowerCase(name), value));
         }
 
         return headers;

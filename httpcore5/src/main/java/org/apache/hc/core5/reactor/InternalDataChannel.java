@@ -32,7 +32,6 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
-import java.util.Locale;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -57,6 +56,7 @@ import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 
 final class InternalDataChannel extends InternalChannel implements ProtocolIOSession {
@@ -413,7 +413,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     @Override
     public void switchProtocol(final String protocolId, final FutureCallback<ProtocolIOSession> callback) {
         Args.notEmpty(protocolId, "Application protocol ID");
-        final ProtocolUpgradeHandler upgradeHandler = protocolUpgradeHandlerMap.get(protocolId.toLowerCase(Locale.ROOT));
+        final ProtocolUpgradeHandler upgradeHandler = protocolUpgradeHandlerMap.get(TextUtils.toLowerCase(protocolId));
         if (upgradeHandler != null) {
             upgradeHandler.upgrade(this, callback);
         } else {
@@ -425,7 +425,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     public void registerProtocol(final String protocolId, final ProtocolUpgradeHandler upgradeHandler) {
         Args.notEmpty(protocolId, "Application protocol ID");
         Args.notNull(upgradeHandler, "Protocol upgrade handler");
-        protocolUpgradeHandlerMap.put(protocolId.toLowerCase(Locale.ROOT), upgradeHandler);
+        protocolUpgradeHandlerMap.put(TextUtils.toLowerCase(protocolId), upgradeHandler);
     }
 
     @Override

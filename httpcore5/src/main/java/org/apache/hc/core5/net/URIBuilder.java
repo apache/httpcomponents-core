@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Stack;
 
 import org.apache.hc.core5.http.HttpHost;
@@ -1011,7 +1010,7 @@ public class URIBuilder {
     public URIBuilder normalizeSyntax() {
         final String scheme = this.scheme;
         if (scheme != null) {
-            this.scheme = scheme.toLowerCase(Locale.ROOT);
+            this.scheme = TextUtils.toLowerCase(scheme);
         }
 
         if (this.pathRootless) {
@@ -1028,7 +1027,7 @@ public class URIBuilder {
 
         final String host = this.host;
         if (host != null) {
-            this.host = host.toLowerCase(Locale.ROOT);
+            this.host = TextUtils.toLowerCase(host);
         }
 
         if (this.pathSegments != null) {

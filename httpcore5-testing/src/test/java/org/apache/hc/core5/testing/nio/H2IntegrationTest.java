@@ -46,7 +46,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.StringTokenizer;
@@ -860,7 +859,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         Assert.assertEquals(2, trailers.size());
         final Map<String, String> map = new HashMap<>();
         for (final Header header: trailers) {
-            map.put(header.getName().toLowerCase(Locale.ROOT), header.getValue());
+            map.put(TextUtils.toLowerCase(header.getName()), header.getValue());
         }
         final String digest = TextUtils.toHexString(entityConsumer.getDigest());
         Assert.assertEquals("MD5", map.get("digest-algo"));

@@ -32,13 +32,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.LangUtils;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * A class for combining a set of headers. This class allows for multiple headers with the same name
@@ -195,7 +195,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
                 valueBuffer.append(hdrs[i].getValue());
             }
 
-            return new BasicHeader(name.toLowerCase(Locale.ROOT), valueBuffer.toString());
+            return new BasicHeader(TextUtils.toLowerCase(name), valueBuffer.toString());
         }
     }
 

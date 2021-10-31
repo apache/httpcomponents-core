@@ -28,13 +28,13 @@
 package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
-import java.util.Locale;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Basic implementation of {@link NameValuePair}.
@@ -101,7 +101,7 @@ public class BasicNameValuePair implements NameValuePair, Serializable {
     @Override
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
-        hash = LangUtils.hashCode(hash, this.name.toLowerCase(Locale.ROOT));
+        hash = LangUtils.hashCode(hash, TextUtils.toLowerCase(this.name));
         hash = LangUtils.hashCode(hash, this.value);
         return hash;
     }

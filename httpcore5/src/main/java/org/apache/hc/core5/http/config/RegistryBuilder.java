@@ -28,10 +28,10 @@
 package org.apache.hc.core5.http.config;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Builder for {@link Registry} instances.
@@ -54,7 +54,7 @@ public final class RegistryBuilder<I> {
     public RegistryBuilder<I> register(final String id, final I item) {
         Args.notEmpty(id, "ID");
         Args.notNull(item, "Item");
-        items.put(id.toLowerCase(Locale.ROOT), item);
+        items.put(TextUtils.toLowerCase(id), item);
         return this;
     }
 

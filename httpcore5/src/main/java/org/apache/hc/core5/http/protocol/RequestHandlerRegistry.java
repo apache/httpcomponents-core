@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -39,6 +38,7 @@ import org.apache.hc.core5.http.HttpRequestMapper;
 import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * Generic registry of request handlers that can be resolved by properties of request messages.
@@ -59,7 +59,7 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
     private final ConcurrentMap<String, LookupRegistry<T>> virtualMap;
 
     public RequestHandlerRegistry(final String canonicalHostName, final Supplier<LookupRegistry<T>> registrySupplier) {
-        this.canonicalHostName = Args.notNull(canonicalHostName, "Canonical hostname").toLowerCase(Locale.ROOT);
+        this.canonicalHostName = TextUtils.toLowerCase(Args.notNull(canonicalHostName, "Canonical hostname"));
         this.registrySupplier = registrySupplier != null ? registrySupplier : UriPatternMatcher::new;
         this.primary = this.registrySupplier.get();
         this.virtualMap = new ConcurrentHashMap<>();
@@ -88,7 +88,7 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
     @Override
     public T resolve(final HttpRequest request, final HttpContext context) throws MisdirectedRequestException {
         final URIAuthority authority = request.getAuthority();
-        final String key = authority != null ? authority.getHostName().toLowerCase(Locale.ROOT) : null;
+        final String key = authority != null ? TextUtils.toLowerCase(authority.getHostName()) : null;
         final LookupRegistry<T> patternMatcher = getPatternMatcher(key);
         if (patternMatcher == null) {
             throw new MisdirectedRequestException("Not authoritative");
@@ -106,7 +106,7 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
         if (object == null) {
             return;
         }
-        final String key = hostname != null ? hostname.toLowerCase(Locale.ROOT) : null;
+        final String key = TextUtils.toLowerCase(hostname);
         if (hostname == null || hostname.equals(canonicalHostName) || hostname.equals(LOCALHOST)) {
             primary.register(uriPattern, object);
         } else {
