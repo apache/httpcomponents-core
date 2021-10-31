@@ -282,4 +282,61 @@ public class HttpService {
         return ServerSupport.toStatusCode(ex);
     }
 
+
+    /**
+     * Create a new {@link Builder}.
+     *
+     * @since 5.2
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder for {@link HttpService}.
+     *
+     * @since 5.2
+     */
+    public static final class Builder {
+
+        private HttpProcessor processor;
+        private HttpServerRequestHandler requestHandler;
+        private ConnectionReuseStrategy connReuseStrategy;
+        private Http1StreamListener streamListener;
+
+        private Builder() {}
+
+        public Builder withHttpProcessor(final HttpProcessor processor) {
+            this.processor = processor;
+            return this;
+        }
+
+        public Builder withHttpServerRequestHandler(final HttpServerRequestHandler requestHandler) {
+            this.requestHandler = requestHandler;
+            return this;
+        }
+
+        public Builder withConnectionReuseStrategy(final ConnectionReuseStrategy connReuseStrategy) {
+            this.connReuseStrategy = connReuseStrategy;
+            return this;
+        }
+
+        public Builder withHttp1StreamListener(final Http1StreamListener streamListener) {
+            this.streamListener = streamListener;
+            return this;
+        }
+        /**
+         * Create a new HTTP service.
+         *
+         * @since 5.2
+         */
+        public HttpService build() {
+            return new HttpService(
+                    processor,
+                    requestHandler,
+                    connReuseStrategy,
+                    streamListener);
+        }
+    }
+
 }
