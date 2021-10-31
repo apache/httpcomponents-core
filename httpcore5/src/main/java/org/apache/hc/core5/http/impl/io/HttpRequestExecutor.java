@@ -302,4 +302,53 @@ public class HttpRequestExecutor {
         return keepAlive;
     }
 
+    /**
+     * Create a new {@link Builder}.
+     *
+     * @since 5.2
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * Builder for {@link HttpRequestExecutor}.
+     *
+     * @since 5.2
+     */
+    public static final class Builder {
+
+        private Timeout waitForContinue;
+        private ConnectionReuseStrategy connReuseStrategy;
+        private Http1StreamListener streamListener;
+
+        private Builder() {}
+
+        public Builder withWaitForContinue(final Timeout waitForContinue) {
+            this.waitForContinue = waitForContinue;
+            return this;
+        }
+
+        public Builder withConnectionReuseStrategy(final ConnectionReuseStrategy connReuseStrategy) {
+            this.connReuseStrategy = connReuseStrategy;
+            return this;
+        }
+
+        public Builder withHttp1StreamListener(final Http1StreamListener streamListener) {
+            this.streamListener = streamListener;
+            return this;
+        }
+        /**
+         * Create a new HTTP Request Executor.
+         *
+         * @since 5.2
+         */
+        public HttpRequestExecutor build() {
+            return new HttpRequestExecutor(
+                    waitForContinue,
+                    connReuseStrategy,
+                    streamListener);
+        }
+    }
+
 }
