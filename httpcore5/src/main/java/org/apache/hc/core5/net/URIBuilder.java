@@ -137,7 +137,7 @@ public class URIBuilder {
     /**
      * Sets the authority.
      *
-     * @param charset the authority.
+     * @param authority the authority.
      * @return this.
      * @since 5.2
      */
@@ -151,7 +151,7 @@ public class URIBuilder {
     /**
      * Sets the authority.
      *
-     * @param charset the authority.
+     * @param authority the authority.
      * @return this.
      * @since 5.2
      */
