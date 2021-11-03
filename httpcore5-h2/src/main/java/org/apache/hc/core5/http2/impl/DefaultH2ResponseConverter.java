@@ -82,7 +82,8 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
                     throw new ProtocolException("Unsupported response header '%s'", name);
                 }
             } else {
-                if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {
+                if (name.equalsIgnoreCase(HttpHeaders.CONNECTION) || name.equalsIgnoreCase(HttpHeaders.KEEP_ALIVE)
+                    || name.equalsIgnoreCase(HttpHeaders.TRANSFER_ENCODING) || name.equalsIgnoreCase(HttpHeaders.UPGRADE)) {
                     throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", header.getName(), header.getValue());
                 }
                 messageHeaders.add(header);
@@ -123,8 +124,9 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
             if (name.startsWith(":")) {
                 throw new ProtocolException("Header name '%s' is invalid", name);
             }
-            if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {
-                throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", name, value);
+            if (name.equalsIgnoreCase(HttpHeaders.CONNECTION) || name.equalsIgnoreCase(HttpHeaders.KEEP_ALIVE)
+                || name.equalsIgnoreCase(HttpHeaders.TRANSFER_ENCODING) || name.equalsIgnoreCase(HttpHeaders.UPGRADE)) {
+                throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", header.getName(), header.getValue());
             }
             headers.add(new BasicHeader(TextUtils.toLowerCase(name), value));
         }

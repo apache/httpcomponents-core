@@ -359,6 +359,89 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
+    public void testConvertFromFieldsKeepAliveHeader() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
+        request.addHeader("Keep-Alive", "timeout=5, max=1000");
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assert.assertThrows("Header 'Keep-Alive: timeout=5, max=1000' is illegal for HTTP/2 messages",
+                            HttpException.class, () -> converter.convert(request));
+    }
+
+    @Test
+    public void testConvertFromFieldsProxyConnectionHeader() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
+        request.addHeader("Proxy-Connection", "keep-alive");
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assert.assertThrows("Header 'Proxy-Connection: Keep-Alive' is illegal for HTTP/2 messages",
+                            HttpException.class, () -> converter.convert(request));
+    }
+
+    @Test
+    public void testConvertFromFieldsTransferEncodingHeader() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
+        request.addHeader("Transfer-Encoding", "gzip");
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assert.assertThrows("Header 'Transfer-Encoding: gzip' is illegal for HTTP/2 messages",
+                            HttpException.class, () -> converter.convert(request));
+    }
+
+    @Test
+    public void testConvertFromFieldsHostHeader() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
+        request.addHeader("Host", "host");
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assert.assertThrows("Header 'Host: host' is illegal for HTTP/2 messages",
+                            HttpException.class, () -> converter.convert(request));
+    }
+
+    @Test
+    public void testConvertFromFieldsUpgradeHeader() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
+        request.addHeader("Upgrade", "example/1, foo/2");
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assert.assertThrows("Header 'Upgrade: example/1, foo/2' is illegal for HTTP/2 messages",
+                            HttpException.class, () -> converter.convert(request));
+    }
+
+    @Test
+    public void testConvertFromFieldsTEHeader() throws Exception {
+        final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
+        request.addHeader("TE", "gzip");
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assert.assertThrows("Header 'TE: gzip' is illegal for HTTP/2 messages",
+                            HttpException.class, () -> converter.convert(request));
+    }
+
+    @Test
+    public void testConvertFromFieldsTETrailerHeader() throws Exception {
+
+        final List<Header> headers = Arrays.asList(
+            new BasicHeader(":method", "GET"),
+            new BasicHeader(":scheme", "http"),
+            new BasicHeader(":authority", "www.example.com"),
+            new BasicHeader(":path", "/"),
+            new BasicHeader("te", "trailers"));
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final HttpRequest request = converter.convert(headers);
+        Assert.assertNotNull(request);
+        Assert.assertEquals("GET", request.getMethod());
+        Assert.assertEquals("http", request.getScheme());
+        Assert.assertEquals(new URIAuthority("www.example.com"), request.getAuthority());
+        Assert.assertEquals("/", request.getPath());
+        final Header[] allHeaders = request.getHeaders();
+        Assert.assertEquals(1, allHeaders.length);
+        Assert.assertEquals("te", allHeaders[0].getName());
+        Assert.assertEquals("trailers", allHeaders[0].getValue());
+    }
+
+    @Test
     public void testConvertFromMessageInvalidHeader() throws Exception {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader(":custom", "stuff");

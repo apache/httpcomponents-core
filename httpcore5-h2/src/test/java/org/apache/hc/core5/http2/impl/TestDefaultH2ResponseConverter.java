@@ -96,6 +96,42 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
+    public void testConvertFromFieldsKeepAliveHeader() throws Exception {
+        final List<Header> headers = Arrays.asList(
+            new BasicHeader(":status", "200"),
+            new BasicHeader("location", "http://www.example.com/"),
+            new BasicHeader("keep-alive", "timeout=5, max=1000"));
+
+        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        Assert.assertThrows("Header 'keep-alive: timeout=5, max=1000' is illegal for HTTP/2 messages",
+                            HttpException.class, () -> converter.convert(headers));
+    }
+
+    @Test
+    public void testConvertFromFieldsTransferEncodingHeader() throws Exception {
+        final List<Header> headers = Arrays.asList(
+            new BasicHeader(":status", "200"),
+            new BasicHeader("location", "http://www.example.com/"),
+            new BasicHeader("transfer-encoding", "gzip"));
+
+        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        Assert.assertThrows("Header 'transfer-encoding: gzip' is illegal for HTTP/2 messages",
+                            HttpException.class, () -> converter.convert(headers));
+    }
+
+    @Test
+    public void testConvertFromFieldsUpgradeHeader() throws Exception {
+        final List<Header> headers = Arrays.asList(
+            new BasicHeader(":status", "200"),
+            new BasicHeader("location", "http://www.example.com/"),
+            new BasicHeader("upgrade", "example/1, foo/2"));
+
+        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
+        Assert.assertThrows("Header 'upgrade: example/1, foo/2' is illegal for HTTP/2 messages",
+                            HttpException.class, () -> converter.convert(headers));
+    }
+
+    @Test
     public void testConvertFromFieldsMissingStatus() throws Exception {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader("location", "http://www.example.com/"),

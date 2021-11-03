@@ -167,6 +167,8 @@ public final class HttpHeaders {
 
     public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
 
+    public static final String PROXY_CONNECTION = "Proxy-Connection";
+
     public static final String RANGE = "Range";
 
     public static final String REFERER = "Referer";
