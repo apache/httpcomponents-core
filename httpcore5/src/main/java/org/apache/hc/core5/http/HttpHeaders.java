@@ -37,6 +37,10 @@ public final class HttpHeaders {
     private HttpHeaders() {
         // Don't allow instantiation.
     }
+    /**
+     * The HTTP {@code A-IM} header field name.
+     */
+    public static final String A_IM = "A-IM";
 
     public static final String ACCEPT = "Accept";
 
@@ -45,6 +49,11 @@ public final class HttpHeaders {
     public static final String ACCEPT_ENCODING = "Accept-Encoding";
 
     public static final String ACCEPT_LANGUAGE = "Accept-Language";
+
+    /**
+     * The HTTP {@code Accept-Patch} header field name.
+     */
+    public static final String ACCEPT_PATCH = "Accept-Patch";
 
     public static final String ACCEPT_RANGES = "Accept-Ranges";
 
@@ -84,6 +93,11 @@ public final class HttpHeaders {
     public static final String AGE = "Age";
 
     public static final String ALLOW = "Allow";
+
+    /**
+     * The HTTP {@code Alt-Svc} header field name.
+     */
+    public static final String ALT_SVC = "Alt-Svc";
 
     public static final String AUTHORIZATION = "Authorization";
 
@@ -132,6 +146,11 @@ public final class HttpHeaders {
 
     public static final String HOST = "Host";
 
+    /**
+     * The HTTP {@code HTTP2-Settings} header field name.
+     */
+    public static final String HTTP2_SETTINGS = "HTTP2-Settings";
+
     public static final String IF = "If";
 
     public static final String IF_MATCH = "If-Match";
@@ -163,11 +182,21 @@ public final class HttpHeaders {
 
     public static final String PRAGMA = "Pragma";
 
+    /**
+     * The HTTP {@code Preference-Applied} header field name.
+     */
+    public static final String PREFERENCE_APPLIED = "Preference-Applied";
+
     public static final String PROXY_AUTHENTICATE = "Proxy-Authenticate";
 
     public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
 
     public static final String PROXY_CONNECTION = "Proxy-Connection";
+
+    /**
+     * The HTTP {@code P3P} header field name.
+     */
+    public static final String P3P = "P3P";
 
     public static final String RANGE = "Range";
 
@@ -183,6 +212,11 @@ public final class HttpHeaders {
      * The HTTP {@code Set-Cookie} header field name.
      */
     public static final String SET_COOKIE = "Set-Cookie";
+
+    /**
+     * The HTTP {@code Strict-Transport-Security} header field name.
+     */
+    public static final String STRICT_TRANSPORT_SECURITY = "Strict-Transport-Security";
 
     public static final String TE = "TE";
 
