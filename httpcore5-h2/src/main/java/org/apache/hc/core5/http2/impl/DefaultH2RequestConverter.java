@@ -106,7 +106,12 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
                         throw new ProtocolException("Unsupported request header '%s'", name);
                 }
             } else {
-                if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {
+                if (name.equalsIgnoreCase(HttpHeaders.CONNECTION) || name.equalsIgnoreCase(HttpHeaders.KEEP_ALIVE)
+                    || name.equalsIgnoreCase(HttpHeaders.PROXY_CONNECTION) || name.equalsIgnoreCase(HttpHeaders.TRANSFER_ENCODING)
+                    || name.equalsIgnoreCase(HttpHeaders.HOST) || name.equalsIgnoreCase(HttpHeaders.UPGRADE)) {
+                    throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", header.getName(), header.getValue());
+                }
+                if (name.equalsIgnoreCase(HttpHeaders.TE) && !value.equalsIgnoreCase("trailers")) {
                     throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", header.getName(), header.getValue());
                 }
                 messageHeaders.add(header);
@@ -189,8 +194,13 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             if (name.startsWith(":")) {
                 throw new ProtocolException("Header name '%s' is invalid", name);
             }
-            if (name.equalsIgnoreCase(HttpHeaders.CONNECTION)) {
-                throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", name, value);
+            if (name.equalsIgnoreCase(HttpHeaders.CONNECTION) || name.equalsIgnoreCase(HttpHeaders.KEEP_ALIVE)
+                || name.equalsIgnoreCase(HttpHeaders.PROXY_CONNECTION) || name.equalsIgnoreCase(HttpHeaders.TRANSFER_ENCODING)
+                || name.equalsIgnoreCase(HttpHeaders.HOST) || name.equalsIgnoreCase(HttpHeaders.UPGRADE)) {
+                throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", header.getName(), header.getValue());
+            }
+            if (name.equalsIgnoreCase(HttpHeaders.TE) && !value.equalsIgnoreCase("trailers")) {
+                throw new ProtocolException("Header '%s: %s' is illegal for HTTP/2 messages", header.getName(), header.getValue());
             }
             headers.add(new BasicHeader(TextUtils.toLowerCase(name), value));
         }
