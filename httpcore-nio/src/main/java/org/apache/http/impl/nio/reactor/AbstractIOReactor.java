@@ -465,7 +465,11 @@ public abstract class AbstractIOReactor implements IOReactor {
             final SelectionKey key = entry.getSelectionKey();
             final int eventMask = entry.getEventMask();
             if (key.isValid()) {
-                key.interestOps(eventMask);
+                try {
+                    key.interestOps(eventMask);
+                } catch (final CancelledKeyException ex) {
+                    // ignore and move on
+                }
             }
         }
     }
