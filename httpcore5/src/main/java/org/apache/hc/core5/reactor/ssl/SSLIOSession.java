@@ -588,12 +588,14 @@ public class SSLIOSession implements IOSession {
                         if (sslEngine.isInboundDone()) {
                             endOfStream = true;
                         }
-
-                        inPlainBuf.flip();
-                        try {
-                            ensureHandler().inputReady(protocolSession, inPlainBuf.hasRemaining() ? inPlainBuf : null);
-                        } finally {
-                            inPlainBuf.clear();
+        
+                        if(inPlainBuf.position() > 0) {
+                            inPlainBuf.flip();
+                            try {
+                                ensureHandler().inputReady(protocolSession, inPlainBuf.hasRemaining() ? inPlainBuf : null);
+                            } finally {
+                                inPlainBuf.clear();
+                            }
                         }
 
                         if (result.getStatus() != SSLEngineResult.Status.OK) {
