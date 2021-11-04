@@ -588,14 +588,14 @@ public class SSLIOSession implements IOSession {
                         if (sslEngine.isInboundDone()) {
                             endOfStream = true;
                         }
-                        if (inPlainBuf.hasRemaining()) {
-                            inPlainBuf.flip();
-                            try {
-                                ensureHandler().inputReady(protocolSession, inPlainBuf.hasRemaining() ? inPlainBuf : null);
-                            } finally {
-                                inPlainBuf.clear();
-                            }
+
+                        inPlainBuf.flip();
+                        try {
+                            ensureHandler().inputReady(protocolSession, inPlainBuf.hasRemaining() ? inPlainBuf : null);
+                        } finally {
+                            inPlainBuf.clear();
                         }
+
                         if (result.getStatus() != SSLEngineResult.Status.OK) {
                             if (result.getStatus() == SSLEngineResult.Status.BUFFER_UNDERFLOW && endOfStream) {
                                 throw new SSLException("Unable to decrypt incoming data due to unexpected end of stream");
