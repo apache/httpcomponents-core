@@ -48,7 +48,7 @@ public class TimeValue implements Comparable<TimeValue> {
     static final int INT_UNDEFINED = -1;
 
     /**
-     * A constant holding the maximum value a {@code TimeValue} can have: <code>Long.MAX_VALUE</code> days.
+     * A constant holding the maximum value a {@code TimeValue} can have: {@code Long.MAX_VALUE} days.
      */
     public static final TimeValue MAX_VALUE = ofDays(Long.MAX_VALUE);
 

@@ -87,7 +87,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * Removes the first given header.
      *
      * @param header the header to remove
-     * @return <code>true</code> if a header was removed as a result of this call.
+     * @return {@code true} if a header was removed as a result of this call.
      */
     public boolean removeHeader(final Header header) {
         if (header == null) {
@@ -112,7 +112,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * Removes all headers that match the given header.
      *
      * @param header the header to remove
-     * @return <code>true</code> if any header was removed as a result of this call.
+     * @return {@code true} if any header was removed as a result of this call.
      *
      * @since 5.0
      */
@@ -371,7 +371,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * Removes all headers with a given name in this group.
      *
      * @param name      the name of the headers to be removed.
-     * @return <code>true</code> if any header was removed as a result of this call.
+     * @return {@code true} if any header was removed as a result of this call.
      *
      * @since 5.0
      */
