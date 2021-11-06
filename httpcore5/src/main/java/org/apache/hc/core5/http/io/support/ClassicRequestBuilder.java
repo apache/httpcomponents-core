@@ -348,6 +348,7 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
         return this;
     }
 
+    @Override
     public ClassicHttpRequest build() {
         String path = getPath();
         if (TextUtils.isEmpty(path)) {

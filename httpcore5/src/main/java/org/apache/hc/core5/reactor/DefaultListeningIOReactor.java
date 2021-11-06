@@ -138,6 +138,7 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
         ioReactor.start();
     }
 
+    @Override
     public Future<ListenerEndpoint> listen(
             final SocketAddress address, final Object attachment, final FutureCallback<ListenerEndpoint> callback) {
         return listener.listen(address, attachment, callback);

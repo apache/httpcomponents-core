@@ -130,6 +130,7 @@ public class AsyncPushBuilder extends AbstractResponseBuilder<AsyncPushProducer>
         return this;
     }
 
+    @Override
     public AsyncPushProducer build() {
         final HttpResponse response = new BasicHttpResponse(getStatus());
         response.setVersion(getVersion());

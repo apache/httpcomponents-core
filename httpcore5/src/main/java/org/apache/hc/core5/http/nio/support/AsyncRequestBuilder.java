@@ -333,6 +333,7 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
         return this;
     }
 
+    @Override
     public AsyncRequestProducer build() {
         String path = getPath();
         if (TextUtils.isEmpty(path)) {
