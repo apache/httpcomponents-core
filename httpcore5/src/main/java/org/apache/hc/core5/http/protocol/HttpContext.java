@@ -79,8 +79,8 @@ public interface HttpContext {
      *
      * @param id the attribute name.
      * @param obj the attribute value.
-     * @return the previous value associated with <code>id</code>, or
-     *         {@code null} if there was no mapping for <code>id</code>.
+     * @return the previous value associated with {@code id}, or
+     *         {@code null} if there was no mapping for {@code id}.
      */
     Object setAttribute(String id, Object obj);
 

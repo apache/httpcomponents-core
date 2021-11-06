@@ -102,7 +102,7 @@ public interface HttpMessage extends MessageHeaders {
      * Removes a header from this message.
      *
      * @param header the header to remove.
-     * @return <code>true</code> if a header was removed as a result of this call.
+     * @return {@code true} if a header was removed as a result of this call.
      */
     boolean removeHeader(Header header);
 
@@ -110,7 +110,7 @@ public interface HttpMessage extends MessageHeaders {
      * Removes all headers with a certain name from this message.
      *
      * @param name The name of the headers to remove.
-     * @return <code>true</code> if any header was removed as a result of this call.
+     * @return {@code true} if any header was removed as a result of this call.
      */
     boolean removeHeaders(String name);
 
