@@ -145,6 +145,7 @@ public class ClassicResponseBuilder extends AbstractResponseBuilder<ClassicHttpR
         return this;
     }
 
+    @Override
     public ClassicHttpResponse build() {
         final BasicClassicHttpResponse result = new BasicClassicHttpResponse(getStatus());
         result.setVersion(getVersion());

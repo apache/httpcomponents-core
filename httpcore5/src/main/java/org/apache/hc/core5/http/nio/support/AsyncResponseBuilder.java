@@ -129,6 +129,7 @@ public class AsyncResponseBuilder extends AbstractResponseBuilder<AsyncResponseP
         return this;
     }
 
+    @Override
     public AsyncResponseProducer build() {
         final BasicHttpResponse response = new BasicHttpResponse(getStatus());
         response.setVersion(getVersion());

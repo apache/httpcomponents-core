@@ -136,6 +136,7 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
         }
     }
 
+    @Override
     public Future<ListenerEndpoint> listen(
             final SocketAddress address, final Object attachment, final FutureCallback<ListenerEndpoint> callback) {
         if (getStatus().compareTo(IOReactorStatus.SHUTTING_DOWN) >= 0) {
