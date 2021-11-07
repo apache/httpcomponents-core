@@ -32,6 +32,7 @@ package org.apache.hc.core5.function;
  *
  * @since 5.0
  */
+@FunctionalInterface
 public interface Decorator<T> {
 
     T decorate(T object);

@@ -32,6 +32,7 @@ package org.apache.hc.core5.function;
  *
  * @since 5.0
  */
+@FunctionalInterface
 public interface Factory<P, T> {
 
     T create(P parameter);

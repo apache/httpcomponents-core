@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.HttpException;
  *
  * @since 4.0
  */
+@FunctionalInterface
 public interface HttpClientResponseHandler<T> {
 
     /**
