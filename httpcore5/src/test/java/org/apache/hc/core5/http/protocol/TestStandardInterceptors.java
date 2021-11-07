@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
@@ -55,7 +56,7 @@ public class TestStandardInterceptors {
     public void testRequestConnControlGenerated() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
-        final RequestConnControl interceptor = new RequestConnControl();
+        final HttpRequestInterceptor interceptor = RequestConnControl.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
@@ -66,7 +67,7 @@ public class TestStandardInterceptors {
     public void testRequestConnControlConnectMethod() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.CONNECT, "/");
-        final RequestConnControl interceptor = new RequestConnControl();
+        final HttpRequestInterceptor interceptor = RequestConnControl.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNull(header);
@@ -78,7 +79,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         final Header myheader = new BasicHeader(HttpHeaders.CONNECTION, "close");
         request.addHeader(myheader);
-        final RequestConnControl interceptor = new RequestConnControl();
+        final HttpRequestInterceptor interceptor = RequestConnControl.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
@@ -91,7 +92,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(HttpHeaders.UPGRADE, "HTTP/2");
-        final RequestConnControl interceptor = new RequestConnControl();
+        final HttpRequestInterceptor interceptor = RequestConnControl.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONNECTION);
         Assert.assertNotNull(header);
@@ -100,7 +101,7 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestConnControlInvalidInput() throws Exception {
-        final RequestConnControl interceptor = new RequestConnControl();
+        final HttpRequestInterceptor interceptor = RequestConnControl.INSTANCE;
         Assert.assertThrows(NullPointerException.class, () -> interceptor.process(null, null, null));
     }
 
@@ -112,7 +113,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/");
         request2.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "12"));
 
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         Assert.assertThrows(ProtocolException.class, () ->
                 interceptor.process(request1, request1.getEntity(), context));
         Assert.assertThrows(ProtocolException.class, () ->
@@ -124,7 +125,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
 
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNull(header);
@@ -137,7 +138,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII));
 
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
         Assert.assertNotNull(header);
@@ -151,7 +152,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII, true));
 
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNotNull(header);
@@ -165,7 +166,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, -1, null));
 
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNotNull(header);
@@ -180,7 +181,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII, true));
 
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         Assert.assertThrows(ProtocolException.class, () ->
                 interceptor.process(request, request.getEntity(), context));
     }
@@ -192,7 +193,7 @@ public class TestStandardInterceptors {
         request.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE,
                 ContentType.parseLenient("whatever"), "whatever"));
 
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header h1 = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
         Assert.assertNotNull(h1);
@@ -208,7 +209,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, null, null));
 
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         Assert.assertNull(request.getFirstHeader(HttpHeaders.CONTENT_TYPE));
         Assert.assertNull(request.getFirstHeader(HttpHeaders.CONTENT_ENCODING));
@@ -221,14 +222,14 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, -1, null));
 
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         Assert.assertThrows(ProtocolException.class, () ->
                 interceptor.process(request, request.getEntity(), context));
    }
 
     @Test
     public void testRequestContentInvalidInput() throws Exception {
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         Assert.assertThrows(NullPointerException.class, () ->
                 interceptor.process(null, null, null));
     }
@@ -237,7 +238,7 @@ public class TestStandardInterceptors {
     public void testRequestContentIgnoreNonenclosingRequests() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         Assert.assertEquals(0, request.getHeaders().length);
     }
@@ -277,7 +278,7 @@ public class TestStandardInterceptors {
         request.setEntity(HttpEntities.create("whatever", StandardCharsets.US_ASCII,
                 new BasicHeader("h1", "this"), new BasicHeader("h1", "that"), new BasicHeader("h2", "this and that")));
 
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header1 = request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
         Assert.assertNotNull(header1);
@@ -291,7 +292,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.TRACE, "/");
         request.setEntity(new StringEntity("stuff"));
-        final RequestContent interceptor = new RequestContent();
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         Assert.assertThrows(ProtocolException.class, () ->
                 interceptor.process(request, request.getEntity(), context));
     }
@@ -352,7 +353,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setAuthority(new URIAuthority("somehost", 8080));
-        final RequestTargetHost interceptor = new RequestTargetHost();
+        final HttpRequestInterceptor interceptor = RequestTargetHost.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNotNull(header);
@@ -365,7 +366,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setAuthority(new URIAuthority("somehost", 8080));
         request.addHeader(new BasicHeader(HttpHeaders.HOST, "whatever"));
-        final RequestTargetHost interceptor = new RequestTargetHost();
+        final HttpRequestInterceptor interceptor = RequestTargetHost.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNotNull(header);
@@ -377,7 +378,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
-        final RequestTargetHost interceptor = new RequestTargetHost();
+        final HttpRequestInterceptor interceptor = RequestTargetHost.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNull(header);
@@ -387,14 +388,14 @@ public class TestStandardInterceptors {
     public void testRequestTargetHostMissingHostHTTP11() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
-        final RequestTargetHost interceptor = new RequestTargetHost();
+        final HttpRequestInterceptor interceptor = RequestTargetHost.INSTANCE;
         Assert.assertThrows(ProtocolException.class, () ->
                 interceptor.process(request, request.getEntity(), context));
     }
 
     @Test
     public void testRequestTargetHostInvalidInput() throws Exception {
-        final RequestTargetHost interceptor = new RequestTargetHost();
+        final HttpRequestInterceptor interceptor = RequestTargetHost.INSTANCE;
         Assert.assertThrows(NullPointerException.class, () ->
                 interceptor.process(null, null, null));
         Assert.assertThrows(NullPointerException.class, () ->
@@ -406,7 +407,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.CONNECT, "/");
         request.setAuthority(new URIAuthority("somehost", 8080));
-        final RequestTargetHost interceptor = new RequestTargetHost();
+        final HttpRequestInterceptor interceptor = RequestTargetHost.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNotNull(header);
@@ -419,7 +420,7 @@ public class TestStandardInterceptors {
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.CONNECT, "/");
         request.setAuthority(new URIAuthority("somehost", 8080));
-        final RequestTargetHost interceptor = new RequestTargetHost();
+        final HttpRequestInterceptor interceptor = RequestTargetHost.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.HOST);
         Assert.assertNull(header);
@@ -452,7 +453,7 @@ public class TestStandardInterceptors {
     public void testRequestUserAgentMissingUserAgent() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
-        final RequestUserAgent interceptor = new RequestUserAgent();
+        final HttpRequestInterceptor interceptor = RequestUserAgent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.USER_AGENT);
         Assert.assertNull(header);
@@ -460,7 +461,7 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestUserAgentInvalidInput() throws Exception {
-        final RequestUserAgent interceptor = new RequestUserAgent();
+        final HttpRequestInterceptor interceptor = RequestUserAgent.INSTANCE;
         Assert.assertThrows(NullPointerException.class, () -> interceptor.process(null, null, null));
     }
 
@@ -871,7 +872,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("stuff"));
 
-        final RequestDate interceptor = new RequestDate();
+        final HttpRequestInterceptor interceptor = RequestDate.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header h1 = request.getFirstHeader(HttpHeaders.DATE);
         Assert.assertNotNull(h1);
@@ -885,7 +886,7 @@ public class TestStandardInterceptors {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
 
-        final RequestDate interceptor = new RequestDate();
+        final HttpRequestInterceptor interceptor = RequestDate.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header h1 = request.getFirstHeader(HttpHeaders.DATE);
         Assert.assertNull(h1);
@@ -893,7 +894,7 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestDateInvalidInput() throws Exception {
-        final RequestDate interceptor = new RequestDate();
+        final HttpRequestInterceptor interceptor = RequestDate.INSTANCE;
         Assert.assertThrows(NullPointerException.class, () ->
                 interceptor.process(null, null, null));
     }

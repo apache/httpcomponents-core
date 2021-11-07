@@ -52,6 +52,12 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class RequestTargetHost implements HttpRequestInterceptor {
 
+    /**
+     * Singleton instance.
+     * @since 5.2
+     */
+    public static final HttpRequestInterceptor INSTANCE = new RequestTargetHost();
+
     public RequestTargetHost() {
         super();
     }

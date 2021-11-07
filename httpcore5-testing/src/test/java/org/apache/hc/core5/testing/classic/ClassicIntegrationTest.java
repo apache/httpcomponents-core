@@ -658,9 +658,9 @@ public class ClassicIntegrationTest {
 
         this.server.start();
         this.client.start(new DefaultHttpProcessor(
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
+                RequestTargetHost.INSTANCE,
+                RequestConnControl.INSTANCE,
+                RequestUserAgent.INSTANCE,
                 new RequestExpectContinue()));
 
         final HttpCoreContext context = HttpCoreContext.create();
@@ -690,9 +690,9 @@ public class ClassicIntegrationTest {
         this.server.start();
         this.client.start(new DefaultHttpProcessor(
                 (request, entity, context) -> request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity"),
-                new RequestTargetHost(),
-                new RequestConnControl(),
-                new RequestUserAgent(),
+                RequestTargetHost.INSTANCE,
+                RequestConnControl.INSTANCE,
+                RequestUserAgent.INSTANCE,
                 new RequestExpectContinue()));
 
         final HttpCoreContext context = HttpCoreContext.create();
@@ -735,7 +735,7 @@ public class ClassicIntegrationTest {
         this.server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
 
         this.server.start();
-        this.client.start(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()));
+        this.client.start(new DefaultHttpProcessor(RequestContent.INSTANCE, new RequestConnControl()));
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
@@ -789,7 +789,7 @@ public class ClassicIntegrationTest {
                 null,
                 null);
         this.client.start(
-                new DefaultHttpProcessor(new RequestContent(), new RequestTargetHost(), new RequestConnControl()));
+                new DefaultHttpProcessor(RequestContent.INSTANCE, RequestTargetHost.INSTANCE, RequestConnControl.INSTANCE));
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());

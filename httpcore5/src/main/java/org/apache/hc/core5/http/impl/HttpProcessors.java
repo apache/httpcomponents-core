@@ -100,9 +100,9 @@ public final class HttpProcessors {
     public static HttpProcessorBuilder customClient(final String agentInfo) {
         return HttpProcessorBuilder.create()
                 .addAll(
-                        new RequestContent(),
-                        new RequestTargetHost(),
-                        new RequestConnControl(),
+                        RequestContent.INSTANCE,
+                        RequestTargetHost.INSTANCE,
+                        RequestConnControl.INSTANCE,
                         new RequestUserAgent(!TextUtils.isBlank(agentInfo) ? agentInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", HttpProcessors.class)),
                         new RequestExpectContinue());

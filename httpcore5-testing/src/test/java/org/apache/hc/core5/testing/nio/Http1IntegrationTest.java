@@ -1538,7 +1538,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(new DefaultHttpProcessor(new RequestContent(), new RequestConnControl()), Http1Config.DEFAULT);
+        client.start(new DefaultHttpProcessor(RequestContent.INSTANCE, RequestConnControl.INSTANCE), Http1Config.DEFAULT);
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -1730,7 +1730,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
                 .setMaxLineLength(100)
                 .build());
         client.start(
-                new DefaultHttpProcessor(new RequestContent(), new RequestTargetHost(), new RequestConnControl()), null);
+                new DefaultHttpProcessor(RequestContent.INSTANCE, RequestTargetHost.INSTANCE, RequestConnControl.INSTANCE), null);
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
