@@ -48,6 +48,12 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.SAFE)
 public class RequestDate implements HttpRequestInterceptor {
 
+    /**
+     * Singleton instance.
+     * @since 5.2
+     */
+    public static final HttpRequestInterceptor INSTANCE = new RequestDate();
+
     public RequestDate() {
         super();
     }

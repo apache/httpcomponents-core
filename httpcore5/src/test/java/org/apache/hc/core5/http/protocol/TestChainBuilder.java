@@ -39,10 +39,10 @@ public class TestChainBuilder {
     @Test
     public void testBuildChain() throws Exception {
         final ChainBuilder<HttpRequestInterceptor> cb = new ChainBuilder<>();
-        final HttpRequestInterceptor i1 = new RequestContent();
-        final HttpRequestInterceptor i2 = new RequestTargetHost();
-        final HttpRequestInterceptor i3 = new RequestConnControl();
-        final HttpRequestInterceptor i4 = new RequestUserAgent();
+        final HttpRequestInterceptor i1 = RequestContent.INSTANCE;
+        final HttpRequestInterceptor i2 = RequestTargetHost.INSTANCE;
+        final HttpRequestInterceptor i3 = RequestConnControl.INSTANCE;
+        final HttpRequestInterceptor i4 = RequestUserAgent.INSTANCE;
         final HttpRequestInterceptor i5 = new RequestExpectContinue();
         cb.addFirst(i1);
         cb.addAllFirst(i2, i3);

@@ -47,6 +47,12 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class RequestUserAgent implements HttpRequestInterceptor {
 
+    /**
+     * Singleton instance.
+     * @since 5.2
+     */
+    public static final HttpRequestInterceptor INSTANCE = new RequestUserAgent();
+
     private final String userAgent;
 
     public RequestUserAgent(final String userAgent) {
