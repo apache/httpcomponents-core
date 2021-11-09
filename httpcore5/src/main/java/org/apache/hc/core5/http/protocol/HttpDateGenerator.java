@@ -53,7 +53,7 @@ public class HttpDateGenerator {
     public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
     /** Singleton instance. */
-    public static final HttpDateGenerator INSTANCE = new HttpDateGenerator(PATTERN_RFC1123, Locale.US, GMT);
+    public static final HttpDateGenerator INSTANCE = new HttpDateGenerator(PATTERN_RFC1123, Locale.ROOT, GMT);
 
     private final DateFormat dateformat;
     private long dateAsMillis;
@@ -61,7 +61,7 @@ public class HttpDateGenerator {
 
     HttpDateGenerator() {
         super();
-        this.dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
+        this.dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.ROOT);
         this.dateformat.setTimeZone(GMT);
     }
 
