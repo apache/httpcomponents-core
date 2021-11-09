@@ -27,10 +27,10 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.TimeZone;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -49,35 +49,50 @@ public class HttpDateGenerator {
     /** Date format pattern used to generate the header in RFC 1123 format. */
     public static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
 
-    /** The time zone to use in the date header. */
+    /**
+     * @deprecated This attribute is no longer supported as a part of the public API.
+     * The time zone to use in the date header.
+     */
+    @Deprecated
     public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
-    /** Singleton instance. */
-    public static final HttpDateGenerator INSTANCE = new HttpDateGenerator(PATTERN_RFC1123, Locale.US, GMT);
+    public static final ZoneId GMT_ID = ZoneId.of("GMT");
 
-    private final DateFormat dateformat;
+    /** Singleton instance. */
+    public static final HttpDateGenerator INSTANCE = new HttpDateGenerator(PATTERN_RFC1123, GMT_ID);
+
+    private final DateTimeFormatter dateTimeFormatter;
     private long dateAsMillis;
     private String dateAsText;
+    private ZoneId zoneId;
 
     HttpDateGenerator() {
-        super();
-        this.dateformat = new SimpleDateFormat(PATTERN_RFC1123, Locale.US);
-        this.dateformat.setTimeZone(GMT);
+        dateTimeFormatter =new DateTimeFormatterBuilder()
+                .parseLenient()
+                .parseCaseInsensitive()
+                .appendPattern(PATTERN_RFC1123)
+                .toFormatter();
+        zoneId = GMT_ID;
+
     }
 
-    private HttpDateGenerator(final String pattern, final Locale locale, final TimeZone timeZone) {
-        this.dateformat = new SimpleDateFormat(pattern, locale);
-        this.dateformat.setTimeZone(timeZone);
+    private HttpDateGenerator(final String pattern, final ZoneId zoneId) {
+        dateTimeFormatter = new DateTimeFormatterBuilder()
+                .parseLenient()
+                .parseCaseInsensitive()
+                .appendPattern(pattern)
+                .toFormatter();
+        this.zoneId =  zoneId;
     }
 
     public synchronized String getCurrentDate() {
-        final long now = System.currentTimeMillis();
+        final long now = Instant.now().toEpochMilli();
         if (now - this.dateAsMillis > GRANULARITY_MILLIS) {
             // Generate new date string
-            this.dateAsText = this.dateformat.format(new Date(now));
-            this.dateAsMillis = now;
+            dateAsText = dateTimeFormatter.format(Instant.now().atZone(zoneId));
+            dateAsMillis = now;
         }
-        return this.dateAsText;
+        return dateAsText;
     }
 
 }

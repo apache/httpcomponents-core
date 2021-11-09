@@ -28,7 +28,7 @@ package org.apache.hc.core5.http2.examples;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -145,7 +145,7 @@ public class H2GreetingServer {
             final HttpResponse resp = new BasicHttpResponse(200);
 
             // recording the request
-            System.out.printf("[%s] %s %s %s%n", new Date(),
+            System.out.printf("[%s] %s %s %s%n", Instant.now(),
                     endpoint.getRemoteAddress(),
                     req.getMethod(),
                     req.getPath());
