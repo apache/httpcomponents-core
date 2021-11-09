@@ -86,7 +86,7 @@ public class HttpDateGenerator {
     }
 
     public synchronized String getCurrentDate() {
-        final long now = System.currentTimeMillis();
+        final long now = Instant.now().toEpochMilli();
         if (now - this.dateAsMillis > GRANULARITY_MILLIS) {
             // Generate new date string
             dateAsText = dateTimeFormatter.format(Instant.now().atZone(zoneId));
