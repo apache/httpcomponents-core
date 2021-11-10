@@ -749,6 +749,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (stream.isTerminated()) {
                     streamMap.remove(streamId);
                     stream.releaseResources();
+                    requestSessionOutput();
                 }
             }
             break;
@@ -803,6 +804,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (stream.isTerminated()) {
                     streamMap.remove(streamId);
                     stream.releaseResources();
+                    requestSessionOutput();
                 }
             }
             break;
@@ -827,6 +829,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                 if (stream.isTerminated()) {
                     streamMap.remove(streamId);
                     stream.releaseResources();
+                    requestSessionOutput();
                 }
             }
             break;
@@ -876,6 +879,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     stream.reset(new H2StreamResetException(errorCode, "Stream reset (" + errorCode + ")"));
                     streamMap.remove(streamId);
                     stream.releaseResources();
+                    requestSessionOutput();
                 }
             }
             break;
@@ -1207,6 +1211,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             if (stream.isTerminated()) {
                 it.remove();
                 stream.releaseResources();
+                requestSessionOutput();
             }
             if (!outputQueue.isEmpty()) {
                 break;
@@ -1694,7 +1699,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         void releaseResources() {
             handler.releaseResources();
-            channel.requestOutput();
         }
 
         void appendState(final StringBuilder buf) {
