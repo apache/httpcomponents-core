@@ -28,8 +28,10 @@
 package org.apache.hc.core5.util;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Objects;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -65,7 +67,11 @@ public class Deadline {
      */
     public static Deadline MIN_VALUE = new Deadline(INTERNAL_MIN_VALUE);
 
-    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .parseLenient()
+            .parseCaseInsensitive()
+            .appendPattern(DATE_FORMAT)
+            .toFormatter();
 
     /**
      * Calculates a deadline with a given time in milliseconds plus a given time value. Non-positive time values
@@ -119,7 +125,11 @@ public class Deadline {
      * @throws ParseException if the specified source string cannot be parsed.
      */
     public static Deadline parse(final String source) throws ParseException {
-        return fromUnixMilliseconds(simpleDateFormat.parse(source).getTime());
+        if (source == null) {
+            return null;
+        }
+        final Instant instant = Instant.from(DATE_TIME_FORMATTER.parse(source));
+        return fromUnixMilliseconds(instant.toEpochMilli());
     }
 
     private volatile boolean frozen;
@@ -158,6 +168,12 @@ public class Deadline {
         return value == other.value;
     }
 
+    @Override
+    public int hashCode() {
+        // Only take into account the deadline value.
+        return Long.hashCode(value);
+    }
+
     /**
      * Formats this deadline.
      *
@@ -165,7 +181,7 @@ public class Deadline {
      * @return a formatted string.
      */
     public String format(final TimeUnit overdueTimeUnit) {
-        return String.format("Deadline: %s, %s overdue", formatTarget(), remainingTimeValue());
+        return String.format("Deadline: %s, %s overdue", formatTarget(), TimeValue.of(remaining(), overdueTimeUnit));
     }
 
     /**
@@ -174,7 +190,7 @@ public class Deadline {
      * @return a formatted string in the format {@value #DATE_FORMAT}.
      */
     public String formatTarget() {
-        return simpleDateFormat.format(value);
+        return DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(value).atOffset(ZoneOffset.UTC));
     }
 
     public Deadline freeze() {
@@ -198,12 +214,6 @@ public class Deadline {
      */
     public long getValue() {
         return value;
-    }
-
-    @Override
-    public int hashCode() {
-        // Only take into account the deadline value.
-        return Objects.hash(value);
     }
 
     /**

@@ -99,7 +99,7 @@ public class TestDeadline {
 
     @Test
     public void testParse() throws ParseException {
-        final Deadline deadline = Deadline.parse("1969-12-31T17:00:01.000 MST");
+        final Deadline deadline = Deadline.parse("1969-12-31T17:00:01.000-0700");
         Assert.assertEquals(1000, deadline.getValue());
     }
 
