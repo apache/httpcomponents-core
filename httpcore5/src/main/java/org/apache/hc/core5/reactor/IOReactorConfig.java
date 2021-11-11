@@ -130,7 +130,17 @@ public final class IOReactorConfig {
 
     /**
      * @see Builder#setSoKeepAlive(boolean)
+     * @since 5.2
      */
+    public boolean isSoKeepAlive() {
+        return this.soKeepAlive;
+    }
+
+    /**
+     * @see Builder#setSoKeepAlive(boolean)
+     * @deprecated use {@link #isSoKeepAlive()}.
+     */
+    @Deprecated
     public boolean isSoKeepalive() {
         return this.soKeepAlive;
     }
@@ -205,7 +215,7 @@ public final class IOReactorConfig {
             .setSoTimeout(config.getSoTimeout())
             .setSoReuseAddress(config.isSoReuseAddress())
             .setSoLinger(config.getSoLinger())
-            .setSoKeepAlive(config.isSoKeepalive())
+            .setSoKeepAlive(config.isSoKeepAlive())
             .setTcpNoDelay(config.isTcpNoDelay())
             .setSndBufSize(config.getSndBufSize())
             .setRcvBufSize(config.getRcvBufSize())

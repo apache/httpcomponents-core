@@ -267,7 +267,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     private void prepareSocket(final Socket socket) throws IOException {
         socket.setTcpNoDelay(this.reactorConfig.isTcpNoDelay());
-        socket.setKeepAlive(this.reactorConfig.isSoKeepalive());
+        socket.setKeepAlive(this.reactorConfig.isSoKeepAlive());
         if (this.reactorConfig.getSndBufSize() > 0) {
             socket.setSendBufferSize(this.reactorConfig.getSndBufSize());
         }
