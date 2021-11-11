@@ -61,7 +61,7 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
     private final int fragmentSizeHint;
     private final CharsetEncoder encoder;
 
-    private ByteBuffer bbuf;
+    private ByteBuffer byteBuffer;
 
     /**
      * Creates new instance of SessionOutputBufferImpl.
@@ -144,8 +144,8 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
             this.metrics.incrementBytesTransferred(len);
         } else {
             // Do not let the buffer grow unnecessarily
-            final int freecapacity = this.buffer.capacity() - this.buffer.length();
-            if (len > freecapacity) {
+            final int freeCapacity = this.buffer.capacity() - this.buffer.length();
+            if (len > freeCapacity) {
                 // flush the buffer
                 flushBuffer(outputStream);
             }
@@ -182,23 +182,23 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
      * <p>
      * This method uses CR-LF as a line delimiter.
      *
-     * @param      charbuffer the buffer containing chars of the line.
+     * @param      lineBuffer the buffer containing chars of the line.
      * @throws  IOException  if an I/O error occurs.
      */
     @Override
-    public void writeLine(final CharArrayBuffer charbuffer, final OutputStream outputStream) throws IOException {
-        if (charbuffer == null) {
+    public void writeLine(final CharArrayBuffer lineBuffer, final OutputStream outputStream) throws IOException {
+        if (lineBuffer == null) {
             return;
         }
         Args.notNull(outputStream, "Output stream");
         if (this.encoder == null) {
             int off = 0;
-            int remaining = charbuffer.length();
+            int remaining = lineBuffer.length();
             while (remaining > 0) {
                 int chunk = this.buffer.capacity() - this.buffer.length();
                 chunk = Math.min(chunk, remaining);
                 if (chunk > 0) {
-                    this.buffer.append(charbuffer, off, chunk);
+                    this.buffer.append(lineBuffer, off, chunk);
                 }
                 if (this.buffer.isFull()) {
                     flushBuffer(outputStream);
@@ -207,38 +207,38 @@ public class SessionOutputBufferImpl implements SessionOutputBuffer {
                 remaining -= chunk;
             }
         } else {
-            final CharBuffer cbuf = CharBuffer.wrap(charbuffer.array(), 0, charbuffer.length());
-            writeEncoded(cbuf, outputStream);
+            final CharBuffer charBuffer = CharBuffer.wrap(lineBuffer.array(), 0, lineBuffer.length());
+            writeEncoded(charBuffer, outputStream);
         }
         write(CRLF, outputStream);
     }
 
-    private void writeEncoded(final CharBuffer cbuf, final OutputStream outputStream) throws IOException {
-        if (!cbuf.hasRemaining()) {
+    private void writeEncoded(final CharBuffer charBuffer, final OutputStream outputStream) throws IOException {
+        if (!charBuffer.hasRemaining()) {
             return;
         }
-        if (this.bbuf == null) {
-            this.bbuf = ByteBuffer.allocate(1024);
+        if (this.byteBuffer == null) {
+            this.byteBuffer = ByteBuffer.allocate(1024);
         }
         this.encoder.reset();
-        while (cbuf.hasRemaining()) {
-            final CoderResult result = this.encoder.encode(cbuf, this.bbuf, true);
+        while (charBuffer.hasRemaining()) {
+            final CoderResult result = this.encoder.encode(charBuffer, this.byteBuffer, true);
             handleEncodingResult(result, outputStream);
         }
-        final CoderResult result = this.encoder.flush(this.bbuf);
+        final CoderResult result = this.encoder.flush(this.byteBuffer);
         handleEncodingResult(result, outputStream);
-        this.bbuf.clear();
+        this.byteBuffer.clear();
     }
 
     private void handleEncodingResult(final CoderResult result, final OutputStream outputStream) throws IOException {
         if (result.isError()) {
             result.throwException();
         }
-        this.bbuf.flip();
-        while (this.bbuf.hasRemaining()) {
-            write(this.bbuf.get(), outputStream);
+        this.byteBuffer.flip();
+        while (this.byteBuffer.hasRemaining()) {
+            write(this.byteBuffer.get(), outputStream);
         }
-        this.bbuf.compact();
+        this.byteBuffer.compact();
     }
 
     @Override

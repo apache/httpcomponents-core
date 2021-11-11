@@ -128,11 +128,11 @@ public class SocksProxy {
                             break;
                         case ATYP_DOMAINNAME:
                             final int length = input.readUnsignedByte();
-                            final StringBuilder domainname = new StringBuilder();
+                            final StringBuilder domainName = new StringBuilder();
                             for (int i = 0; i < length; i++) {
-                                domainname.append((char) input.readUnsignedByte());
+                                domainName.append((char) input.readUnsignedByte());
                             }
-                            targetHost = domainname.toString();
+                            targetHost = domainName.toString();
                             targetAddress = null;
                             break;
                         default:

@@ -343,12 +343,12 @@ public final class ContentType implements Serializable {
         return create(mimeType, !TextUtils.isBlank(charset) ? Charset.forName(charset) : null);
     }
 
-    private static ContentType create(final HeaderElement helem, final boolean strict) {
-        final String mimeType = helem.getName();
+    private static ContentType create(final HeaderElement headerElement, final boolean strict) {
+        final String mimeType = headerElement.getName();
         if (TextUtils.isBlank(mimeType)) {
             return null;
         }
-        return create(helem.getName(), helem.getParameters(), strict);
+        return create(headerElement.getName(), headerElement.getParameters(), strict);
     }
 
     private static ContentType create(final String mimeType, final NameValuePair[] params, final boolean strict) {

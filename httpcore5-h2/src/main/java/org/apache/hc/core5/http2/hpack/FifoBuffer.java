@@ -43,13 +43,13 @@ final class FifoBuffer {
 
     private void expand() {
 
-        int newcapacity = (array.length + 1) << 1;
-        if (newcapacity < 0) {
-            newcapacity = Integer.MAX_VALUE;
+        int newCapacity = (array.length + 1) << 1;
+        if (newCapacity < 0) {
+            newCapacity = Integer.MAX_VALUE;
         }
         final Header[] oldArray = array;
         final int len = oldArray.length;
-        final HPackHeader[] newArray = new HPackHeader[newcapacity];
+        final HPackHeader[] newArray = new HPackHeader[newCapacity];
         System.arraycopy(oldArray, head, newArray, 0, len - head);
         System.arraycopy(oldArray, 0, newArray, len - head, head);
         array = newArray;

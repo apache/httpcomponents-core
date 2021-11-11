@@ -165,7 +165,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         final SocketHolder socketHolder = ensureOpen();
-        this.responseWriter.write(response, this.outbuffer, socketHolder.getOutputStream());
+        this.responseWriter.write(response, this.outBuffer, socketHolder.getOutputStream());
         onResponseSubmitted(response);
         if (response.getCode() >= HttpStatus.SC_SUCCESS) {
             incrementResponseCount();
@@ -182,7 +182,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
             return;
         }
         final long len = this.outgoingContentStrategy.determineLength(response);
-        try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
+        try (final OutputStream outStream = createContentOutputStream(len, this.outBuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
             entity.writeTo(outStream);
         }
     }

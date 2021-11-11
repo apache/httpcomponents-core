@@ -158,10 +158,10 @@ public class InetAddressUtils {
             final SocketAddress socketAddress) {
         Args.notNull(buffer, "buffer");
         if (socketAddress instanceof InetSocketAddress) {
-            final InetSocketAddress socketaddr = (InetSocketAddress) socketAddress;
-            final InetAddress inetaddr = socketaddr.getAddress();
-            if (inetaddr != null) {
-                buffer.append(inetaddr.getHostAddress()).append(':').append(socketaddr.getPort());
+            final InetSocketAddress inetSocketAddress = (InetSocketAddress) socketAddress;
+            final InetAddress inetAddress = inetSocketAddress.getAddress();
+            if (inetAddress != null) {
+                buffer.append(inetAddress.getHostAddress()).append(':').append(inetSocketAddress.getPort());
             } else {
                 buffer.append(socketAddress);
             }

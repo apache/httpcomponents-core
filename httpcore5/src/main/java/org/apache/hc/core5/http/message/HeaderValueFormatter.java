@@ -43,11 +43,11 @@ public interface HeaderValueFormatter {
      * Formats an array of header elements.
      *
      * @param buffer    buffer to write formatted content to.
-     * @param elems     the header elements to format
+     * @param elements  the header elements to format
      * @param quote     {@code true} to always format with quoted values,
      *                  {@code false} to use quotes only when necessary
      */
-    void formatElements(CharArrayBuffer buffer, HeaderElement[] elems, boolean quote);
+    void formatElements(CharArrayBuffer buffer, HeaderElement[] elements, boolean quote);
 
     /**
      * Formats one header element.

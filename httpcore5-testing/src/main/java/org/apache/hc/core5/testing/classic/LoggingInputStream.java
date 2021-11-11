@@ -79,8 +79,8 @@ class LoggingInputStream extends InputStream {
     }
 
     @Override
-    public void mark(final int readlimit) {
-        super.mark(readlimit);
+    public void mark(final int readLimit) {
+        super.mark(readLimit);
     }
 
     @Override

@@ -55,7 +55,7 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
 
     enum State { ACTIVE, FLUSHING, END_STREAM }
 
-    private final ByteBuffer bytebuf;
+    private final ByteBuffer buffer;
     private final int fragmentSizeHint;
     private final ContentType contentType;
     private final CharsetEncoder charsetEncoder;
@@ -68,7 +68,7 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
             final ContentType contentType) {
         Args.positive(bufferSize, "Buffer size");
         this.fragmentSizeHint = fragmentSizeHint >= 0 ? fragmentSizeHint : 0;
-        this.bytebuf = ByteBuffer.allocate(bufferSize);
+        this.buffer = ByteBuffer.allocate(bufferSize);
         this.contentType = contentType;
         final Charset charset = ContentType.getCharset(contentType, StandardCharsets.US_ASCII);
         this.charsetEncoder = charset.newEncoder();
@@ -76,10 +76,10 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
     }
 
     private void flush(final StreamChannel<ByteBuffer> channel) throws IOException {
-        if (bytebuf.position() > 0) {
-            bytebuf.flip();
-            channel.write(bytebuf);
-            bytebuf.compact();
+        if (buffer.position() > 0) {
+            buffer.flip();
+            channel.write(buffer);
+            buffer.compact();
         }
     }
 
@@ -91,12 +91,12 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
         }
 
         final int p = src.position();
-        final CoderResult result = charsetEncoder.encode(src, bytebuf, false);
+        final CoderResult result = charsetEncoder.encode(src, buffer, false);
         if (result.isError()) {
             result.throwException();
         }
 
-        if (!bytebuf.hasRemaining() || bytebuf.position() >= fragmentSizeHint) {
+        if (!buffer.hasRemaining() || buffer.position() >= fragmentSizeHint) {
             flush(channel);
         }
 
@@ -106,20 +106,20 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
     final void streamEnd(final StreamChannel<ByteBuffer> channel) throws IOException {
         if (state == State.ACTIVE) {
             state = State.FLUSHING;
-            if (!bytebuf.hasRemaining()) {
+            if (!buffer.hasRemaining()) {
                 flush(channel);
             }
 
-            final CoderResult result = charsetEncoder.encode(EMPTY, bytebuf, true);
+            final CoderResult result = charsetEncoder.encode(EMPTY, buffer, true);
             if (result.isError()) {
                 result.throwException();
             }
-            final CoderResult result2 = charsetEncoder.flush(bytebuf);
+            final CoderResult result2 = charsetEncoder.flush(buffer);
             if (result2.isError()) {
                 result.throwException();
             } else if (result.isUnderflow()) {
                 flush(channel);
-                if (bytebuf.position() == 0) {
+                if (buffer.position() == 0) {
                     state = State.END_STREAM;
                     channel.endStream();
                 }
@@ -178,29 +178,29 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
         if (state == State.ACTIVE) {
             return availableData();
         } else {
-            synchronized (bytebuf) {
-                return bytebuf.position();
+            synchronized (buffer) {
+                return buffer.position();
             }
         }
     }
 
     @Override
     public final void produce(final DataStreamChannel channel) throws IOException {
-        synchronized (bytebuf) {
+        synchronized (buffer) {
             if (state == State.ACTIVE) {
                 produceData(new StreamChannel<CharBuffer>() {
 
                     @Override
                     public int write(final CharBuffer src) throws IOException {
                         Args.notNull(src, "Buffer");
-                        synchronized (bytebuf) {
+                        synchronized (buffer) {
                             return writeData(channel, src);
                         }
                     }
 
                     @Override
                     public void endStream() throws IOException {
-                        synchronized (bytebuf) {
+                        synchronized (buffer) {
                             streamEnd(channel);
                         }
                     }
@@ -208,14 +208,14 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
                 });
             }
             if (state == State.FLUSHING) {
-                final CoderResult result = charsetEncoder.flush(bytebuf);
+                final CoderResult result = charsetEncoder.flush(buffer);
                 if (result.isError()) {
                     result.throwException();
                 } else if (result.isOverflow()) {
                     flush(channel);
                 } else if (result.isUnderflow()) {
                     flush(channel);
-                    if (bytebuf.position() == 0) {
+                    if (buffer.position() == 0) {
                         state = State.END_STREAM;
                         channel.endStream();
                     }

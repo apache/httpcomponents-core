@@ -85,33 +85,33 @@ public class BasicLineParser implements LineParser {
     ProtocolVersion parseProtocolVersion(
             final CharArrayBuffer buffer,
             final ParserCursor cursor) throws ParseException {
-        final String protoname = this.protocol.getProtocol();
-        final int protolength  = protoname.length();
+        final String protocolName = this.protocol.getProtocol();
+        final int protocolLength  = protocolName.length();
 
         this.tokenizer.skipWhiteSpace(buffer, cursor);
 
         final int pos = cursor.getPos();
 
         // long enough for "HTTP/1.1"?
-        if (pos + protolength + 4 > cursor.getUpperBound()) {
+        if (pos + protocolLength + 4 > cursor.getUpperBound()) {
             throw new ParseException("Invalid protocol version",
                     buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
         }
 
         // check the protocol name and slash
         boolean ok = true;
-        for (int i = 0; ok && (i < protolength); i++) {
-            ok = buffer.charAt(pos + i) == protoname.charAt(i);
+        for (int i = 0; ok && (i < protocolLength); i++) {
+            ok = buffer.charAt(pos + i) == protocolName.charAt(i);
         }
         if (ok) {
-            ok = buffer.charAt(pos + protolength) == '/';
+            ok = buffer.charAt(pos + protocolLength) == '/';
         }
         if (!ok) {
             throw new ParseException("Invalid protocol version",
                     buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
         }
 
-        cursor.updatePos(pos + protolength + 1);
+        cursor.updatePos(pos + protocolLength + 1);
 
         final String token1 = this.tokenizer.parseToken(buffer, cursor, FULL_STOP);
         final int major;

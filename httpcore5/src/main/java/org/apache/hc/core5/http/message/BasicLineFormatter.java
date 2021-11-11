@@ -53,14 +53,14 @@ public class BasicLineFormatter implements LineFormatter {
     }
 
     @Override
-    public void formatRequestLine(final CharArrayBuffer buffer, final RequestLine reqline) {
+    public void formatRequestLine(final CharArrayBuffer buffer, final RequestLine requestLine) {
         Args.notNull(buffer, "Char array buffer");
-        Args.notNull(reqline, "Request line");
-        buffer.append(reqline.getMethod());
+        Args.notNull(requestLine, "Request line");
+        buffer.append(requestLine.getMethod());
         buffer.append(' ');
-        buffer.append(reqline.getUri());
+        buffer.append(requestLine.getUri());
         buffer.append(' ');
-        formatProtocolVersion(buffer, reqline.getProtocolVersion());
+        formatProtocolVersion(buffer, requestLine.getProtocolVersion());
     }
 
     @Override

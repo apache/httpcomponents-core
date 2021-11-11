@@ -65,7 +65,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
 
     private int bufferPos;
     private int bufferLen;
-    private CharBuffer cbuf;
+    private CharBuffer charBuffer;
 
     /**
      * Creates new instance of SessionInputBufferImpl.
@@ -319,14 +319,14 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         if (this.decoder == null) {
             charBuffer.append(this.lineBuffer, 0, len);
         } else {
-            final ByteBuffer bbuf =  ByteBuffer.wrap(this.lineBuffer.array(), 0, len);
-            len = appendDecoded(charBuffer, bbuf);
+            final ByteBuffer byteBuffer =  ByteBuffer.wrap(this.lineBuffer.array(), 0, len);
+            len = appendDecoded(charBuffer, byteBuffer);
         }
         this.lineBuffer.clear();
         return len;
     }
 
-    private int lineFromReadBuffer(final CharArrayBuffer charbuffer, final int position)
+    private int lineFromReadBuffer(final CharArrayBuffer charBuffer, final int position)
             throws IOException {
         int pos = position;
         final int off = this.bufferPos;
@@ -338,31 +338,31 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         }
         len = pos - off;
         if (this.decoder == null) {
-            charbuffer.append(this.buffer, off, len);
+            charBuffer.append(this.buffer, off, len);
         } else {
-            final ByteBuffer bbuf =  ByteBuffer.wrap(this.buffer, off, len);
-            len = appendDecoded(charbuffer, bbuf);
+            final ByteBuffer byteBuffer =  ByteBuffer.wrap(this.buffer, off, len);
+            len = appendDecoded(charBuffer, byteBuffer);
         }
         return len;
     }
 
     private int appendDecoded(
-            final CharArrayBuffer charbuffer, final ByteBuffer bbuf) throws IOException {
-        if (!bbuf.hasRemaining()) {
+            final CharArrayBuffer charBuffer, final ByteBuffer byteBuffer) throws IOException {
+        if (!byteBuffer.hasRemaining()) {
             return 0;
         }
-        if (this.cbuf == null) {
-            this.cbuf = CharBuffer.allocate(1024);
+        if (this.charBuffer == null) {
+            this.charBuffer = CharBuffer.allocate(1024);
         }
         this.decoder.reset();
         int len = 0;
-        while (bbuf.hasRemaining()) {
-            final CoderResult result = this.decoder.decode(bbuf, this.cbuf, true);
-            len += handleDecodingResult(result, charbuffer);
+        while (byteBuffer.hasRemaining()) {
+            final CoderResult result = this.decoder.decode(byteBuffer, this.charBuffer, true);
+            len += handleDecodingResult(result, charBuffer);
         }
-        final CoderResult result = this.decoder.flush(this.cbuf);
-        len += handleDecodingResult(result, charbuffer);
-        this.cbuf.clear();
+        final CoderResult result = this.decoder.flush(this.charBuffer);
+        len += handleDecodingResult(result, charBuffer);
+        this.charBuffer.clear();
         return len;
     }
 
@@ -372,12 +372,12 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
         if (result.isError()) {
             result.throwException();
         }
-        this.cbuf.flip();
-        final int len = this.cbuf.remaining();
-        while (this.cbuf.hasRemaining()) {
-            charBuffer.append(this.cbuf.get());
+        this.charBuffer.flip();
+        final int len = this.charBuffer.remaining();
+        while (this.charBuffer.hasRemaining()) {
+            charBuffer.append(this.charBuffer.get());
         }
-        this.cbuf.compact();
+        this.charBuffer.compact();
         return len;
     }
 

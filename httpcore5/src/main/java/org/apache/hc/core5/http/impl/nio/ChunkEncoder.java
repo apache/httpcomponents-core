@@ -98,10 +98,10 @@ public class ChunkEncoder extends AbstractContentEncoder {
                     this.lineBuffer.clear();
                     this.lineBuffer.append(Integer.toHexString(chunk));
                     this.buffer.writeLine(this.lineBuffer);
-                    final int oldlimit = src.limit();
+                    final int oldLimit = src.limit();
                     src.limit(src.position() + chunk);
                     this.buffer.write(src);
-                    src.limit(oldlimit);
+                    src.limit(oldLimit);
                 } else {
                     // write all
                     this.lineBuffer.clear();
@@ -140,8 +140,8 @@ public class ChunkEncoder extends AbstractContentEncoder {
             for (int i = 0; i < trailers.size(); i++) {
                 final Header header = trailers.get(i);
                 if (header instanceof FormattedHeader) {
-                    final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
-                    buffer.writeLine(chbuffer);
+                    final CharArrayBuffer bufferHeader = ((FormattedHeader) header).getBuffer();
+                    buffer.writeLine(bufferHeader);
                 } else {
                     this.lineBuffer.clear();
                     BasicLineFormatter.INSTANCE.formatHeader(this.lineBuffer, header);

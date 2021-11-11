@@ -73,7 +73,7 @@ public abstract class Frame<T> {
         sb.append("type=").append(type);
         sb.append(", flags=").append(flags);
         sb.append(", streamId=").append(streamId);
-        sb.append(", payoad=").append(getPayload());
+        sb.append(", payload=").append(getPayload());
         sb.append(']');
         return sb.toString();
     }

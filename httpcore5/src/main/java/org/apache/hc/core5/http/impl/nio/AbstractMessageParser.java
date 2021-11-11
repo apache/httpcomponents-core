@@ -58,7 +58,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
 
     private T message;
     private CharArrayBuffer lineBuf;
-    private final List<CharArrayBuffer> headerBufs;
+    private final List<CharArrayBuffer> headersBuffer;
     private int emptyLineCount;
 
     private final LineParser lineParser;
@@ -78,7 +78,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
         super();
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.messageConstraints = messageConstraints != null ? messageConstraints : Http1Config.DEFAULT;
-        this.headerBufs = new ArrayList<>();
+        this.headersBuffer = new ArrayList<>();
         this.state = State.READ_HEAD_LINE;
     }
 
@@ -89,7 +89,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     @Override
     public void reset() {
         this.state = State.READ_HEAD_LINE;
-        this.headerBufs.clear();
+        this.headersBuffer.clear();
         this.emptyLineCount = 0;
         this.message = null;
     }
@@ -117,10 +117,10 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
 
     private void parseHeader() throws IOException {
         final CharArrayBuffer current = this.lineBuf;
-        final int count = this.headerBufs.size();
+        final int count = this.headersBuffer.size();
         if ((this.lineBuf.charAt(0) == ' ' || this.lineBuf.charAt(0) == '\t') && count > 0) {
             // Handle folded header line
-            final CharArrayBuffer previous = this.headerBufs.get(count - 1);
+            final CharArrayBuffer previous = this.headersBuffer.get(count - 1);
             int i = 0;
             while (i < current.length()) {
                 final char ch = current.charAt(i);
@@ -136,7 +136,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
             previous.append(' ');
             previous.append(current, i, current.length() - i);
         } else {
-            this.headerBufs.add(current);
+            this.headersBuffer.add(current);
             this.lineBuf = null;
         }
     }
@@ -172,7 +172,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
             case READ_HEADERS:
                 if (this.lineBuf.length() > 0) {
                     final int maxHeaderCount = this.messageConstraints.getMaxHeaderCount();
-                    if (maxHeaderCount > 0 && headerBufs.size() >= maxHeaderCount) {
+                    if (maxHeaderCount > 0 && headersBuffer.size() >= maxHeaderCount) {
                         throw new MessageConstraintException("Maximum header count exceeded");
                     }
 
@@ -187,7 +187,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
             }
         }
         if (this.state ==State. COMPLETED) {
-            for (final CharArrayBuffer buffer : this.headerBufs) {
+            for (final CharArrayBuffer buffer : this.headersBuffer) {
                 this.message.addHeader(this.lineParser.parseHeader(buffer));
             }
             return this.message;

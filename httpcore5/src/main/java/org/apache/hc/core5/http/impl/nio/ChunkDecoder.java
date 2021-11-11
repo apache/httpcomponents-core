@@ -67,7 +67,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
     private long pos;
 
     private final Http1Config http1Config;
-    private final List<CharArrayBuffer> trailerBufs;
+    private final List<CharArrayBuffer> trailersBuffer;
     private final List<Header> trailers;
 
     /**
@@ -85,7 +85,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         this.endOfChunk = false;
         this.endOfStream = false;
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
-        this.trailerBufs = new ArrayList<>();
+        this.trailersBuffer = new ArrayList<>();
         this.trailers = new ArrayList<>();
     }
 
@@ -142,10 +142,10 @@ public class ChunkDecoder extends AbstractContentDecoder {
 
     private void parseHeader() throws IOException {
         final CharArrayBuffer current = this.lineBuf;
-        final int count = this.trailerBufs.size();
+        final int count = this.trailersBuffer.size();
         if ((this.lineBuf.charAt(0) == ' ' || this.lineBuf.charAt(0) == '\t') && count > 0) {
             // Handle folded header line
-            final CharArrayBuffer previous = this.trailerBufs.get(count - 1);
+            final CharArrayBuffer previous = this.trailersBuffer.get(count - 1);
             int i = 0;
             while (i < current.length()) {
                 final char ch = current.charAt(i);
@@ -161,24 +161,24 @@ public class ChunkDecoder extends AbstractContentDecoder {
             previous.append(' ');
             previous.append(current, i, current.length() - i);
         } else {
-            this.trailerBufs.add(current);
+            this.trailersBuffer.add(current);
             this.lineBuf = null;
         }
     }
 
     private void processFooters() throws IOException {
-        final int count = this.trailerBufs.size();
+        final int count = this.trailersBuffer.size();
         if (count > 0) {
             this.trailers.clear();
-            for (int i = 0; i < this.trailerBufs.size(); i++) {
+            for (int i = 0; i < this.trailersBuffer.size(); i++) {
                 try {
-                    this.trailers.add(new BufferedHeader(this.trailerBufs.get(i)));
+                    this.trailers.add(new BufferedHeader(this.trailersBuffer.get(i)));
                 } catch (final ParseException ex) {
                     throw new IOException(ex);
                 }
             }
         }
-        this.trailerBufs.clear();
+        this.trailersBuffer.clear();
     }
 
     @Override
@@ -253,7 +253,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
                 }
                 if (this.lineBuf.length() > 0) {
                     final int maxHeaderCount = this.http1Config.getMaxHeaderCount();
-                    if (maxHeaderCount > 0 && trailerBufs.size() >= maxHeaderCount) {
+                    if (maxHeaderCount > 0 && trailersBuffer.size() >= maxHeaderCount) {
                         throw new MessageConstraintException("Maximum header count exceeded");
                     }
                     parseHeader();

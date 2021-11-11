@@ -89,22 +89,22 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
     public synchronized T get(final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         Args.notNull(unit, "Time unit");
-        final long msecs = unit.toMillis(timeout);
-        final long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
-        long waitTime = msecs;
+        final long milliSecs = unit.toMillis(timeout);
+        final long startTime = (milliSecs <= 0) ? 0 : System.currentTimeMillis();
+        long waitTime = milliSecs;
         if (this.completed) {
             return getResult();
         } else if (waitTime <= 0) {
-            throw TimeoutValueException.fromMilliseconds(msecs, msecs + Math.abs(waitTime));
+            throw TimeoutValueException.fromMilliseconds(milliSecs, milliSecs + Math.abs(waitTime));
         } else {
             for (;;) {
                 wait(waitTime);
                 if (this.completed) {
                     return getResult();
                 }
-                waitTime = msecs - (System.currentTimeMillis() - startTime);
+                waitTime = milliSecs - (System.currentTimeMillis() - startTime);
                 if (waitTime <= 0) {
-                    throw TimeoutValueException.fromMilliseconds(msecs, msecs + Math.abs(waitTime));
+                    throw TimeoutValueException.fromMilliseconds(milliSecs, milliSecs + Math.abs(waitTime));
                 }
             }
         }

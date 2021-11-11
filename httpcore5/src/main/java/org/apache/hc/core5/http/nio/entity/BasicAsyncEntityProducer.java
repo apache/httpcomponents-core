@@ -47,7 +47,7 @@ import org.apache.hc.core5.util.Args;
  */
 public class BasicAsyncEntityProducer implements AsyncEntityProducer {
 
-    private final ByteBuffer bytebuf;
+    private final ByteBuffer byteBuffer;
     private final int length;
     private final ContentType contentType;
     private final boolean chunked;
@@ -55,8 +55,8 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
 
     public BasicAsyncEntityProducer(final byte[] content, final ContentType contentType, final boolean chunked) {
         Args.notNull(content, "Content");
-        this.bytebuf = ByteBuffer.wrap(content);
-        this.length = this.bytebuf.remaining();
+        this.byteBuffer = ByteBuffer.wrap(content);
+        this.length = this.byteBuffer.remaining();
         this.contentType = contentType;
         this.chunked = chunked;
         this.exception = new AtomicReference<>();
@@ -74,8 +74,8 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
         Args.notNull(content, "Content");
         this.contentType = contentType;
         final Charset charset = ContentType.getCharset(contentType, StandardCharsets.US_ASCII);
-        this.bytebuf = charset.encode(CharBuffer.wrap(content));
-        this.length = this.bytebuf.remaining();
+        this.byteBuffer = charset.encode(CharBuffer.wrap(content));
+        this.length = this.byteBuffer.remaining();
         this.chunked = chunked;
         this.exception = new AtomicReference<>();
     }
@@ -125,10 +125,10 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
 
     @Override
     public final void produce(final DataStreamChannel channel) throws IOException {
-        if (bytebuf.hasRemaining()) {
-            channel.write(bytebuf);
+        if (byteBuffer.hasRemaining()) {
+            channel.write(byteBuffer);
         }
-        if (!bytebuf.hasRemaining()) {
+        if (!byteBuffer.hasRemaining()) {
             channel.endStream();
         }
     }
@@ -146,7 +146,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
 
     @Override
     public void releaseResources() {
-        bytebuf.clear();
+        byteBuffer.clear();
     }
 
 }

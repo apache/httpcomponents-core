@@ -100,7 +100,7 @@ public class TestBHttpConnectionBase {
 
         conn.bind(socket);
         conn.ensureOpen();
-        conn.outbuffer.write(0, outStream);
+        conn.outBuffer.write(0, outStream);
 
         Assert.assertTrue(conn.isOpen());
 
@@ -124,7 +124,7 @@ public class TestBHttpConnectionBase {
 
         conn.bind(socket);
         conn.ensureOpen();
-        conn.outbuffer.write(0, outStream);
+        conn.outBuffer.write(0, outStream);
 
         Assert.assertTrue(conn.isOpen());
 

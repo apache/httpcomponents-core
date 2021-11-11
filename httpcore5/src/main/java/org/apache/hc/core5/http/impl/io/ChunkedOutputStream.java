@@ -162,8 +162,8 @@ public class ChunkedOutputStream extends OutputStream {
             for (int i = 0; i < trailers.size(); i++) {
                 final Header header = trailers.get(i);
                 if (header instanceof FormattedHeader) {
-                    final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
-                    this.buffer.writeLine(chbuffer, this.outputStream);
+                    final CharArrayBuffer bufferHeader = ((FormattedHeader) header).getBuffer();
+                    this.buffer.writeLine(bufferHeader, this.outputStream);
                 } else {
                     this.lineBuffer.clear();
                     BasicLineFormatter.INSTANCE.formatHeader(this.lineBuffer, header);

@@ -127,9 +127,9 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         if (cursor.atEnd()) {
             return new BasicNameValuePair(name, null);
         }
-        final int delim = buffer.charAt(cursor.getPos());
+        final int delimiter = buffer.charAt(cursor.getPos());
         cursor.updatePos(cursor.getPos() + 1);
-        if (delim != '=') {
+        if (delimiter != '=') {
             return new BasicNameValuePair(name, null);
         }
         final String value = tokenizer.parseValue(buffer, cursor, VALUE_DELIMITER);

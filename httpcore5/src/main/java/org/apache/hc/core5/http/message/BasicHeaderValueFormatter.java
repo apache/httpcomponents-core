@@ -53,15 +53,15 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
     @Override
     public void formatElements(
-            final CharArrayBuffer buffer, final HeaderElement[] elems, final boolean quote) {
+            final CharArrayBuffer buffer, final HeaderElement[] elements, final boolean quote) {
         Args.notNull(buffer, "Char array buffer");
-        Args.notNull(elems, "Header element array");
+        Args.notNull(elements, "Header element array");
 
-        for (int i = 0; i < elems.length; i++) {
+        for (int i = 0; i < elements.length; i++) {
             if (i > 0) {
                 buffer.append(", ");
             }
-            formatHeaderElement(buffer, elems[i], quote);
+            formatHeaderElement(buffer, elements[i], quote);
         }
     }
 

@@ -54,8 +54,8 @@ public final class ByteArrayBuffer implements Serializable {
         this.array = new byte[capacity];
     }
 
-    private void expand(final int newlen) {
-        final byte[] newArray = new byte[Math.max(this.array.length << 1, newlen)];
+    private void expand(final int newLen) {
+        final byte[] newArray = new byte[Math.max(this.array.length << 1, newLen)];
         System.arraycopy(this.array, 0, newArray, 0, this.len);
         this.array = newArray;
     }
@@ -83,12 +83,12 @@ public final class ByteArrayBuffer implements Serializable {
         if (len == 0) {
             return;
         }
-        final int newlen = this.len + len;
-        if (newlen > this.array.length) {
-            expand(newlen);
+        final int newLen = this.len + len;
+        if (newLen > this.array.length) {
+            expand(newLen);
         }
         System.arraycopy(b, off, this.array, this.len, len);
-        this.len = newlen;
+        this.len = newLen;
     }
 
     /**
@@ -98,12 +98,12 @@ public final class ByteArrayBuffer implements Serializable {
      * @param   b        the byte to be appended.
      */
     public void append(final int b) {
-        final int newlen = this.len + 1;
-        if (newlen > this.array.length) {
-            expand(newlen);
+        final int newLen = this.len + 1;
+        if (newLen > this.array.length) {
+            expand(newLen);
         }
         this.array[this.len] = (byte)b;
-        this.len = newlen;
+        this.len = newLen;
     }
 
     /**
@@ -131,13 +131,13 @@ public final class ByteArrayBuffer implements Serializable {
         if (len == 0) {
             return;
         }
-        final int oldlen = this.len;
-        final int newlen = oldlen + len;
-        if (newlen > this.array.length) {
-            expand(newlen);
+        final int oldLen = this.len;
+        final int newLen = oldLen + len;
+        if (newLen > this.array.length) {
+            expand(newLen);
         }
 
-        for (int i1 = off, i2 = oldlen; i2 < newlen; i1++, i2++) {
+        for (int i1 = off, i2 = oldLen; i2 < newLen; i1++, i2++) {
             final int c = b[i1];
             if ((c >= 0x20 && c <= 0x7E) || // Visible ASCII
                 (c >= 0xA0 && c <= 0xFF) || // Visible ISO-8859-1
@@ -147,7 +147,7 @@ public final class ByteArrayBuffer implements Serializable {
                 this.array[i2] = '?';
             }
         }
-        this.len = newlen;
+        this.len = newLen;
     }
 
     /**

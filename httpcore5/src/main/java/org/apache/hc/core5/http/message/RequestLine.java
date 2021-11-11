@@ -46,7 +46,7 @@ public final class RequestLine implements Serializable {
 
     private static final long serialVersionUID = 2810581718468737193L;
 
-    private final ProtocolVersion protoversion;
+    private final ProtocolVersion protocolVersion;
     private final String method;
     private final String uri;
 
@@ -55,7 +55,7 @@ public final class RequestLine implements Serializable {
         Args.notNull(request, "Request");
         this.method = request.getMethod();
         this.uri = request.getRequestUri();
-        this.protoversion = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
+        this.protocolVersion = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
     }
 
     public RequestLine(final String method,
@@ -64,7 +64,7 @@ public final class RequestLine implements Serializable {
         super();
         this.method = Args.notNull(method, "Method");
         this.uri = Args.notNull(uri, "URI");
-        this.protoversion = version != null ? version : HttpVersion.HTTP_1_1;
+        this.protocolVersion = version != null ? version : HttpVersion.HTTP_1_1;
     }
 
     public String getMethod() {
@@ -72,7 +72,7 @@ public final class RequestLine implements Serializable {
     }
 
     public ProtocolVersion getProtocolVersion() {
-        return this.protoversion;
+        return this.protocolVersion;
     }
 
     public String getUri() {
@@ -82,7 +82,7 @@ public final class RequestLine implements Serializable {
     @Override
     public String toString() {
         final StringBuilder buf = new StringBuilder();
-        buf.append(this.method).append(" ").append(this.uri).append(" ").append(this.protoversion);
+        buf.append(this.method).append(" ").append(this.uri).append(" ").append(this.protocolVersion);
         return buf.toString();
     }
 

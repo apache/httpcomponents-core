@@ -104,22 +104,22 @@ public class URLEncodedUtils {
             final CharSequence s, final Charset charset, final char... separators) {
         Args.notNull(s, "Char sequence");
         final Tokenizer tokenParser = Tokenizer.INSTANCE;
-        final BitSet delimSet = new BitSet();
+        final BitSet delimiterSet = new BitSet();
         for (final char separator: separators) {
-            delimSet.set(separator);
+            delimiterSet.set(separator);
         }
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final List<NameValuePair> list = new ArrayList<>();
         while (!cursor.atEnd()) {
-            delimSet.set('=');
-            final String name = tokenParser.parseToken(s, cursor, delimSet);
+            delimiterSet.set('=');
+            final String name = tokenParser.parseToken(s, cursor, delimiterSet);
             String value = null;
             if (!cursor.atEnd()) {
-                final int delim = s.charAt(cursor.getPos());
+                final int delimiter = s.charAt(cursor.getPos());
                 cursor.updatePos(cursor.getPos() + 1);
-                if (delim == '=') {
-                    delimSet.clear('=');
-                    value = tokenParser.parseToken(s, cursor, delimSet);
+                if (delimiter == '=') {
+                    delimiterSet.clear('=');
+                    value = tokenParser.parseToken(s, cursor, delimiterSet);
                     if (!cursor.atEnd()) {
                         cursor.updatePos(cursor.getPos() + 1);
                     }

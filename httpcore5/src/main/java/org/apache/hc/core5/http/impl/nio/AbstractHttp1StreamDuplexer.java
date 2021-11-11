@@ -85,8 +85,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     private final ProtocolIOSession ioSession;
     private final Http1Config http1Config;
-    private final SessionInputBufferImpl inbuf;
-    private final SessionOutputBufferImpl outbuf;
+    private final SessionInputBufferImpl inputBuffer;
+    private final SessionOutputBufferImpl outputBuffer;
     private final BasicHttpTransportMetrics inTransportMetrics;
     private final BasicHttpTransportMetrics outTransportMetrics;
     private final BasicHttpConnectionMetrics connMetrics;
@@ -116,10 +116,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         this.ioSession = Args.notNull(ioSession, "I/O session");
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         final int bufferSize = this.http1Config.getBufferSize();
-        this.inbuf = new SessionInputBufferImpl(bufferSize, Math.min(bufferSize, 512),
+        this.inputBuffer = new SessionInputBufferImpl(bufferSize, Math.min(bufferSize, 512),
                 this.http1Config.getMaxLineLength(),
                 CharCodingSupport.createDecoder(charCodingConfig));
-        this.outbuf = new SessionOutputBufferImpl(bufferSize, Math.min(bufferSize, 512),
+        this.outputBuffer = new SessionOutputBufferImpl(bufferSize, Math.min(bufferSize, 512),
                 CharCodingSupport.createEncoder(charCodingConfig));
         this.inTransportMetrics = new BasicHttpTransportMetrics();
         this.outTransportMetrics = new BasicHttpTransportMetrics();
@@ -253,7 +253,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     }
 
     IncomingMessage parseMessageHead(final boolean endOfStream) throws IOException, HttpException {
-        final IncomingMessage messageHead = incomingMessageParser.parse(inbuf, endOfStream);
+        final IncomingMessage messageHead = incomingMessageParser.parse(inputBuffer, endOfStream);
         if (messageHead != null) {
             incomingMessageParser.reset();
         }
@@ -262,17 +262,17 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     public final void onInput(final ByteBuffer src) throws HttpException, IOException {
         if (src != null) {
-            inbuf.put(src);
+            inputBuffer.put(src);
         }
 
-        if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && inbuf.hasData() && inputIdle()) {
+        if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && inputBuffer.hasData() && inputIdle()) {
             ioSession.clearEvent(SelectionKey.OP_READ);
             return;
         }
 
         boolean endOfStream = false;
         if (incomingMessage == null) {
-            final int bytesRead = inbuf.fill(ioSession);
+            final int bytesRead = inputBuffer.fill(ioSession);
             if (bytesRead > 0) {
                 inTransportMetrics.incrementBytesTransferred(bytesRead);
             }
@@ -290,7 +290,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     final ContentDecoder contentDecoder;
                     if (handleIncomingMessage(messageHead)) {
                         final long len = incomingContentStrategy.determineLength(messageHead);
-                        contentDecoder = createContentDecoder(len, ioSession, inbuf, inTransportMetrics);
+                        contentDecoder = createContentDecoder(len, ioSession, inputBuffer, inTransportMetrics);
                         consumeHeader(messageHead, contentDecoder != null ? new IncomingEntityDetails(messageHead, len) : null);
                     } else {
                         consumeHeader(messageHead, null);
@@ -340,9 +340,9 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     break;
                 }
             }
-        } while (inbuf.hasData());
+        } while (inputBuffer.hasData());
 
-        if (endOfStream && !inbuf.hasData()) {
+        if (endOfStream && !inputBuffer.hasData()) {
             if (outputIdle() && inputIdle()) {
                 requestShutdown(CloseMode.GRACEFUL);
             } else {
@@ -354,8 +354,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     public final void onOutput() throws IOException, HttpException {
         ioSession.getLock().lock();
         try {
-            if (outbuf.hasData()) {
-                final int bytesWritten = outbuf.flush(ioSession);
+            if (outputBuffer.hasData()) {
+                final int bytesWritten = outputBuffer.flush(ioSession);
                 if (bytesWritten > 0) {
                     outTransportMetrics.incrementBytesTransferred(bytesWritten);
                 }
@@ -370,12 +370,12 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             final boolean outputEnd;
             ioSession.getLock().lock();
             try {
-                if (!outputPending && !outbuf.hasData() && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
+                if (!outputPending && !outputBuffer.hasData() && outputRequests.compareAndSet(pendingOutputRequests, 0)) {
                     ioSession.clearEvent(SelectionKey.OP_WRITE);
                 } else {
                     outputRequests.addAndGet(-pendingOutputRequests);
                 }
-                outputEnd = outgoingMessage == null && !outbuf.hasData();
+                outputEnd = outgoingMessage == null && !outputBuffer.hasData();
             } finally {
                 ioSession.getLock().unlock();
             }
@@ -429,13 +429,13 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             final FlushMode flushMode) throws HttpException, IOException {
         ioSession.getLock().lock();
         try {
-            outgoingMessageWriter.write(messageHead, outbuf);
+            outgoingMessageWriter.write(messageHead, outputBuffer);
             updateOutputMetrics(messageHead, connMetrics);
             if (!endStream) {
                 final ContentEncoder contentEncoder;
                 if (handleOutgoingMessage(messageHead)) {
                     final long len = outgoingContentStrategy.determineLength(messageHead);
-                    contentEncoder = createContentEncoder(len, ioSession, outbuf, outTransportMetrics);
+                    contentEncoder = createContentEncoder(len, ioSession, outputBuffer, outTransportMetrics);
                 } else {
                     contentEncoder = null;
                 }
@@ -445,7 +445,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             }
             outgoingMessageWriter.reset();
             if (flushMode == FlushMode.IMMEDIATE) {
-                outbuf.flush(ioSession);
+                outputBuffer.flush(ioSession);
             }
             ioSession.setEvent(EventMask.WRITE);
         } finally {
@@ -477,8 +477,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
     void suspendSessionOutput() throws IOException {
         ioSession.getLock().lock();
         try {
-            if (outbuf.hasData()) {
-                outbuf.flush(ioSession);
+            if (outputBuffer.hasData()) {
+                outputBuffer.flush(ioSession);
             } else {
                 ioSession.clearEvent(SelectionKey.OP_WRITE);
             }
@@ -597,8 +597,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     void appendState(final StringBuilder buf) {
         buf.append("connState=").append(connState)
-                .append(", inbuf=").append(inbuf)
-                .append(", outbuf=").append(outbuf)
+                .append(", inbuf=").append(inputBuffer)
+                .append(", outbuf=").append(outputBuffer)
                 .append(", inputWindow=").append(capacityWindow != null ? capacityWindow.getWindow() : 0);
     }
 

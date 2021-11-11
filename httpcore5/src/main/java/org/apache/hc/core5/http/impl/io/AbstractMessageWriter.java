@@ -91,8 +91,8 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements Ht
         for (final Iterator<Header> it = message.headerIterator(); it.hasNext(); ) {
             final Header header = it.next();
             if (header instanceof FormattedHeader) {
-                final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
-                buffer.writeLine(chbuffer, outputStream);
+                final CharArrayBuffer bufferHeader = ((FormattedHeader) header).getBuffer();
+                buffer.writeLine(bufferHeader, outputStream);
             } else {
                 this.lineBuf.clear();
                 lineFormatter.formatHeader(this.lineBuf, header);

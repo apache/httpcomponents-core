@@ -46,17 +46,17 @@ public interface LineFormatter {
      * Formats a request line.
      *
      * @param buffer    buffer to write formatted content to.
-     * @param reqline   the request line to format
+     * @param requestLine   the request line to format
      */
-    void formatRequestLine(CharArrayBuffer buffer, RequestLine reqline);
+    void formatRequestLine(CharArrayBuffer buffer, RequestLine requestLine);
 
     /**
      * Formats a status line.
      *
      * @param buffer    buffer to write formatted content to.
-     * @param statline  the status line to format
+     * @param statusLine  the status line to format
      */
-    void formatStatusLine(CharArrayBuffer buffer, StatusLine statline);
+    void formatStatusLine(CharArrayBuffer buffer, StatusLine statusLine);
 
     /**
      * Formats a header.

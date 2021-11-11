@@ -45,7 +45,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuffer {
 
     private final CharsetDecoder charDecoder;
-    private final int lineBuffersize;
+    private final int lineBufferSize;
     private final int maxLineLen;
 
     private CharBuffer charbuffer;
@@ -54,7 +54,7 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
      *  Creates SessionInputBufferImpl instance.
      *
      * @param bufferSize input buffer size
-     * @param lineBuffersize buffer size for line operations. Has effect only if
+     * @param lineBufferSize buffer size for line operations. Has effect only if
      *   {@code charDecoder} is not {@code null}.
      * @param charDecoder charDecoder to be used for decoding HTTP protocol elements.
      *   If {@code null} simple type cast will be used for byte to char conversion.
@@ -64,11 +64,11 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
      */
     public SessionInputBufferImpl(
             final int bufferSize,
-            final int lineBuffersize,
+            final int lineBufferSize,
             final int maxLineLen,
             final CharsetDecoder charDecoder) {
         super(bufferSize);
-        this.lineBuffersize = Args.positive(lineBuffersize, "Line buffer size");
+        this.lineBufferSize = Args.positive(lineBufferSize, "Line buffer size");
         this.maxLineLen = Math.max(maxLineLen, 0);
         this.charDecoder = charDecoder;
     }
@@ -78,10 +78,10 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
      */
     public SessionInputBufferImpl(
             final int bufferSize,
-            final int lineBuffersize,
+            final int lineBufferSize,
             final int maxLineLen,
             final Charset charset) {
-        this(bufferSize, lineBuffersize, maxLineLen, charset != null ? charset.newDecoder() : null);
+        this(bufferSize, lineBufferSize, maxLineLen, charset != null ? charset.newDecoder() : null);
     }
 
     /**
@@ -89,9 +89,9 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
      */
     public SessionInputBufferImpl(
             final int bufferSize,
-            final int lineBuffersize,
+            final int lineBufferSize,
             final int maxLineLen) {
-        this(bufferSize, lineBuffersize, maxLineLen, (CharsetDecoder) null);
+        this(bufferSize, lineBufferSize, maxLineLen, (CharsetDecoder) null);
     }
 
     /**
@@ -99,8 +99,8 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
      */
     public SessionInputBufferImpl(
             final int bufferSize,
-            final int lineBuffersize) {
-        this(bufferSize, lineBuffersize, 0, (CharsetDecoder) null);
+            final int lineBufferSize) {
+        this(bufferSize, lineBufferSize, 0, (CharsetDecoder) null);
     }
 
     /**
@@ -259,7 +259,7 @@ class SessionInputBufferImpl extends ExpandableBuffer implements SessionInputBuf
             }
         } else {
             if (this.charbuffer == null) {
-                this.charbuffer = CharBuffer.allocate(this.lineBuffersize);
+                this.charbuffer = CharBuffer.allocate(this.lineBufferSize);
             }
             this.charDecoder.reset();
 

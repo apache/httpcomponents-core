@@ -70,7 +70,7 @@ class BHttpConnectionBase implements BHttpConnection {
     private static final Timeout STALE_CHECK_TIMEOUT = Timeout.ofMilliseconds(1);
     final Http1Config http1Config;
     final SessionInputBufferImpl inBuffer;
-    final SessionOutputBufferImpl outbuffer;
+    final SessionOutputBufferImpl outBuffer;
     final BasicHttpConnectionMetrics connMetrics;
     final AtomicReference<SocketHolder> socketHolderRef;
     // Lazily initialized chunked request buffer provided to ChunkedOutputStream.
@@ -89,7 +89,7 @@ class BHttpConnectionBase implements BHttpConnection {
         this.inBuffer = new SessionInputBufferImpl(inTransportMetrics,
                 this.http1Config.getBufferSize(), -1,
                 this.http1Config.getMaxLineLength(), charDecoder);
-        this.outbuffer = new SessionOutputBufferImpl(outTransportMetrics,
+        this.outBuffer = new SessionOutputBufferImpl(outTransportMetrics,
                 this.http1Config.getBufferSize(),
                 this.http1Config.getChunkSizeHint(), charEncoder);
         this.connMetrics = new BasicHttpConnectionMetrics(inTransportMetrics, outTransportMetrics);
@@ -252,7 +252,7 @@ class BHttpConnectionBase implements BHttpConnection {
         if (socketHolder != null) {
             try (final Socket socket = socketHolder.getSocket()) {
                 this.inBuffer.clear();
-                this.outbuffer.flush(socketHolder.getOutputStream());
+                this.outBuffer.flush(socketHolder.getOutputStream());
             }
         }
     }
@@ -260,12 +260,12 @@ class BHttpConnectionBase implements BHttpConnection {
     private int fillInputBuffer(final Timeout timeout) throws IOException {
         final SocketHolder socketHolder = ensureOpen();
         final Socket socket = socketHolder.getSocket();
-        final int oldtimeout = socket.getSoTimeout();
+        final int oldTimeout = socket.getSoTimeout();
         try {
             socket.setSoTimeout(timeout.toMillisecondsIntBound());
             return this.inBuffer.fillBuffer(socketHolder.getInputStream());
         } finally {
-            socket.setSoTimeout(oldtimeout);
+            socket.setSoTimeout(oldTimeout);
         }
     }
 
@@ -305,7 +305,7 @@ class BHttpConnectionBase implements BHttpConnection {
     @Override
     public void flush() throws IOException {
         final SocketHolder socketHolder = ensureOpen();
-        this.outbuffer.flush(socketHolder.getOutputStream());
+        this.outBuffer.flush(socketHolder.getOutputStream());
     }
 
     protected void incrementRequestCount() {

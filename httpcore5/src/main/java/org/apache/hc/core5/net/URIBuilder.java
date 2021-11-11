@@ -218,9 +218,9 @@ public class URIBuilder {
             final String name = tokenParser.parseToken(s, cursor, QUERY_PARAM_SEPARATORS);
             String value = null;
             if (!cursor.atEnd()) {
-                final int delim = s.charAt(cursor.getPos());
+                final int delimiter = s.charAt(cursor.getPos());
                 cursor.updatePos(cursor.getPos() + 1);
-                if (delim == PARAM_VALUE_SEPARATOR) {
+                if (delimiter == PARAM_VALUE_SEPARATOR) {
                     value = tokenParser.parseToken(s, cursor, QUERY_VALUE_SEPARATORS);
                     if (!cursor.atEnd()) {
                         cursor.updatePos(cursor.getPos() + 1);

@@ -182,7 +182,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         final SocketHolder socketHolder = ensureOpen();
-        this.requestWriter.write(request, this.outbuffer, socketHolder.getOutputStream());
+        this.requestWriter.write(request, this.outBuffer, socketHolder.getOutputStream());
         onRequestSubmitted(request);
         incrementRequestCount();
     }
@@ -200,7 +200,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             throw new LengthRequiredException();
         }
         try (final OutputStream outStream = createContentOutputStream(
-                len, this.outbuffer, new OutputStream() {
+                len, this.outBuffer, new OutputStream() {
 
                     final OutputStream socketOutputStream = socketHolder.getOutputStream();
                     final InputStream socketInputStream = socketHolder.getInputStream();
@@ -281,11 +281,11 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         }
         final long len = this.outgoingContentStrategy.determineLength(request);
         if (len == ContentLengthStrategy.CHUNKED) {
-            try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
+            try (final OutputStream outStream = createContentOutputStream(len, this.outBuffer, socketHolder.getOutputStream(), entity.getTrailers())) {
                 // just close
             }
         } else if (len >= 0 && len <= 1024) {
-            try (final OutputStream outStream = createContentOutputStream(len, this.outbuffer, socketHolder.getOutputStream(), null)) {
+            try (final OutputStream outStream = createContentOutputStream(len, this.outBuffer, socketHolder.getOutputStream(), null)) {
                 entity.writeTo(outStream);
             }
         } else {
