@@ -58,7 +58,7 @@ public class IOReactorConfigTest {
         Assert.assertEquals(Timeout.ofSeconds(10), reactorConfig.getSoTimeout());
         Assert.assertTrue(reactorConfig.isSoReuseAddress());
         Assert.assertEquals(TimeValue.ofSeconds(30), reactorConfig.getSoLinger());
-        Assert.assertTrue(reactorConfig.isSoKeepalive());
+        Assert.assertTrue(reactorConfig.isSoKeepAlive());
         Assert.assertFalse(reactorConfig.isTcpNoDelay());
         Assert.assertEquals(0x02, reactorConfig.getTrafficClass());
         Assert.assertEquals(32767, reactorConfig.getSndBufSize());
