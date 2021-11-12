@@ -98,7 +98,7 @@ public class Deadline {
      * @return a deadline representing the current time plus the given time value.
      */
     public static Deadline calculate(final TimeValue timeValue) {
-        return calculate(System.currentTimeMillis(), timeValue);
+        return calculate(Instant.now().toEpochMilli(), timeValue);
     }
 
     /**
@@ -295,7 +295,7 @@ public class Deadline {
 
     private void setLastCheck() {
         if (!frozen) {
-            this.lastCheck = System.currentTimeMillis();
+            this.lastCheck = Instant.now().toEpochMilli();
         }}
 
     @Override

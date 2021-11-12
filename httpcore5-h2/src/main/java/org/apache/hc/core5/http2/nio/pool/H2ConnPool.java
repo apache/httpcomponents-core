@@ -27,6 +27,7 @@
 package org.apache.hc.core5.http2.nio.pool;
 
 import java.net.InetSocketAddress;
+import java.time.Instant;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -145,7 +146,7 @@ public final class H2ConnPool extends AbstractIOSessionPool<HttpHost> {
             if (TimeValue.isNonNegative(timeValue)) {
                 final long lastAccessTime = Math.min(ioSession.getLastReadTime(), ioSession.getLastWriteTime());
                 final long deadline = lastAccessTime + timeValue.toMilliseconds();
-                if (deadline <= System.currentTimeMillis()) {
+                if (deadline <= Instant.now().toEpochMilli()) {
                     final Timeout socketTimeoutMillis = ioSession.getSocketTimeout();
                     ioSession.enqueue(new PingCommand(new BasicPingHandler(result -> {
                         ioSession.setSocketTimeout(socketTimeoutMillis);

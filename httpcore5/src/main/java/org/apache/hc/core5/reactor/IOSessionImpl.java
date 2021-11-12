@@ -34,6 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.time.Instant;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicLong;
@@ -74,7 +75,7 @@ class IOSessionImpl implements IOSession {
         this.id = String.format(type + "-%010d", COUNT.getAndIncrement());
         this.handlerRef = new AtomicReference<>();
         this.status = new AtomicReference<>(Status.ACTIVE);
-        final long currentTimeMillis = System.currentTimeMillis();
+        final long currentTimeMillis = Instant.now().toEpochMilli();
         this.lastReadTime = currentTimeMillis;
         this.lastWriteTime = currentTimeMillis;
         this.lastEventTime = currentTimeMillis;
@@ -194,7 +195,7 @@ class IOSessionImpl implements IOSession {
     @Override
     public void setSocketTimeout(final Timeout timeout) {
         this.socketTimeout = Timeout.defaultsToDisabled(timeout);
-        this.lastEventTime = System.currentTimeMillis();
+        this.lastEventTime = Instant.now().toEpochMilli();
     }
 
     @Override
@@ -209,13 +210,13 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void updateReadTime() {
-        lastReadTime = System.currentTimeMillis();
+        lastReadTime = Instant.now().toEpochMilli();
         lastEventTime = lastReadTime;
     }
 
     @Override
     public void updateWriteTime() {
-        lastWriteTime = System.currentTimeMillis();
+        lastWriteTime = Instant.now().toEpochMilli();
         lastEventTime = lastWriteTime;
     }
 

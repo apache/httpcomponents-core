@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.concurrent;
 
+import java.time.Instant;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -90,7 +91,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
             throws InterruptedException, ExecutionException, TimeoutException {
         Args.notNull(unit, "Time unit");
         final long msecs = unit.toMillis(timeout);
-        final long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
+        final long startTime = (msecs <= 0) ? 0 : Instant.now().toEpochMilli();
         long waitTime = msecs;
         if (this.completed) {
             return getResult();
@@ -102,7 +103,7 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
                 if (this.completed) {
                     return getResult();
                 }
-                waitTime = msecs - (System.currentTimeMillis() - startTime);
+                waitTime = msecs - (Instant.now().toEpochMilli() - startTime);
                 if (waitTime <= 0) {
                     throw TimeoutValueException.fromMilliseconds(msecs, msecs + Math.abs(waitTime));
                 }

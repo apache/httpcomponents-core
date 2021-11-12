@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -85,13 +86,13 @@ class MultiCoreIOReactor implements IOReactor {
     @Override
     public final void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
         Args.notNull(waitTime, "Wait time");
-        final long deadline = System.currentTimeMillis() + waitTime.toMilliseconds();
+        final long deadline = Instant.now().toEpochMilli() + waitTime.toMilliseconds();
         long remaining = waitTime.toMilliseconds();
         for (int i = 0; i < this.ioReactors.length; i++) {
             final IOReactor ioReactor = this.ioReactors[i];
             if (ioReactor.getStatus().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
                 ioReactor.awaitShutdown(TimeValue.of(remaining, TimeUnit.MILLISECONDS));
-                remaining = deadline - System.currentTimeMillis();
+                remaining = deadline - Instant.now().toEpochMilli();
                 if (remaining <= 0) {
                     return;
                 }
@@ -100,7 +101,7 @@ class MultiCoreIOReactor implements IOReactor {
         for (int i = 0; i < this.threads.length; i++) {
             final Thread thread = this.threads[i];
             thread.join(remaining);
-            remaining = deadline - System.currentTimeMillis();
+            remaining = deadline - Instant.now().toEpochMilli();
             if (remaining <= 0) {
                 return;
             }

@@ -31,6 +31,7 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.CharacterCodingException;
+import java.time.Instant;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
@@ -1503,7 +1504,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
 
         boolean isResetDeadline() {
             final long l = deadline;
-            return l > 0 && l < System.currentTimeMillis();
+            return l > 0 && l < Instant.now().toEpochMilli();
         }
 
         boolean localReset(final int code) throws IOException {
@@ -1513,7 +1514,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     return false;
                 }
                 localEndStream = true;
-                deadline = System.currentTimeMillis() + LINGER_TIME;
+                deadline = Instant.now().toEpochMilli() + LINGER_TIME;
                 if (!idle) {
                     final RawFrame resetStream = frameFactory.createResetStream(id, code);
                     commitFrameInternal(resetStream);

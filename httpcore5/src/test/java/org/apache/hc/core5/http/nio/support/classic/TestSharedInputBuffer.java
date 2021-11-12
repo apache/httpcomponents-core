@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.nio.support.classic;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -149,7 +150,7 @@ public class TestSharedInputBuffer {
         final ExecutorService executorService = Executors.newFixedThreadPool(2);
         final Future<Boolean> task1 = executorService.submit(() -> {
             final Charset charset = StandardCharsets.US_ASCII;
-            final Random rnd = new Random(System.currentTimeMillis());
+            final Random rnd = new Random(Instant.now().toEpochMilli());
             for (int i = 0; i < 5; i++) {
                 inputBuffer.fill(charset.encode("1234567890"));
                 Thread.sleep(rnd.nextInt(250));

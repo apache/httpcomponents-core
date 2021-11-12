@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
+import java.time.Instant;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -102,12 +103,12 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
     @Override
     public final void awaitShutdown(final TimeValue waitTime) throws InterruptedException {
         Args.notNull(waitTime, "Wait time");
-        final long deadline = System.currentTimeMillis() + waitTime.toMilliseconds();
+        final long deadline = Instant.now().toEpochMilli() + waitTime.toMilliseconds();
         long remaining = waitTime.toMilliseconds();
         synchronized (this.shutdownMutex) {
             while (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
                 this.shutdownMutex.wait(remaining);
-                remaining = deadline - System.currentTimeMillis();
+                remaining = deadline - Instant.now().toEpochMilli();
                 if (remaining <= 0) {
                     return;
                 }

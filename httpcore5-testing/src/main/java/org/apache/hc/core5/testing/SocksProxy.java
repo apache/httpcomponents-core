@@ -35,6 +35,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -243,7 +244,7 @@ public class SocksProxy {
     }
 
     public void shutdown(final TimeValue timeout) throws InterruptedException {
-        final long waitUntil = System.currentTimeMillis() + timeout.toMilliseconds();
+        final long waitUntil = Instant.now().toEpochMilli() + timeout.toMilliseconds();
         Thread t = null;
         synchronized (this) {
             if (this.server != null) {
@@ -260,14 +261,14 @@ public class SocksProxy {
                 handler.shutdown();
             }
             while (!this.handlers.isEmpty()) {
-                final long waitTime = waitUntil - System.currentTimeMillis();
+                final long waitTime = waitUntil - Instant.now().toEpochMilli();
                 if (waitTime > 0) {
                     wait(waitTime);
                 }
             }
         }
         if (t != null) {
-            final long waitTime = waitUntil - System.currentTimeMillis();
+            final long waitTime = waitUntil - Instant.now().toEpochMilli();
             if (waitTime > 0) {
                 t.join(waitTime);
             }

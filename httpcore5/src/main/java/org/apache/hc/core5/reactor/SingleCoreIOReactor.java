@@ -39,6 +39,7 @@ import java.nio.channels.SocketChannel;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import java.time.Instant;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -161,7 +162,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     }
 
     private void validateActiveChannels() {
-        final long currentTimeMillis = System.currentTimeMillis();
+        final long currentTimeMillis = Instant.now().toEpochMilli();
         if ((currentTimeMillis - this.lastTimeoutCheckMillis) >= this.selectTimeoutMillis) {
             this.lastTimeoutCheckMillis = currentTimeMillis;
             for (final SelectionKey key : this.selector.keys()) {

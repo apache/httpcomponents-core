@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.reactor;
 
+import java.time.Instant;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Queue;
@@ -248,7 +249,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     }
 
     public final void closeIdle(final TimeValue idleTime) {
-        final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
+        final long deadline = Instant.now().toEpochMilli() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
         for (final PoolEntry poolEntry: sessionPool.values()) {
             if (poolEntry.session != null) {
                 synchronized (poolEntry) {

@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -60,7 +61,7 @@ public class TestPoolEntry {
         Assert.assertEquals(Deadline.MIN_VALUE, entry1.getExpiryDeadline());
 
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
-        final long now = System.currentTimeMillis();
+        final long now = Instant.now().toEpochMilli();
         Assert.assertEquals("route1", entry1.getRoute());
         Assert.assertTrue(now >= entry1.getUpdated());
         Assert.assertEquals(entry1.getValidityDeadline(), entry1.getExpiryDeadline());

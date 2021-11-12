@@ -33,6 +33,7 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -473,7 +474,7 @@ public class HttpBenchmark {
 
         final long deadline = config.getTimeLimit() != null ? config.getTimeLimit().toMilliseconds() : Long.MAX_VALUE;
 
-        final long startTime = System.currentTimeMillis();
+        final long startTime = Instant.now().toEpochMilli();
 
         for (int i = 0; i < workers.length; i++) {
             workers[i].execute();
@@ -485,7 +486,7 @@ public class HttpBenchmark {
             System.out.println("...done");
         }
 
-        final long endTime = System.currentTimeMillis();
+        final long endTime = Instant.now().toEpochMilli();
 
         for (int i = 0; i < workers.length; i++) {
             workers[i].releaseResources();

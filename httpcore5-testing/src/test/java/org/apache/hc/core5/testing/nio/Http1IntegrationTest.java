@@ -42,6 +42,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -859,7 +860,7 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
     public void testDelayedExpectationVerification() throws Exception {
         server.register("*", () -> new AsyncServerExchangeHandler() {
 
-            private final Random random = new Random(System.currentTimeMillis());
+            private final Random random = new Random(Instant.now().toEpochMilli());
             private final AsyncEntityProducer entityProducer = AsyncEntityProducers.create(
                     "All is well");
 

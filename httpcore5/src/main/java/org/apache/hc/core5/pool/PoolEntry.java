@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.time.Instant;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.function.Supplier;
@@ -103,7 +104,7 @@ public final class PoolEntry<T, C extends ModalCloseable> {
     }
 
     long getCurrentTime() {
-        return currentTimeSupplier != null ? currentTimeSupplier.get() : System.currentTimeMillis();
+        return currentTimeSupplier != null ? currentTimeSupplier.get() : Instant.now().toEpochMilli();
     }
 
     public T getRoute() {

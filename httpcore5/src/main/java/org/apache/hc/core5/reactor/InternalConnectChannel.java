@@ -30,6 +30,7 @@ package org.apache.hc.core5.reactor;
 import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.time.Instant;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
@@ -53,7 +54,7 @@ final class InternalConnectChannel extends InternalChannel {
         this.key = key;
         this.socketChannel = socketChannel;
         this.sessionRequest = sessionRequest;
-        this.creationTimeMillis = System.currentTimeMillis();
+        this.creationTimeMillis = Instant.now().toEpochMilli();
         this.dataChannelFactory = dataChannelFactory;
     }
 
@@ -64,7 +65,7 @@ final class InternalConnectChannel extends InternalChannel {
                 socketChannel.finishConnect();
             }
             //check out connectTimeout
-            final long now = System.currentTimeMillis();
+            final long now = Instant.now().toEpochMilli();
             if (checkTimeout(now)) {
                 final InternalDataChannel dataChannel = dataChannelFactory.create(
                         key,
