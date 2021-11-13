@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.pool;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -411,7 +412,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     public void validatePendingRequests() {
         this.lock.lock();
         try {
-            final long now = System.currentTimeMillis();
+            final Instant now = Instant.now();
             final ListIterator<LeaseRequest<T, C>> it = this.pendingRequests.listIterator();
             while (it.hasNext()) {
                 final LeaseRequest<T, C> request = it.next();
@@ -629,7 +630,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
 
     @Override
     public void closeExpired() {
-        final long now = System.currentTimeMillis();
+        final Instant now = Instant.now();
         enumAvailable(entry -> {
             if (entry.getExpiryDeadline().isBefore(now)) {
                 entry.discardConnection(CloseMode.GRACEFUL);
