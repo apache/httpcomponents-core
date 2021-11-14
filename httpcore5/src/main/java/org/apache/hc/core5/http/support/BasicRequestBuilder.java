@@ -304,7 +304,7 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
     public BasicHttpRequest build() {
         String path = getPath();
         final List<NameValuePair> parameters = getParameters();
-        if (parameters != null && !parameters.isEmpty()) {
+        if (!Args.isEmpty(parameters)) {
             try {
                 final URI uri = new URIBuilder(path)
                         .setCharset(getCharset())

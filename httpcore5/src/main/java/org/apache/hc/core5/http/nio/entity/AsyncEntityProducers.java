@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.http.nio.StreamChannel;
 import org.apache.hc.core5.net.WWWFormCodec;
+import org.apache.hc.core5.util.Args;
 
 /**
  * {AsyncEntityProducer} factory methods.
@@ -182,7 +183,7 @@ public final class AsyncEntityProducers {
                     @Override
                     public void endStream(final List<? extends Header> p) throws IOException {
                         final List<Header> allTrailers;
-                        if (p != null && !p.isEmpty()) {
+                        if (!Args.isEmpty(p)) {
                             allTrailers = new ArrayList<>(p);
                             allTrailers.addAll(Arrays.asList(trailers));
                         } else {

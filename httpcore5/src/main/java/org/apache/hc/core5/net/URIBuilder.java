@@ -362,7 +362,7 @@ public class URIBuilder {
             }
             if (this.encodedQuery != null) {
                 sb.append("?").append(this.encodedQuery);
-            } else if (this.queryParams != null && !this.queryParams.isEmpty()) {
+            } else if (!Args.isEmpty(this.queryParams)) {
                 sb.append("?");
                 formatQuery(sb, this.queryParams, this.charset, false);
             } else if (this.query != null) {
@@ -459,7 +459,7 @@ public class URIBuilder {
         this.encodedSchemeSpecificPart = null;
         if (!TextUtils.isBlank(schemeSpecificPart)) {
             final StringBuilder sb = new StringBuilder(schemeSpecificPart);
-            if (nvps != null && !nvps.isEmpty()) {
+            if (!Args.isEmpty(nvps)) {
                 sb.append("?");
                 formatQuery(sb, nvps, this.charset, false);
             }
@@ -606,7 +606,7 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder setPathSegments(final List<String> pathSegments) {
-        this.pathSegments = pathSegments != null && !pathSegments.isEmpty() ? new ArrayList<>(pathSegments) : null;
+        this.pathSegments = !Args.isEmpty(pathSegments) ? new ArrayList<>(pathSegments) : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedPath = null;
         this.pathRootless = false;
@@ -619,7 +619,7 @@ public class URIBuilder {
      * @return this.
      */
     public URIBuilder appendPathSegments(final List<String> pathSegments) {
-        if (pathSegments != null && !pathSegments.isEmpty()) {
+        if (!Args.isEmpty(pathSegments )) {
             if (this.pathSegments == null) {
                 this.pathSegments = new ArrayList<>();
             }
@@ -639,7 +639,7 @@ public class URIBuilder {
      * @since 5.1
      */
     public URIBuilder setPathSegmentsRootless(final List<String> pathSegments) {
-        this.pathSegments = pathSegments != null && !pathSegments.isEmpty() ? new ArrayList<>(pathSegments) : null;
+        this.pathSegments = !Args.isEmpty(pathSegments) ? new ArrayList<>(pathSegments) : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedPath = null;
         this.pathRootless = true;
@@ -783,7 +783,7 @@ public class URIBuilder {
      */
     public URIBuilder removeParameter(final String param) {
         Args.notNull(param, "param");
-        if (this.queryParams != null && !this.queryParams.isEmpty()) {
+        if (!Args.isEmpty(this.queryParams)) {
             this.queryParams.removeIf(nvp -> nvp.getName().equals(param));
         }
         this.encodedQuery = null;
@@ -929,8 +929,7 @@ public class URIBuilder {
      * @return whether the path is empty.
      */
     public boolean isPathEmpty() {
-        return (this.pathSegments == null || this.pathSegments.isEmpty()) &&
-                (this.encodedPath == null || this.encodedPath.isEmpty());
+        return Args.isEmpty(this.pathSegments) && Args.isEmpty(this.encodedPath);
     }
 
     /**
@@ -964,7 +963,7 @@ public class URIBuilder {
      * @return whether the query is empty.
      */
     public boolean isQueryEmpty() {
-        return (this.queryParams == null || this.queryParams.isEmpty()) && this.encodedQuery == null;
+        return Args.isEmpty(this.queryParams) && this.encodedQuery == null;
     }
 
     /**

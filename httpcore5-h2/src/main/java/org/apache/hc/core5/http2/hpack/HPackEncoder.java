@@ -238,7 +238,7 @@ public final class HPackEncoder {
     }
 
     private int findFullMatch(final List<HPackEntry> entries, final String value) {
-        if (entries == null || entries.isEmpty()) {
+        if (Args.isEmpty(entries)) {
             return 0;
         }
         for (int i = 0; i < entries.size(); i++) {
@@ -287,11 +287,11 @@ public final class HPackEncoder {
         }
         // Encode as literal
         HPackEntry existing = null;
-        if (staticEntries != null && !staticEntries.isEmpty()) {
+        if (!Args.isEmpty(staticEntries)) {
             existing = staticEntries.get(0);
         } else {
             final List<HPackEntry> dynamicEntries = dynamicTable.getByName(name);
-            if (dynamicEntries != null && !dynamicEntries.isEmpty()) {
+            if (!Args.isEmpty(dynamicEntries)) {
                 existing = dynamicEntries.get(0);
             }
         }

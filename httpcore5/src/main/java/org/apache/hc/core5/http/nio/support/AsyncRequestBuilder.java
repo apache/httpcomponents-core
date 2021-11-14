@@ -342,7 +342,7 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
         AsyncEntityProducer entityProducerCopy = entityProducer;
         final String method = getMethod();
         final List<NameValuePair> parameters = getParameters();
-        if (parameters != null && !parameters.isEmpty()) {
+        if (!Args.isEmpty(parameters)) {
             final Charset charset = getCharset();
             if (entityProducerCopy == null && (Method.POST.isSame(method) || Method.PUT.isSame(method))) {
                 final String content = WWWFormCodec.format(

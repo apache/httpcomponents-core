@@ -76,7 +76,7 @@ public class MessageSupport {
 
     public static void formatTokens(final CharArrayBuffer dst, final Set<String> tokens) {
         Args.notNull(dst, "Destination");
-        if (tokens == null || tokens.isEmpty()) {
+        if (Args.isEmpty(tokens)) {
             return;
         }
         formatTokens(dst, tokens.toArray(EMPTY_STRING_ARRAY));
@@ -84,7 +84,7 @@ public class MessageSupport {
 
     public static Header format(final String name, final Set<String> tokens) {
         Args.notBlank(name, "Header name");
-        if (tokens == null || tokens.isEmpty()) {
+        if (Args.isEmpty(tokens)) {
             return null;
         }
         final CharArrayBuffer buffer = new CharArrayBuffer(256);
@@ -153,7 +153,7 @@ public class MessageSupport {
     public static void addTrailerHeader(final HttpMessage message, final EntityDetails entity) {
         if (entity != null && !message.containsHeader(HttpHeaders.TRAILER)) {
             final Set<String> trailerNames = entity.getTrailerNames();
-            if (trailerNames != null && !trailerNames.isEmpty()) {
+            if (!Args.isEmpty(trailerNames)) {
                 message.setHeader(MessageSupport.format(HttpHeaders.TRAILER, trailerNames));
             }
         }

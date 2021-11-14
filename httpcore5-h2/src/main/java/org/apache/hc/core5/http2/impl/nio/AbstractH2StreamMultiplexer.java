@@ -1384,7 +1384,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         public void submit(final List<Header> headers, final boolean endStream) throws IOException {
             ioSession.getLock().lock();
             try {
-                if (headers == null || headers.isEmpty()) {
+                if (Args.isEmpty(headers)) {
                     throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Message headers are missing");
                 }
                 if (localEndStream) {
@@ -1460,7 +1460,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     return;
                 }
                 localEndStream = true;
-                if (trailers != null && !trailers.isEmpty()) {
+                if (!Args.isEmpty(trailers)) {
                     commitHeaders(id, trailers, true);
                 } else {
                     final RawFrame frame = frameFactory.createData(id, null, true);
