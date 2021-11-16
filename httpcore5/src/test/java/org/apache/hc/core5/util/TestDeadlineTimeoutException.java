@@ -27,18 +27,18 @@
 
 package org.apache.hc.core5.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestDeadlineTimeoutException {
 
     @Test
     public void testMessage() {
         final Deadline deadline = Deadline.fromUnixMilliseconds(1000).freeze();
-        Assert.assertTrue(deadline.toString(), deadline.isExpired());
+        Assertions.assertTrue(deadline.isExpired(), deadline.toString());
         final String format = deadline.formatTarget();
         final TimeValue diff = TimeValue.ofMilliseconds(deadline.remaining());
-        Assert.assertEquals("Deadline: " + format + ", " + diff + " overdue",
+        Assertions.assertEquals("Deadline: " + format + ", " + diff + " overdue",
                 DeadlineTimeoutException.from(deadline).getMessage());
     }
 

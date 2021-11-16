@@ -31,8 +31,8 @@ import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link ByteBufferEntity}.
@@ -45,10 +45,10 @@ public class TestByteBufferEntity {
         final ByteBuffer bytes = ByteBuffer.wrap("Message content".getBytes(StandardCharsets.US_ASCII));
         final ByteBufferEntity httpentity = new ByteBufferEntity(bytes, null);
 
-        Assert.assertEquals(bytes.capacity(), httpentity.getContentLength());
-        Assert.assertNotNull(httpentity.getContent());
-        Assert.assertFalse(httpentity.isRepeatable());
-        Assert.assertFalse(httpentity.isStreaming());
+        Assertions.assertEquals(bytes.capacity(), httpentity.getContentLength());
+        Assertions.assertNotNull(httpentity.getContent());
+        Assertions.assertFalse(httpentity.isRepeatable());
+        Assertions.assertFalse(httpentity.isStreaming());
     }
 
 
@@ -60,23 +60,23 @@ public class TestByteBufferEntity {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         byte[] bytes2 = out.toByteArray();
-        Assert.assertNotNull(bytes2);
-        Assert.assertEquals(bytes.capacity(), bytes2.length);
+        Assertions.assertNotNull(bytes2);
+        Assertions.assertEquals(bytes.capacity(), bytes2.length);
         bytes.position(0);
         for (int i = 0; i < bytes2.length; i++) {
-            Assert.assertEquals(bytes.get(i), bytes2[i]);
+            Assertions.assertEquals(bytes.get(i), bytes2[i]);
         }
 
         out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         bytes2 = out.toByteArray();
-        Assert.assertNotNull(bytes2);
-        Assert.assertEquals(bytes.capacity(), bytes2.length);
+        Assertions.assertNotNull(bytes2);
+        Assertions.assertEquals(bytes.capacity(), bytes2.length);
         bytes.position(0);
         for (int i = 0; i < bytes.capacity(); i++) {
-            Assert.assertEquals(bytes.get(i), bytes2[i]);
+            Assertions.assertEquals(bytes.get(i), bytes2[i]);
         }
 
-        Assert.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
+        Assertions.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
     }
 }

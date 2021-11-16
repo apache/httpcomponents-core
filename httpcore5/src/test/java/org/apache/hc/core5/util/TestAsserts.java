@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link Asserts}.
@@ -42,43 +42,43 @@ public class TestAsserts {
 
     @Test
     public void testExpressionCheckFail() {
-        Assert.assertThrows(IllegalStateException.class, () ->
+        Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.check(false, "Oopsie"));
     }
 
     @Test
     public void testExpressionNotNullFail() {
-        Assert.assertThrows(IllegalStateException.class, () ->
+        Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notNull(null, "Stuff"));
     }
 
     @Test
     public void testExpressionNotEmptyFail1() {
-        Assert.assertThrows(IllegalStateException.class, () ->
+        Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notEmpty(null, "Stuff"));
     }
 
     @Test
     public void testExpressionNotEmptyFail2() {
-        Assert.assertThrows(IllegalStateException.class, () ->
+        Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notEmpty("", "Stuff"));
     }
 
     @Test
     public void testExpressionNotEmptyBlank1() {
-        Assert.assertThrows(IllegalStateException.class, () ->
+        Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notBlank(null, "Stuff"));
     }
 
     @Test
     public void testExpressionNotEmptyBlank2() {
-        Assert.assertThrows(IllegalStateException.class, () ->
+        Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notBlank("", "Stuff"));
     }
 
     @Test
     public void testExpressionNotBlankFail3() {
-        Assert.assertThrows(IllegalStateException.class, () ->
+        Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notBlank(" \t \n\r", "Stuff"));
     }
 

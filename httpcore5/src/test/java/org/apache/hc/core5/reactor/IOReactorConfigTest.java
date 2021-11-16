@@ -30,8 +30,8 @@ import java.net.InetSocketAddress;
 
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class IOReactorConfigTest {
     @Test
@@ -53,19 +53,19 @@ public class IOReactorConfigTest {
                 .setSocksProxyPassword("socksProxyPassword")
                 .build();
 
-        Assert.assertEquals(TimeValue.ofMilliseconds(500), reactorConfig.getSelectInterval());
-        Assert.assertEquals(2, reactorConfig.getIoThreadCount());
-        Assert.assertEquals(Timeout.ofSeconds(10), reactorConfig.getSoTimeout());
-        Assert.assertTrue(reactorConfig.isSoReuseAddress());
-        Assert.assertEquals(TimeValue.ofSeconds(30), reactorConfig.getSoLinger());
-        Assert.assertTrue(reactorConfig.isSoKeepAlive());
-        Assert.assertFalse(reactorConfig.isTcpNoDelay());
-        Assert.assertEquals(0x02, reactorConfig.getTrafficClass());
-        Assert.assertEquals(32767, reactorConfig.getSndBufSize());
-        Assert.assertEquals(8192, reactorConfig.getRcvBufSize());
-        Assert.assertEquals(5, reactorConfig.getBacklogSize());
-        Assert.assertEquals(new InetSocketAddress(8888), reactorConfig.getSocksProxyAddress());
-        Assert.assertEquals("socksProxyUsername", reactorConfig.getSocksProxyUsername());
-        Assert.assertEquals("socksProxyPassword", reactorConfig.getSocksProxyPassword());
+        Assertions.assertEquals(TimeValue.ofMilliseconds(500), reactorConfig.getSelectInterval());
+        Assertions.assertEquals(2, reactorConfig.getIoThreadCount());
+        Assertions.assertEquals(Timeout.ofSeconds(10), reactorConfig.getSoTimeout());
+        Assertions.assertTrue(reactorConfig.isSoReuseAddress());
+        Assertions.assertEquals(TimeValue.ofSeconds(30), reactorConfig.getSoLinger());
+        Assertions.assertTrue(reactorConfig.isSoKeepAlive());
+        Assertions.assertFalse(reactorConfig.isTcpNoDelay());
+        Assertions.assertEquals(0x02, reactorConfig.getTrafficClass());
+        Assertions.assertEquals(32767, reactorConfig.getSndBufSize());
+        Assertions.assertEquals(8192, reactorConfig.getRcvBufSize());
+        Assertions.assertEquals(5, reactorConfig.getBacklogSize());
+        Assertions.assertEquals(new InetSocketAddress(8888), reactorConfig.getSocksProxyAddress());
+        Assertions.assertEquals("socksProxyUsername", reactorConfig.getSocksProxyUsername());
+        Assertions.assertEquals("socksProxyPassword", reactorConfig.getSocksProxyPassword());
     }
 }

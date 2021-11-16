@@ -27,9 +27,10 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -62,23 +63,23 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@EnableRuleMigrationSupport
 @RunWith(Parameterized.class)
 public class H2AlpnTest {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
-    @Parameters(name = "strict h2 ALPN: {0}, h2 allowed: {1}")
+    @Parameterized.Parameters(name = "strict h2 ALPN: {0}, h2 allowed: {1}")
     public static Iterable<Object[]> parameters() {
         return Arrays.asList(new Object[][] {
             { true, true },
@@ -179,18 +180,18 @@ public class H2AlpnTest {
             message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         } catch (final ExecutionException e) {
             final Throwable cause = e.getCause();
-            assertFalse("h2 negotiation was enabled, but h2 was not negotiated", h2Allowed);
+            assertFalse(h2Allowed, "h2 negotiation was enabled, but h2 was not negotiated");
             assertTrue(cause instanceof ProtocolNegotiationException);
             assertEquals("ALPN: missing application protocol", cause.getMessage());
-            assertTrue("strict ALPN mode was not enabled, but the client negotiator still threw", strictALPN);
+            assertTrue(strictALPN, "strict ALPN mode was not enabled, but the client negotiator still threw");
             return;
         }
 
-        assertTrue("h2 negotiation was disabled, but h2 was negotiated", h2Allowed);
-        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
+        assertTrue(h2Allowed, "h2 negotiation was disabled, but h2 was negotiated");
+        assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body1 = message1.getBody();
-        MatcherAssert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+        assertThat(body1, CoreMatchers.equalTo("some stuff"));
     }
 }

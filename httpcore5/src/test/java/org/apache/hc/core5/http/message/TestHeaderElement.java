@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.message;
 import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Simple tests for {@link HeaderElement}.
@@ -45,25 +45,25 @@ public class TestHeaderElement {
                     new BasicNameValuePair("param1", "value1"),
                     new BasicNameValuePair("param2", "value2")
                 } );
-        Assert.assertEquals("name", element.getName());
-        Assert.assertEquals("value", element.getValue());
-        Assert.assertEquals(2, element.getParameters().length);
-        Assert.assertEquals("value1", element.getParameterByName("param1").getValue());
-        Assert.assertEquals("value2", element.getParameterByName("param2").getValue());
+        Assertions.assertEquals("name", element.getName());
+        Assertions.assertEquals("value", element.getValue());
+        Assertions.assertEquals(2, element.getParameters().length);
+        Assertions.assertEquals("value1", element.getParameterByName("param1").getValue());
+        Assertions.assertEquals("value2", element.getParameterByName("param2").getValue());
     }
 
     @Test
     public void testConstructor2() throws Exception {
         final HeaderElement element = new BasicHeaderElement("name", "value");
-        Assert.assertEquals("name", element.getName());
-        Assert.assertEquals("value", element.getValue());
-        Assert.assertEquals(0, element.getParameters().length);
+        Assertions.assertEquals("name", element.getName());
+        Assertions.assertEquals("value", element.getValue());
+        Assertions.assertEquals(0, element.getParameters().length);
     }
 
 
     @Test
     public void testInvalidName() {
-        Assert.assertThrows(NullPointerException.class, () -> new BasicHeaderElement(null, null, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHeaderElement(null, null, null));
     }
 
     @Test
@@ -73,10 +73,10 @@ public class TestHeaderElement {
         buf.append(s);
         final ParserCursor cursor = new ParserCursor(0, buf.length());
         final HeaderElement element = BasicHeaderValueParser.INSTANCE.parseHeaderElement(buf, cursor);
-        Assert.assertEquals("value1", element.getParameterByName("param1").getValue());
-        Assert.assertEquals("value2", element.getParameterByName("param2").getValue());
-        Assert.assertNull(element.getParameterByName("param3"));
-        Assert.assertThrows(NullPointerException.class, () -> element.getParameterByName(null));
+        Assertions.assertEquals("value1", element.getParameterByName("param1").getValue());
+        Assertions.assertEquals("value2", element.getParameterByName("param2").getValue());
+        Assertions.assertNull(element.getParameterByName("param3"));
+        Assertions.assertThrows(NullPointerException.class, () -> element.getParameterByName(null));
     }
 
     @Test
@@ -86,7 +86,7 @@ public class TestHeaderElement {
                         new BasicNameValuePair("param1", "value1"),
                         new BasicNameValuePair("param2", "value2")
                 } );
-        Assert.assertEquals("name=value; param1=value1; param2=value2", element.toString());
+        Assertions.assertEquals("name=value; param1=value1; param2=value2", element.toString());
     }
 
 }

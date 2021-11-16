@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.net;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
@@ -34,9 +36,8 @@ import java.io.ObjectOutputStream;
 import java.net.URISyntaxException;
 
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link URIAuthority}.
@@ -47,14 +48,14 @@ public class TestURIAuthority {
     @Test
     public void testConstructor() {
         final URIAuthority host1 = new URIAuthority("somehost");
-        Assert.assertEquals("somehost", host1.getHostName());
-        Assert.assertEquals(-1, host1.getPort());
+        Assertions.assertEquals("somehost", host1.getHostName());
+        Assertions.assertEquals(-1, host1.getPort());
         final URIAuthority host2 = new URIAuthority("somehost", 8080);
-        Assert.assertEquals("somehost", host2.getHostName());
-        Assert.assertEquals(8080, host2.getPort());
+        Assertions.assertEquals("somehost", host2.getHostName());
+        Assertions.assertEquals(8080, host2.getPort());
         final URIAuthority host3 = new URIAuthority("somehost", -1);
-        Assert.assertEquals("somehost", host3.getHostName());
-        Assert.assertEquals(-1, host3.getPort());
+        Assertions.assertEquals("somehost", host3.getHostName());
+        Assertions.assertEquals(-1, host3.getPort());
     }
 
     @Test
@@ -67,13 +68,13 @@ public class TestURIAuthority {
         final URIAuthority host6 = new URIAuthority("user", "SomeHost", 80);
         final URIAuthority host7 = new URIAuthority("user", "somehost", 80);
 
-        Assert.assertEquals(host1.hashCode(), host1.hashCode());
-        Assert.assertTrue(host1.hashCode() != host2.hashCode());
-        Assert.assertTrue(host1.hashCode() != host3.hashCode());
-        Assert.assertEquals(host2.hashCode(), host4.hashCode());
-        Assert.assertEquals(host2.hashCode(), host5.hashCode());
-        Assert.assertTrue(host5.hashCode() != host6.hashCode());
-        Assert.assertEquals(host6.hashCode(), host7.hashCode());
+        Assertions.assertEquals(host1.hashCode(), host1.hashCode());
+        Assertions.assertTrue(host1.hashCode() != host2.hashCode());
+        Assertions.assertTrue(host1.hashCode() != host3.hashCode());
+        Assertions.assertEquals(host2.hashCode(), host4.hashCode());
+        Assertions.assertEquals(host2.hashCode(), host5.hashCode());
+        Assertions.assertTrue(host5.hashCode() != host6.hashCode());
+        Assertions.assertEquals(host6.hashCode(), host7.hashCode());
     }
 
     @Test
@@ -86,23 +87,23 @@ public class TestURIAuthority {
         final URIAuthority host6 = new URIAuthority("user", "SomeHost", 80);
         final URIAuthority host7 = new URIAuthority("user", "somehost", 80);
 
-        Assert.assertEquals(host1, host1);
-        Assert.assertNotEquals(host1, host2);
-        Assert.assertNotEquals(host1, host3);
-        Assert.assertEquals(host2, host4);
-        Assert.assertEquals(host2, host5);
-        Assert.assertNotEquals(host5, host6);
-        Assert.assertEquals(host6, host7);
+        Assertions.assertEquals(host1, host1);
+        Assertions.assertNotEquals(host1, host2);
+        Assertions.assertNotEquals(host1, host3);
+        Assertions.assertEquals(host2, host4);
+        Assertions.assertEquals(host2, host5);
+        Assertions.assertNotEquals(host5, host6);
+        Assertions.assertEquals(host6, host7);
     }
 
     @Test
     public void testToString() throws Exception {
         final URIAuthority host1 = new URIAuthority("somehost");
-        Assert.assertEquals("somehost", host1.toString());
+        Assertions.assertEquals("somehost", host1.toString());
         final URIAuthority host2 = new URIAuthority("somehost", -1);
-        Assert.assertEquals("somehost", host2.toString());
+        Assertions.assertEquals("somehost", host2.toString());
         final URIAuthority host3 = new URIAuthority("somehost", 8888);
-        Assert.assertEquals("somehost:8888", host3.toString());
+        Assertions.assertEquals("somehost:8888", host3.toString());
     }
 
     @Test
@@ -116,97 +117,97 @@ public class TestURIAuthority {
         final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
         final URIAuthority clone = (URIAuthority) inStream.readObject();
-        Assert.assertEquals(orig, clone);
+        Assertions.assertEquals(orig, clone);
     }
 
     @Test
     public void testParse() throws Exception {
-        MatcherAssert.assertThat(URIAuthority.parse("somehost"),
+        assertThat(URIAuthority.parse("somehost"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("somehost/blah"),
+        assertThat(URIAuthority.parse("somehost/blah"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("somehost?blah"),
+        assertThat(URIAuthority.parse("somehost?blah"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("somehost#blah"),
+        assertThat(URIAuthority.parse("somehost#blah"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("aaaa@:8080"),
+        assertThat(URIAuthority.parse("aaaa@:8080"),
                 CoreMatchers.equalTo(new URIAuthority("aaaa", "", 8080)));
-        MatcherAssert.assertThat(URIAuthority.parse("@:"),
+        assertThat(URIAuthority.parse("@:"),
                 CoreMatchers.equalTo(new URIAuthority(null, "", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("somehost:8080"),
+        assertThat(URIAuthority.parse("somehost:8080"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
-        MatcherAssert.assertThat(URIAuthority.parse("somehost:8080/blah"),
+        assertThat(URIAuthority.parse("somehost:8080/blah"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
-        MatcherAssert.assertThat(URIAuthority.parse("somehost:8080?blah"),
+        assertThat(URIAuthority.parse("somehost:8080?blah"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
-        MatcherAssert.assertThat(URIAuthority.parse("somehost:8080#blah"),
+        assertThat(URIAuthority.parse("somehost:8080#blah"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
-        MatcherAssert.assertThat(URIAuthority.parse("somehost:008080"),
+        assertThat(URIAuthority.parse("somehost:008080"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
-        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("somehost:aaaaa"));
-        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("somehost:90ab"));
+        Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create("somehost:aaaaa"));
+        Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create("somehost:90ab"));
 
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost"),
+        assertThat(URIAuthority.parse("someuser@somehost"),
                 CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost/blah"),
+        assertThat(URIAuthority.parse("someuser@somehost/blah"),
                 CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost?blah"),
+        assertThat(URIAuthority.parse("someuser@somehost?blah"),
                 CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost#blah"),
-                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
-
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:"),
-                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:/blah"),
-                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:?blah"),
-                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:#blah"),
+        assertThat(URIAuthority.parse("someuser@somehost#blah"),
                 CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
 
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:8080"),
+        assertThat(URIAuthority.parse("someuser@somehost:"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+        assertThat(URIAuthority.parse("someuser@somehost:/blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+        assertThat(URIAuthority.parse("someuser@somehost:?blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+        assertThat(URIAuthority.parse("someuser@somehost:#blah"),
+                CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", -1)));
+
+        assertThat(URIAuthority.parse("someuser@somehost:8080"),
                 CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", 8080)));
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:8080/blah"),
+        assertThat(URIAuthority.parse("someuser@somehost:8080/blah"),
                 CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", 8080)));
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:8080?blah"),
+        assertThat(URIAuthority.parse("someuser@somehost:8080?blah"),
                 CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", 8080)));
-        MatcherAssert.assertThat(URIAuthority.parse("someuser@somehost:8080#blah"),
+        assertThat(URIAuthority.parse("someuser@somehost:8080#blah"),
                 CoreMatchers.equalTo(new URIAuthority("someuser", "somehost", 8080)));
-        MatcherAssert.assertThat(URIAuthority.parse("@somehost:8080"),
+        assertThat(URIAuthority.parse("@somehost:8080"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", 8080)));
-        MatcherAssert.assertThat(URIAuthority.parse("test:test@localhost:38339"),
+        assertThat(URIAuthority.parse("test:test@localhost:38339"),
                 CoreMatchers.equalTo(new URIAuthority("test:test", "localhost", 38339)));
-        Assert.assertThrows(URISyntaxException.class, () ->
+        Assertions.assertThrows(URISyntaxException.class, () ->
                 URIAuthority.create("blah@goggle.com:80@google.com/"));
     }
 
     @Test
     public void testCreateFromString() throws Exception {
-        Assert.assertEquals(new URIAuthority("somehost", 8080), URIAuthority.create("somehost:8080"));
-        Assert.assertEquals(new URIAuthority("SomeHost", 8080), URIAuthority.create("SomeHost:8080"));
-        Assert.assertEquals(new URIAuthority("somehost", 1234), URIAuthority.create("somehost:1234"));
-        Assert.assertEquals(new URIAuthority("somehost", -1), URIAuthority.create("somehost"));
-        Assert.assertEquals(new URIAuthority("user", "somehost", -1), URIAuthority.create("user@somehost"));
-        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create(" host"));
-        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("host  "));
-        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("host :8080"));
-        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("user @ host:8080"));
+        Assertions.assertEquals(new URIAuthority("somehost", 8080), URIAuthority.create("somehost:8080"));
+        Assertions.assertEquals(new URIAuthority("SomeHost", 8080), URIAuthority.create("SomeHost:8080"));
+        Assertions.assertEquals(new URIAuthority("somehost", 1234), URIAuthority.create("somehost:1234"));
+        Assertions.assertEquals(new URIAuthority("somehost", -1), URIAuthority.create("somehost"));
+        Assertions.assertEquals(new URIAuthority("user", "somehost", -1), URIAuthority.create("user@somehost"));
+        Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create(" host"));
+        Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create("host  "));
+        Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create("host :8080"));
+        Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create("user @ host:8080"));
     }
 
     @Test
     public void testCreateFromIPv6String() throws Exception {
-        Assert.assertEquals(new URIAuthority("::1", 8080), URIAuthority.create("[::1]:8080"));
-        Assert.assertEquals(new URIAuthority("::1", -1), URIAuthority.create("[::1]"));
-        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("::1"));
-        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("[::1"));
-        Assert.assertThrows(URISyntaxException.class, () -> URIAuthority.create("[a]:8080"));
+        Assertions.assertEquals(new URIAuthority("::1", 8080), URIAuthority.create("[::1]:8080"));
+        Assertions.assertEquals(new URIAuthority("::1", -1), URIAuthority.create("[::1]"));
+        Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create("::1"));
+        Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create("[::1"));
+        Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create("[a]:8080"));
     }
 
     @Test
     public void testIpv6HostToString() {
-        Assert.assertEquals("[::1]:80", new URIAuthority("::1", 80).toString());
-        Assert.assertEquals("user@[::1]:80", new URIAuthority("user", "::1", 80).toString());
-        Assert.assertEquals("[::1]", new URIAuthority("::1", -1).toString());
-        Assert.assertEquals("user@[::1]", new URIAuthority("user", "::1", -1).toString());
+        Assertions.assertEquals("[::1]:80", new URIAuthority("::1", 80).toString());
+        Assertions.assertEquals("user@[::1]:80", new URIAuthority("user", "::1", 80).toString());
+        Assertions.assertEquals("[::1]", new URIAuthority("::1", -1).toString());
+        Assertions.assertEquals("user@[::1]", new URIAuthority("user", "::1", -1).toString());
     }
 }

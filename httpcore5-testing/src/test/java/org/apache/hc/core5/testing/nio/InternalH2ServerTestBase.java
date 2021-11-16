@@ -31,11 +31,14 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TimeValue;
-import org.junit.Rule;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ExtendWith({InternalH2ServerTestBase.serverResource.class})
 public abstract class InternalH2ServerTestBase {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -52,24 +55,22 @@ public abstract class InternalH2ServerTestBase {
 
     protected H2TestServer server;
 
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
+    class serverResource implements AfterEachCallback, BeforeEachCallback {
 
         @Override
-        protected void before() throws Throwable {
+        public void beforeEach(final ExtensionContext context) throws Exception {
             log.debug("Starting up test server");
             server = new H2TestServer(IOReactorConfig.DEFAULT,
                     scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null, null, null);
         }
 
         @Override
-        protected void after() {
+        public void afterEach(final ExtensionContext context) throws Exception {
             log.debug("Shutting down test server");
             if (server != null) {
                 server.shutdown(TimeValue.ofSeconds(5));
             }
         }
-
-    };
+    }
 
 }

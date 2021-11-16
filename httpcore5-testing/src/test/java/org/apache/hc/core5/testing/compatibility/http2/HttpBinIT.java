@@ -28,20 +28,20 @@
 package org.apache.hc.core5.testing.compatibility.http2;
 
 import org.apache.hc.core5.http.HttpHost;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class HttpBinIT {
     private H2CompatibilityTest h2CompatibilityTest;
 
-    @Before
+    @BeforeEach
     public void start() throws Exception {
         h2CompatibilityTest = new H2CompatibilityTest();
         h2CompatibilityTest.start();
     }
 
-    @After
+    @AfterEach
     public void shutdown() throws Exception {
         h2CompatibilityTest.shutdown();
     }

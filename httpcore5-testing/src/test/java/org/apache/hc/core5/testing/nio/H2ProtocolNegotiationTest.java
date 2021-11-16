@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 
@@ -57,13 +59,14 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@EnableRuleMigrationSupport
 public class H2ProtocolNegotiationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
@@ -156,10 +159,10 @@ public class H2ProtocolNegotiationTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
+        assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-        MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_1_1));
+        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_1_1));
     }
 
     @Test
@@ -179,10 +182,10 @@ public class H2ProtocolNegotiationTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
+        assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-        MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_2));
+        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_2));
     }
 
     @Test
@@ -202,10 +205,10 @@ public class H2ProtocolNegotiationTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
+        assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-        MatcherAssert.assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_2));
+        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response1.getVersion(), CoreMatchers.equalTo(HttpVersion.HTTP_2));
     }
 
 }

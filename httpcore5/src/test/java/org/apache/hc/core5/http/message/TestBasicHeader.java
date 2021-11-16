@@ -27,8 +27,8 @@
 package org.apache.hc.core5.http.message;
 
 import org.apache.hc.core5.http.Header;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link BasicHeader}.
@@ -38,21 +38,21 @@ public class TestBasicHeader {
     @Test
     public void testConstructor() {
         final Header param = new BasicHeader("name", "value");
-        Assert.assertEquals("name", param.getName());
-        Assert.assertEquals("value", param.getValue());
+        Assertions.assertEquals("name", param.getName());
+        Assertions.assertEquals("value", param.getValue());
     }
 
     @Test
     public void testInvalidName() {
-        Assert.assertThrows(NullPointerException.class, () -> new BasicHeader(null, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHeader(null, null));
     }
 
     @Test
     public void testToString() {
         final Header param1 = new BasicHeader("name1", "value1");
-        Assert.assertEquals("name1: value1", param1.toString());
+        Assertions.assertEquals("name1: value1", param1.toString());
         final Header param2 = new BasicHeader("name1", null);
-        Assert.assertEquals("name1: ", param2.toString());
+        Assertions.assertEquals("name1: ", param2.toString());
     }
 
 }

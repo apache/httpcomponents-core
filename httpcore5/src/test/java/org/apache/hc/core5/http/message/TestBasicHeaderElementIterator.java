@@ -31,8 +31,8 @@ import java.util.NoSuchElementException;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElement;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link BasicHeaderElementIterator}.
@@ -50,21 +50,19 @@ public class TestBasicHeaderElementIterator {
         final Iterator<HeaderElement> hei = new BasicHeaderElementIterator(
                 new BasicHeaderIterator(headers, "Name"));
 
-        Assert.assertTrue(hei.hasNext());
+        Assertions.assertTrue(hei.hasNext());
         HeaderElement elem = hei.next();
-        Assert.assertEquals("The two header values must be equal",
-                "value0", elem.getName());
+        Assertions.assertEquals("value0", elem.getName(), "The two header values must be equal");
 
-        Assert.assertTrue(hei.hasNext());
+        Assertions.assertTrue(hei.hasNext());
         elem = hei.next();
-        Assert.assertEquals("The two header values must be equal",
-                "value1", elem.getName());
+        Assertions.assertEquals("value1", elem.getName(), "The two header values must be equal");
 
-        Assert.assertFalse(hei.hasNext());
-        Assert.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertFalse(hei.hasNext());
+        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
 
-        Assert.assertFalse(hei.hasNext());
-        Assert.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertFalse(hei.hasNext());
+        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
     }
 
     @Test
@@ -78,22 +76,16 @@ public class TestBasicHeaderElementIterator {
                 new BasicHeaderIterator(headers, "Name"));
 
         HeaderElement elem = hei.next();
-        Assert.assertEquals("The two header values must be equal",
-                "value0", elem.getName());
+        Assertions.assertEquals("value0", elem.getName(), "The two header values must be equal");
         elem = hei.next();
-        Assert.assertEquals("The two header values must be equal",
-                "value1", elem.getName());
+        Assertions.assertEquals("value1", elem.getName(), "The two header values must be equal");
         elem = hei.next();
-        Assert.assertEquals("The two header values must be equal",
-                "cookie1", elem.getName());
-        Assert.assertEquals("The two header values must be equal",
-                "1", elem.getValue());
+        Assertions.assertEquals("cookie1", elem.getName(), "The two header values must be equal");
+        Assertions.assertEquals("1", elem.getValue(), "The two header values must be equal");
 
         elem = hei.next();
-        Assert.assertEquals("The two header values must be equal",
-                "cookie2", elem.getName());
-        Assert.assertEquals("The two header values must be equal",
-                "2", elem.getValue());
+        Assertions.assertEquals("cookie2", elem.getName(), "The two header values must be equal");
+        Assertions.assertEquals("2", elem.getValue(), "The two header values must be equal");
     }
 
     @Test
@@ -107,10 +99,10 @@ public class TestBasicHeaderElementIterator {
         final Iterator<HeaderElement> hei = new BasicHeaderElementIterator(
                 new BasicHeaderIterator(headers, "Name"));
 
-        Assert.assertFalse(hei.hasNext());
-        Assert.assertThrows(NoSuchElementException.class, () -> hei.next());
-        Assert.assertFalse(hei.hasNext());
-        Assert.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertFalse(hei.hasNext());
+        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertFalse(hei.hasNext());
+        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
     }
 
 }

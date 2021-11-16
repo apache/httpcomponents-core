@@ -38,9 +38,9 @@ import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -56,7 +56,7 @@ public class TestLengthDelimitedEncoder {
         return this.tmpfile;
     }
 
-    @After
+    @AfterEach
     public void deleteTempFile() {
         if (this.tmpfile != null && this.tmpfile.exists()) {
             this.tmpfile.delete();
@@ -76,9 +76,9 @@ public class TestLengthDelimitedEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("stuff;more stuff", s);
-        Assert.assertEquals("[content length: 16; pos: 16; completed: true]", encoder.toString());
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("stuff;more stuff", s);
+        Assertions.assertEquals("[content length: 16; pos: 16; completed: true]", encoder.toString());
     }
 
     @Test
@@ -94,8 +94,8 @@ public class TestLengthDelimitedEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("stuff;more stuff", s);
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("stuff;more stuff", s);
     }
 
     @Test
@@ -117,8 +117,8 @@ public class TestLengthDelimitedEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("stuff;more stuff", s);
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("stuff;more stuff", s);
     }
 
     @Test
@@ -131,7 +131,7 @@ public class TestLengthDelimitedEncoder {
                 channel, outbuf, metrics, 5);
         encoder.write(CodecTestUtils.wrap("stuff"));
 
-        Assert.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
     }
 
     @Test
@@ -140,10 +140,10 @@ public class TestLengthDelimitedEncoder {
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
 
-        Assert.assertThrows(NullPointerException.class, () -> new LengthDelimitedEncoder(null, null, null, 10));
-        Assert.assertThrows(NullPointerException.class, () -> new LengthDelimitedEncoder(channel, null, null, 10));
-        Assert.assertThrows(NullPointerException.class, () -> new LengthDelimitedEncoder(channel, outbuf, null, 10));
-        Assert.assertThrows(IllegalArgumentException.class, () -> new LengthDelimitedEncoder(channel, outbuf, metrics, -10));
+        Assertions.assertThrows(NullPointerException.class, () -> new LengthDelimitedEncoder(null, null, null, 10));
+        Assertions.assertThrows(NullPointerException.class, () -> new LengthDelimitedEncoder(channel, null, null, 10));
+        Assertions.assertThrows(NullPointerException.class, () -> new LengthDelimitedEncoder(channel, outbuf, null, 10));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new LengthDelimitedEncoder(channel, outbuf, metrics, -10));
     }
 
     @Test
@@ -174,8 +174,8 @@ public class TestLengthDelimitedEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("stuff;more stuff", s);
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("stuff;more stuff", s);
     }
 
     @Test
@@ -204,8 +204,8 @@ public class TestLengthDelimitedEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("stuff;more stuff", s);
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("stuff;more stuff", s);
     }
 
     @Test
@@ -224,7 +224,7 @@ public class TestLengthDelimitedEncoder {
         }
 
         try (final FileChannel fchannel = new RandomAccessFile(this.tmpfile, "rw").getChannel()) {
-            Assert.assertThrows(IllegalStateException.class, () -> encoder.transfer(fchannel, 0, 10));
+            Assertions.assertThrows(IllegalStateException.class, () -> encoder.transfer(fchannel, 0, 10));
         }
     }
 
@@ -255,8 +255,8 @@ public class TestLengthDelimitedEncoder {
         }
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("stuff;more stuff", s);
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("stuff;more stuff", s);
     }
 
     @Test
@@ -290,8 +290,8 @@ public class TestLengthDelimitedEncoder {
         }
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("header\r\nstuff;more stuff", s);
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("header\r\nstuff;more stuff", s);
     }
 
     @Test
@@ -325,8 +325,8 @@ public class TestLengthDelimitedEncoder {
         }
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertFalse(encoder.isCompleted());
-        Assert.assertEquals("head", s);
+        Assertions.assertFalse(encoder.isCompleted());
+        Assertions.assertEquals("head", s);
     }
 
     @Test
@@ -340,18 +340,18 @@ public class TestLengthDelimitedEncoder {
         outbuf.writeLine(chbuffer);
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 0);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
 
         Mockito.verify(channel, Mockito.times(2)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.never()).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
-        Assert.assertEquals(13, metrics.getBytesTransferred());
+        Assertions.assertEquals(13, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("header\r\nstuff", s);
+        Assertions.assertEquals("header\r\nstuff", s);
     }
 
     @Test
@@ -365,18 +365,18 @@ public class TestLengthDelimitedEncoder {
         outbuf.writeLine(chbuffer);
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 32);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
 
         Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(1)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.never()).flush(channel);
 
-        Assert.assertEquals(0, metrics.getBytesTransferred());
+        Assertions.assertEquals(0, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("header\r\nstuff", s);
+        Assertions.assertEquals("header\r\nstuff", s);
     }
 
     @Test
@@ -387,20 +387,20 @@ public class TestLengthDelimitedEncoder {
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 32);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
 
         Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.never()).flush(channel);
 
-        Assert.assertEquals(0, metrics.getBytesTransferred());
+        Assertions.assertEquals(0, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("stuff-more stuff", s);
+        Assertions.assertEquals("stuff-more stuff", s);
     }
 
     @Test
@@ -411,20 +411,20 @@ public class TestLengthDelimitedEncoder {
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             16, 32);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff; and a lot more stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff; and a lot more stuff")));
 
         Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.never()).flush(channel);
 
-        Assert.assertEquals(0, metrics.getBytesTransferred());
+        Assertions.assertEquals(0, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("stuff-more stuff", s);
+        Assertions.assertEquals("stuff-more stuff", s);
     }
 
     @Test
@@ -438,17 +438,17 @@ public class TestLengthDelimitedEncoder {
         outbuf.writeLine(chbuffer);
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 2);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
 
         Mockito.verify(channel, Mockito.times(2)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.never()).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
-        Assert.assertEquals(13, metrics.getBytesTransferred());
+        Assertions.assertEquals(13, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
-        Assert.assertEquals("header\r\nstuff", s);
+        Assertions.assertEquals("header\r\nstuff", s);
     }
 
     @Test
@@ -459,22 +459,22 @@ public class TestLengthDelimitedEncoder {
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 1);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
 
         Mockito.verify(channel, Mockito.times(5)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(3)).flush(channel);
 
-        Assert.assertEquals(18, metrics.getBytesTransferred());
+        Assertions.assertEquals(18, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("stuff---more stuff", s);
+        Assertions.assertEquals("stuff---more stuff", s);
     }
 
     @Test
@@ -485,22 +485,22 @@ public class TestLengthDelimitedEncoder {
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 2);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
 
         Mockito.verify(channel, Mockito.times(4)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(2)).flush(channel);
 
-        Assert.assertEquals(18, metrics.getBytesTransferred());
+        Assertions.assertEquals(18, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("stuff---more stuff", s);
+        Assertions.assertEquals("stuff---more stuff", s);
     }
 
     @Test
@@ -511,24 +511,24 @@ public class TestLengthDelimitedEncoder {
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 3);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(2, encoder.write(CodecTestUtils.wrap("--")));
-        Assert.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(2, encoder.write(CodecTestUtils.wrap("--")));
+        Assertions.assertEquals(10, encoder.write(CodecTestUtils.wrap("more stuff")));
 
         Mockito.verify(channel, Mockito.times(4)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(5)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(2)).flush(channel);
 
-        Assert.assertEquals(21, metrics.getBytesTransferred());
+        Assertions.assertEquals(21, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("stuff------more stuff", s);
+        Assertions.assertEquals("stuff------more stuff", s);
     }
 
     @Test
@@ -539,20 +539,20 @@ public class TestLengthDelimitedEncoder {
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 8);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assert.assertEquals(6, encoder.write(CodecTestUtils.wrap("-stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(6, encoder.write(CodecTestUtils.wrap("-stuff")));
 
         Mockito.verify(channel, Mockito.times(1)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
-        Assert.assertEquals(8, metrics.getBytesTransferred());
-        Assert.assertEquals(3, outbuf.length());
+        Assertions.assertEquals(8, metrics.getBytesTransferred());
+        Assertions.assertEquals(3, outbuf.length());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("stuff-stuff", s);
+        Assertions.assertEquals("stuff-stuff", s);
     }
 
     @Test
@@ -563,20 +563,20 @@ public class TestLengthDelimitedEncoder {
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 8);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("-much more stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(16, encoder.write(CodecTestUtils.wrap("-much more stuff")));
 
         Mockito.verify(channel, Mockito.times(2)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(1)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
-        Assert.assertEquals(21, metrics.getBytesTransferred());
-        Assert.assertEquals(0, outbuf.length());
+        Assertions.assertEquals(21, metrics.getBytesTransferred());
+        Assertions.assertEquals(0, outbuf.length());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("stuff-much more stuff", s);
+        Assertions.assertEquals("stuff-much more stuff", s);
     }
 
     @Test
@@ -587,27 +587,27 @@ public class TestLengthDelimitedEncoder {
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 3);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(0, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(0, encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(0, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(0, encoder.write(CodecTestUtils.wrap("more stuff")));
 
         Mockito.verify(channel, Mockito.times(5)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(6)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(4)).flush(channel);
 
-        Assert.assertEquals(8, metrics.getBytesTransferred());
+        Assertions.assertEquals(8, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("stuff---", s);
-        Assert.assertEquals(3, outbuf.length());
+        Assertions.assertEquals("stuff---", s);
+        Assertions.assertEquals(3, outbuf.length());
     }
 
     @Test
@@ -618,22 +618,22 @@ public class TestLengthDelimitedEncoder {
 
         final LengthDelimitedEncoder encoder = new LengthDelimitedEncoder(channel, outbuf, metrics,
             100, 8);
-        Assert.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
-        Assert.assertEquals(1, encoder.write(CodecTestUtils.wrap("much more stuff")));
+        Assertions.assertEquals(5, encoder.write(CodecTestUtils.wrap("stuff")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("-")));
+        Assertions.assertEquals(1, encoder.write(CodecTestUtils.wrap("much more stuff")));
 
         Mockito.verify(channel, Mockito.times(3)).write(ArgumentMatchers.any());
         Mockito.verify(outbuf, Mockito.times(3)).write(ArgumentMatchers.<ByteBuffer>any());
         Mockito.verify(outbuf, Mockito.times(1)).flush(channel);
 
-        Assert.assertEquals(8, metrics.getBytesTransferred());
+        Assertions.assertEquals(8, metrics.getBytesTransferred());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertEquals("stuff--m", s);
-        Assert.assertEquals(0, outbuf.length());
+        Assertions.assertEquals("stuff--m", s);
+        Assertions.assertEquals(0, outbuf.length());
     }
 
 }

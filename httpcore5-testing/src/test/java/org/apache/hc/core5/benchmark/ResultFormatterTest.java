@@ -26,14 +26,15 @@
  */
 package org.apache.hc.core5.benchmark;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.HttpVersion;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ResultFormatterTest {
 
@@ -56,7 +57,7 @@ public class ResultFormatterTest {
                 50000000);
         final ByteArrayOutputStream buf = new ByteArrayOutputStream();
         ResultFormatter.print(new PrintStream(buf, true, StandardCharsets.US_ASCII.name()), results);
-        MatcherAssert.assertThat(new String(buf.toByteArray(), StandardCharsets.US_ASCII).replace("\r\n", "\n"),
+        assertThat(new String(buf.toByteArray(), StandardCharsets.US_ASCII).replace("\r\n", "\n"),
                 CoreMatchers.equalTo(
                 "Server Software:\t\tTestServer/1.1\n" +
                         "Protocol version:\t\tHTTP/1.1\n" +

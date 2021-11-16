@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -70,9 +72,9 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -80,6 +82,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
+@EnableRuleMigrationSupport
 public class Http1ServerAndRequesterTest {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -204,33 +207,33 @@ public class Http1ServerAndRequesterTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
+        assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body1 = message1.getBody();
-        MatcherAssert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+        assertThat(body1, CoreMatchers.equalTo("some stuff"));
 
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
                 new BasicRequestProducer(Method.POST, target, "/other-stuff",
                         new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message2, CoreMatchers.notNullValue());
+        assertThat(message2, CoreMatchers.notNullValue());
         final HttpResponse response2 = message2.getHead();
-        MatcherAssert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body2 = message2.getBody();
-        MatcherAssert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
+        assertThat(body2, CoreMatchers.equalTo("some other stuff"));
 
         final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
                 new BasicRequestProducer(Method.POST, target, "/more-stuff",
                         new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message3, CoreMatchers.notNullValue());
+        assertThat(message3, CoreMatchers.notNullValue());
         final HttpResponse response3 = message3.getHead();
-        MatcherAssert.assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body3 = message3.getBody();
-        MatcherAssert.assertThat(body3, CoreMatchers.equalTo("some more stuff"));
+        assertThat(body3, CoreMatchers.equalTo("some more stuff"));
     }
 
     @Test
@@ -247,33 +250,33 @@ public class Http1ServerAndRequesterTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
+        assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body1 = message1.getBody();
-        MatcherAssert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+        assertThat(body1, CoreMatchers.equalTo("some stuff"));
 
         final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
                 new BasicRequestProducer(Method.POST, target, "/no-keep-alive/other-stuff",
                         new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message2, CoreMatchers.notNullValue());
+        assertThat(message2, CoreMatchers.notNullValue());
         final HttpResponse response2 = message2.getHead();
-        MatcherAssert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body2 = message2.getBody();
-        MatcherAssert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
+        assertThat(body2, CoreMatchers.equalTo("some other stuff"));
 
         final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
                 new BasicRequestProducer(Method.POST, target, "/no-keep-alive/more-stuff",
                         new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message3, CoreMatchers.notNullValue());
+        assertThat(message3, CoreMatchers.notNullValue());
         final HttpResponse response3 = message3.getHead();
-        MatcherAssert.assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body3 = message3.getBody();
-        MatcherAssert.assertThat(body3, CoreMatchers.equalTo("some more stuff"));
+        assertThat(body3, CoreMatchers.equalTo("some more stuff"));
     }
 
     @Test
@@ -294,33 +297,33 @@ public class Http1ServerAndRequesterTest {
                             new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
+            assertThat(message1, CoreMatchers.notNullValue());
             final HttpResponse response1 = message1.getHead();
-            MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body1 = message1.getBody();
-            MatcherAssert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+            assertThat(body1, CoreMatchers.equalTo("some stuff"));
 
             final Future<Message<HttpResponse, String>> resultFuture2 = endpoint.execute(
                     new BasicRequestProducer(Method.POST, target, "/other-stuff",
                             new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            MatcherAssert.assertThat(message2, CoreMatchers.notNullValue());
+            assertThat(message2, CoreMatchers.notNullValue());
             final HttpResponse response2 = message2.getHead();
-            MatcherAssert.assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body2 = message2.getBody();
-            MatcherAssert.assertThat(body2, CoreMatchers.equalTo("some other stuff"));
+            assertThat(body2, CoreMatchers.equalTo("some other stuff"));
 
             final Future<Message<HttpResponse, String>> resultFuture3 = endpoint.execute(
                     new BasicRequestProducer(Method.POST, target, "/more-stuff",
                             new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            MatcherAssert.assertThat(message3, CoreMatchers.notNullValue());
+            assertThat(message3, CoreMatchers.notNullValue());
             final HttpResponse response3 = message3.getHead();
-            MatcherAssert.assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body3 = message3.getBody();
-            MatcherAssert.assertThat(body3, CoreMatchers.equalTo("some more stuff"));
+            assertThat(body3, CoreMatchers.equalTo("some more stuff"));
 
         } finally {
             endpoint.releaseAndReuse();
@@ -358,11 +361,11 @@ public class Http1ServerAndRequesterTest {
             while (!queue.isEmpty()) {
                 final Future<Message<HttpResponse, String>> resultFuture = queue.remove();
                 final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-                MatcherAssert.assertThat(message, CoreMatchers.notNullValue());
+                assertThat(message, CoreMatchers.notNullValue());
                 final HttpResponse response = message.getHead();
-                MatcherAssert.assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+                assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
                 final String body = message.getBody();
-                MatcherAssert.assertThat(body, CoreMatchers.containsString("stuff"));
+                assertThat(body, CoreMatchers.containsString("stuff"));
             }
 
         } finally {
@@ -391,10 +394,10 @@ public class Http1ServerAndRequesterTest {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> resultFuture = queue.remove();
             final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            MatcherAssert.assertThat(message, CoreMatchers.notNullValue());
+            assertThat(message, CoreMatchers.notNullValue());
             final HttpResponse response = message.getHead();
-            MatcherAssert.assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
-            MatcherAssert.assertThat(message.getBody(), CoreMatchers.nullValue());
+            assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            assertThat(message.getBody(), CoreMatchers.nullValue());
         }
     }
 

@@ -30,8 +30,8 @@ package org.apache.hc.core5.http.nio.entity;
 import java.nio.ByteBuffer;
 
 import org.apache.hc.core5.util.TextUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestDigestingEntityConsumer {
 
@@ -46,8 +46,8 @@ public class TestDigestingEntityConsumer {
         consumer.consume(ByteBuffer.wrap(new byte[]{}));
         consumer.streamEnd(null);
 
-        Assert.assertEquals("12345", consumer.getContent());
-        Assert.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", TextUtils.toHexString(consumer.getDigest()));
+        Assertions.assertEquals("12345", consumer.getContent());
+        Assertions.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", TextUtils.toHexString(consumer.getDigest()));
     }
 
 }

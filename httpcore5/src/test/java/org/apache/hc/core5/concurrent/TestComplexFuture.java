@@ -26,12 +26,13 @@
  */
 package org.apache.hc.core5.concurrent;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.util.concurrent.Future;
 
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestComplexFuture {
 
@@ -42,15 +43,15 @@ public class TestComplexFuture {
         final Future<Object> dependency1 = new BasicFuture<>(null);
         future.setDependency(dependency1);
 
-        Assert.assertFalse(future.isDone());
+        Assertions.assertFalse(future.isDone());
 
         future.cancel();
-        MatcherAssert.assertThat(future.isCancelled(), CoreMatchers.is(true));
-        MatcherAssert.assertThat(dependency1.isCancelled(), CoreMatchers.is(true));
+        assertThat(future.isCancelled(), CoreMatchers.is(true));
+        assertThat(dependency1.isCancelled(), CoreMatchers.is(true));
 
         final Future<Object> dependency2 = new BasicFuture<>(null);
         future.setDependency(dependency2);
-        MatcherAssert.assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
+        assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
     }
 
     @Test
@@ -60,15 +61,15 @@ public class TestComplexFuture {
         final Future<Object> dependency1 = new BasicFuture<>(null);
         future.setDependency(dependency1);
 
-        Assert.assertFalse(future.isDone());
+        Assertions.assertFalse(future.isDone());
 
         future.completed(Boolean.TRUE);
-        MatcherAssert.assertThat(future.isCancelled(), CoreMatchers.is(false));
-        MatcherAssert.assertThat(dependency1.isCancelled(), CoreMatchers.is(false));
+        assertThat(future.isCancelled(), CoreMatchers.is(false));
+        assertThat(dependency1.isCancelled(), CoreMatchers.is(false));
 
         final Future<Object> dependency2 = new BasicFuture<>(null);
         future.setDependency(dependency2);
-        MatcherAssert.assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
+        assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
     }
 
     @Test
@@ -84,15 +85,15 @@ public class TestComplexFuture {
         });
         future.setDependency(dependency1);
 
-        Assert.assertFalse(future.isDone());
+        Assertions.assertFalse(future.isDone());
 
         future.cancel();
-        MatcherAssert.assertThat(future.isCancelled(), CoreMatchers.is(true));
-        MatcherAssert.assertThat(dependency1.isCancelled(), CoreMatchers.is(true));
+        assertThat(future.isCancelled(), CoreMatchers.is(true));
+        assertThat(dependency1.isCancelled(), CoreMatchers.is(true));
 
         final Future<Object> dependency2 = new BasicFuture<>(null);
         future.setDependency(dependency2);
-        MatcherAssert.assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
+        assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
     }
 
 }

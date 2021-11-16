@@ -35,8 +35,8 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link HttpHost}.
@@ -47,28 +47,28 @@ public class TestHttpHost {
     @Test
     public void testConstructor() {
         final HttpHost host1 = new HttpHost("somehost");
-        Assert.assertEquals("somehost", host1.getHostName());
-        Assert.assertEquals(-1, host1.getPort());
-        Assert.assertEquals("http", host1.getSchemeName());
+        Assertions.assertEquals("somehost", host1.getHostName());
+        Assertions.assertEquals(-1, host1.getPort());
+        Assertions.assertEquals("http", host1.getSchemeName());
         final HttpHost host2 = new HttpHost("somehost", 8080);
-        Assert.assertEquals("somehost", host2.getHostName());
-        Assert.assertEquals(8080, host2.getPort());
-        Assert.assertEquals("http", host2.getSchemeName());
+        Assertions.assertEquals("somehost", host2.getHostName());
+        Assertions.assertEquals(8080, host2.getPort());
+        Assertions.assertEquals("http", host2.getSchemeName());
         final HttpHost host3 = new HttpHost("somehost", -1);
-        Assert.assertEquals("somehost", host3.getHostName());
-        Assert.assertEquals(-1, host3.getPort());
-        Assert.assertEquals("http", host3.getSchemeName());
+        Assertions.assertEquals("somehost", host3.getHostName());
+        Assertions.assertEquals(-1, host3.getPort());
+        Assertions.assertEquals("http", host3.getSchemeName());
         final HttpHost host4 = new HttpHost("https", "somehost", 443);
-        Assert.assertEquals("somehost", host4.getHostName());
-        Assert.assertEquals(443, host4.getPort());
-        Assert.assertEquals("https", host4.getSchemeName());
+        Assertions.assertEquals("somehost", host4.getHostName());
+        Assertions.assertEquals(443, host4.getPort());
+        Assertions.assertEquals("https", host4.getSchemeName());
         final HttpHost host5 = new HttpHost("https", "somehost");
-        Assert.assertEquals("somehost", host5.getHostName());
-        Assert.assertEquals(-1, host5.getPort());
-        Assert.assertEquals("https", host5.getSchemeName());
-        Assert.assertThrows(NullPointerException.class, () -> new HttpHost(null, (String) null, -1));
-        Assert.assertThrows(IllegalArgumentException.class, () -> new HttpHost(null, "   ", -1));
-        Assert.assertThrows(NullPointerException.class, () -> new HttpHost(null, (InetAddress) null, -1));
+        Assertions.assertEquals("somehost", host5.getHostName());
+        Assertions.assertEquals(-1, host5.getPort());
+        Assertions.assertEquals("https", host5.getSchemeName());
+        Assertions.assertThrows(NullPointerException.class, () -> new HttpHost(null, (String) null, -1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new HttpHost(null, "   ", -1));
+        Assertions.assertThrows(NullPointerException.class, () -> new HttpHost(null, (InetAddress) null, -1));
     }
 
     @Test
@@ -89,17 +89,17 @@ public class TestHttpHost {
         final HttpHost host11 = new HttpHost(
                         "http", InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80);
 
-        Assert.assertEquals(host1.hashCode(), host1.hashCode());
-        Assert.assertTrue(host1.hashCode() != host2.hashCode());
-        Assert.assertTrue(host1.hashCode() != host3.hashCode());
-        Assert.assertEquals(host2.hashCode(), host4.hashCode());
-        Assert.assertEquals(host2.hashCode(), host5.hashCode());
-        Assert.assertTrue(host5.hashCode() != host6.hashCode());
-        Assert.assertTrue(host7.hashCode() != host8.hashCode());
-        Assert.assertTrue(host8.hashCode() != host9.hashCode());
-        Assert.assertEquals(host9.hashCode(), host10.hashCode());
-        Assert.assertTrue(host10.hashCode() != host11.hashCode());
-        Assert.assertTrue(host9.hashCode() != host11.hashCode());
+        Assertions.assertEquals(host1.hashCode(), host1.hashCode());
+        Assertions.assertTrue(host1.hashCode() != host2.hashCode());
+        Assertions.assertTrue(host1.hashCode() != host3.hashCode());
+        Assertions.assertEquals(host2.hashCode(), host4.hashCode());
+        Assertions.assertEquals(host2.hashCode(), host5.hashCode());
+        Assertions.assertTrue(host5.hashCode() != host6.hashCode());
+        Assertions.assertTrue(host7.hashCode() != host8.hashCode());
+        Assertions.assertTrue(host8.hashCode() != host9.hashCode());
+        Assertions.assertEquals(host9.hashCode(), host10.hashCode());
+        Assertions.assertTrue(host10.hashCode() != host11.hashCode());
+        Assertions.assertTrue(host9.hashCode() != host11.hashCode());
     }
 
     @Test
@@ -120,54 +120,54 @@ public class TestHttpHost {
         final HttpHost host11 = new HttpHost(
                         "http", InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80);
 
-        Assert.assertEquals(host1, host1);
-        Assert.assertNotEquals(host1, host2);
-        Assert.assertNotEquals(host1, host3);
-        Assert.assertEquals(host2, host4);
-        Assert.assertEquals(host2, host5);
-        Assert.assertNotEquals(host5, host6);
-        Assert.assertNotEquals(host7, host8);
-        Assert.assertFalse(host7.equals(host9));
-        Assert.assertNotEquals(null, host1);
-        Assert.assertNotEquals("http://somehost", host1);
-        Assert.assertNotEquals("http://somehost", host9);
-        Assert.assertNotEquals(host8, host9);
-        Assert.assertEquals(host9, host10);
-        Assert.assertNotEquals(host9, host11);
+        Assertions.assertEquals(host1, host1);
+        Assertions.assertNotEquals(host1, host2);
+        Assertions.assertNotEquals(host1, host3);
+        Assertions.assertEquals(host2, host4);
+        Assertions.assertEquals(host2, host5);
+        Assertions.assertNotEquals(host5, host6);
+        Assertions.assertNotEquals(host7, host8);
+        Assertions.assertFalse(host7.equals(host9));
+        Assertions.assertNotEquals(null, host1);
+        Assertions.assertNotEquals("http://somehost", host1);
+        Assertions.assertNotEquals("http://somehost", host9);
+        Assertions.assertNotEquals(host8, host9);
+        Assertions.assertEquals(host9, host10);
+        Assertions.assertNotEquals(host9, host11);
     }
 
     @Test
     public void testToString() throws Exception {
         final HttpHost host1 = new HttpHost("somehost");
-        Assert.assertEquals("http://somehost", host1.toString());
+        Assertions.assertEquals("http://somehost", host1.toString());
         final HttpHost host2 = new HttpHost("somehost", -1);
-        Assert.assertEquals("http://somehost", host2.toString());
+        Assertions.assertEquals("http://somehost", host2.toString());
         final HttpHost host3 = new HttpHost("somehost", -1);
-        Assert.assertEquals("http://somehost", host3.toString());
+        Assertions.assertEquals("http://somehost", host3.toString());
         final HttpHost host4 = new HttpHost("somehost", 8888);
-        Assert.assertEquals("http://somehost:8888", host4.toString());
+        Assertions.assertEquals("http://somehost:8888", host4.toString());
         final HttpHost host5 = new HttpHost("myhttp", "somehost", -1);
-        Assert.assertEquals("myhttp://somehost", host5.toString());
+        Assertions.assertEquals("myhttp://somehost", host5.toString());
         final HttpHost host6 = new HttpHost("myhttp", "somehost", 80);
-        Assert.assertEquals("myhttp://somehost:80", host6.toString());
+        Assertions.assertEquals("myhttp://somehost:80", host6.toString());
         final HttpHost host7 = new HttpHost(
                 "http", InetAddress.getByAddress("127.0.0.1", new byte[] {127,0,0,1}), 80);
-        Assert.assertEquals("http://127.0.0.1:80", host7.toString());
+        Assertions.assertEquals("http://127.0.0.1:80", host7.toString());
         final HttpHost host9 = new HttpHost(
                         "http", InetAddress.getByAddress("somehost", new byte[] {127,0,0,1}), 80);
-        Assert.assertEquals("http://somehost:80", host9.toString());
+        Assertions.assertEquals("http://somehost:80", host9.toString());
     }
 
     @Test
     public void testToHostString() {
         final HttpHost host1 = new HttpHost("somehost");
-        Assert.assertEquals("somehost", host1.toHostString());
+        Assertions.assertEquals("somehost", host1.toHostString());
         final HttpHost host2 = new HttpHost("somehost");
-        Assert.assertEquals("somehost", host2.toHostString());
+        Assertions.assertEquals("somehost", host2.toHostString());
         final HttpHost host3 = new HttpHost("somehost", -1);
-        Assert.assertEquals("somehost", host3.toHostString());
+        Assertions.assertEquals("somehost", host3.toHostString());
         final HttpHost host4 = new HttpHost("somehost", 8888);
-        Assert.assertEquals("somehost:8888", host4.toHostString());
+        Assertions.assertEquals("somehost:8888", host4.toHostString());
     }
 
     @Test
@@ -181,60 +181,60 @@ public class TestHttpHost {
         final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
         final HttpHost clone = (HttpHost) inStream.readObject();
-        Assert.assertEquals(orig, clone);
+        Assertions.assertEquals(orig, clone);
     }
 
     @Test
     public void testCreateFromString() throws Exception {
-        Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create("https://somehost:8080"));
-        Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create("HttpS://SomeHost:8080"));
-        Assert.assertEquals(new HttpHost(null, "somehost", 1234), HttpHost.create("somehost:1234"));
-        Assert.assertEquals(new HttpHost(null, "somehost", -1), HttpHost.create("somehost"));
+        Assertions.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create("https://somehost:8080"));
+        Assertions.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create("HttpS://SomeHost:8080"));
+        Assertions.assertEquals(new HttpHost(null, "somehost", 1234), HttpHost.create("somehost:1234"));
+        Assertions.assertEquals(new HttpHost(null, "somehost", -1), HttpHost.create("somehost"));
     }
 
     @Test
     public void testCreateFromURI() throws Exception {
-        Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create(URI.create("https://somehost:8080")));
-        Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create(URI.create("HttpS://SomeHost:8080")));
-        Assert.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create(URI.create("HttpS://SomeHost:8080/foo")));
+        Assertions.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create(URI.create("https://somehost:8080")));
+        Assertions.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create(URI.create("HttpS://SomeHost:8080")));
+        Assertions.assertEquals(new HttpHost("https", "somehost", 8080), HttpHost.create(URI.create("HttpS://SomeHost:8080/foo")));
     }
 
     @Test
     public void testCreateFromStringInvalid() throws Exception {
-        Assert.assertThrows(URISyntaxException.class, () -> HttpHost.create(" host "));
-        Assert.assertThrows(URISyntaxException.class, () -> HttpHost.create("host :8080"));
-        Assert.assertThrows(IllegalArgumentException.class, () -> HttpHost.create(""));
+        Assertions.assertThrows(URISyntaxException.class, () -> HttpHost.create(" host "));
+        Assertions.assertThrows(URISyntaxException.class, () -> HttpHost.create("host :8080"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> HttpHost.create(""));
     }
 
     @Test
     public void testIpv6HostAndPort() throws Exception {
         final HttpHost host = HttpHost.create("[::1]:80");
-        Assert.assertEquals("http", host.getSchemeName());
-        Assert.assertEquals("::1", host.getHostName());
-        Assert.assertEquals(80, host.getPort());
+        Assertions.assertEquals("http", host.getSchemeName());
+        Assertions.assertEquals("::1", host.getHostName());
+        Assertions.assertEquals(80, host.getPort());
     }
 
     @Test
     public void testIpv6HostAndPortWithScheme() throws Exception {
         final HttpHost host = HttpHost.create("https://[::1]:80");
-        Assert.assertEquals("https", host.getSchemeName());
-        Assert.assertEquals("::1", host.getHostName());
-        Assert.assertEquals(80, host.getPort());
+        Assertions.assertEquals("https", host.getSchemeName());
+        Assertions.assertEquals("::1", host.getHostName());
+        Assertions.assertEquals(80, host.getPort());
     }
 
     @Test
     public void testIpv6HostAndPortWithoutBrackets() throws Exception {
-        Assert.assertThrows(URISyntaxException.class, () -> HttpHost.create("::1:80"));
+        Assertions.assertThrows(URISyntaxException.class, () -> HttpHost.create("::1:80"));
     }
 
     @Test
     public void testIpv6HostWithoutPort() throws Exception {
-        Assert.assertThrows(URISyntaxException.class, () -> HttpHost.create("::1"));
+        Assertions.assertThrows(URISyntaxException.class, () -> HttpHost.create("::1"));
     }
 
     @Test
     public void testIpv6HostToString() {
-        Assert.assertEquals("http://[::1]:80", new HttpHost("::1", 80).toString());
-        Assert.assertEquals("http://[::1]", new HttpHost("::1", -1).toString());
+        Assertions.assertEquals("http://[::1]:80", new HttpHost("::1", 80).toString());
+        Assertions.assertEquals("http://[::1]", new HttpHost("::1", -1).toString());
     }
 }

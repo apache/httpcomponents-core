@@ -40,16 +40,16 @@ import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TestPathAsyncEntityProducer {
 
     private File tempFile;
 
-    @After
+    @AfterEach
     public void cleanup() {
         if (tempFile != null) {
             tempFile.delete();
@@ -57,7 +57,7 @@ public class TestPathAsyncEntityProducer {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         tempFile = File.createTempFile("testing", ".txt");
         try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.US_ASCII)) {
@@ -72,9 +72,9 @@ public class TestPathAsyncEntityProducer {
         final Path tempPath = tempFile.toPath();
         final AsyncEntityProducer producer = new PathEntityProducer(tempPath, ContentType.TEXT_PLAIN, StandardOpenOption.READ);
 
-        Assert.assertEquals(6, producer.getContentLength());
-        Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
-        Assert.assertNull(producer.getContentEncoding());
+        Assertions.assertEquals(6, producer.getContentLength());
+        Assertions.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
+        Assertions.assertNull(producer.getContentEncoding());
 
         final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
         final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
@@ -82,8 +82,8 @@ public class TestPathAsyncEntityProducer {
         producer.produce(streamChannel);
         producer.produce(streamChannel);
 
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertFalse(byteChannel.isOpen());
+        Assertions.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
     }
 
     @Test
@@ -91,9 +91,9 @@ public class TestPathAsyncEntityProducer {
         final Path tempPath = tempFile.toPath();
         final AsyncEntityProducer producer = new PathEntityProducer(tempPath, ContentType.TEXT_PLAIN, StandardOpenOption.READ);
 
-        Assert.assertEquals(6, producer.getContentLength());
-        Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
-        Assert.assertNull(producer.getContentEncoding());
+        Assertions.assertEquals(6, producer.getContentLength());
+        Assertions.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
+        Assertions.assertNull(producer.getContentEncoding());
 
         for (int i = 0; i < 3; i++) {
             final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
@@ -102,8 +102,8 @@ public class TestPathAsyncEntityProducer {
             producer.produce(streamChannel);
             producer.produce(streamChannel);
 
-            Assert.assertFalse(byteChannel.isOpen());
-            Assert.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
+            Assertions.assertFalse(byteChannel.isOpen());
+            Assertions.assertEquals("abcdef", byteChannel.dump(StandardCharsets.US_ASCII));
 
             producer.releaseResources();
         }

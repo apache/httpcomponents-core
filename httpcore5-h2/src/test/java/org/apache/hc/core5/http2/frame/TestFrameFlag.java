@@ -26,8 +26,8 @@
  */
 package org.apache.hc.core5.http2.frame;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestFrameFlag {
 
@@ -35,7 +35,7 @@ public class TestFrameFlag {
     public void testFrameFlagBasics() throws Exception {
 
         final int flags = FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED, FrameFlag.PRIORITY);
-        Assert.assertEquals(0x01 | 0x08 | 0x20, flags);
+        Assertions.assertEquals(0x01 | 0x08 | 0x20, flags);
     }
 
 }

@@ -42,8 +42,8 @@ import org.apache.hc.core5.http.TruncatedChunkException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Simple tests for {@link ChunkDecoder}.
@@ -62,16 +62,16 @@ public class TestChunkDecoder {
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
-        Assert.assertEquals(16, bytesRead);
-        Assert.assertEquals("0123456789abcdef", CodecTestUtils.convert(dst));
+        Assertions.assertEquals(16, bytesRead);
+        Assertions.assertEquals("0123456789abcdef", CodecTestUtils.convert(dst));
         final List<? extends Header> trailers = decoder.getTrailers();
-        Assert.assertNull(trailers);
+        Assertions.assertNull(trailers);
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(-1, bytesRead);
-        Assert.assertTrue(decoder.isCompleted());
-        Assert.assertEquals("[chunk-coded; completed: true]", decoder.toString());
+        Assertions.assertEquals(-1, bytesRead);
+        Assertions.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals("[chunk-coded; completed: true]", decoder.toString());
     }
 
     @Test
@@ -95,20 +95,20 @@ public class TestChunkDecoder {
             }
         }
 
-        Assert.assertEquals(26, bytesRead);
-        Assert.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
+        Assertions.assertEquals(26, bytesRead);
+        Assertions.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
 
         final List<? extends Header> trailers = decoder.getTrailers();
-        Assert.assertEquals(2, trailers.size());
-        Assert.assertEquals("Footer1", trailers.get(0).getName());
-        Assert.assertEquals("abcde", trailers.get(0).getValue());
-        Assert.assertEquals("Footer2", trailers.get(1).getName());
-        Assert.assertEquals("fghij", trailers.get(1).getValue());
+        Assertions.assertEquals(2, trailers.size());
+        Assertions.assertEquals("Footer1", trailers.get(0).getName());
+        Assertions.assertEquals("abcde", trailers.get(0).getValue());
+        Assertions.assertEquals("Footer2", trailers.get(1).getName());
+        Assertions.assertEquals("fghij", trailers.get(1).getValue());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(-1, bytesRead);
-        Assert.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals(-1, bytesRead);
+        Assertions.assertTrue(decoder.isCompleted());
     }
 
     @Test
@@ -136,14 +136,14 @@ public class TestChunkDecoder {
             tmp.compact();
         }
 
-        Assert.assertEquals(16, bytesRead);
-        Assert.assertEquals("0123456789abcdef", CodecTestUtils.convert(dst));
-        Assert.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals(16, bytesRead);
+        Assertions.assertEquals("0123456789abcdef", CodecTestUtils.convert(dst));
+        Assertions.assertTrue(decoder.isCompleted());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(-1, bytesRead);
-        Assert.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals(-1, bytesRead);
+        Assertions.assertTrue(decoder.isCompleted());
     }
 
     @Test
@@ -160,7 +160,7 @@ public class TestChunkDecoder {
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
-        Assert.assertThrows(MalformedChunkCodingException.class, () -> decoder.read(dst));
+        Assertions.assertThrows(MalformedChunkCodingException.class, () -> decoder.read(dst));
     }
 
     @Test
@@ -193,21 +193,21 @@ public class TestChunkDecoder {
             }
         }
 
-        Assert.assertEquals(27, bytesRead);
-        Assert.assertEquals("123456789012345612345abcdef", CodecTestUtils.convert(dst));
-        Assert.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals(27, bytesRead);
+        Assertions.assertEquals("123456789012345612345abcdef", CodecTestUtils.convert(dst));
+        Assertions.assertTrue(decoder.isCompleted());
 
         final List<? extends Header> trailers = decoder.getTrailers();
-        Assert.assertEquals(2, trailers.size());
-        Assert.assertEquals("Footer1", trailers.get(0).getName());
-        Assert.assertEquals("abcde", trailers.get(0).getValue());
-        Assert.assertEquals("Footer2", trailers.get(1).getName());
-        Assert.assertEquals("fghij", trailers.get(1).getValue());
+        Assertions.assertEquals(2, trailers.size());
+        Assertions.assertEquals("Footer1", trailers.get(0).getName());
+        Assertions.assertEquals("abcde", trailers.get(0).getValue());
+        Assertions.assertEquals("Footer2", trailers.get(1).getName());
+        Assertions.assertEquals("fghij", trailers.get(1).getValue());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(-1, bytesRead);
-        Assert.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals(-1, bytesRead);
+        Assertions.assertTrue(decoder.isCompleted());
     }
 
     @Test
@@ -221,7 +221,7 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
-        Assert.assertThrows(MalformedChunkCodingException.class, () ->
+        Assertions.assertThrows(MalformedChunkCodingException.class, () ->
                 decoder.read(dst));
     }
 
@@ -236,7 +236,7 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
-        Assert.assertThrows(MalformedChunkCodingException.class, () ->
+        Assertions.assertThrows(MalformedChunkCodingException.class, () ->
                 decoder.read(dst));
     }
 
@@ -251,8 +251,8 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
-        Assert.assertEquals(2, decoder.read(dst));
-        Assert.assertThrows(TruncatedChunkException.class, () ->
+        Assertions.assertEquals(2, decoder.read(dst));
+        Assertions.assertThrows(TruncatedChunkException.class, () ->
                 decoder.read(dst));
     }
 
@@ -270,13 +270,13 @@ public class TestChunkDecoder {
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         final int bytesRead = decoder.read(dst);
-        Assert.assertEquals(26, bytesRead);
-        Assert.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
+        Assertions.assertEquals(26, bytesRead);
+        Assertions.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
 
         final List<? extends Header> trailers = decoder.getTrailers();
-        Assert.assertEquals(1, trailers.size());
-        Assert.assertEquals("Footer1", trailers.get(0).getName());
-        Assert.assertEquals("abcde  fghij", trailers.get(0).getValue());
+        Assertions.assertEquals(1, trailers.size());
+        Assertions.assertEquals("Footer1", trailers.get(0).getName());
+        Assertions.assertEquals("abcde  fghij", trailers.get(0).getValue());
     }
 
     @Test
@@ -291,7 +291,7 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
-        Assert.assertThrows(IOException.class, () ->
+        Assertions.assertThrows(IOException.class, () ->
                 decoder.read(dst));
     }
 
@@ -308,7 +308,7 @@ public class TestChunkDecoder {
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
-        Assert.assertThrows(MalformedChunkCodingException.class, () -> {
+        Assertions.assertThrows(MalformedChunkCodingException.class, () -> {
             while (dst.hasRemaining() && !decoder.isCompleted()) {
                 decoder.read(dst);
             }
@@ -328,7 +328,7 @@ public class TestChunkDecoder {
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
-        Assert.assertThrows(ConnectionClosedException.class, () -> {
+        Assertions.assertThrows(ConnectionClosedException.class, () -> {
             long bytesRead = 0;
             try {
                 while (dst.hasRemaining() && !decoder.isCompleted()) {
@@ -338,9 +338,9 @@ public class TestChunkDecoder {
                     }
                 }
             } catch (final MalformedChunkCodingException ex) {
-                Assert.assertEquals(26L, bytesRead);
-                Assert.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
-                Assert.assertTrue(decoder.isCompleted());
+                Assertions.assertEquals(26L, bytesRead);
+                Assertions.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
+                Assertions.assertTrue(decoder.isCompleted());
                 throw ex;
             }
         });
@@ -372,11 +372,11 @@ public class TestChunkDecoder {
             }
         }
 
-        Assert.assertEquals(80, bytesRead);
-        Assert.assertEquals("12345678901234561234567890123456" +
+        Assertions.assertEquals(80, bytesRead);
+        Assertions.assertEquals("12345678901234561234567890123456" +
                 "12345678901234561234567890123456" +
                 "1234567890123456", CodecTestUtils.convert(dst));
-        Assert.assertTrue(decoder.isCompleted());
+        Assertions.assertTrue(decoder.isCompleted());
     }
 
     @Test
@@ -400,9 +400,9 @@ public class TestChunkDecoder {
             }
         }
 
-        Assert.assertEquals(26, bytesRead);
-        Assert.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
-        Assert.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals(26, bytesRead);
+        Assertions.assertEquals("12345678901234561234512345", CodecTestUtils.convert(dst));
+        Assertions.assertTrue(decoder.isCompleted());
     }
 
     @Test
@@ -420,8 +420,8 @@ public class TestChunkDecoder {
         while (dst.hasRemaining() && !decoder1.isCompleted()) {
             decoder1.read(dst);
         }
-        Assert.assertEquals("12345", CodecTestUtils.convert(dst));
-        Assert.assertTrue(decoder1.isCompleted());
+        Assertions.assertEquals("12345", CodecTestUtils.convert(dst));
+        Assertions.assertTrue(decoder1.isCompleted());
 
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
@@ -431,7 +431,7 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, metrics2);
 
         dst.clear();
-        Assert.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
+        Assertions.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
     }
 
     @Test
@@ -447,11 +447,11 @@ public class TestChunkDecoder {
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         final int bytesRead = decoder1.read(dst);
-        Assert.assertEquals(16, bytesRead);
-        Assert.assertEquals("1234567890123456", CodecTestUtils.convert(dst));
+        Assertions.assertEquals(16, bytesRead);
+        Assertions.assertEquals("1234567890123456", CodecTestUtils.convert(dst));
         final List<? extends Header> trailers = decoder1.getTrailers();
-        Assert.assertNotNull(trailers);
-        Assert.assertEquals(1, trailers.size());
+        Assertions.assertNotNull(trailers);
+        Assertions.assertEquals(1, trailers.size());
 
         final ReadableByteChannel channel2 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
@@ -461,7 +461,7 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, metrics2);
 
         dst.clear();
-        Assert.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
+        Assertions.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
     }
 
     @Test
@@ -478,11 +478,11 @@ public class TestChunkDecoder {
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         final int bytesRead = decoder1.read(dst);
-        Assert.assertEquals(16, bytesRead);
-        Assert.assertEquals("1234567890123456", CodecTestUtils.convert(dst));
+        Assertions.assertEquals(16, bytesRead);
+        Assertions.assertEquals("1234567890123456", CodecTestUtils.convert(dst));
         final List<? extends Header> trailers = decoder1.getTrailers();
-        Assert.assertNotNull(trailers);
-        Assert.assertEquals(1, trailers.size());
+        Assertions.assertNotNull(trailers);
+        Assertions.assertEquals(1, trailers.size());
 
         final Http1Config http1Config = Http1Config.custom()
                 .setMaxLineLength(25)
@@ -494,7 +494,7 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, http1Config, metrics2);
 
         dst.clear();
-        Assert.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
+        Assertions.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
     }
 
     @Test
@@ -510,11 +510,11 @@ public class TestChunkDecoder {
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         final int bytesRead = decoder1.read(dst);
-        Assert.assertEquals(16, bytesRead);
-        Assert.assertEquals("1234567890123456", CodecTestUtils.convert(dst));
+        Assertions.assertEquals(16, bytesRead);
+        Assertions.assertEquals("1234567890123456", CodecTestUtils.convert(dst));
         final List<? extends Header> trailers = decoder1.getTrailers();
-        Assert.assertNotNull(trailers);
-        Assert.assertEquals(4, trailers.size());
+        Assertions.assertNotNull(trailers);
+        Assertions.assertEquals(4, trailers.size());
 
         final Http1Config http1Config = Http1Config.custom()
                 .setMaxHeaderCount(3).build();
@@ -526,7 +526,7 @@ public class TestChunkDecoder {
         final ChunkDecoder decoder2 = new ChunkDecoder(channel2, inbuf2, http1Config, metrics2);
 
         dst.clear();
-        Assert.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
+        Assertions.assertThrows(MessageConstraintException.class, () -> decoder2.read(dst));
     }
 
     @Test
@@ -535,8 +535,8 @@ public class TestChunkDecoder {
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.US_ASCII);
-        Assert.assertThrows(NullPointerException.class, () -> new ChunkDecoder(null, null, null));
-        Assert.assertThrows(NullPointerException.class, () -> new ChunkDecoder(channel, inbuf, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new ChunkDecoder(null, null, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new ChunkDecoder(channel, inbuf, null));
     }
 
     @Test
@@ -549,7 +549,7 @@ public class TestChunkDecoder {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.US_ASCII);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkDecoder decoder = new ChunkDecoder(channel, inbuf, metrics);
-        Assert.assertThrows(NullPointerException.class, () ->
+        Assertions.assertThrows(NullPointerException.class, () ->
                 decoder.read(null));
     }
 
@@ -564,12 +564,12 @@ public class TestChunkDecoder {
         final ByteBuffer dst = ByteBuffer.allocate(4);
 
         int bytesRead = decoder.read(dst);
-        Assert.assertEquals(4, bytesRead);
-        Assert.assertEquals("0123", CodecTestUtils.convert(dst));
+        Assertions.assertEquals(4, bytesRead);
+        Assertions.assertEquals("0123", CodecTestUtils.convert(dst));
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(4, bytesRead);
-        Assert.assertEquals("4567", CodecTestUtils.convert(dst));
+        Assertions.assertEquals(4, bytesRead);
+        Assertions.assertEquals("4567", CodecTestUtils.convert(dst));
     }
 
 }

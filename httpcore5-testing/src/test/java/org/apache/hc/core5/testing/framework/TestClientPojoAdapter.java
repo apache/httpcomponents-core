@@ -29,8 +29,8 @@ package org.apache.hc.core5.testing.framework;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestClientPojoAdapter {
     @Test
@@ -39,7 +39,7 @@ public class TestClientPojoAdapter {
         final Map<String, Object> request = new HashMap<>();
         final Map<String, Object> request2 = adapter.modifyRequest(request);
 
-        Assert.assertSame("request should have been returned", request, request2);
+        Assertions.assertSame(request, request2, "request should have been returned");
     }
 
     @Test
@@ -47,7 +47,7 @@ public class TestClientPojoAdapter {
         final ClientPOJOAdapter adapter = new ClassicTestClientAdapter();
         final String reason = adapter.checkRequestSupport(null);
 
-        Assert.assertNull("reason should be null", reason);
+        Assertions.assertNull(reason, "reason should be null");
 
         adapter.assertRequestSupported(null);
     }
@@ -72,6 +72,6 @@ public class TestClientPojoAdapter {
             }
         };
 
-        Assert.assertThrows(Exception.class, () -> adapter.assertRequestSupported(null));
+        Assertions.assertThrows(Exception.class, () -> adapter.assertRequestSupported(null));
     }
 }

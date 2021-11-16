@@ -27,15 +27,15 @@
 
 package org.apache.hc.core5.util;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TestTokenizer {
 
     private Tokenizer parser;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         parser = new Tokenizer();
     }
@@ -57,34 +57,34 @@ public class TestTokenizer {
 
         parser.skipWhiteSpace(raw, cursor);
 
-        Assert.assertFalse(cursor.atEnd());
-        Assert.assertEquals(3, cursor.getPos());
+        Assertions.assertFalse(cursor.atEnd());
+        Assertions.assertEquals(3, cursor.getPos());
 
         final StringBuilder strbuf1 = new StringBuilder();
         parser.copyContent(raw, cursor, Tokenizer.INIT_BITSET(':'), strbuf1);
 
-        Assert.assertFalse(cursor.atEnd());
-        Assert.assertEquals(6, cursor.getPos());
-        Assert.assertEquals("raw", strbuf1.toString());
-        Assert.assertEquals(':', raw.charAt(cursor.getPos()));
+        Assertions.assertFalse(cursor.atEnd());
+        Assertions.assertEquals(6, cursor.getPos());
+        Assertions.assertEquals("raw", strbuf1.toString());
+        Assertions.assertEquals(':', raw.charAt(cursor.getPos()));
         cursor.updatePos(cursor.getPos() + 1);
 
         parser.skipWhiteSpace(raw, cursor);
 
-        Assert.assertFalse(cursor.atEnd());
-        Assert.assertEquals(8, cursor.getPos());
+        Assertions.assertFalse(cursor.atEnd());
+        Assertions.assertEquals(8, cursor.getPos());
 
         final StringBuilder strbuf2 = new StringBuilder();
         parser.copyQuotedContent(raw, cursor, strbuf2);
 
-        Assert.assertTrue(cursor.atEnd());
-        Assert.assertEquals(" some stuff ", strbuf2.toString());
+        Assertions.assertTrue(cursor.atEnd());
+        Assertions.assertEquals(" some stuff ", strbuf2.toString());
 
         parser.copyQuotedContent(raw, cursor, strbuf2);
-        Assert.assertTrue(cursor.atEnd());
+        Assertions.assertTrue(cursor.atEnd());
 
         parser.skipWhiteSpace(raw, cursor);
-        Assert.assertTrue(cursor.atEnd());
+        Assertions.assertTrue(cursor.atEnd());
     }
 
     @Test
@@ -95,26 +95,26 @@ public class TestTokenizer {
 
         parser.skipWhiteSpace(raw, cursor);
 
-        Assert.assertFalse(cursor.atEnd());
-        Assert.assertEquals(0, cursor.getPos());
+        Assertions.assertFalse(cursor.atEnd());
+        Assertions.assertEquals(0, cursor.getPos());
 
         final StringBuilder strbuf1 = new StringBuilder();
         parser.copyContent(raw, cursor, Tokenizer.INIT_BITSET(':'), strbuf1);
 
-        Assert.assertFalse(cursor.atEnd());
-        Assert.assertEquals("raw", strbuf1.toString());
-        Assert.assertEquals(':', raw.charAt(cursor.getPos()));
+        Assertions.assertFalse(cursor.atEnd());
+        Assertions.assertEquals("raw", strbuf1.toString());
+        Assertions.assertEquals(':', raw.charAt(cursor.getPos()));
         cursor.updatePos(cursor.getPos() + 1);
 
         parser.skipWhiteSpace(raw, cursor);
 
-        Assert.assertFalse(cursor.atEnd());
+        Assertions.assertFalse(cursor.atEnd());
 
         final StringBuilder strbuf2 = new StringBuilder();
         parser.copyQuotedContent(raw, cursor, strbuf2);
 
-        Assert.assertTrue(cursor.atEnd());
-        Assert.assertEquals("\"some\\stuff\\", strbuf2.toString());
+        Assertions.assertTrue(cursor.atEnd());
+        Assertions.assertEquals("\"some\\stuff\\", strbuf2.toString());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class TestTokenizer {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final StringBuilder strbuf1 = new StringBuilder();
         parser.copyQuotedContent(raw, cursor, strbuf1);
-        Assert.assertEquals("stuff and more stuff  ", strbuf1.toString());
+        Assertions.assertEquals("stuff and more stuff  ", strbuf1.toString());
     }
 
     @Test
@@ -133,7 +133,7 @@ public class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseToken(raw, cursor, Tokenizer.INIT_BITSET(';'));
-        Assert.assertEquals("stuff and some more stuff", result);
+        Assertions.assertEquals("stuff and some more stuff", result);
     }
 
     @Test
@@ -142,7 +142,7 @@ public class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
-        Assert.assertEquals("stuff and  some more  stuff  ;", result);
+        Assertions.assertEquals("stuff and  some more  stuff  ;", result);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
-        Assert.assertEquals("stuffmorestuff", result);
+        Assertions.assertEquals("stuffmorestuff", result);
     }
 
     @Test
@@ -160,7 +160,7 @@ public class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
-        Assert.assertEquals("stuff\"more\"stuff", result);
+        Assertions.assertEquals("stuff\"more\"stuff", result);
     }
 
     @Test
@@ -169,7 +169,7 @@ public class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
-        Assert.assertEquals("stuff\"more\";stuff", result);
+        Assertions.assertEquals("stuff\"more\";stuff", result);
     }
 
     @Test
@@ -178,7 +178,7 @@ public class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
-        Assert.assertEquals("stuff\"more\";\\stuff", result);
+        Assertions.assertEquals("stuff\"more\";\\stuff", result);
     }
 
     @Test
@@ -187,6 +187,6 @@ public class TestTokenizer {
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
         final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
-        Assert.assertEquals("stuff\\", result);
+        Assertions.assertEquals("stuff\\", result);
     }
 }

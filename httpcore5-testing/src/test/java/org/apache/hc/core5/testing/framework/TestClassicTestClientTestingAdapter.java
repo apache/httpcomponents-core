@@ -48,10 +48,10 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.classic.ClassicTestServer;
 import org.apache.hc.core5.testing.classic.EchoHandler;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class TestClassicTestClientTestingAdapter {
@@ -60,13 +60,13 @@ public class TestClassicTestClientTestingAdapter {
 
     private ClassicTestServer server;
 
-   @Before
+   @BeforeEach
     public void initServer() throws Exception {
        this.server = new ClassicTestServer(SocketConfig.custom()
                .setSoTimeout(5, TimeUnit.SECONDS).build());
     }
 
-    @After
+    @AfterEach
     public void shutDownServer() throws Exception {
         if (this.server != null) {
             this.server.shutdown(CloseMode.IMMEDIATE);
@@ -82,7 +82,7 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        Assert.assertThrows(TestingFrameworkException.class, () ->
+        Assertions.assertThrows(TestingFrameworkException.class, () ->
                 adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
@@ -95,7 +95,7 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        Assert.assertThrows(TestingFrameworkException.class, () ->
+        Assertions.assertThrows(TestingFrameworkException.class, () ->
                 adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
@@ -108,7 +108,7 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = null;
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        Assert.assertThrows(TestingFrameworkException.class, () ->
+        Assertions.assertThrows(TestingFrameworkException.class, () ->
                 adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
@@ -121,7 +121,7 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = null;
 
-        Assert.assertThrows(TestingFrameworkException.class, () ->
+        Assertions.assertThrows(TestingFrameworkException.class, () ->
                 adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
@@ -134,7 +134,7 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        Assert.assertThrows(TestingFrameworkException.class, () ->
+        Assertions.assertThrows(TestingFrameworkException.class, () ->
                 adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
@@ -150,7 +150,7 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        Assert.assertThrows(TestingFrameworkException.class, () ->
+        Assertions.assertThrows(TestingFrameworkException.class, () ->
                 adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
@@ -167,7 +167,7 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> responseExpectations = new HashMap<>();
 
-        Assert.assertThrows(TestingFrameworkException.class, () ->
+        Assertions.assertThrows(TestingFrameworkException.class, () ->
                 adapter.execute(defaultURI, request, requestHandler, responseExpectations));
     }
 
@@ -194,17 +194,17 @@ public class TestClassicTestClientTestingAdapter {
         final TestingFrameworkRequestHandler requestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final Map<String, Object> response = adapter.execute(defaultURI, request, requestHandler, responseExpectations);
 
-        Assert.assertNotNull("response should not be null", response);
-        Assert.assertEquals("status unexpected", 200, response.get(STATUS));
+        Assertions.assertNotNull(response, "response should not be null");
+        Assertions.assertEquals(200, response.get(STATUS), "status unexpected");
 
         @SuppressWarnings("unchecked")
         final Map<String, Object> headers = (Map<String, Object>) response.get(HEADERS);
-        Assert.assertNotNull("headers should be in the response", headers);
-        Assert.assertFalse(headers.isEmpty());
+        Assertions.assertNotNull(headers, "headers should be in the response");
+        Assertions.assertFalse(headers.isEmpty());
 
         final String returnedBody = (String) response.get(BODY);
-        Assert.assertNotNull("body should be in the response", returnedBody);
-        Assert.assertEquals("Body should be echoed", body, returnedBody);
+        Assertions.assertNotNull(returnedBody, "body should be in the response");
+        Assertions.assertEquals(body, returnedBody, "Body should be echoed");
 
     }
 
@@ -217,7 +217,7 @@ public class TestClassicTestClientTestingAdapter {
             public void handle(final ClassicHttpRequest request, final ClassicHttpResponse response, final HttpContext context)
                     throws HttpException, IOException {
                 try {
-                    Assert.assertEquals("method not expected", "junk", request.getMethod());
+                    Assertions.assertEquals("method not expected", "junk", request.getMethod());
                 } catch (final Throwable t) {
                     thrown = t;
                 }
@@ -247,7 +247,7 @@ public class TestClassicTestClientTestingAdapter {
         final Map<String, Object> request = new HashMap<>();
         final Map<String, Object> returnedRequest = adapter.modifyRequest(request);
 
-        Assert.assertSame("Same request was not returned as expected.", request, returnedRequest);
+        Assertions.assertSame(request, returnedRequest, "Same request was not returned as expected.");
     }
 
     @Test
@@ -257,7 +257,7 @@ public class TestClassicTestClientTestingAdapter {
         final Map<String, Object> responseExpectations = new HashMap<>();
         final Map<String, Object> returnedResponseExpectations = adapter.modifyResponseExpectations(null, responseExpectations);
 
-        Assert.assertSame("Same response expectations were not returned as expected.", responseExpectations, returnedResponseExpectations);
+        Assertions.assertSame(responseExpectations, returnedResponseExpectations, "Same response expectations were not returned as expected.");
     }
 
 }

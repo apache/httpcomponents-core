@@ -29,9 +29,9 @@ package org.apache.hc.core5.http.io;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 @SuppressWarnings({"boxing","static-access"}) // test code
@@ -41,7 +41,7 @@ public class TestEofSensorInputStream {
     private EofSensorWatcher eofwatcher;
     private EofSensorInputStream eofstream;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         inStream = Mockito.mock(InputStream.class);
         eofwatcher = Mockito.mock(EofSensorWatcher.class);
@@ -54,8 +54,8 @@ public class TestEofSensorInputStream {
 
         eofstream.close();
 
-        Assert.assertTrue(eofstream.isSelfClosed());
-        Assert.assertNull(eofstream.getWrappedStream());
+        Assertions.assertTrue(eofstream.isSelfClosed());
+        Assertions.assertNull(eofstream.getWrappedStream());
 
         Mockito.verify(inStream, Mockito.times(1)).close();
         Mockito.verify(eofwatcher).streamClosed(inStream);
@@ -67,9 +67,9 @@ public class TestEofSensorInputStream {
     public void testCloseIOError() throws Exception {
         Mockito.when(eofwatcher.streamClosed(Mockito.any())).thenThrow(new IOException());
 
-        Assert.assertThrows(IOException.class, () -> eofstream.close());
-        Assert.assertTrue(eofstream.isSelfClosed());
-        Assert.assertNull(eofstream.getWrappedStream());
+        Assertions.assertThrows(IOException.class, () -> eofstream.close());
+        Assertions.assertTrue(eofstream.isSelfClosed());
+        Assertions.assertNull(eofstream.getWrappedStream());
 
         Mockito.verify(eofwatcher).streamClosed(inStream);
     }
@@ -80,8 +80,8 @@ public class TestEofSensorInputStream {
 
         eofstream.close();
 
-        Assert.assertTrue(eofstream.isSelfClosed());
-        Assert.assertNull(eofstream.getWrappedStream());
+        Assertions.assertTrue(eofstream.isSelfClosed());
+        Assertions.assertNull(eofstream.getWrappedStream());
 
         Mockito.verify(inStream, Mockito.times(1)).close();
         Mockito.verify(eofwatcher).streamClosed(inStream);
@@ -95,8 +95,8 @@ public class TestEofSensorInputStream {
 
         eofstream.abort();
 
-        Assert.assertTrue(eofstream.isSelfClosed());
-        Assert.assertNull(eofstream.getWrappedStream());
+        Assertions.assertTrue(eofstream.isSelfClosed());
+        Assertions.assertNull(eofstream.getWrappedStream());
 
         Mockito.verify(inStream, Mockito.times(1)).close();
         Mockito.verify(eofwatcher).streamAbort(inStream);
@@ -108,9 +108,9 @@ public class TestEofSensorInputStream {
     public void testAbortConnectionIOError() throws Exception {
         Mockito.when(eofwatcher.streamAbort(Mockito.any())).thenThrow(new IOException());
 
-        Assert.assertThrows(IOException.class, () -> eofstream.abort());
-        Assert.assertTrue(eofstream.isSelfClosed());
-        Assert.assertNull(eofstream.getWrappedStream());
+        Assertions.assertThrows(IOException.class, () -> eofstream.abort());
+        Assertions.assertTrue(eofstream.isSelfClosed());
+        Assertions.assertNull(eofstream.getWrappedStream());
 
         Mockito.verify(eofwatcher).streamAbort(inStream);
     }
@@ -120,22 +120,22 @@ public class TestEofSensorInputStream {
         Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
         Mockito.when(inStream.read()).thenReturn(0, -1);
 
-        Assert.assertEquals(0, eofstream.read());
+        Assertions.assertEquals(0, eofstream.read());
 
-        Assert.assertFalse(eofstream.isSelfClosed());
-        Assert.assertNotNull(eofstream.getWrappedStream());
+        Assertions.assertFalse(eofstream.isSelfClosed());
+        Assertions.assertNotNull(eofstream.getWrappedStream());
 
         Mockito.verify(eofwatcher, Mockito.never()).eofDetected(inStream);
 
-        Assert.assertEquals(-1, eofstream.read());
+        Assertions.assertEquals(-1, eofstream.read());
 
-        Assert.assertFalse(eofstream.isSelfClosed());
-        Assert.assertNull(eofstream.getWrappedStream());
+        Assertions.assertFalse(eofstream.isSelfClosed());
+        Assertions.assertNull(eofstream.getWrappedStream());
 
         Mockito.verify(inStream, Mockito.times(1)).close();
         Mockito.verify(eofwatcher).eofDetected(inStream);
 
-        Assert.assertEquals(-1, eofstream.read());
+        Assertions.assertEquals(-1, eofstream.read());
     }
 
     @Test
@@ -143,9 +143,9 @@ public class TestEofSensorInputStream {
         Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
         Mockito.when(inStream.read()).thenThrow(new IOException());
 
-        Assert.assertThrows(IOException.class, () -> eofstream.read());
-        Assert.assertFalse(eofstream.isSelfClosed());
-        Assert.assertNull(eofstream.getWrappedStream());
+        Assertions.assertThrows(IOException.class, () -> eofstream.read());
+        Assertions.assertFalse(eofstream.isSelfClosed());
+        Assertions.assertNull(eofstream.getWrappedStream());
 
         Mockito.verify(eofwatcher).streamAbort(inStream);
     }
@@ -158,22 +158,22 @@ public class TestEofSensorInputStream {
 
         final byte[] tmp = new byte[1];
 
-        Assert.assertEquals(1, eofstream.read(tmp));
+        Assertions.assertEquals(1, eofstream.read(tmp));
 
-        Assert.assertFalse(eofstream.isSelfClosed());
-        Assert.assertNotNull(eofstream.getWrappedStream());
+        Assertions.assertFalse(eofstream.isSelfClosed());
+        Assertions.assertNotNull(eofstream.getWrappedStream());
 
         Mockito.verify(eofwatcher, Mockito.never()).eofDetected(inStream);
 
-        Assert.assertEquals(-1, eofstream.read(tmp));
+        Assertions.assertEquals(-1, eofstream.read(tmp));
 
-        Assert.assertFalse(eofstream.isSelfClosed());
-        Assert.assertNull(eofstream.getWrappedStream());
+        Assertions.assertFalse(eofstream.isSelfClosed());
+        Assertions.assertNull(eofstream.getWrappedStream());
 
         Mockito.verify(inStream, Mockito.times(1)).close();
         Mockito.verify(eofwatcher).eofDetected(inStream);
 
-        Assert.assertEquals(-1, eofstream.read(tmp));
+        Assertions.assertEquals(-1, eofstream.read(tmp));
     }
 
     @Test
@@ -183,9 +183,9 @@ public class TestEofSensorInputStream {
             .thenThrow(new IOException());
 
         final byte[] tmp = new byte[1];
-        Assert.assertThrows(IOException.class, () -> eofstream.read(tmp));
-        Assert.assertFalse(eofstream.isSelfClosed());
-        Assert.assertNull(eofstream.getWrappedStream());
+        Assertions.assertThrows(IOException.class, () -> eofstream.read(tmp));
+        Assertions.assertFalse(eofstream.isSelfClosed());
+        Assertions.assertNull(eofstream.getWrappedStream());
 
         Mockito.verify(eofwatcher).streamAbort(inStream);
     }
@@ -196,9 +196,9 @@ public class TestEofSensorInputStream {
 
         eofstream.abort();
 
-        Assert.assertThrows(IOException.class, () -> eofstream.read());
+        Assertions.assertThrows(IOException.class, () -> eofstream.read());
         final byte[] tmp = new byte[1];
-        Assert.assertThrows(IOException.class, () -> eofstream.read(tmp));
+        Assertions.assertThrows(IOException.class, () -> eofstream.read(tmp));
     }
 
 }

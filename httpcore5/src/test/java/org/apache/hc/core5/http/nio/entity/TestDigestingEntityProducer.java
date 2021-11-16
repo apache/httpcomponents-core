@@ -34,8 +34,8 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestDigestingEntityProducer {
 
@@ -51,15 +51,15 @@ public class TestDigestingEntityProducer {
             producer.produce(dataStreamChannel);
         }
 
-        Assert.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
         final List<Header> trailers = dataStreamChannel.getTrailers();
-        Assert.assertNotNull(trailers);
-        Assert.assertEquals(2, trailers.size());
+        Assertions.assertNotNull(trailers);
+        Assertions.assertEquals(2, trailers.size());
 
-        Assert.assertEquals("digest-algo", trailers.get(0).getName());
-        Assert.assertEquals("MD5", trailers.get(0).getValue());
-        Assert.assertEquals("digest", trailers.get(1).getName());
-        Assert.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", trailers.get(1).getValue());
+        Assertions.assertEquals("digest-algo", trailers.get(0).getName());
+        Assertions.assertEquals("MD5", trailers.get(0).getValue());
+        Assertions.assertEquals("digest", trailers.get(1).getName());
+        Assertions.assertEquals("827ccb0eea8a706c4c34a16891f84e7b", trailers.get(1).getValue());
     }
 
 }

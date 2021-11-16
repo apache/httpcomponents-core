@@ -32,8 +32,8 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.config.H2Param;
 import org.apache.hc.core5.http2.config.H2Setting;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestDefaultFrameFactory {
 
@@ -45,9 +45,9 @@ public class TestDefaultFrameFactory {
         final byte[] data = new byte[]{'a', 'b', 'c', 'd', 'e', 'f'};
         final Frame<ByteBuffer> dataFrame = frameFactory.createData(23, ByteBuffer.wrap(data), true);
 
-        Assert.assertEquals(FrameType.DATA.value, dataFrame.getType());
-        Assert.assertEquals(23, dataFrame.getStreamId());
-        Assert.assertEquals(1L, dataFrame.getFlags());
+        Assertions.assertEquals(FrameType.DATA.value, dataFrame.getType());
+        Assertions.assertEquals(23, dataFrame.getStreamId());
+        Assertions.assertEquals(1L, dataFrame.getFlags());
     }
 
     @Test
@@ -58,12 +58,12 @@ public class TestDefaultFrameFactory {
                 new H2Setting(H2Param.HEADER_TABLE_SIZE, 1024),
                 new H2Setting(H2Param.MAX_CONCURRENT_STREAMS, 1));
 
-        Assert.assertEquals(FrameType.SETTINGS.value, settingsFrame.getType());
-        Assert.assertEquals(0, settingsFrame.getStreamId());
-        Assert.assertEquals(0, settingsFrame.getFlags());
+        Assertions.assertEquals(FrameType.SETTINGS.value, settingsFrame.getType());
+        Assertions.assertEquals(0, settingsFrame.getStreamId());
+        Assertions.assertEquals(0, settingsFrame.getFlags());
         final ByteBuffer payload = settingsFrame.getPayload();
-        Assert.assertNotNull(payload);
-        Assert.assertEquals(12, payload.remaining());
+        Assertions.assertNotNull(payload);
+        Assertions.assertEquals(12, payload.remaining());
     }
 
     @Test
@@ -72,13 +72,13 @@ public class TestDefaultFrameFactory {
         final FrameFactory frameFactory = new DefaultFrameFactory();
         final Frame<ByteBuffer> rstStreamFrame = frameFactory.createResetStream(12, H2Error.INTERNAL_ERROR);
 
-        Assert.assertEquals(FrameType.RST_STREAM.value, rstStreamFrame.getType());
-        Assert.assertEquals(12, rstStreamFrame.getStreamId());
-        Assert.assertEquals(0, rstStreamFrame.getFlags());
+        Assertions.assertEquals(FrameType.RST_STREAM.value, rstStreamFrame.getType());
+        Assertions.assertEquals(12, rstStreamFrame.getStreamId());
+        Assertions.assertEquals(0, rstStreamFrame.getFlags());
         final ByteBuffer payload = rstStreamFrame.getPayload();
-        Assert.assertNotNull(payload);
-        Assert.assertEquals(4, payload.remaining());
-        Assert.assertEquals(H2Error.INTERNAL_ERROR.getCode(), payload.getInt());
+        Assertions.assertNotNull(payload);
+        Assertions.assertEquals(4, payload.remaining());
+        Assertions.assertEquals(H2Error.INTERNAL_ERROR.getCode(), payload.getInt());
     }
 
     @Test
@@ -87,16 +87,16 @@ public class TestDefaultFrameFactory {
         final FrameFactory frameFactory = new DefaultFrameFactory();
         final Frame<ByteBuffer> goAwayFrame = frameFactory.createGoAway(13, H2Error.INTERNAL_ERROR, "Oopsie");
 
-        Assert.assertEquals(FrameType.GOAWAY.value, goAwayFrame.getType());
-        Assert.assertEquals(0, goAwayFrame.getStreamId());
-        Assert.assertEquals(0, goAwayFrame.getFlags());
+        Assertions.assertEquals(FrameType.GOAWAY.value, goAwayFrame.getType());
+        Assertions.assertEquals(0, goAwayFrame.getStreamId());
+        Assertions.assertEquals(0, goAwayFrame.getFlags());
         final ByteBuffer payload = goAwayFrame.getPayload();
-        Assert.assertNotNull(payload);
-        Assert.assertEquals(13, payload.getInt());
-        Assert.assertEquals(H2Error.INTERNAL_ERROR.getCode(), payload.getInt());
+        Assertions.assertNotNull(payload);
+        Assertions.assertEquals(13, payload.getInt());
+        Assertions.assertEquals(H2Error.INTERNAL_ERROR.getCode(), payload.getInt());
         final byte[] tmp = new byte[payload.remaining()];
         payload.get(tmp);
-        Assert.assertEquals("Oopsie", new String(tmp, StandardCharsets.US_ASCII));
+        Assertions.assertEquals("Oopsie", new String(tmp, StandardCharsets.US_ASCII));
     }
 
 }

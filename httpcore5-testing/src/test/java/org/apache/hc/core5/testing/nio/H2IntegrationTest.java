@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -120,17 +122,18 @@ import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
+@EnableRuleMigrationSupport
 public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -152,7 +155,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     private H2TestClient client;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         log.debug("Starting up test client");
         client = new H2TestClient(buildReactorConfig(),
@@ -163,7 +166,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         return IOReactorConfig.DEFAULT;
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         log.debug("Shutting down test client");
         if (client != null) {
@@ -199,12 +202,12 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.assertNotNull(result);
+            Assertions.assertNotNull(result);
             final HttpResponse response = result.getHead();
             final String entity = result.getBody();
-            Assert.assertNotNull(response);
-            Assert.assertEquals(200, response.getCode());
-            Assert.assertEquals("Hi there", entity);
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertEquals("Hi there", entity);
         }
     }
 
@@ -223,11 +226,11 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                     new BasicRequestProducer(Method.HEAD, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.assertNotNull(result);
+            Assertions.assertNotNull(result);
             final HttpResponse response1 = result.getHead();
-            Assert.assertNotNull(response1);
-            Assert.assertEquals(200, response1.getCode());
-            Assert.assertNull(result.getBody());
+            Assertions.assertNotNull(response1);
+            Assertions.assertEquals(200, response1.getCode());
+            Assertions.assertNull(result.getBody());
         }
     }
 
@@ -250,27 +253,27 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer(512)), null);
 
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(200, response1.getCode());
         final String s1 = result1.getBody();
-        Assert.assertNotNull(s1);
+        Assertions.assertNotNull(s1);
         final StringTokenizer t1 = new StringTokenizer(s1, "\r\n");
         while (t1.hasMoreTokens()) {
-            Assert.assertEquals("0123456789abcdef", t1.nextToken());
+            Assertions.assertEquals("0123456789abcdef", t1.nextToken());
         }
 
         final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result2);
+        Assertions.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
-        Assert.assertNotNull(response2);
-        Assert.assertEquals(200, response2.getCode());
+        Assertions.assertNotNull(response2);
+        Assertions.assertEquals(200, response2.getCode());
         final String s2 = result2.getBody();
-        Assert.assertNotNull(s2);
+        Assertions.assertNotNull(s2);
         final StringTokenizer t2 = new StringTokenizer(s2, "\r\n");
         while (t2.hasMoreTokens()) {
-            Assert.assertEquals("0123456789abcdef", t2.nextToken());
+            Assertions.assertEquals("0123456789abcdef", t2.nextToken());
         }
     }
 
@@ -295,12 +298,12 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, String>> future = queue.remove();
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.assertNotNull(result);
+            Assertions.assertNotNull(result);
             final HttpResponse response = result.getHead();
             final String entity1 = result.getBody();
-            Assert.assertNotNull(response);
-            Assert.assertEquals(200, response.getCode());
-            Assert.assertEquals("Hi back", entity1);
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(200, response.getCode());
+            Assertions.assertEquals("Hi back", entity1);
         }
     }
 
@@ -319,15 +322,15 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                         new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(200, response1.getCode());
         final String s1 = result1.getBody();
-        Assert.assertNotNull(s1);
+        Assertions.assertNotNull(s1);
         final StringTokenizer t1 = new StringTokenizer(s1, "\r\n");
         while (t1.hasMoreTokens()) {
-            Assert.assertEquals("0123456789abcdef", t1.nextToken());
+            Assertions.assertEquals("0123456789abcdef", t1.nextToken());
         }
     }
 
@@ -368,15 +371,15 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 null);
 
         final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(200, response1.getCode());
         final String s1 = result1.getBody();
-        Assert.assertNotNull(s1);
+        Assertions.assertNotNull(s1);
         final StringTokenizer t1 = new StringTokenizer(s1, "\r\n");
         while (t1.hasMoreTokens()) {
-            Assert.assertEquals("0123456789abcd", t1.nextToken());
+            Assertions.assertEquals("0123456789abcd", t1.nextToken());
         }
     }
 
@@ -414,15 +417,15 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 }),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(200, response1.getCode());
         final String s1 = result1.getBody();
-        Assert.assertNotNull(s1);
+        Assertions.assertNotNull(s1);
         final StringTokenizer t1 = new StringTokenizer(s1, "\r\n");
         while (t1.hasMoreTokens()) {
-            Assert.assertEquals("0123456789abcdef", t1.nextToken());
+            Assertions.assertEquals("0123456789abcdef", t1.nextToken());
         }
     }
 
@@ -490,15 +493,15 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcd", 2000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(LONG_TIMEOUT.getDuration(), LONG_TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(200, response1.getCode());
         final String s1 = result1.getBody();
-        Assert.assertNotNull(s1);
+        Assertions.assertNotNull(s1);
         final StringTokenizer t1 = new StringTokenizer(s1, "\r\n");
         while (t1.hasMoreTokens()) {
-            Assert.assertEquals("0123456789abcd", t1.nextToken());
+            Assertions.assertEquals("0123456789abcd", t1.nextToken());
         }
     }
 
@@ -551,22 +554,22 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 null,
                 null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         final String entity1 = result1.getBody();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
-        Assert.assertEquals("Hi there", entity1);
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(200, response1.getCode());
+        Assertions.assertEquals("Hi there", entity1);
 
         final Message<HttpResponse, String> result2 = pushMessageQueue.poll(5, TimeUnit.SECONDS);
-        Assert.assertNotNull(result2);
+        Assertions.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
         final String entity2 = result2.getBody();
-        Assert.assertEquals(200, response2.getCode());
-        Assert.assertNotNull(entity2);
+        Assertions.assertEquals(200, response2.getCode());
+        Assertions.assertNotNull(entity2);
         final StringTokenizer t1 = new StringTokenizer(entity2, "\r\n");
         while (t1.hasMoreTokens()) {
-            Assert.assertEquals("Pushing lots of stuff", t1.nextToken());
+            Assertions.assertEquals("Pushing lots of stuff", t1.nextToken());
         }
     }
 
@@ -627,22 +630,22 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
         final String entity1 = result1.getBody();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
-        Assert.assertEquals("Hi there", entity1);
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(200, response1.getCode());
+        Assertions.assertEquals("Hi there", entity1);
 
         final Object result2 = pushResultQueue.poll(5, TimeUnit.SECONDS);
-        Assert.assertNotNull(result2);
-        Assert.assertTrue(result2 instanceof H2StreamResetException);
-        Assert.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result2).getCode());
+        Assertions.assertNotNull(result2);
+        Assertions.assertTrue(result2 instanceof H2StreamResetException);
+        Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result2).getCode());
 
         final Object result3 = pushResultQueue.poll(5, TimeUnit.SECONDS);
-        Assert.assertNotNull(result3);
-        Assert.assertTrue(result3 instanceof H2StreamResetException);
-        Assert.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result3).getCode());
+        Assertions.assertNotNull(result3);
+        Assertions.assertTrue(result3 instanceof H2StreamResetException);
+        Assertions.assertEquals(H2Error.REFUSED_STREAM.getCode(), ((H2StreamResetException) result3).getCode());
     }
 
     @Test
@@ -667,10 +670,10 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         while (!queue.isEmpty()) {
             final Future<Message<HttpResponse, Void>> future = queue.remove();
             final Message<HttpResponse, Void> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.assertNotNull(result);
+            Assertions.assertNotNull(result);
             final HttpResponse response = result.getHead();
-            Assert.assertNotNull(response);
-            Assert.assertEquals(200, response.getCode());
+            Assertions.assertNotNull(response);
+            Assertions.assertEquals(200, response.getCode());
         }
     }
 
@@ -711,22 +714,22 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
-        Assert.assertNotNull("All is well", result1.getBody());
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(200, response1.getCode());
+        Assertions.assertNotNull("All is well", result1.getBody());
 
         final HttpRequest request2 = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/echo"));
         final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
                 new BasicRequestProducer(request2, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result2);
+        Assertions.assertNotNull(result2);
         final HttpResponse response2 = result2.getHead();
-        Assert.assertNotNull(response2);
-        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response2.getCode());
-        Assert.assertNotNull("You shall not pass", result2.getBody());
+        Assertions.assertNotNull(response2);
+        Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response2.getCode());
+        Assertions.assertNotNull("You shall not pass", result2.getBody());
     }
 
     @Test
@@ -804,11 +807,11 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 new BasicRequestProducer(request1, new MultiLineEntityProducer("0123456789abcdef", 5000)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
-        Assert.assertNotNull("You shall not pass", result1.getBody());
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
+        Assertions.assertNotNull("You shall not pass", result1.getBody());
     }
 
     @Test
@@ -848,22 +851,22 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(entityConsumer), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(200, response1.getCode());
-        Assert.assertEquals("Hello back with some trailers", result1.getBody());
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(200, response1.getCode());
+        Assertions.assertEquals("Hello back with some trailers", result1.getBody());
 
         final List<Header> trailers = entityConsumer.getTrailers();
-        Assert.assertNotNull(trailers);
-        Assert.assertEquals(2, trailers.size());
+        Assertions.assertNotNull(trailers);
+        Assertions.assertEquals(2, trailers.size());
         final Map<String, String> map = new HashMap<>();
         for (final Header header: trailers) {
             map.put(TextUtils.toLowerCase(header.getName()), header.getValue());
         }
         final String digest = TextUtils.toHexString(entityConsumer.getDigest());
-        Assert.assertEquals("MD5", map.get("digest-algo"));
-        Assert.assertEquals(digest, map.get("digest"));
+        Assertions.assertEquals("MD5", map.get("digest-algo"));
+        Assertions.assertEquals(digest, map.get("digest"));
     }
 
     @Test
@@ -891,8 +894,8 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
             })), Command.Priority.NORMAL);
 
         }
-        Assert.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals(n, count.get());
+        Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals(n, count.get());
     }
 
     @Test
@@ -913,12 +916,12 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                     new BasicRequestProducer(request, null),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                     coreContext, null);
-        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
                 future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        MatcherAssert.assertThat(exception.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
+        assertThat(exception.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
 
         final EndpointDetails endpointDetails = coreContext.getEndpointDetails();
-        MatcherAssert.assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
+        assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
     }
 
     @Test
@@ -940,11 +943,11 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 new BasicRequestProducer(request1, null),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(431, response1.getCode());
-        Assert.assertEquals("Maximum header list size exceeded", result1.getBody());
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(431, response1.getCode());
+        Assertions.assertEquals("Maximum header list size exceeded", result1.getBody());
     }
 
     @Test
@@ -974,11 +977,11 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 new BasicRequestProducer(request1, AsyncEntityProducers.create(b, ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
         final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assert.assertNotNull(result1);
+        Assertions.assertNotNull(result1);
         final HttpResponse response1 = result1.getHead();
-        Assert.assertNotNull(response1);
-        Assert.assertEquals(431, response1.getCode());
-        Assert.assertEquals("Maximum header list size exceeded", result1.getBody());
+        Assertions.assertNotNull(response1);
+        Assertions.assertEquals(431, response1.getCode());
+        Assertions.assertEquals("Maximum header list size exceeded", result1.getBody());
     }
 
 }

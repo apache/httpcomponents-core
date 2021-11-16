@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestUriPatternOrderedMatcher {
 
@@ -39,13 +39,13 @@ public class TestUriPatternOrderedMatcher {
         final Object h3 = new Object();
 
         final UriPatternOrderedMatcher<Object> matcher = new UriPatternOrderedMatcher<>();
-        Assert.assertEquals(0, matcher.entrySet().size());
+        Assertions.assertEquals(0, matcher.entrySet().size());
         matcher.register("/h1", h1);
-        Assert.assertEquals(1, matcher.entrySet().size());
+        Assertions.assertEquals(1, matcher.entrySet().size());
         matcher.register("/h2", h2);
-        Assert.assertEquals(2, matcher.entrySet().size());
+        Assertions.assertEquals(2, matcher.entrySet().size());
         matcher.register("/h3", h3);
-        Assert.assertEquals(3, matcher.entrySet().size());
+        Assertions.assertEquals(3, matcher.entrySet().size());
     }
 
     @Test
@@ -62,24 +62,24 @@ public class TestUriPatternOrderedMatcher {
         Object h;
 
         h = matcher.lookup("/h1");
-        Assert.assertNotNull(h);
-        Assert.assertSame(h1, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(h1, h);
         h = matcher.lookup("/h2");
-        Assert.assertNotNull(h);
-        Assert.assertSame(h2, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(h2, h);
         h = matcher.lookup("/h3");
-        Assert.assertNotNull(h);
-        Assert.assertSame(h3, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(h3, h);
 
         matcher.unregister("/h1");
         h = matcher.lookup("/h1");
-        Assert.assertNull(h);
+        Assertions.assertNull(h);
     }
 
     @Test
     public void testRegisterNull() throws Exception {
         final LookupRegistry<Object> matcher = new UriPatternOrderedMatcher<>();
-        Assert.assertThrows(NullPointerException.class, () ->
+        Assertions.assertThrows(NullPointerException.class, () ->
                 matcher.register(null, null));
     }
 
@@ -99,20 +99,20 @@ public class TestUriPatternOrderedMatcher {
         Object h;
 
         h = matcher.lookup("/one/request");
-        Assert.assertNotNull(h);
-        Assert.assertSame(def, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(def, h);
 
         h = matcher.lookup("/one/two/request");
-        Assert.assertNotNull(h);
-        Assert.assertSame(def, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(def, h);
 
         h = matcher.lookup("/one/two/three/request");
-        Assert.assertNotNull(h);
-        Assert.assertSame(def, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(def, h);
 
         h = matcher.lookup("default/request");
-        Assert.assertNotNull(h);
-        Assert.assertSame(def, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(def, h);
     }
 
     @Test
@@ -129,16 +129,16 @@ public class TestUriPatternOrderedMatcher {
         Object h;
 
         h = matcher.lookup("/that.view");
-        Assert.assertNotNull(h);
-        Assert.assertSame(def, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(def, h);
 
         h = matcher.lookup("/that.form");
-        Assert.assertNotNull(h);
-        Assert.assertSame(def, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(def, h);
 
         h = matcher.lookup("/whatever");
-        Assert.assertNotNull(h);
-        Assert.assertSame(def, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(def, h);
     }
 
     @Test
@@ -151,21 +151,21 @@ public class TestUriPatternOrderedMatcher {
         matcher.register("*tch", h2);
 
         final Object h = matcher.lookup("/match");
-        Assert.assertNotNull(h);
-        Assert.assertSame(h1, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(h1, h);
     }
 
     @Test
     public void testRegisterInvalidInput() throws Exception {
         final LookupRegistry<Object> matcher = new UriPatternOrderedMatcher<>();
-        Assert.assertThrows(NullPointerException.class, () ->
+        Assertions.assertThrows(NullPointerException.class, () ->
                 matcher.register(null, null));
     }
 
     @Test
     public void testLookupInvalidInput() throws Exception {
         final LookupRegistry<Object> matcher = new UriPatternOrderedMatcher<>();
-        Assert.assertThrows(NullPointerException.class, () ->
+        Assertions.assertThrows(NullPointerException.class, () ->
                 matcher.lookup(null));
     }
 
@@ -179,8 +179,8 @@ public class TestUriPatternOrderedMatcher {
         matcher.register("*", h2);
 
         final Object h = matcher.lookup("exact");
-        Assert.assertNotNull(h);
-        Assert.assertSame(h1, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(h1, h);
     }
 
     @Test
@@ -193,8 +193,8 @@ public class TestUriPatternOrderedMatcher {
         matcher.register("exact", h2);
 
         final Object h = matcher.lookup("exact");
-        Assert.assertNotNull(h);
-        Assert.assertSame(h1, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(h1, h);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class TestUriPatternOrderedMatcher {
         matcher.register("*", h2);
 
         final Object h = matcher.lookup("exact");
-        Assert.assertNotNull(h);
-        Assert.assertSame(h1, h);
+        Assertions.assertNotNull(h);
+        Assertions.assertSame(h1, h);
     }
 }

@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.util;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link TextUtils}.
@@ -38,33 +38,33 @@ public class TestTextUtils {
 
     @Test
     public void testTextEmpty() {
-        Assert.assertTrue(TextUtils.isEmpty(null));
-        Assert.assertTrue(TextUtils.isEmpty(""));
-        Assert.assertFalse(TextUtils.isEmpty("\t"));
+        Assertions.assertTrue(TextUtils.isEmpty(null));
+        Assertions.assertTrue(TextUtils.isEmpty(""));
+        Assertions.assertFalse(TextUtils.isEmpty("\t"));
     }
 
     @Test
     public void testTextBlank() {
-        Assert.assertTrue(TextUtils.isBlank(null));
-        Assert.assertTrue(TextUtils.isBlank(""));
-        Assert.assertTrue(TextUtils.isBlank("   "));
-        Assert.assertTrue(TextUtils.isBlank("\t"));
+        Assertions.assertTrue(TextUtils.isBlank(null));
+        Assertions.assertTrue(TextUtils.isBlank(""));
+        Assertions.assertTrue(TextUtils.isBlank("   "));
+        Assertions.assertTrue(TextUtils.isBlank("\t"));
     }
 
     @Test
     public void testTextContainsBlanks() {
-        Assert.assertFalse(TextUtils.containsBlanks(null));
-        Assert.assertFalse(TextUtils.containsBlanks(""));
-        Assert.assertTrue(TextUtils.containsBlanks("   "));
-        Assert.assertTrue(TextUtils.containsBlanks("\t"));
-        Assert.assertTrue(TextUtils.containsBlanks(" a"));
-        Assert.assertFalse(TextUtils.containsBlanks("a"));
+        Assertions.assertFalse(TextUtils.containsBlanks(null));
+        Assertions.assertFalse(TextUtils.containsBlanks(""));
+        Assertions.assertTrue(TextUtils.containsBlanks("   "));
+        Assertions.assertTrue(TextUtils.containsBlanks("\t"));
+        Assertions.assertTrue(TextUtils.containsBlanks(" a"));
+        Assertions.assertFalse(TextUtils.containsBlanks("a"));
     }
 
     @Test
     public void testToHexString() {
-        Assert.assertEquals("000c2001ff", TextUtils.toHexString(new byte[] { 0, 12, 32, 1 , -1}));
-        Assert.assertNull(TextUtils.toHexString(null));
+        Assertions.assertEquals("000c2001ff", TextUtils.toHexString(new byte[] { 0, 12, 32, 1 , -1}));
+        Assertions.assertNull(TextUtils.toHexString(null));
     }
 
 }

@@ -36,8 +36,8 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.RequestHeaderFieldsTooLargeException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link DefaultHttpRequestParser}.
@@ -58,10 +58,10 @@ public class TestRequestParser {
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
         final ClassicHttpRequest httprequest = parser.parse(inBuffer, inputStream);
 
-        Assert.assertEquals(Method.GET.name(), httprequest.getMethod());
-        Assert.assertEquals("/", httprequest.getPath());
+        Assertions.assertEquals(Method.GET.name(), httprequest.getMethod());
+        Assertions.assertEquals("/", httprequest.getPath());
         final Header[] headers = httprequest.getHeaders();
-        Assert.assertEquals(3, headers.length);
+        Assertions.assertEquals(3, headers.length);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class TestRequestParser {
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser();
         final ClassicHttpRequest request = parser.parse(inBuffer, inputStream);
-        Assert.assertNull(request);
+        Assertions.assertNull(request);
     }
 
     @Test
@@ -89,10 +89,10 @@ public class TestRequestParser {
                 Http1Config.custom().setMaxEmptyLineCount(3).build());
         final ClassicHttpRequest httprequest = parser.parse(inBuffer, inputStream);
 
-        Assert.assertEquals(Method.GET.name(), httprequest.getMethod());
-        Assert.assertEquals("/", httprequest.getPath());
+        Assertions.assertEquals(Method.GET.name(), httprequest.getMethod());
+        Assertions.assertEquals("/", httprequest.getPath());
         final Header[] headers = httprequest.getHeaders();
-        Assert.assertEquals(1, headers.length);
+        Assertions.assertEquals(1, headers.length);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class TestRequestParser {
 
         final DefaultHttpRequestParser parser = new DefaultHttpRequestParser(
                 Http1Config.custom().setMaxEmptyLineCount(3).build());
-        Assert.assertThrows(RequestHeaderFieldsTooLargeException.class, () ->
+        Assertions.assertThrows(RequestHeaderFieldsTooLargeException.class, () ->
                 parser.parse(inBuffer, inputStream));
     }
 
@@ -138,13 +138,13 @@ public class TestRequestParser {
             }
 
         }
-        Assert.assertNotNull(httprequest);
-        Assert.assertEquals(5, timeoutCount);
+        Assertions.assertNotNull(httprequest);
+        Assertions.assertEquals(5, timeoutCount);
 
-        Assert.assertEquals(Method.GET.name(), httprequest.getMethod());
-        Assert.assertEquals("/", httprequest.getPath());
+        Assertions.assertEquals(Method.GET.name(), httprequest.getMethod());
+        Assertions.assertEquals("/", httprequest.getPath());
         final Header[] headers = httprequest.getHeaders();
-        Assert.assertEquals(3, headers.length);
+        Assertions.assertEquals(3, headers.length);
     }
 
 }

@@ -33,7 +33,6 @@ import java.util.List;
 import org.apache.hc.core5.util.LangUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.hamcrest.Factory;
 import org.hamcrest.Matcher;
 
 public class NameValuePairListMatcher extends BaseMatcher<List<NameValuePair>> {
@@ -72,12 +71,10 @@ public class NameValuePairListMatcher extends BaseMatcher<List<NameValuePair>> {
         description.appendText("equals ").appendValueList("[", ";", "]", nvps);
     }
 
-    @Factory
     public static Matcher<List<NameValuePair>> equalsTo(final NameValuePair... nvps) {
         return new NameValuePairListMatcher(Arrays.asList(nvps));
     }
 
-    @Factory
     public static Matcher<List<NameValuePair>> isEmpty() {
         return new NameValuePairListMatcher(Collections.emptyList());
     }

@@ -42,8 +42,8 @@ import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestChunkCoding {
 
@@ -64,21 +64,21 @@ public class TestChunkCoding {
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
-        Assert.assertEquals(-1, in.read(buffer));
-        Assert.assertEquals(-1, in.read(buffer));
+        Assertions.assertEquals(-1, in.read(buffer));
+        Assertions.assertEquals(-1, in.read(buffer));
 
         in.close();
 
         final String result = new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
-        Assert.assertEquals(result, CHUNKED_RESULT);
+        Assertions.assertEquals(result, CHUNKED_RESULT);
 
         final Header[] footers = in.getFooters();
-        Assert.assertNotNull(footers);
-        Assert.assertEquals(2, footers.length);
-        Assert.assertEquals("Footer1", footers[0].getName());
-        Assert.assertEquals("abcde", footers[0].getValue());
-        Assert.assertEquals("Footer2", footers[1].getName());
-        Assert.assertEquals("fghij", footers[1].getValue());
+        Assertions.assertNotNull(footers);
+        Assertions.assertEquals(2, footers.length);
+        Assertions.assertEquals("Footer1", footers[0].getName());
+        Assertions.assertEquals("abcde", footers[0].getValue());
+        Assertions.assertEquals("Footer2", footers[1].getName());
+        Assertions.assertEquals("fghij", footers[1].getValue());
     }
 
     //Test for when buffer is smaller than chunk size.
@@ -94,18 +94,18 @@ public class TestChunkCoding {
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
-        Assert.assertEquals(-1, in.read(buffer));
-        Assert.assertEquals(-1, in.read(buffer));
+        Assertions.assertEquals(-1, in.read(buffer));
+        Assertions.assertEquals(-1, in.read(buffer));
 
         in.close();
 
         final Header[] footers = in.getFooters();
-        Assert.assertNotNull(footers);
-        Assert.assertEquals(2, footers.length);
-        Assert.assertEquals("Footer1", footers[0].getName());
-        Assert.assertEquals("abcde", footers[0].getValue());
-        Assert.assertEquals("Footer2", footers[1].getName());
-        Assert.assertEquals("fghij", footers[1].getValue());
+        Assertions.assertNotNull(footers);
+        Assertions.assertEquals(2, footers.length);
+        Assertions.assertEquals("Footer1", footers[0].getName());
+        Assertions.assertEquals("abcde", footers[0].getValue());
+        Assertions.assertEquals("Footer2", footers[1].getName());
+        Assertions.assertEquals("fghij", footers[1].getValue());
     }
 
     // One byte read
@@ -118,11 +118,11 @@ public class TestChunkCoding {
         int ch;
         int i = '0';
         while ((ch = in.read()) != -1) {
-            Assert.assertEquals(i, ch);
+            Assertions.assertEquals(i, ch);
             i++;
         }
-        Assert.assertEquals(-1, in.read());
-        Assert.assertEquals(-1, in.read());
+        Assertions.assertEquals(-1, in.read());
+        Assertions.assertEquals(-1, in.read());
 
         in.close();
     }
@@ -133,9 +133,9 @@ public class TestChunkCoding {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        Assert.assertEquals(0, in.available());
+        Assertions.assertEquals(0, in.available());
         in.read();
-        Assert.assertEquals(4, in.available());
+        Assertions.assertEquals(4, in.available());
         in.close();
     }
 
@@ -147,10 +147,10 @@ public class TestChunkCoding {
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         in.close();
         in.close();
-        Assert.assertThrows(StreamClosedException.class, () -> in.read());
+        Assertions.assertThrows(StreamClosedException.class, () -> in.read());
         final byte[] tmp = new byte[10];
-        Assert.assertThrows(StreamClosedException.class, () -> in.read(tmp));
-        Assert.assertThrows(StreamClosedException.class, () -> in.read(tmp, 0, tmp.length));
+        Assertions.assertThrows(StreamClosedException.class, () -> in.read(tmp));
+        Assertions.assertThrows(StreamClosedException.class, () -> in.read(tmp, 0, tmp.length));
     }
 
     // Missing closing chunk
@@ -161,9 +161,9 @@ public class TestChunkCoding {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         final byte[] tmp = new byte[5];
-        Assert.assertEquals(5, in.read(tmp));
-        Assert.assertThrows(ConnectionClosedException.class, () -> in.read());
-        Assert.assertThrows(ConnectionClosedException.class, () -> in.close());
+        Assertions.assertEquals(5, in.read(tmp));
+        Assertions.assertThrows(ConnectionClosedException.class, () -> in.read());
+        Assertions.assertThrows(ConnectionClosedException.class, () -> in.close());
     }
 
     // Truncated stream (missing closing CRLF)
@@ -174,8 +174,8 @@ public class TestChunkCoding {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         final byte[] tmp = new byte[5];
-        Assert.assertEquals(5, in.read(tmp));
-        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read());
+        Assertions.assertEquals(5, in.read(tmp));
+        Assertions.assertThrows(MalformedChunkCodingException.class, () -> in.read());
         in.close();
     }
 
@@ -188,7 +188,7 @@ public class TestChunkCoding {
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         final byte[] buffer = new byte[300];
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        Assert.assertThrows(MalformedChunkCodingException.class, () -> {
+        Assertions.assertThrows(MalformedChunkCodingException.class, () -> {
             int len;
             while ((len = in.read(buffer)) > 0) {
                 out.write(buffer, 0, len);
@@ -204,7 +204,7 @@ public class TestChunkCoding {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        Assert.assertThrows(MalformedChunkCodingException.class, in::read);
+        Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
         in.close();
     }
 
@@ -215,7 +215,7 @@ public class TestChunkCoding {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        Assert.assertThrows(MalformedChunkCodingException.class, in::read);
+        Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
         in.close();
     }
 
@@ -226,7 +226,7 @@ public class TestChunkCoding {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        Assert.assertThrows(MalformedChunkCodingException.class, in::read);
+        Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
         in.close();
     }
 
@@ -238,8 +238,8 @@ public class TestChunkCoding {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         final byte[] buffer = new byte[300];
-        Assert.assertEquals(2, in.read(buffer));
-        Assert.assertThrows(MalformedChunkCodingException.class, () -> in.read(buffer));
+        Assertions.assertEquals(2, in.read(buffer));
+        Assertions.assertThrows(MalformedChunkCodingException.class, () -> in.read(buffer));
         in.close();
     }
 
@@ -251,7 +251,7 @@ public class TestChunkCoding {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         in.read();
-        Assert.assertThrows(MalformedChunkCodingException.class, in::read);
+        Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
         in.close();
     }
 
@@ -261,7 +261,7 @@ public class TestChunkCoding {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        Assert.assertThrows(MalformedChunkCodingException.class, in::read);
+        Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
     }
 
     @Test
@@ -276,7 +276,7 @@ public class TestChunkCoding {
         while ((len = in.read(buffer)) > 0) {
             out.write(buffer, 0, len);
         }
-        Assert.assertEquals(0, out.size());
+        Assertions.assertEquals(0, out.size());
         in.close();
     }
 
@@ -287,13 +287,13 @@ public class TestChunkCoding {
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in1 = new ChunkedInputStream(inBuffer1, inputStream1);
         final byte[] buffer = new byte[300];
-        Assert.assertEquals(5, in1.read(buffer));
+        Assertions.assertEquals(5, in1.read(buffer));
         in1.close();
 
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16, 10);
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
         final ChunkedInputStream in2 = new ChunkedInputStream(inBuffer2, inputStream2);
-        Assert.assertThrows(MessageConstraintException.class, () -> in2.read(buffer));
+        Assertions.assertThrows(MessageConstraintException.class, () -> in2.read(buffer));
     }
 
     @Test
@@ -303,8 +303,8 @@ public class TestChunkCoding {
         final ChunkedOutputStream out = new ChunkedOutputStream(outbuffer, outputStream, 2048);
         out.close();
         out.close();
-        Assert.assertThrows(IOException.class, () -> out.write(new byte[] {1,2,3}));
-        Assert.assertThrows(IOException.class, () -> out.write(1));
+        Assertions.assertThrows(IOException.class, () -> out.write(new byte[] {1,2,3}));
+        Assertions.assertThrows(IOException.class, () -> out.write(1));
     }
 
     @Test
@@ -329,7 +329,7 @@ public class TestChunkCoding {
         }
 
         final String output = new String(result.toByteArray(), StandardCharsets.ISO_8859_1);
-        Assert.assertEquals(input, output);
+        Assertions.assertEquals(input, output);
         in.close();
     }
 
@@ -346,7 +346,7 @@ public class TestChunkCoding {
         out.close();
 
         final String content = new String(outputStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assert.assertEquals("1\r\nx\r\n0\r\nE: \r\nY: Z\r\n\r\n", content);
+        Assertions.assertEquals("1\r\nx\r\n0\r\nE: \r\nY: Z\r\n\r\n", content);
     }
 
     @Test
@@ -362,7 +362,7 @@ public class TestChunkCoding {
         out.close();
 
         final String content = new String(outputStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assert.assertEquals("2\r\n12\r\n2\r\n34\r\n0\r\n\r\n", content);
+        Assertions.assertEquals("2\r\n12\r\n2\r\n34\r\n0\r\n\r\n", content);
     }
 
     @Test
@@ -375,7 +375,7 @@ public class TestChunkCoding {
         out.close();
 
         final String content = new String(outputStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assert.assertEquals("4\r\n1234\r\n0\r\n\r\n", content);
+        Assertions.assertEquals("4\r\n1234\r\n0\r\n\r\n", content);
     }
 
     @Test
@@ -388,7 +388,7 @@ public class TestChunkCoding {
         out.close();
 
         final String content = new String(outputStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assert.assertEquals("1\r\n1\r\n0\r\n\r\n", content);
+        Assertions.assertEquals("1\r\n1\r\n0\r\n\r\n", content);
     }
 
     @Test
@@ -414,8 +414,8 @@ public class TestChunkCoding {
                 timeouts++;
             }
         }
-        Assert.assertEquals(20, bytesRead);
-        Assert.assertEquals(2, timeouts);
+        Assertions.assertEquals(20, bytesRead);
+        Assertions.assertEquals(2, timeouts);
         in.close();
 }
 
@@ -442,8 +442,8 @@ public class TestChunkCoding {
                 timeouts++;
             }
         }
-        Assert.assertEquals(20, bytesRead);
-        Assert.assertEquals(5, timeouts);
+        Assertions.assertEquals(20, bytesRead);
+        Assertions.assertEquals(5, timeouts);
         in.close();
     }
 
@@ -462,7 +462,7 @@ public class TestChunkCoding {
         }
 
         final String result = new String(out.toByteArray(), StandardCharsets.ISO_8859_1);
-        Assert.assertEquals("01234567", result);
+        Assertions.assertEquals("01234567", result);
     }
 
 }

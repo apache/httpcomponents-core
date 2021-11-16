@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Simple tests for various HTTP exception classes.
@@ -58,32 +58,32 @@ public class TestHttpExceptions {
 
     @Test
     public void testNonPrintableCharactersInConnectionClosedException() {
-        Assert.assertEquals(CLEAN_MESSAGE, new ConnectionClosedException(nonPrintableMessage).getMessage());
+        Assertions.assertEquals(CLEAN_MESSAGE, new ConnectionClosedException(nonPrintableMessage).getMessage());
     }
 
     @Test
     public void testNonPrintableCharactersInHttpException() {
-        Assert.assertEquals(CLEAN_MESSAGE, new HttpException(nonPrintableMessage).getMessage());
+        Assertions.assertEquals(CLEAN_MESSAGE, new HttpException(nonPrintableMessage).getMessage());
     }
 
     @Test
     public void testNonPrintableCharactersInMethodNotSupportedException() {
-        Assert.assertEquals(CLEAN_MESSAGE, new MethodNotSupportedException(nonPrintableMessage).getMessage());
+        Assertions.assertEquals(CLEAN_MESSAGE, new MethodNotSupportedException(nonPrintableMessage).getMessage());
     }
 
     @Test
     public void testNonPrintableCharactersInNoHttpResponseException() {
-        Assert.assertEquals(CLEAN_MESSAGE, new NoHttpResponseException(nonPrintableMessage).getMessage());
+        Assertions.assertEquals(CLEAN_MESSAGE, new NoHttpResponseException(nonPrintableMessage).getMessage());
     }
 
     @Test
     public void testNonPrintableCharactersInProtocolException() {
-        Assert.assertEquals(CLEAN_MESSAGE, new ProtocolException(nonPrintableMessage).getMessage());
+        Assertions.assertEquals(CLEAN_MESSAGE, new ProtocolException(nonPrintableMessage).getMessage());
     }
 
     @Test
     public void testNonPrintableCharactersInUnsupportedHttpVersionException() {
-        Assert.assertEquals(CLEAN_MESSAGE, new UnsupportedHttpVersionException(nonPrintableMessage).getMessage());
+        Assertions.assertEquals(CLEAN_MESSAGE, new UnsupportedHttpVersionException(nonPrintableMessage).getMessage());
     }
 
 }

@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http.ssl;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link TlsCiphers}.
@@ -46,7 +46,7 @@ public class TestTlsCiphers {
                 "TLS_RSA_WITH_AES_256_GCM_SHA384"
         };
         for (final String cipherSuite : strongCipherSuites) {
-            Assert.assertFalse(TlsCiphers.isWeak(cipherSuite));
+            Assertions.assertFalse(TlsCiphers.isWeak(cipherSuite));
         }
     }
 
@@ -70,7 +70,7 @@ public class TestTlsCiphers {
                 "SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5"
         };
         for (final String cipherSuite : weakCiphersSuites) {
-            Assert.assertTrue(TlsCiphers.isWeak(cipherSuite));
+            Assertions.assertTrue(TlsCiphers.isWeak(cipherSuite));
         }
     }
 

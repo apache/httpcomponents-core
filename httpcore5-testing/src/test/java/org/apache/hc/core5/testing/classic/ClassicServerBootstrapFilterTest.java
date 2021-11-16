@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.testing.classic;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.IOException;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -49,13 +51,14 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@EnableRuleMigrationSupport
 public class ClassicServerBootstrapFilterTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
@@ -150,9 +153,9 @@ public class ClassicServerBootstrapFilterTest {
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/filters");
         request.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response = requester.execute(target, request, TIMEOUT, context)) {
-            MatcherAssert.assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final Header testFilterHeader = response.getHeader("X-Test-Filter");
-            MatcherAssert.assertThat(testFilterHeader, CoreMatchers.notNullValue());
+            assertThat(testFilterHeader, CoreMatchers.notNullValue());
         }
     }
 

@@ -32,8 +32,8 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.ContentType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link BasicHttpEntity}.
@@ -46,16 +46,16 @@ public class TestBasicHttpEntity {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity httpentity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length, null);
 
-        Assert.assertEquals(bytes.length, httpentity.getContentLength());
-        Assert.assertFalse(httpentity.isRepeatable());
-        Assert.assertTrue(httpentity.isStreaming());
+        Assertions.assertEquals(bytes.length, httpentity.getContentLength());
+        Assertions.assertFalse(httpentity.isRepeatable());
+        Assertions.assertTrue(httpentity.isStreaming());
     }
 
     @Test
     public void testToString() throws Exception {
         final BasicHttpEntity httpentity = new BasicHttpEntity(EmptyInputStream.INSTANCE, 10,
                 ContentType.parseLenient("blah"), "yada", true);
-        Assert.assertEquals("[Entity-Class: BasicHttpEntity, Content-Type: blah, Content-Encoding: yada, chunked: true]",
+        Assertions.assertEquals("[Entity-Class: BasicHttpEntity, Content-Type: blah, Content-Encoding: yada, chunked: true]",
                 httpentity.toString());
     }
 
@@ -68,10 +68,10 @@ public class TestBasicHttpEntity {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         final byte[] bytes2 = out.toByteArray();
-        Assert.assertNotNull(bytes2);
-        Assert.assertEquals(bytes.length, bytes2.length);
+        Assertions.assertNotNull(bytes2);
+        Assertions.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            Assert.assertEquals(bytes[i], bytes2[i]);
+            Assertions.assertEquals(bytes[i], bytes2[i]);
         }
     }
 

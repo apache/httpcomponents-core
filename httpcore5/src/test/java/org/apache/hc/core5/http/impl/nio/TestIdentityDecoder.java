@@ -38,9 +38,9 @@ import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.ReadableByteChannelMock;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Simple tests for {@link LengthDelimitedDecoder}.
@@ -54,7 +54,7 @@ public class TestIdentityDecoder {
         return this.tmpfile;
     }
 
-    @After
+    @AfterEach
     public void deleteTempFile() {
         if (this.tmpfile != null && this.tmpfile.exists()) {
             this.tmpfile.delete();
@@ -73,31 +73,31 @@ public class TestIdentityDecoder {
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
-        Assert.assertEquals(6, bytesRead);
-        Assert.assertEquals("stuff;", CodecTestUtils.convert(dst));
-        Assert.assertFalse(decoder.isCompleted());
-        Assert.assertEquals(6, metrics.getBytesTransferred());
+        Assertions.assertEquals(6, bytesRead);
+        Assertions.assertEquals("stuff;", CodecTestUtils.convert(dst));
+        Assertions.assertFalse(decoder.isCompleted());
+        Assertions.assertEquals(6, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(10, bytesRead);
-        Assert.assertEquals("more stuff", CodecTestUtils.convert(dst));
-        Assert.assertFalse(decoder.isCompleted());
-        Assert.assertEquals(16, metrics.getBytesTransferred());
+        Assertions.assertEquals(10, bytesRead);
+        Assertions.assertEquals("more stuff", CodecTestUtils.convert(dst));
+        Assertions.assertFalse(decoder.isCompleted());
+        Assertions.assertEquals(16, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(-1, bytesRead);
-        Assert.assertTrue(decoder.isCompleted());
-        Assert.assertEquals(16, metrics.getBytesTransferred());
+        Assertions.assertEquals(-1, bytesRead);
+        Assertions.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals(16, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(-1, bytesRead);
-        Assert.assertTrue(decoder.isCompleted());
-        Assert.assertEquals(16, metrics.getBytesTransferred());
+        Assertions.assertEquals(-1, bytesRead);
+        Assertions.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals(16, metrics.getBytesTransferred());
 
-        Assert.assertEquals("[identity; completed: true]", decoder.toString());
+        Assertions.assertEquals("[identity; completed: true]", decoder.toString());
     }
 
     @Test
@@ -110,36 +110,36 @@ public class TestIdentityDecoder {
 
         inbuf.fill(channel);
 
-        Assert.assertEquals(6, inbuf.length());
+        Assertions.assertEquals(6, inbuf.length());
 
         final IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
 
         final ByteBuffer dst = ByteBuffer.allocate(1024);
 
         int bytesRead = decoder.read(dst);
-        Assert.assertEquals(6, bytesRead);
-        Assert.assertEquals("stuff;", CodecTestUtils.convert(dst));
-        Assert.assertFalse(decoder.isCompleted());
-        Assert.assertEquals(0, metrics.getBytesTransferred()); // doesn't count if from session buffer
+        Assertions.assertEquals(6, bytesRead);
+        Assertions.assertEquals("stuff;", CodecTestUtils.convert(dst));
+        Assertions.assertFalse(decoder.isCompleted());
+        Assertions.assertEquals(0, metrics.getBytesTransferred()); // doesn't count if from session buffer
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(10, bytesRead);
-        Assert.assertEquals("more stuff", CodecTestUtils.convert(dst));
-        Assert.assertFalse(decoder.isCompleted());
-        Assert.assertEquals(10, metrics.getBytesTransferred());
+        Assertions.assertEquals(10, bytesRead);
+        Assertions.assertEquals("more stuff", CodecTestUtils.convert(dst));
+        Assertions.assertFalse(decoder.isCompleted());
+        Assertions.assertEquals(10, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(-1, bytesRead);
-        Assert.assertTrue(decoder.isCompleted());
-        Assert.assertEquals(10, metrics.getBytesTransferred());
+        Assertions.assertEquals(-1, bytesRead);
+        Assertions.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals(10, metrics.getBytesTransferred());
 
         dst.clear();
         bytesRead = decoder.read(dst);
-        Assert.assertEquals(-1, bytesRead);
-        Assert.assertTrue(decoder.isCompleted());
-        Assert.assertEquals(10, metrics.getBytesTransferred());
+        Assertions.assertEquals(-1, bytesRead);
+        Assertions.assertTrue(decoder.isCompleted());
+        Assertions.assertEquals(10, metrics.getBytesTransferred());
 
     }
 
@@ -164,9 +164,9 @@ public class TestIdentityDecoder {
                 }
             }
 
-            Assert.assertEquals(testfile.length(), metrics.getBytesTransferred());
+            Assertions.assertEquals(testfile.length(), metrics.getBytesTransferred());
         }
-        Assert.assertEquals("stuff; more stuff; a lot more stuff!",
+        Assertions.assertEquals("stuff; more stuff; a lot more stuff!",
             CodecTestUtils.readFromFile(this.tmpfile));
     }
 
@@ -181,7 +181,7 @@ public class TestIdentityDecoder {
                 channel, inbuf, metrics);
 
         final int i = inbuf.fill(channel);
-        Assert.assertEquals(7, i);
+        Assertions.assertEquals(7, i);
 
         createTempFile();
         try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
@@ -195,9 +195,9 @@ public class TestIdentityDecoder {
             }
 
             // count everything except the initial 7 bytes that went to the session buffer
-            Assert.assertEquals(testfile.length() - 7, metrics.getBytesTransferred());
+            Assertions.assertEquals(testfile.length() - 7, metrics.getBytesTransferred());
         }
-        Assert.assertEquals("stuff; more stuff; a lot more stuff!",
+        Assertions.assertEquals("stuff; more stuff; a lot more stuff!",
             CodecTestUtils.readFromFile(this.tmpfile));
     }
 
@@ -212,7 +212,7 @@ public class TestIdentityDecoder {
                 channel, inbuf, metrics);
 
         final int i = inbuf.fill(channel);
-        Assert.assertEquals(7, i);
+        Assertions.assertEquals(7, i);
 
         final byte[] beginning = "beginning; ".getBytes(StandardCharsets.US_ASCII);
 
@@ -239,12 +239,12 @@ public class TestIdentityDecoder {
             }
 
             // count everything except the initial 7 bytes that went to the session buffer
-            Assert.assertEquals(testfile.length() - 7 - beginning.length, metrics.getBytesTransferred());
+            Assertions.assertEquals(testfile.length() - 7 - beginning.length, metrics.getBytesTransferred());
         } finally {
             testfile.close();
         }
 
-        Assert.assertEquals("beginning; stuff; more stuff; a lot more stuff!",
+        Assertions.assertEquals("beginning; stuff; more stuff; a lot more stuff!",
             CodecTestUtils.readFromFile(this.tmpfile));
     }
 
@@ -258,7 +258,7 @@ public class TestIdentityDecoder {
         final IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
 
         final int i = inbuf.fill(channel);
-        Assert.assertEquals(19, i);
+        Assertions.assertEquals(19, i);
 
         createTempFile();
         try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
@@ -267,48 +267,48 @@ public class TestIdentityDecoder {
 
             // transferred from buffer
             long bytesRead = decoder.transfer(fchannel, pos, 1);
-            Assert.assertEquals(1, bytesRead);
-            Assert.assertFalse(decoder.isCompleted());
-            Assert.assertEquals(0, metrics.getBytesTransferred());
+            Assertions.assertEquals(1, bytesRead);
+            Assertions.assertFalse(decoder.isCompleted());
+            Assertions.assertEquals(0, metrics.getBytesTransferred());
             pos += bytesRead;
 
             bytesRead = decoder.transfer(fchannel, pos, 2);
-            Assert.assertEquals(2, bytesRead);
-            Assert.assertFalse(decoder.isCompleted());
-            Assert.assertEquals(0, metrics.getBytesTransferred());
+            Assertions.assertEquals(2, bytesRead);
+            Assertions.assertFalse(decoder.isCompleted());
+            Assertions.assertEquals(0, metrics.getBytesTransferred());
             pos += bytesRead;
 
             bytesRead = decoder.transfer(fchannel, pos, 17);
-            Assert.assertEquals(16, bytesRead);
-            Assert.assertFalse(decoder.isCompleted());
-            Assert.assertEquals(0, metrics.getBytesTransferred());
+            Assertions.assertEquals(16, bytesRead);
+            Assertions.assertFalse(decoder.isCompleted());
+            Assertions.assertEquals(0, metrics.getBytesTransferred());
             pos += bytesRead;
 
             // transferred from channel
             bytesRead = decoder.transfer(fchannel, pos, 1);
-            Assert.assertEquals(1, bytesRead);
-            Assert.assertFalse(decoder.isCompleted());
-            Assert.assertEquals(1, metrics.getBytesTransferred());
+            Assertions.assertEquals(1, bytesRead);
+            Assertions.assertFalse(decoder.isCompleted());
+            Assertions.assertEquals(1, metrics.getBytesTransferred());
             pos += bytesRead;
 
             bytesRead = decoder.transfer(fchannel, pos, 2);
-            Assert.assertEquals(2, bytesRead);
-            Assert.assertFalse(decoder.isCompleted());
-            Assert.assertEquals(3, metrics.getBytesTransferred());
+            Assertions.assertEquals(2, bytesRead);
+            Assertions.assertFalse(decoder.isCompleted());
+            Assertions.assertEquals(3, metrics.getBytesTransferred());
             pos += bytesRead;
 
             bytesRead = decoder.transfer(fchannel, pos, 15);
-            Assert.assertEquals(14, bytesRead);
-            Assert.assertFalse(decoder.isCompleted());
-            Assert.assertEquals(17, metrics.getBytesTransferred());
+            Assertions.assertEquals(14, bytesRead);
+            Assertions.assertFalse(decoder.isCompleted());
+            Assertions.assertEquals(17, metrics.getBytesTransferred());
             pos += bytesRead;
 
             bytesRead = decoder.transfer(fchannel, pos, 1);
-            Assert.assertEquals(-1, bytesRead);
-            Assert.assertTrue(decoder.isCompleted());
-            Assert.assertEquals(17, metrics.getBytesTransferred());
+            Assertions.assertEquals(-1, bytesRead);
+            Assertions.assertTrue(decoder.isCompleted());
+            Assertions.assertEquals(17, metrics.getBytesTransferred());
         }
-        Assert.assertEquals("stuff; more stuff; a lot more stuff!",
+        Assertions.assertEquals("stuff; more stuff; a lot more stuff!",
                 CodecTestUtils.readFromFile(this.tmpfile));
     }
 
@@ -324,9 +324,9 @@ public class TestIdentityDecoder {
 
         createTempFile();
         try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
-            Assert.assertEquals(0, testfile.length());
+            Assertions.assertEquals(0, testfile.length());
             final FileChannel fchannel = testfile.getChannel();
-            Assert.assertThrows(IOException.class, () -> decoder.transfer(fchannel, 5, 10));
+            Assertions.assertThrows(IOException.class, () -> decoder.transfer(fchannel, 5, 10));
         }
     }
 
@@ -336,9 +336,9 @@ public class TestIdentityDecoder {
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.US_ASCII);
-        Assert.assertThrows(NullPointerException.class, () -> new IdentityDecoder(null, null, null));
-        Assert.assertThrows(NullPointerException.class, () -> new IdentityDecoder(channel, null, null));
-        Assert.assertThrows(NullPointerException.class, () -> new IdentityDecoder(channel, inbuf, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new IdentityDecoder(null, null, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new IdentityDecoder(channel, null, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new IdentityDecoder(channel, inbuf, null));
     }
 
     @Test
@@ -351,7 +351,7 @@ public class TestIdentityDecoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final IdentityDecoder decoder = new IdentityDecoder(channel, inbuf, metrics);
 
-        Assert.assertThrows(NullPointerException.class, () -> decoder.read(null));
+        Assertions.assertThrows(NullPointerException.class, () -> decoder.read(null));
     }
 
 }

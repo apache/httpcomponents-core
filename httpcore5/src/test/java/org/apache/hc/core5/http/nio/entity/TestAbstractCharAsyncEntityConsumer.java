@@ -37,8 +37,8 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestAbstractCharAsyncEntityConsumer {
 
@@ -106,11 +106,11 @@ public class TestAbstractCharAsyncEntityConsumer {
         consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
         consumer.consume(ByteBuffer.wrap(new byte[]{}));
 
-        Assert.assertNull(consumer.getContent());
+        Assertions.assertNull(consumer.getContent());
         consumer.streamEnd(null);
 
-        Assert.assertEquals("12345", consumer.getContent());
-        Assert.assertEquals(1L, count.longValue());
+        Assertions.assertEquals("12345", consumer.getContent());
+        Assertions.assertEquals(1L, count.longValue());
     }
 
 }

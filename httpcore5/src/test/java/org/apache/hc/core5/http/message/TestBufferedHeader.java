@@ -34,8 +34,8 @@ import java.io.ObjectOutputStream;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link BufferedHeader}.
@@ -48,10 +48,10 @@ public class TestBufferedHeader {
         final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
         final BufferedHeader header = new BufferedHeader(buf, false);
-        Assert.assertEquals("name", header.getName());
-        Assert.assertEquals("value", header.getValue());
-        Assert.assertSame(buf, header.getBuffer());
-        Assert.assertEquals(5, header.getValuePos());
+        Assertions.assertEquals("name", header.getName());
+        Assertions.assertEquals("value", header.getValue());
+        Assertions.assertSame(buf, header.getBuffer());
+        Assertions.assertEquals(5, header.getValuePos());
     }
 
     @Test
@@ -67,8 +67,8 @@ public class TestBufferedHeader {
         final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
         final BufferedHeader clone = (BufferedHeader) inStream.readObject();
-        Assert.assertEquals(orig.getName(), clone.getName());
-        Assert.assertEquals(orig.getValue(), clone.getValue());
+        Assertions.assertEquals(orig.getName(), clone.getName());
+        Assertions.assertEquals(orig.getValue(), clone.getValue());
     }
 
     @Test
@@ -76,25 +76,25 @@ public class TestBufferedHeader {
         final CharArrayBuffer buf = new CharArrayBuffer(16);
         buf.clear();
         buf.append("");
-        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append("blah");
-        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append(":");
-        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append("   :");
-        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append(": blah");
-        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append(" : blah");
-        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
+        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, false));
         buf.clear();
         buf.append("header : blah");
-        Assert.assertThrows(ParseException.class, () -> new BufferedHeader(buf, true));
+        Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, true));
     }
 
 }
