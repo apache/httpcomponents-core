@@ -33,8 +33,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestSerializableEntity {
 
@@ -59,10 +59,10 @@ public class TestSerializableEntity {
 
         final SerializableEntity httpentity = new SerializableEntity(serializableObj, null);
 
-        Assert.assertEquals(-1, httpentity.getContentLength());
-        Assert.assertNotNull(httpentity.getContent());
-        Assert.assertTrue(httpentity.isRepeatable());
-        Assert.assertFalse(httpentity.isStreaming());
+        Assertions.assertEquals(-1, httpentity.getContentLength());
+        Assertions.assertNotNull(httpentity.getContent());
+        Assertions.assertTrue(httpentity.isRepeatable());
+        Assertions.assertFalse(httpentity.isStreaming());
     }
 
     @Test
@@ -73,14 +73,14 @@ public class TestSerializableEntity {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         final byte[] bytes = out.toByteArray();
-        Assert.assertNotNull(bytes);
+        Assertions.assertNotNull(bytes);
         final ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(
                 bytes));
         final SerializableObject serIn = (SerializableObject) oin.readObject();
-        Assert.assertEquals(4, serIn.intValue);
-        Assert.assertEquals("Hello", serIn.stringValue);
+        Assertions.assertEquals(4, serIn.intValue);
+        Assertions.assertEquals("Hello", serIn.stringValue);
 
-        Assert.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
+        Assertions.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
     }
 
 }

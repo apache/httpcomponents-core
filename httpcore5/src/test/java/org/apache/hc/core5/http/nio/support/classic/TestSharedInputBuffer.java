@@ -38,8 +38,8 @@ import java.util.concurrent.Future;
 
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -53,7 +53,7 @@ public class TestSharedInputBuffer {
         final Charset charset = StandardCharsets.US_ASCII;
         final SharedInputBuffer inputBuffer = new SharedInputBuffer(10);
         inputBuffer.fill(charset.encode("1234567890"));
-        Assert.assertEquals(10, inputBuffer.length());
+        Assertions.assertEquals(10, inputBuffer.length());
 
         final CapacityChannel capacityChannel = Mockito.mock(CapacityChannel.class);
 
@@ -62,26 +62,26 @@ public class TestSharedInputBuffer {
 
         inputBuffer.fill(charset.encode("1234567890"));
         inputBuffer.fill(charset.encode("1234567890"));
-        Assert.assertEquals(30, inputBuffer.length());
+        Assertions.assertEquals(30, inputBuffer.length());
 
         Mockito.verifyNoInteractions(capacityChannel);
 
         final byte[] tmp = new byte[20];
         final int bytesRead1 = inputBuffer.read(tmp, 0, tmp.length);
-        Assert.assertEquals(20, bytesRead1);
+        Assertions.assertEquals(20, bytesRead1);
         Mockito.verifyNoInteractions(capacityChannel);
 
         inputBuffer.markEndStream();
 
-        Assert.assertEquals('1', inputBuffer.read());
-        Assert.assertEquals('2', inputBuffer.read());
+        Assertions.assertEquals('1', inputBuffer.read());
+        Assertions.assertEquals('2', inputBuffer.read());
         final int bytesRead2 = inputBuffer.read(tmp, 0, tmp.length);
-        Assert.assertEquals(8, bytesRead2);
+        Assertions.assertEquals(8, bytesRead2);
         Mockito.verifyNoInteractions(capacityChannel);
-        Assert.assertEquals(-1, inputBuffer.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, inputBuffer.read(tmp, 0, tmp.length));
-        Assert.assertEquals(-1, inputBuffer.read());
-        Assert.assertEquals(-1, inputBuffer.read());
+        Assertions.assertEquals(-1, inputBuffer.read(tmp, 0, tmp.length));
+        Assertions.assertEquals(-1, inputBuffer.read(tmp, 0, tmp.length));
+        Assertions.assertEquals(-1, inputBuffer.read());
+        Assertions.assertEquals(-1, inputBuffer.read());
     }
 
     @Test
@@ -106,8 +106,8 @@ public class TestSharedInputBuffer {
             return inputBuffer.read(tmp, 0, tmp.length);
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals(Integer.valueOf(10), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals(Integer.valueOf(10), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Mockito.verify(capacityChannel).update(10);
     }
 
@@ -130,8 +130,8 @@ public class TestSharedInputBuffer {
         });
         final Future<Integer> task2 = executorService.submit((Callable<Integer>) inputBuffer::read);
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals(Integer.valueOf('a'), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals(Integer.valueOf('a'), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Mockito.verify(capacityChannel).update(10);
     }
 
@@ -168,8 +168,8 @@ public class TestSharedInputBuffer {
             return buf.toString();
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals("12345678901234567890123456789012345678901234567890",
+        Assertions.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals("12345678901234567890123456789012345678901234567890",
                 task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Mockito.verify(capacityChannel, Mockito.atLeast(1)).update(ArgumentMatchers.anyInt());
     }
@@ -193,8 +193,8 @@ public class TestSharedInputBuffer {
         });
         final Future<Integer> task2 = executorService.submit((Callable<Integer>) inputBuffer::read);
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals(Integer.valueOf(-1), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals(Integer.valueOf(-1), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Mockito.verify(capacityChannel, Mockito.never()).update(10);
     }
 

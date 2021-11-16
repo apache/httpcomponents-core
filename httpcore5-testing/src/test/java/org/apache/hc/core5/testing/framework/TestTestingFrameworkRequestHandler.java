@@ -33,8 +33,8 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.protocol.HttpContext;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestTestingFrameworkRequestHandler {
     @Test
@@ -64,9 +64,9 @@ public class TestTestingFrameworkRequestHandler {
         };
 
         handler.handle(null, null, null);
-        final TestingFrameworkException exception = Assert.assertThrows(TestingFrameworkException.class,
+        final TestingFrameworkException exception = Assertions.assertThrows(TestingFrameworkException.class,
                 () -> handler.assertNothingThrown());
-        Assert.assertEquals("Unexpected message", errorMessage, exception.getMessage());
+        Assertions.assertEquals(errorMessage, exception.getMessage(), "Unexpected message");
         // a second call should not throw
         handler.assertNothingThrown();
     }

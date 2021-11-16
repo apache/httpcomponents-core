@@ -27,27 +27,27 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestUriPatternType {
 
     @Test
     public void testRegex() {
         final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.REGEX);
-        Assert.assertTrue(matcher instanceof UriRegexMatcher);
+        Assertions.assertTrue(matcher instanceof UriRegexMatcher);
     }
 
     @Test
     public void testUriPattern() {
         final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.URI_PATTERN);
-        Assert.assertTrue(matcher instanceof UriPatternMatcher);
+        Assertions.assertTrue(matcher instanceof UriPatternMatcher);
     }
 
     @Test
     public void testUriPatternInOrder() {
         final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.URI_PATTERN_IN_ORDER);
-        Assert.assertTrue(matcher instanceof UriPatternOrderedMatcher);
+        Assertions.assertTrue(matcher instanceof UriPatternOrderedMatcher);
     }
 
 }

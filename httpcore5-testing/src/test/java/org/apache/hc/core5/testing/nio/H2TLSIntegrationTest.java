@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
@@ -64,12 +66,13 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExternalResource;
 
+@EnableRuleMigrationSupport
 public class H2TLSIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
@@ -156,16 +159,16 @@ public class H2TLSIntegrationTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message1, CoreMatchers.notNullValue());
+        assertThat(message1, CoreMatchers.notNullValue());
         final HttpResponse response1 = message1.getHead();
-        MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final String body1 = message1.getBody();
-        MatcherAssert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+        assertThat(body1, CoreMatchers.equalTo("some stuff"));
 
         final SSLSession sslSession = sslSessionRef.getAndSet(null);
         final ProtocolVersion tlsVersion = TLS.parse(sslSession.getProtocol());
-        MatcherAssert.assertThat(tlsVersion.greaterEquals(TLS.V_1_2.version), CoreMatchers.equalTo(true));
-        MatcherAssert.assertThat(sslSession.getPeerPrincipal().getName(),
+        assertThat(tlsVersion.greaterEquals(TLS.V_1_2.version), CoreMatchers.equalTo(true));
+        assertThat(sslSession.getPeerPrincipal().getName(),
                 CoreMatchers.equalTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation"));
     }
 
@@ -209,10 +212,10 @@ public class H2TLSIntegrationTest {
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
                 resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         final Throwable cause = exception.getCause();
-        MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(SSLHandshakeException.class));
+        assertThat(cause, CoreMatchers.instanceOf(SSLHandshakeException.class));
     }
 
     @Test
@@ -258,10 +261,10 @@ public class H2TLSIntegrationTest {
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
                 resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         final Throwable cause = exception.getCause();
-        MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
+        assertThat(cause, CoreMatchers.instanceOf(IOException.class));
     }
 
     @Test
@@ -307,10 +310,10 @@ public class H2TLSIntegrationTest {
                 new BasicRequestProducer(Method.POST, target, "/stuff",
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-        final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
                 resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         final Throwable cause = exception.getCause();
-        MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
+        assertThat(cause, CoreMatchers.instanceOf(IOException.class));
     }
 
     @Test
@@ -374,10 +377,10 @@ public class H2TLSIntegrationTest {
                         new BasicRequestProducer(Method.POST, target, "/stuff",
                                 new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
-                final ExecutionException exception = Assert.assertThrows(ExecutionException.class, () ->
+                final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
                         resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
                 final Throwable cause = exception.getCause();
-                MatcherAssert.assertThat(cause, CoreMatchers.instanceOf(IOException.class));
+                assertThat(cause, CoreMatchers.instanceOf(IOException.class));
             } finally {
                 server.close(CloseMode.IMMEDIATE);
             }

@@ -40,8 +40,8 @@ import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.STATUS;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestFrameworkTest {
     @Test
@@ -49,42 +49,37 @@ public class TestFrameworkTest {
         final FrameworkTest test = new FrameworkTest();
         final Map<String, Object> request = test.initRequest();
 
-        Assert.assertNotNull("request should not be null", request);
-        Assert.assertEquals("Default method should be GET", "GET", request.get(METHOD));
+        Assertions.assertNotNull(request, "request should not be null");
+        Assertions.assertEquals(request.get(METHOD), "GET", "Default method should be GET");
 
-        Assert.assertEquals("Default request body expected.",
-                TestingFramework.DEFAULT_REQUEST_BODY,
-                request.get(BODY));
+        Assertions.assertEquals(TestingFramework.DEFAULT_REQUEST_BODY,
+                request.get(BODY), "Default request body expected.");
 
-        Assert.assertEquals("Default request content type expected.",
-                TestingFramework.DEFAULT_REQUEST_CONTENT_TYPE,
-                request.get(CONTENT_TYPE));
+        Assertions.assertEquals(TestingFramework.DEFAULT_REQUEST_CONTENT_TYPE,
+                request.get(CONTENT_TYPE), "Default request content type expected.");
 
-        Assert.assertEquals("Default request query parameters expected.",
-                            TestingFramework.DEFAULT_REQUEST_QUERY,
-                            request.get(QUERY));
+        Assertions.assertEquals(TestingFramework.DEFAULT_REQUEST_QUERY,
+                            request.get(QUERY), "Default request query parameters expected.");
 
-        Assert.assertEquals("Default request headers expected.",
-                            TestingFramework.DEFAULT_REQUEST_HEADERS,
-                            request.get(HEADERS));
+        Assertions.assertEquals(TestingFramework.DEFAULT_REQUEST_HEADERS,
+                            request.get(HEADERS), "Default request headers expected.");
 
-        Assert.assertEquals("Default protocol version expected.",
-                TestingFramework.DEFAULT_REQUEST_PROTOCOL_VERSION,
-                request.get(PROTOCOL_VERSION));
+        Assertions.assertEquals(TestingFramework.DEFAULT_REQUEST_PROTOCOL_VERSION,
+                request.get(PROTOCOL_VERSION), "Default protocol version expected.");
 
         final Map<String, Object> responseExpectations = test.initResponseExpectations();
-        Assert.assertNotNull("responseExpectations should not be null", responseExpectations);
-        Assert.assertEquals("Default status expected.", TestingFramework.DEFAULT_RESPONSE_STATUS,
-                            responseExpectations.get(STATUS));
+        Assertions.assertNotNull(responseExpectations, "responseExpectations should not be null");
+        Assertions.assertEquals(TestingFramework.DEFAULT_RESPONSE_STATUS,
+                            responseExpectations.get(STATUS), "Default status expected.");
 
-        Assert.assertEquals("Default body expected.", TestingFramework.DEFAULT_RESPONSE_BODY,
-                            responseExpectations.get(BODY));
+        Assertions.assertEquals(TestingFramework.DEFAULT_RESPONSE_BODY,
+                            responseExpectations.get(BODY), "Default body expected.");
 
-        Assert.assertEquals("Default response content type expected.", TestingFramework.DEFAULT_RESPONSE_CONTENT_TYPE,
-                responseExpectations.get(CONTENT_TYPE));
+        Assertions.assertEquals(TestingFramework.DEFAULT_RESPONSE_CONTENT_TYPE,
+                responseExpectations.get(CONTENT_TYPE), "Default response content type expected.");
 
-        Assert.assertEquals("Default headers expected.", TestingFramework.DEFAULT_RESPONSE_HEADERS,
-                            responseExpectations.get(HEADERS));
+        Assertions.assertEquals(TestingFramework.DEFAULT_RESPONSE_HEADERS,
+                            responseExpectations.get(HEADERS), "Default headers expected.");
     }
 
     @Test
@@ -97,7 +92,7 @@ public class TestFrameworkTest {
         final FrameworkTest test = new FrameworkTest(testMap);
         final Map<String, Object> responseExpectations = test.initResponseExpectations();
 
-        Assert.assertEquals("Status unexpected.", 201, responseExpectations.get(STATUS));
+        Assertions.assertEquals(201, responseExpectations.get(STATUS), "Status unexpected.");
     }
 
     @Test
@@ -110,6 +105,6 @@ public class TestFrameworkTest {
         final FrameworkTest test = new FrameworkTest(testMap);
         final Map<String, Object> requestExpectations = test.initRequest();
 
-        Assert.assertEquals("Method unexpected.", "POST", requestExpectations.get(METHOD));
+        Assertions.assertEquals("POST", requestExpectations.get(METHOD), "Method unexpected.");
     }
 }

@@ -41,8 +41,8 @@ import io.reactivex.Observable;
 import io.reactivex.Single;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.CapacityChannel;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
@@ -72,11 +72,11 @@ public class TestReactiveDataConsumer {
         consumer.consume(ByteBuffer.wrap(new byte[]{ '3' }));
         consumer.streamEnd(null);
 
-        Assert.assertTrue("Stream did not finish before timeout", complete.await(1, TimeUnit.SECONDS));
-        Assert.assertEquals(3, output.size());
-        Assert.assertEquals(ByteBuffer.wrap(new byte[]{ '1' }), output.get(0));
-        Assert.assertEquals(ByteBuffer.wrap(new byte[]{ '2' }), output.get(1));
-        Assert.assertEquals(ByteBuffer.wrap(new byte[]{ '3' }), output.get(2));
+        Assertions.assertTrue(complete.await(1, TimeUnit.SECONDS), "Stream did not finish before timeout");
+        Assertions.assertEquals(3, output.size());
+        Assertions.assertEquals(ByteBuffer.wrap(new byte[]{ '1' }), output.get(0));
+        Assertions.assertEquals(ByteBuffer.wrap(new byte[]{ '2' }), output.get(1));
+        Assertions.assertEquals(ByteBuffer.wrap(new byte[]{ '3' }), output.get(2));
     }
 
     @Test
@@ -89,7 +89,7 @@ public class TestReactiveDataConsumer {
         final Exception ex = new RuntimeException();
         consumer.failed(ex);
 
-        Assert.assertSame(ex, single.blockingGet().get(0).getError());
+        Assertions.assertSame(ex, single.blockingGet().get(0).getError());
     }
 
     @Test
@@ -114,7 +114,7 @@ public class TestReactiveDataConsumer {
             }
         });
 
-        Assert.assertThrows(HttpStreamResetException.class, () ->
+        Assertions.assertThrows(HttpStreamResetException.class, () ->
             consumer.consume(ByteBuffer.wrap(new byte[1024])));
     }
 
@@ -126,7 +126,7 @@ public class TestReactiveDataConsumer {
         final AtomicInteger lastIncrement = new AtomicInteger(-1);
         final CapacityChannel channel = lastIncrement::set;
         consumer.updateCapacity(channel);
-        Assert.assertEquals("CapacityChannel#update should not have been invoked yet", -1, lastIncrement.get());
+        Assertions.assertEquals(-1, lastIncrement.get(), "CapacityChannel#update should not have been invoked yet");
 
         final AtomicInteger received = new AtomicInteger(0);
         final AtomicReference<Subscription> subscription = new AtomicReference<>();
@@ -156,13 +156,13 @@ public class TestReactiveDataConsumer {
         consumer.consume(data.duplicate());
 
         subscription.get().request(1);
-        Assert.assertEquals(1024, lastIncrement.get());
+        Assertions.assertEquals(1024, lastIncrement.get());
 
         subscription.get().request(2);
-        Assert.assertEquals(2 * 1024, lastIncrement.get());
+        Assertions.assertEquals(2 * 1024, lastIncrement.get());
 
         subscription.get().request(99);
-        Assert.assertEquals(1024, lastIncrement.get());
+        Assertions.assertEquals(1024, lastIncrement.get());
     }
 
     @Test
@@ -177,7 +177,7 @@ public class TestReactiveDataConsumer {
         consumer.consume(data.duplicate());
         consumer.streamEnd(null);
 
-        Assert.assertEquals(Flowable.fromPublisher(consumer).count().blockingGet().longValue(), 3L);
+        Assertions.assertEquals(Flowable.fromPublisher(consumer).count().blockingGet().longValue(), 3L);
     }
 
     @Test
@@ -195,7 +195,7 @@ public class TestReactiveDataConsumer {
             .materialize()
             .singleOrError()
             .blockingGet();
-        Assert.assertSame(ex, result.getError());
+        Assertions.assertSame(ex, result.getError());
     }
 
     @Test
@@ -214,7 +214,7 @@ public class TestReactiveDataConsumer {
                 .materialize()
                 .singleOrError()
                 .blockingGet();
-        Assert.assertFalse(result.isOnError());
-        Assert.assertTrue(result.isOnComplete());
+        Assertions.assertFalse(result.isOnError());
+        Assertions.assertTrue(result.isOnComplete());
     }
 }

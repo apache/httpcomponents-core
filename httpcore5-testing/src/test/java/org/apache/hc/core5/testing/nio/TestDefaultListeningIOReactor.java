@@ -44,10 +44,10 @@ import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Basic tests for {@link DefaultListeningIOReactor}.
@@ -89,7 +89,7 @@ public class TestDefaultListeningIOReactor {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         final IOReactorConfig reactorConfig = IOReactorConfig.custom()
                 .setIoThreadCount(1)
@@ -97,7 +97,7 @@ public class TestDefaultListeningIOReactor {
         this.ioReactor = new DefaultListeningIOReactor(new NoopIOEventHandlerFactory(), reactorConfig, null);
     }
 
-    @After
+    @AfterEach
     public void cleanup() throws Exception {
         if (this.ioReactor != null) {
             this.ioReactor.close(CloseMode.IMMEDIATE);
@@ -109,8 +109,8 @@ public class TestDefaultListeningIOReactor {
         ioReactor.start();
 
         Set<ListenerEndpoint> endpoints = ioReactor.getEndpoints();
-        Assert.assertNotNull(endpoints);
-        Assert.assertEquals(0, endpoints.size());
+        Assertions.assertNotNull(endpoints);
+        Assertions.assertEquals(0, endpoints.size());
 
         final Future<ListenerEndpoint> future1 = ioReactor.listen(new InetSocketAddress(0));
         final ListenerEndpoint endpoint1 = future1.get();
@@ -120,22 +120,22 @@ public class TestDefaultListeningIOReactor {
         final int port = ((InetSocketAddress) endpoint2.getAddress()).getPort();
 
         endpoints = ioReactor.getEndpoints();
-        Assert.assertNotNull(endpoints);
-        Assert.assertEquals(2, endpoints.size());
+        Assertions.assertNotNull(endpoints);
+        Assertions.assertEquals(2, endpoints.size());
 
         endpoint1.close();
 
         endpoints = ioReactor.getEndpoints();
-        Assert.assertNotNull(endpoints);
-        Assert.assertEquals(1, endpoints.size());
+        Assertions.assertNotNull(endpoints);
+        Assertions.assertEquals(1, endpoints.size());
 
         final ListenerEndpoint endpoint = endpoints.iterator().next();
 
-        Assert.assertEquals(port, ((InetSocketAddress) endpoint.getAddress()).getPort());
+        Assertions.assertEquals(port, ((InetSocketAddress) endpoint.getAddress()).getPort());
 
         ioReactor.close(CloseMode.GRACEFUL);
         ioReactor.awaitShutdown(TimeValue.ofSeconds(5));
-        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioReactor.getStatus());
+        Assertions.assertEquals(IOReactorStatus.SHUT_DOWN, ioReactor.getStatus());
     }
 
     @Test
@@ -147,11 +147,11 @@ public class TestDefaultListeningIOReactor {
         final int port = ((InetSocketAddress) endpoint1.getAddress()).getPort();
 
         final Future<ListenerEndpoint> future2 = ioReactor.listen(new InetSocketAddress(port));
-        Assert.assertThrows(ExecutionException.class, () -> future2.get());
+        Assertions.assertThrows(ExecutionException.class, () -> future2.get());
         ioReactor.close(CloseMode.GRACEFUL);
         ioReactor.awaitShutdown(TimeValue.ofSeconds(5));
 
-        Assert.assertEquals(IOReactorStatus.SHUT_DOWN, ioReactor.getStatus());
+        Assertions.assertEquals(IOReactorStatus.SHUT_DOWN, ioReactor.getStatus());
     }
 
 }

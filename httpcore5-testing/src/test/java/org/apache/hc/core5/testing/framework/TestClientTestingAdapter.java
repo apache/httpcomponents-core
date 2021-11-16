@@ -28,8 +28,8 @@ package org.apache.hc.core5.testing.framework;
 
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestClientTestingAdapter {
 
@@ -39,7 +39,7 @@ public class TestClientTestingAdapter {
 
         final ClientPOJOAdapter pojoAdapter = adapter.getClientPOJOAdapter();
 
-        Assert.assertNotNull("pojoAdapter should not be null", pojoAdapter);
+        Assertions.assertNotNull(pojoAdapter, "pojoAdapter should not be null");
     }
 
     @Test
@@ -47,7 +47,7 @@ public class TestClientTestingAdapter {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final Map<String, Object> request = null;
-        Assert.assertTrue("isRequestSupported should return true", adapter.isRequestSupported(request));
+        Assertions.assertTrue(adapter.isRequestSupported(request), "isRequestSupported should return true");
 
     }
 }

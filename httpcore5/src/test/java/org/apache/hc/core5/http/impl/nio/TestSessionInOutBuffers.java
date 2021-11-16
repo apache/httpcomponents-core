@@ -44,8 +44,8 @@ import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Simple tests for {@link SessionInputBuffer} and {@link SessionOutputBuffer}.
@@ -79,31 +79,31 @@ public class TestSessionInOutBuffers {
         final CharArrayBuffer line = new CharArrayBuffer(64);
 
         line.clear();
-        Assert.assertTrue(inbuf.readLine(line, false));
-        Assert.assertEquals("One", line.toString());
+        Assertions.assertTrue(inbuf.readLine(line, false));
+        Assertions.assertEquals("One", line.toString());
 
         line.clear();
-        Assert.assertTrue(inbuf.readLine(line, false));
-        Assert.assertEquals("Two", line.toString());
+        Assertions.assertTrue(inbuf.readLine(line, false));
+        Assertions.assertEquals("Two", line.toString());
 
         line.clear();
-        Assert.assertFalse(inbuf.readLine(line, false));
+        Assertions.assertFalse(inbuf.readLine(line, false));
 
         channel = newChannel("\r\nFour");
         inbuf.fill(channel);
 
         line.clear();
-        Assert.assertTrue(inbuf.readLine(line, false));
-        Assert.assertEquals("Three", line.toString());
+        Assertions.assertTrue(inbuf.readLine(line, false));
+        Assertions.assertEquals("Three", line.toString());
 
         inbuf.fill(channel);
 
         line.clear();
-        Assert.assertTrue(inbuf.readLine(line, true));
-        Assert.assertEquals("Four", line.toString());
+        Assertions.assertTrue(inbuf.readLine(line, true));
+        Assertions.assertEquals("Four", line.toString());
 
         line.clear();
-        Assert.assertFalse(inbuf.readLine(line, true));
+        Assertions.assertFalse(inbuf.readLine(line, true));
     }
 
     @Test
@@ -114,13 +114,13 @@ public class TestSessionInOutBuffers {
         final ReadableByteChannel channel1 = newChannel(s);
         inbuf1.fill(channel1);
 
-        Assert.assertTrue(inbuf1.readLine(line, false));
+        Assertions.assertTrue(inbuf1.readLine(line, false));
 
         line.clear();
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(128, 128, 10);
         final ReadableByteChannel channel2 = newChannel(s);
         inbuf2.fill(channel2);
-        Assert.assertThrows(MessageConstraintException.class, () -> inbuf2.readLine(line, false));
+        Assertions.assertThrows(MessageConstraintException.class, () -> inbuf2.readLine(line, false));
     }
 
     @Test
@@ -131,13 +131,13 @@ public class TestSessionInOutBuffers {
         final ReadableByteChannel channel1 = newChannel(s);
         inbuf1.fill(channel1);
 
-        Assert.assertFalse(inbuf1.readLine(line, false));
+        Assertions.assertFalse(inbuf1.readLine(line, false));
 
         line.clear();
         final SessionInputBuffer inbuf2 = new SessionInputBufferImpl(32, 32,10);
         final ReadableByteChannel channel2 = newChannel(s);
         inbuf2.fill(channel2);
-        Assert.assertThrows(MessageConstraintException.class, () -> inbuf2.readLine(line, false));
+        Assertions.assertThrows(MessageConstraintException.class, () -> inbuf2.readLine(line, false));
     }
 
     @Test
@@ -152,46 +152,46 @@ public class TestSessionInOutBuffers {
         final CharArrayBuffer line = new CharArrayBuffer(64);
 
         line.clear();
-        Assert.assertTrue(inbuf.readLine(line, false));
-        Assert.assertEquals("One", line.toString());
+        Assertions.assertTrue(inbuf.readLine(line, false));
+        Assertions.assertEquals("One", line.toString());
 
         outbuf.writeLine(line);
 
         line.clear();
-        Assert.assertTrue(inbuf.readLine(line, false));
-        Assert.assertEquals("Two", line.toString());
+        Assertions.assertTrue(inbuf.readLine(line, false));
+        Assertions.assertEquals("Two", line.toString());
 
         outbuf.writeLine(line);
 
         line.clear();
-        Assert.assertFalse(inbuf.readLine(line, false));
+        Assertions.assertFalse(inbuf.readLine(line, false));
 
         inChannel = newChannel("\r\nFour");
         inbuf.fill(inChannel);
 
         line.clear();
-        Assert.assertTrue(inbuf.readLine(line, false));
-        Assert.assertEquals("Three", line.toString());
+        Assertions.assertTrue(inbuf.readLine(line, false));
+        Assertions.assertEquals("Three", line.toString());
 
         outbuf.writeLine(line);
 
         inbuf.fill(inChannel);
 
         line.clear();
-        Assert.assertTrue(inbuf.readLine(line, true));
-        Assert.assertEquals("Four", line.toString());
+        Assertions.assertTrue(inbuf.readLine(line, true));
+        Assertions.assertEquals("Four", line.toString());
 
         outbuf.writeLine(line);
 
         line.clear();
-        Assert.assertFalse(inbuf.readLine(line, true));
+        Assertions.assertFalse(inbuf.readLine(line, true));
 
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         final WritableByteChannel outChannel = newChannel(outStream);
         outbuf.flush(outChannel);
 
         final String s = new String(outStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assert.assertEquals("One\r\nTwo\r\nThree\r\nFour\r\n", s);
+        Assertions.assertEquals("One\r\nTwo\r\nThree\r\nFour\r\n", s);
     }
 
     @Test
@@ -232,12 +232,12 @@ public class TestSessionInOutBuffers {
         for (final String teststr : teststrs) {
             chbuffer.clear();
             inbuf.readLine(chbuffer, true);
-            Assert.assertEquals(teststr, chbuffer.toString());
+            Assertions.assertEquals(teststr, chbuffer.toString());
         }
         chbuffer.clear();
-        Assert.assertFalse(inbuf.readLine(chbuffer, true));
+        Assertions.assertFalse(inbuf.readLine(chbuffer, true));
         chbuffer.clear();
-        Assert.assertFalse(inbuf.readLine(chbuffer, true));
+        Assertions.assertFalse(inbuf.readLine(chbuffer, true));
     }
 
     @Test
@@ -286,34 +286,34 @@ public class TestSessionInOutBuffers {
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         chbuffer.clear();
         inbuf.readLine(chbuffer, true);
-        Assert.assertEquals("a", chbuffer.toString());
+        Assertions.assertEquals("a", chbuffer.toString());
         chbuffer.clear();
         inbuf.readLine(chbuffer, true);
-        Assert.assertEquals("", chbuffer.toString());
+        Assertions.assertEquals("", chbuffer.toString());
         chbuffer.clear();
         inbuf.readLine(chbuffer, true);
-        Assert.assertEquals("\r", chbuffer.toString());
+        Assertions.assertEquals("\r", chbuffer.toString());
         chbuffer.clear();
         inbuf.readLine(chbuffer, true);
-        Assert.assertEquals("", chbuffer.toString());
+        Assertions.assertEquals("", chbuffer.toString());
         chbuffer.clear();
         inbuf.readLine(chbuffer, true);
-        Assert.assertEquals(s1, chbuffer.toString());
+        Assertions.assertEquals(s1, chbuffer.toString());
         chbuffer.clear();
         inbuf.readLine(chbuffer, true);
-        Assert.assertEquals(s2, chbuffer.toString());
+        Assertions.assertEquals(s2, chbuffer.toString());
         chbuffer.clear();
         inbuf.readLine(chbuffer, true);
-        Assert.assertEquals(s3, chbuffer.toString());
+        Assertions.assertEquals(s3, chbuffer.toString());
         chbuffer.clear();
         inbuf.readLine(chbuffer, true);
-        Assert.assertEquals("a", chbuffer.toString());
+        Assertions.assertEquals("a", chbuffer.toString());
         chbuffer.clear();
         inbuf.readLine(chbuffer, true);
-        Assert.assertFalse(inbuf.readLine(chbuffer, true));
+        Assertions.assertFalse(inbuf.readLine(chbuffer, true));
         chbuffer.clear();
         inbuf.readLine(chbuffer, true);
-        Assert.assertFalse(inbuf.readLine(chbuffer, true));
+        Assertions.assertFalse(inbuf.readLine(chbuffer, true));
     }
 
     @Test
@@ -333,7 +333,7 @@ public class TestSessionInOutBuffers {
             in[i] = (byte)inbuf.read();
         }
         for (int i = 0; i < out.length; i++) {
-            Assert.assertEquals(out[i], in[i]);
+            Assertions.assertEquals(out[i], in[i]);
         }
     }
 
@@ -345,13 +345,13 @@ public class TestSessionInOutBuffers {
         while (inbuf.fill(channel) > 0) {
         }
         final ByteBuffer dst = ByteBuffer.allocate(10);
-        Assert.assertEquals(10, inbuf.read(dst));
+        Assertions.assertEquals(10, inbuf.read(dst));
         dst.flip();
-        Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
+        Assertions.assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
         dst.clear();
-        Assert.assertEquals(6, inbuf.read(dst));
+        Assertions.assertEquals(6, inbuf.read(dst));
         dst.flip();
-        Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 10, 6));
+        Assertions.assertEquals(dst, ByteBuffer.wrap(pattern, 10, 6));
     }
 
     @Test
@@ -362,16 +362,16 @@ public class TestSessionInOutBuffers {
         while (inbuf.fill(channel) > 0) {
         }
         final ByteBuffer dst = ByteBuffer.allocate(16);
-        Assert.assertEquals(10, inbuf.read(dst, 10));
+        Assertions.assertEquals(10, inbuf.read(dst, 10));
         dst.flip();
-        Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
+        Assertions.assertEquals(dst, ByteBuffer.wrap(pattern, 0, 10));
         dst.clear();
-        Assert.assertEquals(3, inbuf.read(dst, 3));
+        Assertions.assertEquals(3, inbuf.read(dst, 3));
         dst.flip();
-        Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 10, 3));
-        Assert.assertEquals(3, inbuf.read(dst, 20));
+        Assertions.assertEquals(dst, ByteBuffer.wrap(pattern, 10, 3));
+        Assertions.assertEquals(3, inbuf.read(dst, 20));
         dst.flip();
-        Assert.assertEquals(dst, ByteBuffer.wrap(pattern, 13, 3));
+        Assertions.assertEquals(dst, ByteBuffer.wrap(pattern, 13, 3));
     }
 
     @Test
@@ -385,8 +385,8 @@ public class TestSessionInOutBuffers {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         final WritableByteChannel dst = newChannel(outStream);
 
-        Assert.assertEquals(16, inbuf.read(dst));
-        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
+        Assertions.assertEquals(16, inbuf.read(dst));
+        Assertions.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
     }
 
     @Test
@@ -400,10 +400,10 @@ public class TestSessionInOutBuffers {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         final WritableByteChannel dst = newChannel(outStream);
 
-        Assert.assertEquals(10, inbuf.read(dst, 10));
-        Assert.assertEquals(3, inbuf.read(dst, 3));
-        Assert.assertEquals(3, inbuf.read(dst, 10));
-        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
+        Assertions.assertEquals(10, inbuf.read(dst, 10));
+        Assertions.assertEquals(3, inbuf.read(dst, 3));
+        Assertions.assertEquals(3, inbuf.read(dst, 10));
+        Assertions.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
     }
 
     @Test
@@ -418,7 +418,7 @@ public class TestSessionInOutBuffers {
         final WritableByteChannel channel = newChannel(outStream);
         while (outbuf.flush(channel) > 0) {
         }
-        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
+        Assertions.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
     }
 
     @Test
@@ -434,7 +434,7 @@ public class TestSessionInOutBuffers {
         final WritableByteChannel channel = newChannel(outStream);
         while (outbuf.flush(channel) > 0) {
         }
-        Assert.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
+        Assertions.assertEquals(ByteBuffer.wrap(pattern), ByteBuffer.wrap(outStream.toByteArray()));
     }
 
     static final int SWISS_GERMAN_HELLO [] = {
@@ -494,13 +494,13 @@ public class TestSessionInOutBuffers {
         for (int i = 0; i < 10; i++) {
             chbuffer.clear();
             inbuf.readLine(chbuffer, true);
-            Assert.assertEquals(s1, chbuffer.toString());
+            Assertions.assertEquals(s1, chbuffer.toString());
             chbuffer.clear();
             inbuf.readLine(chbuffer, true);
-            Assert.assertEquals(s2, chbuffer.toString());
+            Assertions.assertEquals(s2, chbuffer.toString());
             chbuffer.clear();
             inbuf.readLine(chbuffer, true);
-            Assert.assertEquals(s3, chbuffer.toString());
+            Assertions.assertEquals(s3, chbuffer.toString());
         }
     }
 
@@ -526,7 +526,7 @@ public class TestSessionInOutBuffers {
         while (inbuf.fill(channel) > 0) {
         }
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
-        Assert.assertThrows(CharacterCodingException.class, () ->
+        Assertions.assertThrows(CharacterCodingException.class, () ->
                 inbuf.readLine(chbuffer, true));
     }
 
@@ -544,7 +544,7 @@ public class TestSessionInOutBuffers {
         }
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         inbuf.readLine(chbuffer, true);
-        Assert.assertEquals("Grezi_zm", chbuffer.toString());
+        Assertions.assertEquals("Grezi_zm", chbuffer.toString());
     }
 
     @Test
@@ -561,7 +561,7 @@ public class TestSessionInOutBuffers {
         }
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         inbuf.readLine(chbuffer, true);
-        Assert.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", chbuffer.toString());
+        Assertions.assertEquals("Gr\ufffdezi_z\ufffdm\ufffd", chbuffer.toString());
     }
 
     @Test
@@ -573,7 +573,7 @@ public class TestSessionInOutBuffers {
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16, encoder);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append(s);
-        Assert.assertThrows(CharacterCodingException.class, () ->
+        Assertions.assertThrows(CharacterCodingException.class, () ->
                 outbuf.writeLine(chbuffer));
     }
 
@@ -592,7 +592,7 @@ public class TestSessionInOutBuffers {
         outbuf.flush(channel);
 
         final String result = new String(baos.toByteArray(), StandardCharsets.US_ASCII);
-        Assert.assertEquals("This text contains a circumflex !!!\r\n", result);
+        Assertions.assertEquals("This text contains a circumflex !!!\r\n", result);
     }
 
     @Test
@@ -610,7 +610,7 @@ public class TestSessionInOutBuffers {
         outbuf.flush(channel);
 
         final String result = new String(baos.toByteArray(), StandardCharsets.US_ASCII);
-        Assert.assertEquals("This text contains a circumflex ? !!!\r\n", result);
+        Assertions.assertEquals("This text contains a circumflex ? !!!\r\n", result);
     }
 
 }

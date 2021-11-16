@@ -34,8 +34,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.hc.core5.http.ContentType;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link PathEntity}.
@@ -48,20 +48,20 @@ public class TestPathEntity {
         // Mark the file for deletion on VM exit if an assertion fails.
         tmpPath.toFile().deleteOnExit();
         try (final PathEntity httpEntity = new PathEntity(tmpPath, ContentType.TEXT_PLAIN)) {
-            Assert.assertEquals(Files.size(tmpPath), httpEntity.getContentLength());
+            Assertions.assertEquals(Files.size(tmpPath), httpEntity.getContentLength());
             try (final InputStream content = httpEntity.getContent()) {
-                Assert.assertNotNull(content);
+                Assertions.assertNotNull(content);
             }
-            Assert.assertTrue(httpEntity.isRepeatable());
-            Assert.assertFalse(httpEntity.isStreaming());
+            Assertions.assertTrue(httpEntity.isRepeatable());
+            Assertions.assertFalse(httpEntity.isStreaming());
             // If we can't delete the file now, then the PathEntity or test is hanging on to a file handle.
-            Assert.assertTrue("Failed to delete " + tmpPath, Files.deleteIfExists(tmpPath));
+            Assertions.assertTrue(Files.deleteIfExists(tmpPath), "Failed to delete " + tmpPath);
         }
     }
 
     @Test
     public void testNullConstructor() throws Exception {
-        Assert.assertThrows(NullPointerException.class, () -> new PathEntity(null, ContentType.TEXT_PLAIN));
+        Assertions.assertThrows(NullPointerException.class, () -> new PathEntity(null, ContentType.TEXT_PLAIN));
     }
 
     @Test
@@ -80,14 +80,14 @@ public class TestPathEntity {
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             httpEntity.writeTo(out);
             final byte[] bytes = out.toByteArray();
-            Assert.assertNotNull(bytes);
-            Assert.assertEquals(Files.size(tmpPath), bytes.length);
+            Assertions.assertNotNull(bytes);
+            Assertions.assertEquals(Files.size(tmpPath), bytes.length);
             for (int i = 0; i < 4; i++) {
-                Assert.assertEquals(i, bytes[i]);
+                Assertions.assertEquals(i, bytes[i]);
             }
             // If we can't delete the file now, then the PathEntity or test is hanging on to a file handle
-            Assert.assertTrue("Failed to delete " + tmpPath, Files.deleteIfExists(tmpPath));
-            Assert.assertThrows(NullPointerException.class, () -> httpEntity.writeTo(null));
+            Assertions.assertTrue(Files.deleteIfExists(tmpPath), "Failed to delete " + tmpPath);
+            Assertions.assertThrows(NullPointerException.class, () -> httpEntity.writeTo(null));
         }
     }
 }

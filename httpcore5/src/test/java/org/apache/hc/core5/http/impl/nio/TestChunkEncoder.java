@@ -36,8 +36,8 @@ import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -62,9 +62,9 @@ public class TestChunkEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
-        Assert.assertEquals("[chunk-coded; completed: true]", encoder.toString());
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
+        Assertions.assertEquals("[chunk-coded; completed: true]", encoder.toString());
     }
 
     @Test
@@ -80,8 +80,8 @@ public class TestChunkEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("4\r\n1234\r\n0\r\n\r\n", s);
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("4\r\n1234\r\n0\r\n\r\n", s);
     }
 
     @Test // See HTTPCORE-239
@@ -97,24 +97,24 @@ public class TestChunkEncoder {
         outbuf.write(CodecTestUtils.wrap("0123456789ABCDEF"));
 
         final ByteBuffer src = CodecTestUtils.wrap("0123456789ABCDEF");
-        Assert.assertEquals(0, encoder.write(src));
-        Assert.assertEquals(0, encoder.write(src));
-        Assert.assertEquals(0, encoder.write(src));
+        Assertions.assertEquals(0, encoder.write(src));
+        Assertions.assertEquals(0, encoder.write(src));
+        Assertions.assertEquals(0, encoder.write(src));
 
         // should not be able to copy any bytes, until we flush the channel and buffer
         channel.reset();
         outbuf.flush(channel);
         channel.reset();
 
-        Assert.assertEquals(10, encoder.write(src));
+        Assertions.assertEquals(10, encoder.write(src));
         channel.flush();
-        Assert.assertEquals(6, encoder.write(src));
+        Assertions.assertEquals(6, encoder.write(src));
         channel.flush();
-        Assert.assertEquals(0, encoder.write(src));
+        Assertions.assertEquals(0, encoder.write(src));
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
-        Assert.assertEquals("4\r\n0123\r\n4\r\n4567\r\n2\r\n89\r\n4\r\nABCD\r\n2\r\nEF\r\n", s);
+        Assertions.assertEquals("4\r\n0123\r\n4\r\n4567\r\n2\r\n89\r\n4\r\nABCD\r\n2\r\nEF\r\n", s);
     }
 
     @Test
@@ -124,15 +124,15 @@ public class TestChunkEncoder {
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
         final ChunkEncoder encoder = new ChunkEncoder(channel, outbuf, metrics, 1024);
 
-        Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
-        Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
-        Assert.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
+        Assertions.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
+        Assertions.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
+        Assertions.assertEquals(16, encoder.write(CodecTestUtils.wrap("0123456789ABCDEF")));
 
         Mockito.verify(channel, Mockito.never()).write(ArgumentMatchers.any());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
-        Assert.assertEquals("10\r\n0123456789ABCDEF\r\n10\r\n0123456789ABCDEF\r\n" +
+        Assertions.assertEquals("10\r\n0123456789ABCDEF\r\n10\r\n0123456789ABCDEF\r\n" +
                 "10\r\n0123456789ABCDEF\r\n", s);
     }
 
@@ -145,12 +145,12 @@ public class TestChunkEncoder {
 
         final ByteBuffer src = CodecTestUtils.wrap("0123456789ABCDEF");
 
-        Assert.assertEquals(16, encoder.write(src));
-        Assert.assertEquals(0, src.remaining());
+        Assertions.assertEquals(16, encoder.write(src));
+        Assertions.assertEquals(0, src.remaining());
 
         outbuf.flush(channel);
         final String s = channel.dump(StandardCharsets.US_ASCII);
-        Assert.assertEquals("4\r\n0123\r\n4\r\n4567\r\n4\r\n89AB\r\n4\r\nCDEF\r\n", s);
+        Assertions.assertEquals("4\r\n0123\r\n4\r\n4567\r\n4\r\n89AB\r\n4\r\nCDEF\r\n", s);
 
     }
 
@@ -176,8 +176,8 @@ public class TestChunkEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("5\r\n12345\r\n3\r\n678\r\n2\r\n90\r\n0\r\n\r\n", s);
     }
 
     @Test
@@ -192,8 +192,8 @@ public class TestChunkEncoder {
         encoder.write(CodecTestUtils.wrap("90"));
         encoder.complete();
 
-        Assert.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
-        Assert.assertThrows(IllegalStateException.class, () -> encoder.complete());
+        Assertions.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
+        Assertions.assertThrows(IllegalStateException.class, () -> encoder.complete());
     }
 
     @Test
@@ -201,9 +201,9 @@ public class TestChunkEncoder {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
 
-        Assert.assertThrows(NullPointerException.class, () -> new ChunkEncoder(null, null, null));
-        Assert.assertThrows(NullPointerException.class, () -> new ChunkEncoder(channel, null, null));
-        Assert.assertThrows(NullPointerException.class, () -> new ChunkEncoder(channel, outbuf, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new ChunkEncoder(null, null, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new ChunkEncoder(channel, null, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new ChunkEncoder(channel, outbuf, null));
     }
 
     @Test
@@ -220,8 +220,8 @@ public class TestChunkEncoder {
 
         final String s = channel.dump(StandardCharsets.US_ASCII);
 
-        Assert.assertTrue(encoder.isCompleted());
-        Assert.assertEquals("1\r\n1\r\n2\r\n23\r\n0\r\nE: \r\nY: Z\r\n\r\n", s);
-        Assert.assertEquals("[chunk-coded; completed: true]", encoder.toString());
+        Assertions.assertTrue(encoder.isCompleted());
+        Assertions.assertEquals("1\r\n1\r\n2\r\n23\r\n0\r\nE: \r\nY: Z\r\n\r\n", s);
+        Assertions.assertEquals("[chunk-coded; completed: true]", encoder.toString());
     }
 }

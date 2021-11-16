@@ -36,8 +36,8 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.SessionInputBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link DefaultHttpResponseParser}.
@@ -58,10 +58,10 @@ public class TestResponseParser {
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
         final ClassicHttpResponse httpresponse = parser.parse(inBuffer, inputStream);
 
-        Assert.assertEquals(200, httpresponse.getCode());
-        Assert.assertEquals("OK", httpresponse.getReasonPhrase());
+        Assertions.assertEquals(200, httpresponse.getCode());
+        Assertions.assertEquals("OK", httpresponse.getReasonPhrase());
         final Header[] headers = httpresponse.getHeaders();
-        Assert.assertEquals(3, headers.length);
+        Assertions.assertEquals(3, headers.length);
     }
 
     @Test
@@ -71,7 +71,7 @@ public class TestResponseParser {
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser();
         final ClassicHttpResponse response = parser.parse(inBuffer, inputStream);
-        Assert.assertNull(response);
+        Assertions.assertNull(response);
     }
 
     @Test
@@ -89,10 +89,10 @@ public class TestResponseParser {
                 Http1Config.custom().setMaxEmptyLineCount(3).build());
         final ClassicHttpResponse httpresponse = parser.parse(inBuffer, inputStream);
 
-        Assert.assertEquals(200, httpresponse.getCode());
-        Assert.assertEquals("OK", httpresponse.getReasonPhrase());
+        Assertions.assertEquals(200, httpresponse.getCode());
+        Assertions.assertEquals("OK", httpresponse.getReasonPhrase());
         final Header[] headers = httpresponse.getHeaders();
-        Assert.assertEquals(1, headers.length);
+        Assertions.assertEquals(1, headers.length);
     }
 
     @Test
@@ -109,7 +109,7 @@ public class TestResponseParser {
 
         final DefaultHttpResponseParser parser = new DefaultHttpResponseParser(
                 Http1Config.custom().setMaxEmptyLineCount(3).build());
-        Assert.assertThrows(MessageConstraintException.class, () ->
+        Assertions.assertThrows(MessageConstraintException.class, () ->
                 parser.parse(inBuffer, inputStream));
     }
 
@@ -137,13 +137,13 @@ public class TestResponseParser {
                 timeoutCount++;
             }
         }
-        Assert.assertNotNull(httpresponse);
-        Assert.assertEquals(5, timeoutCount);
+        Assertions.assertNotNull(httpresponse);
+        Assertions.assertEquals(5, timeoutCount);
 
-        Assert.assertEquals(200, httpresponse.getCode());
-        Assert.assertEquals("OK", httpresponse.getReasonPhrase());
+        Assertions.assertEquals(200, httpresponse.getCode());
+        Assertions.assertEquals("OK", httpresponse.getReasonPhrase());
         final Header[] headers = httpresponse.getHeaders();
-        Assert.assertEquals(3, headers.length);
+        Assertions.assertEquals(3, headers.length);
     }
 
 }

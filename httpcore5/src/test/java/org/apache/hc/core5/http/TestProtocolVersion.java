@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestProtocolVersion {
 
@@ -38,11 +38,11 @@ public class TestProtocolVersion {
 
     @Test
     public void testEqualsMajorMinor() {
-        Assert.assertTrue(PROTOCOL_VERSION_0_0.equals(0, 0));
-        Assert.assertTrue(PROTOCOL_VERSION_1_0.equals(1, 0));
-        Assert.assertTrue(PROTOCOL_VERSION_1_2.equals(1, 2));
+        Assertions.assertTrue(PROTOCOL_VERSION_0_0.equals(0, 0));
+        Assertions.assertTrue(PROTOCOL_VERSION_1_0.equals(1, 0));
+        Assertions.assertTrue(PROTOCOL_VERSION_1_2.equals(1, 2));
         //
-        Assert.assertFalse(PROTOCOL_VERSION_1_2.equals(2, 0));
+        Assertions.assertFalse(PROTOCOL_VERSION_1_2.equals(2, 0));
     }
 
 }

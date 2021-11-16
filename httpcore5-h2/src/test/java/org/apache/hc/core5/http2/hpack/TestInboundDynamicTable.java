@@ -27,8 +27,8 @@
 
 package org.apache.hc.core5.http2.hpack;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestInboundDynamicTable {
 
@@ -36,16 +36,16 @@ public class TestInboundDynamicTable {
     public void testBasics() throws Exception {
 
         final InboundDynamicTable table = new InboundDynamicTable();
-        Assert.assertEquals(Integer.MAX_VALUE, table.getMaxSize());
-        Assert.assertEquals(0, table.getCurrentSize());
+        Assertions.assertEquals(Integer.MAX_VALUE, table.getMaxSize());
+        Assertions.assertEquals(0, table.getCurrentSize());
 
         final HPackHeader header1 = new HPackHeader("h", "1");
         table.add(header1);
-        Assert.assertEquals(1, table.dynamicLength());
-        Assert.assertEquals(61, table.staticLength());
-        Assert.assertEquals(62, table.length());
-        Assert.assertSame(header1, table.getHeader(62));
-        Assert.assertEquals(34, table.getCurrentSize());
+        Assertions.assertEquals(1, table.dynamicLength());
+        Assertions.assertEquals(61, table.staticLength());
+        Assertions.assertEquals(62, table.length());
+        Assertions.assertSame(header1, table.getHeader(62));
+        Assertions.assertEquals(34, table.getCurrentSize());
     }
 
     @Test
@@ -56,14 +56,14 @@ public class TestInboundDynamicTable {
         table.add(new HPackHeader("h", "1"));
         table.add(new HPackHeader("h", "2"));
 
-        Assert.assertEquals(68, table.getCurrentSize());
+        Assertions.assertEquals(68, table.getCurrentSize());
 
         table.setMaxSize(256);
-        Assert.assertEquals(68, table.getCurrentSize());
+        Assertions.assertEquals(68, table.getCurrentSize());
         table.setMaxSize(67);
-        Assert.assertEquals(34, table.getCurrentSize());
+        Assertions.assertEquals(34, table.getCurrentSize());
         table.setMaxSize(10);
-        Assert.assertEquals(0, table.getCurrentSize());
+        Assertions.assertEquals(0, table.getCurrentSize());
     }
 
 }

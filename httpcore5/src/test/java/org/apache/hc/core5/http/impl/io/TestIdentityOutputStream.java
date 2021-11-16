@@ -33,8 +33,8 @@ import java.io.OutputStream;
 
 import org.apache.hc.core5.http.StreamClosedException;
 import org.apache.hc.core5.http.io.SessionOutputBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link IdentityOutputStream}.
@@ -54,7 +54,7 @@ public class TestIdentityOutputStream {
         out.flush();
         out.close();
         final byte[] data = outputStream.toByteArray();
-        Assert.assertEquals(21, data.length);
+        Assertions.assertEquals(21, data.length);
     }
 
     @Test
@@ -65,8 +65,8 @@ public class TestIdentityOutputStream {
         out.close();
         out.close();
         final byte[] tmp = new byte[10];
-        Assert.assertThrows(IOException.class, () -> out.write(tmp));
-        Assert.assertThrows(IOException.class, () -> out.write(1));
+        Assertions.assertThrows(IOException.class, () -> out.write(tmp));
+        Assertions.assertThrows(IOException.class, () -> out.write(1));
     }
 
     @Test
@@ -80,11 +80,11 @@ public class TestIdentityOutputStream {
 
         final byte[] input = outputStream.toByteArray();
 
-        Assert.assertNotNull(input);
+        Assertions.assertNotNull(input);
         final byte[] expected = new byte[] {'a', 'b', 'c'};
-        Assert.assertEquals(expected.length, input.length);
+        Assertions.assertEquals(expected.length, input.length);
         for (int i = 0; i < expected.length; i++) {
-            Assert.assertEquals(expected[i], input[i]);
+            Assertions.assertEquals(expected[i], input[i]);
         }
         out.close();
     }
@@ -97,8 +97,8 @@ public class TestIdentityOutputStream {
         out.close();
         out.close();
         final byte[] tmp = new byte[2];
-        Assert.assertThrows(StreamClosedException.class, () -> out.write(tmp, 0, tmp.length));
-        Assert.assertThrows(StreamClosedException.class, () -> out.write('a'));
+        Assertions.assertThrows(StreamClosedException.class, () -> out.write(tmp, 0, tmp.length));
+        Assertions.assertThrows(StreamClosedException.class, () -> out.write('a'));
     }
 
 }

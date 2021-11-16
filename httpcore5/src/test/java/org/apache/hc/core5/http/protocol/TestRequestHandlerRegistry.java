@@ -31,16 +31,16 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class TestRequestHandlerRegistry {
 
     private RequestHandlerRegistry<String> handlerRegistry;
     private HttpContext context;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         handlerRegistry = new RequestHandlerRegistry<>("myhost", UriPatternMatcher::new);
         context = new BasicHttpContext();
@@ -49,38 +49,38 @@ public class TestRequestHandlerRegistry {
     @Test
     public void testResolveByRequestUri() throws Exception {
         handlerRegistry.register(null, "/test*", "stuff");
-        Assert.assertNotEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/"), context));
-        Assert.assertNotEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/abc"), context));
-        Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/test"), context));
-        Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/testabc"), context));
+        Assertions.assertNotEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/"), context));
+        Assertions.assertNotEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/abc"), context));
+        Assertions.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/test"), context));
+        Assertions.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/testabc"), context));
     }
 
     @Test
     public void testByRequestUriWithQuery() throws Exception {
         handlerRegistry.register(null, "/test*", "stuff");
-        Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/test?test=a"), context));
-        Assert.assertNotEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/tes?test=a"), context));
+        Assertions.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/test?test=a"), context));
+        Assertions.assertNotEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, "/tes?test=a"), context));
     }
 
     @Test
     public void testResolveByHostnameAndRequestUri() throws Exception {
         handlerRegistry.register("myhost", "/test*", "stuff");
-        Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("myhost"), "/test"), context));
-        Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("MyHost"), "/testabc"), context));
+        Assertions.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("myhost"), "/test"), context));
+        Assertions.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("MyHost"), "/testabc"), context));
     }
 
     @Test
     public void testResolveByLocalhostAndRequestUri() throws Exception {
         handlerRegistry.register("myhost", "/test*", "stuff");
-        Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("localhost"), "/test"), context));
-        Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("LocalHost"), "/testabc"), context));
-        Assert.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("127.0.0.1"), "/testabc"), context));
+        Assertions.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("localhost"), "/test"), context));
+        Assertions.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("LocalHost"), "/testabc"), context));
+        Assertions.assertEquals("stuff", handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("127.0.0.1"), "/testabc"), context));
     }
 
     @Test
     public void testResolveByUnknownHostname() throws Exception {
         handlerRegistry.register("myhost", "/test*", "stuff");
-        Assert.assertThrows(MisdirectedRequestException.class, () ->
+        Assertions.assertThrows(MisdirectedRequestException.class, () ->
                 handlerRegistry.resolve(new BasicHttpRequest(Method.GET, new HttpHost("otherhost"), "/test"), context));
     }
 

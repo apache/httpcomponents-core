@@ -37,8 +37,8 @@ import org.apache.hc.core5.http.io.HttpClientConnection;
 import org.apache.hc.core5.http.io.ResponseOutOfOrderStrategy;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -55,7 +55,7 @@ public class TestMonitoringResponseOutOfOrderStrategy {
                 socketInputStream(0),
                 0,
                 1);
-        Assert.assertFalse(earlyResponse);
+        Assertions.assertFalse(earlyResponse);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class TestMonitoringResponseOutOfOrderStrategy {
                 socketInputStream(1),
                 0,
                 1);
-        Assert.assertFalse(earlyResponse);
+        Assertions.assertFalse(earlyResponse);
     }
 
     @Test
@@ -77,9 +77,7 @@ public class TestMonitoringResponseOutOfOrderStrategy {
                 socketInputStream(0),
                 1,
                 8190);
-        Assert.assertFalse(
-                "There is data available, but checks shouldn't occur until just prior to the 8192nd byte",
-                earlyResponse);
+        Assertions.assertFalse(earlyResponse, "There is data available, but checks shouldn't occur until just prior to the 8192nd byte");
     }
 
     @Test
@@ -90,25 +88,25 @@ public class TestMonitoringResponseOutOfOrderStrategy {
                 socketInputStream(0),
                 8191,
                 1);
-        Assert.assertTrue(earlyResponse);
+        Assertions.assertTrue(earlyResponse);
     }
 
     @Test
     public void testMaximumChunks() throws IOException {
         final ResponseOutOfOrderStrategy strategy = new MonitoringResponseOutOfOrderStrategy(1, 2);
-        Assert.assertTrue(strategy.isEarlyResponseDetected(
+        Assertions.assertTrue(strategy.isEarlyResponseDetected(
                 REQUEST,
                 connection(true, true),
                 socketInputStream(0),
                 0,
                 1));
-        Assert.assertTrue(strategy.isEarlyResponseDetected(
+        Assertions.assertTrue(strategy.isEarlyResponseDetected(
                 REQUEST,
                 connection(true, true),
                 socketInputStream(0),
                 1,
                 2));
-        Assert.assertFalse(strategy.isEarlyResponseDetected(
+        Assertions.assertFalse(strategy.isEarlyResponseDetected(
                 REQUEST,
                 connection(true, true),
                 socketInputStream(0),

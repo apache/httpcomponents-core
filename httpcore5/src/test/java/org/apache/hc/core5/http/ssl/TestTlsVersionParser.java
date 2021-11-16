@@ -27,14 +27,15 @@
 
 package org.apache.hc.core5.http.ssl;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Tokenizer;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link TlsVersionParser}.
@@ -43,55 +44,55 @@ public class TestTlsVersionParser {
 
     private TlsVersionParser impl;
 
-    @Before
+    @BeforeEach
     public void setup() {
         impl = new TlsVersionParser();
     }
 
     @Test
     public void testParseBasic() throws Exception {
-        MatcherAssert.assertThat(impl.parse("TLSv1"), CoreMatchers.equalTo(TLS.V_1_0.version));
-        MatcherAssert.assertThat(impl.parse("TLSv1.1"), CoreMatchers.equalTo(TLS.V_1_1.version));
-        MatcherAssert.assertThat(impl.parse("TLSv1.2"), CoreMatchers.equalTo(TLS.V_1_2.version));
-        MatcherAssert.assertThat(impl.parse("TLSv1.3"), CoreMatchers.equalTo(TLS.V_1_3.version));
-        MatcherAssert.assertThat(impl.parse("TLSv22.356"), CoreMatchers.equalTo(new ProtocolVersion("TLS", 22, 356)));
+        assertThat(impl.parse("TLSv1"), CoreMatchers.equalTo(TLS.V_1_0.version));
+        assertThat(impl.parse("TLSv1.1"), CoreMatchers.equalTo(TLS.V_1_1.version));
+        assertThat(impl.parse("TLSv1.2"), CoreMatchers.equalTo(TLS.V_1_2.version));
+        assertThat(impl.parse("TLSv1.3"), CoreMatchers.equalTo(TLS.V_1_3.version));
+        assertThat(impl.parse("TLSv22.356"), CoreMatchers.equalTo(new ProtocolVersion("TLS", 22, 356)));
     }
 
     @Test
     public void testParseBuffer() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
-        MatcherAssert.assertThat(impl.parse(" TLSv1.2,0000", cursor, Tokenizer.INIT_BITSET(',')),
+        assertThat(impl.parse(" TLSv1.2,0000", cursor, Tokenizer.INIT_BITSET(',')),
                 CoreMatchers.equalTo(TLS.V_1_2.version));
-        MatcherAssert.assertThat(cursor.getPos(), CoreMatchers.equalTo(8));
+        assertThat(cursor.getPos(), CoreMatchers.equalTo(8));
     }
 
     @Test
     public void testParseFailure1() throws Exception {
-        Assert.assertThrows(ParseException.class, () ->
+        Assertions.assertThrows(ParseException.class, () ->
                 impl.parse("Tlsv1"));
     }
 
     @Test
     public void testParseFailure2() throws Exception {
-        Assert.assertThrows(ParseException.class, () ->
+        Assertions.assertThrows(ParseException.class, () ->
                 impl.parse("TLSV1"));
     }
 
     @Test
     public void testParseFailure3() throws Exception {
-        Assert.assertThrows(ParseException.class, () ->
+        Assertions.assertThrows(ParseException.class, () ->
                 impl.parse("TLSv"));
     }
 
     @Test
     public void testParseFailure4() throws Exception {
-        Assert.assertThrows(ParseException.class, () ->
+        Assertions.assertThrows(ParseException.class, () ->
                 impl.parse("TLSv1A"));
     }
 
     @Test
     public void testParseFailure5() throws Exception {
-        Assert.assertThrows(ParseException.class, () ->
+        Assertions.assertThrows(ParseException.class, () ->
                 impl.parse("TLSv1.A"));
     }
 

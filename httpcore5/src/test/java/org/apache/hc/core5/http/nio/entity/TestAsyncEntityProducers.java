@@ -38,8 +38,8 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests {@link AsyncEntityProducers}.
@@ -52,9 +52,9 @@ public class TestAsyncEntityProducers {
         final AsyncEntityProducer producer = AsyncEntityProducers.create(path, ContentType.APPLICATION_OCTET_STREAM,
                 StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS);
         try {
-            Assert.assertFalse(producer.isChunked());
-            Assert.assertEquals(Files.size(path), producer.getContentLength());
-            Assert.assertEquals(ContentType.APPLICATION_OCTET_STREAM.toString(), producer.getContentType());
+            Assertions.assertFalse(producer.isChunked());
+            Assertions.assertEquals(Files.size(path), producer.getContentLength());
+            Assertions.assertEquals(ContentType.APPLICATION_OCTET_STREAM.toString(), producer.getContentType());
         } finally {
             producer.releaseResources();
         }
@@ -68,9 +68,9 @@ public class TestAsyncEntityProducers {
         final AsyncEntityProducer producer = AsyncEntityProducers.create(path, ContentType.APPLICATION_OCTET_STREAM,
                 header1, header2);
         try {
-            Assert.assertTrue(producer.isChunked());
-            Assert.assertEquals(-1, producer.getContentLength());
-            Assert.assertEquals(ContentType.APPLICATION_OCTET_STREAM.toString(), producer.getContentType());
+            Assertions.assertTrue(producer.isChunked());
+            Assertions.assertEquals(-1, producer.getContentLength());
+            Assertions.assertEquals(ContentType.APPLICATION_OCTET_STREAM.toString(), producer.getContentType());
         } finally {
             producer.releaseResources();
         }

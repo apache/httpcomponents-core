@@ -28,9 +28,8 @@ package org.apache.hc.core5.benchmark;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
@@ -52,34 +51,25 @@ import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-@RunWith(Parameterized.class)
 public class BenchmarkToolTest {
 
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> protocols() {
-        return Arrays.asList(new Object[][]{
-                { HttpVersionPolicy.NEGOTIATE },
-                { HttpVersionPolicy.FORCE_HTTP_2 }
-        });
+    public static Stream<Arguments> protocols() {
+        return Stream.of(
+                Arguments.of(HttpVersionPolicy.NEGOTIATE),
+                Arguments.of(HttpVersionPolicy.FORCE_HTTP_2)
+        );
     }
 
-    private final HttpVersionPolicy versionPolicy;
     private HttpAsyncServer server;
     private InetSocketAddress address;
 
-    public BenchmarkToolTest(final HttpVersionPolicy versionPolicy) {
-        this.versionPolicy = versionPolicy;
-    }
-
-    @Before
-    public void setup() throws Exception {
+    public void setup(final HttpVersionPolicy versionPolicy) throws Exception {
         server = H2ServerBootstrap.bootstrap()
                 .register("/", new AsyncServerRequestHandler<Message<HttpRequest, Void>>() {
 
@@ -112,15 +102,18 @@ public class BenchmarkToolTest {
         address = (InetSocketAddress) listener.getAddress();
     }
 
-    @After
+    @AfterEach
     public void shutdown() throws Exception {
         if (server != null) {
             server.close(CloseMode.IMMEDIATE);
         }
     }
 
-    @Test
-    public void testBasics() throws Exception {
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("protocols")
+    public void testBasics(final HttpVersionPolicy versionPolicy) throws Exception {
+        setup(versionPolicy);
         final BenchmarkConfig config = BenchmarkConfig.custom()
                 .setKeepAlive(true)
                 .setMethod(Method.POST.name())
@@ -136,14 +129,14 @@ public class BenchmarkToolTest {
                 .build();
         final HttpBenchmark httpBenchmark = new HttpBenchmark(config);
         final Results results = httpBenchmark.execute();
-        Assert.assertNotNull(results);
-        Assert.assertEquals(100, results.getSuccessCount());
-        Assert.assertEquals(0, results.getFailureCount());
-        Assert.assertEquals(16, results.getContentLength());
-        Assert.assertEquals(3, results.getConcurrencyLevel());
-        Assert.assertEquals(100 * 16, results.getTotalContentBytesRecvd());
+        Assertions.assertNotNull(results);
+        Assertions.assertEquals(100, results.getSuccessCount());
+        Assertions.assertEquals(0, results.getFailureCount());
+        Assertions.assertEquals(16, results.getContentLength());
+        Assertions.assertEquals(3, results.getConcurrencyLevel());
+        Assertions.assertEquals(100 * 16, results.getTotalContentBytesRecvd());
         if (versionPolicy == HttpVersionPolicy.FORCE_HTTP_2) {
-            Assert.assertEquals(HttpVersion.HTTP_2, results.getProtocolVersion());
+            Assertions.assertEquals(HttpVersion.HTTP_2, results.getProtocolVersion());
         }
     }
 

@@ -42,8 +42,8 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class TestSharedOutputBuffer {
@@ -97,8 +97,8 @@ public class TestSharedOutputBuffer {
 
         Mockito.verifyNoInteractions(dataStreamChannel);
 
-        Assert.assertEquals(0, outputBuffer.length());
-        Assert.assertEquals(30, outputBuffer.capacity());
+        Assertions.assertEquals(0, outputBuffer.length());
+        Assertions.assertEquals(30, outputBuffer.capacity());
 
         final byte[] tmp = "1234567890".getBytes(charset);
         outputBuffer.write(tmp, 0, tmp.length);
@@ -106,8 +106,8 @@ public class TestSharedOutputBuffer {
         outputBuffer.write('1');
         outputBuffer.write('2');
 
-        Assert.assertEquals(22, outputBuffer.length());
-        Assert.assertEquals(8, outputBuffer.capacity());
+        Assertions.assertEquals(22, outputBuffer.length());
+        Assertions.assertEquals(8, outputBuffer.capacity());
 
         Mockito.verifyNoInteractions(dataStreamChannel);
     }
@@ -122,8 +122,8 @@ public class TestSharedOutputBuffer {
         final DataStreamChannel dataStreamChannel = new DataStreamChannelMock(channel);
         outputBuffer.flush(dataStreamChannel);
 
-        Assert.assertEquals(0, outputBuffer.length());
-        Assert.assertEquals(30, outputBuffer.capacity());
+        Assertions.assertEquals(0, outputBuffer.length());
+        Assertions.assertEquals(30, outputBuffer.capacity());
 
         final byte[] tmp = "1234567890".getBytes(charset);
         outputBuffer.write(tmp, 0, tmp.length);
@@ -133,8 +133,8 @@ public class TestSharedOutputBuffer {
 
         outputBuffer.flush(dataStreamChannel);
 
-        Assert.assertEquals(0, outputBuffer.length());
-        Assert.assertEquals(30, outputBuffer.capacity());
+        Assertions.assertEquals(0, outputBuffer.length());
+        Assertions.assertEquals(30, outputBuffer.capacity());
     }
 
     @Test
@@ -173,10 +173,10 @@ public class TestSharedOutputBuffer {
             return Boolean.TRUE;
         });
 
-        Assert.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assert.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
 
-        Assert.assertEquals("1234567890123456789012123456789012345678901234567890", new String(channel.toByteArray(), charset));
+        Assertions.assertEquals("1234567890123456789012123456789012345678901234567890", new String(channel.toByteArray(), charset));
     }
 
     @Test
@@ -200,11 +200,11 @@ public class TestSharedOutputBuffer {
             return Boolean.TRUE;
         });
 
-        Assert.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        Assertions.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         try {
             task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         } catch (final ExecutionException ex) {
-            Assert.assertTrue(ex.getCause() instanceof InterruptedIOException);
+            Assertions.assertTrue(ex.getCause() instanceof InterruptedIOException);
         }
     }
 

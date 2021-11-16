@@ -51,13 +51,16 @@ import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+@EnableRuleMigrationSupport
 @RunWith(Parameterized.class)
 public class MonitoringResponseOutOfOrderStrategyIntegrationTest {
 
@@ -65,7 +68,7 @@ public class MonitoringResponseOutOfOrderStrategyIntegrationTest {
     private static final int BUFFER_SIZE = 16 * 1024;
     private static final Timeout TIMEOUT = Timeout.ofSeconds(3);
 
-    @Parameterized.Parameters(name = "{0}")
+    @ParameterizedTest(name = "{0}")
     public static Collection<Object[]> protocols() {
         return Arrays.asList(new Object[][]{
                 { URIScheme.HTTP },
@@ -159,7 +162,7 @@ public class MonitoringResponseOutOfOrderStrategyIntegrationTest {
         post.setEntity(new AllOnesHttpEntity(200000));
 
         try (final ClassicHttpResponse response = requester.execute(host, post, TIMEOUT, context)) {
-            Assert.assertEquals(400, response.getCode());
+            Assertions.assertEquals(400, response.getCode());
             EntityUtils.consumeQuietly(response.getEntity());
         }
     }

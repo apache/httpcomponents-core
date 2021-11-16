@@ -28,8 +28,8 @@
 package org.apache.hc.core5.http.message;
 
 import org.apache.hc.core5.http.message.StatusLine.StatusClass;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link org.apache.hc.core5.http.message.StatusLine}.
@@ -39,49 +39,49 @@ public class TestBasicStatusLine {
     @Test
     public void testGetStatusClass() {
         StatusLine statusLine = new StatusLine(new BasicHttpResponse(100, "Continue"));
-        Assert.assertEquals(StatusClass.INFORMATIONAL, statusLine.getStatusClass());
+        Assertions.assertEquals(StatusClass.INFORMATIONAL, statusLine.getStatusClass());
 
         statusLine = new StatusLine(new BasicHttpResponse(200, "OK"));
-        Assert.assertEquals(StatusClass.SUCCESSFUL, statusLine.getStatusClass());
+        Assertions.assertEquals(StatusClass.SUCCESSFUL, statusLine.getStatusClass());
 
         statusLine = new StatusLine(new BasicHttpResponse(302, "Found"));
-        Assert.assertEquals(StatusClass.REDIRECTION, statusLine.getStatusClass());
+        Assertions.assertEquals(StatusClass.REDIRECTION, statusLine.getStatusClass());
 
         statusLine = new StatusLine(new BasicHttpResponse(409, "Conflict"));
-        Assert.assertEquals(StatusClass.CLIENT_ERROR, statusLine.getStatusClass());
+        Assertions.assertEquals(StatusClass.CLIENT_ERROR, statusLine.getStatusClass());
 
         statusLine = new StatusLine(new BasicHttpResponse(502, "Bad Gateway"));
-        Assert.assertEquals(StatusClass.SERVER_ERROR, statusLine.getStatusClass());
+        Assertions.assertEquals(StatusClass.SERVER_ERROR, statusLine.getStatusClass());
 
         statusLine = new StatusLine(new BasicHttpResponse(999, "Not a status"));
-        Assert.assertEquals(StatusClass.OTHER, statusLine.getStatusClass());
+        Assertions.assertEquals(StatusClass.OTHER, statusLine.getStatusClass());
     }
 
     @Test
     public void testGetStatusShorthand() {
         StatusLine statusLine = new StatusLine(new BasicHttpResponse(100, "Continue"));
-        Assert.assertTrue(statusLine.isInformational());
-        Assert.assertFalse(statusLine.isSuccessful());
-        Assert.assertFalse(statusLine.isError());
+        Assertions.assertTrue(statusLine.isInformational());
+        Assertions.assertFalse(statusLine.isSuccessful());
+        Assertions.assertFalse(statusLine.isError());
 
         statusLine = new StatusLine(new BasicHttpResponse(200, "OK"));
-        Assert.assertTrue(statusLine.isSuccessful());
-        Assert.assertFalse(statusLine.isRedirection());
-        Assert.assertFalse(statusLine.isError());
+        Assertions.assertTrue(statusLine.isSuccessful());
+        Assertions.assertFalse(statusLine.isRedirection());
+        Assertions.assertFalse(statusLine.isError());
 
         statusLine = new StatusLine(new BasicHttpResponse(302, "Found"));
-        Assert.assertTrue(statusLine.isRedirection());
-        Assert.assertFalse(statusLine.isClientError());
-        Assert.assertFalse(statusLine.isError());
+        Assertions.assertTrue(statusLine.isRedirection());
+        Assertions.assertFalse(statusLine.isClientError());
+        Assertions.assertFalse(statusLine.isError());
 
         statusLine = new StatusLine(new BasicHttpResponse(409, "Conflict"));
-        Assert.assertTrue(statusLine.isClientError());
-        Assert.assertTrue(statusLine.isError());
-        Assert.assertFalse(statusLine.isServerError());
+        Assertions.assertTrue(statusLine.isClientError());
+        Assertions.assertTrue(statusLine.isError());
+        Assertions.assertFalse(statusLine.isServerError());
 
         statusLine = new StatusLine(new BasicHttpResponse(502, "Bad Gateway"));
-        Assert.assertTrue(statusLine.isServerError());
-        Assert.assertTrue(statusLine.isError());
-        Assert.assertFalse(statusLine.isSuccessful());
+        Assertions.assertTrue(statusLine.isServerError());
+        Assertions.assertTrue(statusLine.isError());
+        Assertions.assertFalse(statusLine.isSuccessful());
     }
 }

@@ -31,8 +31,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import io.reactivex.Flowable;
 
@@ -49,13 +49,13 @@ public class TestReactiveDataProducer {
 
         producer.produce(streamChannel);
 
-        Assert.assertTrue(byteChannel.isOpen());
-        Assert.assertEquals("123456", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertTrue(byteChannel.isOpen());
+        Assertions.assertEquals("123456", byteChannel.dump(StandardCharsets.US_ASCII));
 
         producer.produce(streamChannel);
 
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertFalse(byteChannel.isOpen());
+        Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
     }
 
     @Test
@@ -76,11 +76,11 @@ public class TestReactiveDataProducer {
         final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
         producer.produce(streamChannel);
-        Assert.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertEquals("12345", byteChannel.dump(StandardCharsets.US_ASCII));
 
-        final HttpStreamResetException exception = Assert.assertThrows(HttpStreamResetException.class, () ->
+        final HttpStreamResetException exception = Assertions.assertThrows(HttpStreamResetException.class, () ->
                 producer.produce(streamChannel));
-        Assert.assertTrue("Expected published exception to be rethrown", exception.getCause() instanceof RuntimeException);
-        Assert.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertTrue(exception.getCause() instanceof RuntimeException, "Expected published exception to be rethrown");
+        Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
     }
 }

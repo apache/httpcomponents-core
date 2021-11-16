@@ -35,8 +35,8 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestDefaultH2ResponseConverter {
 
@@ -50,14 +50,14 @@ public class TestDefaultH2ResponseConverter {
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
         final HttpResponse response = converter.convert(headers);
-        Assert.assertNotNull(response );
-        Assert.assertEquals(200, response .getCode());
+        Assertions.assertNotNull(response );
+        Assertions.assertEquals(200, response .getCode());
         final Header[] allHeaders = response.getHeaders();
-        Assert.assertEquals(2, allHeaders.length);
-        Assert.assertEquals("location", allHeaders[0].getName());
-        Assert.assertEquals("http://www.example.com/", allHeaders[0].getValue());
-        Assert.assertEquals("custom123", allHeaders[1].getName());
-        Assert.assertEquals("value", allHeaders[1].getValue());
+        Assertions.assertEquals(2, allHeaders.length);
+        Assertions.assertEquals("location", allHeaders[0].getName());
+        Assertions.assertEquals("http://www.example.com/", allHeaders[0].getValue());
+        Assertions.assertEquals("custom123", allHeaders[1].getName());
+        Assertions.assertEquals("value", allHeaders[1].getValue());
     }
 
     @Test
@@ -68,8 +68,8 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom123", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Header name ':Status' is invalid (header name contains uppercase characters)",
-                HttpException.class, () -> converter.convert(headers));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Header name ':Status' is invalid (header name contains uppercase characters)");
     }
 
     @Test
@@ -80,7 +80,7 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom123", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows(HttpException.class, () -> converter.convert(headers));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers));
     }
 
     @Test
@@ -91,8 +91,8 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("connection", "keep-alive"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Header 'connection: keep-alive' is illegal for HTTP/2 messages",
-                HttpException.class, () -> converter.convert(headers));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Header 'connection: keep-alive' is illegal for HTTP/2 messages");
     }
 
     @Test
@@ -103,8 +103,8 @@ public class TestDefaultH2ResponseConverter {
             new BasicHeader("keep-alive", "timeout=5, max=1000"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Header 'keep-alive: timeout=5, max=1000' is illegal for HTTP/2 messages",
-                            HttpException.class, () -> converter.convert(headers));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Header 'keep-alive: timeout=5, max=1000' is illegal for HTTP/2 messages");
     }
 
     @Test
@@ -115,8 +115,8 @@ public class TestDefaultH2ResponseConverter {
             new BasicHeader("transfer-encoding", "gzip"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Header 'transfer-encoding: gzip' is illegal for HTTP/2 messages",
-                            HttpException.class, () -> converter.convert(headers));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Header 'transfer-encoding: gzip' is illegal for HTTP/2 messages");
     }
 
     @Test
@@ -127,8 +127,8 @@ public class TestDefaultH2ResponseConverter {
             new BasicHeader("upgrade", "example/1, foo/2"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Header 'upgrade: example/1, foo/2' is illegal for HTTP/2 messages",
-                            HttpException.class, () -> converter.convert(headers));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Header 'upgrade: example/1, foo/2' is illegal for HTTP/2 messages");
     }
 
     @Test
@@ -138,8 +138,8 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Mandatory response header ':status' not found",
-                HttpException.class, () -> converter.convert(headers));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Mandatory response header ':status' not found");
     }
 
     @Test
@@ -151,8 +151,8 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom1", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Unsupported response header ':custom'",
-                HttpException.class, () -> converter.convert(headers));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Unsupported response header ':custom'");
     }
 
     @Test
@@ -164,8 +164,8 @@ public class TestDefaultH2ResponseConverter {
                 new BasicHeader("custom1", "value"));
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Multiple ':status' response headers are illegal",
-                HttpException.class, () -> converter.convert(headers));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
+                "Multiple ':status' response headers are illegal");
     }
 
     @Test
@@ -177,14 +177,14 @@ public class TestDefaultH2ResponseConverter {
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
         final List<Header> headers = converter.convert(response);
 
-        Assert.assertNotNull(headers);
-        Assert.assertEquals(2, headers.size());
+        Assertions.assertNotNull(headers);
+        Assertions.assertEquals(2, headers.size());
         final Header header1 = headers.get(0);
-        Assert.assertEquals(":status", header1.getName());
-        Assert.assertEquals("200", header1.getValue());
+        Assertions.assertEquals(":status", header1.getName());
+        Assertions.assertEquals("200", header1.getValue());
         final Header header2 = headers.get(1);
-        Assert.assertEquals("custom123", header2.getName());
-        Assert.assertEquals("Value", header2.getValue());
+        Assertions.assertEquals("custom123", header2.getName());
+        Assertions.assertEquals("Value", header2.getValue());
     }
 
     @Test
@@ -193,8 +193,8 @@ public class TestDefaultH2ResponseConverter {
         response.addHeader("Custom123", "Value");
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Response status 99 is invalid",
-                HttpException.class, () -> converter.convert(response));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(response),
+                "Response status 99 is invalid");
     }
 
     @Test
@@ -203,8 +203,8 @@ public class TestDefaultH2ResponseConverter {
         response.addHeader("Connection", "Keep-Alive");
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Header 'Connection: Keep-Alive' is illegal for HTTP/2 messages",
-                HttpException.class, () -> converter.convert(response));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(response),
+                "Header 'Connection: Keep-Alive' is illegal for HTTP/2 messages");
     }
 
     @Test
@@ -213,8 +213,8 @@ public class TestDefaultH2ResponseConverter {
         response.addHeader(":custom", "stuff");
 
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assert.assertThrows("Header name ':custom' is invalid",
-                HttpException.class, () -> converter.convert(response));
+        Assertions.assertThrows(HttpException.class, () -> converter.convert(response),
+                "Header name ':custom' is invalid");
     }
 
 }

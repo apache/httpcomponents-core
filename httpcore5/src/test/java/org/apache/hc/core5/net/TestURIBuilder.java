@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.net;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.net.InetAddress;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -41,9 +43,8 @@ import org.apache.hc.core5.http.NameValuePairListMatcher;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestURIBuilder {
 
@@ -56,16 +57,16 @@ public class TestURIBuilder {
 
     @Test
     public void testParseSegments() throws Exception {
-        MatcherAssert.assertThat(parsePath("/this/that"), CoreMatchers.equalTo(Arrays.asList("this", "that")));
-        MatcherAssert.assertThat(parsePath("this/that"), CoreMatchers.equalTo(Arrays.asList("this", "that")));
-        MatcherAssert.assertThat(parsePath("this//that"), CoreMatchers.equalTo(Arrays.asList("this", "", "that")));
-        MatcherAssert.assertThat(parsePath("this//that/"), CoreMatchers.equalTo(Arrays.asList("this", "", "that", "")));
-        MatcherAssert.assertThat(parsePath("this//that/%2fthis%20and%20that"),
+        assertThat(parsePath("/this/that"), CoreMatchers.equalTo(Arrays.asList("this", "that")));
+        assertThat(parsePath("this/that"), CoreMatchers.equalTo(Arrays.asList("this", "that")));
+        assertThat(parsePath("this//that"), CoreMatchers.equalTo(Arrays.asList("this", "", "that")));
+        assertThat(parsePath("this//that/"), CoreMatchers.equalTo(Arrays.asList("this", "", "that", "")));
+        assertThat(parsePath("this//that/%2fthis%20and%20that"),
                 CoreMatchers.equalTo(Arrays.asList("this", "", "that", "/this and that")));
-        MatcherAssert.assertThat(parsePath("this///that//"),
+        assertThat(parsePath("this///that//"),
                 CoreMatchers.equalTo(Arrays.asList("this", "", "", "that", "", "")));
-        MatcherAssert.assertThat(parsePath("/"), CoreMatchers.equalTo(Collections.singletonList("")));
-        MatcherAssert.assertThat(parsePath(""), CoreMatchers.equalTo(Collections.<String>emptyList()));
+        assertThat(parsePath("/"), CoreMatchers.equalTo(Collections.singletonList("")));
+        assertThat(parsePath(""), CoreMatchers.equalTo(Collections.<String>emptyList()));
     }
 
     static String formatPath(final String... pathSegments) {
@@ -76,14 +77,14 @@ public class TestURIBuilder {
 
     @Test
     public void testFormatSegments() throws Exception {
-        MatcherAssert.assertThat(formatPath("this", "that"), CoreMatchers.equalTo("/this/that"));
-        MatcherAssert.assertThat(formatPath("this", "", "that"), CoreMatchers.equalTo("/this//that"));
-        MatcherAssert.assertThat(formatPath("this", "", "that", "/this and that"),
+        assertThat(formatPath("this", "that"), CoreMatchers.equalTo("/this/that"));
+        assertThat(formatPath("this", "", "that"), CoreMatchers.equalTo("/this//that"));
+        assertThat(formatPath("this", "", "that", "/this and that"),
                 CoreMatchers.equalTo("/this//that/%2Fthis%20and%20that"));
-        MatcherAssert.assertThat(formatPath("this", "", "", "that", "", ""),
+        assertThat(formatPath("this", "", "", "that", "", ""),
                 CoreMatchers.equalTo("/this///that//"));
-        MatcherAssert.assertThat(formatPath(""), CoreMatchers.equalTo("/"));
-        MatcherAssert.assertThat(formatPath(), CoreMatchers.equalTo(""));
+        assertThat(formatPath(""), CoreMatchers.equalTo("/"));
+        assertThat(formatPath(), CoreMatchers.equalTo(""));
     }
 
     static List<NameValuePair> parseQuery(final CharSequence s) {
@@ -92,39 +93,39 @@ public class TestURIBuilder {
 
     @Test
     public void testParseQuery() throws Exception {
-        MatcherAssert.assertThat(parseQuery(""), NameValuePairListMatcher.isEmpty());
-        MatcherAssert.assertThat(parseQuery("Name0"),
+        assertThat(parseQuery(""), NameValuePairListMatcher.isEmpty());
+        assertThat(parseQuery("Name0"),
                 NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name0", null)));
-        MatcherAssert.assertThat(parseQuery("Name1=Value1"),
+        assertThat(parseQuery("Name1=Value1"),
                 NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name1", "Value1")));
-        MatcherAssert.assertThat(parseQuery("Name2="),
+        assertThat(parseQuery("Name2="),
                 NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name2", "")));
-        MatcherAssert.assertThat(parseQuery(" Name3  "),
+        assertThat(parseQuery(" Name3  "),
                 NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name3", null)));
-        MatcherAssert.assertThat(parseQuery("Name4=Value%204%21"),
+        assertThat(parseQuery("Name4=Value%204%21"),
                 NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name4", "Value 4!")));
-        MatcherAssert.assertThat(parseQuery("Name4=Value%2B4%21"),
+        assertThat(parseQuery("Name4=Value%2B4%21"),
                 NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name4", "Value+4!")));
-        MatcherAssert.assertThat(parseQuery("Name4=Value%204%21%20%214"),
+        assertThat(parseQuery("Name4=Value%204%21%20%214"),
                 NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name4", "Value 4! !4")));
-        MatcherAssert.assertThat(parseQuery("Name5=aaa&Name6=bbb"),
+        assertThat(parseQuery("Name5=aaa&Name6=bbb"),
                 NameValuePairListMatcher.equalsTo(
                         new BasicNameValuePair("Name5", "aaa"),
                         new BasicNameValuePair("Name6", "bbb")));
-        MatcherAssert.assertThat(parseQuery("Name7=aaa&Name7=b%2Cb&Name7=ccc"),
+        assertThat(parseQuery("Name7=aaa&Name7=b%2Cb&Name7=ccc"),
                 NameValuePairListMatcher.equalsTo(
                         new BasicNameValuePair("Name7", "aaa"),
                         new BasicNameValuePair("Name7", "b,b"),
                         new BasicNameValuePair("Name7", "ccc")));
-        MatcherAssert.assertThat(parseQuery("Name8=xx%2C%20%20yy%20%20%2Czz"),
+        assertThat(parseQuery("Name8=xx%2C%20%20yy%20%20%2Czz"),
                 NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name8", "xx,  yy  ,zz")));
-        MatcherAssert.assertThat(parseQuery("price=10%20%E2%82%AC"),
+        assertThat(parseQuery("price=10%20%E2%82%AC"),
                 NameValuePairListMatcher.equalsTo(new BasicNameValuePair("price", "10 \u20AC")));
-        MatcherAssert.assertThat(parseQuery("a=b\"c&d=e"),
+        assertThat(parseQuery("a=b\"c&d=e"),
                 NameValuePairListMatcher.equalsTo(
                         new BasicNameValuePair("a", "b\"c"),
                         new BasicNameValuePair("d", "e")));
-        MatcherAssert.assertThat(parseQuery("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
+        assertThat(parseQuery("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
                         "&swiss=" + PercentCodec.encode(CH_HELLO, StandardCharsets.UTF_8)),
                 NameValuePairListMatcher.equalsTo(
                         new BasicNameValuePair("russian", RU_HELLO),
@@ -139,26 +140,26 @@ public class TestURIBuilder {
 
     @Test
     public void testFormatQuery() throws Exception {
-        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name0", null)), CoreMatchers.equalTo("Name0"));
-        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name1", "Value1")), CoreMatchers.equalTo("Name1=Value1"));
-        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name2", "")), CoreMatchers.equalTo("Name2="));
-        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name4", "Value 4&")),
+        assertThat(formatQuery(new BasicNameValuePair("Name0", null)), CoreMatchers.equalTo("Name0"));
+        assertThat(formatQuery(new BasicNameValuePair("Name1", "Value1")), CoreMatchers.equalTo("Name1=Value1"));
+        assertThat(formatQuery(new BasicNameValuePair("Name2", "")), CoreMatchers.equalTo("Name2="));
+        assertThat(formatQuery(new BasicNameValuePair("Name4", "Value 4&")),
                 CoreMatchers.equalTo("Name4=Value%204%26"));
-        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name4", "Value+4&")),
+        assertThat(formatQuery(new BasicNameValuePair("Name4", "Value+4&")),
                 CoreMatchers.equalTo("Name4=Value%2B4%26"));
-        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name4", "Value 4& =4")),
+        assertThat(formatQuery(new BasicNameValuePair("Name4", "Value 4& =4")),
                 CoreMatchers.equalTo("Name4=Value%204%26%20%3D4"));
-        MatcherAssert.assertThat(formatQuery(
+        assertThat(formatQuery(
                 new BasicNameValuePair("Name5", "aaa"),
                 new BasicNameValuePair("Name6", "bbb")), CoreMatchers.equalTo("Name5=aaa&Name6=bbb"));
-        MatcherAssert.assertThat(formatQuery(
+        assertThat(formatQuery(
                 new BasicNameValuePair("Name7", "aaa"),
                 new BasicNameValuePair("Name7", "b,b"),
                 new BasicNameValuePair("Name7", "ccc")
         ), CoreMatchers.equalTo("Name7=aaa&Name7=b%2Cb&Name7=ccc"));
-        MatcherAssert.assertThat(formatQuery(new BasicNameValuePair("Name8", "xx,  yy  ,zz")),
+        assertThat(formatQuery(new BasicNameValuePair("Name8", "xx,  yy  ,zz")),
                 CoreMatchers.equalTo("Name8=xx%2C%20%20yy%20%20%2Czz"));
-        MatcherAssert.assertThat(formatQuery(
+        assertThat(formatQuery(
                 new BasicNameValuePair("russian", RU_HELLO),
                 new BasicNameValuePair("swiss", CH_HELLO)),
                 CoreMatchers.equalTo("russian=" + PercentCodec.encode(RU_HELLO, StandardCharsets.UTF_8) +
@@ -170,7 +171,7 @@ public class TestURIBuilder {
         final URI uri = new URI("http", "stuff", "localhost", 80, "/some stuff", "param=stuff", "fragment");
         final URIBuilder uribuilder = new URIBuilder(uri);
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://stuff@localhost:80/some%20stuff?param=stuff#fragment"), result);
+        Assertions.assertEquals(new URI("http://stuff@localhost:80/some%20stuff?param=stuff#fragment"), result);
     }
 
     @Test
@@ -178,28 +179,28 @@ public class TestURIBuilder {
         final URI uri = new URI("http://stuff@localhost:80/stuff?param=stuff#fragment");
         final URIBuilder uribuilder = new URIBuilder(uri).setHost((String) null);
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http:///stuff?param=stuff#fragment"), result);
+        Assertions.assertEquals(new URI("http:///stuff?param=stuff#fragment"), result);
     }
 
     @Test
     public void testMutationRemoveFragment() throws Exception {
         final URI uri = new URI("http://stuff@localhost:80/stuff?param=stuff#fragment");
         final URI result = new URIBuilder(uri).setFragment(null).build();
-        Assert.assertEquals(new URI("http://stuff@localhost:80/stuff?param=stuff"), result);
+        Assertions.assertEquals(new URI("http://stuff@localhost:80/stuff?param=stuff"), result);
     }
 
     @Test
     public void testMutationRemoveUserInfo() throws Exception {
         final URI uri = new URI("http://stuff@localhost:80/stuff?param=stuff#fragment");
         final URI result = new URIBuilder(uri).setUserInfo(null).build();
-        Assert.assertEquals(new URI("http://localhost:80/stuff?param=stuff#fragment"), result);
+        Assertions.assertEquals(new URI("http://localhost:80/stuff?param=stuff#fragment"), result);
     }
 
     @Test
     public void testMutationRemovePort() throws Exception {
         final URI uri = new URI("http://stuff@localhost:80/stuff?param=stuff#fragment");
         final URI result = new URIBuilder(uri).setPort(-1).build();
-        Assert.assertEquals(new URI("http://stuff@localhost/stuff?param=stuff#fragment"), result);
+        Assertions.assertEquals(new URI("http://stuff@localhost/stuff?param=stuff#fragment"), result);
     }
 
     @Test
@@ -207,20 +208,20 @@ public class TestURIBuilder {
         final URI uri = new URI("stuff", "some-stuff", "fragment");
         final URIBuilder uribuilder = new URIBuilder(uri);
         final URI result = uribuilder.build();
-        Assert.assertEquals(uri, result);
+        Assertions.assertEquals(uri, result);
     }
 
     @Test
     public void testOpaqueUriMutation() throws Exception {
         final URI uri = new URI("stuff", "some-stuff", "fragment");
         final URIBuilder uribuilder = new URIBuilder(uri).setCustomQuery("param1&param2=stuff").setFragment(null);
-        Assert.assertEquals(new URI("stuff:?param1&param2=stuff"), uribuilder.build());
+        Assertions.assertEquals(new URI("stuff:?param1&param2=stuff"), uribuilder.build());
     }
 
     @Test
     public void testHierarchicalUriMutation() throws Exception {
         final URIBuilder uribuilder = new URIBuilder("/").setScheme("http").setHost("localhost").setPort(80).setPath("/stuff");
-        Assert.assertEquals(new URI("http://localhost:80/stuff"), uribuilder.build());
+        Assertions.assertEquals(new URI("http://localhost:80/stuff"), uribuilder.build());
     }
 
     @Test
@@ -239,15 +240,15 @@ public class TestURIBuilder {
                .setFragment(specials)
                .build();
 
-       Assert.assertEquals(uri.getHost(), bld.getHost());
+       Assertions.assertEquals(uri.getHost(), bld.getHost());
 
-       Assert.assertEquals(uri.getUserInfo(), bld.getUserInfo());
+       Assertions.assertEquals(uri.getUserInfo(), bld.getUserInfo());
 
-       Assert.assertEquals(uri.getPath(), bld.getPath());
+       Assertions.assertEquals(uri.getPath(), bld.getPath());
 
-       Assert.assertEquals(uri.getQuery(), bld.getQuery());
+       Assertions.assertEquals(uri.getQuery(), bld.getQuery());
 
-       Assert.assertEquals(uri.getFragment(), bld.getFragment());
+       Assertions.assertEquals(uri.getFragment(), bld.getFragment());
    }
 
     @Test
@@ -266,53 +267,53 @@ public class TestURIBuilder {
                .setFragment(specials)
                .build();
 
-       Assert.assertEquals(uri.getHost(), bld.getHost());
+       Assertions.assertEquals(uri.getHost(), bld.getHost());
 
-       Assert.assertEquals(uri.getUserInfo(), bld.getUserInfo());
+       Assertions.assertEquals(uri.getUserInfo(), bld.getUserInfo());
 
-       Assert.assertEquals(uri.getPath(), bld.getPath());
+       Assertions.assertEquals(uri.getPath(), bld.getPath());
 
-       Assert.assertEquals(uri.getQuery(), bld.getQuery());
+       Assertions.assertEquals(uri.getQuery(), bld.getQuery());
 
-       Assert.assertEquals(uri.getFragment(), bld.getFragment());
+       Assertions.assertEquals(uri.getFragment(), bld.getFragment());
    }
 
     @Test
     public void testEmpty() throws Exception {
         final URIBuilder uribuilder = new URIBuilder();
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI(""), result);
+        Assertions.assertEquals(new URI(""), result);
     }
 
     @Test
     public void testEmptyPath() throws Exception {
         final URIBuilder uribuilder = new URIBuilder("http://thathost");
-        Assert.assertTrue(uribuilder.isPathEmpty());
+        Assertions.assertTrue(uribuilder.isPathEmpty());
     }
 
     @Test
     public void testRemoveParameter() throws Exception {
         final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff&blah&blah", null);
         final URIBuilder uribuilder = new URIBuilder(uri);
-        Assert.assertFalse(uribuilder.isQueryEmpty());
+        Assertions.assertFalse(uribuilder.isQueryEmpty());
 
-        Assert.assertThrows(NullPointerException.class, () -> uribuilder.removeParameter(null));
+        Assertions.assertThrows(NullPointerException.class, () -> uribuilder.removeParameter(null));
 
         uribuilder.removeParameter("DoesNotExist");
-        Assert.assertEquals("stuff", uribuilder.getFirstQueryParam("param").getValue());
-        Assert.assertNull(uribuilder.getFirstQueryParam("blah").getValue());
+        Assertions.assertEquals("stuff", uribuilder.getFirstQueryParam("param").getValue());
+        Assertions.assertNull(uribuilder.getFirstQueryParam("blah").getValue());
 
         uribuilder.removeParameter("blah");
-        Assert.assertEquals("stuff", uribuilder.getFirstQueryParam("param").getValue());
-        Assert.assertNull(uribuilder.getFirstQueryParam("blah"));
+        Assertions.assertEquals("stuff", uribuilder.getFirstQueryParam("param").getValue());
+        Assertions.assertNull(uribuilder.getFirstQueryParam("blah"));
 
         uribuilder.removeParameter("param");
-        Assert.assertNull(uribuilder.getFirstQueryParam("param"));
-        Assert.assertTrue(uribuilder.isQueryEmpty());
+        Assertions.assertNull(uribuilder.getFirstQueryParam("param"));
+        Assertions.assertTrue(uribuilder.isQueryEmpty());
 
         uribuilder.removeParameter("AlreadyEmpty");
-        Assert.assertTrue(uribuilder.isQueryEmpty());
-        Assert.assertEquals(new URI("http://localhost:80/"), uribuilder.build());
+        Assertions.assertTrue(uribuilder.isQueryEmpty());
+        Assertions.assertEquals(new URI("http://localhost:80/"), uribuilder.build());
     }
 
     @Test
@@ -320,7 +321,7 @@ public class TestURIBuilder {
         final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff", null);
         final URIBuilder uribuilder = new URIBuilder(uri).removeQuery();
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/"), result);
+        Assertions.assertEquals(new URI("http://localhost:80/"), result);
     }
 
     @Test
@@ -328,14 +329,14 @@ public class TestURIBuilder {
         final Host host = Host.create("localhost:88");
         final URIBuilder uribuilder = new URIBuilder().setScheme(URIScheme.HTTP.id).setAuthority(host);
         // Check builder
-        Assert.assertNull(uribuilder.getUserInfo());
-        Assert.assertEquals(host.getHostName(), uribuilder.getAuthority().getHostName());
-        Assert.assertEquals(host.getHostName(), uribuilder.getHost());
+        Assertions.assertNull(uribuilder.getUserInfo());
+        Assertions.assertEquals(host.getHostName(), uribuilder.getAuthority().getHostName());
+        Assertions.assertEquals(host.getHostName(), uribuilder.getHost());
         // Check result
         final URI result = uribuilder.build();
-        Assert.assertEquals(host.getHostName(), result.getHost());
-        Assert.assertEquals(host.getPort(), result.getPort());
-        Assert.assertEquals(new URI("http://localhost:88"), result);
+        Assertions.assertEquals(host.getHostName(), result.getHost());
+        Assertions.assertEquals(host.getPort(), result.getPort());
+        Assertions.assertEquals(new URI("http://localhost:88"), result);
     }
 
     @Test
@@ -343,14 +344,14 @@ public class TestURIBuilder {
         final HttpHost httpHost = HttpHost.create("localhost:88");
         final URIBuilder uribuilder = new URIBuilder().setScheme(URIScheme.HTTP.id).setAuthority(httpHost);
         // Check builder
-        Assert.assertNull(uribuilder.getUserInfo());
-        Assert.assertEquals(httpHost.getHostName(), uribuilder.getAuthority().getHostName());
-        Assert.assertEquals(httpHost.getHostName(), uribuilder.getHost());
+        Assertions.assertNull(uribuilder.getUserInfo());
+        Assertions.assertEquals(httpHost.getHostName(), uribuilder.getAuthority().getHostName());
+        Assertions.assertEquals(httpHost.getHostName(), uribuilder.getHost());
         // Check result
         final URI result = uribuilder.build();
-        Assert.assertEquals(httpHost.getHostName(), result.getHost());
-        Assert.assertEquals(httpHost.getPort(), result.getPort());
-        Assert.assertEquals(new URI("http://localhost:88"), result);
+        Assertions.assertEquals(httpHost.getHostName(), result.getHost());
+        Assertions.assertEquals(httpHost.getPort(), result.getPort());
+        Assertions.assertEquals(new URI("http://localhost:88"), result);
     }
 
     @Test
@@ -358,16 +359,16 @@ public class TestURIBuilder {
         final URIAuthority authority = URIAuthority.create("u:p@localhost:88");
         final URIBuilder uribuilder = new URIBuilder().setScheme(URIScheme.HTTP.id).setAuthority(authority);
         // Check builder
-        Assert.assertEquals(authority.getUserInfo(), uribuilder.getAuthority().getUserInfo());
-        Assert.assertEquals(authority.getHostName(), uribuilder.getAuthority().getHostName());
-        Assert.assertEquals(authority.getHostName(), uribuilder.getHost());
+        Assertions.assertEquals(authority.getUserInfo(), uribuilder.getAuthority().getUserInfo());
+        Assertions.assertEquals(authority.getHostName(), uribuilder.getAuthority().getHostName());
+        Assertions.assertEquals(authority.getHostName(), uribuilder.getHost());
         // Check result
         final URI result = uribuilder.build();
-        Assert.assertEquals(authority.getUserInfo(), result.getUserInfo());
-        Assert.assertEquals(authority.getHostName(), result.getHost());
-        Assert.assertEquals(authority.getPort(), result.getPort());
-        Assert.assertEquals(authority.toString(), result.getAuthority());
-        Assert.assertEquals(new URI("http://u:p@localhost:88"), result);
+        Assertions.assertEquals(authority.getUserInfo(), result.getUserInfo());
+        Assertions.assertEquals(authority.getHostName(), result.getHost());
+        Assertions.assertEquals(authority.getPort(), result.getPort());
+        Assertions.assertEquals(authority.toString(), result.getAuthority());
+        Assertions.assertEquals(new URI("http://u:p@localhost:88"), result);
     }
 
     @Test
@@ -377,7 +378,7 @@ public class TestURIBuilder {
                 .setParameter("blah", "blah")
                 .setParameter("blah", "blah2");
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/?param=some%20other%20stuff&blah=blah2"), result);
+        Assertions.assertEquals(new URI("http://localhost:80/?param=some%20other%20stuff&blah=blah2"), result);
     }
 
     @Test
@@ -385,12 +386,12 @@ public class TestURIBuilder {
         final URI uri = new URI("http", null, "localhost", 80, "/", "param=stuff&blah&blah", null);
         URIBuilder uribuilder = new URIBuilder(uri).setParameter("param", "some other stuff")
             .setParameter("blah", "blah");
-        Assert.assertEquals("some other stuff", uribuilder.getFirstQueryParam("param").getValue());
-        Assert.assertEquals("blah", uribuilder.getFirstQueryParam("blah").getValue());
-        Assert.assertNull(uribuilder.getFirstQueryParam("DoesNotExist"));
+        Assertions.assertEquals("some other stuff", uribuilder.getFirstQueryParam("param").getValue());
+        Assertions.assertEquals("blah", uribuilder.getFirstQueryParam("blah").getValue());
+        Assertions.assertNull(uribuilder.getFirstQueryParam("DoesNotExist"));
         //
         uribuilder = new URIBuilder("http://localhost:80/?param=some%20other%20stuff&blah=blah&blah=blah2");
-        Assert.assertEquals("blah", uribuilder.getFirstQueryParam("blah").getValue());
+        Assertions.assertEquals("blah", uribuilder.getFirstQueryParam("blah").getValue());
     }
 
     @Test
@@ -398,7 +399,7 @@ public class TestURIBuilder {
         final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
         final URIBuilder uribuilder = new URIBuilder(uri).setParameters();
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/test"), result);
+        Assertions.assertEquals(new URI("http://localhost:80/test"), result);
     }
 
     @Test
@@ -406,7 +407,7 @@ public class TestURIBuilder {
         final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
         final URIBuilder uribuilder = new URIBuilder(uri).setParameters((NameValuePair[]) null);
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/test"), result);
+        Assertions.assertEquals(new URI("http://localhost:80/test"), result);
     }
 
     @Test
@@ -414,7 +415,7 @@ public class TestURIBuilder {
         final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
         final URIBuilder uribuilder = new URIBuilder(uri).setParameters(Collections.emptyList());
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/test"), result);
+        Assertions.assertEquals(new URI("http://localhost:80/test"), result);
     }
 
     @Test
@@ -422,7 +423,7 @@ public class TestURIBuilder {
         final URI uri = new URI("http", null, "localhost", 80, "/test", "param=test", null);
         final URIBuilder uribuilder = new URIBuilder(uri).setParameters((List<NameValuePair>) null);
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/test"), result);
+        Assertions.assertEquals(new URI("http://localhost:80/test"), result);
     }
 
     @Test
@@ -431,7 +432,7 @@ public class TestURIBuilder {
         final URIBuilder uribuilder = new URIBuilder(uri).addParameter("param", "1 + 1 = 2")
             .addParameter("param", "blah&blah");
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/?param=stuff&param=1%20%2B%201%20%3D%202&" +
+        Assertions.assertEquals(new URI("http://localhost:80/?param=stuff&param=1%20%2B%201%20%3D%202&" +
                 "param=blah%26blah"), result);
     }
 
@@ -441,7 +442,7 @@ public class TestURIBuilder {
         final URIBuilder uribuilder = new URIBuilder(uri).addParameter("param", "some other stuff")
             .addParameter("blah", "blah");
         final URI result = uribuilder.build();
-        Assert.assertEquals(new URI("http://localhost:80/?param=stuff&blah&blah&" +
+        Assertions.assertEquals(new URI("http://localhost:80/?param=stuff&blah&blah&" +
                 "param=some%20other%20stuff&blah=blah"), result);
     }
 
@@ -452,7 +453,7 @@ public class TestURIBuilder {
         final URI uri2 = new URIBuilder("https://somehost.com/stuff")
             .addParameter("client_id","1234567890")
             .addParameter("redirect_uri","https://somehost.com/blah blah/").build();
-        Assert.assertEquals(uri1, uri2);
+        Assertions.assertEquals(uri1, uri2);
     }
 
     @Test
@@ -462,7 +463,7 @@ public class TestURIBuilder {
             .setCustomQuery("this&that")
             .addParameter("param1","12345")
             .addParameter("param2","67890").build();
-        Assert.assertEquals(uri1, uri2);
+        Assertions.assertEquals(uri1, uri2);
     }
 
     @Test
@@ -473,7 +474,7 @@ public class TestURIBuilder {
             .setHost("somehost.com")
             .setPath("/some path with blanks/")
             .build();
-        Assert.assertEquals(uri1, uri2);
+        Assertions.assertEquals(uri1, uri2);
     }
 
     @Test
@@ -493,15 +494,15 @@ public class TestURIBuilder {
                 .setFragment(specials)
                 .build();
 
-        Assert.assertEquals(uri.getHost(), bld.getHost());
+        Assertions.assertEquals(uri.getHost(), bld.getHost());
 
-        Assert.assertEquals(uri.getUserInfo(), bld.getUserInfo());
+        Assertions.assertEquals(uri.getUserInfo(), bld.getUserInfo());
 
-        Assert.assertEquals(uri.getPath(), bld.getPath());
+        Assertions.assertEquals(uri.getPath(), bld.getPath());
 
-        Assert.assertEquals(uri.getQuery(), bld.getQuery());
+        Assertions.assertEquals(uri.getQuery(), bld.getQuery());
 
-        Assert.assertEquals(uri.getFragment(), bld.getFragment());
+        Assertions.assertEquals(uri.getFragment(), bld.getFragment());
 
     }
 
@@ -526,7 +527,7 @@ public class TestURIBuilder {
                 .setCharset(charset)
                 .addParameters(null).build();
 
-        Assert.assertEquals("https://somehost.com/stuff", uri2.toString());
+        Assertions.assertEquals("https://somehost.com/stuff", uri2.toString());
     }
 
     @Test
@@ -553,7 +554,7 @@ public class TestURIBuilder {
 
         final String uriExpected = String.format("https://somehost.com/stuff?parameter1=value1&parameter2=%s&parameter3=%s", encodedData1, encodedData2);
 
-        Assert.assertEquals(uriExpected, uri.toString());
+        Assertions.assertEquals(uriExpected, uri.toString());
     }
 
     private List<NameValuePair> createParameterList() {
@@ -568,24 +569,24 @@ public class TestURIBuilder {
     public void testMalformedPath() throws Exception {
         final String path = "@notexample.com/mypath";
         final URI uri = new URIBuilder(path).setHost("example.com").build();
-        Assert.assertEquals("example.com", uri.getHost());
+        Assertions.assertEquals("example.com", uri.getHost());
     }
 
     @Test
     public void testRelativePath() throws Exception {
         final URI uri = new URIBuilder("./mypath").build();
-        Assert.assertEquals(new URI("./mypath"), uri);
+        Assertions.assertEquals(new URI("./mypath"), uri);
     }
 
     @Test
     public void testRelativePathWithAuthority() throws Exception {
         final URI uri = new URIBuilder("./mypath").setHost("somehost").setScheme("http").build();
-        Assert.assertEquals(new URI("http://somehost/./mypath"), uri);
+        Assertions.assertEquals(new URI("http://somehost/./mypath"), uri);
     }
 
     @Test
     public void testTolerateNullInput() throws Exception {
-        MatcherAssert.assertThat(new URIBuilder()
+        assertThat(new URIBuilder()
                         .setScheme(null)
                         .setHost("localhost")
                         .setUserInfo(null)
@@ -599,7 +600,7 @@ public class TestURIBuilder {
 
     @Test
     public void testTolerateBlankInput() throws Exception {
-        MatcherAssert.assertThat(new URIBuilder()
+        assertThat(new URIBuilder()
                         .setScheme("")
                         .setHost("localhost")
                         .setUserInfo("")
@@ -617,21 +618,21 @@ public class TestURIBuilder {
         final HttpHost httpHost = new HttpHost("http", "example.com", 1234);
         final URIBuilder uribuilder = new URIBuilder();
         uribuilder.setHttpHost(httpHost);
-        Assert.assertEquals(URI.create("http://example.com:1234"), uribuilder.build());
+        Assertions.assertEquals(URI.create("http://example.com:1234"), uribuilder.build());
     }
 
     @Test
     public void testSetHostWithReservedChars() throws Exception {
         final URIBuilder uribuilder = new URIBuilder();
         uribuilder.setScheme("http").setHost("!example!.com");
-        Assert.assertEquals(URI.create("http://%21example%21.com"), uribuilder.build());
+        Assertions.assertEquals(URI.create("http://%21example%21.com"), uribuilder.build());
     }
 
     @Test
     public void testGetHostWithReservedChars() throws Exception {
         final URIBuilder uribuilder = new URIBuilder("http://someuser%21@%21example%21.com/");
-        Assert.assertEquals("!example!.com", uribuilder.getHost());
-        Assert.assertEquals("someuser!", uribuilder.getUserInfo());
+        Assertions.assertEquals("!example!.com", uribuilder.getHost());
+        Assertions.assertEquals("someuser!", uribuilder.getUserInfo());
     }
 
     @Test
@@ -641,7 +642,7 @@ public class TestURIBuilder {
                 .setHost("somehost")
                 .setPath("//blah//blah")
                 .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("ftp://somehost//blah//blah")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("ftp://somehost//blah//blah")));
     }
 
     @Test
@@ -650,7 +651,7 @@ public class TestURIBuilder {
                 .setScheme("file")
                 .setPath("/blah")
                 .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:/blah")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("file:/blah")));
     }
 
     @Test
@@ -660,7 +661,7 @@ public class TestURIBuilder {
             .setHost("somehost")
             .setPathSegments(Arrays.asList("api", "products"))
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/products")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/products")));
     }
 
     @Test
@@ -670,7 +671,7 @@ public class TestURIBuilder {
             .setHost("somehost")
             .setPathSegments("api", "products")
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/products")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/products")));
     }
 
     @Test
@@ -679,7 +680,7 @@ public class TestURIBuilder {
             .setScheme("file")
             .setPathSegmentsRootless(Arrays.asList("dir", "foo"))
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:dir/foo")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("file:dir/foo")));
     }
 
     @Test
@@ -688,7 +689,7 @@ public class TestURIBuilder {
             .setScheme("file")
             .setPathSegmentsRootless("dir", "foo")
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:dir/foo")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("file:dir/foo")));
     }
 
     @Test
@@ -700,7 +701,7 @@ public class TestURIBuilder {
             .appendPath("v1/resources")
             .appendPath("idA")
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v1/resources/idA")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v1/resources/idA")));
     }
 
     @Test
@@ -711,7 +712,7 @@ public class TestURIBuilder {
             .appendPath("api/v2/customers")
             .appendPath("idA")
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v2/customers/idA")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v2/customers/idA")));
     }
 
     @Test
@@ -722,7 +723,7 @@ public class TestURIBuilder {
             .setPath("api")
             .appendPath(null)
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api")));
     }
 
     @Test
@@ -732,7 +733,7 @@ public class TestURIBuilder {
             .setHost("somehost")
             .appendPath(null)
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost")));
     }
 
     @Test
@@ -744,7 +745,7 @@ public class TestURIBuilder {
             .appendPathSegments("v3", "products")
             .appendPathSegments("idA")
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://myhost/api/v3/products/idA")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("https://myhost/api/v3/products/idA")));
     }
 
     @Test
@@ -755,7 +756,7 @@ public class TestURIBuilder {
             .appendPathSegments("api", "v2", "customers")
             .appendPathSegments("idA")
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v2/customers/idA")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/api/v2/customers/idA")));
     }
 
     @Test
@@ -766,7 +767,7 @@ public class TestURIBuilder {
             .setHost("somehost")
             .appendPathSegments(pathSegment)
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("https://somehost/")));
     }
 
     @Test
@@ -777,7 +778,7 @@ public class TestURIBuilder {
             .setPath("api")
             .appendPathSegments(Arrays.asList("v3", "products"))
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("http://myhost/api/v3/products")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("http://myhost/api/v3/products")));
     }
 
     @Test
@@ -787,7 +788,7 @@ public class TestURIBuilder {
             .setHost("myhost")
             .appendPathSegments(Arrays.asList("api", "v3", "customers"))
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("http://myhost/api/v3/customers")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("http://myhost/api/v3/customers")));
     }
 
     @Test
@@ -798,7 +799,7 @@ public class TestURIBuilder {
             .setHost("myhost")
             .appendPathSegments(pathSegments)
             .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("http://myhost")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("http://myhost")));
     }
 
     @Test
@@ -807,7 +808,7 @@ public class TestURIBuilder {
                 .setScheme("file")
                 .setPathSegments("this", "that")
                 .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:/this/that")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("file:/this/that")));
     }
 
     @Test
@@ -816,7 +817,7 @@ public class TestURIBuilder {
                 .setScheme("file")
                 .setPath("blah")
                 .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:blah")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("file:blah")));
     }
 
     @Test
@@ -825,14 +826,14 @@ public class TestURIBuilder {
                 .setScheme("file")
                 .setPathSegmentsRootless("this", "that")
                 .build();
-        MatcherAssert.assertThat(uri, CoreMatchers.equalTo(URI.create("file:this/that")));
+        assertThat(uri, CoreMatchers.equalTo(URI.create("file:this/that")));
     }
 
     @Test
     public void testOpaque() throws Exception {
         final URIBuilder uriBuilder = new URIBuilder("http://host.com");
         final URI uri = uriBuilder.build();
-        MatcherAssert.assertThat(uriBuilder.isOpaque(), CoreMatchers.equalTo(uri.isOpaque()));
+        assertThat(uriBuilder.isOpaque(), CoreMatchers.equalTo(uri.isOpaque()));
     }
 
     @Test
@@ -842,20 +843,20 @@ public class TestURIBuilder {
         final URIBuilder uribuilder = new URIBuilder().setScheme("http").setHost("localhost").setPort(80).setPath("/").addParameter(
                 "param", "stuff with spaces");
         final URI result = uribuilder.build();
-        Assert.assertEquals(uri, result);
+        Assertions.assertEquals(uri, result);
     }
 
     @Test
     public void testSchemeSpecificPartParametersNull() throws Exception {
        final URIBuilder uribuilder = new URIBuilder("http://host.com").setParameter("par", "parvalue")
                .setSchemeSpecificPart("", (NameValuePair)null);
-       Assert.assertEquals(new URI("http://host.com?par=parvalue"), uribuilder.build());
+       Assertions.assertEquals(new URI("http://host.com?par=parvalue"), uribuilder.build());
     }
 
     @Test
     public void testSchemeSpecificPartSetGet() throws Exception {
        final URIBuilder uribuilder = new URIBuilder().setSchemeSpecificPart("specificpart");
-       Assert.assertEquals("specificpart", uribuilder.getSchemeSpecificPart());
+       Assertions.assertEquals("specificpart", uribuilder.getSchemeSpecificPart());
     }
 
     /** Common use case: mailto: scheme. See https://tools.ietf.org/html/rfc6068#section-2 */
@@ -864,8 +865,8 @@ public class TestURIBuilder {
        final URIBuilder uribuilder = new URIBuilder().setScheme("mailto")
                .setSchemeSpecificPart("my@email.server", new BasicNameValuePair("subject", "mail subject"));
        final String result = uribuilder.build().toString();
-       Assert.assertTrue("mail address as scheme specific part expected", result.contains("my@email.server"));
-       Assert.assertTrue("correct parameter encoding expected for that scheme", result.contains("mail%20subject"));
+       Assertions.assertTrue(result.contains("my@email.server"), "mail address as scheme specific part expected");
+       Assertions.assertTrue(result.contains("mail%20subject"), "correct parameter encoding expected for that scheme");
     }
 
     /** Common use case: mailto: scheme. See https://tools.ietf.org/html/rfc6068#section-2 */
@@ -876,35 +877,35 @@ public class TestURIBuilder {
 
        final URIBuilder uribuilder = new URIBuilder().setScheme("mailto").setSchemeSpecificPart("my@email.server", parameters);
        final String result = uribuilder.build().toString();
-       Assert.assertTrue("mail address as scheme specific part expected", result.contains("my@email.server"));
-       Assert.assertTrue("correct parameter encoding expected for that scheme", result.contains("mail%20subject"));
+       Assertions.assertTrue(result.contains("my@email.server"), "mail address as scheme specific part expected");
+       Assertions.assertTrue(result.contains("mail%20subject"), "correct parameter encoding expected for that scheme");
     }
 
     @Test
     public void testNormalizeSyntax() throws Exception {
-        Assert.assertEquals("example://a/b/c/%7Bfoo%7D",
+        Assertions.assertEquals("example://a/b/c/%7Bfoo%7D",
                 new URIBuilder("eXAMPLE://a/./b/../b/%63/%7bfoo%7d").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("http://www.example.com/%3C",
+        Assertions.assertEquals("http://www.example.com/%3C",
                 new URIBuilder("http://www.example.com/%3c").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("http://www.example.com/",
+        Assertions.assertEquals("http://www.example.com/",
                 new URIBuilder("HTTP://www.EXAMPLE.com/").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("http://www.example.com/a%2F",
+        Assertions.assertEquals("http://www.example.com/a%2F",
                 new URIBuilder("http://www.example.com/a%2f").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("http://www.example.com/?a%2F",
+        Assertions.assertEquals("http://www.example.com/?a%2F",
                 new URIBuilder("http://www.example.com/?a%2f").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("http://www.example.com/?q=%26",
+        Assertions.assertEquals("http://www.example.com/?q=%26",
                 new URIBuilder("http://www.example.com/?q=%26").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("http://www.example.com/%23?q=%26",
+        Assertions.assertEquals("http://www.example.com/%23?q=%26",
                 new URIBuilder("http://www.example.com/%23?q=%26").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("http://www.example.com/blah-%28%20-blah-%20%26%20-blah-%20%29-blah/",
+        Assertions.assertEquals("http://www.example.com/blah-%28%20-blah-%20%26%20-blah-%20%29-blah/",
                 new URIBuilder("http://www.example.com/blah-%28%20-blah-%20&%20-blah-%20)-blah/").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("../../.././",
+        Assertions.assertEquals("../../.././",
                 new URIBuilder("../../.././").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("file:../../.././",
+        Assertions.assertEquals("file:../../.././",
                 new URIBuilder("file:../../.././").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("http://host/",
+        Assertions.assertEquals("http://host/",
                 new URIBuilder("http://host/../../.././").normalizeSyntax().build().toASCIIString());
-        Assert.assertEquals("http:/",
+        Assertions.assertEquals("http:/",
                 new URIBuilder("http:///../../.././").normalizeSyntax().build().toASCIIString());
     }
 
@@ -912,14 +913,14 @@ public class TestURIBuilder {
     public void testIpv6Host() throws Exception {
         final URIBuilder builder = new URIBuilder("https://[::1]:432/path");
         final URI uri = builder.build();
-        Assert.assertEquals(432, builder.getPort());
-        Assert.assertEquals(432, uri.getPort());
-        Assert.assertEquals("https", builder.getScheme());
-        Assert.assertEquals("https", uri.getScheme());
-        Assert.assertEquals("::1", builder.getHost());
-        Assert.assertEquals("[::1]", uri.getHost());
-        Assert.assertEquals("/path", builder.getPath());
-        Assert.assertEquals("/path", uri.getPath());
+        Assertions.assertEquals(432, builder.getPort());
+        Assertions.assertEquals(432, uri.getPort());
+        Assertions.assertEquals("https", builder.getScheme());
+        Assertions.assertEquals("https", uri.getScheme());
+        Assertions.assertEquals("::1", builder.getHost());
+        Assertions.assertEquals("[::1]", uri.getHost());
+        Assertions.assertEquals("/path", builder.getPath());
+        Assertions.assertEquals("/path", uri.getPath());
     }
 
     @Test
@@ -928,27 +929,27 @@ public class TestURIBuilder {
         // and bypasses the fast/simple path which preserves input.
         final URIBuilder builder = new URIBuilder("https://[::1]:432/path").setPort(123);
         final URI uri = builder.build();
-        Assert.assertEquals(123, builder.getPort());
-        Assert.assertEquals(123, uri.getPort());
-        Assert.assertEquals("https", builder.getScheme());
-        Assert.assertEquals("https", uri.getScheme());
-        Assert.assertEquals("::1", builder.getHost());
-        Assert.assertEquals("[::1]", uri.getHost());
-        Assert.assertEquals("/path", builder.getPath());
-        Assert.assertEquals("/path", uri.getPath());
+        Assertions.assertEquals(123, builder.getPort());
+        Assertions.assertEquals(123, uri.getPort());
+        Assertions.assertEquals("https", builder.getScheme());
+        Assertions.assertEquals("https", uri.getScheme());
+        Assertions.assertEquals("::1", builder.getHost());
+        Assertions.assertEquals("[::1]", uri.getHost());
+        Assertions.assertEquals("/path", builder.getPath());
+        Assertions.assertEquals("/path", uri.getPath());
     }
 
     @Test
     public void testBuilderWithUnbracketedIpv6Host() throws Exception {
         final URIBuilder builder = new URIBuilder().setScheme("https").setHost("::1").setPort(443).setPath("/path");
         final URI uri = builder.build();
-        Assert.assertEquals("https", builder.getScheme());
-        Assert.assertEquals("https", uri.getScheme());
-        Assert.assertEquals(443, builder.getPort());
-        Assert.assertEquals(443, uri.getPort());
-        Assert.assertEquals("::1", builder.getHost());
-        Assert.assertEquals("[::1]", uri.getHost());
-        Assert.assertEquals("/path", builder.getPath());
-        Assert.assertEquals("/path", uri.getPath());
+        Assertions.assertEquals("https", builder.getScheme());
+        Assertions.assertEquals("https", uri.getScheme());
+        Assertions.assertEquals(443, builder.getPort());
+        Assertions.assertEquals(443, uri.getPort());
+        Assertions.assertEquals("::1", builder.getHost());
+        Assertions.assertEquals("[::1]", uri.getHost());
+        Assertions.assertEquals("/path", builder.getPath());
+        Assertions.assertEquals("/path", uri.getPath());
     }
 }

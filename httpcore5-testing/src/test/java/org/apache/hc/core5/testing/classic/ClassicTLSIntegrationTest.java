@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.testing.classic;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -55,12 +57,13 @@ import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExternalResource;
 
+@EnableRuleMigrationSupport
 public class ClassicTLSIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
@@ -129,15 +132,15 @@ public class ClassicTLSIntegrationTest {
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
         try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
-            MatcherAssert.assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body1 = EntityUtils.toString(response1.getEntity());
-            MatcherAssert.assertThat(body1, CoreMatchers.equalTo("some stuff"));
+            assertThat(body1, CoreMatchers.equalTo("some stuff"));
         }
 
         final SSLSession sslSession = sslSessionRef.getAndSet(null);
         final ProtocolVersion tlsVersion = TLS.parse(sslSession.getProtocol());
-        MatcherAssert.assertThat(tlsVersion.greaterEquals(TLS.V_1_2.version), CoreMatchers.equalTo(true));
-        MatcherAssert.assertThat(sslSession.getPeerPrincipal().getName(),
+        assertThat(tlsVersion.greaterEquals(TLS.V_1_2.version), CoreMatchers.equalTo(true));
+        assertThat(sslSession.getPeerPrincipal().getName(),
                 CoreMatchers.equalTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation"));
     }
 
@@ -167,7 +170,7 @@ public class ClassicTLSIntegrationTest {
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        Assert.assertThrows(IOException.class, () -> {
+        Assertions.assertThrows(IOException.class, () -> {
             try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
                 EntityUtils.consume(response1.getEntity());
             }
@@ -202,7 +205,7 @@ public class ClassicTLSIntegrationTest {
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        Assert.assertThrows(IOException.class, () -> {
+        Assertions.assertThrows(IOException.class, () -> {
             try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
                 EntityUtils.consume(response1.getEntity());
             }
@@ -230,7 +233,7 @@ public class ClassicTLSIntegrationTest {
         final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
-        Assert.assertThrows(IOException.class, () -> {
+        Assertions.assertThrows(IOException.class, () -> {
             try (final ClassicHttpResponse response1 = requester.execute(target, request1, TIMEOUT, context)) {
                 EntityUtils.consume(response1.getEntity());
             }
@@ -271,7 +274,7 @@ public class ClassicTLSIntegrationTest {
                     .setSslContext(SSLTestContexts.createServerSSLContext())
                     .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{cipherSuite}))
                     .create();
-            Assert.assertThrows(Exception.class, () -> {
+            Assertions.assertThrows(Exception.class, () -> {
                 try {
                     server.start();
 

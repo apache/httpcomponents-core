@@ -72,7 +72,9 @@
     <maven.compiler.target>1.8</maven.compiler.target>
     <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
     <conscrypt.version>2.5.2</conscrypt.version>
-    <junit.version>4.13.2</junit.version>
+    <junit.version>5.8.1</junit.version>
+    <hamcrest.version>2.2</hamcrest.version>
+    <junit.migrationsupport.version>5.0.0</junit.migrationsupport.version>
     <mockito.version>4.0.0</mockito.version>
     <slf4j.version>1.7.25</slf4j.version>
     <log4j.version>2.14.1</log4j.version>
@@ -110,9 +112,16 @@
         <version>${conscrypt.version}</version>
       </dependency>
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
         <version>${junit.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.hamcrest</groupId>
+        <artifactId>hamcrest</artifactId>
+        <version>${hamcrest.version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -135,6 +144,12 @@
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-core</artifactId>
         <version>${log4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-migrationsupport</artifactId>
+        <version>${junit.migrationsupport.version}</version>
+        <scope>test</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>

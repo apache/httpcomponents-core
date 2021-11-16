@@ -55,10 +55,10 @@ import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.conscrypt.Conscrypt;
-import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExternalResource;
 import org.junit.rules.RuleChain;
 import org.junit.rules.TestRule;
@@ -68,6 +68,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @RunWith(Parameterized.class)
+@EnableRuleMigrationSupport
 public class JSSEProviderIntegrationTest {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -106,7 +107,7 @@ public class JSSEProviderIntegrationTest {
                 try {
                     securityProvider = Conscrypt.newProviderBuilder().provideTrustManager(true).build();
                 } catch (final UnsatisfiedLinkError e) {
-                    Assume.assumeFalse("Conscrypt provider failed to be loaded: " + e.getMessage(), true);
+                    Assertions.fail("Conscrypt provider failed to be loaded: " + e.getMessage());
                 }
             } else {
                 securityProvider = null;
@@ -220,12 +221,12 @@ public class JSSEProviderIntegrationTest {
                     new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                     new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
             final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-            Assert.assertNotNull(result);
+            Assertions.assertNotNull(result);
             final HttpResponse response1 = result.getHead();
             final String entity1 = result.getBody();
-            Assert.assertNotNull(response1);
-            Assert.assertEquals(200, response1.getCode());
-            Assert.assertEquals("Hi there", entity1);
+            Assertions.assertNotNull(response1);
+            Assertions.assertEquals(200, response1.getCode());
+            Assertions.assertEquals("Hi there", entity1);
         }
     }
 
@@ -246,12 +247,12 @@ public class JSSEProviderIntegrationTest {
                                 .build(),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
                 final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-                Assert.assertNotNull(result);
+                Assertions.assertNotNull(result);
                 final HttpResponse response1 = result.getHead();
                 final String entity1 = result.getBody();
-                Assert.assertNotNull(response1);
-                Assert.assertEquals(200, response1.getCode());
-                Assert.assertEquals("Hi there", entity1);
+                Assertions.assertNotNull(response1);
+                Assertions.assertEquals(200, response1.getCode());
+                Assertions.assertEquals("Hi there", entity1);
             }
         }
     }
@@ -272,12 +273,12 @@ public class JSSEProviderIntegrationTest {
                         new BasicRequestProducer(Method.GET, createRequestURI(serverEndpoint, "/hello")),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
                 final Message<HttpResponse, String> result = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-                Assert.assertNotNull(result);
+                Assertions.assertNotNull(result);
                 final HttpResponse response = result.getHead();
                 final String entity = result.getBody();
-                Assert.assertNotNull(response);
-                Assert.assertEquals(200, response.getCode());
-                Assert.assertEquals("Hi there", entity);
+                Assertions.assertNotNull(response);
+                Assertions.assertEquals(200, response.getCode());
+                Assertions.assertEquals("Hi there", entity);
             }
         }
     }

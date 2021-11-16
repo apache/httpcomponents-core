@@ -38,6 +38,7 @@ import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.QUERY;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.REQUEST;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.RESPONSE;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.STATUS;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,9 +51,8 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.MatcherAssert;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -66,7 +66,7 @@ public class TestTestingFramework {
 
     private void assertUnmodifiable(final Map<String, String> map) {
         final String aKey = (String) map.keySet().toArray()[0];
-        Assert.assertThrows(UnsupportedOperationException.class, () -> map.remove(aKey));
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> map.remove(aKey));
     }
 
     private TestingFramework newWebServerTestingFramework(final ClientTestingAdapter adapter)
@@ -85,7 +85,7 @@ public class TestTestingFramework {
     @Test
     public void runTestsWithoutSettingAdapterThrows() throws Exception {
         final TestingFramework framework = newWebServerTestingFramework();
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -93,7 +93,7 @@ public class TestTestingFramework {
         final ClientTestingAdapter adapter = null;
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -102,7 +102,7 @@ public class TestTestingFramework {
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
         framework.setAdapter(adapter);
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -160,21 +160,19 @@ public class TestTestingFramework {
                                    final Map<String, Object> request,
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) throws TestingFrameworkException {
-                MatcherAssert.assertThat(defaultURI, matchesDefaultURI());
+                assertThat(defaultURI, matchesDefaultURI());
 
-                Assert.assertNotNull("request should not be null", request);
+                Assertions.assertNotNull(request, "request should not be null");
 
                 // The request should be equal to the default request.
                 final Map<String, Object> defaultRequest = new FrameworkTest().initRequest();
-                Assert.assertEquals("The request does not match the default", defaultRequest, request);
+                Assertions.assertEquals(defaultRequest, request, "The request does not match the default");
 
-                Assert.assertSame("The request handler should have been passed to the adapter",
-                                  mockRequestHandler, requestHandler);
+                Assertions.assertSame(mockRequestHandler, requestHandler, "The request handler should have been passed to the adapter");
 
                 // The responseExpectations should be equal to the default.
                 final Map<String, Object> defaultResponseExpectations = new FrameworkTest().initResponseExpectations();
-                Assert.assertEquals("The responseExpectations do not match the defaults",
-                                    defaultResponseExpectations, responseExpectations);
+                Assertions.assertEquals(defaultResponseExpectations, responseExpectations, "The responseExpectations do not match the defaults");
 
                 final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, responseExpectations.get(STATUS));
@@ -224,7 +222,7 @@ public class TestTestingFramework {
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) {
 
-                Assert.assertEquals(200, responseExpectations.get(STATUS));
+                Assertions.assertEquals(200, responseExpectations.get(STATUS));
 
                 // return a different status than expected.
                 final Map<String, Object> response = new HashMap<>();
@@ -237,7 +235,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     private Map<String, Object> alreadyCheckedResponse() {
@@ -281,7 +279,7 @@ public class TestTestingFramework {
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) {
 
-                Assert.assertEquals(TestingFramework.DEFAULT_RESPONSE_BODY, responseExpectations.get(BODY));
+                Assertions.assertEquals(TestingFramework.DEFAULT_RESPONSE_BODY, responseExpectations.get(BODY));
 
                 final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, TestingFramework.ALREADY_CHECKED);
@@ -296,7 +294,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -309,7 +307,7 @@ public class TestTestingFramework {
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) {
 
-                Assert.assertEquals(TestingFramework.DEFAULT_RESPONSE_CONTENT_TYPE, responseExpectations.get(CONTENT_TYPE));
+                Assertions.assertEquals(TestingFramework.DEFAULT_RESPONSE_CONTENT_TYPE, responseExpectations.get(CONTENT_TYPE));
 
                 final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, TestingFramework.ALREADY_CHECKED);
@@ -327,7 +325,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -335,21 +333,21 @@ public class TestTestingFramework {
         // save a copy of the headers to make sure they haven't changed at the end of this test.
         @SuppressWarnings("unchecked")
         final Map<String, String> headersCopy = (Map<String, String>) TestingFramework.deepcopy(TestingFramework.DEFAULT_RESPONSE_HEADERS);
-        Assert.assertEquals(TestingFramework.DEFAULT_RESPONSE_HEADERS, headersCopy);
+        Assertions.assertEquals(TestingFramework.DEFAULT_RESPONSE_HEADERS, headersCopy);
 
         final Map<String, Object> deepMap = new HashMap<>();
         deepMap.put(HEADERS, TestingFramework.DEFAULT_RESPONSE_HEADERS);
 
         @SuppressWarnings("unchecked")
         final Map<String, Object> deepMapCopy = (Map<String, Object>) TestingFramework.deepcopy(deepMap);
-        Assert.assertEquals(deepMap, deepMapCopy);
+        Assertions.assertEquals(deepMap, deepMapCopy);
 
         @SuppressWarnings("unchecked")
         final Map<String, String> headersMap = (Map<String, String>) deepMapCopy.get(HEADERS);
-        Assert.assertEquals(headersCopy, headersMap);
+        Assertions.assertEquals(headersCopy, headersMap);
 
         // now make sure the default headers have not changed for some unexpected reason.
-        Assert.assertEquals(TestingFramework.DEFAULT_RESPONSE_HEADERS, headersCopy);
+        Assertions.assertEquals(TestingFramework.DEFAULT_RESPONSE_HEADERS, headersCopy);
     }
 
     @Test
@@ -362,7 +360,7 @@ public class TestTestingFramework {
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) {
 
-                Assert.assertEquals(TestingFramework.DEFAULT_RESPONSE_HEADERS, responseExpectations.get(HEADERS));
+                Assertions.assertEquals(TestingFramework.DEFAULT_RESPONSE_HEADERS, responseExpectations.get(HEADERS));
 
                 @SuppressWarnings("unchecked")
                 final Map<String, String> headersCopy = (Map<String, String>) deepcopy(responseExpectations.get(HEADERS));
@@ -385,7 +383,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -398,7 +396,7 @@ public class TestTestingFramework {
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) {
 
-                Assert.assertEquals(TestingFramework.DEFAULT_RESPONSE_HEADERS, responseExpectations.get(HEADERS));
+                Assertions.assertEquals(TestingFramework.DEFAULT_RESPONSE_HEADERS, responseExpectations.get(HEADERS));
 
                 @SuppressWarnings("unchecked")
                 final Map<String, String> headersCopy = (Map<String, String>) deepcopy(responseExpectations.get(HEADERS));
@@ -421,14 +419,14 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     private Object deepcopy(final Object obj) {
         try {
             return TestingFramework.deepcopy(obj);
         } catch (final Exception e) {
-            Assert.fail("deepcopy failed: " + e.getMessage());
+            Assertions.fail("deepcopy failed: " + e.getMessage());
             return null;
         }
     }
@@ -443,7 +441,7 @@ public class TestTestingFramework {
                     final TestingFrameworkRequestHandler requestHandler,
                     final Map<String, Object> responseExpectations) throws TestingFrameworkException {
                 // change the request from what is expected.
-                Assert.assertEquals("GET", request.get(METHOD));
+                Assertions.assertEquals("GET", request.get(METHOD));
                 request.put(METHOD, "POST");
                 return super.execute(defaultURI, request, requestHandler, responseExpectations);
             }
@@ -458,7 +456,7 @@ public class TestTestingFramework {
 
         framework.addTest(test);
 
-        final TestingFrameworkException exception = Assert.assertThrows(TestingFrameworkException.class, () ->
+        final TestingFrameworkException exception = Assertions.assertThrows(TestingFrameworkException.class, () ->
                 framework.runTests());
         // make sure the HTTP Client name is in the message.
         final String message = exception.getMessage();
@@ -466,13 +464,9 @@ public class TestTestingFramework {
         final String httpClientName = pojoAdapter == null ?
                 TestingFrameworkException.NO_HTTP_CLIENT :
                 pojoAdapter.getClientName();
-        Assert.assertTrue(
-                "Message should contain httpClientName of " + httpClientName + "; message=" + message,
-                message.contains(httpClientName));
+        Assertions.assertTrue(message.contains(httpClientName), "Message should contain httpClientName of " + httpClientName + "; message=" + message);
 
-        Assert.assertTrue(
-                "Message should contain the test. message=" + message,
-                message.contains("MyName"));
+        Assertions.assertTrue(message.contains("MyName"), "Message should contain the test. message=" + message);
     }
 
     @Test
@@ -502,7 +496,7 @@ public class TestTestingFramework {
                     final TestingFrameworkRequestHandler requestHandler,
                     final Map<String, Object> responseExpectations)
                        throws TestingFrameworkException {
-                Assert.assertEquals(201, responseExpectations.get(STATUS));
+                Assertions.assertEquals(201, responseExpectations.get(STATUS));
                 return alreadyCheckedResponse();
             }
         };
@@ -535,7 +529,7 @@ public class TestTestingFramework {
                 // change the request from what is expected.
                 @SuppressWarnings("unchecked")
                 final Map<String, String> query = (Map<String, String>) request.get(QUERY);
-                Assert.assertTrue(query.containsKey("p1"));
+                Assertions.assertTrue(query.containsKey("p1"));
                 query.remove("p1");
                 return super.execute(defaultURI, request, requestHandler, responseExpectations);
             }
@@ -545,7 +539,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -560,7 +554,7 @@ public class TestTestingFramework {
                 // change the request from what is expected.
                 @SuppressWarnings("unchecked")
                 final Map<String, String> query = (Map<String, String>) request.get(QUERY);
-                Assert.assertTrue(query.containsKey("p1"));
+                Assertions.assertTrue(query.containsKey("p1"));
                 query.put("p1", query.get("p1") + "junk");
                 return super.execute(defaultURI, request, requestHandler, responseExpectations);
             }
@@ -570,7 +564,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -585,7 +579,7 @@ public class TestTestingFramework {
                 // change the request from what is expected.
                 @SuppressWarnings("unchecked")
                 final Map<String, String> headers = (Map<String, String>) request.get(HEADERS);
-                Assert.assertTrue(headers.containsKey("header1"));
+                Assertions.assertTrue(headers.containsKey("header1"));
                 headers.remove("header1");
                 return super.execute(defaultURI, request, requestHandler, responseExpectations);
             }
@@ -595,7 +589,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -610,7 +604,7 @@ public class TestTestingFramework {
                 // change the request from what is expected.
                 @SuppressWarnings("unchecked")
                 final Map<String, String> headers = (Map<String, String>) request.get(HEADERS);
-                Assert.assertTrue(headers.containsKey("header1"));
+                Assertions.assertTrue(headers.containsKey("header1"));
                 headers.put("header1", headers.get("header1") + "junk");
                 return super.execute(defaultURI, request, requestHandler, responseExpectations);
             }
@@ -620,7 +614,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -634,7 +628,7 @@ public class TestTestingFramework {
                     final Map<String, Object> responseExpectations) throws TestingFrameworkException {
                 // change the request from what is expected.
                 final String body = (String) request.get(BODY);
-                Assert.assertNotNull(body);
+                Assertions.assertNotNull(body);
                 request.put(BODY, request.get(BODY) + "junk");
                 return super.execute(defaultURI, request, requestHandler, responseExpectations);
             }
@@ -644,7 +638,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -658,7 +652,7 @@ public class TestTestingFramework {
                     final Map<String, Object> responseExpectations) throws TestingFrameworkException {
                 // change the request from what is expected.
                 final String contentType = (String) request.get(CONTENT_TYPE);
-                Assert.assertNotNull(contentType);
+                Assertions.assertNotNull(contentType);
                 request.put(CONTENT_TYPE, request.get(CONTENT_TYPE) + "junk");
                 return super.execute(defaultURI, request, requestHandler, responseExpectations);
             }
@@ -668,7 +662,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -682,7 +676,7 @@ public class TestTestingFramework {
                     final Map<String, Object> responseExpectations) throws TestingFrameworkException {
                 // change the request from what is expected.
                 final ProtocolVersion protocolVersion = (ProtocolVersion) request.get(PROTOCOL_VERSION);
-                Assert.assertNotNull(protocolVersion);
+                Assertions.assertNotNull(protocolVersion);
                 request.put(PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
                 return super.execute(defaultURI, request, requestHandler, responseExpectations);
             }
@@ -692,7 +686,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -720,7 +714,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assert.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
@@ -734,14 +728,14 @@ public class TestTestingFramework {
                     final Map<String, Object> responseExpectations) throws TestingFrameworkException {
                 // change the responseExpectations from what is expected.  The change should be ignored
                 // by the request handler, and a 200 should actually be returned.
-                Assert.assertEquals(200, responseExpectations.get(STATUS));
+                Assertions.assertEquals(200, responseExpectations.get(STATUS));
 
                 // The next line is needed because we have to make a copy of the responseExpectations.
                 // It is an unmodifiable map.
                 final Map<String, Object> tempResponseExpectations = new HashMap<>(responseExpectations);
                 tempResponseExpectations.put(STATUS, 201);
                 final Map<String, Object> response = super.execute(defaultURI, request, requestHandler, tempResponseExpectations);
-                Assert.assertEquals(200,  response.get(STATUS));
+                Assertions.assertEquals(200,  response.get(STATUS));
 
                 return response;
             }
@@ -767,7 +761,7 @@ public class TestTestingFramework {
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) throws TestingFrameworkException {
                 // make sure the modifyRequest method was called by seeing if the request was modified.
-                Assert.assertTrue("modifyRequest should have been called.", request.containsKey(UNLIKELY_ITEM));
+                Assertions.assertTrue(request.containsKey(UNLIKELY_ITEM), "modifyRequest should have been called.");
 
                 final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, responseExpectations.get(STATUS));
@@ -809,7 +803,7 @@ public class TestTestingFramework {
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) throws TestingFrameworkException {
                 // make sure the modifyRequest method was called by seeing if the request was modified.
-                Assert.assertTrue("modifyResponseExpectations should have been called.", responseExpectations.containsKey(UNLIKELY_ITEM));
+                Assertions.assertTrue(responseExpectations.containsKey(UNLIKELY_ITEM), "modifyResponseExpectations should have been called.");
 
                 final Map<String, Object> response = new HashMap<>();
                 response.put(STATUS, responseExpectations.get(STATUS));
@@ -851,7 +845,7 @@ public class TestTestingFramework {
                                    final TestingFrameworkRequestHandler requestHandler,
                                    final Map<String, Object> responseExpectations) throws TestingFrameworkException {
 
-                Assert.fail("callMethod should not have been called");
+                Assertions.fail("callMethod should not have been called");
                 return null;
             }
 
@@ -892,7 +886,7 @@ public class TestTestingFramework {
         framework.runTests();
 
         for (final String method : TestingFramework.ALL_METHODS) {
-            Assert.assertTrue("Method not in default tests.  method=" + method, calledMethodSet.contains(method));
+            Assertions.assertTrue(calledMethodSet.contains(method), "Method not in default tests.  method=" + method);
         }
     }
 
@@ -1046,14 +1040,13 @@ public class TestTestingFramework {
                     final Map<String, Object> responseExpectations) throws TestingFrameworkException {
                 @SuppressWarnings("unchecked")
                 final Map<String, String> query = (Map<String, String>) request.get(QUERY);
-                Assert.assertTrue("Parameters appended to the path should have been put in the query.",
-                                   query.containsKey("stuffParm"));
+                Assertions.assertTrue(query.containsKey("stuffParm"), "Parameters appended to the path should have been put in the query.");
 
-                Assert.assertTrue(query.containsKey("stuffParm2"));
-                Assert.assertEquals("stuff", query.get("stuffParm"));
-                Assert.assertEquals("stuff2", query.get("stuffParm2"));
+                Assertions.assertTrue(query.containsKey("stuffParm2"));
+                Assertions.assertEquals("stuff", query.get("stuffParm"));
+                Assertions.assertEquals("stuff2", query.get("stuffParm2"));
 
-                Assert.assertEquals("/stuff", request.get(PATH));
+                Assertions.assertEquals("/stuff", request.get(PATH));
                 return alreadyCheckedResponse();
             }
         };

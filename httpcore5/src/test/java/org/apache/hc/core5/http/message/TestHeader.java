@@ -33,8 +33,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import org.apache.hc.core5.http.Header;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link Header}.
@@ -44,28 +44,28 @@ public class TestHeader {
     @Test
     public void testBasicConstructor() {
         final Header header = new BasicHeader("name", "value");
-        Assert.assertEquals("name", header.getName());
-        Assert.assertEquals("value", header.getValue());
+        Assertions.assertEquals("name", header.getName());
+        Assertions.assertEquals("value", header.getValue());
     }
 
     @Test
     public void testBasicConstructorNullValue() {
         final Header header = new BasicHeader("name", null);
-        Assert.assertEquals("name", header.getName());
-        Assert.assertNull(header.getValue());
+        Assertions.assertEquals("name", header.getName());
+        Assertions.assertNull(header.getValue());
     }
 
     @Test
     public void testInvalidName() {
-        Assert.assertThrows(NullPointerException.class, () -> new BasicHeader(null, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHeader(null, null));
     }
 
     @Test
     public void testToString() {
         final Header header1 = new BasicHeader("name1", "value1");
-        Assert.assertEquals("name1: value1", header1.toString());
+        Assertions.assertEquals("name1: value1", header1.toString());
         final Header header2 = new BasicHeader("name2", null);
-        Assert.assertEquals("name2: ", header2.toString());
+        Assertions.assertEquals("name2: ", header2.toString());
     }
 
     @Test
@@ -79,8 +79,8 @@ public class TestHeader {
         final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream inStream = new ObjectInputStream(inBuffer);
         final BasicHeader clone = (BasicHeader) inStream.readObject();
-        Assert.assertEquals(orig.getName(), clone.getName());
-        Assert.assertEquals(orig.getValue(), clone.getValue());
+        Assertions.assertEquals(orig.getName(), clone.getName());
+        Assertions.assertEquals(orig.getValue(), clone.getValue());
     }
 
 }

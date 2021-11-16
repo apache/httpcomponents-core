@@ -34,8 +34,8 @@ import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestBasicAsyncEntityProducer {
 
@@ -45,17 +45,17 @@ public class TestBasicAsyncEntityProducer {
         final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
                 new byte[] { 'a', 'b', 'c' }, ContentType.DEFAULT_BINARY);
 
-        Assert.assertEquals(3, producer.getContentLength());
-        Assert.assertEquals(ContentType.DEFAULT_BINARY.toString(), producer.getContentType());
-        Assert.assertNull(producer.getContentEncoding());
+        Assertions.assertEquals(3, producer.getContentLength());
+        Assertions.assertEquals(ContentType.DEFAULT_BINARY.toString(), producer.getContentType());
+        Assertions.assertNull(producer.getContentEncoding());
 
         final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
         final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
         producer.produce(streamChannel);
 
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertFalse(byteChannel.isOpen());
+        Assertions.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
     }
 
     @Test
@@ -64,17 +64,17 @@ public class TestBasicAsyncEntityProducer {
         final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
                 "abc", ContentType.TEXT_PLAIN);
 
-        Assert.assertEquals(3, producer.getContentLength());
-        Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
-        Assert.assertNull(producer.getContentEncoding());
+        Assertions.assertEquals(3, producer.getContentLength());
+        Assertions.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
+        Assertions.assertNull(producer.getContentEncoding());
 
         final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
         final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
 
         producer.produce(streamChannel);
 
-        Assert.assertFalse(byteChannel.isOpen());
-        Assert.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
+        Assertions.assertFalse(byteChannel.isOpen());
+        Assertions.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
     }
 
     @Test
@@ -82,9 +82,9 @@ public class TestBasicAsyncEntityProducer {
         final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
                 "abc", ContentType.TEXT_PLAIN);
 
-        Assert.assertEquals(3, producer.getContentLength());
-        Assert.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
-        Assert.assertNull(producer.getContentEncoding());
+        Assertions.assertEquals(3, producer.getContentLength());
+        Assertions.assertEquals(ContentType.TEXT_PLAIN.toString(), producer.getContentType());
+        Assertions.assertNull(producer.getContentEncoding());
 
         for (int i = 0; i < 3; i++) {
             final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
@@ -92,8 +92,8 @@ public class TestBasicAsyncEntityProducer {
 
             producer.produce(streamChannel);
 
-            Assert.assertFalse(byteChannel.isOpen());
-            Assert.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
+            Assertions.assertFalse(byteChannel.isOpen());
+            Assertions.assertEquals("abc", byteChannel.dump(StandardCharsets.US_ASCII));
 
             producer.releaseResources();
         }

@@ -26,34 +26,29 @@
  */
 package org.apache.hc.core5.http.nio.entity;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /**
  * @since 5.0
  */
 public class TestPathEntityProducer {
 
-    @ClassRule
-    public static final TemporaryFolder tempFolder = new TemporaryFolder();
-
     @Test
-    public void testFileLengthMaxIntPlusOne() throws IOException {
-        final File file = tempFolder.newFile("test.bin");
-        final Path path = file.toPath();
-        try (RandomAccessFile raFile = new RandomAccessFile(file, "rw")) {
+    public void testFileLengthMaxIntPlusOne(@TempDir final Path tempFolder) throws IOException {
+        final Path path = Files.createFile(tempFolder.resolve("test.bin"));
+        try (RandomAccessFile raFile = new RandomAccessFile(path.toFile(), "rw")) {
             final long expectedLength = 1L + Integer.MAX_VALUE;
             raFile.setLength(expectedLength);
             final PathEntityProducer fileEntityProducer = new PathEntityProducer(path, StandardOpenOption.READ);
-            Assert.assertEquals(expectedLength, fileEntityProducer.getContentLength());
+            Assertions.assertEquals(expectedLength, fileEntityProducer.getContentLength());
         }
     }
 

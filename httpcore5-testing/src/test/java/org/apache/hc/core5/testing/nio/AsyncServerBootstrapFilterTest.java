@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
@@ -61,13 +63,14 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@EnableRuleMigrationSupport
 public class AsyncServerBootstrapFilterTest {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
@@ -176,11 +179,11 @@ public class AsyncServerBootstrapFilterTest {
                         new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
         final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        MatcherAssert.assertThat(message, CoreMatchers.notNullValue());
+        assertThat(message, CoreMatchers.notNullValue());
         final HttpResponse response = message.getHead();
-        MatcherAssert.assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
         final Header testFilterHeader = response.getHeader("X-Test-Filter");
-        MatcherAssert.assertThat(testFilterHeader, CoreMatchers.notNullValue());
+        assertThat(testFilterHeader, CoreMatchers.notNullValue());
     }
 
 }

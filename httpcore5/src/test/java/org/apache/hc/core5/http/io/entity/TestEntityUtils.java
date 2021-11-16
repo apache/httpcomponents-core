@@ -44,8 +44,8 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.net.WWWFormCodec;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link EntityUtils}.
@@ -55,7 +55,7 @@ public class TestEntityUtils {
 
     @Test
     public void testNullEntityToByteArray() throws Exception {
-        Assert.assertThrows(NullPointerException.class, () ->
+        Assertions.assertThrows(NullPointerException.class, () ->
                 EntityUtils.toByteArray(null));
     }
 
@@ -64,7 +64,7 @@ public class TestEntityUtils {
         final byte[] content = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(content),
                 Integer.MAX_VALUE + 100L, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1));
-        Assert.assertThrows(IllegalArgumentException.class, () ->
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
                 EntityUtils.toByteArray(entity));
     }
 
@@ -73,10 +73,10 @@ public class TestEntityUtils {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), -1, null);
         final byte[] bytes2 = EntityUtils.toByteArray(entity);
-        Assert.assertNotNull(bytes2);
-        Assert.assertEquals(bytes.length, bytes2.length);
+        Assertions.assertNotNull(bytes2);
+        Assertions.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            Assert.assertEquals(bytes[i], bytes2[i]);
+            Assertions.assertEquals(bytes[i], bytes2[i]);
         }
     }
 
@@ -85,16 +85,16 @@ public class TestEntityUtils {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length, null);
         final byte[] bytes2 = EntityUtils.toByteArray(entity);
-        Assert.assertNotNull(bytes2);
-        Assert.assertEquals(bytes.length, bytes2.length);
+        Assertions.assertNotNull(bytes2);
+        Assertions.assertEquals(bytes.length, bytes2.length);
         for (int i = 0; i < bytes.length; i++) {
-            Assert.assertEquals(bytes[i], bytes2[i]);
+            Assertions.assertEquals(bytes[i], bytes2[i]);
         }
     }
 
     @Test
     public void testNullEntityToString() throws Exception {
-        Assert.assertThrows(NullPointerException.class, () -> EntityUtils.toString(null));
+        Assertions.assertThrows(NullPointerException.class, () -> EntityUtils.toString(null));
     }
 
     @Test
@@ -102,7 +102,7 @@ public class TestEntityUtils {
         final byte[] content = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(content),
                 Integer.MAX_VALUE + 100L, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1));
-        Assert.assertThrows(IllegalArgumentException.class, () ->
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
                 EntityUtils.toString(entity));
     }
 
@@ -111,7 +111,7 @@ public class TestEntityUtils {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.ISO_8859_1);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), -1, null);
         final String s = EntityUtils.toString(entity, "ISO-8859-1");
-        Assert.assertEquals("Message content", s);
+        Assertions.assertEquals("Message content", s);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class TestEntityUtils {
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length,
                 ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1));
         final String s = EntityUtils.toString(entity, StandardCharsets.ISO_8859_1);
-        Assert.assertEquals("Message content", s);
+        Assertions.assertEquals("Message content", s);
     }
 
     static final int SWISS_GERMAN_HELLO [] = {
@@ -157,7 +157,7 @@ public class TestEntityUtils {
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes),
                 ContentType.parse("text/plain"));
         final String s = EntityUtils.toString(entity, Charset.forName("KOI8-R"));
-        Assert.assertEquals(content, s);
+        Assertions.assertEquals(content, s);
     }
 
     @Test
@@ -167,7 +167,7 @@ public class TestEntityUtils {
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes),
                 ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8));
         final String s = EntityUtils.toString(entity, "ISO-8859-1");
-        Assert.assertEquals(content, s);
+        Assertions.assertEquals(content, s);
     }
 
     @Test
@@ -197,26 +197,26 @@ public class TestEntityUtils {
 
         };
         final String s = EntityUtils.toString(entity, "UTF-8");
-        Assert.assertEquals(content, s);
+        Assertions.assertEquals(content, s);
     }
 
     private static void assertNameValuePair (
             final NameValuePair parameter,
             final String expectedName,
             final String expectedValue) {
-        Assert.assertEquals(parameter.getName(), expectedName);
-        Assert.assertEquals(parameter.getValue(), expectedValue);
+        Assertions.assertEquals(parameter.getName(), expectedName);
+        Assertions.assertEquals(parameter.getValue(), expectedValue);
     }
 
     @Test
     public void testParseEntity() throws Exception {
         final StringEntity entity1 = new StringEntity("Name1=Value1", ContentType.APPLICATION_FORM_URLENCODED);
         final List<NameValuePair> result = EntityUtils.parse(entity1);
-        Assert.assertEquals(1, result.size());
+        Assertions.assertEquals(1, result.size());
         assertNameValuePair(result.get(0), "Name1", "Value1");
 
         final StringEntity entity2 = new StringEntity("Name1=Value1", ContentType.parse("text/test"));
-        Assert.assertTrue(EntityUtils.parse(entity2).isEmpty());
+        Assertions.assertTrue(EntityUtils.parse(entity2).isEmpty());
     }
 
     @Test
@@ -229,12 +229,12 @@ public class TestEntityUtils {
 
         final String s = WWWFormCodec.format(parameters, StandardCharsets.UTF_8);
 
-        Assert.assertEquals("russian=%D0%92%D1%81%D0%B5%D0%BC_%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82" +
+        Assertions.assertEquals("russian=%D0%92%D1%81%D0%B5%D0%BC_%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82" +
                 "&swiss=Gr%C3%BCezi_z%C3%A4m%C3%A4", s);
         final StringEntity entity = new StringEntity(s,
                 ContentType.APPLICATION_FORM_URLENCODED.withCharset(StandardCharsets.UTF_8));
         final List<NameValuePair> result = EntityUtils.parse(entity);
-        Assert.assertEquals(2, result.size());
+        Assertions.assertEquals(2, result.size());
         assertNameValuePair(result.get(0), "russian", ru_hello);
         assertNameValuePair(result.get(1), "swiss", ch_hello);
     }
@@ -253,10 +253,10 @@ public class TestEntityUtils {
 
             final byte[] bytes = EntityUtils.toByteArray(entity, tc.getKey());
             final byte[] expectedBytes = tc.getValue();
-            Assert.assertNotNull(bytes);
-            Assert.assertEquals(expectedBytes.length, bytes.length);
+            Assertions.assertNotNull(bytes);
+            Assertions.assertEquals(expectedBytes.length, bytes.length);
             for (int i = 0; i < expectedBytes.length; i++) {
-                Assert.assertEquals(expectedBytes[i], bytes[i]);
+                Assertions.assertEquals(expectedBytes[i], bytes[i]);
             }
         }
     }
@@ -274,8 +274,8 @@ public class TestEntityUtils {
             final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(allBytes), allBytes.length, null);
             final String string = EntityUtils.toString(entity, StandardCharsets.ISO_8859_1, tc.getKey());
             final String expectedString = tc.getValue();
-            Assert.assertNotNull(string);
-            Assert.assertEquals(expectedString, string);
+            Assertions.assertNotNull(string);
+            Assertions.assertEquals(expectedString, string);
         }
     }
 

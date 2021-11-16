@@ -31,20 +31,22 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.SocksProxy;
 import org.apache.hc.core5.util.TimeValue;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 
+@EnableRuleMigrationSupport
 public class Http1SocksProxyIntegrationTest extends Http1IntegrationTest {
 
     protected static SocksProxy PROXY;
 
-    @BeforeClass
+    @BeforeAll
     public static void before() throws Throwable {
         PROXY = new SocksProxy();
         PROXY.start();
     }
 
-    @AfterClass
+    @AfterAll
     public static void after() {
         if (PROXY != null) {
             try {

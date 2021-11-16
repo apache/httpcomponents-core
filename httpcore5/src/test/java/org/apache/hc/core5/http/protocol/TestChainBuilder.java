@@ -31,8 +31,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class TestChainBuilder {
 
@@ -55,13 +55,13 @@ public class TestChainBuilder {
         cb.addFirst(i1);
         cb.addAllLast(i3, i4, i5);
         final LinkedList<HttpRequestInterceptor> list = cb.build();
-        Assert.assertNotNull(list);
-        Assert.assertEquals(5, list.size());
-        Assert.assertSame(i1, list.get(0));
-        Assert.assertSame(i2, list.get(1));
-        Assert.assertSame(i3, list.get(2));
-        Assert.assertSame(i4, list.get(3));
-        Assert.assertSame(i5, list.get(4));
+        Assertions.assertNotNull(list);
+        Assertions.assertEquals(5, list.size());
+        Assertions.assertSame(i1, list.get(0));
+        Assertions.assertSame(i2, list.get(1));
+        Assertions.assertSame(i3, list.get(2));
+        Assertions.assertSame(i4, list.get(3));
+        Assertions.assertSame(i5, list.get(4));
     }
 
 }
