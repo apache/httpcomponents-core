@@ -414,7 +414,7 @@ public final class ContentType implements Serializable {
         return parse(s, false);
     }
 
-    private static ContentType parse(final CharSequence s, final boolean strict) throws UnsupportedCharsetException {
+    private static ContentType parse(final CharSequence s, final boolean strict) {
         if (TextUtils.isBlank(s)) {
             return null;
         }

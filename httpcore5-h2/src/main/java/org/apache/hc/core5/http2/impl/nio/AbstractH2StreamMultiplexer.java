@@ -198,7 +198,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             HttpProcessor httpProcessor,
             BasicHttpConnectionMetrics connMetrics) throws IOException;
 
-    private int updateWindow(final AtomicInteger window, final int delta) throws ArithmeticException {
+    private int updateWindow(final AtomicInteger window, final int delta) {
         for (;;) {
             final int current = window.get();
             long newValue = (long) current + delta;
@@ -220,7 +220,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     private int updateInputWindow(
-            final int streamId, final AtomicInteger window, final int delta) throws ArithmeticException {
+            final int streamId, final AtomicInteger window, final int delta) {
         final int newSize = updateWindow(window, delta);
         if (streamListener != null) {
             streamListener.onInputFlowControl(this, streamId, delta, newSize);
@@ -229,7 +229,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     }
 
     private int updateOutputWindow(
-            final int streamId, final AtomicInteger window, final int delta) throws ArithmeticException {
+            final int streamId, final AtomicInteger window, final int delta) {
         final int newSize = updateWindow(window, delta);
         if (streamListener != null) {
             streamListener.onOutputFlowControl(this, streamId, delta, newSize);
