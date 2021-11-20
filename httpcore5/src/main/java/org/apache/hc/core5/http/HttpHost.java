@@ -37,6 +37,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.net.Host;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.LangUtils;
 import org.apache.hc.core5.util.TextUtils;
@@ -253,6 +254,22 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      */
     public HttpHost(final URIAuthority authority) {
         this(null, authority);
+    }
+
+    /**
+     * Creates {@code HttpHost} instance with the default scheme and the given {@link
+     * NamedEndpoint}
+     *
+     * @throws IllegalArgumentException If the port parameter is outside the specified range of
+     *                                  valid port values, which is between 0 and 65535, inclusive.
+     *                                  {@code -1} indicates the scheme default port.
+     * @see Host
+     * @see URIAuthority
+     * @see EndpointParameters
+     * @since 5.2
+     */
+    public HttpHost(final NamedEndpoint namedEndpoint) {
+        this(null, namedEndpoint);
     }
 
     /**

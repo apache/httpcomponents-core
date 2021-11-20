@@ -35,6 +35,10 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.hc.core5.net.Host;
+import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.reactor.EndpointParameters;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -69,6 +73,27 @@ public class TestHttpHost {
         Assert.assertThrows(NullPointerException.class, () -> new HttpHost(null, (String) null, -1));
         Assert.assertThrows(IllegalArgumentException.class, () -> new HttpHost(null, "   ", -1));
         Assert.assertThrows(NullPointerException.class, () -> new HttpHost(null, (InetAddress) null, -1));
+
+        final Host host = new Host("myHost", 8080);
+        final HttpHost host6 = new HttpHost(host);
+        Assert.assertEquals("myHost", host6.getHostName());
+        Assert.assertEquals(8080, host6.getPort());
+        Assert.assertEquals("http", host6.getSchemeName());
+
+        final URIAuthority uriAuthority = new URIAuthority("myHost", 8080);
+        final HttpHost host7 = new HttpHost(uriAuthority);
+        Assert.assertEquals("myHost", host7.getHostName());
+        Assert.assertEquals(8080, host7.getPort());
+        Assert.assertEquals("http", host7.getSchemeName());
+
+        final EndpointParameters endpointParameters = new EndpointParameters("http", "myHost", 8080, null);
+        final HttpHost host8 = new HttpHost(endpointParameters);
+        Assert.assertEquals("myHost", host8.getHostName());
+        Assert.assertEquals(8080, host8.getPort());
+        Assert.assertEquals("http", host8.getSchemeName());
+
+        Assert.assertThrows(NullPointerException.class, () -> new HttpHost((NamedEndpoint) null));
+
     }
 
     @Test
