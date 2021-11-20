@@ -245,12 +245,11 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     }
 
     /**
-     * @throws IllegalArgumentException
-     *             If the port parameter is outside the specified range of valid port values, which is between 0 and
-     *             65535, inclusive. {@code -1} indicates the scheme default port.
-     *
      * @since 5.0
+     *
+     * @deprecated Use {@link HttpHost#HttpHost(String, NamedEndpoint)}
      */
+    @Deprecated
     public HttpHost(final URIAuthority authority) {
         this(null, authority);
     }
