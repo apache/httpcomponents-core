@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.config;
 
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
@@ -40,6 +42,7 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 4.3
  */
+@Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class Http1Config {
 
     public static final Http1Config DEFAULT = new Builder().build();
@@ -110,7 +113,6 @@ public class Http1Config {
     public static Http1Config.Builder custom() {
         return new Builder();
     }
-
     public static Http1Config.Builder copy(final Http1Config config) {
         Args.notNull(config, "Config");
         return new Builder()
@@ -119,8 +121,17 @@ public class Http1Config {
                 .setWaitForContinueTimeout(config.getWaitForContinueTimeout())
                 .setMaxHeaderCount(config.getMaxHeaderCount())
                 .setMaxLineLength(config.getMaxLineLength())
-                .setMaxEmptyLineCount(config.maxEmptyLineCount);
+                .setMaxEmptyLineCount(config.getMaxEmptyLineCount())
+                .setInitialWindowSize(config.getInitialWindowSize());
     }
+
+    private static final int INIT_WINDOW_SIZE = 65535;
+    private static final int INIT_BUF_SIZE = 8192;
+    private static final Timeout INIT_WAIT_FOR_CONTINUE = Timeout.ofSeconds(3);
+    private static final int INIT_BUF_CHUNK = -1;
+    private static final int INIT_MAX_HEADER_COUNT = -1;
+    private static final int INIT_MAX_LINE_LENGTH = -1;
+    private static final int INIT_MAX_EMPTY_LINE_COUNT = 10;
 
     public static class Builder {
 
@@ -133,13 +144,13 @@ public class Http1Config {
         private int initialWindowSize;
 
         Builder() {
-            this.bufferSize = -1;
-            this.chunkSizeHint = -1;
-            this.waitForContinueTimeout = Timeout.ofSeconds(3);
-            this.maxLineLength = -1;
-            this.maxHeaderCount = -1;
-            this.maxEmptyLineCount = 10;
-            this.initialWindowSize = -1;
+            this.bufferSize = INIT_BUF_SIZE;
+            this.chunkSizeHint = INIT_BUF_CHUNK;
+            this.waitForContinueTimeout = INIT_WAIT_FOR_CONTINUE;
+            this.maxLineLength = INIT_MAX_LINE_LENGTH;
+            this.maxHeaderCount = INIT_MAX_HEADER_COUNT;
+            this.maxEmptyLineCount = INIT_MAX_EMPTY_LINE_COUNT;
+            this.initialWindowSize = INIT_WINDOW_SIZE;
         }
 
         public Builder setBufferSize(final int bufferSize) {
@@ -173,19 +184,20 @@ public class Http1Config {
         }
 
         public Builder setInitialWindowSize(final int initialWindowSize) {
+            Args.positive(initialWindowSize, "Initial window size");
             this.initialWindowSize = initialWindowSize;
             return this;
         }
 
         public Http1Config build() {
             return new Http1Config(
-                    bufferSize > 0 ? bufferSize : 8192,
+                    bufferSize,
                     chunkSizeHint,
-                    waitForContinueTimeout != null ? waitForContinueTimeout : Timeout.ofSeconds(3),
+                    waitForContinueTimeout,
                     maxLineLength,
                     maxHeaderCount,
                     maxEmptyLineCount,
-                    initialWindowSize > 0 ? initialWindowSize : 65535);
+                    initialWindowSize);
         }
 
     }
