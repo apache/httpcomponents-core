@@ -45,6 +45,8 @@ import org.apache.hc.core5.util.Tokenizer;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public final class Host implements NamedEndpoint, Serializable {
 
+    private static final int DEFAULT_PORT = -1;
+
     private static final long serialVersionUID = 1L;
     private final String name;
     private final String lcName;
@@ -55,6 +57,16 @@ public final class Host implements NamedEndpoint, Serializable {
         this.name = Args.notNull(name, "Host name");
         this.port = Ports.checkWithDefault(port);
         this.lcName = TextUtils.toLowerCase(this.name);
+    }
+
+    /**
+     * Default constructor with default port {@link #DEFAULT_PORT}.
+     *
+     * @param name the name of the hos. Can't be {@code null}.
+     * @since 5.2
+     */
+    public Host(final String name) {
+        this(name, DEFAULT_PORT);
     }
 
     static Host parse(final CharSequence s, final Tokenizer.Cursor cursor) throws URISyntaxException {
@@ -90,7 +102,7 @@ public final class Host implements NamedEndpoint, Serializable {
                 throw URISupport.createException(s, cursor, "Port is invalid");
             }
         } else {
-            port = -1;
+            port = DEFAULT_PORT;
         }
         return new Host(hostName, port);
     }
@@ -107,7 +119,7 @@ public final class Host implements NamedEndpoint, Serializable {
         } else {
             buf.append(hostName);
         }
-        if (endpoint.getPort() != -1) {
+        if (endpoint.getPort() != DEFAULT_PORT) {
             buf.append(":");
             buf.append(endpoint.getPort());
         }

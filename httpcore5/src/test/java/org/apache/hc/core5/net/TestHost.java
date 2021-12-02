@@ -136,4 +136,13 @@ public class TestHost {
         Assertions.assertEquals("[::1]:80", new Host("::1", 80).toString());
         Assertions.assertEquals("[::1]", new Host("::1", -1).toString());
     }
+
+    @Test
+    public void testDefaultPort() throws URISyntaxException {
+        Assertions.assertEquals("[::1]", new Host("::1").toString());
+        final Host host1 = new Host("somehost");
+        final Host host2 = Host.create("somehost2");
+        Assertions.assertEquals(-1, host1.getPort());
+        Assertions.assertEquals(-1, host2.getPort());
+    }
 }
