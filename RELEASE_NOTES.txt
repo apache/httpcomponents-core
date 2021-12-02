@@ -1,3 +1,25 @@
+Release 4.4.15
+-------------------
+
+This is a maintenance release that corrects a number of defects discovered since release 4.4.14.
+
+Changelog
+-------------------
+
+* HTTPCORE-695: Unhandled CancelledKeyException during processPendingInterestOps leads to
+  a shutdown of the underlying IOReactor.
+  Contributed by Kurtcebe Eroglu <kurtcebe.eroglu at gmail.com>
+
+* HTTPCORE-687: Non-blocking SSL I/O session can enter a tight loop if the SSL session gets
+  closed by the protocol layer while there is still unprocessed data stuck in the protocol session
+  buffer.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-660: Convert RuntimeExceptions thrown by SSLSetupHandler#verify to SSLExceptions.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 4.4.14
 -------------------
 
