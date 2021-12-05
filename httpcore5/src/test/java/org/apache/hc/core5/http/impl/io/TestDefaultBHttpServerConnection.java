@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -90,6 +91,11 @@ public class TestDefaultBHttpServerConnection {
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertTrue(request.containsHeader("User-Agent"));
         Assertions.assertEquals(1, conn.getEndpointDetails().getRequestCount());
+        Assertions.assertNull(conn.getEndpointDetails().getRemoteAddress());
+        Assertions.assertNull(conn.getEndpointDetails().getLocalAddress());
+
+        Assertions.assertEquals(Timeout.ofMilliseconds(0), conn.getEndpointDetails().getSocketTimeout());
+        Assertions.assertEquals("null<->null", conn.getEndpointDetails().toString());
     }
 
     @Test

@@ -319,6 +319,8 @@ public class TestLaxConnPool {
         Assertions.assertEquals(0, stats.getAvailable());
         Assertions.assertEquals(0, stats.getLeased());
         Assertions.assertEquals(0, stats.getPending());
+
+        Assertions.assertFalse( pool.isShutdown());
     }
 
     @Test
@@ -390,4 +392,23 @@ public class TestLaxConnPool {
         pool.release(new PoolEntry<>("somehost"), true);
     }
 
+    @Test
+    public void testClose() {
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
+        pool.setMaxPerRoute("someRoute", 2);
+        pool.close();
+        Assertions.assertThrows(IllegalStateException.class, () -> pool.lease("someHost", null));
+        // Ignored if shut down
+        pool.release(new PoolEntry<>("someHost"), true);
+
+    }
+
+    @Test
+    public void testGetMaxPerRoute() {
+        final String route  = "someRoute";
+        final int max = 2;
+        final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2);
+        pool.setMaxPerRoute(route, max);
+        Assertions.assertEquals(max, pool.getMaxPerRoute(route));
+    }
 }
