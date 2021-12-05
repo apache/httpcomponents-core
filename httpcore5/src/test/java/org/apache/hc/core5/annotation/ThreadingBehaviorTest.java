@@ -24,52 +24,23 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.concurrent;
 
+package org.apache.hc.core5.annotation;
 
-class BasicFutureCallback<T> implements FutureCallback<T> {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-    private T result;
-    private Exception ex;
-    private boolean completed;
-    private boolean failed;
-    private boolean cancelled;
+import org.junit.jupiter.api.Test;
 
-    @Override
-    public void completed(final T result) {
-        this.result = result;
-        this.completed = true;
-    }
+public class ThreadingBehaviorTest {
 
-    public T getResult() {
-        return this.result;
-    }
-
-    public Exception getException() {
-        return this.ex;
-    }
-
-    @Override
-    public void failed(final Exception ex) {
-        this.ex = ex;
-        this.failed = true;
-    }
-
-    @Override
-    public void cancelled() {
-        this.cancelled = true;
-    }
-
-    public boolean isCompleted() {
-        return this.completed;
-    }
-
-    public boolean isFailed() {
-        return this.failed;
-    }
-
-    public boolean isCancelled() {
-        return this.cancelled;
+    @Test
+    void testName(){
+        assertEquals("SAFE", ThreadingBehavior.SAFE.name());
+        assertEquals("SAFE_CONDITIONAL", ThreadingBehavior.SAFE_CONDITIONAL.name());
+        assertEquals("IMMUTABLE_CONDITIONAL", ThreadingBehavior.IMMUTABLE_CONDITIONAL.name());
+        assertEquals("IMMUTABLE", ThreadingBehavior.IMMUTABLE.name());
+        assertEquals("STATELESS", ThreadingBehavior.STATELESS.name());
+        assertEquals("UNSAFE", ThreadingBehavior.UNSAFE.name());
     }
 
 }

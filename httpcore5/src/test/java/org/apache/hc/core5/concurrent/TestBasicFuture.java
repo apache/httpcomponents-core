@@ -34,12 +34,13 @@ import java.util.concurrent.TimeoutException;
 import org.apache.hc.core5.util.TimeoutValueException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class TestBasicFuture {
 
     @Test
     public void testCompleted() throws Exception {
-        final BasicFutureCallback<Object> callback = new BasicFutureCallback<>();
+        final FutureCallback<Object> callback = Mockito.mock(FutureCallback.class);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
 
         Assertions.assertFalse(future.isDone());
@@ -48,11 +49,9 @@ public class TestBasicFuture {
         final Exception boom = new Exception();
         future.completed(result);
         future.failed(boom);
-        Assertions.assertTrue(callback.isCompleted());
-        Assertions.assertSame(result, callback.getResult());
-        Assertions.assertFalse(callback.isFailed());
-        Assertions.assertNull(callback.getException());
-        Assertions.assertFalse(callback.isCancelled());
+        Mockito.verify(callback).completed(result);
+        Mockito.verify(callback, Mockito.never()).failed(Mockito.any());
+        Mockito.verify(callback, Mockito.never()).cancelled();
 
         Assertions.assertSame(result, future.get());
         Assertions.assertTrue(future.isDone());
@@ -62,7 +61,7 @@ public class TestBasicFuture {
 
     @Test
     public void testCompletedWithTimeout() throws Exception {
-        final BasicFutureCallback<Object> callback = new BasicFutureCallback<>();
+        final FutureCallback<Object> callback = Mockito.mock(FutureCallback.class);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
 
         Assertions.assertFalse(future.isDone());
@@ -71,11 +70,9 @@ public class TestBasicFuture {
         final Exception boom = new Exception();
         future.completed(result);
         future.failed(boom);
-        Assertions.assertTrue(callback.isCompleted());
-        Assertions.assertSame(result, callback.getResult());
-        Assertions.assertFalse(callback.isFailed());
-        Assertions.assertNull(callback.getException());
-        Assertions.assertFalse(callback.isCancelled());
+        Mockito.verify(callback).completed(result);
+        Mockito.verify(callback, Mockito.never()).failed(Mockito.any());
+        Mockito.verify(callback, Mockito.never()).cancelled();
 
         Assertions.assertSame(result, future.get(1, TimeUnit.MILLISECONDS));
         Assertions.assertTrue(future.isDone());
@@ -84,17 +81,15 @@ public class TestBasicFuture {
 
     @Test
     public void testFailed() throws Exception {
-        final BasicFutureCallback<Object> callback = new BasicFutureCallback<>();
+        final FutureCallback<Object> callback = Mockito.mock(FutureCallback.class);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
         final Object result = new Object();
         final Exception boom = new Exception();
         future.failed(boom);
         future.completed(result);
-        Assertions.assertFalse(callback.isCompleted());
-        Assertions.assertNull(callback.getResult());
-        Assertions.assertTrue(callback.isFailed());
-        Assertions.assertSame(boom, callback.getException());
-        Assertions.assertFalse(callback.isCancelled());
+        Mockito.verify(callback, Mockito.never()).completed(Mockito.any());
+        Mockito.verify(callback).failed(boom);
+        Mockito.verify(callback, Mockito.never()).cancelled();
 
         try {
             future.get();
@@ -107,18 +102,16 @@ public class TestBasicFuture {
 
     @Test
     public void testCancelled() throws Exception {
-        final BasicFutureCallback<Object> callback = new BasicFutureCallback<>();
+        final FutureCallback<Object> callback = Mockito.mock(FutureCallback.class);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
         final Object result = new Object();
         final Exception boom = new Exception();
         future.cancel(true);
         future.failed(boom);
         future.completed(result);
-        Assertions.assertFalse(callback.isCompleted());
-        Assertions.assertNull(callback.getResult());
-        Assertions.assertFalse(callback.isFailed());
-        Assertions.assertNull(callback.getException());
-        Assertions.assertTrue(callback.isCancelled());
+        Mockito.verify(callback, Mockito.never()).completed(Mockito.any());
+        Mockito.verify(callback, Mockito.never()).failed(Mockito.any());
+        Mockito.verify(callback).cancelled();
 
         Assertions.assertThrows(CancellationException.class, future::get);
         Assertions.assertTrue(future.isDone());

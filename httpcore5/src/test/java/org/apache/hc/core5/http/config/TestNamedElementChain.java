@@ -28,6 +28,10 @@
 package org.apache.hc.core5.http.config;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.CoreMatchers.is;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
@@ -95,4 +99,24 @@ public class TestNamedElementChain {
         assertThat(list.getSize(), CoreMatchers.equalTo(2));
     }
 
+    @Test
+    public void testFind() {
+        final NamedElementChain<Character> list = new NamedElementChain<>();
+        list.addLast('c', "c");
+        assertThat(list.find("c"), notNullValue());
+        assertThat(list.find("a"), nullValue());
+    }
+
+    @Test
+    public void testReplace() {
+        final NamedElementChain<Character> list = new NamedElementChain<>();
+        list.addLast('c', "c");
+        final boolean found = list.replace("c",'z' );
+        assertThat(found, is(true));
+        assertThat(list.find("c").getValue(), equalTo('z'));
+        assertThat(list.find("c").getName(), equalTo("c"));
+        final boolean notFound = list.replace("X",'z' );
+        assertThat(notFound, is(false));
+
+    }
 }
