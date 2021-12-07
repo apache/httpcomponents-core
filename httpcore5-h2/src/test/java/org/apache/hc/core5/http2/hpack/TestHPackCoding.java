@@ -1063,5 +1063,33 @@ public class TestHPackCoding {
         decoder.decodeHeaders(wrap(buf));
     }
 
+    @Test
+    public void testHeaderEmptyASCII() throws Exception {
+
+        final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
+        final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
+
+        final ByteArrayBuffer buf = new ByteArrayBuffer(128);
+
+        final Header header = new BasicHeader("empty-header", "");
+        encoder.encodeHeader(buf, header);
+
+        assertHeaderEquals(header, decoder.decodeHeader(wrap(buf)));
+    }
+
+    @Test
+    public void testHeaderEmptyUTF8() throws Exception {
+
+        final HPackEncoder encoder = new HPackEncoder(StandardCharsets.UTF_8);
+        final HPackDecoder decoder = new HPackDecoder(StandardCharsets.UTF_8);
+
+        final ByteArrayBuffer buf = new ByteArrayBuffer(128);
+
+        final Header header = new BasicHeader("empty-header", "");
+        encoder.encodeHeader(buf, header);
+
+        assertHeaderEquals(header, decoder.decodeHeader(wrap(buf)));
+    }
+
 }
 
