@@ -64,6 +64,14 @@
     <tag>4.4.16-SNAPSHOT</tag>
   </scm>
 
+  <distributionManagement>
+    <site>
+      <id>apache.website</id>
+      <name>Apache HttpComponents Website</name>
+      <url>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/site/components/httpcomponents-core-4.4.x/LATEST/</url>
+    </site>
+  </distributionManagement>
+
   <modules>
     <module>httpcore</module>
     <module>httpcore-nio</module>
