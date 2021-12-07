@@ -193,6 +193,9 @@ public final class HPackDecoder {
         clearState();
         decodeString(this.contentBuf, src);
         final int binaryLen = this.contentBuf.length();
+        if (binaryLen == 0) {
+            return 0;
+        }
         if (this.charsetDecoder == null) {
             buf.ensureCapacity(binaryLen);
             for (int i = 0; i < binaryLen; i++) {

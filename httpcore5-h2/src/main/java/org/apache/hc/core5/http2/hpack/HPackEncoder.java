@@ -166,18 +166,20 @@ public final class HPackEncoder {
             }
             return len;
         }
-        final CharBuffer in = CharBuffer.wrap(charSequence, off, len);
-        while (in.hasRemaining()) {
-            ensureCapacity((int) (in.remaining() * this.charsetEncoder.averageBytesPerChar()) + 8);
-            final CoderResult result = this.charsetEncoder.encode(in, this.tmpBuf, true);
+        if (charSequence.length() > 0) {
+            final CharBuffer in = CharBuffer.wrap(charSequence, off, len);
+            while (in.hasRemaining()) {
+                ensureCapacity((int) (in.remaining() * this.charsetEncoder.averageBytesPerChar()) + 8);
+                final CoderResult result = this.charsetEncoder.encode(in, this.tmpBuf, true);
+                if (result.isError()) {
+                    result.throwException();
+                }
+            }
+            ensureCapacity(8);
+            final CoderResult result = this.charsetEncoder.flush(this.tmpBuf);
             if (result.isError()) {
                 result.throwException();
             }
-        }
-        ensureCapacity(8);
-        final CoderResult result = this.charsetEncoder.flush(this.tmpBuf);
-        if (result.isError()) {
-            result.throwException();
         }
         this.tmpBuf.flip();
         final int binaryLen = this.tmpBuf.remaining();
