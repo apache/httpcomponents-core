@@ -83,8 +83,8 @@ public enum TLS {
             return null;
         }
         final List<String> enabledProtocols = new ArrayList<>();
-        for (final String protocol: protocols) {
-            if (!protocol.startsWith("SSL") && !protocol.equals(V_1_0.id) && !protocol.equals(V_1_1.id)) {
+        for (final String protocol : protocols) {
+            if (isSecure(protocol)) {
                 enabledProtocols.add(protocol);
             }
         }
@@ -92,6 +92,17 @@ public enum TLS {
             enabledProtocols.add(V_1_2.id);
         }
         return enabledProtocols.toArray(new String[0]);
+    }
+
+    /**
+     * Check if a given protocol is considered secure and is enabled by default.
+     *
+     * @return {@code true} if the given protocol is secure and enabled, otherwise return {@code
+     * false}.
+     * @since 5.2
+     */
+    public static boolean isSecure(final String protocol) {
+        return !protocol.startsWith("SSL") && !protocol.equals(V_1_0.id) && !protocol.equals(V_1_1.id);
     }
 
 }
