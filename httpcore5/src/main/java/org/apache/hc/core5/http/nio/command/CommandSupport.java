@@ -28,8 +28,7 @@
 package org.apache.hc.core5.http.nio.command;
 
 import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.http.ConnectionClosedException;
-import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
+import org.apache.hc.core5.http.RequestNotExecutedException;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.util.Args;
@@ -49,13 +48,8 @@ public final class CommandSupport {
         Args.notNull(ioSession, "I/O session");
         Command command;
         while ((command = ioSession.poll()) != null) {
-            if (command instanceof RequestExecutionCommand) {
-                final AsyncClientExchangeHandler exchangeHandler = ((RequestExecutionCommand) command).getExchangeHandler();
-                try {
-                    exchangeHandler.failed(ex);
-                } finally {
-                    exchangeHandler.releaseResources();
-                }
+            if (command instanceof ExecutableCommand) {
+                ((ExecutableCommand) command).failed(ex);
             } else {
                 command.cancel();
             }
@@ -69,16 +63,11 @@ public final class CommandSupport {
         Args.notNull(ioSession, "I/O session");
         Command command;
         while ((command = ioSession.poll()) != null) {
-            if (command instanceof RequestExecutionCommand) {
-                final AsyncClientExchangeHandler exchangeHandler = ((RequestExecutionCommand) command).getExchangeHandler();
-                try {
-                    if (!ioSession.isOpen()) {
-                        exchangeHandler.failed(new ConnectionClosedException());
-                    } else {
-                        exchangeHandler.cancel();
-                    }
-                } finally {
-                    exchangeHandler.releaseResources();
+            if (command instanceof ExecutableCommand) {
+                if (!ioSession.isOpen()) {
+                    ((ExecutableCommand) command).failed(new RequestNotExecutedException());
+                } else {
+                    command.cancel();
                 }
             } else {
                 command.cancel();

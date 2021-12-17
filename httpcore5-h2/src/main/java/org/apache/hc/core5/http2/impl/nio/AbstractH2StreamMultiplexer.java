@@ -36,7 +36,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -54,6 +53,7 @@ import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.RequestNotExecutedException;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.BasicEndpointDetails;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
@@ -1680,12 +1680,12 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
 
         void cancel() {
-            reset(new CancellationException("HTTP/2 message exchange cancelled"));
+            reset(new RequestNotExecutedException());
         }
 
         boolean abort() {
             final boolean cancelled = channel.cancel();
-            handler.failed(new CancellationException("HTTP/2 message exchange cancelled"));
+            handler.failed(new RequestNotExecutedException());
             return cancelled;
         }
 

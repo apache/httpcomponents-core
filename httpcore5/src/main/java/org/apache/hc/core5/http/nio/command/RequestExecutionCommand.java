@@ -27,8 +27,11 @@
 
 package org.apache.hc.core5.http.nio.command;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.CancellableDependency;
+import org.apache.hc.core5.http.RequestNotExecutedException;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -47,6 +50,7 @@ public final class RequestExecutionCommand extends ExecutableCommand {
     private final HandlerFactory<AsyncPushConsumer> pushHandlerFactory;
     private final CancellableDependency cancellableDependency;
     private final HttpContext context;
+    private final AtomicBoolean failed;
 
     public RequestExecutionCommand(
             final AsyncClientExchangeHandler exchangeHandler,
@@ -57,6 +61,7 @@ public final class RequestExecutionCommand extends ExecutableCommand {
         this.pushHandlerFactory = pushHandlerFactory;
         this.cancellableDependency = cancellableDependency;
         this.context = context;
+        this.failed = new AtomicBoolean();
     }
 
     public RequestExecutionCommand(
@@ -91,17 +96,26 @@ public final class RequestExecutionCommand extends ExecutableCommand {
 
     @Override
     public void failed(final Exception ex) {
-        try {
-            exchangeHandler.failed(ex);
-        } finally {
-            exchangeHandler.releaseResources();
+        if (failed.compareAndSet(false, true)) {
+            try {
+                exchangeHandler.failed(ex);
+            } finally {
+                exchangeHandler.releaseResources();
+            }
         }
     }
 
     @Override
     public boolean cancel() {
-        exchangeHandler.cancel();
-        return true;
+        if (failed.compareAndSet(false, true)) {
+            try {
+                exchangeHandler.failed(new RequestNotExecutedException());
+                return true;
+            } finally {
+                exchangeHandler.releaseResources();
+            }
+        }
+        return false;
     }
 
 }
