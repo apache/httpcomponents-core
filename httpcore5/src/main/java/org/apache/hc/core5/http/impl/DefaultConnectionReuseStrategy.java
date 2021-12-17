@@ -133,7 +133,7 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             headerIterator = response.headerIterator("Proxy-Connection");
         }
 
-        final ProtocolVersion ver = context.getProtocolVersion();
+        final ProtocolVersion ver = response.getVersion() != null ? response.getVersion() : context.getProtocolVersion();
         if (headerIterator.hasNext()) {
             if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
                 final Iterator<String> it = new BasicTokenIterator(headerIterator);

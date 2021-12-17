@@ -101,8 +101,8 @@ public class TestDefaultConnectionReuseStrategy {
     @Test
     public void testExplicitKeepAlive() throws Exception {
         // Use HTTP 1.0
-        context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
+        response.setVersion(HttpVersion.HTTP_1_0);
         response.addHeader("Content-Length", "10");
         response.addHeader("Connection", "keep-alive");
 
@@ -111,8 +111,8 @@ public class TestDefaultConnectionReuseStrategy {
 
     @Test
     public void testHTTP10Default() throws Exception {
-        context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
+        response.setVersion(HttpVersion.HTTP_1_0);
         response.addHeader("Content-Length", "10");
         Assertions.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
@@ -127,8 +127,8 @@ public class TestDefaultConnectionReuseStrategy {
     @Test
     public void testBrokenConnectionDirective1() throws Exception {
         // Use HTTP 1.0
-        context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
+        response.setVersion(HttpVersion.HTTP_1_0);
         response.addHeader("Content-Length", "10");
         response.addHeader("Connection", "keep--alive");
         Assertions.assertFalse(reuseStrategy.keepAlive(null, response, context));
@@ -137,8 +137,8 @@ public class TestDefaultConnectionReuseStrategy {
     @Test
     public void testBrokenConnectionDirective2() throws Exception {
         // Use HTTP 1.0
-        context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
+        response.setVersion(HttpVersion.HTTP_1_0);
         response.addHeader("Content-Length", "10");
         response.addHeader("Connection", null);
         Assertions.assertFalse(reuseStrategy.keepAlive(null, response, context));
@@ -226,8 +226,8 @@ public class TestDefaultConnectionReuseStrategy {
     @Test
     public void testNoContentResponseHttp10() throws Exception {
         // Use HTTP 1.0
-        context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_NO_CONTENT, "No Content");
+        response.setVersion(HttpVersion.HTTP_1_0);
         Assertions.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
