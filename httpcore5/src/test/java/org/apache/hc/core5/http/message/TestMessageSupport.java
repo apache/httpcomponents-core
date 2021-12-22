@@ -29,13 +29,17 @@ package org.apache.hc.core5.http.message;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
+import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.jupiter.api.Assertions;
@@ -135,6 +139,19 @@ public class TestMessageSupport {
         Assertions.assertEquals("a, a, a", h1.getValue());
         Assertions.assertNotNull(h2);
         Assertions.assertEquals("text/plain; charset=ascii", h2.getValue());
+    }
+
+    @Test
+    public void testIterateOverCacheControl() {
+        final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/stuff");
+        request.addHeader(HttpHeaders.USER_AGENT, "test");
+        request.addHeader(HttpHeaders.CONTENT_LENGTH, "3");
+        request.addHeader(HttpHeaders.CACHE_CONTROL, "no-cache");
+
+        final Iterator<HeaderElement> it = MessageSupport.iterateOverCacheControl(request);
+        Assertions.assertTrue(it.hasNext());
+        final HeaderElement elem = it.next();
+        Assertions.assertEquals("no-cache", elem.getName(), "The two header values must be equal");
     }
 
 }

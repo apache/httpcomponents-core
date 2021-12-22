@@ -165,6 +165,19 @@ public class MessageSupport {
         return new BasicHeaderElementIterator(headers.headerIterator(name));
     }
 
+    /**
+     * Create an {@link Iterator<HeaderElement>} with {@link HttpHeaders#CACHE_CONTROL} as a default
+     * {@link Header} over which to iterate.
+     *
+     * @param headers the {@link MessageHeaders} with multiple {@link Header}
+     * @return a new instance of {@link BasicHeaderElementIterator}
+     * @since 5.2
+     */
+    public static Iterator<HeaderElement> iterateOverCacheControl(final MessageHeaders headers) {
+        Args.notNull(headers, "Message headers");
+        return new BasicHeaderElementIterator(headers.headerIterator(HttpHeaders.CACHE_CONTROL));
+    }
+
     public static HeaderElement[] parse(final Header header) {
         Args.notNull(header, "Headers");
         final String value = header.getValue();
