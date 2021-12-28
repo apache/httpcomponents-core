@@ -83,5 +83,14 @@ public class TestHeader {
         Assertions.assertEquals(orig.getValue(), clone.getValue());
     }
 
+
+    @Test
+    public void testClone() throws Exception {
+        final BasicHeader orig = new BasicHeader("name1", "value1");
+        final BasicHeader clone = orig.clone();
+        Assertions.assertEquals(orig.getName(), clone.getName());
+        Assertions.assertEquals(orig.getValue(), clone.getValue());
+    }
+
 }
 

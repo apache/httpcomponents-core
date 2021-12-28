@@ -100,4 +100,8 @@ public class BasicHeader implements Header, Cloneable, Serializable {
         return buf.toString();
     }
 
+    @Override
+    public BasicHeader clone() throws CloneNotSupportedException {
+        return (BasicHeader) super.clone();
+    }
 }
