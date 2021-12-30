@@ -301,7 +301,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                         incomingMessage = new Message<>(messageHead, contentDecoder);
                     } else {
                         inputEnd();
-                        if (connState.compareTo(ConnectionState.ACTIVE) == 0) {
+                        if (connState == ConnectionState.ACTIVE) {
                             ioSession.setEvent(SelectionKey.OP_READ);
                         }
                     }
@@ -381,7 +381,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             }
             if (outputEnd) {
                 outputEnd();
-                if (connState.compareTo(ConnectionState.ACTIVE) == 0) {
+                if (connState == ConnectionState.ACTIVE) {
                     processCommands();
                 } else if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && inputIdle() && outputIdle()) {
                     connState = ConnectionState.SHUTDOWN;

@@ -503,7 +503,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         if (connState.compareTo(ConnectionHandshake.ACTIVE) <= 0 && remoteSettingState == SettingsHandshake.ACKED) {
             processPendingCommands();
         }
-        if (connState.compareTo(ConnectionHandshake.GRACEFUL_SHUTDOWN) == 0) {
+        if (connState == ConnectionHandshake.GRACEFUL_SHUTDOWN) {
             int liveStreams = 0;
             for (final Iterator<Map.Entry<Integer, H2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {
                 final Map.Entry<Integer, H2Stream> entry = it.next();
