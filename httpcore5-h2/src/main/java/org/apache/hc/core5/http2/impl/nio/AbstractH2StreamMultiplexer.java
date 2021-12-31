@@ -1226,6 +1226,11 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         final int delta = remoteConfig.getInitialWindowSize() - initOutputWinSize;
         initOutputWinSize = remoteConfig.getInitialWindowSize();
 
+        final int maxFrameSize = remoteConfig.getMaxFrameSize();
+        if (maxFrameSize > localConfig.getMaxFrameSize()) {
+            outputBuffer.expand(maxFrameSize);
+        }
+
         if (delta != 0) {
             if (!streamMap.isEmpty()) {
                 for (final Iterator<Map.Entry<Integer, H2Stream>> it = streamMap.entrySet().iterator(); it.hasNext(); ) {

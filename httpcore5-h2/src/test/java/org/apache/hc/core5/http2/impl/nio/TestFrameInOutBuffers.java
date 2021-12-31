@@ -251,7 +251,7 @@ public class TestFrameInOutBuffers {
         inBuffer.read(readableChannel);
     }
 
-    @Test(expected = H2ConnectionException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testWriteFrameExceedingLimit() throws Exception {
         final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(1024);
