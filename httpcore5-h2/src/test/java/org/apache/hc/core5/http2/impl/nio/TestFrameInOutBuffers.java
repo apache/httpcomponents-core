@@ -259,7 +259,7 @@ public class TestFrameInOutBuffers {
 
         final RawFrame frame = new RawFrame(FrameType.DATA.getValue(), 0, 1,
                 ByteBuffer.wrap(new byte[2048]));
-        Assertions.assertThrows(H2ConnectionException.class, () ->
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
                 outbuffer.write(frame, writableChannel));
     }
 

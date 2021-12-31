@@ -31,8 +31,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.GatheringByteChannel;
 import java.nio.channels.WritableByteChannel;
 
-import org.apache.hc.core5.http2.H2ConnectionException;
-import org.apache.hc.core5.http2.H2Error;
 import org.apache.hc.core5.http2.H2TransportMetrics;
 import org.apache.hc.core5.http2.frame.FrameConsts;
 import org.apache.hc.core5.http2.frame.RawFrame;
@@ -47,8 +45,8 @@ import org.apache.hc.core5.util.Args;
 public final class FrameOutputBuffer {
 
     private final BasicH2TransportMetrics metrics;
-    private final int maxFramePayloadSize;
-    private final ByteBuffer buffer;
+    private volatile int maxFramePayloadSize;
+    private volatile ByteBuffer buffer;
 
     public FrameOutputBuffer(final BasicH2TransportMetrics metrics, final int maxFramePayloadSize) {
         Args.notNull(metrics, "HTTP2 transport metrics");
@@ -62,14 +60,21 @@ public final class FrameOutputBuffer {
         this(new BasicH2TransportMetrics(), maxFramePayloadSize);
     }
 
+    public void expand(final int maxFramePayloadSize) {
+        this.maxFramePayloadSize = maxFramePayloadSize;
+        final ByteBuffer newBuffer = ByteBuffer.allocate(FrameConsts.HEAD_LEN + maxFramePayloadSize);
+        if (buffer.position() > 0) {
+            buffer.flip();
+            newBuffer.put(buffer);
+        }
+        buffer = newBuffer;
+    }
+
     public void write(final RawFrame frame, final WritableByteChannel channel) throws IOException {
         Args.notNull(frame, "Frame");
 
         final ByteBuffer payload = frame.getPayload();
-        if (payload != null && payload.remaining() > maxFramePayloadSize) {
-            throw new H2ConnectionException(H2Error.FRAME_SIZE_ERROR, "Frame size exceeds maximum");
-        }
-
+        Args.check(payload == null || payload.remaining() <= maxFramePayloadSize, "Frame size exceeds maximum");
         buffer.putInt((payload != null ? payload.remaining() << 8 : 0) | (frame.getType() & 0xff));
         buffer.put((byte) (frame.getFlags() & 0xff));
         buffer.putInt(frame.getStreamId());
