@@ -88,6 +88,16 @@ public class BasicClientTlsStrategy implements TlsStrategy {
         this(SSLContexts.createSystemDefault());
     }
 
+    /**
+     * Constructor with the default SSL context based on system properties and custom {@link  SSLSessionVerifier} verifier.
+     * @param verifier the custom {@link SSLSessionVerifier}.
+     * @see SSLContext
+     * @since 5.2
+     */
+    public BasicClientTlsStrategy(final SSLSessionVerifier verifier) {
+        this(SSLContexts.createSystemDefault(), verifier);
+    }
+
     @Override
     public void upgrade(
             final TransportSecurityLayer tlsSession,
