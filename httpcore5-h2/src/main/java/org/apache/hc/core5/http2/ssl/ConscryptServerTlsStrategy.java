@@ -41,6 +41,7 @@ import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
@@ -142,9 +143,29 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
         this(sslContext, (SSLBufferMode) null, null, null);
     }
 
+    /**
+     * Empty constructor with the default SSL context based on system properties.
+     * @see SSLContext
+     * @since 5.2
+     */
+    public ConscryptServerTlsStrategy() {
+        this(SSLContexts.createSystemDefault(),  (SSLBufferMode) null, null, null);
+    }
+
+    /**
+     * Constructor with the default SSL context based on system properties and custom {@link SSLSessionVerifier}.
+     * @param verifier the custom {@link SSLSessionVerifier}.
+     * @see SSLContext
+     * @since 5.2
+     */
+    public ConscryptServerTlsStrategy(final SSLSessionVerifier verifier) {
+        this(SSLContexts.createSystemDefault(), (SSLBufferMode) null, null, verifier);
+    }
+
     private boolean isApplicable(final SocketAddress localAddress) {
         return securePortStrategy == null || securePortStrategy.isSecure(localAddress);
     }
+
 
     @Override
     public void upgrade(

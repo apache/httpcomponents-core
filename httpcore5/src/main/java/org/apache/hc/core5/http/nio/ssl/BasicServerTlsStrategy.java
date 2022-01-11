@@ -113,6 +113,15 @@ public class BasicServerTlsStrategy implements TlsStrategy {
         this(SSLContexts.createSystemDefault(), securePortStrategy);
     }
 
+    /**
+     * Constructor with the default SSL context based on system properties and custom {@link  SSLSessionVerifier} verifier.
+     * @param verifier the custom {@link SSLSessionVerifier}.
+     * @since 5.2
+     */
+    public BasicServerTlsStrategy(final SSLSessionVerifier verifier) {
+        this(SSLContexts.createSystemDefault(), verifier);
+    }
+
     public BasicServerTlsStrategy(
             final SSLContext sslContext,
             final SSLBufferMode sslBufferMode,

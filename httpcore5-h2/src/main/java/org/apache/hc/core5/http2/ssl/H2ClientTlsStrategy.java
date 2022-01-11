@@ -89,6 +89,16 @@ public class H2ClientTlsStrategy implements TlsStrategy {
         this(SSLContexts.createSystemDefault());
     }
 
+    /**
+     * Constructor with the default SSL context based on system properties and custom {@link SSLSessionVerifier}.
+     * @param verifier the custom {@link SSLSessionVerifier}.
+     * @see SSLContext
+     * @since 5.2
+     */
+    public H2ClientTlsStrategy( final SSLSessionVerifier verifier) {
+        this(SSLContexts.createSystemDefault(), null, null, verifier);
+    }
+
     @Override
     public void upgrade(
             final TransportSecurityLayer tlsSession,

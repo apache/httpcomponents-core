@@ -40,6 +40,7 @@ import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.reactor.ssl.TransportSecurityLayer;
+import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
@@ -82,6 +83,24 @@ public class ConscryptClientTlsStrategy implements TlsStrategy {
 
     public ConscryptClientTlsStrategy(final SSLContext sslContext) {
         this(sslContext, null, null, null);
+    }
+
+    /**
+     * Empty constructor with the default SSL context based on system properties.
+     * @see SSLContext
+     * @since 5.2
+     */
+    public ConscryptClientTlsStrategy() {
+        this(SSLContexts.createSystemDefault(), null, null, null);
+    }
+
+    /**
+     * Constructor with the default SSL context based on system properties and custom {@link  SSLSessionVerifier} verifier.
+     * @param verifier the custom {@link SSLSessionVerifier}.
+     * @since 5.2
+     */
+    public ConscryptClientTlsStrategy(final SSLSessionVerifier verifier) {
+        this(SSLContexts.createSystemDefault(), verifier);
     }
 
     @Override
