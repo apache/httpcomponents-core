@@ -88,7 +88,7 @@ public class H2TestClient extends AsyncRequester {
     }
 
     public void start(final HttpProcessor httpProcessor, final H2Config h2Config) throws IOException {
-        start(new InternalClientH2EventHandlerFactory(
+        start(new InternalClientProtocolNegotiationStarter(
                 httpProcessor,
                 new DefaultAsyncPushConsumerFactory(registry),
                 HttpVersionPolicy.FORCE_HTTP_2,
@@ -101,7 +101,7 @@ public class H2TestClient extends AsyncRequester {
     }
 
     public void start(final HttpProcessor httpProcessor, final Http1Config http1Config) throws IOException {
-        start(new InternalClientH2EventHandlerFactory(
+        start(new InternalClientProtocolNegotiationStarter(
                 httpProcessor,
                 new DefaultAsyncPushConsumerFactory(registry),
                 HttpVersionPolicy.FORCE_HTTP_1,

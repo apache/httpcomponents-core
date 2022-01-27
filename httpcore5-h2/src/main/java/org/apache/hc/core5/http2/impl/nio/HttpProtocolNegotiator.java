@@ -35,46 +35,79 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ssl.SSLSession;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.EndpointDetails;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
 import org.apache.hc.core5.http.nio.command.CommandSupport;
+import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.SocketTimeoutExceptionFactory;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ssl.TlsDetails;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 
-abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
+/**
+ * @since 5.2
+ */
+@Internal
+public class HttpProtocolNegotiator implements HttpConnectionEventHandler {
 
-    final ProtocolIOSession ioSession;
-    private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
+    private final ProtocolIOSession ioSession;
     private final FutureCallback<ProtocolIOSession> resultCallback;
     private final AtomicBoolean completed;
+    private final AtomicReference<ProtocolVersion> negotiatedProtocolRef;
 
-    ProtocolNegotiatorBase(
+    public HttpProtocolNegotiator(
             final ProtocolIOSession ioSession,
             final FutureCallback<ProtocolIOSession> resultCallback) {
         this.ioSession = Args.notNull(ioSession, "I/O session");
-        this.protocolHandlerRef = new AtomicReference<>();
         this.resultCallback = resultCallback;
         this.completed = new AtomicBoolean();
+        this.negotiatedProtocolRef = new AtomicReference<>();
     }
 
-    void startProtocol(final HttpConnectionEventHandler protocolHandler, final ByteBuffer data) throws IOException {
-        protocolHandlerRef.set(protocolHandler);
-        ioSession.upgrade(protocolHandler);
-        protocolHandler.connected(ioSession);
-        if (data != null && data.hasRemaining()) {
-            protocolHandler.inputReady(ioSession, data);
+    void startProtocol(final HttpVersion httpVersion) {
+        ioSession.switchProtocol(
+                httpVersion == HttpVersion.HTTP_2 ? ApplicationProtocol.HTTP_2.id : ApplicationProtocol.HTTP_1_1.id,
+                resultCallback);
+        negotiatedProtocolRef.set(httpVersion);
+    }
+
+    @Override
+    public void connected(final IOSession session) throws IOException {
+        final HttpVersion httpVersion;
+        final TlsDetails tlsDetails = ioSession.getTlsDetails();
+        if (tlsDetails != null) {
+            final String appProtocol = tlsDetails.getApplicationProtocol();
+            if (TextUtils.isEmpty(appProtocol)) {
+                httpVersion = HttpVersion.HTTP_1_1;
+            } else if (appProtocol.equals(ApplicationProtocol.HTTP_1_1.id)) {
+                httpVersion = HttpVersion.HTTP_1_1;
+            } else if (appProtocol.equals(ApplicationProtocol.HTTP_2.id)) {
+                httpVersion = HttpVersion.HTTP_2;
+            } else {
+                throw new ProtocolNegotiationException("Unsupported application protocol: " + appProtocol);
+            }
+        } else {
+            httpVersion = HttpVersion.HTTP_1_1;
         }
-        if (completed.compareAndSet(false, true) && resultCallback != null) {
-            resultCallback.completed(ioSession);
-        }
+        startProtocol(httpVersion);
+    }
+    @Override
+    public void inputReady(final IOSession session, final ByteBuffer src) throws IOException  {
+        throw new ProtocolNegotiationException("Unexpected input");
+    }
+
+    @Override
+    public void outputReady(final IOSession session) throws IOException {
+        throw new ProtocolNegotiationException("Unexpected output");
     }
 
     @Override
@@ -84,14 +117,9 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
 
     @Override
     public void exception(final IOSession session, final Exception cause) {
-        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.get();
         try {
             session.close(CloseMode.IMMEDIATE);
-            if (protocolHandler != null) {
-                protocolHandler.exception(session, cause);
-            } else {
-                CommandSupport.failCommands(session, cause);
-            }
+            CommandSupport.failCommands(session, cause);
         } catch (final Exception ex) {
             if (completed.compareAndSet(false, true) && resultCallback != null) {
                 resultCallback.failed(ex);
@@ -101,13 +129,8 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
 
     @Override
     public void disconnected(final IOSession session) {
-        final HttpConnectionEventHandler protocolHandler = protocolHandlerRef.getAndSet(null);
         try {
-            if (protocolHandler != null) {
-                protocolHandler.disconnected(ioSession);
-            } else {
-                CommandSupport.cancelCommands(session);
-            }
+            CommandSupport.cancelCommands(session);
         } finally {
             if (completed.compareAndSet(false, true) && resultCallback != null) {
                 resultCallback.failed(new ConnectionClosedException());
@@ -138,7 +161,7 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
 
     @Override
     public ProtocolVersion getProtocolVersion() {
-        return null;
+        return negotiatedProtocolRef.get();
     }
 
     @Override
@@ -164,6 +187,11 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
     @Override
     public void close(final CloseMode closeMode) {
         ioSession.close(closeMode);
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getName();
     }
 
 }

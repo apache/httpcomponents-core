@@ -52,7 +52,7 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.ClientH2StreamMultiplexerFactory;
-import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiatorFactory;
+import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiationStarter;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
@@ -334,7 +334,7 @@ public class H2RequesterBootstrap {
                 DefaultContentLengthStrategy.INSTANCE,
                 http1StreamListener);
 
-        final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiatorFactory(
+        final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttpProtocolNegotiationStarter(
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
                 versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE,

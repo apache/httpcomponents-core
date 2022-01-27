@@ -95,7 +95,7 @@ public class H2TestServer extends AsyncServer {
             final HttpProcessor httpProcessor,
             final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
             final H2Config h2Config) throws Exception {
-        start(new InternalServerH2EventHandlerFactory(
+        start(new InternalServerProtocolNegotiationStarter(
                 httpProcessor != null ? httpProcessor : H2Processors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
                         registry,
@@ -116,7 +116,7 @@ public class H2TestServer extends AsyncServer {
             final HttpProcessor httpProcessor,
             final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
             final Http1Config http1Config) throws Exception {
-        start(new InternalServerH2EventHandlerFactory(
+        start(new InternalServerProtocolNegotiationStarter(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
                         registry,

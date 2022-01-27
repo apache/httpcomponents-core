@@ -33,36 +33,39 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
+import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandler;
+import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.reactor.ProtocolUpgradeHandler;
 import org.apache.hc.core5.util.Args;
 
 /**
  * Protocol upgrade handler that upgrades the underlying {@link ProtocolIOSession}
- * to HTTP/2 in case of a successful protocol negotiation.
+ * to HTTP/1.1 in case of a successful protocol negotiation or as a default fall-back.
  *
  * @since 5.2
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 @Internal
-public class ServerH2UpgradeHandler implements ProtocolUpgradeHandler {
+public class ClientHttp1UpgradeHandler implements ProtocolUpgradeHandler {
 
-    private final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory;
+    private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
 
-    public ServerH2UpgradeHandler(final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory) {
-        this.http2StreamHandlerFactory = Args.notNull(http2StreamHandlerFactory, "HTTP/2 stream handler factory");
+    public ClientHttp1UpgradeHandler(final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory) {
+        this.http1StreamHandlerFactory = Args.notNull(http1StreamHandlerFactory, "HTTP/1.1 stream handler factory");
     }
 
     @Override
     public void upgrade(final ProtocolIOSession ioSession, final FutureCallback<ProtocolIOSession> callback) {
-        final HttpConnectionEventHandler protocolNegotiator = new ServerH2PrefaceHandler(
-                ioSession, http2StreamHandlerFactory, callback);
-        ioSession.upgrade(protocolNegotiator);
+        final ClientHttp1IOEventHandler eventHandler = new ClientHttp1IOEventHandler(http1StreamHandlerFactory.create(ioSession));
+        ioSession.upgrade(eventHandler);
         try {
-            protocolNegotiator.connected(ioSession);
+            eventHandler.connected(ioSession);
+            if (callback != null) {
+                callback.completed(ioSession);
+            }
         } catch (final IOException ex) {
-            protocolNegotiator.exception(ioSession, ex);
+            eventHandler.exception(ioSession, ex);
         }
     }
 

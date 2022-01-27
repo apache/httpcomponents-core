@@ -42,7 +42,7 @@ import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.ClientH2StreamMultiplexerFactory;
-import org.apache.hc.core5.http2.impl.nio.H2OnlyClientProtocolNegotiator;
+import org.apache.hc.core5.http2.impl.nio.ClientH2PrefaceHandler;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
@@ -207,7 +207,7 @@ public class H2MultiplexingRequesterBootstrap {
                 streamListener);
         return new H2MultiplexingRequester(
                 ioReactorConfig,
-                (ioSession, attachment) -> new H2OnlyClientProtocolNegotiator(ioSession, http2StreamHandlerFactory, strictALPNHandshake),
+                (ioSession, attachment) -> new ClientH2PrefaceHandler(ioSession, http2StreamHandlerFactory, strictALPNHandshake),
                 ioSessionDecorator,
                 exceptionCallback,
                 sessionListener,

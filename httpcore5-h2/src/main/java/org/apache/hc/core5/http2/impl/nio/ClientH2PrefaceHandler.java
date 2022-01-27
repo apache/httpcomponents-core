@@ -47,10 +47,16 @@ import org.apache.hc.core5.util.TextUtils;
  * client side of the HTTP/2 protocol negotiation handshake always forcing the choice
  * of HTTP/2.
  *
- * @since 5.0
+ * @since 5.2
  */
 @Internal
-public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
+public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
+
+    // PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n
+    final static byte[] PREFACE = new byte[] {
+            0x50, 0x52, 0x49, 0x20, 0x2a, 0x20, 0x48, 0x54, 0x54, 0x50,
+            0x2f, 0x32, 0x2e, 0x30, 0x0d, 0x0a, 0x0d, 0x0a, 0x53, 0x4d,
+            0x0d, 0x0a, 0x0d, 0x0a};
 
     private final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final boolean strictALPNHandshake;
@@ -59,7 +65,7 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
     private volatile ByteBuffer preface;
     private volatile BufferedData inBuf;
 
-    public H2OnlyClientProtocolNegotiator(
+    public ClientH2PrefaceHandler(
             final ProtocolIOSession ioSession,
             final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final boolean strictALPNHandshake) {
@@ -69,7 +75,7 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
     /**
      * @since 5.1
      */
-    public H2OnlyClientProtocolNegotiator(
+    public ClientH2PrefaceHandler(
             final ProtocolIOSession ioSession,
             final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final boolean strictALPNHandshake,
@@ -94,7 +100,7 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
                 }
             }
         }
-        this.preface = ByteBuffer.wrap(ClientHttpProtocolNegotiator.PREFACE);
+        this.preface = ByteBuffer.wrap(PREFACE);
         ioSession.setEvent(SelectionKey.OP_WRITE);
     }
 
@@ -104,9 +110,8 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
         }
         if (!preface.hasRemaining()) {
             session.clearEvent(SelectionKey.OP_WRITE);
-            final ClientH2StreamMultiplexer streamMultiplexer = http2StreamHandlerFactory.create(ioSession);
             final ByteBuffer data = inBuf != null ? inBuf.data() : null;
-            startProtocol(new ClientH2IOEventHandler(streamMultiplexer), data);
+            startProtocol(new ClientH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), data);
             if (inBuf != null) {
                 inBuf.clear();
             }

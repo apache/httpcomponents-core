@@ -56,7 +56,7 @@ public class ClientH2UpgradeHandler implements ProtocolUpgradeHandler {
 
     @Override
     public void upgrade(final ProtocolIOSession ioSession, final FutureCallback<ProtocolIOSession> callback) {
-        final HttpConnectionEventHandler protocolNegotiator = new H2OnlyClientProtocolNegotiator(
+        final HttpConnectionEventHandler protocolNegotiator = new ClientH2PrefaceHandler(
                 ioSession, http2StreamHandlerFactory, true, callback);
         ioSession.upgrade(protocolNegotiator);
         try {

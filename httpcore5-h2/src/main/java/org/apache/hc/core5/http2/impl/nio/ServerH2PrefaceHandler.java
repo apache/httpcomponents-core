@@ -42,23 +42,23 @@ import org.apache.hc.core5.util.Args;
  * I/O event handler for events fired by {@link ProtocolIOSession} that implements
  * server side of the HTTP/2 protocol negotiation handshake.
  *
- * @since 5.1
+ * @since 5.2
  */
 @Internal
-public class H2OnlyServerHttpProtocolNegotiator extends ProtocolNegotiatorBase {
+public class ServerH2PrefaceHandler extends PrefaceHandlerBase {
 
-    final static byte[] PREFACE = ClientHttpProtocolNegotiator.PREFACE;
+    final static byte[] PREFACE = ClientH2PrefaceHandler.PREFACE;
 
     private final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final BufferedData inBuf;
 
-    public H2OnlyServerHttpProtocolNegotiator(
+    public ServerH2PrefaceHandler(
             final ProtocolIOSession ioSession,
             final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory) {
         this(ioSession, http2StreamHandlerFactory, null);
     }
 
-    public H2OnlyServerHttpProtocolNegotiator(
+    public ServerH2PrefaceHandler(
             final ProtocolIOSession ioSession,
             final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final FutureCallback<ProtocolIOSession> resultCallback) {

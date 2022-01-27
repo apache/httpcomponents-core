@@ -32,6 +32,7 @@ import javax.net.ssl.SSLContext;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
+import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -39,8 +40,12 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
+import org.apache.hc.core5.http2.impl.nio.ClientH2PrefaceHandler;
 import org.apache.hc.core5.http2.impl.nio.ClientH2StreamMultiplexerFactory;
-import org.apache.hc.core5.http2.impl.nio.ClientHttpProtocolNegotiator;
+import org.apache.hc.core5.http2.impl.nio.ClientH2UpgradeHandler;
+import org.apache.hc.core5.http2.impl.nio.ClientHttp1UpgradeHandler;
+import org.apache.hc.core5.http2.impl.nio.HttpProtocolNegotiator;
+import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -48,7 +53,7 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.util.Args;
 
-class InternalClientH2EventHandlerFactory implements IOEventHandlerFactory {
+class InternalClientProtocolNegotiationStarter implements IOEventHandlerFactory {
 
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory;
@@ -60,7 +65,7 @@ class InternalClientH2EventHandlerFactory implements IOEventHandlerFactory {
     private final SSLSessionInitializer sslSessionInitializer;
     private final SSLSessionVerifier sslSessionVerifier;
 
-    InternalClientH2EventHandlerFactory(
+    InternalClientProtocolNegotiationStarter(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncPushConsumer> exchangeHandlerFactory,
             final HttpVersionPolicy versionPolicy,
@@ -97,11 +102,17 @@ class InternalClientH2EventHandlerFactory implements IOEventHandlerFactory {
                 h2Config,
                 charCodingConfig,
                 LoggingH2StreamListener.INSTANCE);
-        return new ClientHttpProtocolNegotiator(
-                        ioSession,
-                        http1StreamHandlerFactory,
-                        http2StreamHandlerFactory,
-                        versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE);
+        ioSession.registerProtocol(ApplicationProtocol.HTTP_1_1.id, new ClientHttp1UpgradeHandler(http1StreamHandlerFactory));
+        ioSession.registerProtocol(ApplicationProtocol.HTTP_2.id, new ClientH2UpgradeHandler(http2StreamHandlerFactory));
+
+        switch (versionPolicy) {
+            case FORCE_HTTP_2:
+                return new ClientH2PrefaceHandler(ioSession, http2StreamHandlerFactory, false);
+            case FORCE_HTTP_1:
+                return new ClientHttp1IOEventHandler(http1StreamHandlerFactory.create(ioSession));
+            default:
+                return new HttpProtocolNegotiator(ioSession, null);
+        }
    }
 
 }
