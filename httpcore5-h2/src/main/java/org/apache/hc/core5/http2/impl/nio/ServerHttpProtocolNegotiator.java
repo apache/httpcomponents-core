@@ -34,10 +34,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
-import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexer;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
@@ -92,14 +92,13 @@ public class ServerHttpProtocolNegotiator extends ProtocolNegotiatorBase {
     }
 
     private void startHttp1(final TlsDetails tlsDetails, final ByteBuffer data) throws IOException {
-        final ServerHttp1StreamDuplexer http1StreamHandler = http1StreamHandlerFactory.create(
+        startProtocol(HttpVersion.HTTP_1_1, new ServerHttp1IOEventHandler(http1StreamHandlerFactory.create(
                 tlsDetails != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
-                ioSession);
-        startProtocol(new ServerHttp1IOEventHandler(http1StreamHandler), data);
+                ioSession)), data);
     }
 
     private void startHttp2(final ByteBuffer data) throws IOException {
-        startProtocol(new ServerH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), data);
+        startProtocol(HttpVersion.HTTP_2, new ServerH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), data);
     }
 
     private void initialize() throws IOException {

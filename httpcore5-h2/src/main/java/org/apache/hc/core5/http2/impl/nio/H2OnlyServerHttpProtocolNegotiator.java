@@ -33,6 +33,8 @@ import java.nio.ByteBuffer;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
+import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -90,7 +92,7 @@ public class H2OnlyServerHttpProtocolNegotiator extends ProtocolNegotiatorBase {
                     throw new ProtocolNegotiationException("Unexpected HTTP/2 preface");
                 }
             }
-            startProtocol(new ServerH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), data.hasRemaining() ? data : null);
+            startProtocol(HttpVersion.HTTP_2, new ServerH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), data.hasRemaining() ? data : null);
         } else {
             if (endOfStream) {
                 throw new ConnectionClosedException();
@@ -100,6 +102,12 @@ public class H2OnlyServerHttpProtocolNegotiator extends ProtocolNegotiatorBase {
 
     @Override
     public void outputReady(final IOSession session) throws IOException {
+    }
+
+    @Override
+    public ProtocolVersion getProtocolVersion() {
+        final ProtocolVersion protocolVersion = super.getProtocolVersion();
+        return protocolVersion != null ? protocolVersion : HttpVersion.HTTP_2;
     }
 
     @Override

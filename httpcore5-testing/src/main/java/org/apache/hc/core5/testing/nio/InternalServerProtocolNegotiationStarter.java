@@ -29,9 +29,11 @@ package org.apache.hc.core5.testing.nio;
 
 import javax.net.ssl.SSLContext;
 
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
+import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.HandlerFactory;
@@ -39,6 +41,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
+import org.apache.hc.core5.http2.impl.nio.H2OnlyServerHttpProtocolNegotiator;
 import org.apache.hc.core5.http2.impl.nio.ServerH2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiator;
 import org.apache.hc.core5.reactor.IOEventHandler;
@@ -48,7 +51,7 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.util.Args;
 
-class InternalServerH2EventHandlerFactory implements IOEventHandlerFactory {
+class InternalServerProtocolNegotiationStarter implements IOEventHandlerFactory {
 
     private final HttpProcessor httpProcessor;
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
@@ -60,7 +63,7 @@ class InternalServerH2EventHandlerFactory implements IOEventHandlerFactory {
     private final SSLSessionInitializer sslSessionInitializer;
     private final SSLSessionVerifier sslSessionVerifier;
 
-    public InternalServerH2EventHandlerFactory(
+    public InternalServerProtocolNegotiationStarter(
             final HttpProcessor httpProcessor,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final HttpVersionPolicy versionPolicy,
@@ -98,11 +101,16 @@ class InternalServerH2EventHandlerFactory implements IOEventHandlerFactory {
                 h2Config,
                 charCodingConfig,
                 LoggingH2StreamListener.INSTANCE);
-        return new ServerHttpProtocolNegotiator(
-                        ioSession,
-                        http1StreamHandlerFactory,
-                        http2StreamHandlerFactory,
-                        versionPolicy);
+        switch (versionPolicy) {
+            case FORCE_HTTP_2:
+                return new H2OnlyServerHttpProtocolNegotiator(ioSession, http2StreamHandlerFactory);
+            case FORCE_HTTP_1:
+                return new ServerHttp1IOEventHandler(http1StreamHandlerFactory.create(
+                        sslContext != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
+                        ioSession));
+            default:
+                return new ServerHttpProtocolNegotiator(ioSession, http1StreamHandlerFactory, http2StreamHandlerFactory, HttpVersionPolicy.NEGOTIATE);
+        }
     }
 
 }

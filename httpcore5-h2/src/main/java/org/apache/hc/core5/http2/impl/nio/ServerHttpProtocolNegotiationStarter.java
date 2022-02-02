@@ -30,9 +30,10 @@ package org.apache.hc.core5.http2.impl.nio;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
+import org.apache.hc.core5.http.impl.nio.HttpConnectionEventHandler;
+import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandler;
+import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.EndpointParameters;
@@ -43,26 +44,25 @@ import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
 /**
- * {@link ClientHttpProtocolNegotiator} factory.
+ * Server I/O event starter that prepares I/O sessions for an initial protocol handshake.
+ * This class may return a different {@link org.apache.hc.core5.reactor.IOEventHandler}
+ * implementation based on the current HTTP version policy.
  *
- * @since 5.0
- *
- * @deprecated Use {@link ClientHttpProtocolNegotiationStarter}
+ * @since 5.1
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 @Internal
-@Deprecated
-public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactory {
+public class ServerHttpProtocolNegotiationStarter implements IOEventHandlerFactory {
 
-    private final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory;
-    private final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory;
+    private final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory;
+    private final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory;
     private final HttpVersionPolicy versionPolicy;
     private final TlsStrategy tlsStrategy;
     private final Timeout handshakeTimeout;
 
-    public ClientHttpProtocolNegotiatorFactory(
-            final ClientHttp1StreamDuplexerFactory http1StreamHandlerFactory,
-            final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory,
+    public ServerHttpProtocolNegotiationStarter(
+            final ServerHttp1StreamDuplexerFactory http1StreamHandlerFactory,
+            final ServerH2StreamMultiplexerFactory http2StreamHandlerFactory,
             final HttpVersionPolicy versionPolicy,
             final TlsStrategy tlsStrategy,
             final Timeout handshakeTimeout) {
@@ -74,16 +74,17 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
     }
 
     @Override
-    public ClientHttpProtocolNegotiator createHandler(final ProtocolIOSession ioSession, final Object attachment) {
+    public HttpConnectionEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
         HttpVersionPolicy endpointPolicy = versionPolicy;
+        URIScheme uriScheme = URIScheme.HTTP;
         if (attachment instanceof EndpointParameters) {
             final EndpointParameters params = (EndpointParameters) attachment;
             if (URIScheme.HTTPS.same(params.getScheme())) {
                 Asserts.notNull(tlsStrategy, "TLS strategy");
-                final HttpHost host = new HttpHost(params.getScheme(), params.getHostName(), params.getPort());
+                uriScheme = URIScheme.HTTPS;
                 tlsStrategy.upgrade(
                         ioSession,
-                        host,
+                        null,
                         ioSession.getLocalAddress(),
                         ioSession.getRemoteAddress(),
                         params.getAttachment(),
@@ -93,11 +94,14 @@ public class ClientHttpProtocolNegotiatorFactory implements IOEventHandlerFactor
                 endpointPolicy = (HttpVersionPolicy) params.getAttachment();
             }
         }
-        return new ClientHttpProtocolNegotiator(
-                ioSession,
-                http1StreamHandlerFactory,
-                http2StreamHandlerFactory,
-                endpointPolicy);
+        switch (endpointPolicy) {
+            case FORCE_HTTP_2:
+                return new H2OnlyServerHttpProtocolNegotiator(ioSession, http2StreamHandlerFactory);
+            case FORCE_HTTP_1:
+                return new ServerHttp1IOEventHandler(http1StreamHandlerFactory.create(uriScheme.id, ioSession));
+            default:
+                return new ServerHttpProtocolNegotiator(ioSession, http1StreamHandlerFactory, http2StreamHandlerFactory, HttpVersionPolicy.NEGOTIATE);
+        }
     }
 
 }

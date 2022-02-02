@@ -45,9 +45,12 @@ import org.apache.hc.core5.util.Timeout;
  * {@link ServerHttpProtocolNegotiator} factory.
  *
  * @since 5.0
+ *
+ * @deprecated Use {@link ServerHttpProtocolNegotiationStarter}
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 @Internal
+@Deprecated
 public class ServerHttpProtocolNegotiatorFactory implements IOEventHandlerFactory {
 
     private final ServerHttp1StreamDuplexerFactory http1StreamDuplexerFactory;

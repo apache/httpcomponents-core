@@ -61,6 +61,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     private final Queue<InternalDataChannel> closedSessions;
     private final AtomicReference<SSLIOSession> tlsSessionRef;
     private final AtomicReference<IOSession> currentSessionRef;
+    private final AtomicReference<IOEventHandler> eventHandlerRef;
     private final AtomicBoolean closed;
 
     InternalDataChannel(
@@ -77,6 +78,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
         this.tlsSessionRef = new AtomicReference<>();
         this.currentSessionRef = new AtomicReference<>(
                 ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession);
+        this.eventHandlerRef = new AtomicReference<>();
         this.closed = new AtomicBoolean(false);
     }
 
@@ -92,14 +94,14 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
 
     @Override
     public IOEventHandler getHandler() {
-        final IOSession currentSession = currentSessionRef.get();
-        return currentSession.getHandler();
+        return eventHandlerRef.get();
     }
 
     @Override
     public void upgrade(final IOEventHandler handler) {
         final IOSession currentSession = currentSessionRef.get();
         currentSession.upgrade(handler);
+        eventHandlerRef.set(handler);
     }
 
     private IOEventHandler ensureHandler(final IOSession session) {

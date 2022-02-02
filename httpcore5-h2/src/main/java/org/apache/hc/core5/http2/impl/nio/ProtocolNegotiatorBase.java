@@ -55,6 +55,7 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
     private final AtomicReference<HttpConnectionEventHandler> protocolHandlerRef;
     private final FutureCallback<ProtocolIOSession> resultCallback;
     private final AtomicBoolean completed;
+    private final AtomicReference<ProtocolVersion> negotiatedProtocolRef;
 
     ProtocolNegotiatorBase(
             final ProtocolIOSession ioSession,
@@ -63,9 +64,11 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
         this.protocolHandlerRef = new AtomicReference<>();
         this.resultCallback = resultCallback;
         this.completed = new AtomicBoolean();
+        this.negotiatedProtocolRef = new AtomicReference<>();
     }
 
-    void startProtocol(final HttpConnectionEventHandler protocolHandler, final ByteBuffer data) throws IOException {
+    void startProtocol(final ProtocolVersion protocolVersion, final HttpConnectionEventHandler protocolHandler, final ByteBuffer data) throws IOException {
+        negotiatedProtocolRef.set(protocolVersion);
         protocolHandlerRef.set(protocolHandler);
         ioSession.upgrade(protocolHandler);
         protocolHandler.connected(ioSession);
@@ -138,7 +141,7 @@ abstract class ProtocolNegotiatorBase implements HttpConnectionEventHandler {
 
     @Override
     public ProtocolVersion getProtocolVersion() {
-        return null;
+        return negotiatedProtocolRef.get();
     }
 
     @Override

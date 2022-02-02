@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1IOEventHandler;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
@@ -94,7 +95,7 @@ public class ClientHttpProtocolNegotiator extends ProtocolNegotiatorBase {
 
     private void startHttp1() throws IOException {
         final ByteBuffer data = inBuf != null ? inBuf.data() : null;
-        startProtocol(new ClientHttp1IOEventHandler(http1StreamHandlerFactory.create(ioSession)), data);
+        startProtocol(HttpVersion.HTTP_1_1, new ClientHttp1IOEventHandler(http1StreamHandlerFactory.create(ioSession)), data);
         if (inBuf != null) {
             inBuf.clear();
         }
@@ -102,7 +103,7 @@ public class ClientHttpProtocolNegotiator extends ProtocolNegotiatorBase {
 
     private void startHttp2() throws IOException {
         final ByteBuffer data = inBuf != null ? inBuf.data() : null;
-        startProtocol(new ClientH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), data);
+        startProtocol(HttpVersion.HTTP_2, new ClientH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), data);
         if (inBuf != null) {
             inBuf.clear();
         }

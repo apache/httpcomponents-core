@@ -65,7 +65,7 @@ import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.impl.nio.ServerH2StreamMultiplexerFactory;
-import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiatorFactory;
+import org.apache.hc.core5.http2.impl.nio.ServerHttpProtocolNegotiationStarter;
 import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -444,7 +444,7 @@ public class H2ServerBootstrap {
                 DefaultContentLengthStrategy.INSTANCE,
                 http1StreamListener);
 
-        final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttpProtocolNegotiatorFactory(
+        final IOEventHandlerFactory ioEventHandlerFactory = new ServerHttpProtocolNegotiationStarter(
                 http1StreamHandlerFactory,
                 http2StreamHandlerFactory,
                 actualVersionProtocol,

@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.impl.nio;
 
+import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.net.InetAddressUtils;
 
 /**
@@ -52,6 +54,12 @@ public class ClientHttp1IOEventHandler extends AbstractHttp1IOEventHandler {
         streamDuplexer.appendState(buf);
         buf.append("]");
         return buf.toString();
+    }
+
+    @Override
+    public ProtocolVersion getProtocolVersion() {
+        final ProtocolVersion protocolVersion = super.getProtocolVersion();
+        return protocolVersion != null ? protocolVersion : HttpVersion.HTTP_1_1;
     }
 
 }
