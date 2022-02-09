@@ -103,17 +103,16 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
         if (requestState == MessageState.HEADERS) {
 
             request = DefaultH2RequestConverter.INSTANCE.convert(headers);
-
-            final AsyncPushConsumer handler;
             try {
-                handler = pushHandlerFactory != null ? pushHandlerFactory.create(request, context) : null;
+                exchangeHandler = pushHandlerFactory != null ? pushHandlerFactory.create(request, context) : null;
             } catch (final ProtocolException ex) {
+                exchangeHandler = new NoopAsyncPushHandler();
                 throw new H2StreamResetException(H2Error.PROTOCOL_ERROR, ex.getMessage());
             }
-            if (handler == null) {
+            if (exchangeHandler == null) {
+                exchangeHandler = new NoopAsyncPushHandler();
                 throw new H2StreamResetException(H2Error.REFUSED_STREAM, "Stream refused");
             }
-            exchangeHandler = handler;
 
             context.setProtocolVersion(HttpVersion.HTTP_2);
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
