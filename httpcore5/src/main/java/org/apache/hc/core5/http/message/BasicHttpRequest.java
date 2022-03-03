@@ -287,7 +287,12 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         if (query != null) {
             buf.append('?').append(query);
         }
+        final String fragment = requestUri.getRawFragment();
+        if (fragment != null) {
+            buf.append('#').append(fragment);
+        }
         this.path = buf.toString();
+        this.requestUri = null;
     }
 
     private void assembleRequestUri(final StringBuilder buf) {
