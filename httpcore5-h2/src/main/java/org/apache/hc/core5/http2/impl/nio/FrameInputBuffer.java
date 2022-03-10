@@ -80,6 +80,10 @@ public final class FrameInputBuffer {
         this(new BasicH2TransportMetrics(), maxFramePayloadSize);
     }
 
+    /**
+     * @deprecated Use {@link #read(ByteBuffer, ReadableByteChannel)}.
+     */
+    @Deprecated
     public void put(final ByteBuffer src) {
         if (buffer.hasRemaining()) {
             buffer.compact();
@@ -90,8 +94,37 @@ public final class FrameInputBuffer {
         buffer.flip();
     }
 
-    public RawFrame read(final ReadableByteChannel channel) throws IOException {
+    /**
+     * Attempts to read a complete frame from the given source buffer and the underlying data
+     * channel. The source buffer is consumed first. More data can be read from the channel
+     * if required.
+     *
+     * @param src the source buffer or {@code null} if not available.
+     * @param channel the underlying data channel.
+     *
+     * @return a complete frame or {@code null} a complete frame cannot be read.
+     *
+     * @since 5.1
+     */
+    public RawFrame read(final ByteBuffer src, final ReadableByteChannel channel) throws IOException {
         for (;;) {
+            if (src != null) {
+                if (buffer.hasRemaining()) {
+                    buffer.compact();
+                } else {
+                    buffer.clear();
+                }
+                final int remaining = buffer.remaining();
+                if (remaining >= src.remaining()) {
+                    buffer.put(src);
+                } else {
+                    final int limit = src.limit();
+                    src.limit(remaining);
+                    buffer.put(src);
+                    src.limit(limit);
+                }
+                buffer.flip();
+            }
             switch (state) {
                 case HEAD_EXPECTED:
                     if (buffer.remaining() >= FrameConsts.HEAD_LEN) {
@@ -148,6 +181,15 @@ public final class FrameInputBuffer {
             }
         }
         return null;
+    }
+
+    /**
+     * Attempts to read a complete frame from the underlying data channel.
+     *
+     * @param channel the underlying data channel.
+     */
+    public RawFrame read(final ReadableByteChannel channel) throws IOException {
+        return read(null, channel);
     }
 
     public void reset() {
