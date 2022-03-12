@@ -1,3 +1,67 @@
+Release 5.2 BETA1
+------------------
+
+This is the first BETA release in the 5.2 release series that marks the completion of
+major API changes and starts the transition toward a GA phase.
+
+This release also includes all fixes from the 5.1 (stable) branch.
+
+Please note that 5.2 upgrades minimal JRE level to version 8 (8u251 is required).
+
+Notable changes and features included in the 5.2 series:
+
+* Upgrade to Java 8.
+
+* Improved support for TLS upgrade and HTTP protocol upgrade (async).
+
+* Improved HTTP protocol negotiation.
+
+* Improved customization of HTTP listeners (async).
+
+* Improved parsing and formatting of URI components.
+
+* Use of Java 1.8 date / time APIs
+
+
+Change Log
+-------------------
+
+* Improved HTTP protocol negotiation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Added #clone to BasicHeader.
+  Contributed by Arturo Bernal <arturobernalg at gmail.com>
+
+* Use subclass of ConnectionClosedException to signal request execution failures due
+  to the connection being closed. Requests failed with this exception should generally
+  be safe to re-execute.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-698: Migratation to Unit 5.
+  Contributed by Arturo Bernal <arturobernalg at gmail.com>
+
+* HTTPCORE-697: Replaced SimpleDateFormat with Java 8 Time APIs.
+  Contributed by Arturo Bernal <arturobernalg at gmail.com>
+
+* Fixed #format in Deadline; improved #hashCode; replaced SimpleDatteFormat with
+  Java 8 Time APIs.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Singleton INSTANCE added to RequestConnControl, RequestContent, RequestData, RequestTargetHost
+  and RequestUserAgent.
+  Contributed by Arturo Bernal <arturobernalg at gmail.com>
+
+* HTTPCORE-692: added new rules for H2 header check as per rfc7540 section 8.1.2.2 and 8.1.2.3.
+  Contributed by 风起 <chengtao.yct at alibaba-inc.com>
+
+* HTTPCORE-691: HttpService and HttpRequestExecutor builders.
+  Contributed by Arturo Bernal <arturobernalg at gmail.com>
+
+* Added URIAuthority and NamedEndpoint setters to URIBuilder (#308).
+  Contributed by Gary Gregory <garydgregory at gmail.com>
+
+
+
 Release 5.2 ALPHA2
 ------------------
 
