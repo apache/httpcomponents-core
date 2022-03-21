@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 
 public class TestReactiveDataProducer {
     @Test

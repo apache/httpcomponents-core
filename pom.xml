@@ -79,6 +79,7 @@
     <slf4j.version>1.7.25</slf4j.version>
     <log4j.version>2.17.0</log4j.version>
     <rxjava.version>2.2.21</rxjava.version>
+    <rxjava3.version>3.1.3</rxjava3.version>
     <api.comparison.version>5.1</api.comparison.version>
     <japicmp.version>0.15.4</japicmp.version>
     <hc.animal-sniffer.signature.ignores>javax.net.ssl.SSLEngine,javax.net.ssl.SSLParameters</hc.animal-sniffer.signature.ignores>
