@@ -35,10 +35,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import io.reactivex.Flowable;
-import io.reactivex.Notification;
-import io.reactivex.Observable;
-import io.reactivex.Single;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Notification;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.nio.CapacityChannel;
 import org.junit.jupiter.api.Assertions;

@@ -69,7 +69,7 @@ import org.apache.hc.core5.testing.nio.LoggingH2StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
-import org.apache.hc.core5.testing.reactive.ReactiveTestUtils.StreamDescription;
+import org.apache.hc.core5.testing.reactive.Reactive3TestUtils.StreamDescription;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
@@ -84,8 +84,8 @@ import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.reactivex.Flowable;
-import io.reactivex.Observable;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Observable;
 
 @RunWith(Parameterized.class)
 @EnableRuleMigrationSupport
@@ -211,7 +211,7 @@ public class ReactiveClientTest {
         final InetSocketAddress address = startClientAndServer();
         final long expectedLength = 6_554_200L;
         final AtomicReference<String> expectedHash = new AtomicReference<>();
-        final Flowable<ByteBuffer> stream = ReactiveTestUtils.produceStream(expectedLength, expectedHash);
+        final Flowable<ByteBuffer> stream = Reactive3TestUtils.produceStream(expectedLength, expectedHash);
         final ReactiveEntityProducer producer = new ReactiveEntityProducer(stream, -1, null, null);
         final BasicRequestProducer request = getRequestProducer(address, producer);
 
@@ -219,7 +219,7 @@ public class ReactiveClientTest {
         requester.execute(request, consumer, SOCKET_TIMEOUT, null);
         final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
                 .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
-        final StreamDescription desc = ReactiveTestUtils.consumeStream(response.getBody()).blockingGet();
+        final StreamDescription desc = Reactive3TestUtils.consumeStream(response.getBody()).blockingGet();
 
         Assertions.assertEquals(expectedLength, desc.length);
         Assertions.assertEquals(expectedHash.get(), TextUtils.toHexString(desc.md.digest()));
@@ -244,7 +244,7 @@ public class ReactiveClientTest {
             requester.execute(request, consumer, SOCKET_TIMEOUT, null);
             final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
                 .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
-            final StreamDescription desc = ReactiveTestUtils.consumeStream(response.getBody()).blockingGet();
+            final StreamDescription desc = Reactive3TestUtils.consumeStream(response.getBody()).blockingGet();
 
             Assertions.assertEquals(expectedLength, desc.length);
             Assertions.assertEquals(expectedHash.get(), TextUtils.toHexString(desc.md.digest()));

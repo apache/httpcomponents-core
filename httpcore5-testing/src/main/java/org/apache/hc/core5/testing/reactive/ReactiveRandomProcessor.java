@@ -51,7 +51,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.reactive.ReactiveRequestProcessor;
 import org.reactivestreams.Publisher;
 
-import io.reactivex.Flowable;
+import io.reactivex.rxjava3.core.Flowable;
 
 public class ReactiveRandomProcessor implements ReactiveRequestProcessor {
     public ReactiveRandomProcessor() {
@@ -100,7 +100,7 @@ public class ReactiveRandomProcessor implements ReactiveRequestProcessor {
             }
 
             final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
-            final Flowable<ByteBuffer> stream = ReactiveTestUtils.produceStream(n);
+            final Flowable<ByteBuffer> stream = Reactive3TestUtils.produceStream(n);
             final String hash = ReactiveTestUtils.getStreamHash(n);
             response.addHeader("response-hash-code", hash);
             final BasicEntityDetails basicEntityDetails = new BasicEntityDetails(n, ContentType.APPLICATION_OCTET_STREAM);

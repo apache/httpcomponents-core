@@ -27,6 +27,14 @@
 
 package org.apache.hc.core5.testing.reactive;
 
+import io.reactivex.rxjava3.core.Emitter;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.core.Single;
+import io.reactivex.rxjava3.functions.Consumer;
+import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.util.TextUtils;
+import org.reactivestreams.Publisher;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -34,21 +42,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.util.TextUtils;
-import org.reactivestreams.Publisher;
-
-import io.reactivex.Emitter;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
-import io.reactivex.functions.Consumer;
-
-/**
- * @deprecated Use {@link Reactive3TestUtils} and RxJava3
- */
 @Internal
-@Deprecated
-public class ReactiveTestUtils {
+public class Reactive3TestUtils {
     /** The range from which to generate random data. */
     private final static byte[] RANGE = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
             .getBytes(StandardCharsets.US_ASCII);
