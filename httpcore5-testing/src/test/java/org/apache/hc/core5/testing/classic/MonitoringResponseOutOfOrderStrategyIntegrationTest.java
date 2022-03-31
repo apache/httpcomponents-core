@@ -54,13 +54,15 @@ import org.apache.hc.core5.util.Timeout;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.Extensions;
+import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-@EnableRuleMigrationSupport
+@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 @RunWith(Parameterized.class)
 public class MonitoringResponseOutOfOrderStrategyIntegrationTest {
 

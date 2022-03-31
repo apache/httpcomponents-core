@@ -134,16 +134,20 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.Extensions;
+import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@EnableRuleMigrationSupport
+;
+
+@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 @RunWith(Parameterized.class)
 public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 

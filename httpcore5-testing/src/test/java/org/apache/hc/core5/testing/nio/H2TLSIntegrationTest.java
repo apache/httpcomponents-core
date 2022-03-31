@@ -69,10 +69,12 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.Extensions;
+import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
 import org.junit.rules.ExternalResource;
 
-@EnableRuleMigrationSupport
+@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 public class H2TLSIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);

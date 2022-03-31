@@ -33,9 +33,10 @@ import org.apache.hc.core5.testing.SocksProxy;
 import org.apache.hc.core5.util.TimeValue;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
-
-@EnableRuleMigrationSupport
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.Extensions;
+import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
+@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 public class Http1SocksProxyIntegrationTest extends Http1IntegrationTest {
 
     protected static SocksProxy PROXY;

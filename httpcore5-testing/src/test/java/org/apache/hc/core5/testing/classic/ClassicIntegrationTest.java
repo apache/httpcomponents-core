@@ -75,13 +75,15 @@ import org.apache.hc.core5.testing.SSLTestContexts;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.Extensions;
+import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-@EnableRuleMigrationSupport
+@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 public class ClassicIntegrationTest {
 
     @Parameterized.Parameters(name = "{0}")

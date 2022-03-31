@@ -66,12 +66,14 @@ import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.Extensions;
+import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@EnableRuleMigrationSupport
+@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 public class H2ServerBootstrapFiltersTest {
 
     private final Logger log = LoggerFactory.getLogger(getClass());

@@ -64,14 +64,16 @@ import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.Extensions;
+import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
 import org.junit.rules.ExternalResource;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@EnableRuleMigrationSupport
+@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 @RunWith(Parameterized.class)
 public class ClassicAuthenticationTest {
 

@@ -32,12 +32,14 @@ import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.TimeValue;
 import org.junit.Rule;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.Extensions;
+import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
 import org.junit.rules.ExternalResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@EnableRuleMigrationSupport
+@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 public abstract class InternalHttp1ServerTestBase {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
