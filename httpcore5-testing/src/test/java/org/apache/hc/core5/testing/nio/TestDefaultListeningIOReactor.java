@@ -28,22 +28,16 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.DefaultListeningIOReactor;
-import org.apache.hc.core5.reactor.IOEventHandler;
-import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorStatus;
-import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.util.TimeValue;
-import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.AfterEach;;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,39 +49,6 @@ import org.junit.jupiter.api.Test;
 public class TestDefaultListeningIOReactor {
 
     private DefaultListeningIOReactor ioReactor;
-
-    private static class NoopIOEventHandlerFactory implements IOEventHandlerFactory {
-
-        @Override
-        public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
-            return new IOEventHandler() {
-
-                @Override
-                public void connected(final IOSession session) {
-                }
-
-                @Override
-                public void inputReady(final IOSession session, final ByteBuffer src) {
-                }
-
-                @Override
-                public void outputReady(final IOSession session) {
-                }
-
-                @Override
-                public void timeout(final IOSession session, final Timeout timeout) {
-                }
-
-                @Override
-                public void exception(final IOSession session, final Exception cause) {
-                }
-
-                @Override
-                public void disconnected(final IOSession session) {
-                }
-            };
-        }
-    }
 
     @BeforeEach
     public void setup() throws Exception {

@@ -43,6 +43,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLEngineResult;
 import javax.net.ssl.SSLEngineResult.HandshakeStatus;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -225,6 +226,10 @@ public class SSLIOSession implements IOSession {
 
             @Override
             public void exception(final IOSession protocolSession, final Exception cause) {
+                final FutureCallback<SSLSession> resultCallback = handshakeCallbackRef.getAndSet(null);
+                if (resultCallback != null) {
+                    resultCallback.failed(cause);
+                }
                 final IOEventHandler handler = session.getHandler();
                 if (handshakeStateRef.get() != TLSHandShakeState.COMPLETE) {
                     session.close(CloseMode.GRACEFUL);
@@ -232,10 +237,6 @@ public class SSLIOSession implements IOSession {
                 }
                 if (handler != null) {
                     handler.exception(protocolSession, cause);
-                }
-                final FutureCallback<SSLSession> resultCallback = handshakeCallbackRef.getAndSet(null);
-                if (resultCallback != null) {
-                    resultCallback.failed(cause);
                 }
             }
 
@@ -448,6 +449,10 @@ public class SSLIOSession implements IOSession {
             if (this.status == Status.ACTIVE
                     && (this.endOfStream || this.sslEngine.isInboundDone())) {
                 this.status = Status.CLOSING;
+                final FutureCallback<SSLSession> resultCallback = handshakeCallbackRef.getAndSet(null);
+                if (resultCallback != null) {
+                    resultCallback.failed(new SSLHandshakeException("TLS handshake failed"));
+                }
             }
             if (this.status == Status.CLOSING && !this.outEncrypted.hasData()) {
                 this.sslEngine.closeOutbound();
