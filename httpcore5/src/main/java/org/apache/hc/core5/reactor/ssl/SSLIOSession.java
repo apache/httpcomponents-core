@@ -257,6 +257,7 @@ public class SSLIOSession implements IOSession {
             this.inEncrypted.release();
             this.outEncrypted.release();
             doHandshake(protocolSession);
+            updateEventMask();
         } finally {
             this.session.getLock().unlock();
         }
