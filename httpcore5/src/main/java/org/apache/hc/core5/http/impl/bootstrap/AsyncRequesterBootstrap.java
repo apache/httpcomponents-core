@@ -240,9 +240,10 @@ public class AsyncRequesterBootstrap {
                 null,
                 null,
                 streamListener);
+        final TlsStrategy tlsStrategyCopy = tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy();
         final IOEventHandlerFactory ioEventHandlerFactory = new ClientHttp1IOEventHandlerFactory(
                 streamDuplexerFactory,
-                tlsStrategy != null ? tlsStrategy : new BasicClientTlsStrategy(),
+                tlsStrategyCopy,
                 handshakeTimeout);
         return new HttpAsyncRequester(
                 ioReactorConfig,
@@ -250,7 +251,9 @@ public class AsyncRequesterBootstrap {
                 ioSessionDecorator,
                 exceptionCallback,
                 sessionListener,
-                connPool);
+                connPool,
+                tlsStrategyCopy,
+                handshakeTimeout);
     }
 
 }
