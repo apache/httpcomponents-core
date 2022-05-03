@@ -101,6 +101,17 @@ public class InetAddressUtils {
         return IPV4_MAPPED_IPV6_PATTERN.matcher(input).matches();
     }
 
+    static boolean hasValidIPv6ColonCount(final String input) {
+        int colonCount = 0;
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) == COLON_CHAR) {
+                colonCount++;
+            }
+        }
+        // IPv6 address must have at least 2 colons and not more than 7 (i.e. 8 fields)
+        return colonCount >= 2 && colonCount <= MAX_COLON_COUNT;
+    }
+
     /**
      * Checks whether the parameter is a valid standard (non-compressed) IPv6 address
      *
@@ -108,7 +119,7 @@ public class InetAddressUtils {
      * @return true if the input parameter is a valid standard (non-compressed) IPv6 address
      */
     public static boolean isIPv6StdAddress(final String input) {
-        return IPV6_STD_PATTERN.matcher(input).matches();
+        return hasValidIPv6ColonCount(input) && IPV6_STD_PATTERN.matcher(input).matches();
     }
 
     /**
@@ -118,13 +129,7 @@ public class InetAddressUtils {
      * @return true if the input parameter is a valid compressed IPv6 address
      */
     public static boolean isIPv6HexCompressedAddress(final String input) {
-        int colonCount = 0;
-        for(int i = 0; i < input.length(); i++) {
-            if (input.charAt(i) == COLON_CHAR) {
-                colonCount++;
-            }
-        }
-        return  colonCount <= MAX_COLON_COUNT && IPV6_HEX_COMPRESSED_PATTERN.matcher(input).matches();
+        return hasValidIPv6ColonCount(input) && IPV6_HEX_COMPRESSED_PATTERN.matcher(input).matches();
     }
 
     /**
