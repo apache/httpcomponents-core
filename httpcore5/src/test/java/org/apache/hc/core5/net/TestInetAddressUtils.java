@@ -57,11 +57,22 @@ public class TestInetAddressUtils {
         Assert.assertTrue(InetAddressUtils.isIPv6StdAddress("2001:db8:0:0:0:0:1428:57ab"));
         Assert.assertTrue(InetAddressUtils.isIPv6StdAddress("0:0:0:0:0:0:0:0"));
         Assert.assertTrue(InetAddressUtils.isIPv6StdAddress("0:0:0:0:0:0:0:1"));
+
         Assert.assertTrue(InetAddressUtils.isIPv6HexCompressedAddress("2001:0db8:0:0::1428:57ab"));
         Assert.assertTrue(InetAddressUtils.isIPv6HexCompressedAddress("2001:0db8::1428:57ab"));
         Assert.assertTrue(InetAddressUtils.isIPv6HexCompressedAddress("2001:db8::1428:57ab"));
         Assert.assertTrue(InetAddressUtils.isIPv6HexCompressedAddress("::1"));
         Assert.assertTrue(InetAddressUtils.isIPv6HexCompressedAddress("::")); // http://tools.ietf.org/html/rfc4291#section-2.2
+
+        Assert.assertTrue(InetAddressUtils.isIPv6Address("2001:0db8:0000:0000:0000:0000:1428:57ab"));
+        Assert.assertTrue(InetAddressUtils.isIPv6Address("2001:db8:0:0:0:0:1428:57ab"));
+        Assert.assertTrue(InetAddressUtils.isIPv6Address("0:0:0:0:0:0:0:0"));
+        Assert.assertTrue(InetAddressUtils.isIPv6Address("0:0:0:0:0:0:0:1"));
+        Assert.assertTrue(InetAddressUtils.isIPv6Address("2001:0db8:0:0::1428:57ab"));
+        Assert.assertTrue(InetAddressUtils.isIPv6Address("2001:0db8::1428:57ab"));
+        Assert.assertTrue(InetAddressUtils.isIPv6Address("2001:db8::1428:57ab"));
+        Assert.assertTrue(InetAddressUtils.isIPv6Address("::1"));
+        Assert.assertTrue(InetAddressUtils.isIPv6Address("::")); // http://tools.ietf.org/html/rfc4291#section-2.2
     }
 
     @Test
@@ -71,6 +82,7 @@ public class TestInetAddressUtils {
         Assert.assertFalse(InetAddressUtils.isIPv6StdAddress("0:0:0:0:0:0:0:0:0")); // Too many
         Assert.assertFalse(InetAddressUtils.isIPv6StdAddress("0:0:0:0:0:0:0")); // Too few
         Assert.assertFalse(InetAddressUtils.isIPv6HexCompressedAddress(":1"));
+        Assert.assertFalse(InetAddressUtils.isIPv6Address(":1"));
         Assert.assertFalse(InetAddressUtils.isIPv6Address("2001:0db8::0000::57ab")); // Cannot have two contractions
         Assert.assertFalse(InetAddressUtils.isIPv6HexCompressedAddress("1:2:3:4:5:6:7::9")); // too many fields before ::
         Assert.assertFalse(InetAddressUtils.isIPv6HexCompressedAddress("1::3:4:5:6:7:8:9")); // too many fields after ::
@@ -133,6 +145,27 @@ public class TestInetAddressUtils {
     public void testInvalidIPv6AddressIncorrectGroupCount() {
         Assert.assertFalse(InetAddressUtils.isIPv6HexCompressedAddress("1:2::4:5:6:7:8:9")); // too many fields in total
         Assert.assertFalse(InetAddressUtils.isIPv6HexCompressedAddress("1:2:3:4:5:6::8:9")); // too many fields in total
+    }
+
+    @Test
+    public void testHasValidIPv6ColonCount() {
+        Assert.assertFalse(InetAddressUtils.hasValidIPv6ColonCount(""));
+        Assert.assertFalse(InetAddressUtils.hasValidIPv6ColonCount(":"));
+        Assert.assertFalse(InetAddressUtils.hasValidIPv6ColonCount("127.0.0.1"));
+        Assert.assertFalse(InetAddressUtils.hasValidIPv6ColonCount(":0"));
+        Assert.assertFalse(InetAddressUtils.hasValidIPv6ColonCount("0:"));
+        Assert.assertFalse(InetAddressUtils.hasValidIPv6ColonCount("1:2:3:4:5:6:7:8:"));
+        Assert.assertFalse(InetAddressUtils.hasValidIPv6ColonCount("1:2:3:4:5:6:7:8:9"));
+
+        Assert.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("2001:0db8:0000:0000:0000:0000:1428:57ab"));
+        Assert.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("2001:db8:0:0:0:0:1428:57ab"));
+        Assert.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("0:0:0:0:0:0:0:0"));
+        Assert.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("0:0:0:0:0:0:0:1"));
+        Assert.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("2001:0db8:0:0::1428:57ab"));
+        Assert.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("2001:0db8::1428:57ab"));
+        Assert.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("2001:db8::1428:57ab"));
+        Assert.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("::1"));
+        Assert.assertTrue(InetAddressUtils.hasValidIPv6ColonCount("::")); // http://tools.ietf.org/html/rfc4291#section-2.2
     }
 
     @Test
