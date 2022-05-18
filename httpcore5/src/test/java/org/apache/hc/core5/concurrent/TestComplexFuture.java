@@ -96,4 +96,11 @@ public class TestComplexFuture {
         assertThat(dependency2.isCancelled(), CoreMatchers.is(true));
     }
 
+    @Test
+    public void testFailedAndFailed() {
+        final ComplexFuture<Object> future = new ComplexFuture<>(null);
+        future.cancel();
+        assertThat(future.failed(new Exception()), CoreMatchers.is(false));
+    }
+
 }
