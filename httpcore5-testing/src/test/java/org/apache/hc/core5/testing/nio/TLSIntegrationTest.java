@@ -358,7 +358,7 @@ public class TLSIntegrationTest {
         final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
                 tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         final Throwable cause = exception.getCause();
-        Assertions.assertInstanceOf(SSLHandshakeException.class, cause);
+        Assertions.assertInstanceOf(IOException.class, cause);
     }
 
     static class SupportedTLSProtocolProvider implements ArgumentsProvider {
