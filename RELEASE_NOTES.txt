@@ -1,12 +1,12 @@
-Release 5.2 BETA1
+Release 5.2 BETA2
 ------------------
 
-This is the first BETA release in the 5.2 release series that marks the completion of
-major API changes and starts the transition toward a GA phase.
+This BETA release corrects a major regression in the TLS handshake handling
+code introduced in the previous BETA release.
 
 This release also includes all fixes from the 5.1 (stable) branch.
 
-Please note that 5.2 upgrades minimal JRE level to version 8 (8u251 is required).
+Please note that 5.2 upgrades the minimal JRE level to version 8 (8u251 is required).
 
 Notable changes and features included in the 5.2 series:
 
@@ -20,7 +20,39 @@ Notable changes and features included in the 5.2 series:
 
 * Improved parsing and formatting of URI components.
 
-* Use of Java 1.8 date / time APIs
+* Use of Java 8 date / time APIs
+
+
+Change Log
+-------------------
+
+* HTTPCORE-713: Optimize InetAddressUtils#isIPv6*Address; check input colon count
+  before performing IPv6 regex validation.
+  Contributed by David Schlosnagle <davids at palantir.com>
+
+* HTTPCORE-710: In case of some TLS handshake failures (protocol version mismatch)
+  the local TLS engine quietly closes the stream instead of throwing a handshake
+  exception.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Corrected TLS upgrade support in HttpAsyncRequester.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Non-blocking TLS sessions fail to update their event interest mask upon TLS
+  handshake initiation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Upgrade to RxJava3
+  Contributed by Ryan Schmitt <rschmitt at apache.org>
+
+
+Release 5.2 BETA1
+------------------
+
+This is the first BETA release in the 5.2 release series that marks the completion of
+major API changes and starts the transition toward a GA phase.
+
+This release also includes all fixes from the 5.1 (stable) branch.
 
 
 Change Log
@@ -68,19 +100,6 @@ Release 5.2 ALPHA2
 This is the second ALPHA release in the 5.2 release series that fixes a regression
 in the TLS layer introduced by the previous ALPHA and adds a number of incremental
 improvements.
-
-Please note that 5.2 upgrades minimal JRE level to version 8 (8u251 is required).
-
-
-Notable changes and features included in the 5.2 series:
-
-* Upgrade to Java 8.
-
-* Improved support for TLS upgrade and HTTP protocol upgrade (async).
-
-* Improved customization of HTTP listeners (async).
-
-* Improved parsing and formatting of URI components.
 
 
 Change Log
