@@ -97,9 +97,9 @@ public class TestComplexFuture {
     }
 
     @Test
-    public void testFailedAndFailed() {
+    public void testCanceledAndFailed() {
         final ComplexFuture<Object> future = new ComplexFuture<>(null);
-        future.cancel();
+        assertThat(future.cancel(), CoreMatchers.is(true));
         assertThat(future.failed(new Exception()), CoreMatchers.is(false));
     }
 
