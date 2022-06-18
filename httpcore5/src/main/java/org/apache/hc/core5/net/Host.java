@@ -27,7 +27,9 @@
 package org.apache.hc.core5.net;
 
 import java.io.Serializable;
+import java.net.IDN;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -71,7 +73,10 @@ public final class Host implements NamedEndpoint, Serializable {
             if (!InetAddressUtils.isIPv6Address(hostName)) {
                 throw URISupport.createException(s, cursor, "Expected an IPv6 address");
             }
-        } else {
+        }  else if (!StandardCharsets.US_ASCII.newEncoder().canEncode(s.toString())){
+            hostName = IDN.toASCII(tokenizer.parseContent(s, cursor, URISupport.PORT_SEPARATORS));
+        }
+        else {
             hostName = tokenizer.parseContent(s, cursor, URISupport.PORT_SEPARATORS);
         }
         String portText = null;
