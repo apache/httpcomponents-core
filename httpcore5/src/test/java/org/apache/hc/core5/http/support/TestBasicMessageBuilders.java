@@ -239,7 +239,7 @@ public class TestBasicMessageBuilders {
 
     @Test
     public void testIDNHost() throws Exception {
-        final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://датаком.мон/test"));
+        final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://www.датаком.мон/test"));
         request.addHeader("h1", "v1");
         request.addHeader("h1", "v2");
         request.addHeader("h2", "v2");
@@ -247,8 +247,7 @@ public class TestBasicMessageBuilders {
         final BasicRequestBuilder builder = BasicRequestBuilder.copy(request);
         Assertions.assertEquals("GET", builder.getMethod());
         Assertions.assertEquals("http", builder.getScheme());
-//        Assertions.assertEquals(new URIAuthority("датаком.мон"), builder.getAuthority());
-        Assertions.assertEquals(new URIAuthority("xn--80aak0aklz.xn--l1acc"), builder.getAuthority());
+        Assertions.assertEquals(new URIAuthority("www.xn--80aak0aklz.xn--l1acc"), builder.getAuthority());
         Assertions.assertEquals("/test",builder.getPath());
         Assertions.assertEquals(HttpVersion.HTTP_2, builder.getVersion());
         assertThat(builder.getHeaders(), HeadersMatcher.same(

@@ -73,7 +73,7 @@ public final class Host implements NamedEndpoint, Serializable {
             if (!InetAddressUtils.isIPv6Address(hostName)) {
                 throw URISupport.createException(s, cursor, "Expected an IPv6 address");
             }
-        }  else if (!StandardCharsets.US_ASCII.newEncoder().canEncode(s.toString())){
+        } else if (!TextUtils.isAllASCII(s)) {
             hostName = IDN.toASCII(tokenizer.parseContent(s, cursor, URISupport.PORT_SEPARATORS));
         }
         else {
