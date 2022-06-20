@@ -146,11 +146,11 @@ public final class TextUtils {
      * @param input which check CharSequence for US-ASCII
      * @return input all is ASCII
      * @since 5.2
-     * */
-    public static boolean isAllASCII(CharSequence input) {
+     */
+    public static boolean isAllASCII(final CharSequence input) {
         boolean isASCII = true;
         for (int i = 0; i < input.length(); i++) {
-            int c = input.charAt(i);
+            final int c = input.charAt(i);
             if (c > 0x7F) {
                 isASCII = false;
                 break;

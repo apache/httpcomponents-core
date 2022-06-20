@@ -29,7 +29,6 @@ package org.apache.hc.core5.net;
 import java.io.Serializable;
 import java.net.IDN;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -75,8 +74,7 @@ public final class Host implements NamedEndpoint, Serializable {
             }
         } else if (!TextUtils.isAllASCII(s)) {
             hostName = IDN.toASCII(tokenizer.parseContent(s, cursor, URISupport.PORT_SEPARATORS));
-        }
-        else {
+        } else {
             hostName = tokenizer.parseContent(s, cursor, URISupport.PORT_SEPARATORS);
         }
         String portText = null;
