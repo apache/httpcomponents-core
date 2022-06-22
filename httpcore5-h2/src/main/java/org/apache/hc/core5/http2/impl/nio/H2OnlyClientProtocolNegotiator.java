@@ -36,6 +36,7 @@ import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.impl.nio.BufferedData;
 import org.apache.hc.core5.http2.ssl.ApplicationProtocol;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -58,6 +59,7 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
     private final AtomicBoolean initialized;
 
     private volatile ByteBuffer preface;
+    private volatile BufferedData inBuf;
 
     public H2OnlyClientProtocolNegotiator(
             final ProtocolIOSession ioSession,
@@ -104,7 +106,8 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
         }
         if (!preface.hasRemaining()) {
             session.clearEvent(SelectionKey.OP_WRITE);
-            startProtocol(HttpVersion.HTTP_2, new ClientH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), null);
+            final ByteBuffer data = inBuf != null ? inBuf.data() : null;
+            startProtocol(HttpVersion.HTTP_2, new ClientH2IOEventHandler(http2StreamHandlerFactory.create(ioSession)), data);
             preface = null;
         }
     }
@@ -131,7 +134,10 @@ public class H2OnlyClientProtocolNegotiator extends ProtocolNegotiatorBase {
     @Override
     public void inputReady(final IOSession session, final ByteBuffer src) throws IOException {
         if (src != null) {
-            throw new ProtocolNegotiationException("Unexpected input");
+            if (inBuf == null) {
+                inBuf = BufferedData.allocate(src.remaining());
+            }
+            inBuf.put(src);
         }
         if (preface != null) {
             writeOutPreface(session);
