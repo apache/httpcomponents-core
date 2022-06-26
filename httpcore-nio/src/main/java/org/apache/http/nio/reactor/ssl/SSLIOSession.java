@@ -99,6 +99,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
     private volatile SSLMode sslMode;
     private volatile int status;
     private volatile boolean initialized;
+    private volatile boolean terminated;
 
     /**
      * Creates new instance of {@code SSLIOSession} class. The instances created uses a
@@ -391,8 +392,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         }
         if (this.status == CLOSING && this.sslEngine.isOutboundDone()
                 && (this.endOfStream || this.sslEngine.isInboundDone())
-                && !this.inPlain.hasData()
-                && this.appBufferStatus != null && !this.appBufferStatus.hasBufferedInput()) {
+                && (this.terminated || (!this.inPlain.hasData() && this.appBufferStatus != null && this.appBufferStatus.hasBufferedInput()))) {
             this.status = CLOSED;
         }
         // Abnormal session termination
@@ -641,6 +641,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
 
     @Override
     public synchronized void close() {
+        this.terminated = true;
         if (this.status >= CLOSING) {
             return;
         }
@@ -648,6 +649,7 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
         if (this.session.getSocketTimeout() == 0) {
             this.session.setSocketTimeout(1000);
         }
+
         try {
             updateEventMask();
         } catch (final CancelledKeyException ex) {
