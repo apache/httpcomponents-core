@@ -1,3 +1,41 @@
+Release 5.1.4
+------------------
+
+This is a maintenance release that corrects a number of defects discovered since release 5.1.3,
+mostly in H2 protocol handling.
+
+Change Log
+-------------------
+
+* HTTPCLIENT-2222: Back-ported some protocol negotiation improvements from 5.2.x.
+  Fixes ProtocolNegotiationException.
+  Contributed by Gaojie Liu <goliu at linkedin.com>
+
+* HTTPCORE-713: InetAddressUtils#isIPv6*Address performance optimization
+  Contributed by David Schlosnagle <davids at palantir.com>
+
+* Bug fix: non-blocking TLS sessions fail to update their event interest mask upon TLS
+  handshake initiation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-708: H2 stream multiplexer incorrectly handles multiple frame fragments in
+  a single input chunk.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-2201: protocol exception thrown while consuming pushed headers can leave
+  the pushed H2 stream on the client side in an inconsistent state.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Protocol negotiators now keep track the negotiated HTTP protocol version and can report it
+  to the application layer; improved HTTP protocol negotiation.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-707: H2 connections incorrectly enforce the frame size max limit based on local
+  settings instead of remote ones.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 5.1.3
 ------------------
 
