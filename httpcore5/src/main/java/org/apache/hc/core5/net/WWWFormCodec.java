@@ -39,8 +39,6 @@ import org.apache.hc.core5.http.NameValuePair;
  */
 public class WWWFormCodec {
 
-    private static final char QP_SEP_A = '&';
-
     /**
      * Returns a list of {@link NameValuePair} parameters parsed
      * from the {@code application/x-www-form-urlencoded} content.
