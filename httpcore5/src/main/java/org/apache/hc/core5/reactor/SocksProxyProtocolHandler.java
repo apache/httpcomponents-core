@@ -82,8 +82,6 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
     // a 32 byte buffer is enough for all usual SOCKS negotiations, we expand it if necessary during the processing
     private ByteBuffer buffer = ByteBuffer.allocate(32);
     private State state = State.SEND_AUTH;
-    private int remainingResponseSize = -1;
-
     SocksProxyProtocolHandler(final ProtocolIOSession ioSession, final Object attachment, final InetSocketAddress targetAddress,
             final String username, final String password, final IOEventHandlerFactory eventHandlerFactory) {
         this.ioSession = ioSession;
@@ -220,10 +218,10 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                     } else {
                         throw new IOException("SOCKS server returned unsupported address type: " + aType);
                     }
-                    this.remainingResponseSize = addressSize + 2;
+                    int remainingResponseSize = addressSize + 2;
                     this.buffer.compact();
                     // make sure we only read what we need to, don't read too much
-                    this.buffer.limit(this.remainingResponseSize);
+                    this.buffer.limit(remainingResponseSize);
                     this.state = State.RECEIVE_ADDRESS;
                     // deliberate fall-through
                 } else {
@@ -262,13 +260,12 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
         this.buffer.put((byte) 0); // reserved
         if (address instanceof Inet4Address) {
             this.buffer.put(InetAddressUtils.IPV4);
-            this.buffer.put(address.getAddress());
         } else if (address instanceof Inet6Address) {
             this.buffer.put(InetAddressUtils.IPV6);
-            this.buffer.put(address.getAddress());
         } else {
             throw new IOException("Unsupported remote address class: " + address.getClass().getName());
         }
+        this.buffer.put(address.getAddress());
         this.buffer.putShort((short) port);
         this.buffer.flip();
     }
