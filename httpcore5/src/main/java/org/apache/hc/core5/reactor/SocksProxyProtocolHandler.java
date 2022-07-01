@@ -218,7 +218,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                     } else {
                         throw new IOException("SOCKS server returned unsupported address type: " + aType);
                     }
-                    int remainingResponseSize = addressSize + 2;
+                    final int remainingResponseSize = addressSize + 2;
                     this.buffer.compact();
                     // make sure we only read what we need to, don't read too much
                     this.buffer.limit(remainingResponseSize);
