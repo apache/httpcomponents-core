@@ -36,8 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
@@ -1033,22 +1033,22 @@ public class URIBuilder {
         if (this.pathSegments != null) {
             final List<String> inputSegments = this.pathSegments;
             if (!inputSegments.isEmpty()) {
-                final Stack<String> outputSegments = new Stack<>();
+                final LinkedList<String> outputSegments = new LinkedList<>();
                 for (final String inputSegment : inputSegments) {
                     if (!inputSegment.isEmpty() && !".".equals(inputSegment)) {
                         if ("..".equals(inputSegment)) {
                             if (!outputSegments.isEmpty()) {
-                                outputSegments.pop();
+                                outputSegments.removeLast();
                             }
                         } else {
-                            outputSegments.push(inputSegment);
+                            outputSegments.addLast(inputSegment);
                         }
                     }
                 }
                 if (!inputSegments.isEmpty()) {
                     final String lastSegment = inputSegments.get(inputSegments.size() - 1);
                     if (lastSegment.isEmpty()) {
-                        outputSegments.push("");
+                        outputSegments.addLast("");
                     }
                 }
                 this.pathSegments = outputSegments;
