@@ -48,7 +48,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.classic.ClassicTestServer;
 import org.apache.hc.core5.testing.classic.EchoHandler;
-import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

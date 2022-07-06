@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ReadableByteChannelMock;
 import org.apache.hc.core5.http.impl.BasicHttpTransportMetrics;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
-import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

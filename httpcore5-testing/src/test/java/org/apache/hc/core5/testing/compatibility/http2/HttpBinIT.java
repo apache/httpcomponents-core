@@ -28,7 +28,7 @@
 package org.apache.hc.core5.testing.compatibility.http2;
 
 import org.apache.hc.core5.http.HttpHost;
-import org.junit.jupiter.api.AfterEach;;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

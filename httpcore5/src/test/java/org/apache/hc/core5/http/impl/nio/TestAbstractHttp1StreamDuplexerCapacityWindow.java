@@ -32,7 +32,7 @@ import java.nio.channels.SelectionKey;
 
 import org.apache.hc.core5.http.impl.nio.AbstractHttp1StreamDuplexer.CapacityWindow;
 import org.apache.hc.core5.reactor.IOSession;
-;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
