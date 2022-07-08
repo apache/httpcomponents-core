@@ -57,6 +57,7 @@ import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 
 /**
  * HTTP/1.1 server side message exchange handler.
@@ -184,10 +185,23 @@ public class HttpServer implements ModalCloseable {
 
     @Override
     public void close(final CloseMode closeMode) {
+        close(closeMode, Timeout.ofSeconds(5));
+    }
+
+    /**
+     * Closes this process or endpoint and releases any system resources associated
+     * with it. If the endpoint or the process is already closed then invoking this
+     * method has no effect.
+     *
+     * @param closeMode How to close the receiver.
+     * @param timeout  How long to wait for the HttpServer to close gracefully.
+     * @since 5.2
+     */
+    public void close(final CloseMode closeMode, final Timeout timeout) {
         initiateShutdown();
         if (closeMode == CloseMode.GRACEFUL) {
             try {
-                awaitTermination(TimeValue.ofSeconds(5));
+                awaitTermination(timeout);
             } catch (final InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
