@@ -48,6 +48,13 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class H2ResponseContent extends ResponseContent {
 
+    /**
+     * Singleton instance.
+     *
+     * @since 5.2
+     */
+    public static final H2ResponseContent INSTANCE = new H2ResponseContent();
+
     public H2ResponseContent() {
         super();
     }

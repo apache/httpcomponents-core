@@ -961,7 +961,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
                 .setMaxHeaderListSize(100)
                 .build());
         client.start(
-                new DefaultHttpProcessor(new H2RequestContent(), new H2RequestTargetHost(), new H2RequestConnControl()),
+                new DefaultHttpProcessor(H2RequestContent.INSTANCE, H2RequestTargetHost.INSTANCE, H2RequestConnControl.INSTANCE),
                 H2Config.DEFAULT);
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(

@@ -55,10 +55,10 @@ public final class H2Processors {
                         new ResponseDate(),
                         new ResponseServer(!TextUtils.isBlank(serverInfo) ? serverInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", H2Processors.class)),
-                        new H2ResponseContent(),
-                        new H2ResponseConnControl())
+                        H2ResponseContent.INSTANCE,
+                        H2ResponseConnControl.INSTANCE)
                 .addAll(
-                        new H2RequestValidateHost());
+                        H2RequestValidateHost.INSTANCE);
     }
 
     public static HttpProcessor server(final String serverInfo) {
@@ -72,12 +72,12 @@ public final class H2Processors {
     public static HttpProcessorBuilder customClient(final String agentInfo) {
         return HttpProcessorBuilder.create()
                 .addAll(
-                        new H2RequestContent(),
-                        new H2RequestTargetHost(),
-                        new H2RequestConnControl(),
+                        H2RequestContent.INSTANCE,
+                        H2RequestTargetHost.INSTANCE,
+                        H2RequestConnControl.INSTANCE,
                         new RequestUserAgent(!TextUtils.isBlank(agentInfo) ? agentInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", HttpProcessors.class)),
-                        new RequestExpectContinue());
+                        RequestExpectContinue.INSTANCE);
     }
 
     public static HttpProcessor client(final String agentInfo) {
