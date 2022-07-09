@@ -105,7 +105,7 @@ public final class HttpProcessors {
                         RequestConnControl.INSTANCE,
                         new RequestUserAgent(!TextUtils.isBlank(agentInfo) ? agentInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", HttpProcessors.class)),
-                        new RequestExpectContinue());
+                        RequestExpectContinue.INSTANCE);
     }
 
     /**

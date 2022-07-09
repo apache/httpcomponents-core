@@ -47,6 +47,13 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class H2RequestValidateHost extends RequestValidateHost {
 
+    /**
+     * Singleton instance.
+     *
+     * @since 5.2
+     */
+    public static final H2RequestValidateHost INSTANCE = new H2RequestValidateHost();
+
     @Override
     public void process(
             final HttpRequest request,

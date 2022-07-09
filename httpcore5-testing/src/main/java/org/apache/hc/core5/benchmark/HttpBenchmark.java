@@ -118,12 +118,12 @@ public class HttpBenchmark {
     public Results execute() throws Exception {
         final HttpProcessorBuilder builder = HttpProcessorBuilder.create()
                 .addAll(
-                        new H2RequestContent(),
-                        new H2RequestTargetHost(),
-                        new H2RequestConnControl(),
+                        H2RequestContent.INSTANCE,
+                        H2RequestTargetHost.INSTANCE,
+                        H2RequestConnControl.INSTANCE,
                         new RequestUserAgent("HttpCore-AB/5.0"));
         if (this.config.isUseExpectContinue()) {
-            builder.add(new RequestExpectContinue());
+            builder.add(RequestExpectContinue.INSTANCE);
         }
 
         final SSLContext sslContext;

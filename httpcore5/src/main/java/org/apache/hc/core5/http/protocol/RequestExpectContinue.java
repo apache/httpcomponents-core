@@ -51,6 +51,13 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class RequestExpectContinue implements HttpRequestInterceptor {
 
+    /**
+     * Singleton instance.
+     *
+     * @since 5.2
+     */
+    public static final RequestExpectContinue INSTANCE = new RequestExpectContinue();
+
     public RequestExpectContinue() {
         super();
     }

@@ -47,6 +47,13 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class H2ResponseConnControl extends ResponseConnControl {
 
+    /**
+     * Singleton instance.
+     *
+     * @since 5.2
+     */
+    public static final H2ResponseConnControl INSTANCE = new H2ResponseConnControl();
+
     @Override
     public void process(
             final HttpResponse response,

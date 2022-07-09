@@ -302,7 +302,7 @@ public class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII));
-        final RequestExpectContinue interceptor = new RequestExpectContinue();
+        final RequestExpectContinue interceptor = RequestExpectContinue.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.EXPECT);
         Assertions.assertNotNull(header);
@@ -315,7 +315,7 @@ public class TestStandardInterceptors {
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII));
-        final RequestExpectContinue interceptor = new RequestExpectContinue();
+        final RequestExpectContinue interceptor = RequestExpectContinue.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.EXPECT);
         Assertions.assertNull(header);
@@ -326,7 +326,7 @@ public class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("", StandardCharsets.US_ASCII));
-        final RequestExpectContinue interceptor = new RequestExpectContinue();
+        final RequestExpectContinue interceptor = RequestExpectContinue.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.EXPECT);
         Assertions.assertNull(header);
@@ -334,7 +334,7 @@ public class TestStandardInterceptors {
 
     @Test
     public void testRequestExpectContinueInvalidInput() throws Exception {
-        final RequestExpectContinue interceptor = new RequestExpectContinue();
+        final RequestExpectContinue interceptor = RequestExpectContinue.INSTANCE;
         Assertions.assertThrows(NullPointerException.class, () ->
                 interceptor.process(null, null, null));
     }
@@ -343,7 +343,7 @@ public class TestStandardInterceptors {
     public void testRequestExpectContinueIgnoreNonenclosingRequests() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
-        final RequestExpectContinue interceptor = new RequestExpectContinue();
+        final RequestExpectContinue interceptor = RequestExpectContinue.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         Assertions.assertEquals(0, request.getHeaders().length);
     }

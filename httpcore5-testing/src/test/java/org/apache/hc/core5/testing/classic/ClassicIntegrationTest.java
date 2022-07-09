@@ -665,7 +665,7 @@ public class ClassicIntegrationTest {
                 RequestTargetHost.INSTANCE,
                 RequestConnControl.INSTANCE,
                 RequestUserAgent.INSTANCE,
-                new RequestExpectContinue()));
+                RequestExpectContinue.INSTANCE));
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
@@ -697,7 +697,7 @@ public class ClassicIntegrationTest {
                 RequestTargetHost.INSTANCE,
                 RequestConnControl.INSTANCE,
                 RequestUserAgent.INSTANCE,
-                new RequestExpectContinue()));
+                RequestExpectContinue.INSTANCE));
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
