@@ -549,6 +549,14 @@ public class SSLIOSession implements IOSession, SessionBufferStatus, SocketAcces
             if (status == HandshakeStatus.NOT_HANDSHAKING || status == HandshakeStatus.FINISHED) {
                 decryptData();
             }
+            if (this.terminated) {
+                // Discard any remaining input data
+                final ByteBuffer inPlainBuf = this.inPlain.acquire();
+                inPlainBuf.clear();
+                if (inPlainBuf.position() == 0) {
+                    this.inPlain.release();
+                }
+            }
         } while (this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_TASK);
         // Some decrypted data is available or at the end of stream
         return (this.appEventMask & SelectionKey.OP_READ) > 0
