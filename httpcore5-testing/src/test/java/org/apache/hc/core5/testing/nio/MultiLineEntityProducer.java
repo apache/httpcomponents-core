@@ -57,7 +57,7 @@ public class MultiLineEntityProducer extends AbstractCharAsyncEntityProducer {
 
     @Override
     public boolean isRepeatable() {
-        return true;
+        return false;
     }
 
     @Override

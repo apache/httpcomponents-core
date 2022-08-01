@@ -90,7 +90,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
 
     @Override
     public boolean isRepeatable() {
-        return true;
+        return false;
     }
 
     @Override

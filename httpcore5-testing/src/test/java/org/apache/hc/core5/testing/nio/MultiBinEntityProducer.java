@@ -51,7 +51,7 @@ public class MultiBinEntityProducer extends AbstractBinAsyncEntityProducer {
 
     @Override
     public boolean isRepeatable() {
-        return true;
+        return false;
     }
 
     @Override
