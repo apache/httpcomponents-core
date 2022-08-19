@@ -125,7 +125,7 @@ public class RequestContent implements HttpRequestInterceptor {
             MessageSupport.addContentTypeHeader(request, entity);
             MessageSupport.addContentEncodingHeader(request, entity);
         } else {
-            if (!Method.GET.isSame(method) && !Method.HEAD.isSame(method)) {
+            if (Method.POST.isSame(method) || Method.PUT.isSame(method) || Method.PATCH.isSame(method)) {
                 request.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
             }
         }
