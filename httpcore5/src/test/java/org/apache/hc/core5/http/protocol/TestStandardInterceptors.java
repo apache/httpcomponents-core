@@ -127,8 +127,7 @@ public class TestStandardInterceptors {
 
         final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
-        final Header header = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
-        Assertions.assertNull(header);
+        Assertions.assertNotNull(request.getFirstHeader(HttpHeaders.CONTENT_LENGTH));
         Assertions.assertNull(request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING));
    }
 
@@ -240,7 +239,8 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
-        Assertions.assertEquals(0, request.getHeaders().length);
+        Assertions.assertEquals(1, request.getHeaders().length);
+        Assertions.assertNotNull(request.getFirstHeader(HttpHeaders.CONTENT_LENGTH));
     }
 
     @Test
