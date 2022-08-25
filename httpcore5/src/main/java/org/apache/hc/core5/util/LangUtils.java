@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.util;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -81,20 +82,11 @@ public final class LangUtils {
      * @param a1 first array to compare, may be {@code null}
      * @param a2 second array to compare, may be {@code null}
      * @return {@code true} if the arrays are equal or both null
+     * @deprecated Use {@link Arrays#equals(Object)}.
      */
+    @Deprecated
     public static boolean equals(final Object[] a1, final Object[] a2) {
-        if (a1 == null) {
-            return a2 == null;
-        }
-        if (a2 != null && a1.length == a2.length) {
-            for (int i = 0; i < a1.length; i++) {
-                if (!equals(a1[i], a2[i])) {
-                    return false;
-                }
-            }
-            return true;
-        }
-        return false;
+        return Arrays.equals(a1, a2);
     }
 
 }
