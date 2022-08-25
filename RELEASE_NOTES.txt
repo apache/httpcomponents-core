@@ -3,6 +3,9 @@ Release 5.2 BETA3
 
 * Deprecate org.apache.hc.core5.util.LangUtils.equals(Object[], Object[]) in favor or java.util.Arrays.equals(Object[], Object[]).
 * Deprecate org.apache.hc.core5.util.LangUtils.equals(Object, Object) in favor or java.util.Objects.equals(Object, Object).
+* Bump JUnit from 5.8.2 to 5.9.0.
+* Bump Mockito from 4.4.0 to 4.7.0.
+* Bump JApiCmp from 0.15.4 to 0.15.7.
 
 
 Release 5.2 BETA2
