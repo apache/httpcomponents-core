@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -93,7 +94,7 @@ public class BasicNameValuePair implements NameValuePair, Serializable {
         }
         if (obj instanceof BasicNameValuePair) {
             final BasicNameValuePair that = (BasicNameValuePair) obj;
-            return this.name.equalsIgnoreCase(that.name) && LangUtils.equals(this.value, that.value);
+            return this.name.equalsIgnoreCase(that.name) && Objects.equals(this.value, that.value);
         }
         return false;
     }

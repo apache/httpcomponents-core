@@ -31,6 +31,7 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -333,7 +334,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
             final HttpHost that = (HttpHost) obj;
             return this.schemeName.equals(that.schemeName) &&
                     this.host.equals(that.host) &&
-                    LangUtils.equals(this.address, that.address);
+                    Objects.equals(this.address, that.address);
         }
         return false;
     }

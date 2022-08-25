@@ -29,6 +29,7 @@ package org.apache.hc.core5.net;
 
 import java.io.Serializable;
 import java.net.URISyntaxException;
+import java.util.Objects;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -179,8 +180,8 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         }
         if (obj instanceof URIAuthority) {
             final URIAuthority that = (URIAuthority) obj;
-            return LangUtils.equals(this.userInfo, that.userInfo) &&
-                    LangUtils.equals(this.host, that.host);
+            return Objects.equals(this.userInfo, that.userInfo) &&
+                    Objects.equals(this.host, that.host);
         }
         return false;
     }

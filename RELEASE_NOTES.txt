@@ -2,6 +2,7 @@ Release 5.2 BETA3
 ------------------
 
 * Deprecate org.apache.hc.core5.util.LangUtils.equals(Object[], Object[]) in favor or java.util.Arrays.equals(Object[], Object[]).
+* Deprecate org.apache.hc.core5.util.LangUtils.equals(Object, Object) in favor or java.util.Objects.equals(Object, Object).
 
 
 Release 5.2 BETA2

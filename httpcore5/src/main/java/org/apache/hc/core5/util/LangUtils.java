@@ -64,7 +64,9 @@ public final class LangUtils {
      * @param obj1 first object to compare, may be {@code null}
      * @param obj2 second object to compare, may be {@code null}
      * @return {@code true} if the objects are equal or both null
+     * @deprecated Use {@link Objects#equals(Object)}.
      */
+    @Deprecated
     public static boolean equals(final Object obj1, final Object obj2) {
         return Objects.equals(obj1, obj2);
     }

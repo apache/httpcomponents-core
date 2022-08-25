@@ -29,8 +29,8 @@ package org.apache.hc.core5.http;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
-import org.apache.hc.core5.util.LangUtils;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -55,8 +55,8 @@ public class NameValuePairListMatcher extends BaseMatcher<List<NameValuePair>> {
                 if (obj instanceof NameValuePair) {
                     final NameValuePair nvp = (NameValuePair) obj;
                     final NameValuePair expected = nvps.get(i);
-                    if (!LangUtils.equals(nvp.getName(), expected.getName())
-                            || !LangUtils.equals(nvp.getValue(), expected.getValue())) {
+                    if (!Objects.equals(nvp.getName(), expected.getName())
+                            || !Objects.equals(nvp.getValue(), expected.getValue())) {
                         return false;
                     }
                 }

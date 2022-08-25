@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.util;
 
+import java.util.Objects;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -65,9 +67,9 @@ public class TestLangUtils {
     @Test
     public void testBasicEquality() {
         Assertions.assertTrue(LangUtils.equals(null, null));
-        Assertions.assertFalse(LangUtils.equals(null, "abc"));
-        Assertions.assertFalse(LangUtils.equals("abc", null));
-        Assertions.assertTrue(LangUtils.equals("abc", "abc"));
+        Assertions.assertFalse(Objects.equals(null, "abc"));
+        Assertions.assertFalse(Objects.equals("abc", null));
+        Assertions.assertTrue(Objects.equals("abc", "abc"));
     }
 
     @Test
