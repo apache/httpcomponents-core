@@ -401,6 +401,10 @@ public class TLSIntegrationTest {
                     TlsSupport.enforceStrongSecurity(initializer), verifier, handshakeTimeout, callback);
         }
 
+        /**
+         * @deprecated do not use.
+         */
+        @Deprecated
         @Override
         public boolean upgrade(
                 final TransportSecurityLayer tlsSession,

@@ -33,8 +33,6 @@ import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
-import org.apache.hc.core5.http.nio.ssl.FixedPortStrategy;
-import org.apache.hc.core5.http.nio.ssl.SecurePortStrategy;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLBufferMode;
@@ -55,7 +53,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
 
     private final SSLContext sslContext;
     @SuppressWarnings("deprecation")
-    private final SecurePortStrategy securePortStrategy;
+    private final org.apache.hc.core5.http.nio.ssl.SecurePortStrategy securePortStrategy;
     private final SSLBufferMode sslBufferMode;
     private final SSLSessionInitializer initializer;
     private final SSLSessionVerifier verifier;
@@ -66,7 +64,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
     @Deprecated
     public H2ServerTlsStrategy(
             final SSLContext sslContext,
-            final SecurePortStrategy securePortStrategy,
+            final org.apache.hc.core5.http.nio.ssl.SecurePortStrategy securePortStrategy,
             final SSLBufferMode sslBufferMode,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
@@ -83,7 +81,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
     @Deprecated
     public H2ServerTlsStrategy(
             final SSLContext sslContext,
-            final SecurePortStrategy securePortStrategy,
+            final org.apache.hc.core5.http.nio.ssl.SecurePortStrategy securePortStrategy,
             final SSLSessionInitializer initializer,
             final SSLSessionVerifier verifier) {
         this(sslContext, securePortStrategy, null, initializer, verifier);
@@ -95,7 +93,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
     @Deprecated
     public H2ServerTlsStrategy(
             final SSLContext sslContext,
-            final SecurePortStrategy securePortStrategy,
+            final org.apache.hc.core5.http.nio.ssl.SecurePortStrategy securePortStrategy,
             final SSLSessionVerifier verifier) {
         this(sslContext, securePortStrategy, null, null, verifier);
     }
@@ -104,7 +102,8 @@ public class H2ServerTlsStrategy implements TlsStrategy {
      * @deprecated Use {@link H2ServerTlsStrategy#H2ServerTlsStrategy(SSLContext)}
      */
     @Deprecated
-    public H2ServerTlsStrategy(final SSLContext sslContext, final SecurePortStrategy securePortStrategy) {
+    public H2ServerTlsStrategy(final SSLContext sslContext,
+                               final org.apache.hc.core5.http.nio.ssl.SecurePortStrategy securePortStrategy) {
         this(sslContext, securePortStrategy, null, null, null);
     }
 
@@ -113,7 +112,7 @@ public class H2ServerTlsStrategy implements TlsStrategy {
      */
     @Deprecated
     public H2ServerTlsStrategy(final int... securePorts) {
-        this(SSLContexts.createSystemDefault(), new FixedPortStrategy(securePorts));
+        this(SSLContexts.createSystemDefault(), new org.apache.hc.core5.http.nio.ssl.FixedPortStrategy(securePorts));
     }
 
     public H2ServerTlsStrategy(

@@ -125,7 +125,7 @@ public class TestTlsCiphers {
 
     @Test
     void excludeWeakNull(){
-        Assertions.assertNull(TlsCiphers.excludeWeak(null));
+        Assertions.assertNull(TlsCiphers.excludeWeak((String[]) null));
     }
 
 }
