@@ -28,13 +28,19 @@
 package org.apache.hc.core5.function;
 
 /**
- * Abstract object supplier.
+ * Represents a supplier of results.
  *
+ * @param <T> the type of results supplied by this supplier.
  * @since 5.0
  */
 @FunctionalInterface
 public interface Supplier<T> {
 
+    /**
+     * Gets a result.
+     *
+     * @return a result
+     */
     T get();
 
 }
