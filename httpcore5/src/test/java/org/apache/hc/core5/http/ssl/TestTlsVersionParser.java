@@ -51,10 +51,10 @@ public class TestTlsVersionParser {
 
     @Test
     public void testParseBasic() throws Exception {
-        assertThat(impl.parse("TLSv1"), CoreMatchers.equalTo(TLS.V_1_0.version));
-        assertThat(impl.parse("TLSv1.1"), CoreMatchers.equalTo(TLS.V_1_1.version));
-        assertThat(impl.parse("TLSv1.2"), CoreMatchers.equalTo(TLS.V_1_2.version));
-        assertThat(impl.parse("TLSv1.3"), CoreMatchers.equalTo(TLS.V_1_3.version));
+        assertThat(impl.parse("TLSv1"), CoreMatchers.equalTo(TLS.V_1_0.getVersion()));
+        assertThat(impl.parse("TLSv1.1"), CoreMatchers.equalTo(TLS.V_1_1.getVersion()));
+        assertThat(impl.parse("TLSv1.2"), CoreMatchers.equalTo(TLS.V_1_2.getVersion()));
+        assertThat(impl.parse("TLSv1.3"), CoreMatchers.equalTo(TLS.V_1_3.getVersion()));
         assertThat(impl.parse("TLSv22.356"), CoreMatchers.equalTo(new ProtocolVersion("TLS", 22, 356)));
     }
 
@@ -62,7 +62,7 @@ public class TestTlsVersionParser {
     public void testParseBuffer() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
         assertThat(impl.parse(" TLSv1.2,0000", cursor, Tokenizer.INIT_BITSET(',')),
-                CoreMatchers.equalTo(TLS.V_1_2.version));
+                CoreMatchers.equalTo(TLS.V_1_2.getVersion()));
         assertThat(cursor.getPos(), CoreMatchers.equalTo(8));
     }
 

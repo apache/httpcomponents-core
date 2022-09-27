@@ -206,13 +206,13 @@ public class TLSIntegrationTest {
     public void testTLSSuccess(final TLS tlsProtocol) throws Exception {
         final TlsStrategy serverTlsStrategy = new TestTlsStrategy(
                 SSLTestContexts.createServerSSLContext(),
-                (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{tlsProtocol.id}),
+                (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{tlsProtocol.getId()}),
                 null);
         server = createServer(serverTlsStrategy);
         server.start();
 
         final TlsStrategy clientTlsStrategy = new TestTlsStrategy(SSLTestContexts.createClientSSLContext(),
-                (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{tlsProtocol.id}),
+                (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{tlsProtocol.getId()}),
                 null);
         client = createClient(clientTlsStrategy);
         client.start();
@@ -336,7 +336,7 @@ public class TLSIntegrationTest {
         final TlsStrategy serverTlsStrategy = new TestTlsStrategy(
                 SSLTestContexts.createServerSSLContext(),
                 (endpoint, sslEngine) -> {
-                    sslEngine.setEnabledProtocols(new String[]{TLS.V_1_0.id});
+                    sslEngine.setEnabledProtocols(new String[]{TLS.V_1_0.getId()});
                     sslEngine.setEnabledCipherSuites(new String[]{
                             "TLS_RSA_WITH_AES_256_CBC_SHA",
                             "TLS_RSA_WITH_AES_128_CBC_SHA",
@@ -348,7 +348,7 @@ public class TLSIntegrationTest {
 
         final TlsStrategy clientTlsStrategy = new BasicClientTlsStrategy(
                 SSLTestContexts.createClientSSLContext(),
-                (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{TLS.V_1_2.id}),
+                (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{TLS.V_1_2.getId()}),
                 null);
         client = createClient(clientTlsStrategy);
         client.start();

@@ -141,7 +141,7 @@ public class ClassicTLSIntegrationTest {
 
         final SSLSession sslSession = sslSessionRef.getAndSet(null);
         final ProtocolVersion tlsVersion = TLS.parse(sslSession.getProtocol());
-        assertThat(tlsVersion.greaterEquals(TLS.V_1_2.version), CoreMatchers.equalTo(true));
+        assertThat(tlsVersion.greaterEquals(TLS.V_1_2.getVersion()), CoreMatchers.equalTo(true));
         assertThat(sslSession.getPeerPrincipal().getName(),
                 CoreMatchers.equalTo("CN=localhost,OU=Apache HttpComponents,O=Apache Software Foundation"));
     }

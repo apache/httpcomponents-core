@@ -62,6 +62,26 @@ public enum TLS {
         return version.isComparable(protocolVersion);
     }
 
+    /**
+     * Gets the ID.
+     * @return the ID.
+     *
+     * @since 5.2
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * Gets the version.
+     * @return the version.
+     *
+     * @since 5.2
+     */
+    public ProtocolVersion getVersion() {
+        return version;
+    }
+
     public boolean greaterEquals(final ProtocolVersion protocolVersion) {
         return version.greaterEquals(protocolVersion);
     }
