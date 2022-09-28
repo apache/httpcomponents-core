@@ -29,10 +29,10 @@ package org.apache.hc.core5.util;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 /**
  * Provides access to version information for HTTP components.
@@ -79,12 +79,6 @@ public class VersionInfo {
 
     /** The classloader from which the version info was obtained. */
     private final String infoClassloader;
-
-    /**
-     * An empty immutable {@code VersionInfo} array.
-     */
-    private static final VersionInfo[] EMPTY_VERSION_INFO_ARRAY = {};
-
 
     /**
      * Instantiates version information.
@@ -202,20 +196,11 @@ public class VersionInfo {
      * @return  the version information for all packages found,
      *          never {@code null}
      */
-    public static VersionInfo[] loadVersionInfo(final String[] pckgs,
-                                                      final ClassLoader clsldr) {
+    public static VersionInfo[] loadVersionInfo(final String[] pckgs, final ClassLoader clsldr) {
         Args.notNull(pckgs, "Package identifier array");
-        final List<VersionInfo> vil = new ArrayList<>(pckgs.length);
-        for (final String pckg : pckgs) {
-            final VersionInfo vi = loadVersionInfo(pckg, clsldr);
-            if (vi != null) {
-                vil.add(vi);
-            }
-        }
-
-        return vil.toArray(EMPTY_VERSION_INFO_ARRAY);
+        return Stream.of(pckgs).map(pckg -> loadVersionInfo(pckg, clsldr)).filter(Objects::nonNull)
+                .toArray(VersionInfo[]::new);
     }
-
 
     /**
      * Loads version information for a package.

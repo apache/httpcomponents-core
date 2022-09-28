@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -135,9 +136,7 @@ public class TestEntityUtils {
     private static String constructString(final int [] unicodeChars) {
         final StringBuilder buffer = new StringBuilder();
         if (unicodeChars != null) {
-            for (final int unicodeChar : unicodeChars) {
-                buffer.append((char)unicodeChar);
-            }
+            IntStream.of(unicodeChars).forEach(i -> buffer.append((char) i));
         }
         return buffer.toString();
     }

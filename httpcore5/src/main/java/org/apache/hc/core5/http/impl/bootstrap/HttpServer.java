@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.util.Set;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -206,10 +205,8 @@ public class HttpServer implements ModalCloseable {
                 Thread.currentThread().interrupt();
             }
         }
-        final Set<Worker> workers = this.workerExecutorService.getWorkers();
-        for (final Worker worker: workers) {
-            Closer.close(worker.getConnection(), CloseMode.GRACEFUL);
-        }
+        this.workerExecutorService.getWorkers()
+                .forEach(worker -> Closer.close(worker.getConnection(), CloseMode.GRACEFUL));
     }
 
     @Override

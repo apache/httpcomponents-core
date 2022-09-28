@@ -38,6 +38,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
+import java.util.stream.Stream;
 
 import javax.net.ssl.SSLContext;
 
@@ -319,10 +320,7 @@ public class HttpBenchmark {
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
                         if (config.getVerbosity() >= 3) {
                             System.out.println(">> " + request.getMethod() + " " + request.getRequestUri());
-                            final Header[] headers = request.getHeaders();
-                            for (final Header header : headers) {
-                                System.out.println(">> " + header);
-                            }
+                            Stream.of(request.getHeaders()).forEach(header -> System.out.println(">> " + header));
                             System.out.println();
                         }
                     }
@@ -331,10 +329,7 @@ public class HttpBenchmark {
                     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
                         if (config.getVerbosity() >= 3) {
                             System.out.println("<< " + response.getCode() + " " + response.getReasonPhrase());
-                            final Header[] headers = response.getHeaders();
-                            for (final Header header : headers) {
-                                System.out.println("<< " + header);
-                            }
+                            Stream.of(response.getHeaders()).forEach(header -> System.out.println("<< " + header));
                             System.out.println();
                         }
                     }
@@ -354,9 +349,7 @@ public class HttpBenchmark {
                             final int streamId,
                             final List<? extends Header> headers) {
                         if (config.getVerbosity() >= 3) {
-                            for (final Header header : headers) {
-                                System.out.println("<< " + header);
-                            }
+                            headers.forEach(header -> System.out.println("<< " + header));
                             System.out.println();
                         }
                     }
@@ -367,9 +360,7 @@ public class HttpBenchmark {
                             final int streamId,
                             final List<? extends Header> headers) {
                         if (config.getVerbosity() >= 3) {
-                            for (final Header header : headers) {
-                                System.out.println(">> " + header);
-                            }
+                            headers.forEach(header -> System.out.println(">> " + header));
                             System.out.println();
                         }
                     }
@@ -475,8 +466,8 @@ public class HttpBenchmark {
 
         final long startTime = System.currentTimeMillis();
 
-        for (int i = 0; i < workers.length; i++) {
-            workers[i].execute();
+        for (final BenchmarkWorker worker : workers) {
+            worker.execute();
         }
 
         completionLatch.await(deadline, TimeUnit.MILLISECONDS);
@@ -487,8 +478,8 @@ public class HttpBenchmark {
 
         final long endTime = System.currentTimeMillis();
 
-        for (int i = 0; i < workers.length; i++) {
-            workers[i].releaseResources();
+        for (final BenchmarkWorker worker : workers) {
+            worker.releaseResources();
         }
 
         return new Results(

@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http2.examples;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -103,16 +104,12 @@ public class H2ViaHttp1ProxyExecutionExample {
 
                     @Override
                     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + headers.get(i));
-                        }
+                        headers.forEach(header -> System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + header));
                     }
 
                     @Override
                     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + headers.get(i));
-                        }
+                        headers.forEach(header -> System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + header));
                     }
 
                     @Override
@@ -187,11 +184,11 @@ public class H2ViaHttp1ProxyExecutionExample {
 
                 }));
 
-        final String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
+        final List<String> requestUris = Arrays.asList("/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers");
         final AsyncClientEndpoint endpoint = tunnelFuture.get(1, TimeUnit.MINUTES);
         try {
-            final CountDownLatch latch = new CountDownLatch(requestUris.length);
-            for (final String requestUri : requestUris) {
+            final CountDownLatch latch = new CountDownLatch(requestUris.size());
+            requestUris.forEach(requestUri ->
                 endpoint.execute(
                         new BasicRequestProducer(Method.GET, target, requestUri),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
@@ -218,8 +215,8 @@ public class H2ViaHttp1ProxyExecutionExample {
                                 latch.countDown();
                             }
 
-                        });
-            }
+                        })
+            );
 
             latch.await();
         } finally {

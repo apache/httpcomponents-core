@@ -54,7 +54,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public class SessionOutputBufferImpl implements SessionOutputBuffer {
 
-    private static final byte[] CRLF = new byte[] {Chars.CR, Chars.LF};
+    private static final byte[] CRLF = {Chars.CR, Chars.LF};
 
     private final BasicHttpTransportMetrics metrics;
     private final ByteArrayBuffer buffer;

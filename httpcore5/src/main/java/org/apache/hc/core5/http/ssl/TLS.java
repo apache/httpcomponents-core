@@ -27,8 +27,9 @@
 
 package org.apache.hc.core5.http.ssl;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
@@ -102,12 +103,7 @@ public enum TLS {
         if (protocols == null) {
             return null;
         }
-        final List<String> enabledProtocols = new ArrayList<>();
-        for (final String protocol : protocols) {
-            if (isSecure(protocol)) {
-                enabledProtocols.add(protocol);
-            }
-        }
+        final List<String> enabledProtocols = Stream.of(protocols).filter(TLS::isSecure).collect(Collectors.toList());
         if (enabledProtocols.isEmpty()) {
             enabledProtocols.add(V_1_2.id);
         }

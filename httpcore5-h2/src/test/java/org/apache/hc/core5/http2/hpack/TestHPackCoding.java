@@ -241,8 +241,8 @@ public class TestHPackCoding {
             if (j > 0) {
                 buffer.append("; ");
             }
-            for (int i = 0; i < raw.length; i++) {
-                buffer.append((char) raw[i]);
+            for (final int element : raw) {
+                buffer.append((char) element);
             }
         }
         return buffer.toString();

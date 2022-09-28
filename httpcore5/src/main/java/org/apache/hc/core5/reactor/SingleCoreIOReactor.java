@@ -151,12 +151,12 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private void initiateSessionShutdown() {
         if (this.sessionShutdownCallback != null) {
             final Set<SelectionKey> keys = this.selector.keys();
-            for (final SelectionKey key : keys) {
+            keys.forEach(key -> {
                 final InternalChannel channel = (InternalChannel) key.attachment();
                 if (channel instanceof InternalDataChannel) {
                     this.sessionShutdownCallback.execute((InternalDataChannel) channel);
                 }
-            }
+            });
         }
     }
 
@@ -164,14 +164,12 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         final long currentTimeMillis = System.currentTimeMillis();
         if ((currentTimeMillis - this.lastTimeoutCheckMillis) >= this.selectTimeoutMillis) {
             this.lastTimeoutCheckMillis = currentTimeMillis;
-            for (final SelectionKey key : this.selector.keys()) {
-                checkTimeout(key, currentTimeMillis);
-            }
+            this.selector.keys().forEach(key -> checkTimeout(key, currentTimeMillis));
         }
     }
 
     private void processEvents(final Set<SelectionKey> selectedKeys) {
-        for (final SelectionKey key : selectedKeys) {
+        selectedKeys.forEach(key -> {
             final InternalChannel channel = (InternalChannel) key.attachment();
             if (channel != null) {
                 try {
@@ -180,7 +178,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                     channel.close(CloseMode.GRACEFUL);
                 }
             }
-        }
+        });
         selectedKeys.clear();
     }
 

@@ -39,6 +39,7 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.IntStream;
 
 import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.nio.SessionInputBuffer;
@@ -449,9 +450,7 @@ public class TestSessionInOutBuffers {
     private static String constructString(final int [] unicodeChars) {
         final StringBuilder buffer = new StringBuilder();
         if (unicodeChars != null) {
-            for (final int unicodeChar : unicodeChars) {
-                buffer.append((char)unicodeChar);
-            }
+            IntStream.of(unicodeChars).forEach(i -> buffer.append((char) i));
         }
         return buffer.toString();
     }

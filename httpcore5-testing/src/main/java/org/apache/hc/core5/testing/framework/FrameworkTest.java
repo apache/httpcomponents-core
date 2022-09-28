@@ -116,10 +116,8 @@ public class FrameworkTest {
                 final List<NameValuePair> params = uriBuilder.getQueryParams();
                 @SuppressWarnings("unchecked")
                 final Map<String, Object> queryMap = (Map<String, Object>) request.get(QUERY);
-                for (final NameValuePair param : params) {
-                    queryMap.put(param.getName(), param.getValue());
-                }
-                if (! params.isEmpty()) {
+                params.forEach(param -> queryMap.put(param.getName(), param.getValue()));
+                if (!params.isEmpty()) {
                     request.put(PATH, uri.getPath());
                 }
             }

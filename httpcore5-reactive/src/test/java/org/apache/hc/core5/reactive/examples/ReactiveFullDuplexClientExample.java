@@ -33,9 +33,9 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -118,9 +118,7 @@ public class ReactiveFullDuplexClientExample {
         final Message<HttpResponse, Publisher<ByteBuffer>> streamingResponse = consumer.getResponseFuture().get();
 
         System.out.println(streamingResponse.getHead());
-        for (final Header header : streamingResponse.getHead().getHeaders()) {
-            System.out.println(header);
-        }
+        Stream.of(streamingResponse.getHead().getHeaders()).forEach(System.out::println);
         System.out.println();
 
         Observable.fromPublisher(streamingResponse.getBody())

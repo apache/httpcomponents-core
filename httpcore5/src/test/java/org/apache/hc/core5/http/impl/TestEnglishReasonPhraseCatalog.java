@@ -45,9 +45,9 @@ public class TestEnglishReasonPhraseCatalog {
     public void testReasonPhrases() throws IllegalAccessException {
     final Field[] publicFields = HttpStatus.class.getFields();
 
-    Assertions.assertNotNull( publicFields );
+    Assertions.assertNotNull(publicFields);
 
-    Assertions.assertTrue( publicFields.length > 0 );
+    Assertions.assertTrue(publicFields.length > 0);
 
     for (final Field f : publicFields) {
         final int modifiers = f.getModifiers();

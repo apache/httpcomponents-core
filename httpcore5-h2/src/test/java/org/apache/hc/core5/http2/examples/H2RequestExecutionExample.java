@@ -68,16 +68,12 @@ public class H2RequestExecutionExample {
 
                     @Override
                     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + headers.get(i));
-                        }
+                        headers.forEach(header -> System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + header));
                     }
 
                     @Override
                     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + headers.get(i));
-                        }
+                        headers.forEach(header -> System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + header));
                     }
 
                     @Override
@@ -105,7 +101,7 @@ public class H2RequestExecutionExample {
         requester.start();
 
         final HttpHost target = new HttpHost("nghttp2.org");
-        final String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
+        final String[] requestUris = {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {

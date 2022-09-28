@@ -38,6 +38,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.hc.core5.function.Supplier;
@@ -179,11 +181,8 @@ public final class HttpEntities {
 
             @Override
             public Set<String> getTrailerNames() {
-                final Set<String> names = new LinkedHashSet<>();
-                for (final Header trailer: trailers) {
-                    names.add(trailer.getName());
-                }
-                return names;
+                return Stream.of(trailers)
+                        .collect(Collectors.mapping(Header::getName, Collectors.toCollection(LinkedHashSet::new)));
             }
 
         };

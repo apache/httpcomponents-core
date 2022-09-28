@@ -199,8 +199,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
         }
         final Header[] headers = new Header[headerLines.size()];
         for (int i = 0; i < headerLines.size(); i++) {
-            final CharArrayBuffer buffer = headerLines.get(i);
-            headers[i] = parser.parseHeader(buffer);
+            headers[i] = parser.parseHeader(headerLines.get(i));
         }
         return headers;
     }

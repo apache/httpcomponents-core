@@ -41,7 +41,7 @@ import org.apache.hc.core5.util.Args;
  */
 public class BasicPingHandler implements AsyncPingHandler {
 
-    private static final byte[] PING_MESSAGE = new byte[] {'*', '*', 'p', 'i', 'n', 'g', '*', '*'};
+    private static final byte[] PING_MESSAGE = {'*', '*', 'p', 'i', 'n', 'g', '*', '*'};
 
     private final Callback<Boolean> callback;
 
@@ -57,8 +57,8 @@ public class BasicPingHandler implements AsyncPingHandler {
     @Override
     public void consumeResponse(final ByteBuffer feedback) throws HttpException, IOException {
         boolean result = true;
-        for (int i = 0; i < PING_MESSAGE.length; i++) {
-            if (!feedback.hasRemaining() || PING_MESSAGE[i] != feedback.get()) {
+        for (final byte element : PING_MESSAGE) {
+            if (!feedback.hasRemaining() || element != feedback.get()) {
                 result = false;
                 break;
             }

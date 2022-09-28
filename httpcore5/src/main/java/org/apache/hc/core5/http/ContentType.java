@@ -505,9 +505,7 @@ public final class ContentType implements Serializable {
         if (this.charset != null && !paramMap.containsKey(CHARSET)) {
             newParams.add(new BasicNameValuePair(CHARSET, this.charset.name()));
         }
-        for (final Map.Entry<String, String> entry: paramMap.entrySet()) {
-            newParams.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
-        }
+        paramMap.forEach((k, v) -> newParams.add(new BasicNameValuePair(k, v)));
         return create(this.getMimeType(), newParams.toArray(EMPTY_NAME_VALUE_PAIR_ARRAY), true);
     }
 

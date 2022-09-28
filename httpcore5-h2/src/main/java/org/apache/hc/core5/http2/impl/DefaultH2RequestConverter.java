@@ -148,9 +148,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             throw new ProtocolException(ex.getMessage(), ex);
         }
         httpRequest.setPath(path);
-        for (int i = 0; i < messageHeaders.size(); i++) {
-            httpRequest.addHeader(messageHeaders.get(i));
-        }
+        messageHeaders.forEach(httpRequest::addHeader);
         return httpRequest;
     }
 

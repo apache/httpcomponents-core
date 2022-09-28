@@ -159,8 +159,7 @@ public class ChunkedOutputStream extends OutputStream {
     private void writeTrailers() throws IOException {
         final List<? extends Header> trailers = this.trailerSupplier != null ? this.trailerSupplier.get() : null;
         if (trailers != null) {
-            for (int i = 0; i < trailers.size(); i++) {
-                final Header header = trailers.get(i);
+            for (final Header header : trailers) {
                 if (header instanceof FormattedHeader) {
                     final CharArrayBuffer chbuffer = ((FormattedHeader) header).getBuffer();
                     this.buffer.writeLine(chbuffer, this.outputStream);

@@ -85,9 +85,7 @@ public class LoggingH2StreamListener implements H2StreamListener {
     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
             final String prefix = LoggingSupport.getId(connection);
-            for (int i = 0; i < headers.size(); i++) {
-                headerLog.debug("{} << {}", prefix, headers.get(i));
-            }
+            headers.forEach(header -> headerLog.debug("{} << {}", prefix, header));
         }
     }
 
@@ -95,9 +93,7 @@ public class LoggingH2StreamListener implements H2StreamListener {
     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
         if (headerLog.isDebugEnabled()) {
             final String prefix = LoggingSupport.getId(connection);
-            for (int i = 0; i < headers.size(); i++) {
-                headerLog.debug("{} >> {}", prefix, headers.get(i));
-            }
+            headers.forEach(header -> headerLog.debug("{} >> {}", prefix, header));
         }
     }
 

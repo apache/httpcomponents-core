@@ -43,7 +43,7 @@ public class TestBasicTokenIterator {
 
     @Test
     public void testSingleHeader() {
-        Header[] headers = new Header[]{
+        Header[] headers = {
             new BasicHeader("Name", "token0,token1, token2 , token3")
         };
         Iterator<Header> hit = new BasicHeaderIterator(headers, null);
@@ -74,7 +74,7 @@ public class TestBasicTokenIterator {
 
     @Test
     public void testMultiHeader() {
-        final Header[] headers = new Header[]{
+        final Header[] headers = {
             new BasicHeader("Name", "token0,token1"),
             new BasicHeader("Name", ""),
             new BasicHeader("Name", "token2"),
@@ -102,7 +102,7 @@ public class TestBasicTokenIterator {
 
     @Test
     public void testEmpty() {
-        final Header[] headers = new Header[]{
+        final Header[] headers = {
             new BasicHeader("Name", " "),
             new BasicHeader("Name", ""),
             new BasicHeader("Name", ","),
@@ -123,7 +123,7 @@ public class TestBasicTokenIterator {
 
     @Test
     public void testValueStart() {
-        final Header[] headers = new Header[]{
+        final Header[] headers = {
             new BasicHeader("Name", "token0"),
             new BasicHeader("Name", " token1"),
             new BasicHeader("Name", ",token2"),
@@ -152,7 +152,7 @@ public class TestBasicTokenIterator {
 
     @Test
     public void testValueEnd() {
-        final Header[] headers = new Header[]{
+        final Header[] headers = {
             new BasicHeader("Name", "token0"),
             new BasicHeader("Name", "token1 "),
             new BasicHeader("Name", "token2,"),
@@ -182,7 +182,7 @@ public class TestBasicTokenIterator {
     public void testWrongPublic() {
         Assertions.assertThrows(NullPointerException.class, () -> new BasicTokenIterator(null));
 
-        final Header[] headers = new Header[]{
+        final Header[] headers = {
             new BasicHeader("Name", " "),
             new BasicHeader("Name", ""),
             new BasicHeader("Name", ","),

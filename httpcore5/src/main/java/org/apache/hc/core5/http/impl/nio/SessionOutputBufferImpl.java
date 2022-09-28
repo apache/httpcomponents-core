@@ -44,7 +44,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 
 class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
 
-    private static final byte[] CRLF = new byte[] {Chars.CR, Chars.LF};
+    private static final byte[] CRLF = {Chars.CR, Chars.LF};
 
     private final CharsetEncoder charEncoder;
     private final int lineBufferSize;

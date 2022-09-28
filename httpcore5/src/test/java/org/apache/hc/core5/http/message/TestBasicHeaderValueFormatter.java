@@ -109,7 +109,7 @@ public class TestBasicHeaderValueFormatter {
         final NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
         final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
         final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
-        final NameValuePair[] params = new NameValuePair[] {param1, param2, param3};
+        final NameValuePair[] params = {param1, param2, param3};
 
         final CharArrayBuffer buf = new CharArrayBuffer(64);
 
@@ -129,7 +129,7 @@ public class TestBasicHeaderValueFormatter {
         final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
         final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
         final NameValuePair param4 = new BasicNameValuePair("param", null);
-        final NameValuePair[] params = new NameValuePair[] {param1, param2, param3, param4};
+        final NameValuePair[] params = {param1, param2, param3, param4};
         final HeaderElement element = new BasicHeaderElement("name", "value", params);
 
         final CharArrayBuffer buf = new CharArrayBuffer(64);
@@ -150,7 +150,7 @@ public class TestBasicHeaderValueFormatter {
         final HeaderElement element3 = new BasicHeaderElement("name3", "value3", new NameValuePair[] {param3});
         final HeaderElement element4 = new BasicHeaderElement("name4", "value4", new NameValuePair[] {param4});
         final HeaderElement element5 = new BasicHeaderElement("name5", null);
-        final HeaderElement[] elements = new HeaderElement[] {element1, element2, element3, element4, element5};
+        final HeaderElement[] elements = {element1, element2, element3, element4, element5};
 
         final CharArrayBuffer buf = new CharArrayBuffer(64);
 
@@ -165,9 +165,9 @@ public class TestBasicHeaderValueFormatter {
     public void testInvalidArguments() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final NameValuePair param = new BasicNameValuePair("param", "regular_stuff");
-        final NameValuePair[] params = new NameValuePair[] {param};
+        final NameValuePair[] params = {param};
         final HeaderElement element = new BasicHeaderElement("name1", "value1", null);
-        final HeaderElement[] elements = new HeaderElement[] {element};
+        final HeaderElement[] elements = {element};
 
         Assertions.assertThrows(NullPointerException.class, () ->
                 formatter.formatNameValuePair(null, param, false));

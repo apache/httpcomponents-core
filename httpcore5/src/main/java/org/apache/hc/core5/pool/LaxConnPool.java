@@ -122,10 +122,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
     @Override
     public void close(final CloseMode closeMode) {
         if (isShutDown.compareAndSet(false, true)) {
-            for (final Iterator<PerRoutePool<T, C>> it = routeToPool.values().iterator(); it.hasNext(); ) {
-                final PerRoutePool<T, C> routePool = it.next();
-                routePool.shutdown(closeMode);
-            }
+            routeToPool.values().forEach(routePool -> routePool.shutdown(closeMode));
             routeToPool.clear();
         }
     }
@@ -182,9 +179,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
     }
 
     public void validatePendingRequests() {
-        for (final PerRoutePool<T, C> routePool : routeToPool.values()) {
-            routePool.validatePendingRequests();
-        }
+        routeToPool.values().forEach(PerRoutePool::validatePendingRequests);
     }
 
     @Override
@@ -253,15 +248,11 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
     }
 
     public void enumAvailable(final Callback<PoolEntry<T, C>> callback) {
-        for (final PerRoutePool<T, C> routePool : routeToPool.values()) {
-            routePool.enumAvailable(callback);
-        }
+        routeToPool.values().forEach(routePool -> routePool.enumAvailable(callback));
     }
 
     public void enumLeased(final Callback<PoolEntry<T, C>> callback) {
-        for (final PerRoutePool<T, C> routePool : routeToPool.values()) {
-            routePool.enumLeased(callback);
-        }
+        routeToPool.values().forEach(routePool -> routePool.enumLeased(callback));
     }
 
     @Override
@@ -394,9 +385,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 while ((entryRef = available.poll()) != null) {
                     entryRef.getReference().discardConnection(closeMode);
                 }
-                for (final PoolEntry<T, C> entry : leased.keySet()) {
-                    entry.discardConnection(closeMode);
-                }
+                leased.keySet().forEach(entry -> entry.discardConnection(closeMode));
                 leased.clear();
                 LeaseRequest<T, C> leaseRequest;
                 while ((leaseRequest = pending.poll()) != null) {

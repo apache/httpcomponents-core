@@ -139,9 +139,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             fireCallbacks();
             this.lock.lock();
             try {
-                for (final PerRoutePool<T, C> pool: this.routeToPool.values()) {
-                    pool.shutdown(closeMode);
-                }
+                this.routeToPool.values().forEach(pool -> pool.shutdown(closeMode));
                 this.routeToPool.clear();
                 this.leased.clear();
                 this.available.clear();
@@ -529,12 +527,8 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         this.lock.lock();
         try {
             final PerRoutePool<T, C> pool = getPool(route);
-            int pendingCount = 0;
-            for (final LeaseRequest<T, C> request: pendingRequests) {
-                if (Objects.equals(route, request.getRoute())) {
-                    pendingCount++;
-                }
-            }
+            final int pendingCount = (int) pendingRequests.stream()
+                    .filter(request -> Objects.equals(route, request.getRoute())).count();
             return new PoolStats(
                     pool.getLeasedCount(),
                     pendingCount,
@@ -593,11 +587,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     public void enumLeased(final Callback<PoolEntry<T, C>> callback) {
         this.lock.lock();
         try {
-            final Iterator<PoolEntry<T, C>> it = this.leased.iterator();
-            while (it.hasNext()) {
-                final PoolEntry<T, C> entry = it.next();
-                callback.execute(entry);
-            }
+            this.leased.forEach(callback::execute);
             processPendingRequests();
         } finally {
             this.lock.unlock();
@@ -822,9 +812,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             while ((availableEntry = available.poll()) != null) {
                 availableEntry.discardConnection(closeMode);
             }
-            for (final PoolEntry<T, C> entry: this.leased) {
-                entry.discardConnection(closeMode);
-            }
+            this.leased.forEach(entry -> entry.discardConnection(closeMode));
             this.leased.clear();
         }
 

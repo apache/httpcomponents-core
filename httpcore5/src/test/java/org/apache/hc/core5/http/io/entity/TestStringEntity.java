@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.io.entity;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.stream.IntStream;
 
 import org.apache.hc.core5.http.ContentType;
 import org.junit.jupiter.api.Assertions;
@@ -71,9 +72,7 @@ public class TestStringEntity {
     private static String constructString(final int [] unicodeChars) {
         final StringBuilder buffer = new StringBuilder();
         if (unicodeChars != null) {
-            for (final int unicodeChar : unicodeChars) {
-                buffer.append((char)unicodeChar);
-            }
+            IntStream.of(unicodeChars).forEach(i -> buffer.append((char) i));
         }
         return buffer.toString();
     }

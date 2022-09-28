@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Builder class to build a linked list (chain) of unique class instances. Each class can have
@@ -80,9 +81,7 @@ final class ChainBuilder<E> {
         if (c == null) {
             return this;
         }
-        for (final E e: c) {
-            addFirst(e);
-        }
+        c.forEach(this::addFirst);
         return this;
     }
 
@@ -91,9 +90,7 @@ final class ChainBuilder<E> {
         if (c == null) {
             return this;
         }
-        for (final E e: c) {
-            addFirst(e);
-        }
+        Stream.of(c).forEach(this::addFirst);
         return this;
     }
 
@@ -101,9 +98,7 @@ final class ChainBuilder<E> {
         if (c == null) {
             return this;
         }
-        for (final E e: c) {
-            addLast(e);
-        }
+        c.forEach(this::addLast);
         return this;
     }
 
@@ -112,9 +107,7 @@ final class ChainBuilder<E> {
         if (c == null) {
             return this;
         }
-        for (final E e: c) {
-            addLast(e);
-        }
+        Stream.of(c).forEach(this::addLast);
         return this;
     }
 

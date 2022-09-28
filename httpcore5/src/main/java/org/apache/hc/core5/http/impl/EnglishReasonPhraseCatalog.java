@@ -86,7 +86,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
 
 
     /** Reason phrases lookup table. */
-    private static final String[][] REASON_PHRASES = new String[][]{
+    private static final String[][] REASON_PHRASES = {
         null,
         new String[4],  // 1xx
         new String[27], // 2xx

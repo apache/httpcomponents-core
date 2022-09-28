@@ -42,7 +42,7 @@ public class TestDefaultFrameFactory {
 
         final FrameFactory frameFactory = new DefaultFrameFactory();
 
-        final byte[] data = new byte[]{'a', 'b', 'c', 'd', 'e', 'f'};
+        final byte[] data = {'a', 'b', 'c', 'd', 'e', 'f'};
         final Frame<ByteBuffer> dataFrame = frameFactory.createData(23, ByteBuffer.wrap(data), true);
 
         Assertions.assertEquals(FrameType.DATA.value, dataFrame.getType());

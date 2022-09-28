@@ -35,7 +35,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -482,12 +481,11 @@ public class AsyncReverseProxyExample {
                         incomingRequest.getMethod(),
                         targetHost,
                         incomingRequest.getPath());
-                for (final Iterator<Header> it = incomingRequest.headerIterator(); it.hasNext(); ) {
-                    final Header header = it.next();
+                incomingRequest.headerIterator().forEachRemaining(header -> {
                     if (!HOP_BY_HOP.contains(TextUtils.toLowerCase(header.getName()))) {
                         outgoingRequest.addHeader(header);
                     }
-                }
+                });
 
                 println("[proxy->origin] " + exchangeState.id + " " +
                         outgoingRequest.getMethod() + " " + outgoingRequest.getRequestUri());
@@ -549,12 +547,11 @@ public class AsyncReverseProxyExample {
                 }
 
                 final HttpResponse outgoingResponse = new BasicHttpResponse(incomingResponse.getCode());
-                for (final Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
-                    final Header header = it.next();
+                incomingResponse.headerIterator().forEachRemaining(header -> {
                     if (!HOP_BY_HOP.contains(TextUtils.toLowerCase(header.getName()))) {
                         outgoingResponse.addHeader(header);
                     }
-                }
+                });
 
                 exchangeState.response = outgoingResponse;
                 exchangeState.responseEntityDetails = entityDetails;

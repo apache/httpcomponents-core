@@ -584,7 +584,7 @@ public class TestStandardInterceptors {
 
         final ResponseConnControl interceptor = new ResponseConnControl();
 
-        final int [] statusCodes = new int[] {
+        final int [] statusCodes = {
                 HttpStatus.SC_BAD_REQUEST,
                 HttpStatus.SC_REQUEST_TIMEOUT,
                 HttpStatus.SC_LENGTH_REQUIRED,

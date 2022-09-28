@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.ssl;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.stream.IntStream;
 
 import org.apache.hc.core5.util.Args;
 
@@ -51,12 +52,7 @@ public final class FixedPortStrategy implements SecurePortStrategy {
     @Override
     public boolean isSecure(final SocketAddress localAddress) {
         final int port = ((InetSocketAddress) localAddress).getPort();
-        for (final int securePort: securePorts) {
-            if (port == securePort) {
-                return true;
-            }
-        }
-        return false;
+        return IntStream.of(securePorts).anyMatch(securePort -> port == securePort);
     }
 
 }

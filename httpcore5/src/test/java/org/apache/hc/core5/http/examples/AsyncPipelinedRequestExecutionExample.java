@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.http.examples;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -95,13 +97,13 @@ public class AsyncPipelinedRequestExecutionExample {
         requester.start();
 
         final HttpHost target = new HttpHost("httpbin.org");
-        final String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
+        final List<String> requestUris = Arrays.asList("/", "/ip", "/user-agent", "/headers");
 
         final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
         final AsyncClientEndpoint clientEndpoint = future.get();
 
-        final CountDownLatch latch = new CountDownLatch(requestUris.length);
-        for (final String requestUri: requestUris) {
+        final CountDownLatch latch = new CountDownLatch(requestUris.size());
+        requestUris.forEach(requestUri ->
             clientEndpoint.execute(
                     AsyncRequestBuilder.get()
                             .setHttpHost(target)
@@ -131,8 +133,8 @@ public class AsyncPipelinedRequestExecutionExample {
                             System.out.println(requestUri + " cancelled");
                         }
 
-                    });
-        }
+                    })
+        );
 
         latch.await();
 

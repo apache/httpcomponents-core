@@ -45,7 +45,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -60,8 +59,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.EntityDetails;
@@ -581,47 +580,40 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
     public void testPushRefused() throws Exception {
         final BlockingQueue<Exception> pushResultQueue = new LinkedBlockingDeque<>();
         final InetSocketAddress serverEndpoint = server.start();
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", () -> new MessageExchangeHandler<Void>(new DiscardingEntityConsumer<>()) {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new MessageExchangeHandler<Void>(new DiscardingEntityConsumer<>()) {
+            protected void handle(
+                    final Message<HttpRequest, Void> request,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws IOException, HttpException {
+
+                responseTrigger.pushPromise(
+                        new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/stuff")),
+                        context, new BasicPushProducer(AsyncEntityProducers.create("Pushing all sorts of stuff")) {
 
                     @Override
-                    protected void handle(
-                            final Message<HttpRequest, Void> request,
-                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                            final HttpContext context) throws IOException, HttpException {
-
-                        responseTrigger.pushPromise(
-                                new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/stuff")),
-                                context, new BasicPushProducer(AsyncEntityProducers.create("Pushing all sorts of stuff")) {
-
-                            @Override
-                            public void failed(final Exception cause) {
-                                pushResultQueue.add(cause);
-                                super.failed(cause);
-                            }
-
-                        });
-                        responseTrigger.pushPromise(
-                                new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/more-stuff")),
-                                context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)) {
-
-                            @Override
-                            public void failed(final Exception cause) {
-                                pushResultQueue.add(cause);
-                                super.failed(cause);
-                            }
-
-                        });
-                        responseTrigger.submitResponse(
-                                new BasicResponseProducer(HttpStatus.SC_OK, AsyncEntityProducers.create("Hi there")),
-                                context);
+                    public void failed(final Exception cause) {
+                        pushResultQueue.add(cause);
+                        super.failed(cause);
                     }
-                };
-            }
 
+                });
+                responseTrigger.pushPromise(
+                        new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/more-stuff")),
+                        context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)) {
+
+                    @Override
+                    public void failed(final Exception cause) {
+                        pushResultQueue.add(cause);
+                        super.failed(cause);
+                    }
+
+                });
+                responseTrigger.submitResponse(
+                        new BasicResponseProducer(HttpStatus.SC_OK, AsyncEntityProducers.create("Hi there")),
+                        context);
+            }
         });
 
         client.start(H2Config.custom().setPushEnabled(true).build());
@@ -738,66 +730,59 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testPrematureResponse() throws Exception {
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", () -> new AsyncServerExchangeHandler() {
+
+            private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>();
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new AsyncServerExchangeHandler() {
-
-                    private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>();
-
-                    @Override
-                    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                        capacityChannel.update(Integer.MAX_VALUE);
-                    }
-
-                    @Override
-                    public void consume(final ByteBuffer src) throws IOException {
-                    }
-
-                    @Override
-                    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-                    }
-
-                    @Override
-                    public void handleRequest(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final ResponseChannel responseChannel,
-                            final HttpContext context) throws HttpException, IOException {
-                        final AsyncResponseProducer producer;
-                        final Header h = request.getFirstHeader("password");
-                        if (h != null && "secret".equals(h.getValue())) {
-                            producer = new BasicResponseProducer(HttpStatus.SC_OK, "All is well");
-                        } else {
-                            producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
-                        }
-                        responseProducer.set(producer);
-                        producer.sendResponse(responseChannel, context);
-                    }
-
-                    @Override
-                    public int available() {
-                        final AsyncResponseProducer producer = this.responseProducer.get();
-                        return producer.available();
-                    }
-
-                    @Override
-                    public void produce(final DataStreamChannel channel) throws IOException {
-                        final AsyncResponseProducer producer = this.responseProducer.get();
-                        producer.produce(channel);
-                    }
-
-                    @Override
-                    public void failed(final Exception cause) {
-                    }
-
-                    @Override
-                    public void releaseResources() {
-                    }
-                };
+            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                capacityChannel.update(Integer.MAX_VALUE);
             }
 
+            @Override
+            public void consume(final ByteBuffer src) throws IOException {
+            }
+
+            @Override
+            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+            }
+
+            @Override
+            public void handleRequest(
+                    final HttpRequest request,
+                    final EntityDetails entityDetails,
+                    final ResponseChannel responseChannel,
+                    final HttpContext context) throws HttpException, IOException {
+                final AsyncResponseProducer producer;
+                final Header h = request.getFirstHeader("password");
+                if (h != null && "secret".equals(h.getValue())) {
+                    producer = new BasicResponseProducer(HttpStatus.SC_OK, "All is well");
+                } else {
+                    producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
+                }
+                responseProducer.set(producer);
+                producer.sendResponse(responseChannel, context);
+            }
+
+            @Override
+            public int available() {
+                final AsyncResponseProducer producer = this.responseProducer.get();
+                return producer.available();
+            }
+
+            @Override
+            public void produce(final DataStreamChannel channel) throws IOException {
+                final AsyncResponseProducer producer = this.responseProducer.get();
+                producer.produce(channel);
+            }
+
+            @Override
+            public void failed(final Exception cause) {
+            }
+
+            @Override
+            public void releaseResources() {
+            }
         });
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -864,10 +849,8 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         final List<Header> trailers = entityConsumer.getTrailers();
         Assertions.assertNotNull(trailers);
         Assertions.assertEquals(2, trailers.size());
-        final Map<String, String> map = new HashMap<>();
-        for (final Header header: trailers) {
-            map.put(TextUtils.toLowerCase(header.getName()), header.getValue());
-        }
+        final Map<String, String> map = trailers.stream()
+                .collect(Collectors.toMap(h -> TextUtils.toLowerCase(h.getName()), Header::getValue));
         final String digest = TextUtils.toHexString(entityConsumer.getDigest());
         Assertions.assertEquals("MD5", map.get("digest-algo"));
         Assertions.assertEquals(digest, map.get("digest"));

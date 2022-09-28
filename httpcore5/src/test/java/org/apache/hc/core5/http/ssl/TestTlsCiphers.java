@@ -85,8 +85,7 @@ public class TestTlsCiphers {
                "TLS_RSA_WITH_AES_256_GCM_SHA384"
        };
 
-       final String[] strongCipherSuites = TlsCiphers.excludeH2Blacklisted(mixCipherSuites);
-       for (final String cipherSuite : strongCipherSuites) {
+       for (final String cipherSuite : TlsCiphers.excludeH2Blacklisted(mixCipherSuites)) {
            Assertions.assertFalse(TlsCiphers.isWeak(cipherSuite));
        }
    }
@@ -117,8 +116,7 @@ public class TestTlsCiphers {
                 "TLS_RSA_WITH_AES_256_GCM_SHA384"
         };
 
-        final String[] strongCipherSuites = TlsCiphers.excludeWeak(weakCiphersSuites);
-        for (final String cipherSuite : strongCipherSuites) {
+        for (final String cipherSuite : TlsCiphers.excludeWeak(weakCiphersSuites)) {
             Assertions.assertFalse(TlsCiphers.isWeak(cipherSuite));
         }
     }

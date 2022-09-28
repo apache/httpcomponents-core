@@ -114,11 +114,7 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
             return 1;
         } else {
             synchronized (buffers) {
-                int sum = 0;
-                for (final ByteBuffer buffer : buffers) {
-                    sum += buffer.remaining();
-                }
-                return sum;
+                return buffers.stream().mapToInt(ByteBuffer::remaining).sum();
             }
         }
     }

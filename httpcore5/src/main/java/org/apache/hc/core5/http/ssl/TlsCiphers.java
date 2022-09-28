@@ -27,13 +27,14 @@
 
 package org.apache.hc.core5.http.ssl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * TLS cipher suite support methods
@@ -337,24 +338,15 @@ public final class TlsCiphers {
             Pattern.compile(WEAK_CIPHERS, Pattern.CASE_INSENSITIVE)));
 
     public static boolean isWeak(final String cipherSuite) {
-        for (final Pattern pattern : WEAK_CIPHER_SUITE_PATTERNS) {
-            if (pattern.matcher(cipherSuite).matches()) {
-                return true;
-            }
-        }
-        return false;
+        return WEAK_CIPHER_SUITE_PATTERNS.stream().anyMatch(pattern -> pattern.matcher(cipherSuite).matches());
     }
 
     public static String[] excludeH2Blacklisted(final String... ciphers) {
         if (ciphers == null) {
             return null;
         }
-        final List<String> enabledCiphers = new ArrayList<>();
-        for (final String cipher: ciphers) {
-            if (!TlsCiphers.isH2Blacklisted(cipher)) {
-                enabledCiphers.add(cipher);
-            }
-        }
+        final List<String> enabledCiphers = Stream.of(ciphers).filter(cipher -> !TlsCiphers.isH2Blacklisted(cipher))
+                .collect(Collectors.toList());
         return !enabledCiphers.isEmpty() ? enabledCiphers.toArray(new String[0]) : ciphers;
     }
 
@@ -362,12 +354,8 @@ public final class TlsCiphers {
         if (ciphers == null) {
             return null;
         }
-        final List<String> enabledCiphers = new ArrayList<>();
-        for (final String cipher: ciphers) {
-            if (!TlsCiphers.isWeak(cipher)) {
-                enabledCiphers.add(cipher);
-            }
-        }
+        final List<String> enabledCiphers = Stream.of(ciphers).filter(cipher -> !TlsCiphers.isWeak(cipher))
+                .collect(Collectors.toList());
         return !enabledCiphers.isEmpty() ? enabledCiphers.toArray(new String[0]) : ciphers;
     }
 

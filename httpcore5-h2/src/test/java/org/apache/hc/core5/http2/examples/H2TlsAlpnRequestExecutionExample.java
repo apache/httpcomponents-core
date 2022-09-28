@@ -65,28 +65,17 @@ public class H2TlsAlpnRequestExecutionExample {
 
         final HttpAsyncRequester requester = H2RequesterBootstrap.bootstrap()
                 .setH2Config(h2Config)
-                .setTlsStrategy(new H2ClientTlsStrategy(SSLContexts.createSystemDefault(), (endpoint, sslEngine) -> {
-                    // IMPORTANT uncomment the following line when running Java 9 or older
-                    // in order to avoid the illegal reflective access operation warning
-                    // ====
-                    // return new TlsDetails(sslEngine.getSession(), sslEngine.getApplicationProtocol());
-                    // ====
-                    return null;
-                }))
+                .setTlsStrategy(new H2ClientTlsStrategy(SSLContexts.createSystemDefault(), (endpoint, sslEngine) -> null))
                 .setStreamListener(new H2StreamListener() {
 
                     @Override
                     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + headers.get(i));
-                        }
+                        headers.forEach(header -> System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + header));
                     }
 
                     @Override
                     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + headers.get(i));
-                        }
+                        headers.forEach(header -> System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + header));
                     }
 
                     @Override
@@ -114,7 +103,7 @@ public class H2TlsAlpnRequestExecutionExample {
         requester.start();
 
         final HttpHost target = new HttpHost("https", "nghttp2.org", 443);
-        final String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
+        final String[] requestUris = {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
 
         final CountDownLatch latch = new CountDownLatch(requestUris.length);
         for (final String requestUri: requestUris) {

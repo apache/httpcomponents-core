@@ -80,9 +80,9 @@ public final class HttpVersion extends ProtocolVersion {
      * @since 5.0
      */
     public static HttpVersion get(final int major, final int minor) {
-        for (int i = 0; i < ALL.length; i++) {
-            if (ALL[i].equals(major, minor)) {
-                return ALL[i];
+        for (final HttpVersion element : ALL) {
+            if (element.equals(major, minor)) {
+                return element;
             }
         }
         // argument checking is done in the constructor

@@ -32,11 +32,11 @@ import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpServerConnection;
 import org.apache.hc.core5.http.impl.io.SocketHolder;
@@ -46,8 +46,8 @@ import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Identifiable;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection implements Identifiable {
 
     private static final AtomicLong COUNT = new AtomicLong();
@@ -109,10 +109,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
     protected void onRequestReceived(final ClassicHttpRequest request) {
         if (request != null && this.headerLog.isDebugEnabled()) {
             this.headerLog.debug("{} >> {}", id, new RequestLine(request));
-            final Header[] headers = request.getHeaders();
-            for (final Header header : headers) {
-                this.headerLog.debug("{} >> {}", this.id, header);
-            }
+            Stream.of(request.getHeaders()).forEach(header -> this.headerLog.debug("{} >> {}", this.id, header));
         }
     }
 
@@ -120,10 +117,7 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
     protected void onResponseSubmitted(final ClassicHttpResponse response) {
         if (response != null && this.headerLog.isDebugEnabled()) {
             this.headerLog.debug("{} << {}", this.id, new StatusLine(response));
-            final Header[] headers = response.getHeaders();
-            for (final Header header : headers) {
-                this.headerLog.debug("{} << {}", this.id, header);
-            }
+            Stream.of(response.getHeaders()).forEach(header -> this.headerLog.debug("{} << {}", this.id, header));
         }
     }
 

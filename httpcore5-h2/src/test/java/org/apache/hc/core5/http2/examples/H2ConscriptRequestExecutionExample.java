@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http2.examples;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
@@ -54,8 +55,7 @@ import org.apache.hc.core5.util.Timeout;
 import org.conscrypt.Conscrypt;
 
 /**
- * This example demonstrates how to execute HTTP/2 requests over TLS connections
- * with Java 1.7 or Java 1.8 and Conscrypt TLS library
+ * This example demonstrates how to execute HTTP/2 requests over TLS connections Java 8 and Conscrypt TLS library.
  */
 public class H2ConscriptRequestExecutionExample {
 
@@ -77,16 +77,12 @@ public class H2ConscriptRequestExecutionExample {
 
                     @Override
                     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + headers.get(i));
-                        }
+                        headers.forEach(header -> System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + header));
                     }
 
                     @Override
                     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + headers.get(i));
-                        }
+                        headers.forEach(header -> System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + header));
                     }
 
                     @Override
@@ -114,9 +110,9 @@ public class H2ConscriptRequestExecutionExample {
         requester.start();
 
         final HttpHost target = new HttpHost("https", "nghttp2.org", 443);
-        final String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
+        final List<String> requestUris = Arrays.asList("/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers");
 
-        final CountDownLatch latch = new CountDownLatch(requestUris.length);
+        final CountDownLatch latch = new CountDownLatch(requestUris.size());
         for (final String requestUri: requestUris) {
             final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofDays(5));
             final AsyncClientEndpoint clientEndpoint = future.get();

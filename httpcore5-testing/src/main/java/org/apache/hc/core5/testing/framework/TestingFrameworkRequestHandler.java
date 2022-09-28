@@ -38,10 +38,11 @@ import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.STATUS;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -139,10 +140,8 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
                 final URI uri = request.getUri();
                 final URIBuilder uriBuilder = new URIBuilder(uri, StandardCharsets.UTF_8);
                 final List<NameValuePair> actualParams = uriBuilder.getQueryParams();
-                final Map<String, String> actualParamsMap = new HashMap<>();
-                for (final NameValuePair actualParam : actualParams) {
-                    actualParamsMap.put(actualParam.getName(), actualParam.getValue());
-                }
+                final Map<String, String> actualParamsMap = actualParams.stream()
+                        .collect(Collectors.toMap(NameValuePair::getName, NameValuePair::getValue));
                 for (final Map.Entry<String, String> expectedParam : expectedQuery.entrySet()) {
                     final String key = expectedParam.getKey();
                     if (! actualParamsMap.containsKey(key)) {
@@ -163,11 +162,8 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             @SuppressWarnings("unchecked")
             final Map<String, String> expectedHeaders = (Map<String, String>) requestExpectations.get(HEADERS);
             if (expectedHeaders != null) {
-                final Map<String, String> actualHeadersMap = new HashMap<>();
-                final Header[] actualHeaders = request.getHeaders();
-                for (final Header header : actualHeaders) {
-                    actualHeadersMap.put(header.getName(), header.getValue());
-                }
+                final Map<String, String> actualHeadersMap = Stream.of(request.getHeaders())
+                        .collect(Collectors.toMap(Header::getName, Header::getValue));
                 for (final Entry<String, String> expectedHeader : expectedHeaders.entrySet()) {
                     final String key = expectedHeader.getKey();
                     if (! actualHeadersMap.containsKey(key)) {
@@ -239,9 +235,7 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
             @SuppressWarnings("unchecked")
             final Map<String, String> desiredHeaders = (Map<String, String>) desiredResponse.get(HEADERS);
             if (desiredHeaders != null) {
-                for (final Entry<String, String> entry : desiredHeaders.entrySet()) {
-                    response.setHeader(entry.getKey(), entry.getValue());
-                }
+                desiredHeaders.forEach(response::setHeader);
             }
 
         } catch (final Throwable t) {

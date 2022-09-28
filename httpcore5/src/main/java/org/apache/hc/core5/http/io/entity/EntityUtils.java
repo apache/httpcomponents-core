@@ -36,9 +36,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpEntity;
@@ -183,7 +185,9 @@ public final class EntityUtils {
     }
 
     private static final Map<String, ContentType> CONTENT_TYPE_MAP;
+
     static {
+        // @formatter:off
         final ContentType[] contentTypes = {
                 ContentType.APPLICATION_ATOM_XML,
                 ContentType.APPLICATION_FORM_URLENCODED,
@@ -195,11 +199,9 @@ public final class EntityUtils {
                 ContentType.TEXT_HTML,
                 ContentType.TEXT_PLAIN,
                 ContentType.TEXT_XML };
-        final HashMap<String, ContentType> map = new HashMap<>();
-        for (final ContentType contentType: contentTypes) {
-            map.put(contentType.getMimeType(), contentType);
-        }
-        CONTENT_TYPE_MAP = Collections.unmodifiableMap(map);
+        // @formatter:on
+        CONTENT_TYPE_MAP = Collections.unmodifiableMap(
+                Stream.of(contentTypes).collect(Collectors.toMap(ContentType::getMimeType, Function.identity())));
     }
 
     private static String toString(final HttpEntity entity, final ContentType contentType, final int maxResultLength)

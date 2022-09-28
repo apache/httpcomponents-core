@@ -83,10 +83,9 @@ public class ClassicGetExecutionExample {
 
         final HttpCoreContext coreContext = HttpCoreContext.create();
         final HttpHost target = new HttpHost("httpbin.org");
-        final String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
+        final String[] requestUris = {"/", "/ip", "/user-agent", "/headers"};
 
-        for (int i = 0; i < requestUris.length; i++) {
-            final String requestUri = requestUris[i];
+        for (final String requestUri : requestUris) {
             final ClassicHttpRequest request = ClassicRequestBuilder.get()
                     .setHttpHost(target)
                     .setPath(requestUri)

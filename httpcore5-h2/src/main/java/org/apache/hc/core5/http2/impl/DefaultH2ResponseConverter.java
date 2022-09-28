@@ -102,9 +102,7 @@ public class DefaultH2ResponseConverter implements H2MessageConverter<HttpRespon
         }
         final HttpResponse response = new BasicHttpResponse(statusCode, null);
         response.setVersion(HttpVersion.HTTP_2);
-        for (int i = 0; i < messageHeaders.size(); i++) {
-            response.addHeader(messageHeaders.get(i));
-        }
+        messageHeaders.forEach(response::addHeader);
         return response;
     }
 

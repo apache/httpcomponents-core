@@ -54,6 +54,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -527,9 +528,8 @@ public class SSLContextBuilder {
         public Map<String, PrivateKeyDetails> getClientAliasMap(
                 final String[] keyTypes, final Principal[] issuers) {
             final Map<String, PrivateKeyDetails> validAliases = new HashMap<>();
-            for (final String keyType: keyTypes) {
-                putPrivateKeyDetails(validAliases, keyType, this.keyManager.getClientAliases(keyType, issuers));
-            }
+            Stream.of(keyTypes).forEach(keyType -> putPrivateKeyDetails(validAliases, keyType,
+                    this.keyManager.getClientAliases(keyType, issuers)));
             return validAliases;
         }
 
@@ -540,13 +540,14 @@ public class SSLContextBuilder {
             return validAliases;
         }
 
-        private void putPrivateKeyDetails(final Map<String, PrivateKeyDetails> validAliases, final String keyType,
+        private Map<String, PrivateKeyDetails> putPrivateKeyDetails(final Map<String, PrivateKeyDetails> validAliases, final String keyType,
                 final String[] aliases) {
             if (aliases != null) {
                 for (final String alias: aliases) {
                     validAliases.put(alias, new PrivateKeyDetails(keyType, this.keyManager.getCertificateChain(alias)));
                 }
             }
+            return validAliases;
         }
 
         @Override

@@ -42,7 +42,7 @@ public class TestBasicHeaderIterator {
 
     @Test
     public void testAllSame() {
-        final Header[] headers = new Header[]{
+        final Header[] headers = {
             new BasicHeader("Name", "value0"),
             new BasicHeader("nAme", "value1, value1.1"),
             new BasicHeader("naMe", "value2=whatever"),
@@ -77,7 +77,7 @@ public class TestBasicHeaderIterator {
 
     @Test
     public void testFirstLastOneNone() {
-        final Header[] headers = new Header[]{
+        final Header[] headers = {
             new BasicHeader("match"   , "value0"),
             new BasicHeader("mismatch", "value1, value1.1"),
             new BasicHeader("single"  , "value2=whatever"),
@@ -118,7 +118,7 @@ public class TestBasicHeaderIterator {
 
     @Test
     public void testInterspersed() {
-        final Header[] headers = new Header[]{
+        final Header[] headers = {
             new BasicHeader("yellow", "00"),
             new BasicHeader("maroon", "01"),
             new BasicHeader("orange", "02"),
@@ -229,7 +229,7 @@ public class TestBasicHeaderIterator {
     public void testRemaining() {
         // to satisfy Clover and take coverage to 100%
 
-        final Header[] headers = new Header[]{
+        final Header[] headers = {
             new BasicHeader("Name", "value0"),
             new BasicHeader("nAme", "value1, value1.1"),
             new BasicHeader("naMe", "value2=whatever"),

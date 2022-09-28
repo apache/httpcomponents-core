@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHost;
@@ -275,9 +276,7 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
     }
 
     public AbstractRequestBuilder<T> addParameters(final NameValuePair... nvps) {
-        for (final NameValuePair nvp : nvps) {
-            addParameter(nvp);
-        }
+        Stream.of(nvps).forEach(this::addParameter);
         return this;
     }
 

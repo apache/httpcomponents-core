@@ -33,6 +33,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.MessageHeaders;
@@ -50,7 +52,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
 
     private static final long serialVersionUID = 2608834160639271617L;
 
-    private static final Header[] EMPTY = new Header[] {};
+    private static final Header[] EMPTY = {};
 
     /** The list of headers for this group, in the order in which they were added */
     private final List<Header> headers;
@@ -61,13 +63,6 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     public HeaderGroup() {
         this.headers = new ArrayList<>(16);
-    }
-
-    /**
-     * Removes all headers.
-     */
-    public void clear() {
-        headers.clear();
     }
 
     /**
@@ -84,89 +79,36 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     }
 
     /**
-     * Removes the first given header.
-     *
-     * @param header the header to remove
-     * @return {@code true} if a header was removed as a result of this call.
+     * Removes all headers.
      */
-    public boolean removeHeader(final Header header) {
-        if (header == null) {
-            return false;
-        }
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header current = this.headers.get(i);
-            if (headerEquals(header, current)) {
-                this.headers.remove(current);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean headerEquals(final Header header1, final Header header2) {
-        return header2 == header1 || header2.getName().equalsIgnoreCase(header1.getName())
-                && Objects.equals(header1.getValue(), header2.getValue());
+    public void clear() {
+        headers.clear();
     }
 
     /**
-     * Removes all headers that match the given header.
+     * Tests if headers with the given name are contained within this group.
      *
-     * @param header the header to remove
-     * @return {@code true} if any header was removed as a result of this call.
+     * <p>Header name comparison is case insensitive.
      *
-     * @since 5.0
+     * @param name the header name to test for
+     * @return {@code true} if at least one header with the name is
+     * contained, {@code false} otherwise
      */
-    public boolean removeHeaders(final Header header) {
-        if (header == null) {
-            return false;
-        }
-        boolean removed = false;
-        for (final Iterator<Header> iterator = headerIterator(); iterator.hasNext();) {
-            final Header current = iterator.next();
-            if (headerEquals(header, current)) {
-                iterator.remove();
-                removed = true;
-            }
-        }
-        return removed;
+    @Override
+    public boolean containsHeader(final String name) {
+        return stream().anyMatch(ignoreCasePredicate(name));
     }
 
     /**
-     * Replaces the first occurrence of the header with the same name. If no header with
-     * the same name is found the given header is added to the end of the list.
+     * Checks if a certain header is present in this message and how many times.
+     * <p>Header name comparison is case insensitive.
      *
-     * @param header the new header that should replace the first header with the same
-     * name if present in the list.
-     *
-     * @since 5.0
+     * @param name the header name to check for.
+     * @return number of occurrences of the header in the message.
      */
-    public void setHeader(final Header header) {
-        if (header == null) {
-            return;
-        }
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header current = this.headers.get(i);
-            if (current.getName().equalsIgnoreCase(header.getName())) {
-                this.headers.set(i, header);
-                return;
-            }
-        }
-        this.headers.add(header);
-    }
-
-    /**
-     * Sets all of the headers contained within this group overriding any
-     * existing headers. The headers are added in the order in which they appear
-     * in the array.
-     *
-     * @param headers the headers to set
-     */
-    public void setHeaders(final Header... headers) {
-        clear();
-        if (headers == null) {
-            return;
-        }
-        Collections.addAll(this.headers, headers);
+    @Override
+    public int countHeaders(final String name) {
+        return (int) stream().filter(ignoreCasePredicate(name)).count();
     }
 
     /**
@@ -200,31 +142,6 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     }
 
     /**
-     * Gets all of the headers with the given name.  The returned array
-     * maintains the relative order in which the headers were added.
-     *
-     * <p>Header name comparison is case insensitive.
-     *
-     * @param name the name of the header(s) to get
-     *
-     * @return an array of length &ge; 0
-     */
-    @Override
-    public Header[] getHeaders(final String name) {
-        List<Header> headersFound = null;
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
-            if (header.getName().equalsIgnoreCase(name)) {
-                if (headersFound == null) {
-                    headersFound = new ArrayList<>();
-                }
-                headersFound.add(header);
-            }
-        }
-        return headersFound != null ? headersFound.toArray(EMPTY) : EMPTY;
-    }
-
-    /**
      * Gets the first header with the given name.
      *
      * <p>Header name comparison is case insensitive.
@@ -234,13 +151,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public Header getFirstHeader(final String name) {
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
-            if (header.getName().equalsIgnoreCase(name)) {
-                return header;
-            }
-        }
-        return null;
+        return stream().filter(ignoreCasePredicate(name)).findFirst().orElse(null);
     }
 
     /**
@@ -256,8 +167,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     public Header getHeader(final String name) throws ProtocolException {
         int count = 0;
         Header singleHeader = null;
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
+        for (final Header header : this.headers) {
             if (header.getName().equalsIgnoreCase(name)) {
                 singleHeader = header;
                 count++;
@@ -267,6 +177,31 @@ public class HeaderGroup implements MessageHeaders, Serializable {
             throw new ProtocolException("multiple '%s' headers found", name);
         }
         return singleHeader;
+    }
+
+    /**
+     * Gets all of the headers contained within this group.
+     *
+     * @return an array of length &ge; 0
+     */
+    @Override
+    public Header[] getHeaders() {
+        return headers.toArray(EMPTY);
+    }
+
+    /**
+     * Gets all of the headers with the given name.  The returned array
+     * maintains the relative order in which the headers were added.
+     *
+     * <p>Header name comparison is case insensitive.
+     *
+     * @param name the name of the header(s) to get
+     *
+     * @return an array of length &ge; 0
+     */
+    @Override
+    public Header[] getHeaders(final String name) {
+        return stream().filter(ignoreCasePredicate(name)).toArray(Header[]::new);
     }
 
     /**
@@ -290,54 +225,9 @@ public class HeaderGroup implements MessageHeaders, Serializable {
         return null;
     }
 
-    /**
-     * Gets all of the headers contained within this group.
-     *
-     * @return an array of length &ge; 0
-     */
-    @Override
-    public Header[] getHeaders() {
-        return headers.toArray(EMPTY);
-    }
-
-    /**
-     * Tests if headers with the given name are contained within this group.
-     *
-     * <p>Header name comparison is case insensitive.
-     *
-     * @param name the header name to test for
-     * @return {@code true} if at least one header with the name is
-     * contained, {@code false} otherwise
-     */
-    @Override
-    public boolean containsHeader(final String name) {
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
-            if (header.getName().equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * Checks if a certain header is present in this message and how many times.
-     * <p>Header name comparison is case insensitive.
-     *
-     * @param name the header name to check for.
-     * @return number of occurrences of the header in the message.
-     */
-    @Override
-    public int countHeaders(final String name) {
-        int count = 0;
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
-            if (header.getName().equalsIgnoreCase(name)) {
-                count++;
-            }
-        }
-        return count;
+    private boolean headerEquals(final Header header1, final Header header2) {
+        return header2 == header1 || header2.getName().equalsIgnoreCase(header1.getName())
+                && Objects.equals(header1.getValue(), header2.getValue());
     }
 
     /**
@@ -367,6 +257,42 @@ public class HeaderGroup implements MessageHeaders, Serializable {
         return new BasicListHeaderIterator(this.headers, name);
     }
 
+    private Predicate<? super Header> ignoreCasePredicate(final String name) {
+        return h -> h.getName().equalsIgnoreCase(name);
+    }
+
+    /**
+     * Removes the first given header.
+     *
+     * @param header the header to remove
+     * @return {@code true} if a header was removed as a result of this call.
+     */
+    public boolean removeHeader(final Header header) {
+        if (header == null) {
+            return false;
+        }
+        for (int i = 0; i < this.headers.size(); i++) {
+            final Header current = this.headers.get(i);
+            if (headerEquals(header, current)) {
+                this.headers.remove(current);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Removes all headers that match the given header.
+     *
+     * @param header the header to remove
+     * @return {@code true} if any header was removed as a result of this call.
+     *
+     * @since 5.0
+     */
+    public boolean removeHeaders(final Header header) {
+        return header != null ? headers.removeIf(h -> headerEquals(header, h)) : false;
+    }
+
     /**
      * Removes all headers with a given name in this group.
      *
@@ -376,23 +302,53 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      * @since 5.0
      */
     public boolean removeHeaders(final String name) {
-        if (name == null) {
-            return false;
+        return name != null ? headers.removeIf(ignoreCasePredicate(name)) : false;
+    }
+
+    /**
+     * Replaces the first occurrence of the header with the same name. If no header with
+     * the same name is found the given header is added to the end of the list.
+     *
+     * @param header the new header that should replace the first header with the same
+     * name if present in the list.
+     *
+     * @since 5.0
+     */
+    public void setHeader(final Header header) {
+        if (header == null) {
+            return;
         }
-        boolean removed = false;
-        for (final Iterator<Header> iterator = headerIterator(); iterator.hasNext(); ) {
-            final Header header = iterator.next();
-            if (header.getName().equalsIgnoreCase(name)) {
-                iterator.remove();
-                removed = true;
+        for (int i = 0; i < headers.size(); i++) {
+            if (ignoreCasePredicate(header.getName()).test(headers.get(i))) {
+                headers.set(i, header);
+                return;
             }
         }
-        return removed;
+        headers.add(header);
+    }
+
+    /**
+     * Sets all of the headers contained within this group overriding any
+     * existing headers. The headers are added in the order in which they appear
+     * in the array.
+     *
+     * @param headers the headers to set
+     */
+    public void setHeaders(final Header... headers) {
+        clear();
+        if (headers == null) {
+            return;
+        }
+        Collections.addAll(this.headers, headers);
+    }
+
+    private Stream<Header> stream() {
+        return headers.stream();
     }
 
     @Override
     public String toString() {
-        return this.headers.toString();
+        return headers.toString();
     }
 
 }

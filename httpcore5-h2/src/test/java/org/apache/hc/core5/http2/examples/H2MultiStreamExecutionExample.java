@@ -26,6 +26,7 @@
  */
 package org.apache.hc.core5.http2.examples;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
@@ -76,16 +77,12 @@ public class H2MultiStreamExecutionExample {
 
                     @Override
                     public void onHeaderInput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + headers.get(i));
-                        }
+                        headers.forEach(header -> System.out.println(connection.getRemoteAddress() + " (" + streamId + ") << " + header));
                     }
 
                     @Override
                     public void onHeaderOutput(final HttpConnection connection, final int streamId, final List<? extends Header> headers) {
-                        for (int i = 0; i < headers.size(); i++) {
-                            System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + headers.get(i));
-                        }
+                        headers.forEach(header -> System.out.println(connection.getRemoteAddress() + " (" + streamId + ") >> " + header));
                     }
 
                     @Override
@@ -113,13 +110,13 @@ public class H2MultiStreamExecutionExample {
         requester.start();
 
         final HttpHost target = new HttpHost("nghttp2.org");
-        final String[] requestUris = new String[] {"/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers"};
+        final List<String> requestUris = Arrays.asList("/httpbin/ip", "/httpbin/user-agent", "/httpbin/headers");
 
         final Future<AsyncClientEndpoint> future = requester.connect(target, Timeout.ofSeconds(5));
         final AsyncClientEndpoint clientEndpoint = future.get();
 
-        final CountDownLatch latch = new CountDownLatch(requestUris.length);
-        for (final String requestUri: requestUris) {
+        final CountDownLatch latch = new CountDownLatch(requestUris.size());
+        requestUris.forEach(requestUri ->
             clientEndpoint.execute(
                     AsyncRequestBuilder.get()
                             .setHttpHost(target)
@@ -149,8 +146,8 @@ public class H2MultiStreamExecutionExample {
                             System.out.println(requestUri + " cancelled");
                         }
 
-                    });
-        }
+                    })
+        );
 
         latch.await();
 

@@ -46,7 +46,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +57,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -1622,10 +1622,8 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         final List<Header> trailers = entityConsumer.getTrailers();
         Assertions.assertNotNull(trailers);
         Assertions.assertEquals(2, trailers.size());
-        final Map<String, String> map = new HashMap<>();
-        for (final Header header: trailers) {
-            map.put(TextUtils.toLowerCase(header.getName()), header.getValue());
-        }
+        final Map<String, String> map = trailers.stream()
+                .collect(Collectors.toMap(h -> TextUtils.toLowerCase(h.getName()), Header::getValue));
         final String digest = TextUtils.toHexString(entityConsumer.getDigest());
         Assertions.assertEquals("MD5", map.get("digest-algo"));
         Assertions.assertEquals(digest, map.get("digest"));

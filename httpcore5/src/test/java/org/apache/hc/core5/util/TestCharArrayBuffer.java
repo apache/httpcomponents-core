@@ -63,7 +63,7 @@ public class TestCharArrayBuffer {
         Assertions.assertTrue(buffer.isEmpty());
         Assertions.assertFalse(buffer.isFull());
 
-        final char[] tmp = new char[] { '1', '2', '3', '4'};
+        final char[] tmp = { '1', '2', '3', '4'};
         buffer.append(tmp, 0, tmp.length);
         Assertions.assertEquals(16, buffer.capacity());
         Assertions.assertEquals(4, buffer.length());
@@ -91,7 +91,7 @@ public class TestCharArrayBuffer {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         Assertions.assertEquals(4, buffer.capacity());
 
-        final char[] tmp = new char[] { '1', '2', '3', '4'};
+        final char[] tmp = { '1', '2', '3', '4'};
         buffer.append(tmp, 0, 2);
         buffer.append(tmp, 0, 4);
         buffer.append(tmp, 0, 0);
@@ -157,7 +157,7 @@ public class TestCharArrayBuffer {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         buffer.append((char[])null, 0, 0);
 
-        final char[] tmp = new char[] { '1', '2', '3', '4'};
+        final char[] tmp = { '1', '2', '3', '4'};
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, -1, 0));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, -1));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, 8));
@@ -239,7 +239,7 @@ public class TestCharArrayBuffer {
 
     @Test
     public void testAppendISOByteArray() throws Exception {
-        final byte[] b = new byte[] {0x00, 0x20, 0x7F, -0x80, -0x01};
+        final byte[] b = {0x00, 0x20, 0x7F, -0x80, -0x01};
 
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append(b, 0, b.length);
@@ -272,7 +272,7 @@ public class TestCharArrayBuffer {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         buffer.append((byte[])null, 0, 0);
 
-        final byte[] tmp = new byte[] { '1', '2', '3', '4'};
+        final byte[] tmp = { '1', '2', '3', '4'};
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, -1, 0));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, -1));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.append(tmp, 0, 8));

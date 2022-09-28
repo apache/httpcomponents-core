@@ -310,9 +310,7 @@ public class H2RequesterBootstrap {
                 break;
         }
         final RequestHandlerRegistry<Supplier<AsyncPushConsumer>> registry = new RequestHandlerRegistry<>(uriPatternType);
-        for (final HandlerEntry<Supplier<AsyncPushConsumer>> entry: pushConsumerList) {
-            registry.register(entry.hostname, entry.uriPattern, entry.handler);
-        }
+        pushConsumerList.forEach(entry -> registry.register(entry.hostname, entry.uriPattern, entry.handler));
 
         final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientH2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : H2Processors.client(),

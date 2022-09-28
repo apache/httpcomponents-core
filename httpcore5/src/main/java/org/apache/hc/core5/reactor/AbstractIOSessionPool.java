@@ -233,7 +233,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     }
 
     public final void enumAvailable(final Callback<IOSession> callback) {
-        for (final PoolEntry poolEntry: sessionPool.values()) {
+        sessionPool.values().forEach(poolEntry -> {
             if (poolEntry.session != null) {
                 synchronized (poolEntry) {
                     if (poolEntry.session != null) {
@@ -244,12 +244,12 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                     }
                 }
             }
-        }
+        });
     }
 
     public final void closeIdle(final TimeValue idleTime) {
         final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
-        for (final PoolEntry poolEntry: sessionPool.values()) {
+        sessionPool.values().forEach(poolEntry -> {
             if (poolEntry.session != null) {
                 synchronized (poolEntry) {
                     if (poolEntry.session != null && poolEntry.session.getLastReadTime() <= deadline) {
@@ -258,7 +258,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                     }
                 }
             }
-        }
+        });
     }
 
     public final Set<T> getRoutes() {

@@ -81,7 +81,7 @@ public class TestIdentityOutputStream {
         final byte[] input = outputStream.toByteArray();
 
         Assertions.assertNotNull(input);
-        final byte[] expected = new byte[] {'a', 'b', 'c'};
+        final byte[] expected = {'a', 'b', 'c'};
         Assertions.assertEquals(expected.length, input.length);
         for (int i = 0; i < expected.length; i++) {
             Assertions.assertEquals(expected[i], input[i]);

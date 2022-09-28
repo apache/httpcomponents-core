@@ -263,7 +263,7 @@ public class TestArgs {
     @Test
     public void testIsEmpty() {
 
-        final String[] NON_EMPTY_ARRAY = new String[] { "ABG", "NML", };
+        final String[] NON_EMPTY_ARRAY = { "ABG", "NML", };
 
         final List<String> NON_EMPTY_LIST = Arrays.asList(NON_EMPTY_ARRAY);
 

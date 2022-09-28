@@ -77,7 +77,7 @@ public class H2CompatibilityTest {
 
     public static void main(final String... args) throws Exception {
 
-        final HttpHost[] h2servers = new HttpHost[]{
+        final HttpHost[] h2servers = {
                 new HttpHost("http", "localhost", 8080),
                 new HttpHost("http", "localhost", 8081)
         };

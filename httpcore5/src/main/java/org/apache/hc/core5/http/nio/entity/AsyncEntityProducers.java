@@ -40,6 +40,8 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ContentType;
@@ -158,11 +160,7 @@ public final class AsyncEntityProducers {
 
             @Override
             public Set<String> getTrailerNames() {
-                final Set<String> names = new LinkedHashSet<>();
-                for (final Header trailer: trailers) {
-                    names.add(trailer.getName());
-                }
-                return names;
+                return Stream.of(trailers).map(Header::getName).collect(Collectors.toCollection(LinkedHashSet::new));
             }
 
             @Override

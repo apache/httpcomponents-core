@@ -885,9 +885,8 @@ public class TestTestingFramework {
 
         framework.runTests();
 
-        for (final String method : TestingFramework.ALL_METHODS) {
-            Assertions.assertTrue(calledMethodSet.contains(method), "Method not in default tests.  method=" + method);
-        }
+        TestingFramework.ALL_METHODS.forEach(method -> Assertions.assertTrue(calledMethodSet.contains(method),
+                "Method not in default tests.  method=" + method));
     }
 
     @Test

@@ -256,9 +256,7 @@ public class SocksProxy {
                 t = this.serverThread;
                 this.serverThread = null;
             }
-            for (final SocksProxyHandler handler : this.handlers) {
-                handler.shutdown();
-            }
+            this.handlers.forEach(SocksProxyHandler::shutdown);
             while (!this.handlers.isEmpty()) {
                 final long waitTime = waitUntil - System.currentTimeMillis();
                 if (waitTime > 0) {

@@ -30,7 +30,8 @@ package org.apache.hc.core5.testing.framework;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
@@ -94,9 +95,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             final StringBuilder newQuery = new StringBuilder(existingQuery == null ? "" : existingQuery);
 
             // append each parm to the query
-            for (final Entry<String, String> parm : queryMap.entrySet()) {
-                newQuery.append("&").append(parm.getKey()).append("=").append(parm.getValue());
-            }
+            queryMap.forEach((k, v) -> newQuery.append("&").append(k).append("=").append(v));
             // create a uri with the new query.
             uri = new URI(
                     startingURI.getRawSchemeSpecificPart(),
@@ -120,9 +119,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
         @SuppressWarnings("unchecked")
         final Map<String, String> headersMap = (Map<String, String>) request.get(HEADERS);
         if (headersMap != null) {
-            for (final Entry<String, String> header : headersMap.entrySet()) {
-                httpRequest.addHeader(header.getKey(), header.getValue());
-            }
+            headersMap.forEach(httpRequest::addHeader);
         }
 
         // call setEntity if a body is specified.
@@ -151,10 +148,8 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             ret.put(STATUS, response.getCode());
 
             // convert the headers to a Map
-            final Map<String, Object> headerMap = new HashMap<>();
-            for (final Header header : response.getHeaders()) {
-                headerMap.put(header.getName(), header.getValue());
-            }
+            final Map<String, Object> headerMap = Stream.of(response.getHeaders())
+                    .collect(Collectors.toMap(Header::getName, Header::getValue));
             ret.put(HEADERS, headerMap);
             ret.put(BODY, body);
             ret.put(CONTENT_TYPE, contentType);

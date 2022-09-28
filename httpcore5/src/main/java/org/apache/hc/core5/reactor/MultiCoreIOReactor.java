@@ -30,6 +30,7 @@ package org.apache.hc.core5.reactor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
@@ -66,9 +67,7 @@ class MultiCoreIOReactor implements IOReactor {
      */
     public final void start() {
         if (this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.ACTIVE)) {
-            for (int i = 0; i < this.threads.length; i++) {
-                this.threads[i].start();
-            }
+            Stream.of(this.threads).forEach(Thread::start);
         }
     }
 
@@ -76,10 +75,7 @@ class MultiCoreIOReactor implements IOReactor {
     public final void initiateShutdown() {
         if (this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.SHUT_DOWN) ||
                 this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)) {
-            for (int i = 0; i < this.ioReactors.length; i++) {
-                final IOReactor ioReactor = this.ioReactors[i];
-                ioReactor.initiateShutdown();
-            }
+            Stream.of(this.ioReactors).forEach(IOReactor::initiateShutdown);
         }
     }
 
@@ -88,8 +84,7 @@ class MultiCoreIOReactor implements IOReactor {
         Args.notNull(waitTime, "Wait time");
         final long deadline = System.currentTimeMillis() + waitTime.toMilliseconds();
         long remaining = waitTime.toMilliseconds();
-        for (int i = 0; i < this.ioReactors.length; i++) {
-            final IOReactor ioReactor = this.ioReactors[i];
+        for (final IOReactor ioReactor : this.ioReactors) {
             if (ioReactor.getStatus().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
                 ioReactor.awaitShutdown(TimeValue.of(remaining, TimeUnit.MILLISECONDS));
                 remaining = deadline - System.currentTimeMillis();
@@ -98,8 +93,7 @@ class MultiCoreIOReactor implements IOReactor {
                 }
             }
         }
-        for (int i = 0; i < this.threads.length; i++) {
-            final Thread thread = this.threads[i];
+        for (final Thread thread : this.threads) {
             thread.join(remaining);
             remaining = deadline - System.currentTimeMillis();
             if (remaining <= 0) {
@@ -135,12 +129,8 @@ class MultiCoreIOReactor implements IOReactor {
         }
         this.status.set(IOReactorStatus.SHUT_DOWN);
         if (this.terminated.compareAndSet(false, true)) {
-            for (int i = 0; i < this.ioReactors.length; i++) {
-                Closer.close(this.ioReactors[i], CloseMode.IMMEDIATE);
-            }
-            for (int i = 0; i < this.threads.length; i++) {
-                this.threads[i].interrupt();
-            }
+            Stream.of(this.ioReactors).forEach(ioReactor -> Closer.close(ioReactor, CloseMode.IMMEDIATE));
+            Stream.of(this.threads).forEach(Thread::interrupt);
         }
     }
 

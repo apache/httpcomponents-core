@@ -32,6 +32,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.util.stream.Stream;
 
 public class ReadableByteChannelMock implements ReadableByteChannel {
 
@@ -45,10 +46,7 @@ public class ReadableByteChannelMock implements ReadableByteChannel {
 
     public ReadableByteChannelMock(final String[] strings, final Charset charset) {
         super();
-        this.chunks = new byte[strings.length][];
-        for (int i = 0; i < strings.length; i++) {
-            this.chunks[i] = strings[i].getBytes(charset);
-        }
+        this.chunks = Stream.of(strings).map(s -> s.getBytes(charset)).toArray(byte[][]::new);
     }
 
     public ReadableByteChannelMock(final byte[]... chunks) {

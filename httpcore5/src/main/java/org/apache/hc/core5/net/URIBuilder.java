@@ -38,6 +38,7 @@ import java.util.BitSet;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
@@ -271,12 +272,7 @@ public class URIBuilder {
         if (s == null) {
             return null;
         }
-        final List<String> segments = splitPath(s);
-        final List<String> list = new ArrayList<>(segments.size());
-        for (final String segment: segments) {
-            list.add(PercentCodec.decode(segment, charset));
-        }
-        return list;
+        return splitPath(s).stream().map(segment -> PercentCodec.decode(segment, charset)).collect(Collectors.toList());
     }
 
     static void formatPath(final StringBuilder buf, final Iterable<String> segments, final boolean rootless, final Charset charset) {
@@ -952,9 +948,7 @@ public class URIBuilder {
             return null;
         }
         final StringBuilder result = new StringBuilder();
-        for (final String segment : this.pathSegments) {
-            result.append('/').append(segment);
-        }
+        this.pathSegments.forEach(segment -> result.append('/').append(segment));
         return result.toString();
     }
 
@@ -1034,7 +1028,7 @@ public class URIBuilder {
             final List<String> inputSegments = this.pathSegments;
             if (!inputSegments.isEmpty()) {
                 final LinkedList<String> outputSegments = new LinkedList<>();
-                for (final String inputSegment : inputSegments) {
+                inputSegments.forEach(inputSegment -> {
                     if (!inputSegment.isEmpty() && !".".equals(inputSegment)) {
                         if ("..".equals(inputSegment)) {
                             if (!outputSegments.isEmpty()) {
@@ -1044,7 +1038,7 @@ public class URIBuilder {
                             outputSegments.addLast(inputSegment);
                         }
                     }
-                }
+                });
                 if (!inputSegments.isEmpty()) {
                     final String lastSegment = inputSegments.get(inputSegments.size() - 1);
                     if (lastSegment.isEmpty()) {

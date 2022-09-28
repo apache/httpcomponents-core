@@ -42,7 +42,7 @@ public class TestIdentityInputStream {
 
     @Test
     public void testBasicRead() throws Exception {
-        final byte[] input = new byte[] {'a', 'b', 'c'};
+        final byte[] input = {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);
@@ -60,7 +60,7 @@ public class TestIdentityInputStream {
 
     @Test
     public void testClosedCondition() throws Exception {
-        final byte[] input = new byte[] {'a', 'b', 'c'};
+        final byte[] input = {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);
@@ -76,7 +76,7 @@ public class TestIdentityInputStream {
 
     @Test
     public void testAvailable() throws Exception {
-        final byte[] input = new byte[] {'a', 'b', 'c'};
+        final byte[] input = {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 16, 1024, null);
         final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);
@@ -87,7 +87,7 @@ public class TestIdentityInputStream {
 
     @Test
     public void testAvailableInStream() throws Exception {
-        final byte[] input = new byte[] {'a', 'b', 'c', 'd', 'e', 'f'};
+        final byte[] input = {'a', 'b', 'c', 'd', 'e', 'f'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 0, 1024, null);
         final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);

@@ -33,14 +33,12 @@ import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ExceptionListener;
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -222,22 +220,20 @@ public class ClassicReverseProxyExample {
                     incomingRequest.getMethod(),
                     targetHost,
                     incomingRequest.getPath());
-            for (final Iterator<Header> it = incomingRequest.headerIterator(); it.hasNext(); ) {
-                final Header header = it.next();
+            incomingRequest.headerIterator().forEachRemaining(header -> {
                 if (!HOP_BY_HOP.contains(TextUtils.toLowerCase(header.getName()))) {
                     outgoingRequest.addHeader(header);
                 }
-            }
+            });
             outgoingRequest.setEntity(incomingRequest.getEntity());
             final ClassicHttpResponse incomingResponse = requester.execute(
                     targetHost, outgoingRequest, Timeout.ofMinutes(1), clientContext);
             outgoingResponse.setCode(incomingResponse.getCode());
-            for (final Iterator<Header> it = incomingResponse.headerIterator(); it.hasNext(); ) {
-                final Header header = it.next();
+            incomingResponse.headerIterator().forEachRemaining(header -> {
                 if (!HOP_BY_HOP.contains(TextUtils.toLowerCase(header.getName()))) {
                     outgoingResponse.addHeader(header);
                 }
-            }
+            });
             outgoingResponse.setEntity(incomingResponse.getEntity());
         }
     }

@@ -64,7 +64,7 @@ public class HttpDateGenerator {
     private final DateTimeFormatter dateTimeFormatter;
     private long dateAsMillis;
     private String dateAsText;
-    private ZoneId zoneId;
+    private final ZoneId zoneId;
 
     HttpDateGenerator() {
         dateTimeFormatter =new DateTimeFormatterBuilder()

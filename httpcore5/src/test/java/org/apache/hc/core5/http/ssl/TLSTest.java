@@ -81,8 +81,7 @@ class TLSTest {
                 "TLS 1.2",
                 "TLS 1.1"
         };
-        final String[] strongProtocols = TLS.excludeWeak(mixProtocol);
-        for (final String protocol : strongProtocols) {
+        for (final String protocol : TLS.excludeWeak(mixProtocol)) {
             Assertions.assertTrue(TLS.isSecure(protocol));
         }
     }

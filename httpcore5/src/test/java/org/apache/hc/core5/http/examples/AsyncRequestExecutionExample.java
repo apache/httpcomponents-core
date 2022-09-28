@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.http.examples;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -92,10 +94,10 @@ public class AsyncRequestExecutionExample {
         requester.start();
 
         final HttpHost target = new HttpHost("httpbin.org");
-        final String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
+        final List<String> requestUris = Arrays.asList("/", "/ip", "/user-agent", "/headers");
 
-        final CountDownLatch latch = new CountDownLatch(requestUris.length);
-        for (final String requestUri: requestUris) {
+        final CountDownLatch latch = new CountDownLatch(requestUris.size());
+        requestUris.forEach(requestUri ->
             requester.execute(
                     AsyncRequestBuilder.get()
                             .setHttpHost(target)
@@ -126,8 +128,8 @@ public class AsyncRequestExecutionExample {
                             latch.countDown();
                         }
 
-                    });
-        }
+                    })
+        );
 
         latch.await();
         System.out.println("Shutting down I/O reactor");
