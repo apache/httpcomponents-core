@@ -93,7 +93,7 @@ public class JSSEProviderIntegrationTest {
         this.protocolVersion = protocolVersion;
     }
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
     private static final int REQ_NUM = 25;
 
     private Provider securityProvider;

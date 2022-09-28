@@ -68,7 +68,7 @@ import org.junit.rules.ExternalResource;
 @Extensions({@ExtendWith({ExternalResourceSupport.class})})
 public class ClassicTLSIntegrationTest {
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     private HttpServer server;
 

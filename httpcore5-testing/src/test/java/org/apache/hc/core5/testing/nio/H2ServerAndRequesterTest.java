@@ -87,7 +87,7 @@ public class H2ServerAndRequesterTest {
                 { URIScheme.HTTPS }
         });
     }
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     private final URIScheme scheme;
 

@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory;
 @Extensions({@ExtendWith({ExternalResourceSupport.class})})
 public class H2ProtocolNegotiationTest {
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
