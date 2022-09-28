@@ -81,7 +81,7 @@ public class ClassicServerAndRequesterTest {
         });
     }
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 

@@ -154,7 +154,7 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
         super(scheme);
     }
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
     private static final Timeout LONG_TIMEOUT = Timeout.ofSeconds(60);
 
     private H2TestClient client;

@@ -77,7 +77,7 @@ public class AsyncServerBootstrapFilterTest {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     private HttpAsyncServer server;
 

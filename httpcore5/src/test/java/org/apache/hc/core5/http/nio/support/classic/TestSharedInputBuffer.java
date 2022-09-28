@@ -45,7 +45,7 @@ import org.mockito.Mockito;
 
 public class TestSharedInputBuffer {
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     @Test
     public void testBasis() throws Exception {
