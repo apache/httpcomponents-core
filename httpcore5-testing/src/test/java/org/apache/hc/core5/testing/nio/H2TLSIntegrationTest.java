@@ -80,7 +80,7 @@ import org.junit.rules.ExternalResource;
 
 public class H2TLSIntegrationTest {
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     private HttpAsyncServer server;
 

@@ -82,7 +82,7 @@ import org.slf4j.LoggerFactory;
 public class H2AlpnTest {
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     @Parameters(name = "strict h2 ALPN: {0}, h2 allowed: {1}")
     public static Iterable<Object[]> parameters() {
