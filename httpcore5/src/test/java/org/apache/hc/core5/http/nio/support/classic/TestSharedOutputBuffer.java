@@ -48,7 +48,7 @@ import org.mockito.Mockito;
 
 public class TestSharedOutputBuffer {
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
+    private static final Timeout TIMEOUT = Timeout.ofSeconds(60);
 
     static class DataStreamChannelMock implements DataStreamChannel {
 
