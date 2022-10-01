@@ -1215,8 +1215,6 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         Assert.assertNotNull(response1);
         Assert.assertEquals(HttpStatus.SC_UNAUTHORIZED, response1.getCode());
         Assert.assertNotNull("You shall not pass", result1.getBody());
-
-        Assert.assertFalse(streamEndpoint.isOpen());
     }
 
     @Test
