@@ -81,7 +81,7 @@
     <rxjava.version>2.2.21</rxjava.version>
     <rxjava3.version>3.1.5</rxjava3.version>
     <api.comparison.version>5.1</api.comparison.version>
-    <japicmp.version>0.15.7</japicmp.version>
+    <japicmp.version>0.16.0</japicmp.version>
     <hc.animal-sniffer.signature.ignores>javax.net.ssl.SSLEngine,javax.net.ssl.SSLParameters</hc.animal-sniffer.signature.ignores>
   </properties>
 
