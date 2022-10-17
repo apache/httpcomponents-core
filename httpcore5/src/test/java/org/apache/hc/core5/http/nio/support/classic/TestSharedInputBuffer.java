@@ -132,7 +132,7 @@ public class TestSharedInputBuffer {
 
         Assertions.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         Assertions.assertEquals(Integer.valueOf('a'), task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Mockito.verify(capacityChannel).update(10);
+        Mockito.verify(capacityChannel).update(1);
     }
 
     @Test

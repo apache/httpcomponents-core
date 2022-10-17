@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.support.classic;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.nio.ByteBuffer;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -41,14 +42,19 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 @Contract(threading = ThreadingBehavior.SAFE)
 public final class SharedInputBuffer extends AbstractSharedBuffer implements ContentInputBuffer {
 
+    private final int initialBufferSize;
+    private final AtomicInteger capacityIncrement;
+
     private volatile CapacityChannel capacityChannel;
 
     public SharedInputBuffer(final ReentrantLock lock, final int initialBufferSize) {
         super(lock, initialBufferSize);
+        this.initialBufferSize = initialBufferSize;
+        this.capacityIncrement = new AtomicInteger(0);
     }
 
     public SharedInputBuffer(final int bufferSize) {
-        super(new ReentrantLock(), bufferSize);
+        this(new ReentrantLock(), bufferSize);
     }
 
     public int fill(final ByteBuffer src) {
@@ -65,13 +71,22 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
         }
     }
 
+    private void incrementCapacity() throws IOException {
+        if (capacityChannel != null) {
+            final int increment = capacityIncrement.getAndSet(0);
+            if (increment > 0) {
+                capacityChannel.update(increment);
+            }
+        }
+    }
+
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         lock.lock();
         try {
             this.capacityChannel = capacityChannel;
             setInputMode();
-            if (buffer().hasRemaining()) {
-                capacityChannel.update(buffer().remaining());
+            if (buffer().position() == 0) {
+                capacityChannel.update(initialBufferSize);
             }
         } finally {
             lock.unlock();
@@ -106,11 +121,9 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
                 return -1;
             }
             final int b = buffer().get() & 0xff;
-            if (!buffer().hasRemaining() && capacityChannel != null) {
-                setInputMode();
-                if (buffer().hasRemaining()) {
-                    capacityChannel.update(buffer().remaining());
-                }
+            capacityIncrement.incrementAndGet();
+            if (!buffer().hasRemaining()) {
+                incrementCapacity();
             }
             return b;
         } finally {
@@ -132,11 +145,9 @@ public final class SharedInputBuffer extends AbstractSharedBuffer implements Con
             }
             final int chunk = Math.min(buffer().remaining(), len);
             buffer().get(b, off, chunk);
-            if (!buffer().hasRemaining() && capacityChannel != null) {
-                setInputMode();
-                if (buffer().hasRemaining()) {
-                    capacityChannel.update(buffer().remaining());
-                }
+            capacityIncrement.addAndGet(chunk);
+            if (!buffer().hasRemaining()) {
+                incrementCapacity();
             }
             return chunk;
         } finally {
