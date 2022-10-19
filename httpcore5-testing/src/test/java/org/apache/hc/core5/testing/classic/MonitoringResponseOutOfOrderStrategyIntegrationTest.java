@@ -30,8 +30,7 @@ package org.apache.hc.core5.testing.classic;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -40,7 +39,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
-import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.MonitoringResponseOutOfOrderStrategy;
 import org.apache.hc.core5.http.io.SocketConfig;
@@ -48,117 +47,62 @@ import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.classic.extension.HttpRequesterResource;
+import org.apache.hc.core5.testing.classic.extension.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
-import org.junit.Rule;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.rules.ExternalResource;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
-@RunWith(Parameterized.class)
-public class MonitoringResponseOutOfOrderStrategyIntegrationTest {
+public abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
 
     // Use a 16k buffer for consistent results across systems
     private static final int BUFFER_SIZE = 16 * 1024;
     private static final Timeout TIMEOUT = Timeout.ofSeconds(3);
 
-    @ParameterizedTest(name = "{0}")
-    public static Collection<Object[]> protocols() {
-        return Arrays.asList(new Object[][]{
-                { URIScheme.HTTP },
-                { URIScheme.HTTPS }
-        });
-    }
-
     private final URIScheme scheme;
-    private ClassicTestServer server;
-    private HttpRequester requester;
+
+    @RegisterExtension
+    private final HttpServerResource serverResource;
+
+    @RegisterExtension
+    private final HttpRequesterResource clientResource;
 
     public MonitoringResponseOutOfOrderStrategyIntegrationTest(final URIScheme scheme) {
         this.scheme = scheme;
+
+        this.serverResource = new HttpServerResource(scheme, bootstrap -> bootstrap
+                .setSocketConfig(SocketConfig.custom()
+                        .setSoTimeout(TIMEOUT)
+                        .setSndBufSize(BUFFER_SIZE)
+                        .setRcvBufSize(BUFFER_SIZE)
+                        .setSoKeepAlive(false)
+                        .build())
+                .register("*", (request, response, context) -> {
+                    response.setCode(400);
+                    response.setEntity(new AllOnesHttpEntity(200000));
+                }));
+
+        this.clientResource = new HttpRequesterResource(bootstrap -> bootstrap
+                .setSocketConfig(SocketConfig.custom()
+                        .setSoTimeout(TIMEOUT)
+                        .setRcvBufSize(BUFFER_SIZE)
+                        .setSndBufSize(BUFFER_SIZE)
+                        .setSoKeepAlive(false)
+                        .build())
+                .setConnectionFactory(DefaultBHttpClientConnectionFactory.builder()
+                        .responseOutOfOrderStrategy(MonitoringResponseOutOfOrderStrategy.INSTANCE)
+                        .build()));
     }
 
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            server = new ClassicTestServer(
-                    scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null,
-                    SocketConfig.custom()
-                            .setSoTimeout(TIMEOUT)
-                            .setSndBufSize(BUFFER_SIZE)
-                            .setRcvBufSize(BUFFER_SIZE)
-                            .setSoKeepAlive(false)
-                            .build());
-        }
-
-        @Override
-        protected void after() {
-            if (server != null) {
-                try {
-                    server.shutdown(CloseMode.IMMEDIATE);
-                    server = null;
-                } catch (final Exception ignore) {
-                }
-            }
-        }
-
-    };
-
-    @Rule
-    public ExternalResource requesterResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            requester = RequesterBootstrap.bootstrap()
-                    .setSslContext(scheme == URIScheme.HTTPS  ? SSLTestContexts.createClientSSLContext() : null)
-                    .setSocketConfig(SocketConfig.custom()
-                            .setSoTimeout(TIMEOUT)
-                            .setRcvBufSize(BUFFER_SIZE)
-                            .setSndBufSize(BUFFER_SIZE)
-                            .setSoKeepAlive(false)
-                            .build())
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                    .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                    .setConnectionFactory(DefaultBHttpClientConnectionFactory.builder()
-                            .responseOutOfOrderStrategy(MonitoringResponseOutOfOrderStrategy.INSTANCE)
-                            .build())
-                    .create();
-        }
-
-        @Override
-        protected void after() {
-            if (requester != null) {
-                try {
-                    requester.close(CloseMode.IMMEDIATE);
-                    requester = null;
-                } catch (final Exception ignore) {
-                }
-            }
-        }
-
-    };
-
-    @Test(timeout = 5000) // Failures may hang
+    @Test
+    @org.junit.jupiter.api.Timeout(value = 1, unit = TimeUnit.MINUTES)// Failures may hang
     public void testResponseOutOfOrderWithDefaultStrategy() throws Exception {
-        this.server.registerHandler("*", (request, response, context) -> {
-            response.setCode(400);
-            response.setEntity(new AllOnesHttpEntity(200000));
-        });
-
-        this.server.start(null, null, null);
+        final HttpServer server = serverResource.start();
+        final HttpRequester requester = clientResource.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getLocalPort());
 
         final ClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
         post.setEntity(new AllOnesHttpEntity(200000));

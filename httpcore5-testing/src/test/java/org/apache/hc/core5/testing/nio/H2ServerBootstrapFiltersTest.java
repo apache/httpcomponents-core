@@ -54,131 +54,69 @@ import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
-import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
+import org.apache.hc.core5.testing.nio.extension.H2AsyncRequesterResource;
+import org.apache.hc.core5.testing.nio.extension.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.rules.ExternalResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
-public class H2ServerBootstrapFiltersTest {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
+public abstract class H2ServerBootstrapFiltersTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
-    private HttpAsyncServer server;
-
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test server");
-            server = H2ServerBootstrap.bootstrap()
-                    .setLookupRegistry(new UriPatternMatcher<>())
-                    .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                    .setIOReactorConfig(
-                            IOReactorConfig.custom()
-                                    .setSoTimeout(TIMEOUT)
-                                    .build())
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
-                    .setStreamListener(LoggingH2StreamListener.INSTANCE)
-                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .register("*", () -> new EchoHandler(2048))
-                    .addFilterLast("test-filter", (request, entityDetails, context, responseTrigger, chain) ->
-                            chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
-
-                                @Override
-                                public void sendInformation(
-                                        final HttpResponse response) throws HttpException, IOException {
-                                    responseTrigger.sendInformation(response);
-                                }
-
-                                @Override
-                                public void submitResponse(
-                                        final HttpResponse response,
-                                        final AsyncEntityProducer entityProducer) throws HttpException, IOException {
-                                    response.setHeader("X-Test-Filter", "active");
-                                    responseTrigger.submitResponse(response, entityProducer);
-                                }
-
-                                @Override
-                                public void pushPromise(
-                                        final HttpRequest promise,
-                                        final AsyncPushProducer responseProducer) throws HttpException, IOException {
-                                    responseTrigger.pushPromise(promise, responseProducer);
-                                }
-
-                            }))
-                    .create();
-        }
-
-        @Override
-        protected void after() {
-            log.debug("Shutting down test server");
-            if (server != null) {
-                server.close(CloseMode.GRACEFUL);
-            }
-        }
-
-    };
-
-    private HttpAsyncRequester requester;
-
-    @Rule
-    public ExternalResource clientResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test client");
-            requester = H2RequesterBootstrap.bootstrap()
-                    .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                    .setIOReactorConfig(IOReactorConfig.custom()
+    @RegisterExtension
+    private final H2AsyncServerResource serverResource = new H2AsyncServerResource((bootstrap) -> bootstrap
+            .setLookupRegistry(new UriPatternMatcher<>())
+            .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+            .setIOReactorConfig(
+                    IOReactorConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
-                    .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
-                    .setStreamListener(LoggingH2StreamListener.INSTANCE)
-                    .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .create();
-        }
+            .register("*", () -> new EchoHandler(2048))
+            .addFilterLast("test-filter", (request, entityDetails, context, responseTrigger, chain) ->
+                    chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
 
-        @Override
-        protected void after() {
-            log.debug("Shutting down test client");
-            if (requester != null) {
-                requester.close(CloseMode.GRACEFUL);
-            }
-        }
+                        @Override
+                        public void sendInformation(
+                                final HttpResponse response) throws HttpException, IOException {
+                            responseTrigger.sendInformation(response);
+                        }
 
-    };
+                        @Override
+                        public void submitResponse(
+                                final HttpResponse response,
+                                final AsyncEntityProducer entityProducer) throws HttpException, IOException {
+                            response.setHeader("X-Test-Filter", "active");
+                            responseTrigger.submitResponse(response, entityProducer);
+                        }
+
+                        @Override
+                        public void pushPromise(
+                                final HttpRequest promise,
+                                final AsyncPushProducer responseProducer) throws HttpException, IOException {
+                            responseTrigger.pushPromise(promise, responseProducer);
+                        }
+
+                    })));
+
+    @RegisterExtension
+    private final H2AsyncRequesterResource clientResource = new H2AsyncRequesterResource(bootstrap -> bootstrap
+            .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+            .setIOReactorConfig(IOReactorConfig.custom()
+                    .setSoTimeout(TIMEOUT)
+                    .build()));
 
     @Test
     public void testSequentialRequests() throws Exception {
-        server.start();
+        final HttpAsyncServer server = serverResource.start();
+
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final HttpAsyncRequester requester = clientResource.start();
 
         final HttpHost target = new HttpHost("http", "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture = requester.execute(

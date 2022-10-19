@@ -27,44 +27,39 @@
 
 package org.apache.hc.core5.testing.nio;
 
-import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.testing.SocksProxy;
-import org.apache.hc.core5.util.TimeValue;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
-public class Http1SocksProxyIntegrationTest extends Http1IntegrationTest {
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 
-    protected static SocksProxy PROXY;
+public class JSSEProviderIntegrationTests {
 
-    @BeforeAll
-    public static void before() throws Throwable {
-        PROXY = new SocksProxy();
-        PROXY.start();
-    }
+    @Nested
+    @DisplayName("Oracle (default)")
+    public class Oracle extends JSSEProviderIntegrationTest {
 
-    @AfterAll
-    public static void after() {
-        if (PROXY != null) {
-            try {
-                PROXY.shutdown(TimeValue.ofSeconds(5));
-            } catch (final Exception ignore) {
-            }
-            PROXY = null;
+        public Oracle() {
+            super("Oracle", null);
         }
+
     }
 
-    public Http1SocksProxyIntegrationTest(final URIScheme scheme) {
-        super(scheme);
+    @Nested
+    @DisplayName("Conscrypt (TLSv1.2)")
+    public class ConscryptTlsV1_2 extends JSSEProviderIntegrationTest {
+
+        public ConscryptTlsV1_2() {
+            super("Conscrypt", "TLSv1.2");
+        }
+
     }
 
-    @Override
-    protected IOReactorConfig buildReactorConfig() {
-        return IOReactorConfig.custom().setSocksProxyAddress(PROXY.getProxyAddress()).build();
+    @Nested
+    @DisplayName("Conscrypt (TLSv1.3)")
+    public class ConscryptTlsV1_3 extends JSSEProviderIntegrationTest {
+
+        public ConscryptTlsV1_3() {
+            super("Conscrypt", "TLSv1.3");
+        }
+
     }
 
 }

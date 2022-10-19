@@ -30,8 +30,6 @@ package org.apache.hc.core5.testing.nio;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
@@ -54,120 +52,54 @@ import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
+import org.apache.hc.core5.http.protocol.UriPatternMatcher;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequester;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequesterBootstrap;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
-import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
-import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.nio.extension.H2AsyncServerResource;
+import org.apache.hc.core5.testing.nio.extension.H2MultiplexingRequesterResource;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.rules.ExternalResource;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@RunWith(Parameterized.class)
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
-public class H2ServerAndMultiplexingRequesterTest {
+public abstract class H2CoreTransportMultiplexingTest {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> protocols() {
-        return Arrays.asList(new Object[][]{
-                { URIScheme.HTTP },
-                { URIScheme.HTTPS }
-        });
-    }
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     private final URIScheme scheme;
+    @RegisterExtension
+    private final H2AsyncServerResource serverResource;
+    @RegisterExtension
+    private final H2MultiplexingRequesterResource clientResource;
 
-    public H2ServerAndMultiplexingRequesterTest(final URIScheme scheme) {
+    public H2CoreTransportMultiplexingTest(final URIScheme scheme) {
         this.scheme = scheme;
+        this.serverResource = new H2AsyncServerResource(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.FORCE_HTTP_2)
+                .setIOReactorConfig(
+                        IOReactorConfig.custom()
+                                .setSoTimeout(TIMEOUT)
+                                .build())
+                .setLookupRegistry(new UriPatternMatcher<>())
+                .register("*", () -> new EchoHandler(2048))
+        );
+        this.clientResource = new H2MultiplexingRequesterResource(bootstrap -> bootstrap
+                .setIOReactorConfig(IOReactorConfig.custom()
+                        .setSoTimeout(TIMEOUT)
+                        .build())
+        );
     }
-
-    private HttpAsyncServer server;
-
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test server");
-            server = H2ServerBootstrap.bootstrap()
-                    .setIOReactorConfig(
-                            IOReactorConfig.custom()
-                                    .setSoTimeout(TIMEOUT)
-                                    .build())
-                    .setTlsStrategy(scheme == URIScheme.HTTPS  ?
-                            new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()) : null)
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                    .setStreamListener(LoggingH2StreamListener.INSTANCE)
-                    .register("*", () -> new EchoHandler(2048))
-                    .create();
-        }
-
-        @Override
-        protected void after() {
-            log.debug("Shutting down test server");
-            if (server != null) {
-                server.close(CloseMode.GRACEFUL);
-            }
-        }
-
-    };
-
-    private H2MultiplexingRequester requester;
-
-    @Rule
-    public ExternalResource clientResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test client");
-            requester = H2MultiplexingRequesterBootstrap.bootstrap()
-                    .setIOReactorConfig(IOReactorConfig.custom()
-                            .setSoTimeout(TIMEOUT)
-                            .build())
-                    .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                    .setStreamListener(LoggingH2StreamListener.INSTANCE)
-                    .create();
-        }
-
-        @Override
-        protected void after() {
-            log.debug("Shutting down test client");
-            if (requester != null) {
-                requester.close(CloseMode.GRACEFUL);
-            }
-        }
-
-    };
 
     @Test
     public void testSequentialRequests() throws Exception {
-        server.start();
+        final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final H2MultiplexingRequester requester = clientResource.start();
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
@@ -206,11 +138,11 @@ public class H2ServerAndMultiplexingRequesterTest {
 
     @Test
     public void testMultiplexedRequests() throws Exception {
-        server.start();
+        final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final H2MultiplexingRequester requester = clientResource.start();
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
@@ -241,11 +173,11 @@ public class H2ServerAndMultiplexingRequesterTest {
 
     @Test
     public void testValidityCheck() throws Exception {
-        server.start();
+        final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final H2MultiplexingRequester requester = clientResource.start();
         requester.setValidateAfterInactivity(TimeValue.ofMilliseconds(10));
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
@@ -289,11 +221,11 @@ public class H2ServerAndMultiplexingRequesterTest {
 
     @Test
     public void testMultiplexedRequestCancellation() throws Exception {
-        server.start();
+        final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final H2MultiplexingRequester requester = clientResource.start();
 
         final int reqNo = 20;
 

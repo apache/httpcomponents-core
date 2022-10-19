@@ -30,152 +30,43 @@ package org.apache.hc.core5.testing.classic;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HeaderElements;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
-import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
-import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
-import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
-import org.apache.hc.core5.http.io.HttpFilterChain;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.rules.ExternalResource;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
 
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
-@RunWith(Parameterized.class)
-public class ClassicServerAndRequesterTest {
-
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> protocols() {
-        return Arrays.asList(new Object[][]{
-                { URIScheme.HTTP },
-                { URIScheme.HTTPS }
-        });
-    }
+public abstract class ClassicHttpCoreTransportTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     private final URIScheme scheme;
-    private HttpServer server;
 
-    public ClassicServerAndRequesterTest(final URIScheme scheme) {
+    public ClassicHttpCoreTransportTest(final URIScheme scheme) {
         this.scheme = scheme;
     }
 
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
+    abstract HttpServer serverStart() throws IOException;
 
-        @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test server");
-            server = ServerBootstrap.bootstrap()
-                    .setSslContext(scheme == URIScheme.HTTPS  ? SSLTestContexts.createServerSSLContext() : null)
-                    .setSocketConfig(SocketConfig.custom()
-                            .setSoTimeout(TIMEOUT)
-                            .build())
-                    .register("*", new EchoHandler())
-                    .addFilterBefore(StandardFilter.MAIN_HANDLER.name(), "no-keep-alive", (request, responseTrigger, context, chain) -> chain.proceed(request, new HttpFilterChain.ResponseTrigger() {
-
-                        @Override
-                        public void sendInformation(
-                                final ClassicHttpResponse response) throws HttpException, IOException {
-                            responseTrigger.sendInformation(response);
-                        }
-
-                        @Override
-                        public void submitResponse(
-                                final ClassicHttpResponse response) throws HttpException, IOException {
-                            if (request.getPath().startsWith("/no-keep-alive")) {
-                                response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-                            }
-                            responseTrigger.submitResponse(response);
-                        }
-
-                    }, context))
-                    .setExceptionListener(LoggingExceptionListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                    .create();
-        }
-
-        @Override
-        protected void after() {
-            log.debug("Shutting down test server");
-            if (server != null) {
-                try {
-                    server.close(CloseMode.IMMEDIATE);
-                } catch (final Exception ignore) {
-                }
-            }
-        }
-
-    };
-
-    private HttpRequester requester;
-
-    @Rule
-    public ExternalResource clientResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test client");
-            requester = RequesterBootstrap.bootstrap()
-                    .setSslContext(scheme == URIScheme.HTTPS  ? SSLTestContexts.createClientSSLContext() : null)
-                    .setSocketConfig(SocketConfig.custom()
-                            .setSoTimeout(TIMEOUT)
-                            .build())
-                    .setMaxTotal(2)
-                    .setDefaultMaxPerRoute(2)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                    .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                    .create();
-        }
-
-        @Override
-        protected void after() {
-            log.debug("Shutting down test client");
-            if (requester != null) {
-                try {
-                    requester.close(CloseMode.GRACEFUL);
-                } catch (final Exception ignore) {
-                }
-            }
-        }
-
-    };
+    abstract HttpRequester clientStart() throws IOException;
 
     @Test
     public void testSequentialRequests() throws Exception {
-        server.start();
+        final HttpServer server = serverStart();
+        final HttpRequester requester = clientStart();
+
         final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
@@ -203,7 +94,9 @@ public class ClassicServerAndRequesterTest {
 
     @Test
     public void testSequentialRequestsNonPersistentConnection() throws Exception {
-        server.start();
+        final HttpServer server = serverStart();
+        final HttpRequester requester = clientStart();
+
         final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/no-keep-alive/stuff");

@@ -25,43 +25,32 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio;
+package org.apache.hc.core5.testing.reactive;
 
-import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.testing.SocksProxy;
-import org.apache.hc.core5.util.TimeValue;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.apache.hc.core5.http2.HttpVersionPolicy;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 
-public class H2SocksProxyIntegrationTest extends H2IntegrationTest {
+public class IntegrationTests {
 
-    protected static SocksProxy PROXY;
+    @Nested
+    @DisplayName("Reactive client (HTTP/1.1)")
+    public class CoreFunctions extends ReactiveClientTest {
 
-    @BeforeAll
-    public static void before() throws Throwable {
-        PROXY = new SocksProxy();
-        PROXY.start();
-    }
-
-    @AfterAll
-    public static void after() {
-        if (PROXY != null) {
-            try {
-                PROXY.shutdown(TimeValue.ofSeconds(5));
-            } catch (final Exception ignore) {
-            }
-            PROXY = null;
+        public CoreFunctions() {
+            super(HttpVersionPolicy.FORCE_HTTP_1);
         }
+
     }
 
-    public H2SocksProxyIntegrationTest(final URIScheme scheme) {
-        super(scheme);
-    }
+    @Nested
+    @DisplayName("Reactive client (HTTP/2)")
+    public class CoreFunctionsTls extends ReactiveClientTest {
 
-    @Override
-    protected IOReactorConfig buildReactorConfig() {
-        return IOReactorConfig.custom().setSocksProxyAddress(PROXY.getProxyAddress()).build();
+        public CoreFunctionsTls() {
+            super(HttpVersionPolicy.FORCE_HTTP_2);
+        }
+
     }
 
 }

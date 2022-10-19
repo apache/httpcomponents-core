@@ -29,15 +29,15 @@ package org.apache.hc.core5.testing.nio;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Message;
@@ -45,132 +45,38 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
-import org.apache.hc.core5.http.protocol.UriPatternMatcher;
-import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
-import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.rules.ExternalResource;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
 
-@RunWith(Parameterized.class)
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
-public class H2ServerAndRequesterTest {
+public abstract class HttpCoreTransportTest {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> protocols() {
-        return Arrays.asList(new Object[][]{
-                { URIScheme.HTTP },
-                { URIScheme.HTTPS }
-        });
-    }
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
-    private final URIScheme scheme;
+    final URIScheme scheme;
 
-    public H2ServerAndRequesterTest(final URIScheme scheme) {
+    HttpCoreTransportTest(final URIScheme scheme) {
         this.scheme = scheme;
     }
 
-    private HttpAsyncServer server;
+    abstract HttpAsyncServer serverStart() throws IOException;
 
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test server");
-            server = H2ServerBootstrap.bootstrap()
-                    .setLookupRegistry(new UriPatternMatcher<>())
-                    .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                    .setIOReactorConfig(
-                            IOReactorConfig.custom()
-                                    .setSoTimeout(TIMEOUT)
-                                    .build())
-                    .setTlsStrategy(scheme == URIScheme.HTTPS  ?
-                            new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()) : null)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
-                    .setStreamListener(LoggingH2StreamListener.INSTANCE)
-                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .register("*", () -> new EchoHandler(2048))
-                    .create();
-        }
-
-        @Override
-        protected void after() {
-            log.debug("Shutting down test server");
-            if (server != null) {
-                server.close(CloseMode.GRACEFUL);
-            }
-        }
-
-    };
-
-    private HttpAsyncRequester requester;
-
-    @Rule
-    public ExternalResource clientResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test client");
-            requester = H2RequesterBootstrap.bootstrap()
-                    .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                    .setIOReactorConfig(IOReactorConfig.custom()
-                            .setSoTimeout(TIMEOUT)
-                            .build())
-                    .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
-                    .setStreamListener(LoggingH2StreamListener.INSTANCE)
-                    .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .create();
-        }
-
-        @Override
-        protected void after() {
-            log.debug("Shutting down test client");
-            if (requester != null) {
-                requester.close(CloseMode.GRACEFUL);
-            }
-        }
-
-    };
+    abstract HttpAsyncRequester clientStart() throws IOException;
 
     @Test
     public void testSequentialRequests() throws Exception {
-        server.start();
+        final HttpAsyncServer server = serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final HttpAsyncRequester requester = clientStart();
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
@@ -208,12 +114,55 @@ public class H2ServerAndRequesterTest {
     }
 
     @Test
-    public void testSequentialRequestsSameEndpoint() throws Exception {
-        server.start();
+    public void testSequentialRequestsNonPersistentConnection() throws Exception {
+        final HttpAsyncServer server = serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final HttpAsyncRequester requester = clientStart();
+
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
+        final Future<Message<HttpResponse, String>> resultFuture1 = requester.execute(
+                new BasicRequestProducer(Method.POST, target, "/no-keep-alive/stuff",
+                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        assertThat(message1, CoreMatchers.notNullValue());
+        final HttpResponse response1 = message1.getHead();
+        assertThat(response1.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        final String body1 = message1.getBody();
+        assertThat(body1, CoreMatchers.equalTo("some stuff"));
+
+        final Future<Message<HttpResponse, String>> resultFuture2 = requester.execute(
+                new BasicRequestProducer(Method.POST, target, "/no-keep-alive/other-stuff",
+                        new StringAsyncEntityProducer("some other stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+        final Message<HttpResponse, String> message2 = resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        assertThat(message2, CoreMatchers.notNullValue());
+        final HttpResponse response2 = message2.getHead();
+        assertThat(response2.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        final String body2 = message2.getBody();
+        assertThat(body2, CoreMatchers.equalTo("some other stuff"));
+
+        final Future<Message<HttpResponse, String>> resultFuture3 = requester.execute(
+                new BasicRequestProducer(Method.POST, target, "/no-keep-alive/more-stuff",
+                        new StringAsyncEntityProducer("some more stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+        final Message<HttpResponse, String> message3 = resultFuture3.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        assertThat(message3, CoreMatchers.notNullValue());
+        final HttpResponse response3 = message3.getHead();
+        assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+        final String body3 = message3.getBody();
+        assertThat(body3, CoreMatchers.equalTo("some more stuff"));
+    }
+
+    @Test
+    public void testSequentialRequestsSameEndpoint() throws Exception {
+        final HttpAsyncServer server = serverStart();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final ListenerEndpoint listener = future.get();
+        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+        final HttpAsyncRequester requester = clientStart();
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
@@ -260,11 +209,11 @@ public class H2ServerAndRequesterTest {
 
     @Test
     public void testPipelinedRequests() throws Exception {
-        server.start();
+        final HttpAsyncServer server = serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final HttpAsyncRequester requester = clientStart();
 
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> endpointFuture = requester.connect(target, Timeout.ofSeconds(5));
@@ -298,6 +247,34 @@ public class H2ServerAndRequesterTest {
 
         } finally {
             endpoint.releaseAndReuse();
+        }
+    }
+
+    @Test
+    public void testNonPersistentHeads() throws Exception {
+        final HttpAsyncServer server = serverStart();
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
+        final ListenerEndpoint listener = future.get();
+        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+        final HttpAsyncRequester requester = clientStart();
+
+        final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
+        final Queue<Future<Message<HttpResponse, String>>> queue = new LinkedList<>();
+
+        for (int i = 0; i < 20; i++) {
+            final HttpRequest head = new BasicHttpRequest(Method.HEAD, target, "/no-keep-alive/stuff?p=" + i);
+            queue.add(requester.execute(
+                    new BasicRequestProducer(head, null),
+                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null));
+        }
+
+        while (!queue.isEmpty()) {
+            final Future<Message<HttpResponse, String>> resultFuture = queue.remove();
+            final Message<HttpResponse, String> message = resultFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+            assertThat(message, CoreMatchers.notNullValue());
+            final HttpResponse response = message.getHead();
+            assertThat(response.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
+            assertThat(message.getBody(), CoreMatchers.nullValue());
         }
     }
 

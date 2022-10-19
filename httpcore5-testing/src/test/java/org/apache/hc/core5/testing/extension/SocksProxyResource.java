@@ -25,52 +25,44 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio;
+package org.apache.hc.core5.testing.extension;
 
-import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.SocksProxy;
 import org.apache.hc.core5.util.TimeValue;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ExtendWith({InternalH2ServerTestBase.serverResource.class})
-public abstract class InternalH2ServerTestBase {
+public class SocksProxyResource implements BeforeEachCallback, AfterEachCallback {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    private static final Logger LOG = LoggerFactory.getLogger(SocksProxyResource.class);
 
-    protected final URIScheme scheme;
+    private SocksProxy proxy;
 
-    public InternalH2ServerTestBase(final URIScheme scheme) {
-        this.scheme = scheme;
+    @Override
+    public void beforeEach(final ExtensionContext extensionContext) throws Exception {
+        LOG.debug("Starting up SOCKS proxy");
+        proxy = new SocksProxy();
+        proxy.start();
     }
 
-    public InternalH2ServerTestBase() {
-        this(URIScheme.HTTP);
-    }
-
-    protected H2TestServer server;
-
-    class serverResource implements AfterEachCallback, BeforeEachCallback {
-
-        @Override
-        public void beforeEach(final ExtensionContext context) throws Exception {
-            log.debug("Starting up test server");
-            server = new H2TestServer(IOReactorConfig.DEFAULT,
-                    scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null, null, null);
-        }
-
-        @Override
-        public void afterEach(final ExtensionContext context) throws Exception {
-            log.debug("Shutting down test server");
-            if (server != null) {
-                server.shutdown(TimeValue.ofSeconds(5));
+    @Override
+    public void afterEach(final ExtensionContext extensionContext) throws Exception {
+        LOG.debug("Shutting down SOCKS proxy");
+        if (proxy != null) {
+            try {
+                proxy.shutdown(TimeValue.ofSeconds(5));
+            } catch (final Exception ignore) {
             }
         }
+    }
+
+    public SocksProxy proxy() {
+        Assertions.assertNotNull(proxy);
+        return proxy;
     }
 
 }

@@ -82,32 +82,28 @@ import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
-import org.junit.Rule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.rules.ExternalResource;
 
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 public class TLSIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
     private HttpAsyncServer server;
 
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
+    @RegisterExtension
+    public final AfterEachCallback serverCleanup = new AfterEachCallback() {
 
         @Override
-        protected void after() {
+        public void afterEach(final ExtensionContext context) throws Exception {
             if (server != null) {
                 try {
                     server.close(CloseMode.IMMEDIATE);
@@ -120,14 +116,14 @@ public class TLSIntegrationTest {
 
     private HttpAsyncRequester client;
 
-    @Rule
-    public ExternalResource clientResource = new ExternalResource() {
+    @RegisterExtension
+    public final AfterEachCallback clientCleanup = new AfterEachCallback() {
 
         @Override
-        protected void after() {
+        public void afterEach(final ExtensionContext context) throws Exception {
             if (client != null) {
                 try {
-                    client.close(CloseMode.IMMEDIATE);
+                    client.close(CloseMode.GRACEFUL);
                 } catch (final Exception ignore) {
                 }
             }

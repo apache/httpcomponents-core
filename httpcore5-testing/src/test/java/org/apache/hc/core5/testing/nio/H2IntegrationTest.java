@@ -43,8 +43,6 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -115,72 +113,33 @@ import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
 import org.apache.hc.core5.http2.protocol.H2RequestContent;
 import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
 import org.apache.hc.core5.reactor.Command;
-import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.nio.extension.H2TestResources;
 import org.apache.hc.core5.util.TextUtils;
-import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-;
-
-@RunWith(Parameterized.class)
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
-public class H2IntegrationTest extends InternalH2ServerTestBase {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> protocols() {
-        return Arrays.asList(new Object[][]{
-                { URIScheme.HTTP },
-                { URIScheme.HTTPS }
-        });
-    }
-
-    public H2IntegrationTest(final URIScheme scheme) {
-        super(scheme);
-    }
+public abstract class H2IntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
-    private static final Timeout LONG_TIMEOUT = Timeout.ofSeconds(60);
+    private static final Timeout LONG_TIMEOUT = Timeout.ofMinutes(2);
 
-    private H2TestClient client;
+    private final URIScheme scheme;
 
-    @BeforeEach
-    public void setup() throws Exception {
-        log.debug("Starting up test client");
-        client = new H2TestClient(buildReactorConfig(),
-                scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null, null, null);
-    }
+    @RegisterExtension
+    private final H2TestResources resources;
 
-    protected IOReactorConfig buildReactorConfig() {
-        return IOReactorConfig.DEFAULT;
-    }
-
-    @AfterEach
-    public void cleanup() throws Exception {
-        log.debug("Shutting down test client");
-        if (client != null) {
-            client.shutdown(TimeValue.ofSeconds(5));
-        }
+    public H2IntegrationTest(final URIScheme scheme) {
+        this.scheme = scheme;
+        this.resources = new H2TestResources(scheme, TIMEOUT);
     }
 
     private URI createRequestURI(final InetSocketAddress serverEndpoint, final String path) {
         try {
-            return new URI("http", null, "localhost", serverEndpoint.getPort(), path, null, null);
+            return new URI(scheme.id, null, "localhost", serverEndpoint.getPort(), path, null, null);
         } catch (final URISyntaxException e) {
             throw new IllegalStateException();
         }
@@ -188,6 +147,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testSimpleGet() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -217,6 +179,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testSimpleHead() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -240,6 +205,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testLargeGet() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 5000));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -283,6 +251,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testBasicPost() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -313,6 +284,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testLargePost() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -340,6 +314,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testSlowResponseConsumer() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcd", 3));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -389,6 +366,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testSlowRequestProducer() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -435,6 +415,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testSlowResponseProducer() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("*", () -> new AbstractClassicServerExchangeHandler(2048, Executors.newSingleThreadExecutor()) {
 
             @Override
@@ -511,6 +494,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testPush() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         final InetSocketAddress serverEndpoint = server.start();
         server.register("/hello", () -> new MessageExchangeHandler<Void>(new DiscardingEntityConsumer<>()) {
 
@@ -579,6 +565,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testPushRefused() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         final BlockingQueue<Exception> pushResultQueue = new LinkedBlockingDeque<>();
         final InetSocketAddress serverEndpoint = server.start();
         server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
@@ -654,6 +643,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testExcessOfConcurrentStreams() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 2000));
         final InetSocketAddress serverEndpoint = server.start(H2Config.custom().setMaxConcurrentStreams(20).build());
 
@@ -683,6 +675,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testExpectationFailed() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("*", () -> new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
 
             @Override
@@ -738,6 +733,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testPrematureResponse() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("*", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
@@ -820,6 +818,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testMessageWithTrailers() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/hello", () -> new AbstractServerExchangeHandler<Message<HttpRequest, String>>() {
 
             @Override
@@ -875,6 +876,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testConnectionPing() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -904,6 +908,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testRequestWithInvalidConnectionHeader() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -930,6 +937,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testHeaderTooLarge() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start(H2Config.custom()
                 .setMaxHeaderListSize(100)
@@ -956,6 +966,9 @@ public class H2IntegrationTest extends InternalH2ServerTestBase {
 
     @Test
     public void testHeaderTooLargePost() throws Exception {
+        final H2TestServer server = resources.server();
+        final H2TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start(H2Config.custom()
                 .setMaxHeaderListSize(100)

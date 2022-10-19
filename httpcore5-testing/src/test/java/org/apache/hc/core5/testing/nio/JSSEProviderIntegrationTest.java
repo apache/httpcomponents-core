@@ -34,8 +34,6 @@ import java.net.URL;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.http.HttpHeaders;
@@ -55,34 +53,26 @@ import org.apache.hc.core5.ssl.SSLContextBuilder;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.conscrypt.Conscrypt;
-import org.junit.Rule;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.rules.ExternalResource;
-import org.junit.rules.RuleChain;
-import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@RunWith(Parameterized.class)
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
-public class JSSEProviderIntegrationTest {
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+//    @Parameterized.Parameters(name = "{0} {1}")
+//    public static Collection<Object[]> protocols() {
+//        return Arrays.asList(new Object[][]{
+//                {"Oracle", null},
+//                {"Conscrypt", "TLSv1.2"},
+//                {"Conscrypt", "TLSv1.3"},
+//        });
+//    }
 
-    @Parameterized.Parameters(name = "{0} {1}")
-    public static Collection<Object[]> protocols() {
-        return Arrays.asList(new Object[][]{
-                {"Oracle", null},
-                {"Conscrypt", "TLSv1.2"},
-                {"Conscrypt", "TLSv1.3"},
-        });
-    }
+
+public abstract class JSSEProviderIntegrationTest {
 
     private final String securityProviderName;
     private final String protocolVersion;
@@ -97,14 +87,11 @@ public class JSSEProviderIntegrationTest {
     private static final int REQ_NUM = 25;
 
     private Provider securityProvider;
-    private Http1TestServer server;
-    private Http1TestClient client;
 
-    @Rule
-    public TestRule resourceRules = RuleChain.outerRule(new ExternalResource() {
+    class SecurityProviderResource implements BeforeEachCallback, AfterEachCallback {
 
         @Override
-        protected void before() throws Throwable {
+        public void beforeEach(final ExtensionContext context) throws Exception {
             if ("Conscrypt".equalsIgnoreCase(securityProviderName)) {
                 try {
                     securityProvider = Conscrypt.newProviderBuilder().provideTrustManager(true).build();
@@ -120,19 +107,25 @@ public class JSSEProviderIntegrationTest {
         }
 
         @Override
-        protected void after() {
+        public void afterEach(final ExtensionContext context) throws Exception {
             if (securityProvider != null) {
                 Security.removeProvider(securityProvider.getName());
                 securityProvider = null;
             }
         }
 
-    }).around(new ExternalResource() {
+    }
+
+    @RegisterExtension
+    @Order(1)
+    private final SecurityProviderResource securityProviderResource = new SecurityProviderResource();
+
+    private Http1TestServer server;
+
+    class ServerResource implements BeforeEachCallback, AfterEachCallback {
 
         @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test server");
-
+        public void beforeEach(final ExtensionContext context) throws Exception {
             final URL keyStoreURL = getClass().getResource("/test-server.p12");
             final String storePassword = "nopassword";
 
@@ -156,19 +149,24 @@ public class JSSEProviderIntegrationTest {
         }
 
         @Override
-        protected void after() {
-            log.debug("Shutting down test server");
+        public void afterEach(final ExtensionContext context) throws Exception {
             if (server != null) {
                 server.shutdown(TimeValue.ofSeconds(5));
             }
         }
 
-    }).around(new ExternalResource() {
+    }
+
+    @RegisterExtension
+    @Order(2)
+    private final ServerResource serverResource = new ServerResource();
+
+    private Http1TestClient client;
+
+    class ClientResource implements BeforeEachCallback, AfterEachCallback {
 
         @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test client");
-
+        public void beforeEach(final ExtensionContext context) throws Exception {
             final URL keyStoreURL = getClass().getResource("/test-client.p12");
             final String storePassword = "nopassword";
 
@@ -191,14 +189,17 @@ public class JSSEProviderIntegrationTest {
         }
 
         @Override
-        protected void after() {
-            log.debug("Shutting down test client");
+        public void afterEach(final ExtensionContext context) throws Exception {
             if (client != null) {
                 client.shutdown(TimeValue.ofSeconds(5));
             }
         }
 
-    });
+    }
+
+    @RegisterExtension
+    @Order(3)
+    private final ClientResource clientResource = new ClientResource();
 
     private URI createRequestURI(final InetSocketAddress serverEndpoint, final String path) {
         try {

@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
@@ -47,110 +48,48 @@ import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2AsyncRequester;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
-import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
-import org.apache.hc.core5.http2.ssl.H2ServerTlsStrategy;
-import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
-import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
+import org.apache.hc.core5.testing.nio.extension.H2AsyncRequesterResource;
+import org.apache.hc.core5.testing.nio.extension.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.rules.ExternalResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 public class H2ProtocolNegotiationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    @RegisterExtension
+    private final H2AsyncServerResource serverResource;
+    @RegisterExtension
+    private final H2AsyncRequesterResource clientResource;
 
-    private HttpAsyncServer server;
-
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test server");
-            server = H2ServerBootstrap.bootstrap()
-                    .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
-                    .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                    .setIOReactorConfig(
-                            IOReactorConfig.custom()
-                                    .setSoTimeout(TIMEOUT)
-                                    .build())
-                    .setTlsStrategy(new H2ServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
-                    .register("*", () -> new EchoHandler(2048))
-                    .setStreamListener(LoggingH2StreamListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
-                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .create();
-        }
-
-        @Override
-        protected void after() {
-            log.debug("Shutting down test server");
-            if (server != null) {
-                server.close(CloseMode.GRACEFUL);
-            }
-        }
-
-    };
-
-    private H2AsyncRequester requester;
-
-    @Rule
-    public ExternalResource clientResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            log.debug("Starting up test client");
-            requester = H2RequesterBootstrap.bootstrap()
-                    .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
-                    .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
-                    .setIOReactorConfig(IOReactorConfig.custom()
-                            .setSoTimeout(TIMEOUT)
-                            .build())
-                    .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
-                    .setStreamListener(LoggingH2StreamListener.INSTANCE)
-                    .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
-                    .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                    .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                    .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                    .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
-                    .create();
-        }
-
-        @Override
-        protected void after() {
-            log.debug("Shutting down test client");
-            if (requester != null) {
-                requester.close(CloseMode.GRACEFUL);
-            }
-        }
-
-    };
+    public H2ProtocolNegotiationTest() {
+        this.serverResource = new H2AsyncServerResource(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setIOReactorConfig(
+                        IOReactorConfig.custom()
+                                .setSoTimeout(TIMEOUT)
+                                .build())
+                .register("*", () -> new EchoHandler(2048))
+        );
+        this.clientResource = new H2AsyncRequesterResource(bootstrap -> bootstrap
+                .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
+                .setIOReactorConfig(IOReactorConfig.custom()
+                        .setSoTimeout(TIMEOUT)
+                        .build())
+        );
+    }
 
     @Test
     public void testForceHttp1() throws Exception {
-        server.start();
+        final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final HttpAsyncRequester requester = clientResource.start();
 
         final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_1, null);
@@ -169,11 +108,11 @@ public class H2ProtocolNegotiationTest {
 
     @Test
     public void testForceHttp2() throws Exception {
-        server.start();
+        final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final HttpAsyncRequester requester = clientResource.start();
 
         final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.FORCE_HTTP_2, null);
@@ -192,11 +131,11 @@ public class H2ProtocolNegotiationTest {
 
     @Test
     public void testNegotiateProtocol() throws Exception {
-        server.start();
+        final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
         final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
-        requester.start();
+        final HttpAsyncRequester requester = clientResource.start();
 
         final HttpHost target = new HttpHost(URIScheme.HTTPS.id, "localhost", address.getPort());
         final Future<AsyncClientEndpoint> connectFuture = requester.connect(target, TIMEOUT, HttpVersionPolicy.NEGOTIATE, null);

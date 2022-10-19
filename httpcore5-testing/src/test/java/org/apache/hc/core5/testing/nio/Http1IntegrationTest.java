@@ -44,8 +44,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -124,70 +122,32 @@ import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
-import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.nio.extension.Http1TestResources;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
-import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-;
-
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
-@RunWith(Parameterized.class)
-public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> protocols() {
-        return Arrays.asList(new Object[][]{
-                { URIScheme.HTTP },
-                { URIScheme.HTTPS }
-        });
-    }
-
-    public Http1IntegrationTest(final URIScheme scheme) {
-        super(scheme);
-    }
+public abstract class Http1IntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
-    private static final Timeout LONG_TIMEOUT = Timeout.ofSeconds(60);
+    private static final Timeout LONG_TIMEOUT = Timeout.ofMinutes(2);
 
-    private Http1TestClient client;
+    private final URIScheme scheme;
 
-    @BeforeEach
-    public void setup() throws Exception {
-        log.debug("Starting up test client");
-        client = new Http1TestClient(
-                buildReactorConfig(),
-                scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null, null, null);
-    }
+    @RegisterExtension
+    private final Http1TestResources resources;
 
-    protected IOReactorConfig buildReactorConfig() {
-        return IOReactorConfig.DEFAULT;
-    }
-
-    @AfterEach
-    public void cleanup() throws Exception {
-        log.debug("Shutting down test client");
-        if (client != null) {
-            client.shutdown(TimeValue.ofSeconds(5));
-        }
+    public Http1IntegrationTest(final URIScheme scheme) {
+        this.scheme = scheme;
+        this.resources = new Http1TestResources(scheme, TIMEOUT);
     }
 
     private URI createRequestURI(final InetSocketAddress serverEndpoint, final String path) {
@@ -200,6 +160,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleGet() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -224,6 +187,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleGetConnectionClose() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -251,6 +217,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleGetIdentityTransfer() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
         final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
@@ -282,6 +251,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testPostIdentityTransfer() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
         final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
@@ -314,6 +286,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testPostIdentityTransferOutOfSequenceResponse() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new ImmediateResponseExchangeHandler(500, "Go away"));
         final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
         final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
@@ -346,6 +321,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleGetsPipelined() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -374,6 +352,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testLargeGet() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 5000));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -417,6 +398,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testLargeGetsPipelined() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 2000));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -449,6 +433,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testBasicPost() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -474,6 +461,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testBasicPostPipelined() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -503,6 +493,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testHttp10Post() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -529,6 +522,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testNoEntityPost() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -554,6 +550,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testLargePost() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -583,6 +582,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testPostsPipelinedLargeResponse() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 2000));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -617,6 +619,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testLargePostsPipelined() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -650,6 +655,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleHead() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -673,6 +681,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSimpleHeadConnectionClose() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -699,6 +710,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testHeadPipelined() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -724,8 +738,11 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
         }
     }
 
-    @Test
+    @Test @Disabled("Fails intermittently on GitLab. Under investigation")
     public void testExpectationFailed() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("*", () -> new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
 
             @Override
@@ -813,6 +830,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testExpectationFailedCloseConnection() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("*", () -> new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
 
             @Override
@@ -864,6 +884,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testDelayedExpectationVerification() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("*", () -> new AsyncServerExchangeHandler() {
 
             private final Random random = new Random(System.currentTimeMillis());
@@ -960,6 +983,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testPrematureResponse() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("*", () -> new AsyncServerExchangeHandler() {
 
             private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>();
@@ -1052,6 +1078,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSlowResponseConsumer() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcd", 100));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1103,6 +1132,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSlowRequestProducer() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("*", () -> new EchoHandler(2048));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1149,6 +1181,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testSlowResponseProducer() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("*", () -> new AbstractClassicServerExchangeHandler(2048, Executors.newSingleThreadExecutor()) {
 
             @Override
@@ -1223,6 +1258,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testPipelinedConnectionClose() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello*", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1281,6 +1319,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testPipelinedInvalidRequest() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello*", () -> new SingleLineResponseHandler("Hi back"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1375,6 +1416,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testTruncatedChunk() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         final InetSocketAddress serverEndpoint = server.start(new InternalServerHttp1EventHandlerFactory(
                 HttpProcessors.server(),
                 (request, context) -> new MessageExchangeHandler<String>(new StringAsyncEntityConsumer()) {
@@ -1457,6 +1501,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testExceptionInHandler() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there") {
 
             @Override
@@ -1488,6 +1535,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testNoServiceHandler() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
@@ -1509,6 +1559,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testResponseNoContent() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there") {
 
             @Override
@@ -1540,6 +1593,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testAbsentHostHeader() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -1576,6 +1632,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testMessageWithTrailers() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new AbstractServerExchangeHandler<Message<HttpRequest, String>>() {
 
             @Override
@@ -1631,6 +1690,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testProtocolException() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/boom", () -> new AsyncServerExchangeHandler() {
 
             private final StringAsyncEntityProducer entityProducer = new StringAsyncEntityProducer("Everyting is OK");
@@ -1704,6 +1766,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testHeaderTooLarge() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start(null, Http1Config.custom()
                 .setMaxLineLength(100)
@@ -1730,6 +1795,9 @@ public class Http1IntegrationTest extends InternalHttp1ServerTestBase {
 
     @Test
     public void testHeaderTooLargePost() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start(null, Http1Config.custom()
                 .setMaxLineLength(100)

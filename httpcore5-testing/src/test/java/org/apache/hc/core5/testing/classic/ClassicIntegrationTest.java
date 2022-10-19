@@ -35,11 +35,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -54,7 +51,6 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.Http1Config;
-import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -70,94 +66,32 @@ import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.testing.SSLTestContexts;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.hc.core5.testing.classic.extension.ClassicTestResources;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.rules.ExternalResource;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@RunWith(Parameterized.class)
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
-public class ClassicIntegrationTest {
+public abstract class ClassicIntegrationTest {
 
-    @Parameterized.Parameters(name = "{0}")
-    public static Collection<Object[]> protocols() {
-        return Arrays.asList(new Object[][]{
-                { URIScheme.HTTP },
-                { URIScheme.HTTPS }
-        });
-    }
+    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     private final URIScheme scheme;
-    private ClassicTestServer server;
+    @RegisterExtension
+    private final ClassicTestResources testResources;
 
     public ClassicIntegrationTest(final URIScheme scheme) {
         this.scheme = scheme;
+        this.testResources = new ClassicTestResources(scheme, TIMEOUT);
     }
-
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            server = new ClassicTestServer(
-                    scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null,
-                    SocketConfig.custom()
-                            .setSoTimeout(5, TimeUnit.SECONDS)
-                            .build());
-        }
-
-        @Override
-        protected void after() {
-            if (server != null) {
-                try {
-                    server.shutdown(CloseMode.IMMEDIATE);
-                    server = null;
-                } catch (final Exception ignore) {
-                }
-            }
-        }
-
-    };
-
-    private ClassicTestClient client;
-
-    @Rule
-    public ExternalResource clientResource = new ExternalResource() {
-
-        @Override
-        protected void before() throws Throwable {
-            client = new ClassicTestClient(
-                    scheme == URIScheme.HTTPS  ? SSLTestContexts.createClientSSLContext() : null,
-                    SocketConfig.custom()
-                            .setSoTimeout(5, TimeUnit.SECONDS)
-                            .build());
-        }
-
-        @Override
-        protected void after() {
-            if (client != null) {
-                try {
-                    client.shutdown(CloseMode.IMMEDIATE);
-                    client = null;
-                } catch (final Exception ignore) {
-                }
-            }
-        }
-
-    };
 
     /**
      * This test case executes a series of simple GET requests
      */
     @Test
     public void testSimpleBasicHttpRequests() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
         final int reqNo = 20;
 
@@ -172,8 +106,9 @@ public class ClassicIntegrationTest {
             testData.add(data);
         }
 
+
         // Initialize the server-side request handler
-        this.server.registerHandler("*", (request, response, context) -> {
+        server.registerHandler("*", (request, response, context) -> {
 
             String s = request.getPath();
             if (s.startsWith("/?")) {
@@ -185,15 +120,15 @@ public class ClassicIntegrationTest {
             response.setEntity(entity);
         });
 
-        this.server.start();
-        this.client.start();
+        server.start();
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest get = new BasicClassicHttpRequest(Method.GET, "/?" + r);
-            try (final ClassicHttpResponse response = this.client.execute(host, get, context)) {
+            try (final ClassicHttpResponse response = client.execute(host, get, context)) {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
 
@@ -211,6 +146,8 @@ public class ClassicIntegrationTest {
      */
     @Test
     public void testSimpleHttpPostsWithContentLength() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
         final int reqNo = 20;
 
@@ -226,7 +163,7 @@ public class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", (request, response, context) -> {
+        server.registerHandler("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -235,18 +172,18 @@ public class ClassicIntegrationTest {
             }
         });
 
-        this.server.start();
-        this.client.start();
+        server.start();
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
             final byte[] data = testData.get(r);
             post.setEntity(new ByteArrayEntity(data, null));
 
-            try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
+            try (final ClassicHttpResponse response = client.execute(host, post, context)) {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
 
@@ -264,6 +201,8 @@ public class ClassicIntegrationTest {
      */
     @Test
     public void testSimpleHttpPostsChunked() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
         final int reqNo = 20;
 
@@ -279,7 +218,7 @@ public class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", (request, response, context) -> {
+        server.registerHandler("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -288,18 +227,18 @@ public class ClassicIntegrationTest {
             }
         });
 
-        this.server.start();
-        this.client.start();
+        server.start();
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
             final byte[] data = testData.get(r);
             post.setEntity(new ByteArrayEntity(data, null, true));
 
-            try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
+            try (final ClassicHttpResponse response = client.execute(host, post, context)) {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
 
@@ -316,6 +255,8 @@ public class ClassicIntegrationTest {
      */
     @Test
     public void testSimpleHttpPostsHTTP10() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
         final int reqNo = 20;
 
@@ -331,7 +272,7 @@ public class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", (request, response, context) -> {
+        server.registerHandler("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -343,11 +284,11 @@ public class ClassicIntegrationTest {
             }
         });
 
-        this.server.start();
-        this.client.start();
+        server.start();
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             // Set protocol level to HTTP/1.0
@@ -356,7 +297,7 @@ public class ClassicIntegrationTest {
             final byte[] data = testData.get(r);
             post.setEntity(new ByteArrayEntity(data, null));
 
-            try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
+            try (final ClassicHttpResponse response = client.execute(host, post, context)) {
                 Assertions.assertEquals(HttpVersion.HTTP_1_1, response.getVersion());
                 final Header h1 = response.getFirstHeader("Version");
                 Assertions.assertNotNull(h1);
@@ -378,6 +319,8 @@ public class ClassicIntegrationTest {
      */
     @Test
     public void testHttpPostsWithExpectContinue() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
         final int reqNo = 20;
 
@@ -393,7 +336,7 @@ public class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", (request, response, context) -> {
+        server.registerHandler("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -402,18 +345,18 @@ public class ClassicIntegrationTest {
             }
         });
 
-        this.server.start();
-        this.client.start();
+        server.start();
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
             final byte[] data = testData.get(r);
             post.setEntity(new ByteArrayEntity(data, null, true));
 
-            try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
+            try (final ClassicHttpResponse response = client.execute(host, post, context)) {
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
 
@@ -431,13 +374,15 @@ public class ClassicIntegrationTest {
      */
     @Test
     public void testHttpPostsWithExpectationVerification() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
         final int reqNo = 20;
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("No content")));
+        server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("No content")));
 
-        this.server.start(null, null, handler -> new BasicHttpServerExpectationDecorator(handler) {
+        server.start(null, null, handler -> new BasicHttpServerExpectationDecorator(handler) {
 
             @Override
             protected ClassicHttpResponse verify(final ClassicHttpRequest request, final HttpContext context) {
@@ -461,10 +406,10 @@ public class ClassicIntegrationTest {
             }
 
         });
-        this.client.start();
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
@@ -476,7 +421,7 @@ public class ClassicIntegrationTest {
             }
             post.setEntity(new ByteArrayEntity(b, ContentType.TEXT_PLAIN));
 
-            try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
+            try (final ClassicHttpResponse response = client.execute(host, post, context)) {
                 final HttpEntity responseEntity = response.getEntity();
                 Assertions.assertNotNull(responseEntity);
                 EntityUtils.consume(responseEntity);
@@ -540,6 +485,8 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHttpContent() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
         final String[] patterns = {
 
@@ -562,7 +509,7 @@ public class ClassicIntegrationTest {
         };
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", (request, response, context) -> {
+        server.registerHandler("*", (request, response, context) -> {
 
             int n = 1;
             String s = request.getPath();
@@ -589,11 +536,11 @@ public class ClassicIntegrationTest {
             }
         });
 
-        this.server.start();
-        this.client.start();
+        server.start();
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         for (final String pattern : patterns) {
             for (int n = 1000; n < 1020; n++) {
@@ -601,7 +548,7 @@ public class ClassicIntegrationTest {
                         Method.POST.name(), "/?n=" + n);
                 post.setEntity(new StringEntity(pattern, ContentType.TEXT_PLAIN, n % 2 == 0));
 
-                try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
+                try (final ClassicHttpResponse response = client.execute(host, post, context)) {
                     final HttpEntity entity = response.getEntity();
                     Assertions.assertNotNull(entity);
                     final InputStream inStream = entity.getContent();
@@ -624,7 +571,10 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHttpPostNoEntity() throws Exception {
-        this.server.registerHandler("*", (request, response, context) -> {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
+
+        server.registerHandler("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -633,16 +583,16 @@ public class ClassicIntegrationTest {
             }
         });
 
-        this.server.start();
-        this.client.start();
+        server.start();
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
         post.setEntity(null);
 
-        try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
+        try (final ClassicHttpResponse response = client.execute(host, post, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
             final byte[] received = EntityUtils.toByteArray(response.getEntity());
             Assertions.assertEquals(0, received.length);
@@ -651,7 +601,10 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHttpPostNoContentLength() throws Exception {
-        this.server.registerHandler("*", (request, response, context) -> {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
+
+        server.registerHandler("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -660,20 +613,20 @@ public class ClassicIntegrationTest {
             }
         });
 
-        this.server.start();
-        this.client.start(new DefaultHttpProcessor(
+        server.start();
+        client.start(new DefaultHttpProcessor(
                 RequestTargetHost.INSTANCE,
                 RequestConnControl.INSTANCE,
                 RequestUserAgent.INSTANCE,
                 RequestExpectContinue.INSTANCE));
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
         post.setEntity(null);
 
-        try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
+        try (final ClassicHttpResponse response = client.execute(host, post, context)) {
             Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
             final byte[] received = EntityUtils.toByteArray(response.getEntity());
             Assertions.assertEquals(0, received.length);
@@ -682,7 +635,10 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHttpPostIdentity() throws Exception {
-        this.server.registerHandler("*", (request, response, context) -> {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
+
+        server.registerHandler("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -691,8 +647,8 @@ public class ClassicIntegrationTest {
             }
         });
 
-        this.server.start();
-        this.client.start(new DefaultHttpProcessor(
+        server.start();
+        client.start(new DefaultHttpProcessor(
                 (request, entity, context) -> request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity"),
                 RequestTargetHost.INSTANCE,
                 RequestConnControl.INSTANCE,
@@ -700,33 +656,35 @@ public class ClassicIntegrationTest {
                 RequestExpectContinue.INSTANCE));
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
         post.setEntity(null);
 
-        try (final ClassicHttpResponse response = this.client.execute(host, post, context)) {
+        try (final ClassicHttpResponse response = client.execute(host, post, context)) {
             Assertions.assertEquals(HttpStatus.SC_NOT_IMPLEMENTED, response.getCode());
         }
     }
 
     @Test
     public void testNoContentResponse() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
         final int reqNo = 20;
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", (request, response, context) -> response.setCode(HttpStatus.SC_NO_CONTENT));
+        server.registerHandler("*", (request, response, context) -> response.setCode(HttpStatus.SC_NO_CONTENT));
 
-        this.server.start();
-        this.client.start();
+        server.start();
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         for (int r = 0; r < reqNo; r++) {
             final BasicClassicHttpRequest get = new BasicClassicHttpRequest(Method.GET, "/?" + r);
-            try (final ClassicHttpResponse response = this.client.execute(host, get, context)) {
+            try (final ClassicHttpResponse response = client.execute(host, get, context)) {
                 Assertions.assertNull(response.getEntity());
             }
         }
@@ -734,25 +692,27 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testAbsentHostHeader() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
         // Initialize the server-side request handler
-        this.server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
+        server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
 
-        this.server.start();
-        this.client.start(new DefaultHttpProcessor(RequestContent.INSTANCE, new RequestConnControl()));
+        server.start();
+        client.start(new DefaultHttpProcessor(RequestContent.INSTANCE, new RequestConnControl()));
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         final BasicClassicHttpRequest get1 = new BasicClassicHttpRequest(Method.GET, "/");
         get1.setVersion(HttpVersion.HTTP_1_0);
-        try (final ClassicHttpResponse response1 = this.client.execute(host, get1, context)) {
+        try (final ClassicHttpResponse response1 = client.execute(host, get1, context)) {
             Assertions.assertEquals(200, response1.getCode());
             EntityUtils.consume(response1.getEntity());
         }
 
         final BasicClassicHttpRequest get2 = new BasicClassicHttpRequest(Method.GET, "/");
-        try (final ClassicHttpResponse response2 = this.client.execute(host, get2, context)) {
+        try (final ClassicHttpResponse response2 = client.execute(host, get2, context)) {
             Assertions.assertEquals(400, response2.getCode());
             EntityUtils.consume(response2.getEntity());
         }
@@ -760,23 +720,27 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHeaderTooLarge() throws Exception {
-        this.server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
-        this.server.start(
+        server.registerHandler("*", (request, response, context) ->
+                response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
+
+        server.start(
                 Http1Config.custom()
                         .setMaxLineLength(100)
                         .build(),
                 null,
                 null);
-        this.client.start();
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         final BasicClassicHttpRequest get1 = new BasicClassicHttpRequest(Method.GET, "/");
         get1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
                 "1234567890123456789012345678901234567890");
-        try (final ClassicHttpResponse response1 = this.client.execute(host, get1, context)) {
+        try (final ClassicHttpResponse response1 = client.execute(host, get1, context)) {
             Assertions.assertEquals(431, response1.getCode());
             EntityUtils.consume(response1.getEntity());
         }
@@ -784,19 +748,23 @@ public class ClassicIntegrationTest {
 
     @Test
     public void testHeaderTooLargePost() throws Exception {
-        this.server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
 
-        this.server.start(
+        server.registerHandler("*", (request, response, context) ->
+                response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
+
+        server.start(
                 Http1Config.custom()
                         .setMaxLineLength(100)
                         .build(),
                 null,
                 null);
-        this.client.start(
+        client.start(
                 new DefaultHttpProcessor(RequestContent.INSTANCE, RequestTargetHost.INSTANCE, RequestConnControl.INSTANCE));
 
         final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", this.server.getPort());
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
 
         final ClassicHttpRequest post1 = new BasicClassicHttpRequest(Method.POST, "/");
         post1.setHeader("big-f-header", "1234567890123456789012345678901234567890123456789012345678901234567890" +
@@ -807,7 +775,7 @@ public class ClassicIntegrationTest {
         }
         post1.setEntity(new ByteArrayEntity(b, ContentType.TEXT_PLAIN));
 
-        try (final ClassicHttpResponse response1 = this.client.execute(host, post1, context)) {
+        try (final ClassicHttpResponse response1 = client.execute(host, post1, context)) {
             Assertions.assertEquals(431, response1.getCode());
             EntityUtils.consume(response1.getEntity());
         }

@@ -57,26 +57,23 @@ import org.apache.hc.core5.ssl.SSLContexts;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
-import org.junit.Rule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.Extensions;
-import org.junit.jupiter.migrationsupport.rules.ExternalResourceSupport;
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@Extensions({@ExtendWith({ExternalResourceSupport.class})})
 public class ClassicTLSIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     private HttpServer server;
 
-    @Rule
-    public ExternalResource serverResource = new ExternalResource() {
+    @RegisterExtension
+    public final AfterEachCallback serverCleanup = new AfterEachCallback() {
 
         @Override
-        protected void after() {
+        public void afterEach(final ExtensionContext context) throws Exception {
             if (server != null) {
                 try {
                     server.close(CloseMode.IMMEDIATE);
@@ -89,11 +86,11 @@ public class ClassicTLSIntegrationTest {
 
     private HttpRequester requester;
 
-    @Rule
-    public ExternalResource clientResource = new ExternalResource() {
+    @RegisterExtension
+    public final AfterEachCallback clientCleanup = new AfterEachCallback() {
 
         @Override
-        protected void after() {
+        public void afterEach(final ExtensionContext context) throws Exception {
             if (requester != null) {
                 try {
                     requester.close(CloseMode.GRACEFUL);
