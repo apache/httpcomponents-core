@@ -29,6 +29,7 @@ package org.apache.hc.core5.testing.nio;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.Header;
@@ -45,12 +46,18 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 
 public class EchoHandler implements AsyncServerExchangeHandler {
 
+    private final static int MIN_CHUNK = 4096;
+
+    private final int initBufferSize;
+    private final AtomicInteger capacityIncrement;
     private volatile ByteBuffer buffer;
     private volatile CapacityChannel inputCapacityChannel;
     private volatile DataStreamChannel outputDataChannel;
     private volatile boolean endStream;
 
     public EchoHandler(final int bufferSize) {
+        this.initBufferSize = bufferSize;
+        this.capacityIncrement = new AtomicInteger();
         this.buffer = ByteBuffer.allocate(bufferSize);
     }
 
@@ -58,8 +65,20 @@ public class EchoHandler implements AsyncServerExchangeHandler {
         if (buffer.remaining() < chunk) {
             final ByteBuffer oldBuffer = buffer;
             oldBuffer.flip();
-            buffer = ByteBuffer.allocate(oldBuffer.remaining() + (chunk > 2048 ? chunk : 2048));
+            final int newCapacity = oldBuffer.remaining() + Math.max(chunk, MIN_CHUNK);
+            buffer = ByteBuffer.allocate(newCapacity);
             buffer.put(oldBuffer);
+        }
+    }
+
+    private void signalCapacity() throws IOException {
+        if (inputCapacityChannel != null) {
+            if (capacityIncrement.get() > MIN_CHUNK) {
+                final int n = capacityIncrement.getAndSet(0);
+                if (n > 0) {
+                    inputCapacityChannel.update(n);
+                }
+            }
         }
     }
 
@@ -77,7 +96,10 @@ public class EchoHandler implements AsyncServerExchangeHandler {
     public void consume(final ByteBuffer src) throws IOException {
         if (buffer.position() == 0) {
             if (outputDataChannel != null) {
-                outputDataChannel.write(src);
+                final int bytesWritten = outputDataChannel.write(src);
+                if (bytesWritten > 0) {
+                    capacityIncrement.addAndGet(bytesWritten);
+                }
             }
         }
         if (src.hasRemaining()) {
@@ -87,21 +109,22 @@ public class EchoHandler implements AsyncServerExchangeHandler {
                 outputDataChannel.requestOutput();
             }
         }
+        signalCapacity();
     }
 
     @Override
     public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
         if (buffer.hasRemaining()) {
-            capacityChannel.update(buffer.remaining());
-            inputCapacityChannel = null;
-        } else {
-            inputCapacityChannel = capacityChannel;
+            final int n = Math.min(initBufferSize, buffer.remaining()) + capacityIncrement.getAndSet(0);
+            capacityChannel.update(n);
         }
+        inputCapacityChannel = capacityChannel;
     }
 
     @Override
     public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
         endStream = true;
+        inputCapacityChannel = null;
         if (buffer.position() == 0) {
             if (outputDataChannel != null) {
                 outputDataChannel.endStream();
@@ -123,16 +146,16 @@ public class EchoHandler implements AsyncServerExchangeHandler {
         outputDataChannel = channel;
         buffer.flip();
         if (buffer.hasRemaining()) {
-            channel.write(buffer);
+            final int bytesWritten = channel.write(buffer);
+            if (bytesWritten > 0) {
+                capacityIncrement.addAndGet(bytesWritten);
+            }
         }
         buffer.compact();
         if (buffer.position() == 0 && endStream) {
             channel.endStream();
         }
-        final CapacityChannel capacityChannel = inputCapacityChannel;
-        if (capacityChannel != null && buffer.hasRemaining()) {
-            capacityChannel.update(buffer.remaining());
-        }
+        signalCapacity();
     }
 
     @Override
