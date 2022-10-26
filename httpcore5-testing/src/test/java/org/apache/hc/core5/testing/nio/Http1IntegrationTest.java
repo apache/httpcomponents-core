@@ -783,7 +783,7 @@ public abstract class Http1IntegrationTest {
         final HttpResponse response1 = result1.getHead();
         Assertions.assertNotNull(response1);
         Assertions.assertEquals(200, response1.getCode());
-        Assertions.assertNotNull("All is well", result1.getBody());
+        Assertions.assertEquals("All is well", result1.getBody());
 
         Assertions.assertTrue(ioSession.isOpen());
 
@@ -796,7 +796,7 @@ public abstract class Http1IntegrationTest {
         final HttpResponse response2 = result2.getHead();
         Assertions.assertNotNull(response2);
         Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response2.getCode());
-        Assertions.assertNotNull("You shall not pass", result2.getBody());
+        Assertions.assertEquals("You shall not pass", result2.getBody());
 
         Assertions.assertTrue(ioSession.isOpen());
 
@@ -810,7 +810,7 @@ public abstract class Http1IntegrationTest {
         final HttpResponse response3 = result3.getHead();
         Assertions.assertNotNull(response3);
         Assertions.assertEquals(200, response3.getCode());
-        Assertions.assertNotNull("All is well", result3.getBody());
+        Assertions.assertEquals("All is well", result3.getBody());
 
         Assertions.assertTrue(ioSession.isOpen());
 
@@ -823,7 +823,7 @@ public abstract class Http1IntegrationTest {
         final HttpResponse response4 = result4.getHead();
         Assertions.assertNotNull(response4);
         Assertions.assertEquals(HttpStatus.SC_UNAUTHORIZED, response4.getCode());
-        Assertions.assertNotNull("You shall not pass", result4.getBody());
+        Assertions.assertEquals("You shall not pass", result4.getBody());
 
         Assertions.assertFalse(ioSession.isOpen());
     }
