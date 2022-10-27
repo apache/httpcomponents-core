@@ -131,7 +131,6 @@ import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -738,7 +737,7 @@ public abstract class Http1IntegrationTest {
         }
     }
 
-    @Test @Disabled("Fails intermittently on GitLab. Under investigation")
+    @Test
     public void testExpectationFailed() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();

@@ -335,8 +335,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     incomingMessage = null;
                     ioSession.setEvent(SelectionKey.OP_READ);
                     inputEnd();
-                }
-                if (bytesRead == 0) {
+                } else if (bytesRead == 0) {
                     break;
                 }
             }
