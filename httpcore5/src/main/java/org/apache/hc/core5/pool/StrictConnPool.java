@@ -367,12 +367,10 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             }
             final int totalAvailable = this.available.size();
             if (totalAvailable > freeCapacity - 1) {
-                if (!this.available.isEmpty()) {
-                    final PoolEntry<T, C> lastUsed = this.available.removeLast();
-                    lastUsed.discardConnection(CloseMode.GRACEFUL);
-                    final PerRoutePool<T, C> otherpool = getPool(lastUsed.getRoute());
-                    otherpool.remove(lastUsed);
-                }
+                final PoolEntry<T, C> lastUsed = this.available.removeLast();
+                lastUsed.discardConnection(CloseMode.GRACEFUL);
+                final PerRoutePool<T, C> otherpool = getPool(lastUsed.getRoute());
+                otherpool.remove(lastUsed);
             }
 
             entry = pool.createEntry(this.timeToLive);
