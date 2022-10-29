@@ -460,12 +460,10 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
             }
             final int totalAvailable = this.available.size();
             if (totalAvailable > freeCapacity - 1) {
-                if (!this.available.isEmpty()) {
-                    final E lastUsed = this.available.removeLast();
-                    lastUsed.close();
-                    final RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
-                    otherpool.remove(lastUsed);
-                }
+                final E lastUsed = this.available.removeLast();
+                lastUsed.close();
+                final RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
+                otherpool.remove(lastUsed);
             }
 
             final SocketAddress localAddress;

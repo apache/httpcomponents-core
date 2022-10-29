@@ -369,12 +369,10 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                     if (freeCapacity > 0) {
                         final int totalAvailable = this.available.size();
                         if (totalAvailable > freeCapacity - 1) {
-                            if (!this.available.isEmpty()) {
-                                final E lastUsed = this.available.removeLast();
-                                lastUsed.close();
-                                final RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
-                                otherpool.remove(lastUsed);
-                            }
+                            final E lastUsed = this.available.removeLast();
+                            lastUsed.close();
+                            final RouteSpecificPool<T, C, E> otherpool = getPool(lastUsed.getRoute());
+                            otherpool.remove(lastUsed);
                         }
                         final C conn = this.connFactory.create(route);
                         entry = pool.add(conn);
