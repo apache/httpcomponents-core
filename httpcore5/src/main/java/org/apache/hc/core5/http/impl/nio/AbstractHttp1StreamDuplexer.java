@@ -262,7 +262,9 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     public final void onInput(final ByteBuffer src) throws HttpException, IOException {
         if (src != null) {
+            final int n = src.remaining();
             inbuf.put(src);
+            inTransportMetrics.incrementBytesTransferred(n);
         }
 
         if (connState.compareTo(ConnectionState.GRACEFUL_SHUTDOWN) >= 0 && inbuf.hasData() && inputIdle()) {

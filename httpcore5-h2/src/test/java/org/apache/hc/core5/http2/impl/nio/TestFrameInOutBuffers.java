@@ -77,6 +77,22 @@ public class TestFrameInOutBuffers {
 
         Assertions.assertEquals(1, inBuffer.getMetrics().getFramesTransferred());
         Assertions.assertEquals(bytes.length, inBuffer.getMetrics().getBytesTransferred());
+
+        final RawFrame frame3 = inBuffer.read(ByteBuffer.wrap(bytes), readableChannel);
+        Assertions.assertEquals(FrameType.DATA.getValue(), frame3.getType());
+        Assertions.assertEquals(0, frame3.getFlags());
+        Assertions.assertEquals(1L, frame3.getStreamId());
+        final ByteBuffer payload3 = frame3.getPayloadContent();
+        Assertions.assertNotNull(payload3);
+        Assertions.assertEquals(5, payload3.remaining());
+        Assertions.assertEquals(1, payload3.get());
+        Assertions.assertEquals(2, payload3.get());
+        Assertions.assertEquals(3, payload3.get());
+        Assertions.assertEquals(4, payload3.get());
+        Assertions.assertEquals(5, payload3.get());
+
+        Assertions.assertEquals(2, inBuffer.getMetrics().getFramesTransferred());
+        Assertions.assertEquals(bytes.length * 2, inBuffer.getMetrics().getBytesTransferred());
     }
 
     @Test
