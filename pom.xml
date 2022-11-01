@@ -27,7 +27,7 @@
   <parent>
     <groupId>org.apache.httpcomponents</groupId>
     <artifactId>httpcomponents-parent</artifactId>
-    <version>12</version>
+    <version>13</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.httpcomponents.core5</groupId>
@@ -81,7 +81,6 @@
     <rxjava.version>2.2.21</rxjava.version>
     <rxjava3.version>3.1.5</rxjava3.version>
     <api.comparison.version>5.1</api.comparison.version>
-    <japicmp.version>0.15.7</japicmp.version>
     <hc.animal-sniffer.signature.ignores>javax.net.ssl.SSLEngine,javax.net.ssl.SSLParameters</hc.animal-sniffer.signature.ignores>
   </properties>
 
@@ -199,7 +198,6 @@
       <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
-        <version>${japicmp.version}</version>
         <configuration>
           <oldVersion>
             <dependency>
@@ -291,7 +289,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${hc.javadoc.version}</version>
         <configuration>
           <quiet>true</quiet>
           <links>
@@ -330,7 +327,6 @@
       <plugin>
         <groupId>com.github.siom79.japicmp</groupId>
         <artifactId>japicmp-maven-plugin</artifactId>
-        <version>${japicmp.version}</version>
         <reportSets>
           <reportSet>
             <reports>
@@ -356,18 +352,38 @@
             <excludes>
               <exclude>@org.apache.hc.core5.annotation.Internal</exclude>
             </excludes>
+            <ignoreMissingClasses>true</ignoreMissingClasses>
           </parameter>
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-jxr-plugin</artifactId>
-        <version>${hc.jxr.version}</version>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>${hc.surefire.version}</version>
       </plugin>
     </plugins>
   </reporting>
+  <profiles>
+    <profile>
+      <id>compiler-newer-jdk</id>
+      <activation>
+        <jdk>(8,]</jdk>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+              <source>${maven.compiler.source}</source>
+              <target>${maven.compiler.target}</target>
+              <release>8</release>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>
