@@ -262,6 +262,30 @@ public class TestEntityUtils {
     }
 
     @Test
+    public void testByteArrayMaxResultLengthWithNoContentLength() throws IOException {
+        byte b = 'b';
+        byte[] allBytes = new byte[5000];
+        Arrays.fill(allBytes, b);
+        final Map<Integer, byte[]> testCases = new HashMap<>();
+        testCases.put(0, new byte[]{});
+        testCases.put(2, Arrays.copyOfRange(allBytes, 0, 2));
+        testCases.put(allBytes.length, allBytes);
+        testCases.put(Integer.MAX_VALUE, allBytes);
+
+        for (final Map.Entry<Integer, byte[]> tc : testCases.entrySet()) {
+            final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(allBytes), null);
+
+            final byte[] bytes = EntityUtils.toByteArray(entity, tc.getKey());
+            final byte[] expectedBytes = tc.getValue();
+            Assertions.assertNotNull(bytes);
+            Assertions.assertEquals(expectedBytes.length, bytes.length);
+            for (int i = 0; i < expectedBytes.length; i++) {
+                Assertions.assertEquals(expectedBytes[i], bytes[i]);
+            }
+        }
+    }
+
+    @Test
     public void testStringMaxResultLength() throws IOException, ParseException {
         final String allMessage = "Message content";
         final byte[] allBytes = allMessage.getBytes(StandardCharsets.ISO_8859_1);
