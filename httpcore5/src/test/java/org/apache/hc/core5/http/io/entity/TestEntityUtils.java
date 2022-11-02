@@ -263,8 +263,8 @@ public class TestEntityUtils {
 
     @Test
     public void testByteArrayMaxResultLengthWithNoContentLength() throws IOException {
-        byte b = 'b';
-        byte[] allBytes = new byte[5000];
+        final byte b = 'b';
+        final byte[] allBytes = new byte[5000];
         Arrays.fill(allBytes, b);
         final Map<Integer, byte[]> testCases = new HashMap<>();
         testCases.put(0, new byte[]{});
