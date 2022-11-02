@@ -446,7 +446,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
             }
             outgoingMessageWriter.reset();
             if (flushMode == FlushMode.IMMEDIATE) {
-                outbuf.flush(ioSession);
+                final int bytesWritten = outbuf.flush(ioSession);
+                if (bytesWritten > 0) {
+                    outTransportMetrics.incrementBytesTransferred(bytesWritten);
+                }
             }
             ioSession.setEvent(EventMask.WRITE);
         } finally {
@@ -479,7 +482,10 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         ioSession.getLock().lock();
         try {
             if (outbuf.hasData()) {
-                outbuf.flush(ioSession);
+                final int bytesWritten = outbuf.flush(ioSession);
+                if (bytesWritten > 0) {
+                    outTransportMetrics.incrementBytesTransferred(bytesWritten);
+                }
             } else {
                 ioSession.clearEvent(SelectionKey.OP_WRITE);
             }
