@@ -158,9 +158,10 @@ public final class EntityUtils {
             final ByteArrayBuffer buffer = new ByteArrayBuffer(Math.min(maxResultLength, contentLength));
             final byte[] tmp = new byte[DEFAULT_BYTE_BUFFER_SIZE];
             int l;
-            while ((l = inStream.read(tmp, 0, Math.min(DEFAULT_BYTE_BUFFER_SIZE, buffer.capacity() - buffer.length()))) > 0) {
+            while ((l = inStream.read(tmp)) != -1 && buffer.length() < maxResultLength) {
                 buffer.append(tmp, 0, l);
             }
+            buffer.setLength(Math.min(buffer.length(), maxResultLength));
             return buffer.toByteArray();
         }
     }
