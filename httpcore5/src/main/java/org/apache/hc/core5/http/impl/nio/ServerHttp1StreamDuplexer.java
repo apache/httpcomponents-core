@@ -244,7 +244,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     @Override
     void updateOutputMetrics(final HttpResponse response, final BasicHttpConnectionMetrics connMetrics) {
         if (response.getCode() >= HttpStatus.SC_OK) {
-            connMetrics.incrementRequestCount();
+            connMetrics.incrementResponseCount();
         }
     }
 
