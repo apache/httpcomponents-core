@@ -1,3 +1,37 @@
+Release 5.1.5
+------------------
+
+This is a maintenance release that corrects several minor defects discovered since release 5.1.4.
+
+This is likely to be the last release in the 5.1 release series. Users of HttpCore 5.1 are advised
+to upgrade to the latest version of 5.2.
+
+Change Log
+-------------------
+
+* Make it possible to read chunked entities with maxResultLength (#373)
+  Contributed by Anders Jaensson <anders.jaensson at smartbear.com>
+
+* Bug fix: Async HTTP/1.1 server protocol handler incorrectly increments request count upon
+  receipt of a response message head.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-727: Protocol handlers fail to update input metrics when receive input data from
+  a TLS encrypted I/O session. Async HTTP/1.1 protocol handler fails to count bytes transferred
+  while flushing session buffer when writing out a message head or suspending session output.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: HTTP/1.1 protocol handler must continue message processing as long as there is data
+  in the session input buffer.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-726: Improved capacity management in SharedInputBuffer.
+  Contributed by John Leacox <johnlcox at gmail.com>
+
+* Bug fix: Fixed incorrect calculation of the capacity increment in StringAsyncEntityConsumer.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.1.4
 ------------------
 
