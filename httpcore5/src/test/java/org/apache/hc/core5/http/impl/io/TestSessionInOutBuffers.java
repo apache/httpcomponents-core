@@ -559,7 +559,7 @@ public class TestSessionInOutBuffers {
     public void testNonAsciiReadWriteLine() throws Exception {
         final String s1 = constructString(SWISS_GERMAN_HELLO);
 
-        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16, StandardCharsets.ISO_8859_1.newEncoder());
+        final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16, StandardCharsets.UTF_8.newEncoder());
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
@@ -572,10 +572,10 @@ public class TestSessionInOutBuffers {
         outbuffer.writeLine(chbuffer, outputStream);
         outbuffer.flush(outputStream);
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        final long expected = ((s1.getBytes(StandardCharsets.ISO_8859_1).length + 2)) * 10 + 2;
+        final long expected = ((s1.getBytes(StandardCharsets.UTF_8).length + 2)) * 10 + 2;
         Assertions.assertEquals(expected, bytesWritten);
 
-        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.ISO_8859_1.newDecoder());
+        final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.UTF_8.newDecoder());
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
 
         for (int i = 0; i < 10; i++) {

@@ -45,6 +45,8 @@ public class CharCodingConfig {
 
     public static final CharCodingConfig DEFAULT = new Builder().build();
 
+    private static final Charset DEFAULT_CHARSET = StandardCharsets.US_ASCII;
+
     private final Charset charset;
     private final CodingErrorAction malformedInputAction;
     private final CodingErrorAction unmappableInputAction;
@@ -110,7 +112,7 @@ public class CharCodingConfig {
         public Builder setMalformedInputAction(final CodingErrorAction malformedInputAction) {
             this.malformedInputAction = malformedInputAction;
             if (malformedInputAction != null && this.charset == null) {
-                this.charset = StandardCharsets.US_ASCII;
+                this.charset = DEFAULT_CHARSET;
             }
             return this;
         }
@@ -118,7 +120,7 @@ public class CharCodingConfig {
         public Builder setUnmappableInputAction(final CodingErrorAction unmappableInputAction) {
             this.unmappableInputAction = unmappableInputAction;
             if (unmappableInputAction != null && this.charset == null) {
-                this.charset = StandardCharsets.US_ASCII;
+                this.charset = DEFAULT_CHARSET;
             }
             return this;
         }
@@ -126,7 +128,7 @@ public class CharCodingConfig {
         public CharCodingConfig build() {
             Charset charsetCopy = charset;
             if (charsetCopy == null && (malformedInputAction != null || unmappableInputAction != null)) {
-                charsetCopy = StandardCharsets.US_ASCII;
+                charsetCopy = DEFAULT_CHARSET;
             }
             return new CharCodingConfig(charsetCopy, malformedInputAction, unmappableInputAction);
         }
