@@ -73,7 +73,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
     public BasicAsyncEntityProducer(final CharSequence content, final ContentType contentType, final boolean chunked) {
         Args.notNull(content, "Content");
         this.contentType = contentType;
-        final Charset charset = ContentType.getCharset(contentType, StandardCharsets.US_ASCII);
+        final Charset charset = ContentType.getCharset(contentType, StandardCharsets.UTF_8);
         this.bytebuf = charset.encode(CharBuffer.wrap(content));
         this.length = this.bytebuf.remaining();
         this.chunked = chunked;

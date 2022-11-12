@@ -45,7 +45,7 @@ public class TestStringEntity {
         final String s = "Message content";
         try (final StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN)) {
 
-            final byte[] bytes = s.getBytes(StandardCharsets.ISO_8859_1);
+            final byte[] bytes = s.getBytes(StandardCharsets.US_ASCII);
             Assertions.assertEquals(bytes.length, httpentity.getContentLength());
             Assertions.assertNotNull(httpentity.getContent());
             Assertions.assertTrue(httpentity.isRepeatable());
@@ -66,7 +66,7 @@ public class TestStringEntity {
         httpentity = new StringEntity(s, StandardCharsets.US_ASCII);
         Assertions.assertEquals("text/plain; charset=US-ASCII", httpentity.getContentType());
         httpentity = new StringEntity(s);
-        Assertions.assertEquals("text/plain; charset=ISO-8859-1", httpentity.getContentType());
+        Assertions.assertEquals("text/plain; charset=UTF-8", httpentity.getContentType());
     }
 
     private static String constructString(final int [] unicodeChars) {
@@ -99,7 +99,7 @@ public class TestStringEntity {
     @Test
     public void testWriteTo() throws Exception {
         final String s = "Message content";
-        final byte[] bytes = s.getBytes(StandardCharsets.ISO_8859_1);
+        final byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
         try (final StringEntity httpentity = new StringEntity(s)) {
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();

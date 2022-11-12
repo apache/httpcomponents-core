@@ -59,7 +59,7 @@ public final class EntityUtils {
 
     // TODO Consider using a sane value, but what is sane? 1 GB? 100 MB? 10 MB?
     private static final int DEFAULT_ENTITY_RETURN_MAX_LENGTH = Integer.MAX_VALUE;
-    private static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
+    private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
     private static final int DEFAULT_CHAR_BUFFER_SIZE = 1024;
     private static final int DEFAULT_BYTE_BUFFER_SIZE = 4096;
 
@@ -226,7 +226,7 @@ public final class EntityUtils {
     /**
      * Gets the entity content as a String, using the provided default character set
      * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     * If defaultCharset is null, the default "UTF-8" is used.
      *
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity,
@@ -247,7 +247,7 @@ public final class EntityUtils {
     /**
      * Gets the entity content as a String, using the provided default character set
      * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     * If defaultCharset is null, the default "UTF-8" is used.
      *
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity,
@@ -286,7 +286,7 @@ public final class EntityUtils {
     /**
      * Gets the entity content as a String, using the provided default character set
      * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     * If defaultCharset is null, the default "UTF-8" is used.
      *
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity
@@ -306,7 +306,7 @@ public final class EntityUtils {
     /**
      * Gets the entity content as a String, using the provided default character set
      * if none is found in the entity.
-     * If defaultCharset is null, the default "ISO-8859-1" is used.
+     * If defaultCharset is null, the default "UTF-8" is used.
      *
      * @param entity must not be null
      * @param defaultCharset character set to be applied if none found in the entity
@@ -328,7 +328,7 @@ public final class EntityUtils {
     /**
      * Reads the contents of an entity and return it as a String.
      * The content is converted using the character set from the entity (if any),
-     * failing that, "ISO-8859-1" is used.
+     * failing that, "UTF-8" is used.
      *
      * @param entity the entity to convert to a string; must not be null
      * @return String containing the content.
@@ -345,7 +345,7 @@ public final class EntityUtils {
     /**
      * Reads the contents of an entity and return it as a String.
      * The content is converted using the character set from the entity (if any),
-     * failing that, "ISO-8859-1" is used.
+     * failing that, "UTF-8" is used.
      *
      * @param entity the entity to convert to a string; must not be null
      * @param maxResultLength
