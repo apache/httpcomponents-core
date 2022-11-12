@@ -1,26 +1,30 @@
 Building Docker containers for compatibility tests
 ========================================================
 
-Remark: Docker containers have been developed and tested with Docker version 19.03.8, build afacb8b7f0
-on Ubuntu 20.04
-
 Remark: omit sudo command if executing as root
 
+= Build Apache HTTPD image
 ---
-cd docker/apache-httpd
-sudo docker build -t hc-tests-httpd .
-sudo docker run --name my-hc-tests-httpd -p 0.0.0.0:8080:80 -d hc-tests-httpd:latest
-
-cd docker/nginx
-sudo docker build -t hc-tests-nginx .
-sudo docker run --name my-hc-tests-nginx -p 0.0.0.0:8081:80 -d hc-tests-nginx:latest
-
-cd docker/httpbin
-sudo docker build -t hc-tests-httpbin .
-sudo docker run --name my-hc-tests-httpbin -p 0.0.0.0:8082:80 -d hc-tests-httpbin:latest
+sudo docker build -t hc-tests-httpd apache-httpd
 ---
 
-Execute
+= Build Nginx image
+---
+sudo docker build -t hc-tests-nginx nginx
+---
+
+= Build HTTPBIN image
+---
+sudo docker build -t hc-tests-httpbin httpbin
+---
+
+= Start containers
+
+---
+sudo docker-compose up
+---
+
+= Execute H2 compatibility tests
 
 ---
 H2CompatibilityTest http://localhost:8080 APACHE-HTTPD
