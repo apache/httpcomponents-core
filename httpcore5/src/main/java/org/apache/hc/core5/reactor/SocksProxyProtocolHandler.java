@@ -136,6 +136,8 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
         if (cred == null) {
             return new byte[] {};
         }
+        // These will remain with ISO-8859-1 since the RFC does not mention any string
+        // to octet encoding. So neither one is wrong or right.
         final byte[] bytes = cred.getBytes(StandardCharsets.ISO_8859_1);
         if (bytes.length >= 255) {
             throw new IOException("SOCKS username / password are too long");

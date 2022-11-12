@@ -153,7 +153,7 @@ public final class ContentType implements Serializable {
             "multipart/related", StandardCharsets.ISO_8859_1);
 
     public static final ContentType TEXT_HTML = create(
-            "text/html", StandardCharsets.ISO_8859_1);
+            "text/html", StandardCharsets.UTF_8);
 
     /**
      * Public constant media type for {@code text/markdown}.
@@ -163,7 +163,7 @@ public final class ContentType implements Serializable {
             "text/markdown", StandardCharsets.UTF_8);
 
     public static final ContentType TEXT_PLAIN = create(
-            "text/plain", StandardCharsets.ISO_8859_1);
+            "text/plain", StandardCharsets.UTF_8);
     public static final ContentType TEXT_XML = create(
             "text/xml", StandardCharsets.UTF_8);
     /**

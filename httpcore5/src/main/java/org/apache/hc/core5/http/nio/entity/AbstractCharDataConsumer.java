@@ -116,7 +116,7 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
                 charset = charCodingConfig.getCharset();
             }
             if (charset == null) {
-                charset = StandardCharsets.US_ASCII;
+                charset = StandardCharsets.UTF_8;
             }
             charsetDecoder = charset.newDecoder();
             if (charCodingConfig.getMalformedInputAction() != null) {

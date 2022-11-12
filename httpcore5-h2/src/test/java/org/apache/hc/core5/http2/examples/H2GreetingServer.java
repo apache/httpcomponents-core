@@ -76,7 +76,7 @@ import org.apache.hc.core5.util.TimeValue;
  * Date: Sat, 25 May 2019 03:44:49 GMT
  * Server: Apache-HttpCore/5.0-beta8-SNAPSHOT (Java/1.8.0_202)
  * Transfer-Encoding: chunked
- * Content-Type: text/plain; charset=ISO-8859-1
+ * Content-Type: text/plain; charset=UTF-8
  *
  * Hello bob
  * }</pre>

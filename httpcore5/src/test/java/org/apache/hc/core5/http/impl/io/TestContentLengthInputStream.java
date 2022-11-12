@@ -44,7 +44,7 @@ public class TestContentLengthInputStream {
     @Test
     public void testBasics() throws IOException {
         final String s = "1234567890123456";
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 10L);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -55,7 +55,7 @@ public class TestContentLengthInputStream {
         len = in.read(buffer);
         outputStream.write(buffer, 0, len);
 
-        final String result = new String(outputStream.toByteArray(), StandardCharsets.ISO_8859_1);
+        final String result = new String(outputStream.toByteArray(), StandardCharsets.US_ASCII);
         Assertions.assertEquals(result, "1234567890");
         in.close();
     }
@@ -109,7 +109,7 @@ public class TestContentLengthInputStream {
     @Test
     public void testClose() throws IOException {
         final String s = "1234567890123456-";
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 16L);
         in.close();
@@ -124,7 +124,7 @@ public class TestContentLengthInputStream {
     @Test
     public void testTruncatedContent() throws IOException {
         final String s = "1234567890123456";
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
+        final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 32L);
         final byte[] tmp = new byte[32];

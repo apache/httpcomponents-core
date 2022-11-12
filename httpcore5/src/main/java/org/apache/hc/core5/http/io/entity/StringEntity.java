@@ -62,7 +62,7 @@ public class StringEntity extends AbstractHttpEntity {
             final String string, final ContentType contentType, final String contentEncoding, final boolean chunked) {
         super(contentType, contentEncoding, chunked);
         Args.notNull(string, "Source string");
-        final Charset charset = ContentType.getCharset(contentType, StandardCharsets.ISO_8859_1);
+        final Charset charset = ContentType.getCharset(contentType, StandardCharsets.UTF_8);
         this.content = string.getBytes(charset);
     }
 
@@ -80,7 +80,7 @@ public class StringEntity extends AbstractHttpEntity {
      *
      * @param string content to be used. Not {@code null}.
      * @param charset character set to be used. May be {@code null}, in which case the default
-     *   is {@link StandardCharsets#ISO_8859_1} is assumed
+     *   is {@link StandardCharsets#UTF_8} is assumed
      *
      * @since 4.2
      */
