@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.protocol;
 
+import java.util.Objects;
+
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.EndpointDetails;
@@ -85,7 +87,7 @@ public class HttpCoreContext implements HttpContext {
 
     public HttpCoreContext(final HttpContext context) {
         super();
-        this.context = context;
+        this.context = Objects.requireNonNull(context);
     }
 
     public HttpCoreContext() {
@@ -153,6 +155,11 @@ public class HttpCoreContext implements HttpContext {
 
     public HttpResponse getResponse() {
         return getAttribute(HTTP_RESPONSE, HttpResponse.class);
+    }
+
+    @Override
+    public String toString() {
+        return context.toString();
     }
 
 }
