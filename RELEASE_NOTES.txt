@@ -8,8 +8,12 @@ Please note that 5.2 upgrades the minimal JRE level to version 8 (8u251 is requi
 Change Log
 -------------------
 
-* Add org.apache.hc.core5.http.protocol.HttpCoreContext.toString()
+* Add org.apache.hc.core5.http.protocol.HttpCoreContext.toString().
   Contributed by Gary Gregory <ggregory at apache.org>
+
+* Examples should log exceptions instead of swallowing them.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
 
 Release 5.2
 ------------------
