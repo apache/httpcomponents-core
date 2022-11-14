@@ -314,12 +314,10 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     }
 
     private void processConnectionRequest(final SocketChannel socketChannel, final IOSessionRequest sessionRequest) throws IOException {
-        validateAddress(sessionRequest.localAddress);
-        validateAddress(sessionRequest.remoteAddress);
-
         socketChannel.configureBlocking(false);
         prepareSocket(socketChannel.socket());
 
+        validateAddress(sessionRequest.localAddress);
         if (sessionRequest.localAddress != null) {
             final Socket sock = socketChannel.socket();
             sock.setReuseAddress(this.reactorConfig.isSoReuseAddress());
@@ -342,6 +340,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
         // Run this under a doPrivileged to support lib users that run under a SecurityManager this allows granting connect permissions
         // only to this library
+        validateAddress(targetAddress);
         final boolean connected;
         try {
             connected = AccessController.doPrivileged(
@@ -352,7 +351,6 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             // only checked exceptions are wrapped - error and RTExceptions are rethrown by doPrivileged
             throw (IOException) e.getCause();
         }
-
 
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
         final InternalChannel channel = new InternalConnectChannel(key, socketChannel, sessionRequest, (k, sc, namedEndpoint, attachment) -> {
