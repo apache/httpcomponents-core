@@ -36,7 +36,6 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
-import java.nio.channels.UnresolvedAddressException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.hc.core5.http.nio.command.CommandSupport;
@@ -51,7 +50,9 @@ import org.apache.hc.core5.util.Timeout;
  */
 final class SocksProxyProtocolHandler implements IOEventHandler {
 
-    private static final int MAX_COMMAND_CONNECT_LENGTH = 22;
+    private static final int MAX_DNS_NAME_LENGTH = 255;
+
+    private static final int MAX_COMMAND_CONNECT_LENGTH = 6 + MAX_DNS_NAME_LENGTH + 1;
 
     private static final byte CLIENT_VERSION = 5;
 
@@ -79,8 +80,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
     private final String password;
     private final IOEventHandlerFactory eventHandlerFactory;
 
-    // a 32 byte buffer is enough for all usual SOCKS negotiations, we expand it if necessary during the processing
-    private ByteBuffer buffer = ByteBuffer.allocate(32);
+    private ByteBuffer buffer = ByteBuffer.allocate(512);
     private State state = State.SEND_AUTH;
     SocksProxyProtocolHandler(final ProtocolIOSession ioSession, final Object attachment, final InetSocketAddress targetAddress,
             final String username, final String password, final IOEventHandlerFactory eventHandlerFactory) {
@@ -192,8 +192,27 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                     if (serverVersion != CLIENT_VERSION) {
                         throw new IOException("SOCKS server returned unsupported version: " + serverVersion);
                     }
-                    if (responseCode != SUCCESS) {
-                        throw new IOException("SOCKS server was unable to establish connection returned error code: " + responseCode);
+                    switch (responseCode) {
+                        case SUCCESS:
+                            break;
+                        case 1:
+                            throw new IOException("SOCKS: General SOCKS server failure");
+                        case 2:
+                            throw new IOException("SOCKS5: Connection not allowed by ruleset");
+                        case 3:
+                            throw new IOException("SOCKS5: Network unreachable");
+                        case 4:
+                            throw new IOException("SOCKS5: Host unreachable");
+                        case 5:
+                            throw new IOException("SOCKS5: Connection refused");
+                        case 6:
+                            throw new IOException("SOCKS5: TTL expired");
+                        case 7:
+                            throw new IOException("SOCKS5: Command not supported");
+                        case 8:
+                            throw new IOException("SOCKS5: Address type not supported");
+                        default:
+                            throw new IOException("SOCKS5: Unexpected SOCKS response code " + responseCode);
                     }
                     this.buffer.compact();
                     this.buffer.limit(3);
@@ -247,25 +266,32 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
     }
 
     private void prepareConnectCommand() throws IOException {
-        final InetAddress address = this.targetAddress.getAddress();
-        final int port = this.targetAddress.getPort();
-        if (address == null || port == 0) {
-            throw new UnresolvedAddressException();
-        }
-
         this.buffer.clear();
         setBufferLimit(MAX_COMMAND_CONNECT_LENGTH);
         this.buffer.put(CLIENT_VERSION);
         this.buffer.put(COMMAND_CONNECT);
         this.buffer.put((byte) 0); // reserved
-        if (address instanceof Inet4Address) {
-            this.buffer.put(InetAddressUtils.IPV4);
-        } else if (address instanceof Inet6Address) {
-            this.buffer.put(InetAddressUtils.IPV6);
+        if (this.targetAddress.isUnresolved()) {
+            this.buffer.put(ATYP_DOMAINNAME);
+            final String hostName = this.targetAddress.getHostName();
+            final byte[] hostnameBytes = hostName.getBytes(StandardCharsets.US_ASCII);
+            if (hostnameBytes.length > MAX_DNS_NAME_LENGTH) {
+                throw new IOException("Host name exceeds " + MAX_DNS_NAME_LENGTH + " bytes");
+            }
+            this.buffer.put((byte) hostnameBytes.length);
+            this.buffer.put(hostnameBytes);
         } else {
-            throw new IOException("Unsupported remote address class: " + address.getClass().getName());
+            final InetAddress address = this.targetAddress.getAddress();
+            if (address instanceof Inet4Address) {
+                this.buffer.put(InetAddressUtils.IPV4);
+            } else if (address instanceof Inet6Address) {
+                this.buffer.put(InetAddressUtils.IPV6);
+            } else {
+                throw new IOException("Unsupported remote address class: " + address.getClass().getName());
+            }
+            this.buffer.put(address.getAddress());
         }
-        this.buffer.put(address.getAddress());
+        final int port = this.targetAddress.getPort();
         this.buffer.putShort((short) port);
         this.buffer.flip();
     }
