@@ -43,15 +43,16 @@ public class TestHttpEntityWrapper {
     @Test
     public void testBasics() throws Exception {
         final StringEntity entity = new StringEntity("Message content", ContentType.TEXT_PLAIN, "blah", false);
-        final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity);
+        try (final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity)) {
 
-        Assertions.assertEquals(entity.getContentLength(), wrapped.getContentLength());
-        Assertions.assertEquals(entity.getContentType(), wrapped.getContentType());
-        Assertions.assertEquals(entity.getContentEncoding(), wrapped.getContentEncoding());
-        Assertions.assertEquals(entity.isChunked(), wrapped.isChunked());
-        Assertions.assertEquals(entity.isRepeatable(), wrapped.isRepeatable());
-        Assertions.assertEquals(entity.isStreaming(), wrapped.isStreaming());
-        Assertions.assertNotNull(wrapped.getContent());
+            Assertions.assertEquals(entity.getContentLength(), wrapped.getContentLength());
+            Assertions.assertEquals(entity.getContentType(), wrapped.getContentType());
+            Assertions.assertEquals(entity.getContentEncoding(), wrapped.getContentEncoding());
+            Assertions.assertEquals(entity.isChunked(), wrapped.isChunked());
+            Assertions.assertEquals(entity.isRepeatable(), wrapped.isRepeatable());
+            Assertions.assertEquals(entity.isStreaming(), wrapped.isStreaming());
+            Assertions.assertNotNull(wrapped.getContent());
+        }
     }
 
     @Test
@@ -64,27 +65,28 @@ public class TestHttpEntityWrapper {
         final String s = "Message content";
         final byte[] bytes = s.getBytes(StandardCharsets.ISO_8859_1);
         final StringEntity entity = new StringEntity(s);
-        final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity);
+        try (final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity)) {
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        wrapped.writeTo(out);
-        byte[] bytes2 = out.toByteArray();
-        Assertions.assertNotNull(bytes2);
-        Assertions.assertEquals(bytes.length, bytes2.length);
-        for (int i = 0; i < bytes.length; i++) {
-            Assertions.assertEquals(bytes[i], bytes2[i]);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            wrapped.writeTo(out);
+            byte[] bytes2 = out.toByteArray();
+            Assertions.assertNotNull(bytes2);
+            Assertions.assertEquals(bytes.length, bytes2.length);
+            for (int i = 0; i < bytes.length; i++) {
+                Assertions.assertEquals(bytes[i], bytes2[i]);
+            }
+
+            out = new ByteArrayOutputStream();
+            wrapped.writeTo(out);
+            bytes2 = out.toByteArray();
+            Assertions.assertNotNull(bytes2);
+            Assertions.assertEquals(bytes.length, bytes2.length);
+            for (int i = 0; i < bytes.length; i++) {
+                Assertions.assertEquals(bytes[i], bytes2[i]);
+            }
+
+            Assertions.assertThrows(NullPointerException.class, () -> wrapped.writeTo(null));
         }
-
-        out = new ByteArrayOutputStream();
-        wrapped.writeTo(out);
-        bytes2 = out.toByteArray();
-        Assertions.assertNotNull(bytes2);
-        Assertions.assertEquals(bytes.length, bytes2.length);
-        for (int i = 0; i < bytes.length; i++) {
-            Assertions.assertEquals(bytes[i], bytes2[i]);
-        }
-
-        Assertions.assertThrows(NullPointerException.class, () -> wrapped.writeTo(null));
     }
 
     @Test

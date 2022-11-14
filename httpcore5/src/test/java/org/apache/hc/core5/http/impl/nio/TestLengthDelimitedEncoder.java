@@ -223,7 +223,8 @@ public class TestLengthDelimitedEncoder {
             testfile.write("more stuff".getBytes(StandardCharsets.US_ASCII));
         }
 
-        try (final FileChannel fchannel = new RandomAccessFile(this.tmpfile, "rw").getChannel()) {
+        try (final RandomAccessFile file = new RandomAccessFile(this.tmpfile, "rw");
+             final FileChannel fchannel = file.getChannel()) {
             Assertions.assertThrows(IllegalStateException.class, () -> encoder.transfer(fchannel, 0, 10));
         }
     }

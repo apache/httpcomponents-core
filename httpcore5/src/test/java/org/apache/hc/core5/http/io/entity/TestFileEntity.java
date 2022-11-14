@@ -46,15 +46,16 @@ public class TestFileEntity {
     public void testBasics() throws Exception {
         final File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
-        final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN);
+        try (final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN)) {
 
-        Assertions.assertEquals(tmpfile.length(), httpentity.getContentLength());
-        final InputStream content = httpentity.getContent();
-        Assertions.assertNotNull(content);
-        content.close();
-        Assertions.assertTrue(httpentity.isRepeatable());
-        Assertions.assertFalse(httpentity.isStreaming());
-        Assertions.assertTrue(tmpfile.delete(), "Failed to delete " + tmpfile);
+            Assertions.assertEquals(tmpfile.length(), httpentity.getContentLength());
+            final InputStream content = httpentity.getContent();
+            Assertions.assertNotNull(content);
+            content.close();
+            Assertions.assertTrue(httpentity.isRepeatable());
+            Assertions.assertFalse(httpentity.isStreaming());
+            Assertions.assertTrue(tmpfile.delete(), "Failed to delete " + tmpfile);
+        }
     }
 
     @Test
@@ -74,19 +75,20 @@ public class TestFileEntity {
         outStream.write(3);
         outStream.close();
 
-        final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN);
+        try (final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN)) {
 
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        httpentity.writeTo(out);
-        final byte[] bytes = out.toByteArray();
-        Assertions.assertNotNull(bytes);
-        Assertions.assertEquals(tmpfile.length(), bytes.length);
-        for (int i = 0; i < 4; i++) {
-            Assertions.assertEquals(i, bytes[i]);
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            httpentity.writeTo(out);
+            final byte[] bytes = out.toByteArray();
+            Assertions.assertNotNull(bytes);
+            Assertions.assertEquals(tmpfile.length(), bytes.length);
+            for (int i = 0; i < 4; i++) {
+                Assertions.assertEquals(i, bytes[i]);
+            }
+            Assertions.assertTrue(tmpfile.delete(), "Failed to delete: " + tmpfile);
+
+            Assertions.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
         }
-        Assertions.assertTrue(tmpfile.delete(), "Failed to delete: " + tmpfile);
-
-        Assertions.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
     }
 
 }

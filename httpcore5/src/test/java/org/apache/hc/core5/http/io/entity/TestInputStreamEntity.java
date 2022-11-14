@@ -61,8 +61,9 @@ public class TestInputStreamEntity {
 
     @Test
     public void testUnknownLengthConstructor() throws Exception {
-        final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, null);
-        Assertions.assertEquals(-1, entity.getContentLength());
+        try (final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, null)) {
+            Assertions.assertEquals(-1, entity.getContentLength());
+        }
     }
 
     @Test
@@ -70,17 +71,17 @@ public class TestInputStreamEntity {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
         final InputStream inStream = new ByteArrayInputStream(bytes);
-        final InputStreamEntity entity = new InputStreamEntity(inStream, bytes.length,
-                ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1));
+        try (final InputStreamEntity entity = new InputStreamEntity(inStream, bytes.length,
+                ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1))) {
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            entity.writeTo(out);
+            final byte[] writtenBytes = out.toByteArray();
+            Assertions.assertNotNull(writtenBytes);
+            Assertions.assertEquals(bytes.length, writtenBytes.length);
 
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        entity.writeTo(out);
-        final byte[] writtenBytes = out.toByteArray();
-        Assertions.assertNotNull(writtenBytes);
-        Assertions.assertEquals(bytes.length, writtenBytes.length);
-
-        final String s = new String(writtenBytes, StandardCharsets.ISO_8859_1.name());
-        Assertions.assertEquals(message, s);
+            final String s = new String(writtenBytes, StandardCharsets.ISO_8859_1.name());
+            Assertions.assertEquals(message, s);
+        }
     }
 
     @Test
@@ -89,17 +90,18 @@ public class TestInputStreamEntity {
         final byte[] bytes = message.getBytes(StandardCharsets.ISO_8859_1);
         final InputStream inStream = new ByteArrayInputStream(bytes);
         final int contentLength = 7;
-        final InputStreamEntity entity = new InputStreamEntity(inStream, contentLength,
-                ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1));
+        try (final InputStreamEntity entity = new InputStreamEntity(inStream, contentLength,
+                ContentType.TEXT_PLAIN.withCharset(StandardCharsets.ISO_8859_1))) {
 
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        entity.writeTo(out);
-        final byte[] writtenBytes = out.toByteArray();
-        Assertions.assertNotNull(writtenBytes);
-        Assertions.assertEquals(contentLength, writtenBytes.length);
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            entity.writeTo(out);
+            final byte[] writtenBytes = out.toByteArray();
+            Assertions.assertNotNull(writtenBytes);
+            Assertions.assertEquals(contentLength, writtenBytes.length);
 
-        final String s = new String(writtenBytes, StandardCharsets.ISO_8859_1.name());
-        Assertions.assertEquals(message.substring(0, contentLength), s);
+            final String s = new String(writtenBytes, StandardCharsets.ISO_8859_1.name());
+            Assertions.assertEquals(message.substring(0, contentLength), s);
+        }
     }
 
     @Test
@@ -121,8 +123,7 @@ public class TestInputStreamEntity {
 
     @Test
     public void testWriteToNull() throws Exception {
-        final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, 0, null);
-        Assertions.assertThrows(NullPointerException.class, () ->
-                entity.writeTo(null));
-    }
+        try (final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, 0, null)) {
+            Assertions.assertThrows(NullPointerException.class, () -> entity.writeTo(null));
+        }}
 }

@@ -53,10 +53,12 @@ public class TestBasicHttpEntity {
 
     @Test
     public void testToString() throws Exception {
-        final BasicHttpEntity httpentity = new BasicHttpEntity(EmptyInputStream.INSTANCE, 10,
-                ContentType.parseLenient("blah"), "yada", true);
-        Assertions.assertEquals("[Entity-Class: BasicHttpEntity, Content-Type: blah, Content-Encoding: yada, chunked: true]",
-                httpentity.toString());
+        try (final BasicHttpEntity httpentity = new BasicHttpEntity(EmptyInputStream.INSTANCE, 10,
+                ContentType.parseLenient("blah"), "yada", true)) {
+            Assertions.assertEquals(
+                    "[Entity-Class: BasicHttpEntity, Content-Type: blah, Content-Encoding: yada, chunked: true]",
+                    httpentity.toString());
+        }
     }
 
     @Test

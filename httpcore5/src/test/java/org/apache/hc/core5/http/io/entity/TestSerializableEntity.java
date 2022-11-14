@@ -57,30 +57,31 @@ public class TestSerializableEntity {
         final Serializable serializableObj = new SerializableObject();
         out.writeObject(serializableObj);
 
-        final SerializableEntity httpentity = new SerializableEntity(serializableObj, null);
+        try (final SerializableEntity httpentity = new SerializableEntity(serializableObj, null)) {
 
-        Assertions.assertEquals(-1, httpentity.getContentLength());
-        Assertions.assertNotNull(httpentity.getContent());
-        Assertions.assertTrue(httpentity.isRepeatable());
-        Assertions.assertFalse(httpentity.isStreaming());
+            Assertions.assertEquals(-1, httpentity.getContentLength());
+            Assertions.assertNotNull(httpentity.getContent());
+            Assertions.assertTrue(httpentity.isRepeatable());
+            Assertions.assertFalse(httpentity.isStreaming());
+        }
     }
 
     @Test
     public void testWriteTo() throws Exception {
         final Serializable serializableObj = new SerializableObject();
-        final SerializableEntity httpentity = new SerializableEntity(serializableObj, null);
+        try (final SerializableEntity httpentity = new SerializableEntity(serializableObj, null)) {
 
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        httpentity.writeTo(out);
-        final byte[] bytes = out.toByteArray();
-        Assertions.assertNotNull(bytes);
-        final ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(
-                bytes));
-        final SerializableObject serIn = (SerializableObject) oin.readObject();
-        Assertions.assertEquals(4, serIn.intValue);
-        Assertions.assertEquals("Hello", serIn.stringValue);
+            final ByteArrayOutputStream out = new ByteArrayOutputStream();
+            httpentity.writeTo(out);
+            final byte[] bytes = out.toByteArray();
+            Assertions.assertNotNull(bytes);
+            final ObjectInputStream oin = new ObjectInputStream(new ByteArrayInputStream(bytes));
+            final SerializableObject serIn = (SerializableObject) oin.readObject();
+            Assertions.assertEquals(4, serIn.intValue);
+            Assertions.assertEquals("Hello", serIn.stringValue);
 
-        Assertions.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
+            Assertions.assertThrows(NullPointerException.class, () -> httpentity.writeTo(null));
+        }
     }
 
 }

@@ -260,8 +260,9 @@ public class TestChunkCoding {
         final String s = "whatever\r\n01234\r\n5\r\n56789\r\n0\r\n";
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
-        final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
-        Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
+        try (final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream)) {
+            Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
+        }
     }
 
     @Test
@@ -284,11 +285,11 @@ public class TestChunkCoding {
     public void testTooLongChunkHeader() throws IOException {
         final String s = "5; and some very looooong commend\r\n12345\r\n0\r\n";
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(16);
-        final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
-        final ChunkedInputStream in1 = new ChunkedInputStream(inBuffer1, inputStream1);
         final byte[] buffer = new byte[300];
-        Assertions.assertEquals(5, in1.read(buffer));
-        in1.close();
+        final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));
+        try (final ChunkedInputStream in1 = new ChunkedInputStream(inBuffer1, inputStream1)) {
+            Assertions.assertEquals(5, in1.read(buffer));
+        }
 
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16, 10);
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(s.getBytes(StandardCharsets.ISO_8859_1));

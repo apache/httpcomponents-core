@@ -918,21 +918,22 @@ public abstract class H2IntegrationTest {
 
         final Future<IOSession> sessionFuture = client.requestSession(new HttpHost("localhost", serverEndpoint.getPort()), TIMEOUT, null);
         final IOSession session = sessionFuture.get();
-        final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(session);
+        try (final ClientSessionEndpoint streamEndpoint = new ClientSessionEndpoint(session)) {
 
-        final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
-        request.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-        final HttpCoreContext coreContext = HttpCoreContext.create();
-        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
-                    new BasicRequestProducer(request, null),
-                    new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                    coreContext, null);
-        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
-                future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        assertThat(exception.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
+            final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
+            request.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
+            final HttpCoreContext coreContext = HttpCoreContext.create();
+            final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                        new BasicRequestProducer(request, null),
+                        new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
+                        coreContext, null);
+            final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
+                    future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+            assertThat(exception.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
 
-        final EndpointDetails endpointDetails = coreContext.getEndpointDetails();
-        assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
+            final EndpointDetails endpointDetails = coreContext.getEndpointDetails();
+            assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
+        }
     }
 
     @Test
