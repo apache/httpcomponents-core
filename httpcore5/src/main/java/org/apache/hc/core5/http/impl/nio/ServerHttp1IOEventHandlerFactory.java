@@ -62,24 +62,27 @@ public class ServerHttp1IOEventHandlerFactory implements IOEventHandlerFactory {
     @Override
     public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
         String endpointScheme = URIScheme.HTTP.id;
-        if (attachment instanceof EndpointParameters) {
-            final EndpointParameters params = (EndpointParameters) attachment;
-            endpointScheme = params.getScheme();
-            if (tlsStrategy != null && URIScheme.HTTPS.same(endpointScheme)) {
+        if (tlsStrategy != null) {
+            if (attachment instanceof EndpointParameters) {
+                final EndpointParameters params = (EndpointParameters) attachment;
+                endpointScheme = params.getScheme();
+                if (URIScheme.HTTPS.same(endpointScheme)) {
+                    tlsStrategy.upgrade(
+                            ioSession,
+                            params,
+                            params.getAttachment(),
+                            handshakeTimeout,
+                            null);
+                }
+            } else {
+                endpointScheme = URIScheme.HTTPS.id;
                 tlsStrategy.upgrade(
                         ioSession,
-                        params,
-                        params.getAttachment(),
+                        null,
+                        attachment,
                         handshakeTimeout,
                         null);
             }
-        } else {
-            tlsStrategy.upgrade(
-                    ioSession,
-                    null,
-                    attachment,
-                    handshakeTimeout,
-                    null);
         }
         return new ServerHttp1IOEventHandler(streamDuplexerFactory.create(endpointScheme, ioSession));
     }

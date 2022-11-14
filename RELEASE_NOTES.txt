@@ -14,6 +14,9 @@ Change Log
 * Examples should log exceptions instead of swallowing them.
   Contributed by Gary Gregory <ggregory at apache.org>
 
+* Fix HTTPCORE-729: NullPointerException at org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandlerFactory.createHandler()
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
 
 Release 5.2
 ------------------
