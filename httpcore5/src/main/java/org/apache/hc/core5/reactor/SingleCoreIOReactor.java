@@ -305,7 +305,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 }
                 try {
                     processConnectionRequest(socketChannel, sessionRequest);
-                } catch (final IOException | SecurityException ex) {
+                } catch (final IOException | RuntimeException ex) {
                     Closer.closeQuietly(socketChannel);
                     sessionRequest.failed(ex);
                 }
