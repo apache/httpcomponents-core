@@ -324,27 +324,16 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             sock.bind(sessionRequest.localAddress);
         }
 
-        final SocketAddress targetAddress;
-        final IOEventHandlerFactory eventHandlerFactory;
-        if (this.reactorConfig.getSocksProxyAddress() != null) {
-            targetAddress = this.reactorConfig.getSocksProxyAddress();
-            eventHandlerFactory = new SocksProxyProtocolHandlerFactory(
-                    sessionRequest.remoteAddress,
-                    this.reactorConfig.getSocksProxyUsername(),
-                    this.reactorConfig.getSocksProxyPassword(),
-                    this.eventHandlerFactory);
-        } else {
-            targetAddress = sessionRequest.remoteAddress;
-            eventHandlerFactory = this.eventHandlerFactory;
-        }
+        final SocketAddress socksProxyAddress = reactorConfig.getSocksProxyAddress();
+        final SocketAddress remoteAddress = socksProxyAddress != null ? socksProxyAddress : sessionRequest.remoteAddress;
 
         // Run this under a doPrivileged to support lib users that run under a SecurityManager this allows granting connect permissions
         // only to this library
-        validateAddress(targetAddress);
+        validateAddress(remoteAddress);
         final boolean connected;
         try {
             connected = AccessController.doPrivileged(
-                    (PrivilegedExceptionAction<Boolean>) () -> socketChannel.connect(targetAddress));
+                    (PrivilegedExceptionAction<Boolean>) () -> socketChannel.connect(remoteAddress));
         } catch (final PrivilegedActionException e) {
             Asserts.check(e.getCause() instanceof  IOException,
                     "method contract violation only checked exceptions are wrapped: " + e.getCause());
@@ -353,23 +342,26 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         }
 
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
-        final InternalChannel channel = new InternalConnectChannel(key, socketChannel, sessionRequest, (k, sc, namedEndpoint, attachment) -> {
-            final IOSession ioSession = new IOSessionImpl("c", k, sc);
-            final InternalDataChannel dataChannel = new InternalDataChannel(
-                    ioSession,
-                    namedEndpoint,
-                    ioSessionDecorator,
-                    sessionListener,
-                    closedSessions);
-            dataChannel.upgrade(eventHandlerFactory.createHandler(dataChannel, attachment));
-            dataChannel.setSocketTimeout(reactorConfig.getSoTimeout());
-            return dataChannel;
-        });
+        final IOSession ioSession = new IOSessionImpl("c", key, socketChannel);
+        final InternalDataChannel dataChannel = new InternalDataChannel(
+                ioSession,
+                sessionRequest.remoteEndpoint,
+                ioSessionDecorator,
+                sessionListener,
+                closedSessions);
+        dataChannel.setSocketTimeout(reactorConfig.getSoTimeout());
+        final InternalChannel connectChannel = new InternalConnectChannel(
+                key,
+                socketChannel,
+                sessionRequest,
+                dataChannel,
+                eventHandlerFactory,
+                reactorConfig);
         if (connected) {
-            channel.handleIOEvent(SelectionKey.OP_CONNECT);
+            connectChannel.handleIOEvent(SelectionKey.OP_CONNECT);
         } else {
-            key.attach(channel);
-            sessionRequest.assign(channel);
+            key.attach(connectChannel);
+            sessionRequest.assign(connectChannel);
         }
     }
 

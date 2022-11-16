@@ -41,20 +41,26 @@ final class InternalConnectChannel extends InternalChannel {
     private final SelectionKey key;
     private final SocketChannel socketChannel;
     private final IOSessionRequest sessionRequest;
+    private final InternalDataChannel dataChannel;
+    private final IOEventHandlerFactory eventHandlerFactory;
+    private final IOReactorConfig reactorConfig;
     private final long creationTimeMillis;
-    private final InternalDataChannelFactory dataChannelFactory;
 
     InternalConnectChannel(
             final SelectionKey key,
             final SocketChannel socketChannel,
             final IOSessionRequest sessionRequest,
-            final InternalDataChannelFactory dataChannelFactory) {
+            final InternalDataChannel dataChannel,
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig reactorConfig) {
         super();
         this.key = key;
         this.socketChannel = socketChannel;
         this.sessionRequest = sessionRequest;
+        this.dataChannel = dataChannel;
+        this.eventHandlerFactory = eventHandlerFactory;
+        this.reactorConfig = reactorConfig;
         this.creationTimeMillis = System.currentTimeMillis();
-        this.dataChannelFactory = dataChannelFactory;
     }
 
     @Override
@@ -66,12 +72,19 @@ final class InternalConnectChannel extends InternalChannel {
             //check out connectTimeout
             final long now = System.currentTimeMillis();
             if (checkTimeout(now)) {
-                final InternalDataChannel dataChannel = dataChannelFactory.create(
-                        key,
-                        socketChannel,
-                        sessionRequest.remoteEndpoint,
-                        sessionRequest.attachment);
                 key.attach(dataChannel);
+                final IOEventHandler ioEventHandler;
+                if (reactorConfig.getSocksProxyAddress() == null) {
+                    ioEventHandler = eventHandlerFactory.createHandler(dataChannel, sessionRequest.attachment);
+                } else {
+                    final SocksProxyProtocolHandlerFactory eventHandlerFactory = new SocksProxyProtocolHandlerFactory(
+                            sessionRequest.remoteAddress,
+                            this.reactorConfig.getSocksProxyUsername(),
+                            this.reactorConfig.getSocksProxyPassword(),
+                            this.eventHandlerFactory);
+                    ioEventHandler = eventHandlerFactory.createHandler(dataChannel, sessionRequest.attachment);
+                }
+                dataChannel.upgrade(ioEventHandler);
                 sessionRequest.completed(dataChannel);
                 dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
             }
