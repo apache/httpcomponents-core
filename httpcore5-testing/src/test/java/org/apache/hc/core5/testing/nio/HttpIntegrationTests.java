@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 import org.apache.hc.core5.http.URIScheme;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 
@@ -166,7 +165,6 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (H2, TLS, SOCKS)")
-    @Disabled("ALPN via SOCKS is presently broken")
     public class CoreTransportH2SocksProxyTls extends H2SocksProxyCoreTransportTest {
 
         public CoreTransportH2SocksProxyTls() {

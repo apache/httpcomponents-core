@@ -73,23 +73,21 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
         SEND_AUTH, RECEIVE_AUTH_METHOD, SEND_USERNAME_PASSWORD, RECEIVE_AUTH, SEND_CONNECT, RECEIVE_RESPONSE_CODE, RECEIVE_ADDRESS_TYPE, RECEIVE_ADDRESS, COMPLETE
     }
 
-    private final ProtocolIOSession ioSession;
-    private final Object attachment;
-    private final InetSocketAddress targetAddress;
-    private final String username;
-    private final String password;
+    private final InternalDataChannel dataChannel;
+    private final IOSessionRequest sessionRequest;
     private final IOEventHandlerFactory eventHandlerFactory;
+    private final IOReactorConfig reactorConfig;
 
     private ByteBuffer buffer = ByteBuffer.allocate(512);
     private State state = State.SEND_AUTH;
-    SocksProxyProtocolHandler(final ProtocolIOSession ioSession, final Object attachment, final InetSocketAddress targetAddress,
-            final String username, final String password, final IOEventHandlerFactory eventHandlerFactory) {
-        this.ioSession = ioSession;
-        this.attachment = attachment;
-        this.targetAddress = targetAddress;
-        this.username = username;
-        this.password = password;
+    SocksProxyProtocolHandler(final InternalDataChannel dataChannel,
+                              final IOSessionRequest sessionRequest,
+                              final IOEventHandlerFactory eventHandlerFactory,
+                              final IOReactorConfig reactorConfig) {
+        this.dataChannel = dataChannel;
+        this.sessionRequest = sessionRequest;
         this.eventHandlerFactory = eventHandlerFactory;
+        this.reactorConfig = reactorConfig;
     }
 
     @Override
@@ -134,6 +132,17 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
         }
     }
 
+    private byte[] cred(final String cred) throws IOException {
+        if (cred == null) {
+            return new byte[] {};
+        }
+        final byte[] bytes = cred.getBytes(StandardCharsets.ISO_8859_1);
+        if (bytes.length >= 255) {
+            throw new IOException("SOCKS username / password are too long");
+        }
+        return bytes;
+    }
+
     @Override
     public void inputReady(final IOSession session, final ByteBuffer src) throws IOException {
         if (src != null) {
@@ -154,12 +163,14 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                     }
                     if (serverMethod == USERNAME_PASSWORD) {
                         this.buffer.clear();
-                        setBufferLimit(this.username.length() + this.password.length() + 3);
+                        final byte[] username = cred(reactorConfig.getSocksProxyUsername());
+                        final byte[] password = cred(reactorConfig.getSocksProxyPassword());
+                        setBufferLimit(username.length + password.length + 3);
                         this.buffer.put(USERNAME_PASSWORD_VERSION);
-                        this.buffer.put((byte) this.username.length());
-                        this.buffer.put(this.username.getBytes(StandardCharsets.ISO_8859_1));
-                        this.buffer.put((byte) this.password.length());
-                        this.buffer.put(this.password.getBytes(StandardCharsets.ISO_8859_1));
+                        this.buffer.put((byte) username.length);
+                        this.buffer.put(username);
+                        this.buffer.put((byte) password.length);
+                        this.buffer.put(password);
                         session.setEventMask(SelectionKey.OP_WRITE);
                         this.state = State.SEND_USERNAME_PASSWORD;
                     } else if (serverMethod == NO_AUTHENTICATION_REQUIRED) {
@@ -250,9 +261,10 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                 if (fillBuffer(session)) {
                     this.buffer.clear();
                     this.state = State.COMPLETE;
-                    final IOEventHandler newHandler = this.eventHandlerFactory.createHandler(this.ioSession, this.attachment);
-                    this.ioSession.upgrade(newHandler);
-                    newHandler.connected(this.ioSession);
+                    final IOEventHandler newHandler = this.eventHandlerFactory.createHandler(dataChannel, sessionRequest.attachment);
+                    dataChannel.upgrade(newHandler);
+                    sessionRequest.completed(dataChannel);
+                    dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
                 }
                 break;
             case SEND_AUTH:
@@ -271,9 +283,13 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
         this.buffer.put(CLIENT_VERSION);
         this.buffer.put(COMMAND_CONNECT);
         this.buffer.put((byte) 0); // reserved
-        if (this.targetAddress.isUnresolved()) {
+        if (!(sessionRequest.remoteAddress instanceof InetSocketAddress)) {
+            throw new IOException("Unsupported address class: " + sessionRequest.remoteAddress.getClass());
+        }
+        final InetSocketAddress targetAddress = ((InetSocketAddress) sessionRequest.remoteAddress);
+        if (targetAddress.isUnresolved()) {
             this.buffer.put(ATYP_DOMAINNAME);
-            final String hostName = this.targetAddress.getHostName();
+            final String hostName = targetAddress.getHostName();
             final byte[] hostnameBytes = hostName.getBytes(StandardCharsets.US_ASCII);
             if (hostnameBytes.length > MAX_DNS_NAME_LENGTH) {
                 throw new IOException("Host name exceeds " + MAX_DNS_NAME_LENGTH + " bytes");
@@ -281,7 +297,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
             this.buffer.put((byte) hostnameBytes.length);
             this.buffer.put(hostnameBytes);
         } else {
-            final InetAddress address = this.targetAddress.getAddress();
+            final InetAddress address = targetAddress.getAddress();
             if (address instanceof Inet4Address) {
                 this.buffer.put(InetAddressUtils.IPV4);
             } else if (address instanceof Inet6Address) {
@@ -291,7 +307,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
             }
             this.buffer.put(address.getAddress());
         }
-        final int port = this.targetAddress.getPort();
+        final int port = targetAddress.getPort();
         this.buffer.putShort((short) port);
         this.buffer.flip();
     }
@@ -337,12 +353,17 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
 
     @Override
     public void exception(final IOSession session, final Exception cause) {
-        session.close(CloseMode.IMMEDIATE);
-        CommandSupport.failCommands(session, cause);
+        try {
+            sessionRequest.failed(cause);
+        } finally {
+            session.close(CloseMode.IMMEDIATE);
+            CommandSupport.failCommands(session, cause);
+        }
     }
 
     @Override
     public void disconnected(final IOSession session) {
+        sessionRequest.cancel();
         CommandSupport.cancelCommands(session);
     }
 

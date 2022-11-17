@@ -31,6 +31,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
+/**
+ * @deprecated Use {@link IOReactorConfig}.
+ *
+ * As of version 5.0.1 {@link #createHandler(ProtocolIOSession, Object)} throws {@link UnsupportedOperationException}.
+ */
+@Deprecated
 public class SocksProxyProtocolHandlerFactory implements IOEventHandlerFactory {
 
     private final InetSocketAddress targetAddress;
@@ -51,7 +57,7 @@ public class SocksProxyProtocolHandlerFactory implements IOEventHandlerFactory {
 
     @Override
     public IOEventHandler createHandler(final ProtocolIOSession ioSession, final Object attachment) {
-        return new SocksProxyProtocolHandler(ioSession, attachment, this.targetAddress, this.username, this.password, this.eventHandlerFactory);
+        throw new UnsupportedOperationException();
     }
 
 }
