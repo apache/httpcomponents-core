@@ -1,3 +1,30 @@
+Release 4.4.16
+-------------------
+
+This is a maintenance release that corrects several defects discovered since release 4.4.15.
+
+Changelog
+-------------------
+
+* HTTPCORE-730: Non-blocking SSL I/O session incorrectly sets read interest when the session
+  is being closed even if the application layer has cleared interest in input causing
+  a busy loop in the I/O event loop and excessive CPU utilization.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Consider empty buffered input in appBufferStatus to close the SSLIOSession. (#359)
+  Contributed by Sajinie Kavindya <sajiniekavindya at gmail.com>
+
+* HTTPCORE-720: Discard any remaining decrypted application data after the TLS session
+  has been closed by the local endpoint.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-716: Evict remaining decrypted input data from SSL I/O session buffers upon
+  session closure. With unexpected input in the session buffers I/O reactors could end up
+  in a tight loop causing excessive CPU utilization.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 4.4.15
 -------------------
 
