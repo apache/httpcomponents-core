@@ -75,7 +75,7 @@
     <junit.version>5.9.1</junit.version>
     <hamcrest.version>2.2</hamcrest.version>
     <junit.migrationsupport.version>5.0.0</junit.migrationsupport.version>
-    <mockito.version>4.8.1</mockito.version>
+    <mockito.version>4.10.0</mockito.version>
     <slf4j.version>1.7.36</slf4j.version>
     <log4j.version>2.19.0</log4j.version>
     <rxjava.version>2.2.21</rxjava.version>
