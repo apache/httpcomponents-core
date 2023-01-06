@@ -1,20 +1,35 @@
 Release 5.2.1
 ------------------
 
-This is the second GA release in the 5.2 release series.
+This is a maintenance release that corrects several minor defects discovered since release 5.2
+and fixes SOCKS proxy protocol support in the async transport.
 
-Please note that 5.2 upgrades the minimal JRE level to version 8 (8u251 is required).
 
 Change Log
 -------------------
 
-* Add org.apache.hc.core5.http.protocol.HttpCoreContext.toString().
+* HTTPCLIENT-2248: Fixed broken TLS over SOCKS.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* I/O reactor connect process redesign.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* SOCKS protocol handling: Delegate resolution of unknown hostnames to the SOCKS proxy.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* I/O reactor to validate remote endpoint address at the last moment immediately before connect.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: I/O reactor must handle all runtime exceptions when connecting to remote endpoints.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Added org.apache.hc.core5.http.protocol.HttpCoreContext#toString().
   Contributed by Gary Gregory <ggregory at apache.org>
 
 * Examples should log exceptions instead of swallowing them.
   Contributed by Gary Gregory <ggregory at apache.org>
 
-* Fix HTTPCORE-729: NullPointerException at org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandlerFactory.createHandler()
+* HTTPCORE-729: NPE in ServerHttp1IOEventHandlerFactory due to a missing null check
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
