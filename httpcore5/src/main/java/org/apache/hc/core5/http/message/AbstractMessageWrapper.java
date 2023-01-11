@@ -37,12 +37,14 @@ import org.apache.hc.core5.util.Args;
 
 /**
  * Abstract {@link HttpMessage} wrapper.
+ *
+ * @param <T> A {@link HttpMessage} type.
  */
-public abstract class AbstractMessageWrapper implements HttpMessage {
+public abstract class AbstractMessageWrapper<T extends HttpMessage> implements HttpMessage {
 
-    private final HttpMessage message;
+    private final T message;
 
-    public AbstractMessageWrapper(final HttpMessage message) {
+    public AbstractMessageWrapper(final T message) {
         this.message = Args.notNull(message, "Message");
     }
 
@@ -119,6 +121,10 @@ public abstract class AbstractMessageWrapper implements HttpMessage {
     @Override
     public Header getLastHeader(final String name) {
         return message.getLastHeader(name);
+    }
+
+    T getMessage() {
+        return message;
     }
 
     @Override

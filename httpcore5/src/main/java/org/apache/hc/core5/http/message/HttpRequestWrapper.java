@@ -34,65 +34,64 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.net.URIAuthority;
 
 /**
+ * Wraps an {@link HttpRequest}.
+ *
  * {@link HttpRequest} wrapper.
  */
-public class HttpRequestWrapper extends AbstractMessageWrapper implements HttpRequest {
-
-    private final HttpRequest message;
+public class HttpRequestWrapper extends AbstractMessageWrapper<HttpRequest> implements HttpRequest {
 
     public HttpRequestWrapper(final HttpRequest message) {
         super(message);
-        this.message = message;
     }
 
     @Override
     public String getMethod() {
-        return message.getMethod();
+        return getMessage().getMethod();
     }
 
     @Override
     public String getPath() {
-        return message.getPath();
+        return getMessage().getPath();
     }
 
     @Override
     public void setPath(final String path) {
-        message.setPath(path);
+        getMessage().setPath(path);
     }
 
     @Override
     public String getScheme() {
-        return message.getScheme();
+        return getMessage().getScheme();
     }
 
     @Override
     public void setScheme(final String scheme) {
-        message.setScheme(scheme);
+        getMessage().setScheme(scheme);
     }
 
     @Override
     public URIAuthority getAuthority() {
-        return message.getAuthority();
+        return getMessage().getAuthority();
     }
 
     @Override
     public void setAuthority(final URIAuthority authority) {
-        message.setAuthority(authority);
+        getMessage().setAuthority(authority);
     }
 
     @Override
     public String getRequestUri() {
-        return message.getRequestUri();
+        return getMessage().getRequestUri();
     }
 
     @Override
     public URI getUri() throws URISyntaxException {
-        return message.getUri();
+        return getMessage().getUri();
     }
 
     @Override
     public void setUri(final URI requestUri) {
-        message.setUri(requestUri);
+        getMessage().setUri(requestUri);
     }
 
 }
