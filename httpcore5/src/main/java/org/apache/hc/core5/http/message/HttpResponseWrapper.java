@@ -32,45 +32,44 @@ import java.util.Locale;
 import org.apache.hc.core5.http.HttpResponse;
 
 /**
+ * Wraps an {@link HttpResponse}.
+ *
  * {@link HttpResponse} wrapper.
  */
-public class HttpResponseWrapper extends AbstractMessageWrapper implements HttpResponse {
-
-    private final HttpResponse message;
+public class HttpResponseWrapper extends AbstractMessageWrapper<HttpResponse> implements HttpResponse {
 
     public HttpResponseWrapper(final HttpResponse message) {
         super(message);
-        this.message = message;
     }
 
     @Override
     public int getCode() {
-        return message.getCode();
+        return getMessage().getCode();
     }
 
     @Override
     public void setCode(final int code) {
-        message.setCode(code);
+        getMessage().setCode(code);
     }
 
     @Override
     public String getReasonPhrase() {
-        return message.getReasonPhrase();
+        return getMessage().getReasonPhrase();
     }
 
     @Override
     public void setReasonPhrase(final String reason) {
-        message.setReasonPhrase(reason);
+        getMessage().setReasonPhrase(reason);
     }
 
     @Override
     public Locale getLocale() {
-        return message.getLocale();
+        return getMessage().getLocale();
     }
 
     @Override
     public void setLocale(final Locale loc) {
-        message.setLocale(loc);
+        getMessage().setLocale(loc);
     }
 
 }

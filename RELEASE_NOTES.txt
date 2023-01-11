@@ -1,3 +1,16 @@
+Release 5.2.2
+------------------
+
+This is a maintenance release that corrects several minor defects discovered since release 5.2.1.
+
+
+Change Log
+-------------------
+
+* Do not duplicate the HttpMessage instance variable slot in subclasses of AbstractMessageWrapper.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+
 Release 5.2.1
 ------------------
 
