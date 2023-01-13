@@ -147,6 +147,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
     @Override
     public void releaseResources() {
         bytebuf.clear();
+        bytebuf.limit(length);
     }
 
 }

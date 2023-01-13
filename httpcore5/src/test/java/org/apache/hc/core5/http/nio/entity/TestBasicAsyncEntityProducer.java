@@ -99,4 +99,18 @@ public class TestBasicAsyncEntityProducer {
         }
     }
 
+    @Test
+    public void testTextContentRepeatableUTF() throws Exception {
+        final String content = "<testtag></testtag>";
+        final AsyncEntityProducer producer = new BasicAsyncEntityProducer(content, ContentType.TEXT_XML);
+        for (int i = 0; i < 3; i++) {
+            final WritableByteChannelMock byteChannel = new WritableByteChannelMock(1024);
+            final DataStreamChannel streamChannel = new BasicDataStreamChannel(byteChannel);
+            producer.produce(streamChannel);
+            Assertions.assertFalse(byteChannel.isOpen());
+            Assertions.assertEquals(content, byteChannel.dump(StandardCharsets.UTF_8));
+            producer.releaseResources();
+        }
+    }
+
 }
