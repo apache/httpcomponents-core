@@ -28,10 +28,11 @@
 package org.apache.hc.core5.http.impl.nio;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 class CodecTestUtils {
 
@@ -49,8 +50,8 @@ class CodecTestUtils {
     }
 
     public static String readFromFile(final File file) throws Exception {
-        final FileInputStream filestream = new FileInputStream(file);
-        try (InputStreamReader reader = new InputStreamReader(filestream)) {
+        final InputStream inputStream = Files.newInputStream(file.toPath());
+        try (InputStreamReader reader = new InputStreamReader(inputStream)) {
             final StringBuilder buffer = new StringBuilder();
             final char[] tmp = new char[2048];
             int l;

@@ -29,8 +29,9 @@ package org.apache.hc.core5.http.io.entity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
 
 import org.apache.hc.core5.http.ContentType;
 import org.junit.jupiter.api.Assertions;
@@ -68,7 +69,7 @@ public class TestFileEntity {
         final File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
 
-        final FileOutputStream outStream = new FileOutputStream(tmpfile);
+        final OutputStream outStream = Files.newOutputStream(tmpfile.toPath());
         outStream.write(0);
         outStream.write(1);
         outStream.write(2);

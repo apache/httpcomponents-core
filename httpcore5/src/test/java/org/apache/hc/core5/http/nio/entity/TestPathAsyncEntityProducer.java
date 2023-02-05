@@ -28,10 +28,10 @@
 package org.apache.hc.core5.http.nio.entity;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
@@ -60,7 +60,7 @@ public class TestPathAsyncEntityProducer {
     @BeforeEach
     public void setup() throws Exception {
         tempFile = File.createTempFile("testing", ".txt");
-        try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.US_ASCII)) {
+        try (final Writer writer = new OutputStreamWriter(Files.newOutputStream(tempFile.toPath()), StandardCharsets.US_ASCII)) {
             writer.append("abcdef");
             writer.flush();
         }
