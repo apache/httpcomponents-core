@@ -85,7 +85,7 @@ public class TestTestingFramework {
     @Test
     public void runTestsWithoutSettingAdapterThrows() throws Exception {
         final TestingFramework framework = newWebServerTestingFramework();
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class TestTestingFramework {
         final ClientTestingAdapter adapter = null;
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -102,7 +102,7 @@ public class TestTestingFramework {
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
         framework.setAdapter(adapter);
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -235,7 +235,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     private Map<String, Object> alreadyCheckedResponse() {
@@ -294,7 +294,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -325,7 +325,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -383,7 +383,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -419,7 +419,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     private Object deepcopy(final Object obj) {
@@ -456,8 +456,7 @@ public class TestTestingFramework {
 
         framework.addTest(test);
 
-        final TestingFrameworkException exception = Assertions.assertThrows(TestingFrameworkException.class, () ->
-                framework.runTests());
+        final TestingFrameworkException exception = Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
         // make sure the HTTP Client name is in the message.
         final String message = exception.getMessage();
         final ClientPOJOAdapter pojoAdapter = adapter.getClientPOJOAdapter();
@@ -539,7 +538,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -564,7 +563,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -589,7 +588,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -614,7 +613,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -638,7 +637,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -662,7 +661,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -686,7 +685,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test
@@ -714,7 +713,7 @@ public class TestTestingFramework {
 
         framework.addTest();
 
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
+        Assertions.assertThrows(TestingFrameworkException.class, framework::runTests);
     }
 
     @Test

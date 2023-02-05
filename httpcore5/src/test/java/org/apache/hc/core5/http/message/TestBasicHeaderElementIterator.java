@@ -59,10 +59,10 @@ public class TestBasicHeaderElementIterator {
         Assertions.assertEquals("value1", elem.getName(), "The two header values must be equal");
 
         Assertions.assertFalse(hei.hasNext());
-        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertThrows(NoSuchElementException.class, hei::next);
 
         Assertions.assertFalse(hei.hasNext());
-        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertThrows(NoSuchElementException.class, hei::next);
     }
 
     @Test
@@ -100,9 +100,9 @@ public class TestBasicHeaderElementIterator {
                 new BasicHeaderIterator(headers, "Name"));
 
         Assertions.assertFalse(hei.hasNext());
-        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertThrows(NoSuchElementException.class, hei::next);
         Assertions.assertFalse(hei.hasNext());
-        Assertions.assertThrows(NoSuchElementException.class, () -> hei.next());
+        Assertions.assertThrows(NoSuchElementException.class, hei::next);
     }
 
 }

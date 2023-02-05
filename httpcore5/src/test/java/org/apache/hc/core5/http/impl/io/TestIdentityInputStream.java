@@ -71,7 +71,7 @@ public class TestIdentityInputStream {
         Assertions.assertEquals(0, in.available());
         final byte[] tmp = new byte[2];
         Assertions.assertThrows(StreamClosedException.class, () -> in.read(tmp, 0, tmp.length));
-        Assertions.assertThrows(StreamClosedException.class, () -> in.read());
+        Assertions.assertThrows(StreamClosedException.class, in::read);
     }
 
     @Test

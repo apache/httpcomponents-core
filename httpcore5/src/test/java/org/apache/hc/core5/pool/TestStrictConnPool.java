@@ -542,8 +542,7 @@ public class TestStrictConnPool {
         // Attempt to get a connection while lock is held
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
 
-        final ExecutionException executionException = Assertions.assertThrows(ExecutionException.class, () ->
-                future2.get());
+        final ExecutionException executionException = Assertions.assertThrows(ExecutionException.class, future2::get);
         Assertions.assertTrue(executionException.getCause() instanceof DeadlineTimeoutException);
         holdInternalLock.interrupt(); // Cleanup
     }
@@ -562,7 +561,7 @@ public class TestStrictConnPool {
         final Future<PoolEntry<String, HttpConnection>> future2 = pool.lease("somehost", null, Timeout.ofMilliseconds(10), null);
 
         Assertions.assertTrue(Thread.interrupted());
-        Assertions.assertThrows(CancellationException.class, () -> future2.get());
+        Assertions.assertThrows(CancellationException.class, future2::get);
         holdInternalLock.interrupt(); // Cleanup
     }
 

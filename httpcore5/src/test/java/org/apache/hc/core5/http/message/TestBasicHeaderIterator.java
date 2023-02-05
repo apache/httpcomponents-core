@@ -222,7 +222,7 @@ public class TestBasicHeaderIterator {
         Assertions.assertFalse(hit.hasNext());
 
         // but this is
-        Assertions.assertThrows(NoSuchElementException.class, () -> hit.next());
+        Assertions.assertThrows(NoSuchElementException.class, hit::next);
     }
 
     @Test
@@ -250,6 +250,6 @@ public class TestBasicHeaderIterator {
 
         final Iterator<Header> hit2 = new BasicHeaderIterator(headers, null);
         Assertions.assertTrue(hit2.hasNext());
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> hit2.remove());
+        Assertions.assertThrows(UnsupportedOperationException.class, hit2::remove);
     }
 }

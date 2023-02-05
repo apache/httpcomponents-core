@@ -86,7 +86,7 @@ public class AsyncFileServerExample {
                 .build();
 
         final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
-                .setExceptionCallback(e -> e.printStackTrace())
+                .setExceptionCallback(Throwable::printStackTrace)
                 .setIOReactorConfig(config)
                 .register("*", new AsyncServerRequestHandler<Message<HttpRequest, Void>>() {
 

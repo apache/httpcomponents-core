@@ -147,7 +147,7 @@ public class TestChunkCoding {
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         in.close();
         in.close();
-        Assertions.assertThrows(StreamClosedException.class, () -> in.read());
+        Assertions.assertThrows(StreamClosedException.class, in::read);
         final byte[] tmp = new byte[10];
         Assertions.assertThrows(StreamClosedException.class, () -> in.read(tmp));
         Assertions.assertThrows(StreamClosedException.class, () -> in.read(tmp, 0, tmp.length));
@@ -162,8 +162,8 @@ public class TestChunkCoding {
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         final byte[] tmp = new byte[5];
         Assertions.assertEquals(5, in.read(tmp));
-        Assertions.assertThrows(ConnectionClosedException.class, () -> in.read());
-        Assertions.assertThrows(ConnectionClosedException.class, () -> in.close());
+        Assertions.assertThrows(ConnectionClosedException.class, in::read);
+        Assertions.assertThrows(ConnectionClosedException.class, in::close);
     }
 
     // Truncated stream (missing closing CRLF)
@@ -175,7 +175,7 @@ public class TestChunkCoding {
         final ChunkedInputStream in = new ChunkedInputStream(inBuffer, inputStream);
         final byte[] tmp = new byte[5];
         Assertions.assertEquals(5, in.read(tmp));
-        Assertions.assertThrows(MalformedChunkCodingException.class, () -> in.read());
+        Assertions.assertThrows(MalformedChunkCodingException.class, in::read);
         in.close();
     }
 

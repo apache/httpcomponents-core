@@ -68,7 +68,7 @@ public class ReactiveFullDuplexServerExample {
             .build();
 
         final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
-            .setExceptionCallback(e -> e.printStackTrace())
+            .setExceptionCallback(Throwable::printStackTrace)
             .setIOReactorConfig(config)
             .setStreamListener(new Http1StreamListener() {
                 @Override

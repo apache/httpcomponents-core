@@ -131,8 +131,8 @@ public class TestContentLengthInputStream {
         final int byteRead = in.read(tmp);
         Assertions.assertEquals(16, byteRead);
         Assertions.assertThrows(ConnectionClosedException.class, () -> in.read(tmp));
-        Assertions.assertThrows(ConnectionClosedException.class, () -> in.read());
-        Assertions.assertThrows(ConnectionClosedException.class, () -> in.close());
+        Assertions.assertThrows(ConnectionClosedException.class, in::read);
+        Assertions.assertThrows(ConnectionClosedException.class, in::close);
     }
 
 }

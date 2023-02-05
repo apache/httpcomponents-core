@@ -191,8 +191,8 @@ public class TestBasicTokenIterator {
         final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
         final Iterator<String>  ti  = new BasicTokenIterator(hit);
 
-        Assertions.assertThrows(NoSuchElementException.class, () -> ti.next());
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> ti.remove());
+        Assertions.assertThrows(NoSuchElementException.class, ti::next);
+        Assertions.assertThrows(UnsupportedOperationException.class, ti::remove);
     }
 
 }

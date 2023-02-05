@@ -76,7 +76,7 @@ public class AsyncServerFilterExample {
                 .build();
 
         final HttpAsyncServer server = AsyncServerBootstrap.bootstrap()
-                .setExceptionCallback(e -> e.printStackTrace())
+                .setExceptionCallback(Throwable::printStackTrace)
                 .setIOReactorConfig(config)
 
                 // Replace standard expect-continue handling with a custom auth filter

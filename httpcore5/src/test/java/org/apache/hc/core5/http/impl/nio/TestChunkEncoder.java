@@ -193,7 +193,7 @@ public class TestChunkEncoder {
         encoder.complete();
 
         Assertions.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
-        Assertions.assertThrows(IllegalStateException.class, () -> encoder.complete());
+        Assertions.assertThrows(IllegalStateException.class, encoder::complete);
     }
 
     @Test

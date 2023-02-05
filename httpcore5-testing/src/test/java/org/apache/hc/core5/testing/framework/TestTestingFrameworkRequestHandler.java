@@ -65,7 +65,7 @@ public class TestTestingFrameworkRequestHandler {
 
         handler.handle(null, null, null);
         final TestingFrameworkException exception = Assertions.assertThrows(TestingFrameworkException.class,
-                () -> handler.assertNothingThrown());
+                handler::assertNothingThrown);
         Assertions.assertEquals(errorMessage, exception.getMessage(), "Unexpected message");
         // a second call should not throw
         handler.assertNothingThrown();
