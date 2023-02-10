@@ -79,6 +79,19 @@ public class InetAddressUtils {
                  "::" +
                  "(([0-9A-Fa-f]{1,4}(:[0-9A-Fa-f]{1,4}){0,5})?)$"); // 0-6 hex fields
 
+    /**
+     * Regular expression pattern to match the scope ID in an IPv6 scoped address.
+     * The scope ID should be a non-empty string consisting of only alphanumeric characters or "-".
+     */
+    private static final Pattern SCOPE_ID_PATTERN = Pattern.compile("^[a-zA-Z0-9\\-]+$");
+
+    /**
+     * Delimiter used to separate an IPv6 address from its scope ID.
+     */
+    private static final String SCOPE_ID_DELIMITER = "%";
+
+
+
     /*
      *  The above pattern is not totally rigorous as it allows for more than 7 hex fields in total
      */
@@ -139,7 +152,20 @@ public class InetAddressUtils {
      * @return true if the input parameter is a valid standard or compressed IPv6 address
      */
     public static boolean isIPv6Address(final String input) {
-        return isIPv6StdAddress(input) || isIPv6HexCompressedAddress(input);
+        final int index = input.indexOf(SCOPE_ID_DELIMITER);
+        if (index == -1) {
+            return isIPv6StdAddress(input) || isIPv6HexCompressedAddress(input);
+        } else {
+            final String address = input.substring(0, index);
+            if (isIPv6StdAddress(address) || isIPv6HexCompressedAddress(address)) {
+                // Check if the scope ID is valid
+                final String scopeId = input.substring(index + 1);
+                // Scope ID should be a non-empty string consisting of only alphanumeric characters or "-"
+                return !scopeId.isEmpty() && SCOPE_ID_PATTERN.matcher(scopeId).matches();
+            } else {
+                return false;
+            }
+        }
     }
 
     /**

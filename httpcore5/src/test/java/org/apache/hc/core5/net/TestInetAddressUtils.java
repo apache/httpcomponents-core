@@ -73,6 +73,11 @@ public class TestInetAddressUtils {
         Assertions.assertTrue(InetAddressUtils.isIPv6Address("2001:db8::1428:57ab"));
         Assertions.assertTrue(InetAddressUtils.isIPv6Address("::1"));
         Assertions.assertTrue(InetAddressUtils.isIPv6Address("::")); // http://tools.ietf.org/html/rfc4291#section-2.2
+
+        //HTTPCORE-674 InetAddressUtils scoped ID support
+        Assertions.assertTrue(InetAddressUtils.isIPv6Address("fe80::1ff:fe23:4567:890a"));
+        Assertions.assertTrue(InetAddressUtils.isIPv6Address("fe80::1ff:fe23:4567:890a%eth2"));
+        Assertions.assertTrue(InetAddressUtils.isIPv6Address("fe80::1ff:fe23:4567:890a%3"));
     }
 
     @Test
@@ -88,6 +93,19 @@ public class TestInetAddressUtils {
         Assertions.assertFalse(InetAddressUtils.isIPv6HexCompressedAddress("1::3:4:5:6:7:8:9")); // too many fields after ::
         Assertions.assertFalse(InetAddressUtils.isIPv6HexCompressedAddress("::3:4:5:6:7:8:9")); // too many fields after ::
         Assertions.assertFalse(InetAddressUtils.isIPv6Address("")); // empty
+
+        //Invalid scoped IDs
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("fe80::1ff:fe23:4567:890a%eth2#"));
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("fe80::1ff:fe23:4567:890a%3@"));
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("fe80::1ff:fe23:4567:890a#eth2"));
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("fe80::1ff:fe23:4567:890a%"));
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("fe80::1ff:fe23:4567:890a%eth2!"));
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("2001:0db8:0:0::1428:57ab%"));
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("2001:0db8:0:0::1428:57ab%eth2#"));
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("fe80::1ff:fe23:4567:890a%eth2#3"));
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("2001:0db8:0:0::1428:57ab%eth2#3"));
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("fe80::1ff:fe23:4567:890a%3#eth2"));
+        Assertions.assertFalse(InetAddressUtils.isIPv6Address("2001:0db8:0:0::1428:57ab%3#eth2"));
     }
 
     @Test
