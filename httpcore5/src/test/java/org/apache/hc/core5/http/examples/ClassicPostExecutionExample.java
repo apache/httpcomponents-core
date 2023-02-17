@@ -106,7 +106,7 @@ public class ClassicPostExecutionExample {
 
         final String requestUri = "/post";
         for (int i = 0; i < requestBodies.length; i++) {
-            final ClassicHttpRequest request = ClassicRequestBuilder.get()
+            final ClassicHttpRequest request = ClassicRequestBuilder.post()
                     .setHttpHost(target)
                     .setPath(requestUri)
                     .build();
