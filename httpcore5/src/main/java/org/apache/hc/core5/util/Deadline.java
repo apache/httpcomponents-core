@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.util;
 
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -60,12 +59,12 @@ public class Deadline {
     /**
      * The maximum (longest-lived) deadline.
      */
-    public static Deadline MAX_VALUE = new Deadline(INTERNAL_MAX_VALUE);
+    public static final Deadline MAX_VALUE = new Deadline(INTERNAL_MAX_VALUE);
 
     /**
      * The minimum (shortest-lived) deadline.
      */
-    public static Deadline MIN_VALUE = new Deadline(INTERNAL_MIN_VALUE);
+    public static final Deadline MIN_VALUE = new Deadline(INTERNAL_MIN_VALUE);
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
             .parseLenient()
@@ -122,9 +121,8 @@ public class Deadline {
      *
      * @param source a string in the format {@value #DATE_FORMAT}.
      * @return a deadline from a string in the format {@value #DATE_FORMAT}.
-     * @throws ParseException if the specified source string cannot be parsed.
      */
-    public static Deadline parse(final String source) throws ParseException {
+    public static Deadline parse(final String source) {
         if (source == null) {
             return null;
         }
