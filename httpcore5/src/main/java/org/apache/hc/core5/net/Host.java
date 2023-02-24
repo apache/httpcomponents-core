@@ -27,6 +27,7 @@
 package org.apache.hc.core5.net;
 
 import java.io.Serializable;
+import java.net.IDN;
 import java.net.URISyntaxException;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -59,7 +60,7 @@ public final class Host implements NamedEndpoint, Serializable {
 
     static Host parse(final CharSequence s, final Tokenizer.Cursor cursor) throws URISyntaxException {
         final Tokenizer tokenizer = Tokenizer.INSTANCE;
-        final String hostName;
+        String hostName;
         final boolean ipv6Brackets = !cursor.atEnd() && s.charAt(cursor.getPos()) == '[';
         if (ipv6Brackets) {
             cursor.updatePos(cursor.getPos() + 1);
@@ -73,6 +74,9 @@ public final class Host implements NamedEndpoint, Serializable {
             }
         } else {
             hostName = tokenizer.parseContent(s, cursor, URISupport.PORT_SEPARATORS);
+            if (!TextUtils.isAllASCII(hostName)) {
+                hostName = IDN.toASCII(hostName);
+            }
         }
         String portText = null;
         if (!cursor.atEnd() && s.charAt(cursor.getPos()) == ':') {
