@@ -50,6 +50,15 @@ public class TestHost {
         final Host host2 = new Host("somehost", 0);
         Assertions.assertEquals("somehost", host2.getHostName());
         Assertions.assertEquals(0, host2.getPort());
+        final Host host3 = new Host("Яндекс.Ру", 0);
+        Assertions.assertEquals("Яндекс.Ру", host3.getHostName());
+        Assertions.assertEquals(0, host3.getPort());
+        final Host host4 = new Host("xn--d1acpjx3f.xn--p1ag", 0);
+        Assertions.assertEquals("яндекс.ру", host4.getHostName());
+        Assertions.assertEquals(0, host4.getPort());
+        final Host host5 = new Host("XN--D1Acpjx3f.xn--p1ag", 0);
+        Assertions.assertEquals("яндекс.ру", host5.getHostName());
+        Assertions.assertEquals(0, host5.getPort());
         Assertions.assertThrows(NullPointerException.class, () -> new Host(null, 0));
     }
 
@@ -104,6 +113,8 @@ public class TestHost {
         Assertions.assertEquals(new Host("somehost", 8080), Host.create("somehost:8080"));
         Assertions.assertEquals(new Host("somehost", 1234), Host.create("somehost:1234"));
         Assertions.assertEquals(new Host("somehost", 0), Host.create("somehost:0"));
+        Assertions.assertEquals(new Host("яндекс.ру", -1), Host.create("xn--d1acpjx3f.xn--p1ag"));
+        Assertions.assertEquals(new Host("Яндекс.Ру", -1), Host.create("Яндекс.Ру"));
     }
 
     @Test

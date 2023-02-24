@@ -141,4 +141,22 @@ public final class TextUtils {
         return s.toLowerCase(Locale.ROOT);
     }
 
+
+    /**
+     * Determines whether the given {@link CharSequence} contains only ASCII characters.
+     *
+     * @param s the {@link CharSequence} to check
+     * @return true if the {@link CharSequence} contains only ASCII characters, false otherwise
+     * @throws IllegalArgumentException if the input {@link CharSequence} is null
+     * @since 5.3
+     */
+    public static boolean isAllASCII(final CharSequence s) {
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) > 0x7F) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }
