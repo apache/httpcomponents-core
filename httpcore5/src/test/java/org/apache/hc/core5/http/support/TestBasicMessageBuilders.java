@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.support;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.apache.hc.core5.http.HeaderMatcher;
 import org.apache.hc.core5.http.HeadersMatcher;
@@ -235,6 +236,13 @@ public class TestBasicMessageBuilders {
         Assertions.assertEquals(HttpVersion.HTTP_2, builder.getVersion());
         assertThat(builder.getHeaders(), HeadersMatcher.same(
                 new BasicHeader("h1", "v1"), new BasicHeader("h1", "v2"), new BasicHeader("h2", "v2")));
+    }
+
+    @Test
+    void testIDNIntegration() {
+        final String url = "http://müller.example.com:8080/path";
+        final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create(url));
+        assertEquals(new URIAuthority("xn--mller-kva.example.com",8080), request.getAuthority());
     }
 
 }

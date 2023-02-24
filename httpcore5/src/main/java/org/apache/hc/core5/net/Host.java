@@ -27,6 +27,7 @@
 package org.apache.hc.core5.net;
 
 import java.io.Serializable;
+import java.net.IDN;
 import java.net.URISyntaxException;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -50,10 +51,22 @@ public final class Host implements NamedEndpoint, Serializable {
     private final String lcName;
     private final int port;
 
+    static boolean isPunyCode(final CharSequence s) {
+        if (s == null || s.length() < 4) {
+            return false;
+        }
+        return ((s.charAt(0) == 'x' || s.charAt(0) == 'X') &&
+                (s.charAt(1) == 'n' || s.charAt(1) == 'N') &&
+                s.charAt(2) == '-' &&
+                s.charAt(3) == '-');
+    }
+
     public Host(final String name, final int port) {
         super();
-        this.name = Args.notNull(name, "Host name");
-        this.port = Ports.checkWithDefault(port);
+        Args.notNull(name, "Host name");
+        Ports.checkWithDefault(port);
+        this.name = isPunyCode(name) ? IDN.toUnicode(name) : name;
+        this.port = port;
         this.lcName = TextUtils.toLowerCase(this.name);
     }
 
@@ -105,7 +118,11 @@ public final class Host implements NamedEndpoint, Serializable {
         if (InetAddressUtils.isIPv6Address(hostName)) {
             buf.append('[').append(hostName).append(']');
         } else {
-            buf.append(hostName);
+            if (TextUtils.isAllASCII(hostName)) {
+                buf.append(hostName);
+            } else {
+                buf.append(IDN.toASCII(hostName));
+            }
         }
         if (endpoint.getPort() != -1) {
             buf.append(":");
