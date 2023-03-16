@@ -58,12 +58,31 @@ public class Timeout extends TimeValue {
     public static final Timeout DISABLED = ZERO_MILLISECONDS;
 
     /**
+     * An infinite timeout represented as 0 {@code MILLISECONDS}.
+     *
+     * @since 5.3
+     */
+    public static final Timeout INFINITE = ZERO_MILLISECONDS;
+
+    /**
      * Returns the given {@code timeout} if it is not {@code null}, if {@code null} then returns {@link #DISABLED}.
      *
      * @param timeout may be {@code null}
      * @return {@code timeValue} or {@link #DISABLED}
      */
     public static Timeout defaultsToDisabled(final Timeout timeout) {
+        return defaultsTo(timeout, DISABLED);
+    }
+
+    /**
+     * Returns the given {@code timeout} if it is not {@code null}, if {@code null} then returns {@link #INFINITE}.
+     *
+     * @param timeout may be {@code null}
+     * @return {@code timeValue} or {@link #INFINITE}
+     *
+     * @since 5.3
+     */
+    public static Timeout defaultsToInfinite(final Timeout timeout) {
         return defaultsTo(timeout, DISABLED);
     }
 

@@ -314,7 +314,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         Args.notNull(request, "HTTP request");
         final Future<PoolEntry<HttpHost, HttpClientConnection>> leaseFuture = connPool.lease(targetHost, null, connectTimeout, null);
         final PoolEntry<HttpHost, HttpClientConnection> poolEntry;
-        final Timeout timeout = Timeout.defaultsToDisabled(connectTimeout);
+        final Timeout timeout = Timeout.defaultsToInfinite(connectTimeout);
         try {
             poolEntry = leaseFuture.get(timeout.getDuration(), timeout.getTimeUnit());
         } catch (final InterruptedException ex) {

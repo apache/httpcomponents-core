@@ -350,7 +350,7 @@ public class SocketConfig {
 
         public SocketConfig build() {
             return new SocketConfig(
-                    Timeout.defaultsToDisabled(soTimeout),
+                    Timeout.defaultsToInfinite(soTimeout),
                     soReuseAddress,
                     soLinger != null ? soLinger : TimeValue.NEG_ONE_SECOND,
                     soKeepAlive, tcpNoDelay, sndBufSize, rcvBufSize, backlogSize,

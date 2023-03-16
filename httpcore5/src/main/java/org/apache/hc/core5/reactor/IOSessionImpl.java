@@ -70,7 +70,7 @@ class IOSessionImpl implements IOSession {
         this.channel = Args.notNull(socketChannel, "Socket channel");
         this.commandQueue = new ConcurrentLinkedDeque<>();
         this.lock = new ReentrantLock();
-        this.socketTimeout = Timeout.DISABLED;
+        this.socketTimeout = Timeout.INFINITE;
         this.id = String.format(type + "-%010d", COUNT.getAndIncrement());
         this.handlerRef = new AtomicReference<>();
         this.status = new AtomicReference<>(Status.ACTIVE);
@@ -193,7 +193,7 @@ class IOSessionImpl implements IOSession {
 
     @Override
     public void setSocketTimeout(final Timeout timeout) {
-        this.socketTimeout = Timeout.defaultsToDisabled(timeout);
+        this.socketTimeout = Timeout.defaultsToInfinite(timeout);
         this.lastEventTime = System.currentTimeMillis();
     }
 

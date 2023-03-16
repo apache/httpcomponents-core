@@ -208,7 +208,7 @@ class BHttpConnectionBase implements BHttpConnection {
         final SocketHolder socketHolder = this.socketHolderRef.get();
         if (socketHolder != null) {
             try {
-                socketHolder.getSocket().setSoTimeout(Timeout.defaultsToDisabled(timeout).toMillisecondsIntBound());
+                socketHolder.getSocket().setSoTimeout(Timeout.defaultsToInfinite(timeout).toMillisecondsIntBound());
             } catch (final SocketException ignore) {
                 // It is not quite clear from the Sun's documentation if there are any
                 // other legitimate cases for a socket exception to be thrown when setting
@@ -226,7 +226,7 @@ class BHttpConnectionBase implements BHttpConnection {
             } catch (final SocketException ignore) {
             }
         }
-        return Timeout.DISABLED;
+        return Timeout.INFINITE;
     }
 
     @Override
@@ -337,7 +337,7 @@ class BHttpConnectionBase implements BHttpConnection {
                 try {
                     socketTimeout = Timeout.ofMilliseconds(socket.getSoTimeout());
                 } catch (final SocketException e) {
-                    socketTimeout = Timeout.DISABLED;
+                    socketTimeout = Timeout.INFINITE;
                 }
                 endpointDetails = new BasicEndpointDetails(
                         socket.getRemoteSocketAddress(),
