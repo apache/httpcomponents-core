@@ -210,7 +210,7 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testGetSocketTimeout() throws Exception {
-        Assertions.assertEquals(Timeout.DISABLED, conn.getSocketTimeout());
+        Assertions.assertEquals(Timeout.INFINITE, conn.getSocketTimeout());
 
         Mockito.when(socket.getSoTimeout()).thenReturn(345);
         conn.bind(socket);
@@ -220,12 +220,12 @@ public class TestBHttpConnectionBase {
 
     @Test
     public void testGetSocketTimeoutException() throws Exception {
-        Assertions.assertEquals(Timeout.DISABLED, conn.getSocketTimeout());
+        Assertions.assertEquals(Timeout.INFINITE, conn.getSocketTimeout());
 
         Mockito.when(socket.getSoTimeout()).thenThrow(new SocketException());
         conn.bind(socket);
 
-        Assertions.assertEquals(Timeout.DISABLED, conn.getSocketTimeout());
+        Assertions.assertEquals(Timeout.INFINITE, conn.getSocketTimeout());
     }
 
     @Test

@@ -490,7 +490,7 @@ public final class IOReactorConfig {
             return new IOReactorConfig(
                     selectInterval != null ? selectInterval : TimeValue.ofSeconds(1),
                     ioThreadCount,
-                    Timeout.defaultsToDisabled(soTimeout),
+                    Timeout.defaultsToInfinite(soTimeout),
                     soReuseAddress,
                     TimeValue.defaultsToNegativeOneMillisecond(soLinger),
                     soKeepAlive,
