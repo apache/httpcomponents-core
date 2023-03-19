@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.impl;
 
+import java.util.Collections;
 import java.util.Set;
 
 import org.apache.hc.core5.http.EntityDetails;
@@ -69,7 +70,7 @@ public final class BasicEntityDetails implements EntityDetails {
 
     @Override
     public Set<String> getTrailerNames() {
-        return null;
+        return Collections.emptySet();
     }
 
 }

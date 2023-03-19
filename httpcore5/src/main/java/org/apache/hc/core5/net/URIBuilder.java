@@ -238,7 +238,7 @@ public class URIBuilder {
 
     static List<String> splitPath(final CharSequence s) {
         if (s == null) {
-            return null;
+            return Collections.emptyList();
         }
         final ParserCursor cursor = new ParserCursor(0, s.length());
         // Skip leading separator
@@ -269,7 +269,7 @@ public class URIBuilder {
 
     static List<String> parsePath(final CharSequence s, final Charset charset) {
         if (s == null) {
-            return null;
+            return Collections.emptyList();
         }
         final List<String> segments = splitPath(s);
         final List<String> list = new ArrayList<>(segments.size());

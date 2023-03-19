@@ -28,6 +28,7 @@ package org.apache.hc.core5.reactive;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpStreamResetException;
@@ -64,7 +65,7 @@ public class TestReactiveEntityProducer {
         Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
         Assertions.assertFalse(entityProducer.isChunked());
         Assertions.assertEquals(GZIP_CONTENT_ENCODING, entityProducer.getContentEncoding());
-        Assertions.assertNull(entityProducer.getTrailerNames());
+        Assertions.assertEquals(Collections.emptySet(), entityProducer.getTrailerNames());
         Assertions.assertEquals(CONTENT_LENGTH, entityProducer.getContentLength());
         Assertions.assertEquals(CONTENT_TYPE.toString(), entityProducer.getContentType());
         Assertions.assertFalse(entityProducer.isRepeatable());
@@ -105,7 +106,7 @@ public class TestReactiveEntityProducer {
         Assertions.assertEquals("", byteChannel.dump(StandardCharsets.US_ASCII));
         Assertions.assertFalse(entityProducer.isChunked());
         Assertions.assertEquals(GZIP_CONTENT_ENCODING, entityProducer.getContentEncoding());
-        Assertions.assertNull(entityProducer.getTrailerNames());
+        Assertions.assertEquals(Collections.emptySet(), entityProducer.getTrailerNames());
         Assertions.assertEquals(CONTENT_LENGTH, entityProducer.getContentLength());
         Assertions.assertEquals(CONTENT_TYPE.toString(), entityProducer.getContentType());
         Assertions.assertFalse(entityProducer.isRepeatable());

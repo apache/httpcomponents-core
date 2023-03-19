@@ -35,6 +35,7 @@ import org.reactivestreams.Publisher;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -119,6 +120,6 @@ public final class ReactiveEntityProducer implements AsyncEntityProducer {
 
     @Override
     public Set<String> getTrailerNames() {
-        return null;
+        return Collections.emptySet();
     }
 }
