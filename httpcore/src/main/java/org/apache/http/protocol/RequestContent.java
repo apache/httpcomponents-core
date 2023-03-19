@@ -28,6 +28,11 @@
 package org.apache.http.protocol;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Locale;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -37,6 +42,7 @@ import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpVersion;
 import org.apache.http.ProtocolException;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.RequestLine;
 import org.apache.http.annotation.ThreadingBehavior;
 import org.apache.http.annotation.Contract;
 import org.apache.http.util.Args;
@@ -81,11 +87,27 @@ public class RequestContent implements HttpRequestInterceptor {
          this.overwrite = overwrite;
     }
 
+    private static final Collection<String> NO_CONTENT_LENGTH_HTTP_METHODS = Collections.unmodifiableSet(
+            new HashSet<String>(Arrays.asList("GET", "HEAD", "DELETE"))
+    );
+
     @Override
     public void process(final HttpRequest request, final HttpContext context)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         if (request instanceof HttpEntityEnclosingRequest) {
+            final RequestLine requestLine = request.getRequestLine();
+            if (requestLine != null) {
+                if (((HttpEntityEnclosingRequest) request).getEntity() == null) {
+                    final String methodString = requestLine.getMethod();
+                    if (methodString != null) {
+                        if (NO_CONTENT_LENGTH_HTTP_METHODS.contains(methodString.toUpperCase(Locale.ENGLISH))) {
+                            // GET, HEAD and DELETE with no request body should not set the Content-Length header
+                            return;
+                        }
+                    }
+                }
+            }
             if (this.overwrite) {
                 request.removeHeaders(HTTP.TRANSFER_ENCODING);
                 request.removeHeaders(HTTP.CONTENT_LEN);
