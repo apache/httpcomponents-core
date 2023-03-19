@@ -95,8 +95,28 @@ public class RequestContent implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         final String method = request.getMethod();
-        if (Method.TRACE.isSame(method) && entity != null) {
+        Method methodMethod;
+        try {
+            methodMethod = Method.normalizedValueOf(method);
+        } catch (final IllegalArgumentException e){
+            methodMethod = null;
+        }
+        if (Method.TRACE == methodMethod && entity != null) {
             throw new ProtocolException("TRACE request may not enclose an entity");
+        }
+        if (methodMethod != null) {
+            switch (methodMethod) {
+                case HEAD:
+                case GET:
+                case DELETE:
+                    if (entity == null) {
+                        // GET, HEAD and DELETE with no request body should not set the Content-Length header
+                        return;
+                    }
+                    break;
+                default:
+                    break;
+            }
         }
         if (this.overwrite) {
             request.removeHeaders(HttpHeaders.TRANSFER_ENCODING);
