@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -111,7 +112,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
 
     @Override
     public Set<String> getTrailerNames() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override

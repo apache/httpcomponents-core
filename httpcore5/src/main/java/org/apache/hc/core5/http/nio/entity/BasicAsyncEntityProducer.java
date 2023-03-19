@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -120,7 +121,7 @@ public class BasicAsyncEntityProducer implements AsyncEntityProducer {
 
     @Override
     public Set<String> getTrailerNames() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
