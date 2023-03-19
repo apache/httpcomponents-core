@@ -32,6 +32,7 @@ import java.nio.channels.SeekableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -119,7 +120,7 @@ public final class PathEntityProducer implements AsyncEntityProducer {
 
     @Override
     public Set<String> getTrailerNames() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override

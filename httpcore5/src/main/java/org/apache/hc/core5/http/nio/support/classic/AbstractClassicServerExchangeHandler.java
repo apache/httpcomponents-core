@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -195,7 +196,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
 
                             @Override
                             public Set<String> getTrailerNames() {
-                                return null;
+                                return Collections.emptySet();
                             }
 
                         }, context);

@@ -28,6 +28,7 @@ package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Collections;
 import java.util.Set;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -150,7 +151,7 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
 
     @Override
     public Set<String> getTrailerNames() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
