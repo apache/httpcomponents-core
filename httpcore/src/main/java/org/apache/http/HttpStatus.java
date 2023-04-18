@@ -71,6 +71,8 @@ public interface HttpStatus {
      * {@code 207 Partial Update OK} (HTTP/1.1 - draft-ietf-http-v11-spec-rev-01?)
      */
     int SC_MULTI_STATUS = 207;
+    /** {@code 208 Already Reported} (HTTP/1.1 - RFC 5842) */
+    int SC_ALREADY_REPORTED = 208;
 
     // --- 3xx Redirection ---
 
