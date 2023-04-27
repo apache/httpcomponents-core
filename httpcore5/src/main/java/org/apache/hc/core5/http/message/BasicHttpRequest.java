@@ -27,6 +27,9 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.Method;
@@ -35,9 +38,6 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 
 /**
  * Basic implementation of {@link HttpRequest}.
@@ -288,6 +288,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
             buf.append('?').append(query);
         }
         this.path = buf.toString();
+        this.requestUri = null;
     }
 
     private void assembleRequestUri(final StringBuilder buf) {

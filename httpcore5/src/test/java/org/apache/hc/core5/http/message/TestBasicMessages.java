@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.net.URIAuthority;
+import org.apache.hc.core5.net.URIBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -209,6 +210,19 @@ public class TestBasicMessages {
         Assertions.assertEquals("stuff", request.getRequestUri());
         request.setAbsoluteRequestUri(true);
         Assertions.assertEquals("http://somehost/stuff", request.getRequestUri());
+    }
+
+    @Test
+    public void testModifyingExistingRequest() throws Exception {
+        final URI uri = URI.create("https://example.org");
+        final HttpRequest request = new BasicHttpRequest(Method.GET, uri);
+
+        final URI newUri = new URIBuilder(request.getUri())
+                .addParameter("name", "value")
+                .build();
+
+        request.setUri(newUri);
+        Assertions.assertEquals(newUri, request.getUri());
     }
 
 }
