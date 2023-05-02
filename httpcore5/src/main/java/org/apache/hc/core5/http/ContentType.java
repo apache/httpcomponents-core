@@ -387,7 +387,7 @@ public final class ContentType implements Serializable {
             final String mimeType, final NameValuePair... params) throws UnsupportedCharsetException {
         final String type = TextUtils.toLowerCase(Args.notBlank(mimeType, "MIME type"));
         Args.check(valid(type), "MIME type may not contain reserved characters");
-        return create(mimeType, params, true);
+        return create(mimeType, params != null ? params.clone() : null, true);
     }
 
     /**
@@ -483,7 +483,7 @@ public final class ContentType implements Serializable {
     /**
      * Creates a new instance with this MIME type and the given parameters.
      *
-     * @param params
+     * @param params parameters.
      * @return a new instance with this MIME type and the given parameters.
      * @since 4.4
      */
