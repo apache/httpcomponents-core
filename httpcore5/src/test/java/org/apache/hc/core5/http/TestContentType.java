@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.Assertions;
@@ -134,6 +135,22 @@ public class TestContentType {
         Assertions.assertNull(ContentType.parse("   "));
         Assertions.assertNull(ContentType.parse(";"));
         Assertions.assertNull(ContentType.parse("="));
+    }
+
+    @Test
+    public void testWithParamArrayChange() throws Exception {
+        final BasicNameValuePair[] params = {new BasicNameValuePair("charset", "UTF-8"),
+                new BasicNameValuePair("p", "this"),
+                new BasicNameValuePair("p", "that")};
+        final ContentType contentType = ContentType.create("text/plain", params);
+        Assertions.assertEquals("text/plain", contentType.getMimeType());
+        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
+        Assertions.assertEquals("text/plain; charset=UTF-8; p=this; p=that", contentType.toString());
+        Arrays.setAll(params, i -> null);
+        Assertions.assertEquals("this", contentType.getParameter("p"));
+        Assertions.assertEquals("text/plain", contentType.getMimeType());
+        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
+        Assertions.assertEquals("text/plain; charset=UTF-8; p=this; p=that", contentType.toString());
     }
 
     @Test
