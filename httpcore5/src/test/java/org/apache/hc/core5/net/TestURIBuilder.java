@@ -882,31 +882,31 @@ public class TestURIBuilder {
     }
 
     @Test
-    public void testNormalizeSyntax() throws Exception {
+    public void testOptimize() throws Exception {
         Assertions.assertEquals("example://a/b/c/%7Bfoo%7D",
-                new URIBuilder("eXAMPLE://a/./b/../b/%63/%7bfoo%7d").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("eXAMPLE://a/./b/../b/%63/%7bfoo%7d").optimize().build().toASCIIString());
         Assertions.assertEquals("http://www.example.com/%3C",
-                new URIBuilder("http://www.example.com/%3c").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("http://www.example.com/%3c").optimize().build().toASCIIString());
         Assertions.assertEquals("http://www.example.com/",
-                new URIBuilder("HTTP://www.EXAMPLE.com/").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("HTTP://www.EXAMPLE.com/").optimize().build().toASCIIString());
         Assertions.assertEquals("http://www.example.com/a%2F",
-                new URIBuilder("http://www.example.com/a%2f").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("http://www.example.com/a%2f").optimize().build().toASCIIString());
         Assertions.assertEquals("http://www.example.com/?a%2F",
-                new URIBuilder("http://www.example.com/?a%2f").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("http://www.example.com/?a%2f").optimize().build().toASCIIString());
         Assertions.assertEquals("http://www.example.com/?q=%26",
-                new URIBuilder("http://www.example.com/?q=%26").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("http://www.example.com/?q=%26").optimize().build().toASCIIString());
         Assertions.assertEquals("http://www.example.com/%23?q=%26",
-                new URIBuilder("http://www.example.com/%23?q=%26").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("http://www.example.com/%23?q=%26").optimize().build().toASCIIString());
         Assertions.assertEquals("http://www.example.com/blah-%28%20-blah-%20%26%20-blah-%20%29-blah/",
-                new URIBuilder("http://www.example.com/blah-%28%20-blah-%20&%20-blah-%20)-blah/").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("http://www.example.com/blah-%28%20-blah-%20&%20-blah-%20)-blah/").optimize().build().toASCIIString());
         Assertions.assertEquals("../../.././",
-                new URIBuilder("../../.././").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("../../.././").optimize().build().toASCIIString());
         Assertions.assertEquals("file:../../.././",
-                new URIBuilder("file:../../.././").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("file:../../.././").optimize().build().toASCIIString());
         Assertions.assertEquals("http://host/",
-                new URIBuilder("http://host/../../.././").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("http://host/../../.././").optimize().build().toASCIIString());
         Assertions.assertEquals("http:/",
-                new URIBuilder("http:///../../.././").normalizeSyntax().build().toASCIIString());
+                new URIBuilder("http:///../../.././").optimize().build().toASCIIString());
     }
 
     @Test

@@ -997,17 +997,29 @@ public class URIBuilder {
     }
 
     /**
-     * Normalizes syntax of URI components if the URI is considered non-opaque
-     * (the path component has a root):
+     * @deprecated do not use this method.
+     *
+     * @see #optimize()
+     */
+    @Deprecated
+    public URIBuilder normalizeSyntax() {
+        return optimize();
+    }
+
+    /**
+     * Optimizes URI components if the URI is considered non-opaque (the path component has a root):
      * <ul>
      *  <li>characters of scheme and host components are converted to lower case</li>
      *  <li>dot segments of the path component are removed if the path has a root</li>
-     *  <li>percent encoding of all components is normalized</li>
+     *  <li>percent encoding of all components is re-applied</li>
      * </ul>
+     * <p>
+     *  Please note some URI consumers may consider the optimized URI components produced
+     *  by this method as semantically different from the original ones.
      *
-     * @since 5.1
+     * @since 5.3
      */
-    public URIBuilder normalizeSyntax() {
+    public URIBuilder optimize() {
         final String scheme = this.scheme;
         if (scheme != null) {
             this.scheme = TextUtils.toLowerCase(scheme);
@@ -1017,7 +1029,7 @@ public class URIBuilder {
             return this;
         }
 
-        // Force Percent-Encoding normalization
+        // Force Percent-Encoding re-encoding
         this.encodedSchemeSpecificPart = null;
         this.encodedAuthority = null;
         this.encodedUserInfo = null;
