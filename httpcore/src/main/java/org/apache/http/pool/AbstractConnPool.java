@@ -201,6 +201,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             private final AtomicBoolean done = new AtomicBoolean(false);
             private final AtomicReference<E> entryRef = new AtomicReference<E>(null);
 
+            private final ReentrantLock synLock = new ReentrantLock();
+
             @Override
             public boolean cancel(final boolean mayInterruptIfRunning) {
                 if (done.compareAndSet(false, true)) {
@@ -241,7 +243,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
             @Override
             public E get(final long timeout, final TimeUnit timeUnit) throws InterruptedException, ExecutionException, TimeoutException {
                 for (;;) {
-                    synchronized (this) {
+                    try {
+                        synLock.lock();
                         try {
                             final E entry = entryRef.get();
                             if (entry != null) {
@@ -280,6 +283,8 @@ public abstract class AbstractConnPool<T, C, E extends PoolEntry<T, C>>
                             }
                             throw new ExecutionException(ex);
                         }
+                    } finally {
+                        synLock.unlock();
                     }
                 }
             }
