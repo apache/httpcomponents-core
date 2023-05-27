@@ -424,9 +424,18 @@ public class SSLIOSession implements IOSession {
             if (this.verifier != null) {
                 this.tlsDetails = this.verifier.verify(this.targetEndpoint, this.sslEngine);
             }
+            String applicationProtocol;
             if (this.tlsDetails == null) {
                 final SSLSession sslSession = this.sslEngine.getSession();
-                final String applicationProtocol = this.sslEngine.getApplicationProtocol();
+                try {
+                    applicationProtocol = this.sslEngine.getApplicationProtocol();
+                } catch (final UnsupportedOperationException e) {
+                    // If the underlying provider does not support the operation, the getApplicationProtocol() method throws an UnsupportedOperationException.
+                    // In this case, we fall back to "http/1.1" as the application protocol.
+                    // This is a workaround to allow older applications that do not support the getApplicationProtocol() method to continue working.
+                    // This workaround is temporary and is meant to maintain compatibility with older systems.
+                    applicationProtocol = "http/1.1";
+                }
                 this.tlsDetails = new TlsDetails(sslSession, applicationProtocol);
             }
 
