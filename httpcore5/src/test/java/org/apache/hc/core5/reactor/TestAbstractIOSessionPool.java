@@ -263,8 +263,8 @@ public class TestAbstractIOSessionPool {
 
     @Test
     public void testGetSessionConnectUnknownHost() throws Exception {
-
         Mockito.when(connectFuture.isDone()).thenReturn(true);
+        Mockito.when(connectFuture.get()).thenThrow(new RuntimeException("Connection failure"));
         Mockito.when(impl.connectSession(
                 ArgumentMatchers.anyString(),
                 ArgumentMatchers.any(),

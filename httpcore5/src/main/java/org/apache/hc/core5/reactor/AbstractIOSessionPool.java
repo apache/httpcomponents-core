@@ -183,7 +183,20 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
             } else {
                 poolEntry.requestQueue.add(callback);
                 if (poolEntry.sessionFuture != null && poolEntry.sessionFuture.isDone()) {
-                    poolEntry.sessionFuture = null;
+                    // Check whether we should recreate a new conn or not
+                    try {
+                        poolEntry.session = poolEntry.sessionFuture.get();
+                        while (true) {
+                            final FutureCallback<IOSession> pendingCallback = poolEntry.requestQueue.poll();
+                            if (pendingCallback != null) {
+                                pendingCallback.completed(poolEntry.session);
+                            } else {
+                                break;
+                            }
+                        }
+                    } catch (final Exception e) {
+                        poolEntry.sessionFuture = null;
+                    }
                 }
                 if (poolEntry.sessionFuture == null) {
                     poolEntry.sessionFuture = connectSession(
