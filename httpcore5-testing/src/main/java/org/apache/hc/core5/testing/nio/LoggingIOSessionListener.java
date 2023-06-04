@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.testing.nio;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
@@ -39,7 +40,8 @@ public class LoggingIOSessionListener implements IOSessionListener {
 
     private final Logger connLog = LoggerFactory.getLogger("org.apache.hc.core5.http.connection");
 
-    private LoggingIOSessionListener() {
+    @Internal
+    public LoggingIOSessionListener() {
     }
 
     @Override
