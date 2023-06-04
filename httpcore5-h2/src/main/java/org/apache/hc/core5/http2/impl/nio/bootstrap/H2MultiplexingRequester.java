@@ -285,4 +285,9 @@ public class H2MultiplexingRequester extends AsyncRequester{
         return execute(requestProducer, responseConsumer, null, timeout, null, callback);
     }
 
+    @Internal
+    public H2ConnPool getConnPool() {
+        return connPool;
+    }
+
 }
