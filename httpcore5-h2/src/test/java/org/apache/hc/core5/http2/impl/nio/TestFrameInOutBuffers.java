@@ -289,5 +289,13 @@ public class TestFrameInOutBuffers {
                 inBuffer.read(readableChannel));
     }
 
+    @Test
+    public void testOutputBufferResize() throws Exception {
+        final FrameOutputBuffer outBuffer = new FrameOutputBuffer(16 * 1024);
+        Assertions.assertEquals(16 * 1024, outBuffer.getMaxFramePayloadSize());
+        outBuffer.resize(1024);
+        Assertions.assertEquals(1024, outBuffer.getMaxFramePayloadSize());
+    }
+
 }
 

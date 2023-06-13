@@ -28,6 +28,7 @@ package org.apache.hc.core5.http2.impl.nio;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.charset.CharacterCodingException;
@@ -1219,8 +1220,12 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         initOutputWinSize = remoteConfig.getInitialWindowSize();
 
         final int maxFrameSize = remoteConfig.getMaxFrameSize();
-        if (maxFrameSize > localConfig.getMaxFrameSize()) {
-            outputBuffer.expand(maxFrameSize);
+        if (maxFrameSize < outputBuffer.getMaxFramePayloadSize()) {
+            try {
+                outputBuffer.resize(maxFrameSize);
+            } catch (final BufferOverflowException ex) {
+                throw new H2ConnectionException(H2Error.INTERNAL_ERROR, "Failure resizing the frame output buffer");
+            }
         }
 
         if (delta != 0) {
