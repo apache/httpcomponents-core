@@ -45,8 +45,8 @@ import org.apache.hc.core5.util.Args;
 public final class FrameOutputBuffer {
 
     private final BasicH2TransportMetrics metrics;
-    private volatile int maxFramePayloadSize;
-    private volatile ByteBuffer buffer;
+    private int maxFramePayloadSize;
+    private ByteBuffer buffer;
 
     public FrameOutputBuffer(final BasicH2TransportMetrics metrics, final int maxFramePayloadSize) {
         Args.notNull(metrics, "HTTP2 transport metrics");
@@ -60,7 +60,28 @@ public final class FrameOutputBuffer {
         this(new BasicH2TransportMetrics(), maxFramePayloadSize);
     }
 
+    /**
+     * @deprecated Misnomer. Use {@link #resize(int)}.
+     */
+    @Deprecated
     public void expand(final int maxFramePayloadSize) {
+        resize(maxFramePayloadSize);
+    }
+
+    /**
+     * @since 5.2
+     */
+    public int getMaxFramePayloadSize() {
+        return maxFramePayloadSize;
+    }
+
+    /**
+     * @since 5.2
+     */
+    public void resize(final int maxFramePayloadSize) {
+        if (buffer.capacity() == maxFramePayloadSize) {
+            return;
+        }
         this.maxFramePayloadSize = maxFramePayloadSize;
         final ByteBuffer newBuffer = ByteBuffer.allocate(FrameConsts.HEAD_LEN + maxFramePayloadSize);
         if (buffer.position() > 0) {
