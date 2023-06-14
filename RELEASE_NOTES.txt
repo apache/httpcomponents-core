@@ -1,11 +1,31 @@
 Release 5.2.2
 ------------------
 
-This is a maintenance release that corrects several minor defects discovered since release 5.2.1.
+This is a maintenance release that corrects several defects discovered since release 5.2.1 including
+a major defect that can cause HTTP/2 connections allocate excessive amount of memory for their output
+frame buffer if the opposite endpoint transmits a high value of MAX_FRAME_SIZE in its settings.
 
 
 Change Log
 -------------------
+
+* HTTPCORE-751: H2 protocol handler always resizes the output frame buffer to the remove
+  MAX_FRAME_SIZE instead of doing so only then the remote MAX_FRAME_SIZE is lesser than
+  the current MAX_FRAME_SIZE (partially reverts HTTPCORE-707).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-750: Fixed a defect causing AbstractIOSessionPool to create multiple connections under
+  high load at initialization time due to a race condition.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Handle UnsupportedOperationException in getApplicationProtocol.
+  Contributed by Arturo Bernal <arturobernalg at gmail.com>
+
+* HTTPCORE-742: BasicHttpRequest#setUri does not correctly reset internal state.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-733: BasicAsyncEntityProducer sends an extra trailing 0 with UTF-8 encoded content
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Do not duplicate the HttpMessage instance variable slot in subclasses of AbstractMessageWrapper.
   Contributed by Gary Gregory <ggregory at apache.org>
