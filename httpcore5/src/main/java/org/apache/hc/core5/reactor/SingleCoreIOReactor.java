@@ -214,8 +214,8 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                     ioSessionDecorator,
                     sessionListener,
                     closedSessions);
-            dataChannel.upgrade(this.eventHandlerFactory.createHandler(dataChannel, attachment));
             dataChannel.setSocketTimeout(this.reactorConfig.getSoTimeout());
+            dataChannel.upgrade(this.eventHandlerFactory.createHandler(dataChannel, attachment));
             key.attach(dataChannel);
             dataChannel.handleIOEvent(SelectionKey.OP_CONNECT);
         }
