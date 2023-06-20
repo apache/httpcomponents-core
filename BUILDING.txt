@@ -14,9 +14,16 @@ http://maven.apache.org/run-maven/index.html
 
 (2) Executing test cases
 
-Execute the following command in order to compile and test the components
+Execute the following command in order to compile and test the components:
 
 mvn test
+
+To avoid intermittent test failures (i.e., flaky tests), it is recommended to have a machine or virtual machine with the following specifications:
+
+Minimum of 2 CPUs.
+Minimum of 2GB of RAM.
+
+By meeting these requirements, you can mitigate potential flaky tests and ensure a smooth testing experience.
 
 (3) Building packages
 
