@@ -23,7 +23,8 @@ To avoid intermittent test failures (i.e., flaky tests), it is recommended to ha
 Minimum of 2 CPUs.
 Minimum of 2GB of RAM.
 
-By meeting these requirements, you can mitigate potential flaky tests and ensure a smooth testing experience.
+These are the minimal requirements for stable test execution. In more resource constrained environments some tests may fail intermittently.
+
 
 (3) Building packages
 
