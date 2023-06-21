@@ -18,7 +18,7 @@ Execute the following command in order to compile and test the components:
 
 mvn test
 
-To avoid intermittent test failures (i.e., flaky tests), it is recommended to have a machine or virtual machine with the following specifications:
+To avoid intermittent test failures, it is recommended to have a machine or virtual machine with the following specifications:
 
 Minimum of 2 CPUs.
 Minimum of 2GB of RAM.
