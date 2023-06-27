@@ -263,8 +263,13 @@ class IOSessionImpl implements IOSession {
                     // Quietly ignore
                 }
             }
-            this.key.cancel();
-            this.key.attach(null);
+            lock.lock();
+            try {
+                this.key.cancel();
+                this.key.attach(null);
+            } finally {
+                lock.unlock();
+            }
             Closer.closeQuietly(this.key.channel());
             if (this.key.selector().isOpen()) {
                 this.key.selector().wakeup();
