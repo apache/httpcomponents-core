@@ -42,4 +42,11 @@ public class TestDeadlineTimeoutException {
                 DeadlineTimeoutException.from(deadline).getMessage());
     }
 
+    @Test
+    public void testInfiniteDeadlineMessage() {
+        final Deadline deadline = Deadline.calculate(Timeout.ZERO_MILLISECONDS);
+        Assertions.assertEquals("No deadline (infinite)",
+                DeadlineTimeoutException.from(deadline).getMessage());
+    }
+
 }

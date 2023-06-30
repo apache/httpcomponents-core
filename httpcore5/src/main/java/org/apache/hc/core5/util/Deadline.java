@@ -181,7 +181,11 @@ public class Deadline {
      * @return a formatted string.
      */
     public String format(final TimeUnit overdueTimeUnit) {
-        return String.format("Deadline: %s, %s overdue", formatTarget(), TimeValue.of(remaining(), overdueTimeUnit));
+        if (value == MAX_VALUE.value) {
+            return "No deadline (infinite)";
+        } else {
+            return String.format("Deadline: %s, %s overdue", formatTarget(), TimeValue.of(remaining(), overdueTimeUnit));
+        }
     }
 
     /**
@@ -190,7 +194,11 @@ public class Deadline {
      * @return a formatted string in the format {@value #DATE_FORMAT}.
      */
     public String formatTarget() {
-        return DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(value).atOffset(ZoneOffset.UTC));
+        if (value == MAX_VALUE.value) {
+            return "(infinite)";
+        } else {
+            return DATE_TIME_FORMATTER.format(Instant.ofEpochMilli(value).atOffset(ZoneOffset.UTC));
+        }
     }
 
     public Deadline freeze() {
