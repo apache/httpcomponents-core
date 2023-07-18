@@ -275,9 +275,23 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 connectTimeout >= 0 ? timeUnit.toMillis(connectTimeout) : -1,
                 leaseTimeout > 0 ? timeUnit.toMillis(leaseTimeout) : 0,
                 future);
-        this.lock.lock();
+        boolean locked;
+        if (leaseTimeout > 0L) {
+            try {
+                locked = this.lock.tryLock(leaseTimeout, TimeUnit.MILLISECONDS);
+                if (!locked) {
+                    leaseRequest.failed(new TimeoutException("Connection lease request time out"));
+                }
+            } catch (InterruptedException e) {
+                leaseRequest.failed(e);
+                locked = false;
+            }
+        } else {
+            this.lock.lock();
+            locked = true;
+        }
         try {
-            final boolean completed = processPendingRequest(leaseRequest);
+            final boolean completed = locked && processPendingRequest(leaseRequest);
             if (!leaseRequest.isDone() && !completed) {
                 this.leasingRequests.add(leaseRequest);
             }
@@ -285,7 +299,9 @@ public abstract class AbstractNIOConnPool<T, C, E extends PoolEntry<T, C>>
                 this.completedRequests.add(leaseRequest);
             }
         } finally {
-            this.lock.unlock();
+            if (locked) {
+                this.lock.unlock();
+            }
         }
         fireCallbacks();
         return new Future<E>() {
