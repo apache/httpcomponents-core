@@ -37,6 +37,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.WritableByteChannelMock;
@@ -54,24 +56,44 @@ public class TestSharedOutputBuffer {
 
         private final WritableByteChannelMock channel;
 
+        private final ReentrantLock lock;
+        private final Condition condition;
+
         DataStreamChannelMock(final WritableByteChannelMock channel) {
             this.channel = channel;
+            this.lock = new ReentrantLock();
+            this.condition = lock.newCondition();
         }
 
         @Override
-        public synchronized int write(final ByteBuffer src) throws IOException {
-            return channel.write(src);
+        public int write(final ByteBuffer src) throws IOException {
+            lock.lock();
+            try {
+                return channel.write(src);
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
-        public synchronized  void requestOutput() {
-            notifyAll();
+        public void requestOutput() {
+            lock.lock();
+            try {
+                condition.signalAll();
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
-        public synchronized void endStream(final List<? extends Header> trailers) throws IOException {
-            channel.close();
-            notifyAll();
+        public void endStream(final List<? extends Header> trailers) throws IOException {
+            lock.lock();
+            try {
+                channel.close();
+                condition.signalAll();
+            } finally {
+                lock.unlock();
+            }
         }
 
         @Override
@@ -79,8 +101,13 @@ public class TestSharedOutputBuffer {
             endStream(null);
         }
 
-        public synchronized void awaitOutputRequest() throws InterruptedException {
-            wait();
+        public void awaitOutputRequest() throws InterruptedException {
+            lock.lock();
+            try {
+                condition.await();
+            } finally {
+                lock.unlock();
+            }
         }
 
     }

@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -253,12 +254,14 @@ public class AsyncReverseProxyExample {
         private final HttpHost targetHost;
         private final HttpAsyncRequester requester;
         private final ProxyExchangeState exchangeState;
+        private final ReentrantLock lock;
 
         IncomingExchangeHandler(final HttpHost targetHost, final HttpAsyncRequester requester) {
             super();
             this.targetHost = targetHost;
             this.requester = requester;
             this.exchangeState = new ProxyExchangeState();
+            this.lock = new ReentrantLock();
         }
 
         @Override
@@ -268,7 +271,8 @@ public class AsyncReverseProxyExample {
                 final ResponseChannel responseChannel,
                 final HttpContext httpContext) throws HttpException, IOException {
 
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 println("[client->proxy] " + exchangeState.id + " " +
                         incomingRequest.getMethod() + " " + incomingRequest.getRequestUri());
                 exchangeState.request = incomingRequest;
@@ -282,6 +286,8 @@ public class AsyncReverseProxyExample {
                         responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), httpContext);
                     }
                 }
+            } finally {
+                lock.unlock();
             }
 
             println("[proxy->origin] " + exchangeState.id + " request connection to " + targetHost);
@@ -291,8 +297,11 @@ public class AsyncReverseProxyExample {
                 @Override
                 public void completed(final AsyncClientEndpoint clientEndpoint) {
                     println("[proxy->origin] " + exchangeState.id + " connection leased");
-                    synchronized (exchangeState) {
+                    lock.lock();
+                    try {
                         exchangeState.clientEndpoint = clientEndpoint;
+                    } finally {
+                        lock.unlock();
                     }
                     clientEndpoint.execute(
                             new OutgoingExchangeHandler(targetHost, clientEndpoint, exchangeState),
@@ -306,12 +315,15 @@ public class AsyncReverseProxyExample {
                     final ByteBuffer msg = StandardCharsets.US_ASCII.encode(CharBuffer.wrap(cause.getMessage()));
                     final EntityDetails exEntityDetails = new BasicEntityDetails(msg.remaining(),
                                     ContentType.TEXT_PLAIN);
-                    synchronized (exchangeState) {
+                    lock.lock();
+                    try {
                         exchangeState.response = outgoingResponse;
                         exchangeState.responseEntityDetails = exEntityDetails;
                         exchangeState.outBuf = new ProxyBuffer(1024);
                         exchangeState.outBuf.put(msg);
                         exchangeState.outputEnd = true;
+                    } finally {
+                        lock.unlock();
                     }
                     println("[client<-proxy] " + exchangeState.id + " status " + outgoingResponse.getCode());
 
@@ -333,19 +345,23 @@ public class AsyncReverseProxyExample {
 
         @Override
         public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 exchangeState.requestCapacityChannel = capacityChannel;
                 final int capacity = exchangeState.inBuf != null ? exchangeState.inBuf.capacity() : INIT_BUFFER_SIZE;
                 if (capacity > 0) {
                     println("[client<-proxy] " + exchangeState.id + " input capacity: " + capacity);
                     capacityChannel.update(capacity);
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void consume(final ByteBuffer src) throws IOException {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 println("[client->proxy] " + exchangeState.id + " " + src.remaining() + " bytes received");
                 final DataStreamChannel dataChannel = exchangeState.requestDataChannel;
                 if (dataChannel != null && exchangeState.inBuf != null) {
@@ -369,12 +385,15 @@ public class AsyncReverseProxyExample {
                 if (dataChannel != null) {
                     dataChannel.requestOutput();
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 println("[client->proxy] " + exchangeState.id + " end of input");
                 exchangeState.inputEnd = true;
                 final DataStreamChannel dataChannel = exchangeState.requestDataChannel;
@@ -382,21 +401,27 @@ public class AsyncReverseProxyExample {
                     println("[proxy->origin] " + exchangeState.id + " end of output");
                     dataChannel.endStream();
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public int available() {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 final int available = exchangeState.outBuf != null ? exchangeState.outBuf.length() : 0;
                 println("[client<-proxy] " + exchangeState.id + " output available: " + available);
                 return available;
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void produce(final DataStreamChannel channel) throws IOException {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 println("[client<-proxy] " + exchangeState.id + " produce output");
                 exchangeState.responseDataChannel = channel;
 
@@ -420,6 +445,8 @@ public class AsyncReverseProxyExample {
                         }
                     }
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -429,19 +456,25 @@ public class AsyncReverseProxyExample {
             if (!(cause instanceof ConnectionClosedException)) {
                 cause.printStackTrace(System.out);
             }
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 if (exchangeState.clientEndpoint != null) {
                     exchangeState.clientEndpoint.releaseAndDiscard();
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void releaseResources() {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 exchangeState.responseMessageChannel = null;
                 exchangeState.responseDataChannel = null;
                 exchangeState.requestCapacityChannel = null;
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -463,6 +496,7 @@ public class AsyncReverseProxyExample {
         private final HttpHost targetHost;
         private final AsyncClientEndpoint clientEndpoint;
         private final ProxyExchangeState exchangeState;
+        private final ReentrantLock lock;
 
         OutgoingExchangeHandler(
                 final HttpHost targetHost,
@@ -471,12 +505,14 @@ public class AsyncReverseProxyExample {
             this.targetHost = targetHost;
             this.clientEndpoint = clientEndpoint;
             this.exchangeState = exchangeState;
+            this.lock = new ReentrantLock();
         }
 
         @Override
         public void produceRequest(
                 final RequestChannel channel, final HttpContext httpContext) throws HttpException, IOException {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 final HttpRequest incomingRequest = exchangeState.request;
                 final EntityDetails entityDetails = exchangeState.requestEntityDetails;
                 final HttpRequest outgoingRequest = new BasicHttpRequest(
@@ -494,21 +530,27 @@ public class AsyncReverseProxyExample {
                         outgoingRequest.getMethod() + " " + outgoingRequest.getRequestUri());
 
                 channel.sendRequest(outgoingRequest, entityDetails, httpContext);
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public int available() {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 final int available = exchangeState.inBuf != null ? exchangeState.inBuf.length() : 0;
                 println("[proxy->origin] " + exchangeState.id + " output available: " + available);
                 return available;
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void produce(final DataStreamChannel channel) throws IOException {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 println("[proxy->origin] " + exchangeState.id + " produce output");
                 exchangeState.requestDataChannel = channel;
                 if (exchangeState.inBuf != null) {
@@ -531,6 +573,8 @@ public class AsyncReverseProxyExample {
                         }
                     }
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -543,7 +587,8 @@ public class AsyncReverseProxyExample {
         public void consumeResponse(
                 final HttpResponse incomingResponse,
                 final EntityDetails entityDetails, final HttpContext httpContext) throws HttpException, IOException {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 println("[proxy<-origin] " + exchangeState.id + " status " + incomingResponse.getCode());
                 if (entityDetails == null) {
                     println("[proxy<-origin] " + exchangeState.id + " end of input");
@@ -572,24 +617,30 @@ public class AsyncReverseProxyExample {
                     println("[client<-proxy] " + exchangeState.id + " end of output");
                     clientEndpoint.releaseAndReuse();
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 exchangeState.responseCapacityChannel = capacityChannel;
                 final int capacity = exchangeState.outBuf != null ? exchangeState.outBuf.capacity() : INIT_BUFFER_SIZE;
                 if (capacity > 0) {
                     println("[proxy->origin] " + exchangeState.id + " input capacity: " + capacity);
                     capacityChannel.update(capacity);
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void consume(final ByteBuffer src) throws IOException {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 println("[proxy<-origin] " + exchangeState.id + " " + src.remaining() + " bytes received");
                 final DataStreamChannel dataChannel = exchangeState.responseDataChannel;
                 if (dataChannel != null && exchangeState.outBuf != null) {
@@ -613,12 +664,15 @@ public class AsyncReverseProxyExample {
                 if (dataChannel != null) {
                     dataChannel.requestOutput();
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 println("[proxy<-origin] " + exchangeState.id + " end of input");
                 exchangeState.outputEnd = true;
                 final DataStreamChannel dataChannel = exchangeState.responseDataChannel;
@@ -627,6 +681,8 @@ public class AsyncReverseProxyExample {
                     dataChannel.endStream();
                     clientEndpoint.releaseAndReuse();
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -641,7 +697,8 @@ public class AsyncReverseProxyExample {
             if (!(cause instanceof ConnectionClosedException)) {
                 cause.printStackTrace(System.out);
             }
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 if (exchangeState.response == null) {
                     final int status = cause instanceof IOException ? HttpStatus.SC_SERVICE_UNAVAILABLE : HttpStatus.SC_INTERNAL_SERVER_ERROR;
                     final HttpResponse outgoingResponse = new BasicHttpResponse(status);
@@ -666,15 +723,20 @@ public class AsyncReverseProxyExample {
                     exchangeState.outputEnd = true;
                 }
                 clientEndpoint.releaseAndDiscard();
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void releaseResources() {
-            synchronized (exchangeState) {
+            lock.lock();
+            try {
                 exchangeState.requestDataChannel = null;
                 exchangeState.responseCapacityChannel = null;
                 clientEndpoint.releaseAndDiscard();
+            } finally {
+                lock.unlock();
             }
         }
 

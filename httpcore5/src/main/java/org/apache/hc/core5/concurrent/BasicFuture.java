@@ -31,6 +31,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TimeoutValueException;
@@ -52,9 +54,14 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
     private volatile T result;
     private volatile Exception ex;
 
+    private final ReentrantLock lock;
+    private final Condition condition;
+
     public BasicFuture(final FutureCallback<T> callback) {
         super();
         this.callback = callback;
+        this.lock = new ReentrantLock();
+        this.condition = lock.newCondition();
     }
 
     @Override
@@ -78,46 +85,59 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
     }
 
     @Override
-    public synchronized T get() throws InterruptedException, ExecutionException {
-        while (!this.completed) {
-            wait();
+    public T get() throws InterruptedException, ExecutionException {
+        lock.lock();
+        try {
+            while (!this.completed) {
+                condition.await();
+            }
+            return getResult();
+        } finally {
+            lock.unlock();
         }
-        return getResult();
     }
 
     @Override
-    public synchronized T get(final long timeout, final TimeUnit unit)
+    public T get(final long timeout, final TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         Args.notNull(unit, "Time unit");
         final long msecs = unit.toMillis(timeout);
         final long startTime = (msecs <= 0) ? 0 : System.currentTimeMillis();
         long waitTime = msecs;
-        if (this.completed) {
-            return getResult();
-        } else if (waitTime <= 0) {
-            throw TimeoutValueException.fromMilliseconds(msecs, msecs + Math.abs(waitTime));
-        } else {
-            for (;;) {
-                wait(waitTime);
-                if (this.completed) {
-                    return getResult();
-                }
-                waitTime = msecs - (System.currentTimeMillis() - startTime);
-                if (waitTime <= 0) {
-                    throw TimeoutValueException.fromMilliseconds(msecs, msecs + Math.abs(waitTime));
+        try {
+            lock.lock();
+            if (this.completed) {
+                return getResult();
+            } else if (waitTime <= 0) {
+                throw TimeoutValueException.fromMilliseconds(msecs, msecs + Math.abs(waitTime));
+            } else {
+                for (; ; ) {
+                    condition.await(waitTime, TimeUnit.MILLISECONDS);
+                    if (this.completed) {
+                        return getResult();
+                    }
+                    waitTime = msecs - (System.currentTimeMillis() - startTime);
+                    if (waitTime <= 0) {
+                        throw TimeoutValueException.fromMilliseconds(msecs, msecs + Math.abs(waitTime));
+                    }
                 }
             }
+        } finally {
+            lock.unlock();
         }
     }
 
     public boolean completed(final T result) {
-        synchronized(this) {
+        lock.lock();
+        try {
             if (this.completed) {
                 return false;
             }
             this.completed = true;
             this.result = result;
-            notifyAll();
+            condition.signalAll();
+        } finally {
+            lock.unlock();
         }
         if (this.callback != null) {
             this.callback.completed(result);
@@ -126,13 +146,16 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
     }
 
     public boolean failed(final Exception exception) {
-        synchronized(this) {
+        lock.lock();
+        try {
             if (this.completed) {
                 return false;
             }
             this.completed = true;
             this.ex = exception;
-            notifyAll();
+            condition.signalAll();
+        } finally {
+            lock.unlock();
         }
         if (this.callback != null) {
             this.callback.failed(exception);
@@ -142,13 +165,16 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
 
     @Override
     public boolean cancel(final boolean mayInterruptIfRunning) {
-        synchronized(this) {
+        lock.lock();
+        try {
             if (this.completed) {
                 return false;
             }
             this.completed = true;
             this.cancelled = true;
-            notifyAll();
+            condition.signalAll();
+        } finally {
+            lock.unlock();
         }
         if (this.callback != null) {
             this.callback.cancelled();

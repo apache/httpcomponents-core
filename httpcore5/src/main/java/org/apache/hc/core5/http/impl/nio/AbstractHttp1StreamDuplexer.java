@@ -36,6 +36,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.net.ssl.SSLSession;
 
@@ -611,19 +612,20 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
 
     static class CapacityWindow implements CapacityChannel {
         private final IOSession ioSession;
-        private final Object lock;
+        private final ReentrantLock lock;
         private int window;
         private boolean closed;
 
         CapacityWindow(final int window, final IOSession ioSession) {
             this.window = window;
             this.ioSession = ioSession;
-            this.lock = new Object();
+            this.lock = new ReentrantLock();
         }
 
         @Override
         public void update(final int increment) throws IOException {
-            synchronized (lock) {
+            lock.lock();
+            try {
                 if (closed) {
                     return;
                 }
@@ -631,6 +633,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
                     updateWindow(increment);
                     ioSession.setEvent(SelectionKey.OP_READ);
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -639,12 +643,15 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
          * if this channel is closed in it.
          */
         int removeCapacity(final int delta) {
-            synchronized (lock) {
+            lock.lock();
+            try {
                 updateWindow(-delta);
                 if (window <= 0) {
                     ioSession.clearEvent(SelectionKey.OP_READ);
                 }
                 return window;
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -662,8 +669,11 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
          * read events outside of the context of the request the channel was created for
          */
         void close() {
-            synchronized (lock) {
+            lock.lock();
+            try {
                 closed = true;
+            } finally {
+                lock.unlock();
             }
         }
 
