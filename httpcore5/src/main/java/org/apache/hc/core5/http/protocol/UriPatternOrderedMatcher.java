@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -60,6 +61,8 @@ public class UriPatternOrderedMatcher<T> implements LookupRegistry<T> {
 
     private final Map<String, T> map;
 
+    private final ReentrantLock lock = new ReentrantLock();
+
     public UriPatternOrderedMatcher() {
         super();
         this.map = new LinkedHashMap<>();
@@ -73,8 +76,13 @@ public class UriPatternOrderedMatcher<T> implements LookupRegistry<T> {
      * @see Map#entrySet()
      * @since 4.4.9
      */
-    public synchronized Set<Entry<String, T>> entrySet() {
-        return new HashSet<>(map.entrySet());
+    public Set<Entry<String, T>> entrySet() {
+        lock.lock();
+        try {
+            return new HashSet<>(map.entrySet());
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -84,9 +92,14 @@ public class UriPatternOrderedMatcher<T> implements LookupRegistry<T> {
      * @param obj     the object.
      */
     @Override
-    public synchronized void register(final String pattern, final T obj) {
-        Args.notNull(pattern, "URI request pattern");
-        this.map.put(pattern, obj);
+    public void register(final String pattern, final T obj) {
+        lock.lock();
+        try {
+            Args.notNull(pattern, "URI request pattern");
+            this.map.put(pattern, obj);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -95,11 +108,16 @@ public class UriPatternOrderedMatcher<T> implements LookupRegistry<T> {
      * @param pattern the pattern to unregister.
      */
     @Override
-    public synchronized void unregister(final String pattern) {
-        if (pattern == null) {
-            return;
+    public void unregister(final String pattern) {
+        lock.lock();
+        try {
+            if (pattern == null) {
+                return;
+            }
+            this.map.remove(pattern);
+        } finally {
+            lock.unlock();
         }
-        this.map.remove(pattern);
     }
 
     /**
@@ -109,18 +127,23 @@ public class UriPatternOrderedMatcher<T> implements LookupRegistry<T> {
      * @return object or {@code null} if no match is found.
      */
     @Override
-    public synchronized T lookup(final String path) {
-        Args.notNull(path, "Request path");
-        for (final Entry<String, T> entry : this.map.entrySet()) {
-            final String pattern = entry.getKey();
-            if (path.equals(pattern)) {
-                return entry.getValue();
+    public T lookup(final String path) {
+        lock.lock();
+        try {
+            Args.notNull(path, "Request path");
+            for (final Entry<String, T> entry : this.map.entrySet()) {
+                final String pattern = entry.getKey();
+                if (path.equals(pattern)) {
+                    return entry.getValue();
+                }
+                if (matchUriRequestPattern(pattern, path)) {
+                    return this.map.get(pattern);
+                }
             }
-            if (matchUriRequestPattern(pattern, path)) {
-                return this.map.get(pattern);
-            }
+            return null;
+        } finally {
+            lock.unlock();
         }
-        return null;
     }
 
     /**

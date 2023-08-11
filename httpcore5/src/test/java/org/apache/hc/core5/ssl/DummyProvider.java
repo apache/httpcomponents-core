@@ -31,6 +31,7 @@ import java.security.Provider;
 import java.security.Security;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class DummyProvider extends Provider {
 
@@ -40,8 +41,11 @@ public class DummyProvider extends Provider {
 
     private final Set<String> requestedTypes = new HashSet<>();
 
+    private final ReentrantLock lock;
+
     public DummyProvider() {
         super(NAME, 1.1, "http core fake provider 1.1");
+        this.lock = new ReentrantLock();
     }
 
     public boolean hasBeenRequested(final String what) {
@@ -58,7 +62,12 @@ public class DummyProvider extends Provider {
     }
 
     @Override
-    public synchronized Set<Service> getServices() {
-        return realJSSEProvider.getServices();
+    public Set<Service> getServices() {
+        lock.lock();
+        try {
+            return realJSSEProvider.getServices();
+        } finally {
+            lock.unlock();
+        }
     }
 }

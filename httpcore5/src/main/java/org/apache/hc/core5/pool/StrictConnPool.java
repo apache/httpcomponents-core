@@ -40,7 +40,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -78,7 +77,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     private final LinkedList<PoolEntry<T, C>> available;
     private final ConcurrentLinkedQueue<LeaseRequest<T, C>> completedRequests;
     private final Map<T, Integer> maxPerRoute;
-    private final Lock lock;
+    private final ReentrantLock lock;
     private final AtomicBoolean isShutDown;
 
     private volatile int defaultMaxPerRoute;
@@ -178,13 +177,16 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<PoolEntry<T, C>>(callback) {
 
             @Override
-            public synchronized PoolEntry<T, C> get(
+            public PoolEntry<T, C> get(
                     final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                lock.lock();
                 try {
                     return super.get(timeout, unit);
                 } catch (final TimeoutException ex) {
                     cancel();
                     throw ex;
+                } finally {
+                    lock.unlock();
                 }
             }
 

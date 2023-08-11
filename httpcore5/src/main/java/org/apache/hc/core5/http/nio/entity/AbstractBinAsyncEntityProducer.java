@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -53,6 +54,8 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
     private final ByteBuffer byteBuffer;
     private final ContentType contentType;
 
+    private final ReentrantLock lock;
+
     private volatile State state;
 
     public AbstractBinAsyncEntityProducer(final int fragmentSizeHint, final ContentType contentType) {
@@ -60,6 +63,7 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
         this.byteBuffer = ByteBuffer.allocate(this.fragmentSizeHint);
         this.contentType = contentType;
         this.state = State.ACTIVE;
+        this.lock = new ReentrantLock();
     }
 
     private void flush(final StreamChannel<ByteBuffer> channel) throws IOException {
@@ -164,30 +168,40 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
         if (state == State.ACTIVE) {
             return availableData();
         } else {
-            synchronized (byteBuffer) {
+            lock.lock();
+            try {
                 return byteBuffer.position();
+            } finally {
+                lock.unlock();
             }
         }
     }
 
     @Override
     public final void produce(final DataStreamChannel channel) throws IOException {
-        synchronized (byteBuffer) {
+        lock.lock();
+        try {
             if (state == State.ACTIVE) {
                 produceData(new StreamChannel<ByteBuffer>() {
 
                     @Override
                     public int write(final ByteBuffer src) throws IOException {
                         Args.notNull(src, "Buffer");
-                        synchronized (byteBuffer) {
+                        lock.lock();
+                        try {
                             return writeData(channel, src);
+                        } finally {
+                            lock.unlock();
                         }
                     }
 
                     @Override
                     public void endStream() throws IOException {
-                        synchronized (byteBuffer) {
+                        lock.lock();
+                        try {
                             streamEnd(channel);
+                        } finally {
+                            lock.unlock();
                         }
                     }
 
@@ -200,6 +214,8 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
                     channel.endStream();
                 }
             }
+        } finally {
+            lock.unlock();
         }
     }
 

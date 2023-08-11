@@ -34,6 +34,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -58,13 +59,14 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
 
     private final BlockingQueue<ByteBuffer> buffers = new LinkedBlockingQueue<>();
     private final AtomicBoolean flushInProgress = new AtomicBoolean(false);
-    private final Object flushLock = new Object();
     private final AtomicInteger windowScalingIncrement = new AtomicInteger(0);
     private volatile boolean cancelled;
     private volatile boolean completed;
     private volatile Exception exception;
     private volatile CapacityChannel capacityChannel;
     private volatile Subscriber<? super ByteBuffer> subscriber;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     public void failed(final Exception cause) {
         if (!completed) {
@@ -119,7 +121,8 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
     }
 
     private void flushToSubscriber() {
-        synchronized (flushLock) {
+        lock.lock();
+        try {
             final Subscriber<? super ByteBuffer> s = subscriber;
             if (flushInProgress.getAndSet(true)) {
                 return;
@@ -157,6 +160,8 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
             } finally {
                 flushInProgress.set(false);
             }
+        } finally {
+            lock.unlock();
         }
     }
 

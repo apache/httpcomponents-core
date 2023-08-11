@@ -34,6 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -58,10 +59,13 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     private final ConcurrentMap<T, PoolEntry> sessionPool;
     private final AtomicBoolean closed;
 
+    private final ReentrantLock lock;
+
     public AbstractIOSessionPool() {
         super();
         this.sessionPool = new ConcurrentHashMap<>();
         this.closed = new AtomicBoolean(false);
+        this.lock = new ReentrantLock();
     }
 
     protected abstract Future<IOSession> connectSession(
@@ -81,7 +85,8 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     public final void close(final CloseMode closeMode) {
         if (closed.compareAndSet(false, true)) {
             for (final PoolEntry poolEntry : sessionPool.values()) {
-                synchronized (poolEntry) {
+                lock.lock();
+                try {
                     if (poolEntry.session != null) {
                         closeSession(poolEntry.session, closeMode);
                         poolEntry.session = null;
@@ -98,6 +103,8 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                             break;
                         }
                     }
+                } finally {
+                    lock.unlock();
                 }
             }
             sessionPool.clear();
@@ -170,7 +177,8 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
             final T namedEndpoint,
             final Timeout connectTimeout,
             final FutureCallback<IOSession> callback) {
-        synchronized (poolEntry) {
+        poolEntry.lock.lock();
+        try {
             if (poolEntry.session != null && requestNew) {
                 closeSession(poolEntry.session, CloseMode.GRACEFUL);
                 poolEntry.session = null;
@@ -193,7 +201,8 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
 
                                 @Override
                                 public void completed(final IOSession result) {
-                                    synchronized (poolEntry) {
+                                    poolEntry.lock.lock();
+                                    try {
                                         poolEntry.session = result;
                                         for (;;) {
                                             final FutureCallback<IOSession> callback = poolEntry.requestQueue.poll();
@@ -203,12 +212,15 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                                                 break;
                                             }
                                         }
+                                    } finally {
+                                        poolEntry.lock.unlock();
                                     }
                                 }
 
                                 @Override
                                 public void failed(final Exception ex) {
-                                    synchronized (poolEntry) {
+                                    poolEntry.lock.lock();
+                                    try {
                                         poolEntry.session = null;
                                         for (;;) {
                                             final FutureCallback<IOSession> callback = poolEntry.requestQueue.poll();
@@ -218,6 +230,8 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                                                 break;
                                             }
                                         }
+                                    } finally {
+                                        poolEntry.lock.unlock();
                                     }
                                 }
 
@@ -229,19 +243,24 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
                             });
                 }
             }
+        } finally {
+            poolEntry.lock.unlock();
         }
     }
 
     public final void enumAvailable(final Callback<IOSession> callback) {
         for (final PoolEntry poolEntry: sessionPool.values()) {
             if (poolEntry.session != null) {
-                synchronized (poolEntry) {
+                lock.lock();
+                try {
                     if (poolEntry.session != null) {
                         callback.execute(poolEntry.session);
                         if (!poolEntry.session.isOpen()) {
                             poolEntry.session = null;
                         }
                     }
+                } finally {
+                    lock.unlock();
                 }
             }
         }
@@ -251,11 +270,14 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
         final long deadline = System.currentTimeMillis() - (TimeValue.isPositive(idleTime) ? idleTime.toMilliseconds() : 0);
         for (final PoolEntry poolEntry: sessionPool.values()) {
             if (poolEntry.session != null) {
-                synchronized (poolEntry) {
+                lock.lock();
+                try {
                     if (poolEntry.session != null && poolEntry.session.getLastReadTime() <= deadline) {
                         closeSession(poolEntry.session, CloseMode.GRACEFUL);
                         poolEntry.session = null;
                     }
+                } finally {
+                    lock.unlock();
                 }
             }
         }
@@ -278,9 +300,11 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
         final Queue<FutureCallback<IOSession>> requestQueue;
         volatile Future<IOSession> sessionFuture;
         volatile IOSession session;
+        final ReentrantLock lock; // Added
 
         PoolEntry() {
             this.requestQueue = new ArrayDeque<>();
+            this.lock = new ReentrantLock();
         }
 
     }

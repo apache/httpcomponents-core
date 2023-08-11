@@ -34,6 +34,7 @@ import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -477,6 +478,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         private volatile boolean direct;
         private volatile HttpResponse delayedResponse;
         private volatile boolean completed;
+        private final ReentrantLock lock = new ReentrantLock();
 
         private DelayedOutputChannel(final Http1StreamChannel<HttpResponse> channel) {
             this.channel = channel;
@@ -492,13 +494,16 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                 final HttpResponse response,
                 final boolean endStream,
                 final FlushMode flushMode) throws HttpException, IOException {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (direct) {
                     channel.submit(response, endStream, flushMode);
                 } else {
                     delayedResponse = response;
                     completed = endStream;
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
@@ -524,48 +529,63 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
 
         @Override
         public int write(final ByteBuffer src) throws IOException {
-            synchronized (this) {
+            lock.lock();
+            try {
                 return direct ? channel.write(src) : 0;
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void complete(final List<? extends Header> trailers) throws IOException {
-            synchronized (this) {
+            lock.lock();
+            try {
                 if (direct) {
                     channel.complete(trailers);
                 } else {
                     completed = true;
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public boolean abortGracefully() throws IOException {
-            synchronized (this) {
+           lock.lock();
+            try {
                 if (direct) {
                     return channel.abortGracefully();
                 }
                 completed = true;
                 return true;
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public boolean isCompleted() {
-            synchronized (this) {
+           lock.lock();
+            try {
                 return direct ? channel.isCompleted() : completed;
+            } finally {
+                lock.unlock();
             }
         }
 
         @Override
         public void activate() throws IOException, HttpException {
-            synchronized (this) {
+           lock.lock();
+            try {
                 direct = true;
                 if (delayedResponse != null) {
                     channel.submit(delayedResponse, completed, completed ? FlushMode.IMMEDIATE : FlushMode.BUFFER);
                     delayedResponse = null;
                 }
+            } finally {
+                lock.unlock();
             }
         }
 
