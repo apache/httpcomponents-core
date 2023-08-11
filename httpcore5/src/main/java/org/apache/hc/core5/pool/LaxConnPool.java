@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicMarkableReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.Experimental;
@@ -362,6 +363,8 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         private final AtomicInteger allocated;
         private final AtomicLong releaseSeqNum;
 
+        private final ReentrantLock lock;
+
         private volatile int max;
 
         PerRoutePool(
@@ -386,6 +389,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             this.allocated = new AtomicInteger(0);
             this.releaseSeqNum = new AtomicLong(0);
             this.max = max;
+            this.lock = new ReentrantLock();
         }
 
         public void shutdown(final CloseMode closeMode) {
@@ -462,13 +466,16 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             final BasicFuture<PoolEntry<T, C>> future = new BasicFuture<PoolEntry<T, C>>(callback) {
 
                 @Override
-                public synchronized PoolEntry<T, C> get(
+                public PoolEntry<T, C> get(
                         final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                    lock.lock();
                     try {
                         return super.get(timeout, unit);
                     } catch (final TimeoutException ex) {
                         cancel();
                         throw ex;
+                    } finally {
+                        lock.unlock();
                     }
                 }
 

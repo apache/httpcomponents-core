@@ -56,6 +56,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -140,6 +141,8 @@ public abstract class Http1IntegrationTest {
     private static final Timeout LONG_TIMEOUT = Timeout.ofMinutes(2);
 
     private final URIScheme scheme;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     @RegisterExtension
     private final Http1TestResources resources;
@@ -910,8 +913,11 @@ public abstract class Http1IntegrationTest {
                                 responseChannel.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE), context);
                             }
                             final HttpResponse response = new BasicHttpResponse(200);
-                            synchronized (entityProducer) {
+                            lock.lock();
+                            try {
                                 responseChannel.sendResponse(response, entityProducer, context);
+                            } finally {
+                                lock.unlock();
                             }
                         }
                     } catch (final Exception ignore) {
@@ -936,15 +942,21 @@ public abstract class Http1IntegrationTest {
 
             @Override
             public int available() {
-                synchronized (entityProducer) {
+                lock.lock();
+                try {
                     return entityProducer.available();
+                } finally {
+                    lock.unlock();
                 }
             }
 
             @Override
             public void produce(final DataStreamChannel channel) throws IOException {
-                synchronized (entityProducer) {
+                lock.lock();
+                try {
                     entityProducer.produce(channel);
+                } finally {
+                    lock.unlock();
                 }
             }
 

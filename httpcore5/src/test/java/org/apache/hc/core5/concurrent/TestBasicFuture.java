@@ -26,8 +26,17 @@
  */
 package org.apache.hc.core5.concurrent;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.fail;
+
+import java.time.Duration;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -113,7 +122,7 @@ public class TestBasicFuture {
         Mockito.verify(callback, Mockito.never()).failed(Mockito.any());
         Mockito.verify(callback).cancelled();
 
-        Assertions.assertThrows(CancellationException.class, future::get);
+        assertThrows(CancellationException.class, future::get);
         Assertions.assertTrue(future.isDone());
         Assertions.assertTrue(future.isCancelled());
     }
@@ -173,7 +182,7 @@ public class TestBasicFuture {
         });
         t.setDaemon(true);
         t.start();
-        Assertions.assertThrows(CancellationException.class, () ->
+        assertThrows(CancellationException.class, () ->
                 future.get(60, TimeUnit.SECONDS));
     }
 
@@ -191,15 +200,94 @@ public class TestBasicFuture {
         });
         t.setDaemon(true);
         t.start();
-        Assertions.assertThrows(TimeoutException.class, () ->
+        assertThrows(TimeoutException.class, () ->
                 future.get(1, TimeUnit.MILLISECONDS));
     }
 
     @Test
     public void testAsyncNegativeTimeout() throws Exception {
         final BasicFuture<Object> future = new BasicFuture<>(null);
-        Assertions.assertThrows(TimeoutValueException.class, () ->
+        assertThrows(TimeoutValueException.class, () ->
                 future.get(-1, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testConcurrentOperations() throws InterruptedException, ExecutionException {
+        final FutureCallback<Object> callback = new FutureCallback<Object>() {
+            public void completed(final Object result) {
+            }
+
+            public void failed(final Exception ex) {
+            }
+
+            public void cancelled() {
+            }
+        };
+
+        final ExecutorService executor = Executors.newFixedThreadPool(3);
+        final BasicFuture<Object> future = new BasicFuture<>(callback);
+        final Object expectedResult = new Object();
+
+        // Run 3 tasks concurrently: complete, fail, and cancel the future.
+        final Future<?> future1 = executor.submit(() -> future.completed(expectedResult));
+        final Future<?> future2 = executor.submit(() -> future.failed(new Exception("Test Exception")));
+        final Future<?> future3 = executor.submit(() -> future.cancel());
+
+        // Wait for the tasks to finish.
+        future1.get();
+        future2.get();
+        future3.get();
+
+        // Verify that the first operation won and the other two failed.
+        if (future.isDone()) {
+            assertEquals(expectedResult, future.get());
+        } else if (future.isCancelled()) {
+            assertThrows(CancellationException.class, future::get);
+        } else {
+            assertThrows(ExecutionException.class, future::get);
+        }
+
+        // Shutdown the executor.
+        executor.shutdown();
+    }
+
+    @Test
+    void testGetWithTimeout() {
+        final FutureCallback<String> callback = new FutureCallback<String>() {
+            @Override
+            public void completed(final String result) {
+                // Nothing to do
+            }
+
+            @Override
+            public void failed(final Exception ex) {
+                // Nothing to do
+            }
+
+            @Override
+            public void cancelled() {
+                // Nothing to do
+            }
+        };
+
+        final BasicFuture<String> future = new BasicFuture<>(callback);
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(100);  // This simulates the delay in completing the future.
+                future.completed("test");
+            } catch (final InterruptedException e) {
+                future.failed(e);
+            }
+        }).start();
+
+        assertTimeoutPreemptively(Duration.ofMillis(200), () -> {
+            try {
+                assertEquals("test", future.get(1, TimeUnit.SECONDS));
+            } catch (final ExecutionException | TimeoutException e) {
+                fail("Test failed due to exception: " + e.getMessage());
+            }
+        });
     }
 
 }

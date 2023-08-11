@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.protocol;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -53,10 +54,13 @@ public class UriRegexMatcher<T> implements LookupRegistry<T> {
     private final Map<String, T> objectMap;
     private final Map<String, Pattern> patternMap;
 
+    private final ReentrantLock lock;
+
     public UriRegexMatcher() {
         super();
         this.objectMap = new LinkedHashMap<>();
         this.patternMap = new LinkedHashMap<>();
+        this.lock = new ReentrantLock();
     }
 
     /**
@@ -68,10 +72,15 @@ public class UriRegexMatcher<T> implements LookupRegistry<T> {
      *            the object.
      */
     @Override
-    public synchronized void register(final String regex, final T obj) {
-        Args.notNull(regex, "URI request regex");
-        this.objectMap.put(regex, obj);
-        this.patternMap.put(regex, Pattern.compile(regex));
+    public void register(final String regex, final T obj) {
+        lock.lock();
+        try {
+            Args.notNull(regex, "URI request regex");
+            this.objectMap.put(regex, obj);
+            this.patternMap.put(regex, Pattern.compile(regex));
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -81,12 +90,17 @@ public class UriRegexMatcher<T> implements LookupRegistry<T> {
      *            the regex to unregister.
      */
     @Override
-    public synchronized void unregister(final String regex) {
-        if (regex == null) {
-            return;
+    public void unregister(final String regex) {
+        lock.lock();
+        try {
+            if (regex == null) {
+                return;
+            }
+            this.objectMap.remove(regex);
+            this.patternMap.remove(regex);
+        } finally {
+            lock.unlock();
         }
-        this.objectMap.remove(regex);
-        this.patternMap.remove(regex);
     }
 
     /**
@@ -97,19 +111,24 @@ public class UriRegexMatcher<T> implements LookupRegistry<T> {
      * @return object or {@code null} if no match is found.
      */
     @Override
-    public synchronized T lookup(final String path) {
-        Args.notNull(path, "Request path");
-        // direct match?
-        final T obj = this.objectMap.get(path);
-        if (obj == null) {
-            // regex match?
-            for (final Entry<String, Pattern> entry : this.patternMap.entrySet()) {
-                if (entry.getValue().matcher(path).matches()) {
-                    return objectMap.get(entry.getKey());
+    public T lookup(final String path) {
+        lock.lock();
+        try {
+            Args.notNull(path, "Request path");
+            // direct match?
+            final T obj = this.objectMap.get(path);
+            if (obj == null) {
+                // regex match?
+                for (final Entry<String, Pattern> entry : this.patternMap.entrySet()) {
+                    if (entry.getValue().matcher(path).matches()) {
+                        return objectMap.get(entry.getKey());
+                    }
                 }
             }
+            return obj;
+        } finally {
+            lock.unlock();
         }
-        return obj;
     }
 
     @Override

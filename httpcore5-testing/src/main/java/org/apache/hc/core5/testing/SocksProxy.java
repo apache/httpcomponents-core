@@ -37,6 +37,7 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.util.TimeValue;
@@ -209,6 +210,7 @@ public class SocksProxy {
     private final List<SocksProxyHandler> handlers = new ArrayList<>();
     private ServerSocket server;
     private Thread serverThread;
+    private final ReentrantLock lock;
 
     public SocksProxy() {
         this(0);
@@ -216,36 +218,43 @@ public class SocksProxy {
 
     public SocksProxy(final int port) {
         this.port = port;
+        this.lock = new ReentrantLock();
     }
 
-    public synchronized void start() throws IOException {
-        if (this.server == null) {
-            this.server = new ServerSocket(this.port);
-            this.serverThread = new Thread(() -> {
-                try {
-                    while (true) {
-                        final Socket socket = server.accept();
-                        startSocksProxyHandler(socket);
-                    }
-                } catch (final IOException e) {
-                } finally {
-                    if (server != null) {
-                        try {
-                            server.close();
-                        } catch (final IOException e) {
+    public void start() throws IOException {
+        lock.lock();
+        try {
+            if (this.server == null) {
+                this.server = new ServerSocket(this.port);
+                this.serverThread = new Thread(() -> {
+                    try {
+                        while (true) {
+                            final Socket socket = server.accept();
+                            startSocksProxyHandler(socket);
                         }
-                        server = null;
+                    } catch (final IOException e) {
+                    } finally {
+                        if (server != null) {
+                            try {
+                                server.close();
+                            } catch (final IOException e) {
+                            }
+                            server = null;
+                        }
                     }
-                }
-            });
-            this.serverThread.start();
+                });
+                this.serverThread.start();
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
     public void shutdown(final TimeValue timeout) throws InterruptedException {
         final long waitUntil = System.currentTimeMillis() + timeout.toMilliseconds();
         Thread t = null;
-        synchronized (this) {
+        lock.lock();
+        try {
             if (this.server != null) {
                 try {
                     this.server.close();
@@ -265,6 +274,8 @@ public class SocksProxy {
                     wait(waitTime);
                 }
             }
+        } finally {
+            lock.unlock();
         }
         if (t != null) {
             final long waitTime = waitUntil - System.currentTimeMillis();
@@ -276,14 +287,22 @@ public class SocksProxy {
 
     protected void startSocksProxyHandler(final Socket socket) {
         final SocksProxyHandler handler = new SocksProxyHandler(this, socket);
-        synchronized (this) {
+        lock.lock();
+        try {
             this.handlers.add(handler);
+        } finally {
+            lock.unlock();
         }
         handler.start();
     }
 
-    protected synchronized void cleanupSocksProxyHandler(final SocksProxyHandler handler) {
-        this.handlers.remove(handler);
+    protected void cleanupSocksProxyHandler(final SocksProxyHandler handler) {
+        lock.lock();
+        try {
+            this.handlers.remove(handler);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public SocketAddress getProxyAddress() {

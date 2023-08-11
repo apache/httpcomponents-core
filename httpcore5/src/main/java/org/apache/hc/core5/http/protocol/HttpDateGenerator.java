@@ -32,6 +32,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.TimeZone;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -66,6 +67,8 @@ public class HttpDateGenerator {
     private String dateAsText;
     private ZoneId zoneId;
 
+    private final ReentrantLock lock;
+
     HttpDateGenerator() {
         dateTimeFormatter =new DateTimeFormatterBuilder()
                 .parseLenient()
@@ -73,6 +76,7 @@ public class HttpDateGenerator {
                 .appendPattern(PATTERN_RFC1123)
                 .toFormatter();
         zoneId = GMT_ID;
+        this.lock = new ReentrantLock();
 
     }
 
@@ -83,16 +87,22 @@ public class HttpDateGenerator {
                 .appendPattern(pattern)
                 .toFormatter();
         this.zoneId =  zoneId;
+        this.lock = new ReentrantLock();
     }
 
-    public synchronized String getCurrentDate() {
-        final long now = System.currentTimeMillis();
-        if (now - this.dateAsMillis > GRANULARITY_MILLIS) {
-            // Generate new date string
-            dateAsText = dateTimeFormatter.format(Instant.now().atZone(zoneId));
-            dateAsMillis = now;
+    public String getCurrentDate() {
+        lock.lock();
+        try {
+            final long now = System.currentTimeMillis();
+            if (now - this.dateAsMillis > GRANULARITY_MILLIS) {
+                // Generate new date string
+                dateAsText = dateTimeFormatter.format(Instant.now().atZone(zoneId));
+                dateAsMillis = now;
+            }
+            return dateAsText;
+        } finally {
+            lock.unlock();
         }
-        return dateAsText;
     }
 
 }

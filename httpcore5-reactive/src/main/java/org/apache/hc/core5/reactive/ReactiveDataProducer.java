@@ -31,6 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -59,8 +60,11 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
     private final AtomicReference<Subscription> subscription = new AtomicReference<>();
     private final ArrayDeque<ByteBuffer> buffers = new ArrayDeque<>(); // This field requires synchronization
 
+    private final ReentrantLock lock;
+
     public ReactiveDataProducer(final Publisher<ByteBuffer> publisher) {
         this.publisher = Args.notNull(publisher, "publisher");
+        this.lock = new ReentrantLock();
     }
 
     void setChannel(final DataStreamChannel channel) {
@@ -80,8 +84,11 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
     public void onNext(final ByteBuffer byteBuffer) {
         final byte[] copy = new byte[byteBuffer.remaining()];
         byteBuffer.get(copy);
-        synchronized (buffers) {
+        lock.lock();
+        try {
             buffers.add(ByteBuffer.wrap(copy));
+        } finally {
+            lock.unlock();
         }
         signalReadiness();
     }
@@ -113,12 +120,15 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
         if (exception.get() != null || complete.get()) {
             return 1;
         } else {
-            synchronized (buffers) {
+            lock.lock();
+            try {
                 int sum = 0;
                 for (final ByteBuffer buffer : buffers) {
                     sum += buffer.remaining();
                 }
                 return sum;
+            } finally {
+                lock.unlock();
             }
         }
     }
@@ -134,7 +144,8 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
         final Subscription s = subscription.get();
         int buffersToReplenish = 0;
         try {
-            synchronized (buffers) {
+            lock.lock();
+            try {
                 if (t != null) {
                     throw new HttpStreamResetException(t.getMessage(), t);
                 } else if (this.complete.get() && buffers.isEmpty()) {
@@ -152,6 +163,8 @@ final class ReactiveDataProducer implements AsyncDataProducer, Subscriber<ByteBu
                         }
                     }
                 }
+            } finally {
+                lock.unlock();
             }
         } finally {
             if (s != null && buffersToReplenish > 0) {

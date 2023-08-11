@@ -34,6 +34,7 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
@@ -59,6 +60,7 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
     private final int fragmentSizeHint;
     private final ContentType contentType;
     private final CharsetEncoder charsetEncoder;
+    private final ReentrantLock lock;
 
     private volatile State state;
 
@@ -73,6 +75,7 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
         final Charset charset = ContentType.getCharset(contentType, StandardCharsets.UTF_8);
         this.charsetEncoder = charset.newEncoder();
         this.state = State.ACTIVE;
+        this.lock = new ReentrantLock();
     }
 
     private void flush(final StreamChannel<ByteBuffer> channel) throws IOException {
@@ -178,30 +181,40 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
         if (state == State.ACTIVE) {
             return availableData();
         } else {
-            synchronized (bytebuf) {
+            lock.lock();
+            try {
                 return bytebuf.position();
+            } finally {
+                lock.unlock();
             }
         }
     }
 
     @Override
     public final void produce(final DataStreamChannel channel) throws IOException {
-        synchronized (bytebuf) {
+        lock.lock();
+        try {
             if (state == State.ACTIVE) {
                 produceData(new StreamChannel<CharBuffer>() {
 
                     @Override
                     public int write(final CharBuffer src) throws IOException {
                         Args.notNull(src, "Buffer");
-                        synchronized (bytebuf) {
+                        lock.lock();
+                        try {
                             return writeData(channel, src);
+                        } finally {
+                            lock.unlock();
                         }
                     }
 
                     @Override
                     public void endStream() throws IOException {
-                        synchronized (bytebuf) {
+                        lock.lock();
+                        try {
                             streamEnd(channel);
+                        } finally {
+                            lock.unlock();
                         }
                     }
 
@@ -223,6 +236,8 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
 
             }
 
+        } finally {
+            lock.unlock();
         }
     }
 

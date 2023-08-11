@@ -33,8 +33,11 @@ import java.nio.channels.ClosedSelectorException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.io.CloseMode;
@@ -48,14 +51,15 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
     private final Callback<Exception> exceptionCallback;
     private final AtomicReference<IOReactorStatus> status;
     private final AtomicBoolean terminated;
-    private final Object shutdownMutex;
+    private final Condition condition;
+
+    private final ReentrantLock lock;
 
     final Selector selector;
 
     AbstractSingleCoreIOReactor(final Callback<Exception> exceptionCallback) {
         super();
         this.exceptionCallback = exceptionCallback;
-        this.shutdownMutex = new Object();
         this.status = new AtomicReference<>(IOReactorStatus.INACTIVE);
         this.terminated = new AtomicBoolean();
         try {
@@ -63,6 +67,8 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
         } catch (final IOException ex) {
             throw new IllegalStateException("Unexpected failure opening I/O selector", ex);
         }
+        this.lock = new ReentrantLock();
+        this.condition = lock.newCondition();
     }
 
     @Override
@@ -105,22 +111,28 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
         Args.notNull(waitTime, "Wait time");
         final long deadline = System.currentTimeMillis() + waitTime.toMilliseconds();
         long remaining = waitTime.toMilliseconds();
-        synchronized (this.shutdownMutex) {
+        lock.lock();
+        try {
             while (this.status.get().compareTo(IOReactorStatus.SHUT_DOWN) < 0) {
-                this.shutdownMutex.wait(remaining);
+                condition.await(remaining, TimeUnit.MILLISECONDS);
                 remaining = deadline - System.currentTimeMillis();
                 if (remaining <= 0) {
                     return;
                 }
             }
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public final void initiateShutdown() {
         if (this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.SHUT_DOWN)) {
-            synchronized (this.shutdownMutex) {
-                this.shutdownMutex.notifyAll();
+            lock.lock();
+            try {
+                condition.signalAll();
+            } finally {
+                lock.unlock();
             }
         } else if (this.status.compareAndSet(IOReactorStatus.ACTIVE, IOReactorStatus.SHUTTING_DOWN)) {
             this.selector.wakeup();
@@ -169,8 +181,11 @@ abstract class AbstractSingleCoreIOReactor implements IOReactor {
                 logException(ex);
             }
         }
-        synchronized (this.shutdownMutex) {
-            this.shutdownMutex.notifyAll();
+        lock.lock();
+        try {
+            condition.signalAll();
+        } finally {
+            lock.unlock();
         }
     }
 
