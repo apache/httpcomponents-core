@@ -196,8 +196,8 @@ public class TestSessionInOutBuffers {
 
     @Test
     public void testNonASCIIWriteLine() throws Exception {
-        String testString = "123\u010Anew-header-from-some-header:injected-value";
-        String expectedResult = "123?new-header-from-some-header:injected-value";
+        final String testString = "123\u010Anew-header-from-some-header:injected-value";
+        final String expectedResult = "123?new-header-from-some-header:injected-value";
 
         final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
