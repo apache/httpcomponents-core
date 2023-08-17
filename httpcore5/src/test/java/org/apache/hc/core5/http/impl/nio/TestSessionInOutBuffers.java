@@ -195,6 +195,34 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
+    public void testNonASCIIWriteLine() throws Exception {
+        String testString = "123\u010Anew-header-from-some-header:injected-value";
+        String expectedResult = "123?new-header-from-some-header:injected-value";
+
+        final CharArrayBuffer chbuffer = new CharArrayBuffer(32);
+        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
+
+        chbuffer.clear();
+        chbuffer.append(testString);
+        outbuf.writeLine(chbuffer);
+
+        //this write operation should have no effect
+        outbuf.writeLine(null);
+
+        final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
+        final WritableByteChannel outChannel = newChannel(outStream);
+        outbuf.flush(outChannel);
+
+        final ReadableByteChannel channel = newChannel(outStream.toByteArray());
+
+        final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 16, 0);
+        inbuf.fill(channel);
+        chbuffer.clear();
+        inbuf.readLine(chbuffer, true);
+        Assertions.assertEquals(expectedResult, chbuffer.toString());
+    }
+
+    @Test
     public void testBasicReadWriteLine() throws Exception {
 
         final String[] teststrs = new String[5];

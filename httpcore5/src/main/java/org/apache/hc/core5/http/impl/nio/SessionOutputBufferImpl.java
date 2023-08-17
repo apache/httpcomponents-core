@@ -171,7 +171,14 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
                     final int off = buffer().position();
                     final int arrayOffset = buffer().arrayOffset();
                     for (int i = 0; i < len; i++) {
-                        b[arrayOffset + off + i]  = (byte) lineBuffer.charAt(i);
+                        final int c = lineBuffer.charAt(i);
+                        if ((c >= 0x20 && c <= 0x7E) || // Visible ASCII
+                            (c >= 0xA0 && c <= 0xFF) || // Visible ISO-8859-1
+                             c == 0x09) {               // TAB
+                            b[arrayOffset + off + i] = (byte) c;
+                        } else {
+                            b[arrayOffset + off + i] = '?';
+                        }
                     }
                     buffer().position(off + len);
                 } else {
