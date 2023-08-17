@@ -30,6 +30,8 @@ package org.apache.hc.core5.util;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 
+import static org.apache.hc.core5.util.TextUtils.filterIfRequired;
+
 /**
  * A resizable byte array.
  *
@@ -139,13 +141,7 @@ public final class ByteArrayBuffer implements Serializable {
 
         for (int i1 = off, i2 = oldlen; i2 < newlen; i1++, i2++) {
             final int c = b[i1];
-            if ((c >= 0x20 && c <= 0x7E) || // Visible ASCII
-                (c >= 0xA0 && c <= 0xFF) || // Visible ISO-8859-1
-                c == 0x09) {                // TAB
-                this.array[i2] = (byte) c;
-            } else {
-                this.array[i2] = '?';
-            }
+            this.array[i2] = filterIfRequired(c);
         }
         this.len = newlen;
     }

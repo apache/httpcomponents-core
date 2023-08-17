@@ -42,6 +42,8 @@ import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
+import static org.apache.hc.core5.util.TextUtils.filterIfRequired;
+
 class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
 
     private static final byte[] CRLF = new byte[] {Chars.CR, Chars.LF};
@@ -172,25 +174,13 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
                     final int arrayOffset = buffer().arrayOffset();
                     for (int i = 0; i < len; i++) {
                         final int c = lineBuffer.charAt(i);
-                        if ((c >= 0x20 && c <= 0x7E) || // Visible ASCII
-                            (c >= 0xA0 && c <= 0xFF) || // Visible ISO-8859-1
-                             c == 0x09) {               // TAB
-                            b[arrayOffset + off + i] = (byte) c;
-                        } else {
-                            b[arrayOffset + off + i] = '?';
-                        }
+                        b[arrayOffset + off + i] = filterIfRequired(c);
                     }
                     buffer().position(off + len);
                 } else {
                     for (int i = 0; i < lineBuffer.length(); i++) {
                         final int c = lineBuffer.charAt(i);
-                        if ((c >= 0x20 && c <= 0x7E) || // Visible ASCII
-                            (c >= 0xA0 && c <= 0xFF) || // Visible ISO-8859-1
-                             c == 0x09) {               // TAB
-                            buffer().put((byte) c);
-                        } else {
-                            buffer().put((byte) '?');
-                        }
+                        buffer().put(filterIfRequired(c));
                     }
                 }
             } else {
