@@ -29,6 +29,8 @@ package org.apache.hc.core5.util;
 
 import java.util.Locale;
 
+import org.apache.hc.core5.annotation.Internal;
+
 /**
  * @since 4.3
  */
@@ -139,6 +141,23 @@ public final class TextUtils {
             return null;
         }
         return s.toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Casts character to byte filtering non-visible and non-ASCII characters
+     * before conversion
+     *
+     * @since 5.2
+     */
+    @Internal
+    public static byte castAsByte(final int c) {
+        if ((c >= 0x20 && c <= 0x7E) || // Visible ASCII
+            (c >= 0xA0 && c <= 0xFF) || // Visible ISO-8859-1
+             c == 0x09) {               // TAB
+            return (byte) c;
+        } else {
+            return '?';
+        }
     }
 
 }

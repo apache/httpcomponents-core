@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
+import org.apache.hc.core5.util.TextUtils;
 
 class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputBuffer {
 
@@ -171,12 +172,14 @@ class SessionOutputBufferImpl extends ExpandableBuffer implements SessionOutputB
                     final int off = buffer().position();
                     final int arrayOffset = buffer().arrayOffset();
                     for (int i = 0; i < len; i++) {
-                        b[arrayOffset + off + i]  = (byte) lineBuffer.charAt(i);
+                        final int c = lineBuffer.charAt(i);
+                        b[arrayOffset + off + i] = TextUtils.castAsByte(c);
                     }
                     buffer().position(off + len);
                 } else {
                     for (int i = 0; i < lineBuffer.length(); i++) {
-                        buffer().put((byte) lineBuffer.charAt(i));
+                        final int c = lineBuffer.charAt(i);
+                        buffer().put(TextUtils.castAsByte(c));
                     }
                 }
             } else {
