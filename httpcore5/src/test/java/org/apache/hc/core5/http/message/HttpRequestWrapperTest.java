@@ -120,7 +120,7 @@ public class HttpRequestWrapperTest {
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
         Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
         Assertions.assertEquals("/stuff?param=value", httpRequestWrapper.getPath());
-        Assertions.assertEquals(new URIAuthority("user:pwd", "host", 9443), httpRequestWrapper.getAuthority());
+        Assertions.assertEquals(new URIAuthority("host", 9443), httpRequestWrapper.getAuthority());
         Assertions.assertEquals("https", httpRequestWrapper.getScheme());
         Assertions.assertEquals(new URI("https://host:9443/stuff?param=value"), httpRequestWrapper.getUri());
     }
@@ -152,11 +152,11 @@ public class HttpRequestWrapperTest {
 
     @Test
     public void testRequestHostWithReservedChars() throws Exception {
-        final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://someuser%21@%21example%21.com/stuff"));
+        final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://%21example%21.com/stuff"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
         Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
         Assertions.assertEquals("/stuff", httpRequestWrapper.getPath());
-        Assertions.assertEquals(new URIAuthority("someuser%21", "%21example%21.com", -1), httpRequestWrapper.getAuthority());
+        Assertions.assertEquals(new URIAuthority( "%21example%21.com", -1), httpRequestWrapper.getAuthority());
         Assertions.assertEquals(new URI("http://%21example%21.com/stuff"), httpRequestWrapper.getUri());
     }
 }
