@@ -39,6 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.hc.core5.util.TimeoutValueException;
 import org.junit.jupiter.api.Assertions;
@@ -228,10 +229,14 @@ public class TestBasicFuture {
         final BasicFuture<Object> future = new BasicFuture<>(callback);
         final Object expectedResult = new Object();
 
+        final AtomicBoolean completedSuccessfully = new AtomicBoolean(false);
+        final AtomicBoolean failedSuccessfully = new AtomicBoolean(false);
+        final AtomicBoolean cancelledSuccessfully = new AtomicBoolean(false);
+
         // Run 3 tasks concurrently: complete, fail, and cancel the future.
-        final Future<?> future1 = executor.submit(() -> future.completed(expectedResult));
-        final Future<?> future2 = executor.submit(() -> future.failed(new Exception("Test Exception")));
-        final Future<?> future3 = executor.submit(() -> future.cancel());
+        final Future<?> future1 = executor.submit(() -> completedSuccessfully.set(future.completed(expectedResult)));
+        final Future<?> future2 = executor.submit(() -> failedSuccessfully.set(future.failed(new Exception("Test Exception"))));
+        final Future<?> future3 = executor.submit(() -> cancelledSuccessfully.set(future.cancel()));
 
         // Wait for the tasks to finish.
         future1.get();
@@ -239,12 +244,14 @@ public class TestBasicFuture {
         future3.get();
 
         // Verify that the first operation won and the other two failed.
-        if (future.isDone()) {
+        if (completedSuccessfully.get()) {
             assertEquals(expectedResult, future.get());
-        } else if (future.isCancelled()) {
+        } else if (failedSuccessfully.get()) {
+            assertThrows(ExecutionException.class, future::get);
+        } else if (cancelledSuccessfully.get()) {
             assertThrows(CancellationException.class, future::get);
         } else {
-            assertThrows(ExecutionException.class, future::get);
+            fail("No operation was successful on the future.");
         }
 
         // Shutdown the executor.
