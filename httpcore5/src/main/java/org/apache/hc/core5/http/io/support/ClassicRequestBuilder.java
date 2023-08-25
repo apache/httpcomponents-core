@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.io.support;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -238,6 +239,15 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
     }
 
     /**
+     * @since 5.3
+     */
+    @Override
+    public ClassicRequestBuilder setAddress(final InetAddress address) {
+        super.setAddress(address);
+        return this;
+    }
+
+    /**
      * @since 5.1
      */
     @Override
@@ -377,7 +387,7 @@ public class ClassicRequestBuilder extends AbstractRequestBuilder<ClassicHttpReq
             throw new IllegalStateException(Method.TRACE + " requests may not include an entity");
         }
 
-        final BasicClassicHttpRequest result = new BasicClassicHttpRequest(method, getScheme(), getAuthority(), path);
+        final BasicClassicHttpRequest result = new BasicClassicHttpRequest(method, getScheme(), getAuthority(), getAddress(), path);
         result.setVersion(getVersion());
         result.setHeaders(getHeaders());
         result.setEntity(entityCopy);

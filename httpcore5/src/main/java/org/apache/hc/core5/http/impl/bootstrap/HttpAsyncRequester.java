@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl.bootstrap;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
@@ -289,7 +290,10 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                 if (authority == null) {
                     throw new ProtocolException("Request authority not specified");
                 }
-                final HttpHost target = new HttpHost(scheme, authority);
+                final InetAddress address = request.getAddress();
+                final HttpHost target = (address == null)
+                  ? new HttpHost(scheme, authority)
+                  : new HttpHost(scheme, address, authority.getPort());
                 connect(target, timeout, null, new FutureCallback<AsyncClientEndpoint>() {
 
                     @Override

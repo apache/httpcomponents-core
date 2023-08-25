@@ -315,7 +315,7 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
                 // should never happen
             }
         }
-        final BasicHttpRequest result = new BasicHttpRequest(getMethod(), getScheme(), getAuthority(), path);
+        final BasicHttpRequest result = new BasicHttpRequest(getMethod(), getScheme(), getAuthority(), getAddress(), path);
         result.setVersion(getVersion());
         result.setHeaders(getHeaders());
         result.setAbsoluteRequestUri(isAbsoluteRequestUri());

@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -52,9 +53,30 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     private String path;
     private String scheme;
     private URIAuthority authority;
+    private InetAddress address;
     private ProtocolVersion version;
     private URI requestUri;
     private boolean absoluteRequestUri;
+
+    /**
+     * Creates request message with the given method, host and request path.
+     *
+     * @param method request method.
+     * @param scheme request scheme.
+     * @param authority request authority.
+     * @param address request address.
+     * @param path request path.
+     *
+     * @since 5.3
+     */
+    public BasicHttpRequest(final String method, final String scheme, final URIAuthority authority, final InetAddress address, final String path) {
+        super();
+        this.method = Args.notNull(method, "Method name");
+        this.scheme = scheme;
+        this.authority = authority;
+        this.address = address;
+        this.path = path;
+    }
 
     /**
      * Creates request message with the given method, host and request path.
@@ -67,11 +89,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
      * @since 5.1
      */
     public BasicHttpRequest(final String method, final String scheme, final URIAuthority authority, final String path) {
-        super();
-        this.method = Args.notNull(method, "Method name");
-        this.scheme = scheme;
-        this.authority = authority;
-        this.path = path;
+        this(method, scheme, authority, null, path);
     }
 
     /**
@@ -106,6 +124,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         this.method = Args.notNull(method, "Method name");
         this.scheme = host != null ? host.getSchemeName() : null;
         this.authority = host != null ? new URIAuthority(host) : null;
+        this.address = host != null ? host.getAddress() : null;
         this.path = path;
     }
 
@@ -157,6 +176,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         this.method = Args.notNull(method, "Method").name();
         this.scheme = host != null ? host.getSchemeName() : null;
         this.authority = host != null ? new URIAuthority(host) : null;
+        this.address = host != null ? host.getAddress() : null;
         this.path = path;
     }
 
@@ -238,6 +258,22 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     }
 
     /**
+     * @since 5.3
+     */
+    @Override
+    public InetAddress getAddress() {
+        return this.address;
+    }
+
+    /**
+     * @since 5.3
+     */
+    @Override
+    public void setAddress(final InetAddress address) {
+        this.address = address;
+    }
+
+    /**
      * Sets a flag that the {@link #getRequestUri()} method should return the request URI
      * in an absolute form.
      * <p>
@@ -275,6 +311,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
         } else {
             this.authority = null;
         }
+        this.address = null; // resolve this later
         final StringBuilder buf = new StringBuilder();
         final String rawPath = requestUri.getRawPath();
         if (!TextUtils.isBlank(rawPath)) {

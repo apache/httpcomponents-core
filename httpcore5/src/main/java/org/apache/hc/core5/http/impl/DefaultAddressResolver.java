@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.impl;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.apache.hc.core5.function.Resolver;
@@ -56,7 +57,10 @@ public final class DefaultAddressResolver implements Resolver<HttpHost, InetSock
                 port = 443;
             }
         }
-        return new InetSocketAddress(host.getHostName(), port);
+        final InetAddress address = host.getAddress();
+        return (address == null)
+          ? new InetSocketAddress(host.getHostName(), port)
+          : new InetSocketAddress(address, port);
     }
 
 }

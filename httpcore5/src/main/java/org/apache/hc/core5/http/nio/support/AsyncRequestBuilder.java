@@ -368,7 +368,7 @@ public class AsyncRequestBuilder extends AbstractRequestBuilder<AsyncRequestProd
             throw new IllegalStateException(Method.TRACE + " requests may not include an entity");
         }
 
-        final BasicHttpRequest request = new BasicHttpRequest(method, getScheme(), getAuthority(), path);
+        final BasicHttpRequest request = new BasicHttpRequest(method, getScheme(), getAuthority(), getAddress(), path);
         request.setVersion(getVersion());
         request.setHeaders(getHeaders());
         request.setAbsoluteRequestUri(isAbsoluteRequestUri());

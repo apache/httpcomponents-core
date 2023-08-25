@@ -33,6 +33,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.net.URIAuthority;
 
+import java.net.InetAddress;
 import java.net.URI;
 
 /**
@@ -52,12 +53,28 @@ public class BasicClassicHttpRequest extends BasicHttpRequest implements Classic
      * @param method request method.
      * @param scheme request scheme.
      * @param authority request authority.
+     * @param address request address.
+     * @param path request path.
+     *
+     * @since 5.3
+     */
+    public BasicClassicHttpRequest(final String method, final String scheme, final URIAuthority authority, final InetAddress address, final String path) {
+        super(method, scheme, authority, address, path);
+    }
+
+
+    /**
+     * Creates request message with the given method, host and request path.
+     *
+     * @param method request method.
+     * @param scheme request scheme.
+     * @param authority request authority.
      * @param path request path.
      *
      * @since 5.1
      */
     public BasicClassicHttpRequest(final String method, final String scheme, final URIAuthority authority, final String path) {
-        super(method, scheme, authority, path);
+        this(method, scheme, authority, null, path);
     }
 
     /**

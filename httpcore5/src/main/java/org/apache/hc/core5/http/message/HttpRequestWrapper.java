@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -77,6 +78,22 @@ public class HttpRequestWrapper extends AbstractMessageWrapper<HttpRequest> impl
     @Override
     public void setAuthority(final URIAuthority authority) {
         getMessage().setAuthority(authority);
+    }
+
+    /**
+     * @since 5.3
+     */
+    @Override
+    public InetAddress getAddress() {
+        return getMessage().getAddress();
+    }
+
+    /**
+     * @since 5.3
+     */
+    @Override
+    public void setAddress(final InetAddress address) {
+        getMessage().setAddress(address);
     }
 
     @Override

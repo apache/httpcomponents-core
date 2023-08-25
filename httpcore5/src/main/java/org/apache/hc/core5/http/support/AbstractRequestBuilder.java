@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http.support;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -56,6 +57,7 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
     final private String method;
     private String scheme;
     private URIAuthority authority;
+    private InetAddress address;
     private String path;
     private Charset charset;
     private List<NameValuePair> parameters;
@@ -94,6 +96,7 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
         }
         setScheme(request.getScheme());
         setAuthority(request.getAuthority());
+        setAddress(request.getAddress());
         setPath(request.getPath());
         this.parameters = null;
         super.digest(request);
@@ -127,11 +130,27 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
         return this;
     }
 
+    /**
+     * @since 5.3
+     */
+    public InetAddress getAddress() {
+        return address;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public AbstractRequestBuilder<T> setAddress(final InetAddress address) {
+      this.address = address;
+      return this;
+    }
+
     public AbstractRequestBuilder<T> setHttpHost(final HttpHost httpHost) {
         if (httpHost == null) {
             return this;
         }
         this.authority = new URIAuthority(httpHost);
+        this.address = httpHost.getAddress();
         this.scheme = httpHost.getSchemeName();
         return this;
     }

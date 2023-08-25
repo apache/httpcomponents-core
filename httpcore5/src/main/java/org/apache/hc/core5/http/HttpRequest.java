@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.http;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -93,6 +94,22 @@ public interface HttpRequest extends HttpMessage {
      * @since 5.0
      */
     void setAuthority(URIAuthority authority);
+
+    /**
+     * Returns address of this request message.
+     *
+     * @return  the address or {@code null}.
+     *
+     * @since 5.3
+     */
+    InetAddress getAddress();
+
+    /**
+     * Sets address of this request message.
+     *
+     * @since 5.3
+     */
+    void setAddress(InetAddress address);
 
     /**
      * Returns request URI of this request message. It may be an absolute or relative URI.
