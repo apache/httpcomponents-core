@@ -49,7 +49,6 @@ import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.nio.AsyncClientEndpoint;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
@@ -69,7 +68,6 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
@@ -274,7 +272,11 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         return connect(host, timeout, null, null);
     }
 
+    /**
+     * @since 5.3
+     */
     public void execute(
+            final HttpHost target,
             final AsyncClientExchangeHandler exchangeHandler,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Timeout timeout,
@@ -284,13 +286,8 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         Args.notNull(executeContext, "Context");
         try {
             exchangeHandler.produceRequest((request, entityDetails, requestContext) -> {
-                final String scheme = request.getScheme();
-                final URIAuthority authority = request.getAuthority();
-                if (authority == null) {
-                    throw new ProtocolException("Request authority not specified");
-                }
-                final HttpHost target = new HttpHost(scheme, authority);
-                connect(target, timeout, null, new FutureCallback<AsyncClientEndpoint>() {
+                final HttpHost host = target != null ? target : defaultTarget(request);
+                connect(host, timeout, null, new FutureCallback<AsyncClientEndpoint>() {
 
                     @Override
                     public void completed(final AsyncClientEndpoint endpoint) {
@@ -384,12 +381,24 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
 
     public void execute(
             final AsyncClientExchangeHandler exchangeHandler,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final Timeout timeout,
+            final HttpContext executeContext) {
+        execute(null, exchangeHandler, pushHandlerFactory, timeout, executeContext);
+    }
+
+    public void execute(
+            final AsyncClientExchangeHandler exchangeHandler,
             final Timeout timeout,
             final HttpContext executeContext) {
         execute(exchangeHandler, null, timeout, executeContext);
     }
 
+    /**
+     * @since 5.3
+     */
     public final <T> Future<T> execute(
+            final HttpHost target,
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
@@ -411,8 +420,18 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                     }
 
                 });
-        execute(exchangeHandler, pushHandlerFactory, timeout, context != null ? context : HttpCoreContext.create());
+        execute(target, exchangeHandler, pushHandlerFactory, timeout, context != null ? context : HttpCoreContext.create());
         return future;
+    }
+
+    public final <T> Future<T> execute(
+            final AsyncRequestProducer requestProducer,
+            final AsyncResponseConsumer<T> responseConsumer,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final Timeout timeout,
+            final HttpContext context,
+            final FutureCallback<T> callback) {
+        return execute(null, requestProducer, responseConsumer, pushHandlerFactory, timeout, context, callback);
     }
 
     public final <T> Future<T> execute(
@@ -422,6 +441,18 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final HttpContext context,
             final FutureCallback<T> callback) {
         return execute(requestProducer, responseConsumer, null, timeout, context, callback);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public final <T> Future<T> execute(
+            final HttpHost target,
+            final AsyncRequestProducer requestProducer,
+            final AsyncResponseConsumer<T> responseConsumer,
+            final Timeout timeout,
+            final FutureCallback<T> callback) {
+        return execute(target, requestProducer, responseConsumer, null, timeout, null, callback);
     }
 
     public final <T> Future<T> execute(

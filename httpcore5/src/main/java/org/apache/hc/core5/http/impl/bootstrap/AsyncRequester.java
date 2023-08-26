@@ -38,8 +38,11 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Resolver;
 import org.apache.hc.core5.http.HttpHost;
+import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.ConnectionInitiator;
 import org.apache.hc.core5.reactor.DefaultConnectingIOReactor;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
@@ -125,6 +128,16 @@ public class AsyncRequester extends AbstractConnectionInitiatorBase implements I
     @Override
     public void close() throws IOException {
         ioReactor.close();
+    }
+
+    @Internal
+    protected static HttpHost defaultTarget(final HttpRequest request) throws ProtocolException {
+        final String scheme = request.getScheme();
+        final URIAuthority authority = request.getAuthority();
+        if (authority == null) {
+            throw new ProtocolException("Request authority not specified");
+        }
+        return new HttpHost(scheme, authority);
     }
 
 }
