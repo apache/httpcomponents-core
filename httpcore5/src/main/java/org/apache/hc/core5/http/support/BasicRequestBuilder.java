@@ -214,6 +214,14 @@ public class BasicRequestBuilder extends AbstractRequestBuilder<BasicHttpRequest
     }
 
     /**
+     * @since 5.3
+     */
+    public BasicRequestBuilder setAddress(final InetAddress address) {
+      this.address = address;
+      return this;
+    }
+
+    /**
      * @since 5.1
      */
     @Override
