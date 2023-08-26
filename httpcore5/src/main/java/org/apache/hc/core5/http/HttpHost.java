@@ -84,7 +84,19 @@ public final class HttpHost implements NamedEndpoint, Serializable {
         Args.containsNoBlanks(hostname, "Host name");
         this.host = new Host(hostname, port);
         this.schemeName = scheme != null ? TextUtils.toLowerCase(scheme) : DEFAULT_SCHEME.id;
-        this.address = address;
+        this.address = updateAddress(address, hostname);
+    }
+
+    private InetAddress updateAddress(final InetAddress address, final String hostname) {
+        if (address == null) {
+            return address;
+        }
+        try {
+          return InetAddress.getByAddress(hostname, address.getAddress());
+        }
+        catch (final java.net.UnknownHostException e) { // should not be possible
+            return address;
+        }
     }
 
     /**
@@ -197,7 +209,9 @@ public final class HttpHost implements NamedEndpoint, Serializable {
      * @since 5.0
      */
     public HttpHost(final String scheme, final InetAddress address, final int port) {
-        this(scheme, Args.notNull(address,"Inet address"), address.getHostName(), port);
+        this.address = Args.notNull(address,"Inet address");
+        this.host = new Host(address.getHostName(), port);
+        this.schemeName = scheme != null ? TextUtils.toLowerCase(scheme) : DEFAULT_SCHEME.id;
     }
 
     /**
