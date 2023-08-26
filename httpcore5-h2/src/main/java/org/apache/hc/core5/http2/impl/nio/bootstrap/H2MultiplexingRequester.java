@@ -49,7 +49,6 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
 import org.apache.hc.core5.http.impl.bootstrap.AsyncRequester;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
@@ -67,7 +66,6 @@ import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.nio.pool.H2ConnPool;
-import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -119,7 +117,11 @@ public class H2MultiplexingRequester extends AsyncRequester{
         connPool.setValidateAfterInactivity(timeValue);
     }
 
+    /**
+     * @since 5.3
+     */
     public Cancellable execute(
+            final HttpHost target,
             final AsyncClientExchangeHandler exchangeHandler,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final Timeout timeout,
@@ -128,18 +130,38 @@ public class H2MultiplexingRequester extends AsyncRequester{
         Args.notNull(timeout, "Timeout");
         Args.notNull(context, "Context");
         final CancellableExecution cancellableExecution = new CancellableExecution();
-        execute(exchangeHandler, pushHandlerFactory, cancellableExecution, timeout, context);
+        execute(target, exchangeHandler, pushHandlerFactory, cancellableExecution, timeout, context);
         return cancellableExecution;
+    }
+
+    public Cancellable execute(
+            final AsyncClientExchangeHandler exchangeHandler,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final Timeout timeout,
+            final HttpContext context) {
+        return execute(null, exchangeHandler, pushHandlerFactory, timeout, context);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public Cancellable execute(
+            final HttpHost target,
+            final AsyncClientExchangeHandler exchangeHandler,
+            final Timeout timeout,
+            final HttpContext context) {
+        return execute(target, exchangeHandler, null, timeout, context);
     }
 
     public Cancellable execute(
             final AsyncClientExchangeHandler exchangeHandler,
             final Timeout timeout,
             final HttpContext context) {
-        return execute(exchangeHandler, null, timeout, context);
+        return execute(null, exchangeHandler, null, timeout, context);
     }
 
     private void execute(
+            final HttpHost target,
             final AsyncClientExchangeHandler exchangeHandler,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
             final CancellableDependency cancellableDependency,
@@ -150,13 +172,8 @@ public class H2MultiplexingRequester extends AsyncRequester{
         Args.notNull(context, "Context");
         try {
             exchangeHandler.produceRequest((request, entityDetails, httpContext) -> {
-                final String scheme = request.getScheme();
-                final URIAuthority authority = request.getAuthority();
-                if (authority == null) {
-                    throw new ProtocolException("Request authority not specified");
-                }
-                final HttpHost target = new HttpHost(scheme, authority);
-                connPool.getSession(target, timeout, new FutureCallback<IOSession>() {
+                final HttpHost host = target != null ? target : defaultTarget(request);
+                connPool.getSession(host, timeout, new FutureCallback<IOSession>() {
 
                     @Override
                     public void completed(final IOSession ioSession) {
@@ -242,7 +259,11 @@ public class H2MultiplexingRequester extends AsyncRequester{
         }
     }
 
+    /**
+     * @since 5.3
+     */
     public final <T> Future<T> execute(
+            final HttpHost target,
             final AsyncRequestProducer requestProducer,
             final AsyncResponseConsumer<T> responseConsumer,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
@@ -264,8 +285,31 @@ public class H2MultiplexingRequester extends AsyncRequester{
                     }
 
                 });
-        execute(exchangeHandler, pushHandlerFactory, future, timeout, context != null ? context : HttpCoreContext.create());
+        execute(target, exchangeHandler, pushHandlerFactory, future, timeout, context != null ? context : HttpCoreContext.create());
         return future;
+    }
+
+    public final <T> Future<T> execute(
+            final AsyncRequestProducer requestProducer,
+            final AsyncResponseConsumer<T> responseConsumer,
+            final HandlerFactory<AsyncPushConsumer> pushHandlerFactory,
+            final Timeout timeout,
+            final HttpContext context,
+            final FutureCallback<T> callback) {
+        return execute(null, requestProducer, responseConsumer, pushHandlerFactory, timeout, context, callback);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public final <T> Future<T> execute(
+            final HttpHost target,
+            final AsyncRequestProducer requestProducer,
+            final AsyncResponseConsumer<T> responseConsumer,
+            final Timeout timeout,
+            final HttpContext context,
+            final FutureCallback<T> callback) {
+        return execute(target, requestProducer, responseConsumer, null, timeout, context, callback);
     }
 
     public final <T> Future<T> execute(
@@ -274,7 +318,7 @@ public class H2MultiplexingRequester extends AsyncRequester{
             final Timeout timeout,
             final HttpContext context,
             final FutureCallback<T> callback) {
-        return execute(requestProducer, responseConsumer, null, timeout, context, callback);
+        return execute(null, requestProducer, responseConsumer, null, timeout, context, callback);
     }
 
     public final <T> Future<T> execute(
@@ -282,7 +326,7 @@ public class H2MultiplexingRequester extends AsyncRequester{
             final AsyncResponseConsumer<T> responseConsumer,
             final Timeout timeout,
             final FutureCallback<T> callback) {
-        return execute(requestProducer, responseConsumer, null, timeout, null, callback);
+        return execute(null, requestProducer, responseConsumer, null, timeout, null, callback);
     }
 
     @Internal
