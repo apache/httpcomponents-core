@@ -68,6 +68,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
@@ -287,6 +288,9 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         try {
             exchangeHandler.produceRequest((request, entityDetails, requestContext) -> {
                 final HttpHost host = target != null ? target : defaultTarget(request);
+                if (request.getAuthority() == null) {
+                    request.setAuthority(new URIAuthority(host.getHostName(), host.getPort()));
+                }
                 connect(host, timeout, null, new FutureCallback<AsyncClientEndpoint>() {
 
                     @Override

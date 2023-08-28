@@ -66,6 +66,7 @@ import org.apache.hc.core5.http.nio.support.BasicClientExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http2.nio.pool.H2ConnPool;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
@@ -173,6 +174,9 @@ public class H2MultiplexingRequester extends AsyncRequester{
         try {
             exchangeHandler.produceRequest((request, entityDetails, httpContext) -> {
                 final HttpHost host = target != null ? target : defaultTarget(request);
+                if (request.getAuthority() == null) {
+                    request.setAuthority(new URIAuthority(host.getHostName(), host.getPort()));
+                }
                 connPool.getSession(host, timeout, new FutureCallback<IOSession>() {
 
                     @Override
