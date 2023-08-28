@@ -105,7 +105,6 @@ public class AsyncClientSNIExample {
 
         final CountDownLatch latch = new CountDownLatch(1);
         final HttpRequest request = BasicRequestBuilder.get()
-                .setHttpHost(target)
                 .setPath("/")
                 .build();
         requester.execute(
