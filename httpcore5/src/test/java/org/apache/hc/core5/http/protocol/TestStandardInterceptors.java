@@ -997,5 +997,4 @@ public class TestStandardInterceptors {
         Assertions.assertThrows(ProtocolException.class, () ->
                 interceptor.process(request, request.getEntity(), context));
     }
-
 }

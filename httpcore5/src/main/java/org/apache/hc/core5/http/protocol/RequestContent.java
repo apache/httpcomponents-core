@@ -32,6 +32,7 @@ import java.io.IOException;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
+import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -110,6 +111,10 @@ public class RequestContent implements HttpRequestInterceptor {
             }
         }
         if (entity != null) {
+
+            // Check for OPTIONS request with content but no Content-Type header
+            validateOptionsContentType(request);
+
             final ProtocolVersion ver = context.getProtocolVersion();
             // Must specify a transfer encoding or a content length
             if (entity.isChunked() || entity.getContentLength() < 0) {
@@ -127,4 +132,30 @@ public class RequestContent implements HttpRequestInterceptor {
         }
     }
 
+    /**
+     * Validates the presence of the Content-Type header for an OPTIONS request.
+     *
+     * <p>
+     * According to the RFC specifications, an HTTP {@link Method#OPTIONS} request that contains content
+     * must have a Content-Type header. This method checks for the presence of the Content-Type header
+     * in such requests. It does not validate the actual value of the Content-Type header, as determining
+     * its validity would require knowledge of all valid media types, which is beyond the scope of this method.
+     * If the header is absent, a {@link ProtocolException} is thrown.
+     * </p>
+     *
+     * <p>
+     * Note: This method does not check the validity of the Content-Type header value, only its presence.
+     * </p>
+     *
+     * @param request The {@link HttpRequest} to be validated for the presence of the Content-Type header. Must not be null.
+     * @throws ProtocolException If the Content-Type header is missing in an OPTIONS request with content.
+     */
+    public void validateOptionsContentType(final HttpRequest request) throws ProtocolException {
+        if (Method.OPTIONS.isSame(request.getMethod())) {
+            final Header header = request.getFirstHeader(HttpHeaders.CONTENT_TYPE);
+            if (header == null) {
+                throw new ProtocolException("OPTIONS request must have Content-Type header");
+            }
+        }
+    }
 }
