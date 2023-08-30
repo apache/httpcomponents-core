@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElement;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.HttpResponse;
@@ -151,6 +152,11 @@ public class MessageSupport {
     }
 
     public static void addTrailerHeader(final HttpMessage message, final EntityDetails entity) {
+        // Ensure using chunked transfer encoding
+        if (!message.containsHeader(HttpHeaders.TRANSFER_ENCODING) ||
+                !HeaderElements.CHUNKED_ENCODING.equals(message.getFirstHeader(HttpHeaders.TRANSFER_ENCODING).getValue())) {
+            return;
+        }
         if (entity != null && !message.containsHeader(HttpHeaders.TRAILER)) {
             final Set<String> trailerNames = entity.getTrailerNames();
             if (trailerNames != null && !trailerNames.isEmpty()) {

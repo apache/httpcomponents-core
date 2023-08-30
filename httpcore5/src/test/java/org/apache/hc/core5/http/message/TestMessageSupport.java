@@ -33,6 +33,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
@@ -105,6 +106,7 @@ public class TestMessageSupport {
         final HttpEntity entity = HttpEntities.create("some stuff with trailers", StandardCharsets.US_ASCII,
                 new BasicHeader("z", "this"), new BasicHeader("b", "that"), new BasicHeader("a", "this and that"));
         final HttpMessage message = new BasicHttpResponse(200);
+        message.addHeader(HttpHeaders.TRANSFER_ENCODING, HeaderElements.CHUNKED_ENCODING);
         MessageSupport.addTrailerHeader(message, entity);
         MessageSupport.addContentTypeHeader(message, entity);
 
@@ -115,6 +117,19 @@ public class TestMessageSupport {
         Assertions.assertEquals("z, b, a", h1.getValue());
         Assertions.assertNotNull(h2);
         Assertions.assertEquals("text/plain; charset=US-ASCII", h2.getValue());
+    }
+
+    @Test
+    public void testAddContentHeadersNullEncodingNullTrailer() throws Exception {
+        final HttpEntity entity = HttpEntities.create("some stuff with trailers", StandardCharsets.US_ASCII,
+                new BasicHeader("z", "this"), new BasicHeader("b", "that"), new BasicHeader("a", "this and that"));
+        final HttpMessage message = new BasicHttpResponse(200);
+        MessageSupport.addTrailerHeader(message, entity);
+        MessageSupport.addContentTypeHeader(message, entity);
+
+        final Header h1 = message.getFirstHeader(HttpHeaders.TRAILER);
+
+        Assertions.assertNull(h1);
     }
 
     @Test

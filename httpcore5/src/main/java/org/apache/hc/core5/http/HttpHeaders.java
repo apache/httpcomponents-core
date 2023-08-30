@@ -40,6 +40,16 @@ public final class HttpHeaders {
 
     public static final String ACCEPT = "Accept";
 
+    /**
+     * The Accept-Charset header is discouraged due to the ubiquity of UTF-8
+     * and potential issues with bandwidth, latency, and fingerprinting.
+     * Most modern user agents do not send Accept-Charset unless specifically configured to do so.
+     * It's recommended to default to UTF-8 for character encoding.
+     *
+     * @since 5.3
+     * @deprecated do not use.
+     */
+    @Deprecated
     public static final String ACCEPT_CHARSET = "Accept-Charset";
 
     public static final String ACCEPT_ENCODING = "Accept-Encoding";
