@@ -166,7 +166,7 @@ public class TestBasicMessages {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("https://user:pwd@host:9443/stuff?param=value"));
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("/stuff?param=value", request.getPath());
-        Assertions.assertEquals(new URIAuthority("user:pwd", "host", 9443), request.getAuthority());
+        Assertions.assertEquals(new URIAuthority("host", 9443), request.getAuthority());
         Assertions.assertEquals("https", request.getScheme());
         Assertions.assertEquals(new URI("https://host:9443/stuff?param=value"), request.getUri());
     }
@@ -191,10 +191,10 @@ public class TestBasicMessages {
 
     @Test
     public void testRequestHostWithReservedChars() throws Exception {
-        final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://someuser%21@%21example%21.com/stuff"));
+        final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://%21example%21.com/stuff"));
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("/stuff", request.getPath());
-        Assertions.assertEquals(new URIAuthority("someuser%21", "%21example%21.com", -1), request.getAuthority());
+        Assertions.assertEquals(new URIAuthority("%21example%21.com", -1), request.getAuthority());
         Assertions.assertEquals(new URI("http://%21example%21.com/stuff"), request.getUri());
     }
 
