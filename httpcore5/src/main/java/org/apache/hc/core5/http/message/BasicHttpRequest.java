@@ -264,8 +264,7 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     public void setUri(final URI requestUri) {
         this.scheme = requestUri.getScheme();
         if (requestUri.getHost() != null) {
-            this.authority = new URIAuthority(
-                    requestUri.getRawUserInfo(), requestUri.getHost(), requestUri.getPort());
+            this.authority = new URIAuthority(requestUri.getHost(), requestUri.getPort());
         } else if (requestUri.getRawAuthority() != null) {
             try {
                 this.authority = URIAuthority.create(requestUri.getRawAuthority());
