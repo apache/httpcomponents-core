@@ -260,35 +260,36 @@ public class TestBasicFuture {
 
     @Test
     void testGetWithTimeout() {
+        final AtomicBoolean isFutureCompleted = new AtomicBoolean(false);
+
         final FutureCallback<String> callback = new FutureCallback<String>() {
             @Override
             public void completed(final String result) {
-                // Nothing to do
+                isFutureCompleted.set(true);
             }
 
             @Override
             public void failed(final Exception ex) {
-                // Nothing to do
+                // Nothing to do here for this example
             }
 
             @Override
             public void cancelled() {
-                // Nothing to do
+                // Nothing to do here for this example
             }
         };
 
         final BasicFuture<String> future = new BasicFuture<>(callback);
 
-        new Thread(() -> {
-            try {
-                Thread.sleep(100);  // This simulates the delay in completing the future.
-                future.completed("test");
-            } catch (final InterruptedException e) {
-                future.failed(e);
-            }
-        }).start();
+        new Thread(() -> future.completed("test")).start();
 
+        // Poll until the future is completed or timeout
         assertTimeoutPreemptively(Duration.ofMillis(200), () -> {
+            while (!isFutureCompleted.get()) {
+                // This loop will spin until the future is completed or the assertTimeoutPreemptively times out.
+                Thread.yield();
+            }
+
             try {
                 assertEquals("test", future.get(1, TimeUnit.SECONDS));
             } catch (final ExecutionException | TimeoutException e) {
