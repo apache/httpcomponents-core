@@ -41,6 +41,7 @@ import java.util.List;
 
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.hc.core5.http.message.ParserCursor;
 import org.apache.hc.core5.util.Args;
@@ -306,6 +307,9 @@ public class URIBuilder {
      * Builds a {@link URI} instance.
      */
     public URI build() throws URISyntaxException {
+        if ((URIScheme.HTTPS.same(scheme) || URIScheme.HTTP.same(scheme))  && (TextUtils.isBlank(host))) {
+            throw new URISyntaxException(scheme, "http/https URI cannot have an empty host identifier");
+        }
         return new URI(buildString());
     }
 

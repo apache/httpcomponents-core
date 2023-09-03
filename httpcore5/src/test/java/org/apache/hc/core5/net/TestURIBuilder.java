@@ -178,9 +178,9 @@ public class TestURIBuilder {
     @Test
     public void testMutationToRelativeUri() throws Exception {
         final URI uri = new URI("http://stuff@localhost:80/stuff?param=stuff#fragment");
-        final URIBuilder uribuilder = new URIBuilder(uri).setHost((String) null);
+        final URIBuilder uribuilder = new URIBuilder(uri).setHost("localhost");
         final URI result = uribuilder.build();
-        Assertions.assertEquals(new URI("http:///stuff?param=stuff#fragment"), result);
+        Assertions.assertEquals(new URI("http://localhost:80/stuff?param=stuff#fragment"), result);
     }
 
     @Test
@@ -911,8 +911,7 @@ public class TestURIBuilder {
                 new URIBuilder("file:../../.././").optimize().build().toASCIIString());
         Assertions.assertEquals("http://host/",
                 new URIBuilder("http://host/../../.././").optimize().build().toASCIIString());
-        Assertions.assertEquals("http:/",
-                new URIBuilder("http:///../../.././").optimize().build().toASCIIString());
+        Assertions.assertThrows(URISyntaxException.class, () -> new URIBuilder("http:///../../.././").optimize().build().toASCIIString());
     }
 
     @Test
@@ -957,5 +956,31 @@ public class TestURIBuilder {
         Assertions.assertEquals("[::1]", uri.getHost());
         Assertions.assertEquals("/path", builder.getPath());
         Assertions.assertEquals("/path", uri.getPath());
+    }
+
+    @Test
+    public void testHttpsUriWithEmptyHost() {
+        final URIBuilder uribuilder = new URIBuilder()
+                .setScheme("https")
+                .setUserInfo("stuff")
+                .setHost("")
+                .setPort(80)
+                .setPath("/some stuff")
+                .setParameter("param", "stuff")
+                .setFragment("fragment");
+        Assertions.assertThrows(URISyntaxException.class, uribuilder::build);
+    }
+
+    @Test
+    public void testHttpUriWithEmptyHost() {
+        final URIBuilder uribuilder = new URIBuilder()
+                .setScheme("http")
+                .setUserInfo("stuff")
+                .setHost("")
+                .setPort(80)
+                .setPath("/some stuff")
+                .setParameter("param", "stuff")
+                .setFragment("fragment");
+        Assertions.assertThrows(URISyntaxException.class, uribuilder::build);
     }
 }
