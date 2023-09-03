@@ -82,6 +82,9 @@ public class H2RequestContent extends RequestContent {
             MessageSupport.addContentTypeHeader(request, entity);
             MessageSupport.addContentEncodingHeader(request, entity);
             MessageSupport.addTrailerHeader(request, entity);
+
+            // Check for OPTIONS request with content but no Content-Type header
+            validateOptionsContentType(request);
         }
     }
 }
