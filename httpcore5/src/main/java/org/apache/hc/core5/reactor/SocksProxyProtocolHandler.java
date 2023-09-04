@@ -93,8 +93,14 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
     @Override
     public void connected(final IOSession session) throws IOException {
         this.buffer.put(CLIENT_VERSION);
-        this.buffer.put((byte) 1);
-        this.buffer.put(NO_AUTHENTICATION_REQUIRED);
+        if (this.reactorConfig.getSocksProxyUsername() != null && this.reactorConfig.getSocksProxyPassword() != null) {
+            this.buffer.put((byte) 2);
+            this.buffer.put(NO_AUTHENTICATION_REQUIRED);
+            this.buffer.put(USERNAME_PASSWORD);
+        } else {
+            this.buffer.put((byte) 1);
+            this.buffer.put(NO_AUTHENTICATION_REQUIRED);
+        }
         this.buffer.flip();
         session.setEventMask(SelectionKey.OP_WRITE);
     }
@@ -171,6 +177,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
                         this.buffer.put(username);
                         this.buffer.put((byte) password.length);
                         this.buffer.put(password);
+                        this.buffer.flip();
                         session.setEventMask(SelectionKey.OP_WRITE);
                         this.state = State.SEND_USERNAME_PASSWORD;
                     } else if (serverMethod == NO_AUTHENTICATION_REQUIRED) {
