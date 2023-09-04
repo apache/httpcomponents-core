@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.nio.entity;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
@@ -37,6 +38,7 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.apache.hc.core5.http.nio.AsyncEntityConsumer;
+import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -110,6 +112,56 @@ public class TestAbstractCharAsyncEntityConsumer {
         consumer.streamEnd(null);
 
         Assertions.assertEquals("12345", consumer.getContent());
+        Assertions.assertEquals(1L, count.longValue());
+    }
+
+    @Test
+    public void testConsumeIncompleteData() throws Exception {
+
+        final AsyncEntityConsumer<String> consumer = new StringBuilderAsyncEntityConsumer();
+
+        final AtomicLong count = new AtomicLong(0);
+        consumer.streamStart(new BasicEntityDetails(-1, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8)), new FutureCallback<String>() {
+
+            @Override
+            public void completed(final String result) {
+                count.incrementAndGet();
+            }
+
+            @Override
+            public void failed(final Exception ex) {
+                count.incrementAndGet();
+            }
+
+            @Override
+            public void cancelled() {
+                count.incrementAndGet();
+            }
+
+        });
+
+        final byte[] stuff = "stuff".getBytes(StandardCharsets.UTF_8);
+        final byte[] splitCharacter = "£".getBytes(StandardCharsets.UTF_8);
+
+        final ByteArrayBuffer b1 = new ByteArrayBuffer(1024);
+        b1.append(stuff, 0, stuff.length);
+        b1.append(splitCharacter, 0, 1);
+        consumer.consume(ByteBuffer.wrap(b1.toByteArray()));
+
+        final ByteArrayBuffer b2 = new ByteArrayBuffer(1024);
+        b2.append(splitCharacter, 1, 1);
+        b2.append(stuff, 0, stuff.length);
+        b2.append(splitCharacter, 0, 1);
+        consumer.consume(ByteBuffer.wrap(b2.toByteArray()));
+
+        final ByteArrayBuffer b3 = new ByteArrayBuffer(1024);
+        b3.append(splitCharacter, 1, 1);
+        b3.append(stuff, 0, stuff.length);
+        consumer.consume(ByteBuffer.wrap(b3.toByteArray()));
+
+        consumer.streamEnd(null);
+
+        Assertions.assertEquals("stuff£stuff£stuff", consumer.getContent());
         Assertions.assertEquals(1L, count.longValue());
     }
 

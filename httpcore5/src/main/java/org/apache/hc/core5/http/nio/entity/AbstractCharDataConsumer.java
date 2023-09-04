@@ -57,6 +57,7 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
 
     private volatile Charset charset;
     private volatile CharsetDecoder charsetDecoder;
+    private volatile ByteBuffer byteBuffer;
 
     protected AbstractCharDataConsumer(final int bufSize, final CharCodingConfig charCodingConfig) {
         this.charBuffer = CharBuffer.allocate(Args.positive(bufSize, "Buffer size"));
@@ -133,8 +134,35 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
     public final void consume(final ByteBuffer src) throws IOException {
         final CharsetDecoder charsetDecoder = getCharsetDecoder();
         while (src.hasRemaining()) {
-            checkResult(charsetDecoder.decode(src, charBuffer, false));
-            doDecode(false);
+            if (byteBuffer != null && byteBuffer.position() > 0) {
+                // There are some left-overs from the previous input operation
+                final int n = byteBuffer.remaining();
+                if (n < src.remaining()) {
+                    final int oldLimit = src.limit();
+                    src.limit(src.position() + n);
+                    byteBuffer.put(src);
+                    src.limit(oldLimit);
+                } else {
+                    byteBuffer.put(src);
+                }
+                byteBuffer.flip();
+                final CoderResult r = charsetDecoder.decode(byteBuffer, charBuffer, false);
+                checkResult(r);
+                doDecode(false);
+                byteBuffer.compact();
+            }
+            if (byteBuffer == null || byteBuffer.position() == 0) {
+                final CoderResult r = charsetDecoder.decode(src, charBuffer, false);
+                checkResult(r);
+                doDecode(false);
+                if (r.isUnderflow() && src.hasRemaining()) {
+                    // in case of input underflow src can be expected to be very small (one incomplete UTF8 char)
+                    if (byteBuffer == null) {
+                        byteBuffer = ByteBuffer.allocate(Math.max(src.remaining(), 1024));
+                    }
+                    byteBuffer.put(src);
+                }
+            }
         }
     }
 
