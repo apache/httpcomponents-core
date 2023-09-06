@@ -39,6 +39,7 @@ import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http2.H2MessageConverter;
@@ -137,6 +138,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
             if (path == null) {
                 throw new ProtocolException("Mandatory request header '%s' not found", H2PseudoRequestHeaders.PATH);
             }
+            validatePathPseudoHeader(method, scheme, path);
         }
 
         final HttpRequest httpRequest = new BasicHttpRequest(method, path);
@@ -208,4 +210,39 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
         return headers;
     }
 
+    /**
+     * Validates the {@code :path} pseudo-header field based on the provided HTTP method and scheme.
+     * <p>
+     * This method performs the following validations:
+     * </p>
+     * <ul>
+     *     <li><strong>Non-Empty Path:</strong> For 'http' or 'https' URIs, the {@code :path} pseudo-header field must not be empty.</li>
+     *     <li><strong>OPTIONS Method:</strong> If the HTTP method is OPTIONS and the URI does not contain a path component,
+     *         the {@code :path} pseudo-header field must have a value of '*'. </li>
+     *     <li><strong>Path Starting with '/':</strong> For 'http' or 'https' URIs, the {@code :path} pseudo-header field must either start with '/' or be '*'. </li>
+     * </ul>
+     *
+     * @param method The HTTP method of the request, e.g., GET, POST, OPTIONS, etc.
+     * @param scheme The scheme of the request, e.g., http or https.
+     * @param path The value of the {@code :path} pseudo-header field.
+     * @throws ProtocolException if any of the validations fail.
+     */
+    private void validatePathPseudoHeader(final String method, final String scheme, final String path) throws ProtocolException {
+        if (URIScheme.HTTP.name().equalsIgnoreCase(scheme) || URIScheme.HTTPS.name().equalsIgnoreCase(scheme)) {
+            if (TextUtils.isBlank(path)) {
+                throw new ProtocolException("':path' pseudo-header field must not be empty for 'http' or 'https' URIs");
+            } else {
+                final boolean isRoot = path.startsWith("/");
+                if (Method.OPTIONS.isSame(method)) {
+                    if (!"*".equals(path) && !isRoot) {
+                        throw new ProtocolException("OPTIONS request for an 'http' or 'https' URI must have a ':path' pseudo-header field with a value of '*' or '/'");
+                    }
+                } else {
+                    if (!isRoot) {
+                        throw new ProtocolException("':path' pseudo-header field for 'http' or 'https' URIs must start with '/'");
+                    }
+                }
+            }
+        }
+    }
 }
