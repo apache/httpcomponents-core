@@ -54,6 +54,10 @@ public class Args {
         }
     }
 
+    /**
+     * @deprecated Use {@link #checkRange(long, long, long, String)}.
+     */
+    @Deprecated
     public static long checkContentLength(final EntityDetails entityDetails) {
         // -1 is a special value,
         // 0 is allowed as well,

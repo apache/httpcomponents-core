@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.ParseException;
@@ -111,6 +112,14 @@ public final class EntityUtils {
         return contentLength < 0 ? DEFAULT_BYTE_BUFFER_SIZE : contentLength;
     }
 
+    static long checkContentLength(final EntityDetails entityDetails) {
+        // -1 is a special value,
+        // 0 is allowed as well,
+        // but never more than Integer.MAX_VALUE.
+        return Args.checkRange(entityDetails.getContentLength(), -1, Integer.MAX_VALUE,
+                "HTTP entity too large to be buffered in memory)");
+    }
+
     /**
      * Reads the contents of an entity and return it as a byte array.
      *
@@ -122,7 +131,7 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity) throws IOException {
         Args.notNull(entity, "HttpEntity");
-        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
+        final int contentLength = toContentLength((int) checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
@@ -150,7 +159,7 @@ public final class EntityUtils {
      */
     public static byte[] toByteArray(final HttpEntity entity, final int maxResultLength) throws IOException {
         Args.notNull(entity, "HttpEntity");
-        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
+        final int contentLength = toContentLength((int) checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
@@ -206,7 +215,7 @@ public final class EntityUtils {
     private static String toString(final HttpEntity entity, final ContentType contentType, final int maxResultLength)
             throws IOException {
         Args.notNull(entity, "HttpEntity");
-        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
+        final int contentLength = toContentLength((int) checkContentLength(entity));
         try (final InputStream inStream = entity.getContent()) {
             if (inStream == null) {
                 return null;
@@ -396,7 +405,7 @@ public final class EntityUtils {
      */
     public static List<NameValuePair> parse(final HttpEntity entity, final int maxStreamLength) throws IOException {
         Args.notNull(entity, "HttpEntity");
-        final int contentLength = toContentLength((int) Args.checkContentLength(entity));
+        final int contentLength = toContentLength((int) checkContentLength(entity));
         final ContentType contentType = ContentType.parse(entity.getContentType());
         if (!ContentType.APPLICATION_FORM_URLENCODED.isSameMimeType(contentType)) {
             return Collections.emptyList();
