@@ -57,6 +57,7 @@ import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
+import org.apache.hc.core5.http.protocol.RequestIfRange;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
@@ -121,6 +122,7 @@ public class HttpBenchmark {
                         H2RequestContent.INSTANCE,
                         H2RequestTargetHost.INSTANCE,
                         H2RequestConnControl.INSTANCE,
+                        RequestIfRange.INSTANCE,
                         new RequestUserAgent("HttpCore-AB/5.0"));
         if (this.config.isUseExpectContinue()) {
             builder.add(RequestExpectContinue.INSTANCE);

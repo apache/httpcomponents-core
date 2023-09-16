@@ -31,6 +31,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
+import org.apache.hc.core5.http.protocol.RequestIfRange;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
@@ -103,6 +104,7 @@ public final class HttpProcessors {
                         RequestContent.INSTANCE,
                         RequestTargetHost.INSTANCE,
                         RequestConnControl.INSTANCE,
+                        RequestIfRange.INSTANCE,
                         new RequestUserAgent(!TextUtils.isBlank(agentInfo) ? agentInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", HttpProcessors.class)),
                         RequestExpectContinue.INSTANCE);
