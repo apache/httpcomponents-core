@@ -1,3 +1,33 @@
+Release 5.2.3
+------------------
+
+This is a maintenance release that corrects several defects discovered since release 5.2.2 including
+a major defect that can cause non-blocking character-based consumers to enter an invalid state and
+stop processing incoming data.
+
+
+Change Log
+-------------------
+
+* HTTPCORE-757: AbstractCharDataConsumer fails to correctly handle incomplete UTF8 encoded data split
+  across multiple data packets.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Support SOCKS5 with username/password authentication
+  Contributed by yndu13 <yndu13 at gmail.com>
+
+* Non-blocking protocol handler to filter out non-printable ASCII and non-ASCII characters
+  from HTTP headers by default. This makes the behavior of the non-blocking transport consistent
+  with that of the blocking one (#416).
+  Contributed by vismayku <142537063+vismayku at users.noreply.github.com>
+
+* HTTPCORE-754: StrictConnPool fails to correctly handle infinite request timeout.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-753: Fixed race condition in the IOSession#close method.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.2.2
 ------------------
 
