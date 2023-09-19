@@ -81,9 +81,9 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         Args.notNull(response, "HTTP response");
 
         if (request != null) {
-            final Iterator<String> ti = new BasicTokenIterator(request.headerIterator(HttpHeaders.CONNECTION));
-            while (ti.hasNext()) {
-                final String token = ti.next();
+            final Iterator<String> it = MessageSupport.iterateTokens(request, HttpHeaders.CONNECTION);
+            while (it.hasNext()) {
+                final String token = it.next();
                 if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
                     return false;
                 }

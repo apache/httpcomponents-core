@@ -27,10 +27,14 @@
 
 package org.apache.hc.core5.http.message;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.FormattedHeader;
@@ -42,9 +46,9 @@ import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MessageHeaders;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
-import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
 
 /**
@@ -54,19 +58,20 @@ import org.apache.hc.core5.util.Tokenizer;
  */
 public class MessageSupport {
 
-    /**
-     * An empty immutable {@code String} array.
-     */
-    private static final String[] EMPTY_STRING_ARRAY = {};
-
     private MessageSupport() {
         // Do not allow utility class to be instantiated.
     }
 
-    public static void formatTokens(final CharArrayBuffer dst, final String... tokens) {
+    /**
+     * @since 5.3
+     */
+    public static void formatTokens(final CharArrayBuffer dst, final List<String> tokens) {
         Args.notNull(dst, "Destination");
-        for (int i = 0; i < tokens.length; i++) {
-            final String element = tokens[i];
+        if (tokens == null) {
+            return;
+        }
+        for (int i = 0; i < tokens.size(); i++) {
+            final String element = tokens.get(i);
             if (i > 0) {
                 dst.append(", ");
             }
@@ -74,17 +79,47 @@ public class MessageSupport {
         }
     }
 
+    public static void formatTokens(final CharArrayBuffer dst, final String... tokens) {
+        Args.notNull(dst, "Destination");
+        boolean first = true;
+        for (final String token : tokens) {
+            if (!first) {
+                dst.append(", ");
+            }
+            dst.append(token);
+            first = false;
+        }
+    }
+
     public static void formatTokens(final CharArrayBuffer dst, final Set<String> tokens) {
         Args.notNull(dst, "Destination");
-        if (tokens == null || tokens.isEmpty()) {
+        if (tokens == null) {
             return;
         }
-        formatTokens(dst, tokens.toArray(EMPTY_STRING_ARRAY));
+        boolean first = true;
+        for (final String token : tokens) {
+            if (!first) {
+                dst.append(", ");
+            }
+            dst.append(token);
+            first = false;
+        }
     }
 
+    /**
+     * @deprecated Use {@link #header(String, Set)}
+     */
+    @Deprecated
     public static Header format(final String name, final Set<String> tokens) {
+        return header(name, tokens);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Header headerOfTokens(final String name, final List<String> tokens) {
         Args.notBlank(name, "Header name");
-        if (tokens == null || tokens.isEmpty()) {
+        if (tokens == null) {
             return null;
         }
         final CharArrayBuffer buffer = new CharArrayBuffer(256);
@@ -94,9 +129,12 @@ public class MessageSupport {
         return BufferedHeader.create(buffer);
     }
 
-    public static Header format(final String name, final String... tokens) {
+    /**
+     * @since 5.3
+     */
+    public static Header header(final String name, final Set<String> tokens) {
         Args.notBlank(name, "Header name");
-        if (tokens == null || tokens.length == 0) {
+        if (tokens == null) {
             return null;
         }
         final CharArrayBuffer buffer = new CharArrayBuffer(256);
@@ -104,38 +142,256 @@ public class MessageSupport {
         buffer.append(": ");
         formatTokens(buffer, tokens);
         return BufferedHeader.create(buffer);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Header header(final String name, final String... tokens) {
+        Args.notBlank(name, "Header name");
+        final CharArrayBuffer buffer = new CharArrayBuffer(256);
+        buffer.append(name);
+        buffer.append(": ");
+        formatTokens(buffer, tokens);
+        return BufferedHeader.create(buffer);
+    }
+
+    /**
+     * @deprecated use {@link #header(String, String...)}
+     */
+    @Deprecated
+    public static Header format(final String name, final String... tokens) {
+        return headerOfTokens(name, Arrays.asList(tokens));
     }
 
     private static final BitSet COMMA = Tokenizer.INIT_BITSET(',');
 
-    public static Set<String> parseTokens(final CharSequence src, final ParserCursor cursor) {
+    /**
+     * @since 5.3
+     */
+    public static void parseTokens(final CharSequence src, final ParserCursor cursor, final Consumer<String> consumer) {
         Args.notNull(src, "Source");
         Args.notNull(cursor, "Cursor");
-        final Set<String> tokens = new LinkedHashSet<>();
+        Args.notNull(consumer, "Consumer");
         while (!cursor.atEnd()) {
             final int pos = cursor.getPos();
             if (src.charAt(pos) == ',') {
                 cursor.updatePos(pos + 1);
             }
             final String token = Tokenizer.INSTANCE.parseToken(src, cursor, COMMA);
-            if (!TextUtils.isBlank(token)) {
-                tokens.add(token);
-            }
+            consumer.accept(token);
         }
-        return tokens;
     }
 
-    public static Set<String> parseTokens(final Header header) {
+    /**
+     * @since 5.3
+     */
+    public static void parseTokens(final Header header, final Consumer<String> consumer) {
         Args.notNull(header, "Header");
         if (header instanceof FormattedHeader) {
             final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
             final ParserCursor cursor = new ParserCursor(0, buf.length());
             cursor.updatePos(((FormattedHeader) header).getValuePos());
-            return parseTokens(buf, cursor);
+            parseTokens(buf, cursor, consumer);
+        } else {
+            final String value = header.getValue();
+            final ParserCursor cursor = new ParserCursor(0, value.length());
+            parseTokens(value, cursor, consumer);
         }
-        final String value = header.getValue();
-        final ParserCursor cursor = new ParserCursor(0, value.length());
-        return parseTokens(value, cursor);
+    }
+
+    public static Set<String> parseTokens(final CharSequence src, final ParserCursor cursor) {
+        Args.notNull(src, "Source");
+        Args.notNull(cursor, "Cursor");
+        final Set<String> tokens = new LinkedHashSet<>();
+        parseTokens(src, cursor, tokens::add);
+        return tokens;
+    }
+
+    public static Set<String> parseTokens(final Header header) {
+        Args.notNull(header, "Header");
+        final Set<String> tokens = new LinkedHashSet<>();
+        parseTokens(header, tokens::add);
+        return tokens;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Iterator<String> iterateTokens(final MessageHeaders headers, final String name) {
+        Args.notNull(headers, "Message headers");
+        Args.notBlank(name, "Header name");
+        return new BasicTokenIterator(headers.headerIterator(name));
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static void formatElements(final CharArrayBuffer dst, final List<HeaderElement> elements) {
+        Args.notNull(dst, "Destination");
+        if (elements == null) {
+            return;
+        }
+        for (int i = 0; i < elements.size(); i++) {
+            final HeaderElement element = elements.get(i);
+            if (i > 0) {
+                dst.append(", ");
+            }
+            BasicHeaderValueFormatter.INSTANCE.formatHeaderElement(dst, element, false);
+        }
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static void formatElements(final CharArrayBuffer dst, final HeaderElement... elements) {
+        formatElements(dst, Arrays.asList(elements));
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Header headerOfElements(final String name, final List<HeaderElement> elements) {
+        Args.notBlank(name, "Header name");
+        if (elements == null) {
+            return null;
+        }
+        final CharArrayBuffer buffer = new CharArrayBuffer(256);
+        buffer.append(name);
+        buffer.append(": ");
+        formatElements(buffer, elements);
+        return BufferedHeader.create(buffer);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Header header(final String name, final HeaderElement... elements) {
+        Args.notBlank(name, "Header name");
+        final CharArrayBuffer buffer = new CharArrayBuffer(256);
+        buffer.append(name);
+        buffer.append(": ");
+        formatElements(buffer, elements);
+        return BufferedHeader.create(buffer);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static void parseElements(final CharSequence buffer, final ParserCursor cursor, final Consumer<HeaderElement> consumer) {
+        Args.notNull(buffer, "Char sequence");
+        Args.notNull(cursor, "Parser cursor");
+        Args.notNull(consumer, "Consumer");
+        while (!cursor.atEnd()) {
+            final HeaderElement element = BasicHeaderValueParser.INSTANCE.parseHeaderElement(buffer, cursor);
+            consumer.accept(element);
+            if (!cursor.atEnd()) {
+                final char ch = buffer.charAt(cursor.getPos());
+                if (ch == ',') {
+                    cursor.updatePos(cursor.getPos() + 1);
+                }
+            }
+        }
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static void parseElements(final Header header, final Consumer<HeaderElement> consumer) {
+        Args.notNull(header, "Header");
+        if (header instanceof FormattedHeader) {
+            final CharArrayBuffer buf = ((FormattedHeader) header).getBuffer();
+            final ParserCursor cursor = new ParserCursor(0, buf.length());
+            cursor.updatePos(((FormattedHeader) header).getValuePos());
+            parseElements(buf, cursor, consumer);
+        } else {
+            final String value = header.getValue();
+            final ParserCursor cursor = new ParserCursor(0, value.length());
+            parseElements(value, cursor, consumer);
+        }
+    }
+
+    /**
+     * @deprecated Use {@link #parseElements(Header, Consumer)}
+     */
+    @Deprecated
+    public static HeaderElement[] parse(final Header header) {
+        final List<HeaderElement> elements = new ArrayList<>();
+        parseElements(header, elements::add);
+        return elements.toArray(new HeaderElement[]{});
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static List<HeaderElement> parseElements(final Header header) {
+        final List<HeaderElement> elements = new ArrayList<>();
+        parseElements(header, elements::add);
+        return elements;
+    }
+
+    public static Iterator<HeaderElement> iterate(final MessageHeaders headers, final String name) {
+        Args.notNull(headers, "Message headers");
+        Args.notBlank(name, "Header name");
+        return new BasicHeaderElementIterator(headers.headerIterator(name));
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static void formatParameters(final CharArrayBuffer dst, final List<NameValuePair> params) {
+        Args.notNull(dst, "Destination");
+        if (params == null) {
+            return;
+        }
+        for (int i = 0; i < params.size(); i++) {
+            final NameValuePair param = params.get(i);
+            if (i > 0) {
+                dst.append("; ");
+            }
+            BasicHeaderValueFormatter.INSTANCE.formatNameValuePair(dst, param, false);
+        }
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static void formatParameters(final CharArrayBuffer dst, final NameValuePair... params) {
+        Args.notNull(dst, "Destination");
+        if (params == null) {
+            return;
+        }
+        boolean first = true;
+        for (final NameValuePair param : params) {
+            if (!first) {
+                dst.append("; ");
+            }
+            BasicHeaderValueFormatter.INSTANCE.formatNameValuePair(dst, param, false);
+            first = false;
+        }
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static void parseParameters(final CharSequence src, final ParserCursor cursor, final Consumer<NameValuePair> consumer) {
+        Args.notNull(src, "Source");
+        Args.notNull(cursor, "Cursor");
+        Args.notNull(consumer, "Consumer");
+
+        while (!cursor.atEnd()) {
+            final NameValuePair param = BasicHeaderValueParser.INSTANCE.parseNameValuePair(src, cursor);
+            consumer.accept(param);
+            if (!cursor.atEnd()) {
+                final char ch = src.charAt(cursor.getPos());
+                if (ch == ';') {
+                    cursor.updatePos(cursor.getPos() + 1);
+                }
+                if (ch == ',') {
+                    break;
+                }
+            }
+        }
     }
 
     public static void addContentTypeHeader(final HttpMessage message, final EntityDetails entity) {
@@ -154,25 +410,9 @@ public class MessageSupport {
         if (entity != null && !message.containsHeader(HttpHeaders.TRAILER)) {
             final Set<String> trailerNames = entity.getTrailerNames();
             if (trailerNames != null && !trailerNames.isEmpty()) {
-                message.setHeader(MessageSupport.format(HttpHeaders.TRAILER, trailerNames));
+                message.setHeader(MessageSupport.header(HttpHeaders.TRAILER, trailerNames));
             }
         }
-    }
-
-    public static Iterator<HeaderElement> iterate(final MessageHeaders headers, final String name) {
-        Args.notNull(headers, "Message headers");
-        Args.notBlank(name, "Header name");
-        return new BasicHeaderElementIterator(headers.headerIterator(name));
-    }
-
-    public static HeaderElement[] parse(final Header header) {
-        Args.notNull(header, "Headers");
-        final String value = header.getValue();
-        if (value == null) {
-            return new HeaderElement[] {};
-        }
-        final ParserCursor cursor = new ParserCursor(0, value.length());
-        return BasicHeaderValueParser.INSTANCE.parseElements(value, cursor);
     }
 
     /**

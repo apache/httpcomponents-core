@@ -145,10 +145,10 @@ public class TestBasicHeaderValueFormatter {
         final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
         final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
         final NameValuePair param4 = new BasicNameValuePair("param", null);
-        final HeaderElement element1 = new BasicHeaderElement("name1", "value1", new NameValuePair[] {param1});
-        final HeaderElement element2 = new BasicHeaderElement("name2", "value2", new NameValuePair[] {param2});
-        final HeaderElement element3 = new BasicHeaderElement("name3", "value3", new NameValuePair[] {param3});
-        final HeaderElement element4 = new BasicHeaderElement("name4", "value4", new NameValuePair[] {param4});
+        final HeaderElement element1 = new BasicHeaderElement("name1", "value1", param1);
+        final HeaderElement element2 = new BasicHeaderElement("name2", "value2", param2);
+        final HeaderElement element3 = new BasicHeaderElement("name3", "value3", param3);
+        final HeaderElement element4 = new BasicHeaderElement("name4", "value4", param4);
         final HeaderElement element5 = new BasicHeaderElement("name5", null);
         final HeaderElement[] elements = new HeaderElement[] {element1, element2, element3, element4, element5};
 
