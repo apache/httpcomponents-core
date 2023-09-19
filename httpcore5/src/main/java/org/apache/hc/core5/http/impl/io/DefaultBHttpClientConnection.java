@@ -57,7 +57,7 @@ import org.apache.hc.core5.http.io.HttpMessageParserFactory;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.io.ResponseOutOfOrderStrategy;
-import org.apache.hc.core5.http.message.BasicTokenIterator;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -271,9 +271,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         if (entity == null) {
             return;
         }
-        final Iterator<String> ti = new BasicTokenIterator(request.headerIterator(HttpHeaders.CONNECTION));
-        while (ti.hasNext()) {
-            final String token = ti.next();
+        final Iterator<String> it = MessageSupport.iterateTokens(request, HttpHeaders.CONNECTION);
+        while (it.hasNext()) {
+            final String token = it.next();
             if (HeaderElements.CLOSE.equalsIgnoreCase(token)) {
                 this.consistent = false;
                 return;

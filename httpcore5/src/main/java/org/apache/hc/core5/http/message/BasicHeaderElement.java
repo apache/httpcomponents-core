@@ -55,7 +55,7 @@ public class BasicHeaderElement implements HeaderElement {
     public BasicHeaderElement(
             final String name,
             final String value,
-            final NameValuePair[] parameters) {
+            final NameValuePair... parameters) {
         super();
         this.name = Args.notNull(name, "Name");
         this.value = value;
