@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.net.URIAuthority;
@@ -447,6 +448,100 @@ public class TestDefaultH2RequestConverter {
         Assertions.assertThrows(HttpException.class, () -> converter.convert(request),
                 "Header name ':custom' is invalid");
     }
+
+
+    @Test
+    public void testValidPath() throws Exception {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader("te", "trailers")
+        );
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final HttpRequest request = converter.convert(headers);
+
+        Assertions.assertNotNull(request);
+        Assertions.assertEquals("/", request.getPath());
+
+    }
+
+    @Test
+    public void testInvalidPathEmpty() {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader(":path", ""),
+                new BasicHeader("te", "trailers")
+        );
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assertions.assertThrows(ProtocolException.class, () -> converter.convert(headers));
+    }
+
+    @Test
+    public void testInvalidPathNoSlash() {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "GET"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader(":path", "noSlash"),
+                new BasicHeader("te", "trailers")
+        );
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assertions.assertThrows(ProtocolException.class, () -> converter.convert(headers));
+    }
+
+    @Test
+    public void testValidOptionsAsterisk() throws Exception {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "OPTIONS"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader(":path", "*"),
+                new BasicHeader("te", "trailers")
+        );
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final HttpRequest request = converter.convert(headers);
+        Assertions.assertNotNull(request);
+        Assertions.assertEquals("*", request.getPath());
+    }
+
+    @Test
+    public void testValidOptionsWithRootPath() throws HttpException {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "OPTIONS"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader(":path", "/"),
+                new BasicHeader("te", "trailers")
+        );
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        final HttpRequest request = converter.convert(headers);
+        Assertions.assertNotNull(request);
+        Assertions.assertEquals("/", request.getPath());
+    }
+
+    @Test
+    public void testInvalidOptionsNeitherAsteriskNorRoot() {
+        final List<Header> headers = Arrays.asList(
+                new BasicHeader(":method", "OPTIONS"),
+                new BasicHeader(":scheme", "http"),
+                new BasicHeader(":authority", "www.example.com"),
+                new BasicHeader(":path", "invalid"),
+                new BasicHeader("te", "trailers")
+        );
+
+        final DefaultH2RequestConverter converter = new DefaultH2RequestConverter();
+        Assertions.assertThrows(ProtocolException.class, () -> converter.convert(headers));
+    }
+
 
 }
 
