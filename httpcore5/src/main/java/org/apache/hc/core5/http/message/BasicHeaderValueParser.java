@@ -93,7 +93,10 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         final NameValuePair nvp = parseNameValuePair(buffer, cursor);
         NameValuePair[] params = null;
         if (!cursor.atEnd()) {
-            final char ch = buffer.charAt(cursor.getPos() - 1);
+            final char ch = buffer.charAt(cursor.getPos());
+            if (ch == PARAM_DELIMITER || ch == ELEM_DELIMITER) {
+                cursor.updatePos(cursor.getPos() + 1);
+            }
             if (ch != ELEM_DELIMITER) {
                 params = parseParameters(buffer, cursor);
             }
@@ -110,9 +113,14 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         while (!cursor.atEnd()) {
             final NameValuePair param = parseNameValuePair(buffer, cursor);
             params.add(param);
-            final char ch = buffer.charAt(cursor.getPos() - 1);
-            if (ch == ELEM_DELIMITER) {
-                break;
+            if (!cursor.atEnd()) {
+                final char ch = buffer.charAt(cursor.getPos());
+                if (ch == PARAM_DELIMITER) {
+                    cursor.updatePos(cursor.getPos() + 1);
+                }
+                if (ch == ELEM_DELIMITER) {
+                    break;
+                }
             }
         }
         return params.toArray(EMPTY_NAME_VALUE_ARRAY);
@@ -127,15 +135,12 @@ public class BasicHeaderValueParser implements HeaderValueParser {
         if (cursor.atEnd()) {
             return new BasicNameValuePair(name, null);
         }
-        final int delim = buffer.charAt(cursor.getPos());
-        cursor.updatePos(cursor.getPos() + 1);
+        final char delim = buffer.charAt(cursor.getPos());
         if (delim != '=') {
             return new BasicNameValuePair(name, null);
         }
+        cursor.updatePos(cursor.getPos() + 1);
         final String value = tokenizer.parseValue(buffer, cursor, VALUE_DELIMITER);
-        if (!cursor.atEnd()) {
-            cursor.updatePos(cursor.getPos() + 1);
-        }
         return new BasicNameValuePair(name, value);
     }
 
