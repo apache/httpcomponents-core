@@ -153,8 +153,8 @@ public class TestBasicHeaderValueParser {
         param = this.parser.parseNameValuePair(buffer, cursor);
         Assertions.assertEquals("test", param.getName());
         Assertions.assertNull(param.getValue());
-        Assertions.assertEquals(s.length(), cursor.getPos());
-        Assertions.assertTrue(cursor.atEnd());
+        Assertions.assertEquals(s.length() - 1, cursor.getPos());
+        Assertions.assertFalse(cursor.atEnd());
 
         s = "test  ,12";
         buffer = new CharArrayBuffer(16);
@@ -164,7 +164,7 @@ public class TestBasicHeaderValueParser {
         param = this.parser.parseNameValuePair(buffer, cursor);
         Assertions.assertEquals("test", param.getName());
         Assertions.assertNull(param.getValue());
-        Assertions.assertEquals(s.length() - 2, cursor.getPos());
+        Assertions.assertEquals(s.length() - 3, cursor.getPos());
         Assertions.assertFalse(cursor.atEnd());
 
         s = "test=stuff";
@@ -197,7 +197,7 @@ public class TestBasicHeaderValueParser {
         param = this.parser.parseNameValuePair(buffer, cursor);
         Assertions.assertEquals("test", param.getName());
         Assertions.assertEquals("stuff", param.getValue());
-        Assertions.assertEquals(s.length() - 4, cursor.getPos());
+        Assertions.assertEquals(s.length() - 5, cursor.getPos());
         Assertions.assertFalse(cursor.atEnd());
 
         s = "test  = \"stuff\"";
@@ -281,7 +281,7 @@ public class TestBasicHeaderValueParser {
         Assertions.assertEquals("stuff; stuff", params[2].getValue());
         Assertions.assertEquals("test3", params[3].getName());
         Assertions.assertEquals("stuff", params[3].getValue());
-        Assertions.assertEquals(s.length() - 3, cursor.getPos());
+        Assertions.assertEquals(s.length() - 4, cursor.getPos());
         Assertions.assertFalse(cursor.atEnd());
 
         s = "  ";
