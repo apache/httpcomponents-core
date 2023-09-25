@@ -518,9 +518,18 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     public PoolStats getTotalStats() {
         this.lock.lock();
         try {
+            int pendingCount = 0;
+            for (final LeaseRequest<T, C> request: pendingRequests) {
+                if (!request.isDone()) {
+                    final Deadline deadline = request.getDeadline();
+                    if (!deadline.isExpired()) {
+                        pendingCount++;
+                    }
+                }
+            }
             return new PoolStats(
                     this.leased.size(),
-                    this.pendingRequests.size(),
+                    pendingCount,
                     this.available.size(),
                     this.maxTotal);
         } finally {
@@ -536,8 +545,11 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             final PerRoutePool<T, C> pool = getPool(route);
             int pendingCount = 0;
             for (final LeaseRequest<T, C> request: pendingRequests) {
-                if (Objects.equals(route, request.getRoute())) {
-                    pendingCount++;
+                if (!request.isDone() && Objects.equals(route, request.getRoute())) {
+                    final Deadline deadline = request.getDeadline();
+                    if (!deadline.isExpired()) {
+                        pendingCount++;
+                    }
                 }
             }
             return new PoolStats(
