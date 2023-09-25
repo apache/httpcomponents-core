@@ -316,6 +316,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             Asserts.check(this.status.compareTo(IOReactorStatus.INACTIVE) == 0,
                     "Illegal state %s", this.status);
             this.status = IOReactorStatus.ACTIVE;
+        }
+        try {
+
             // Start I/O dispatchers
             for (int i = 0; i < this.dispatchers.length; i++) {
                 final BaseIOReactor dispatcher = new BaseIOReactor(this.selectTimeout, this.interestOpsQueueing);
@@ -327,9 +330,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
                 this.workers[i] = new Worker(dispatcher, eventDispatch);
                 this.threads[i] = this.threadFactory.newThread(this.workers[i]);
             }
-        }
-        try {
-
             for (int i = 0; i < this.workerCount; i++) {
                 if (this.status != IOReactorStatus.ACTIVE) {
                     return;
@@ -431,7 +431,10 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
         // Attempt to shut down I/O dispatchers gracefully
         for (int i = 0; i < this.workerCount; i++) {
             final BaseIOReactor dispatcher = this.dispatchers[i];
-            dispatcher.gracefulShutdown();
+            if (dispatcher != null) {
+                dispatcher.gracefulShutdown();
+            }
+                
         }
 
         final long gracePeriod = this.config.getShutdownGracePeriod();
@@ -441,6 +444,9 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             // in time
             for (int i = 0; i < this.workerCount; i++) {
                 final BaseIOReactor dispatcher = this.dispatchers[i];
+                if (dispatcher == null) {
+                    continue;
+                }
                 if (dispatcher.getStatus() != IOReactorStatus.INACTIVE) {
                     dispatcher.awaitShutdown(gracePeriod);
                 }
