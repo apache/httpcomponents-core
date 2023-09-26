@@ -434,7 +434,6 @@ public abstract class AbstractMultiworkerIOReactor implements IOReactor {
             if (dispatcher != null) {
                 dispatcher.gracefulShutdown();
             }
-                
         }
 
         final long gracePeriod = this.config.getShutdownGracePeriod();
