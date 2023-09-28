@@ -49,6 +49,8 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.SAFE)
 public class ResponseDate implements HttpResponseInterceptor {
 
+    public static final ResponseDate INSTANCE = new ResponseDate();
+
     public ResponseDate() {
         super();
     }

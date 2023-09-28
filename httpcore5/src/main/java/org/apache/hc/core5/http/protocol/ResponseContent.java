@@ -57,6 +57,8 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class ResponseContent implements HttpResponseInterceptor {
 
+    public static final ResponseContent INSTANCE = new ResponseContent();
+
     private final boolean overwrite;
 
     /**

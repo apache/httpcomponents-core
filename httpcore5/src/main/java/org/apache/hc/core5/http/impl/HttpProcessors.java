@@ -28,12 +28,14 @@ package org.apache.hc.core5.http.impl;
 
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
+import org.apache.hc.core5.http.protocol.RequestConformance;
 import org.apache.hc.core5.http.protocol.RequestConnControl;
 import org.apache.hc.core5.http.protocol.RequestContent;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestTargetHost;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
+import org.apache.hc.core5.http.protocol.ResponseConformance;
 import org.apache.hc.core5.http.protocol.ResponseConnControl;
 import org.apache.hc.core5.http.protocol.ResponseContent;
 import org.apache.hc.core5.http.protocol.ResponseDate;
@@ -60,13 +62,15 @@ public final class HttpProcessors {
     public static HttpProcessorBuilder customServer(final String serverInfo) {
         return HttpProcessorBuilder.create()
                 .addAll(
-                        new ResponseDate(),
+                        ResponseConformance.INSTANCE,
+                        ResponseDate.INSTANCE,
                         new ResponseServer(!TextUtils.isBlank(serverInfo) ? serverInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", HttpProcessors.class)),
-                        new ResponseContent(),
-                        new ResponseConnControl())
+                        ResponseContent.INSTANCE,
+                        ResponseConnControl.INSTANCE)
                 .addAll(
-                        new RequestValidateHost());
+                        RequestValidateHost.INSTANCE,
+                        RequestConformance.INSTANCE);
     }
 
     /**

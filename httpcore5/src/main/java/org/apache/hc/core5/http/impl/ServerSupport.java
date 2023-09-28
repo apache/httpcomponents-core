@@ -27,9 +27,6 @@
 package org.apache.hc.core5.http.impl;
 
 import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.MethodNotSupportedException;
 import org.apache.hc.core5.http.MisdirectedRequestException;
@@ -45,19 +42,6 @@ import org.apache.hc.core5.http.UnsupportedHttpVersionException;
  */
 @Internal
 public class ServerSupport {
-
-    public static void validateResponse(
-            final HttpResponse response,
-            final EntityDetails responseEntityDetails) throws HttpException {
-        final int status = response.getCode();
-        switch (status) {
-            case HttpStatus.SC_NO_CONTENT:
-            case HttpStatus.SC_NOT_MODIFIED:
-                if (responseEntityDetails != null) {
-                    throw new HttpException("Response " + status + " must not enclose an entity");
-                }
-        }
-    }
 
     public static String toErrorMessage(final Exception ex) {
         final String message = ex.getMessage();

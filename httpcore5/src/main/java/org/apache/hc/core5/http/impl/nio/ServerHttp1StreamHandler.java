@@ -125,7 +125,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             @Override
             public void sendResponse(
                     final HttpResponse response, final EntityDetails responseEntityDetails, final HttpContext httpContext) throws HttpException, IOException {
-                ServerSupport.validateResponse(response, responseEntityDetails);
                 commitResponse(response, responseEntityDetails);
             }
 

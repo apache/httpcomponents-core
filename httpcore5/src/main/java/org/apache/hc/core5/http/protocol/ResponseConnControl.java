@@ -57,6 +57,8 @@ import org.apache.hc.core5.util.Args;
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
 public class ResponseConnControl implements HttpResponseInterceptor {
 
+    public static final ResponseConnControl INSTANCE = new ResponseConnControl();
+
     public ResponseConnControl() {
         super();
     }

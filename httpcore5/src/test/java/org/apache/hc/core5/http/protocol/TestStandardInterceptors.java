@@ -997,4 +997,87 @@ public class TestStandardInterceptors {
         Assertions.assertThrows(ProtocolException.class, () ->
                 interceptor.process(request, request.getEntity(), context));
     }
+
+    @Test
+    public void testRequestConformance() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
+        request.setScheme("http");
+        request.setAuthority(new URIAuthority("somehost", 8888));
+        request.setPath("/path");
+        final RequestConformance interceptor = new RequestConformance();
+        interceptor.process(request, request.getEntity(), context);
+    }
+
+    @Test
+    public void testRequestConformanceSchemeMissing() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
+        request.setAuthority(new URIAuthority("somehost", 8888));
+        request.setPath("/path");
+        final RequestConformance interceptor = new RequestConformance();
+        Assertions.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
+    }
+
+    @Test
+    public void testRequestConformancePathMissing() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
+        request.setScheme("http");
+        request.setAuthority(new URIAuthority("somehost", 8888));
+        request.setPath("");
+        final RequestConformance interceptor = new RequestConformance();
+        Assertions.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
+    }
+
+    @Test
+    public void testRequestConformanceHostMissing() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
+        request.setScheme("http");
+        request.setAuthority(new URIAuthority("", -1));
+        request.setPath("/path");
+        final RequestConformance interceptor = new RequestConformance();
+        Assertions.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
+    }
+
+    @Test
+    public void testResponseConformanceNoContent() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NO_CONTENT, "No Content");
+        final ResponseConformance interceptor = new ResponseConformance();
+        interceptor.process(response, response.getEntity(), context);
+    }
+
+    @Test
+    public void testResponseConformanceNotModified() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not Modified");
+        final ResponseConformance interceptor = new ResponseConformance();
+        interceptor.process(response, response.getEntity(), context);
+    }
+
+    @Test
+    public void testResponseConformanceNoContentWithEntity() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NO_CONTENT, "No Content");
+        response.setEntity(new StringEntity("stuff"));
+        final ResponseConformance interceptor = new ResponseConformance();
+        Assertions.assertThrows(ProtocolException.class, () ->
+            interceptor.process(response, response.getEntity(), context));
+    }
+
+    @Test
+    public void testResponseConformanceNotModifiedWithEntity() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not Modified");
+        response.setEntity(new StringEntity("stuff"));
+        final ResponseConformance interceptor = new ResponseConformance();
+        Assertions.assertThrows(ProtocolException.class, () ->
+            interceptor.process(response, response.getEntity(), context));
+    }
+
 }
