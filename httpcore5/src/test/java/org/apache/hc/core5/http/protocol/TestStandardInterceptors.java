@@ -134,6 +134,17 @@ public class TestStandardInterceptors {
    }
 
     @Test
+    public void testRequestContentNullEntityNonEnclosingMethod() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
+
+        final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
+        interceptor.process(request, request.getEntity(), context);
+        final Header header = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
+        Assertions.assertNull(header);
+        Assertions.assertNull(request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING));
+    }
+    @Test
     public void testRequestContentEntityContentLengthDelimitedHTTP11() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
@@ -241,7 +252,7 @@ public class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
-        Assertions.assertEquals(0, request.getHeaders().length);
+        Assertions.assertEquals(1, request.getHeaders().length);
     }
 
     @Test
