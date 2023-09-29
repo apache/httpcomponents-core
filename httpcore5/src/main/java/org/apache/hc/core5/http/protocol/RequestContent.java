@@ -110,6 +110,10 @@ public class RequestContent implements HttpRequestInterceptor {
                 throw new ProtocolException("Content-Length header already present");
             }
         }
+        if (entity == null && isContentEnclosingMethod(method)) {
+            request.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
+            return;
+        }
         if (entity != null) {
 
             // Check for OPTIONS request with content but no Content-Type header
@@ -131,7 +135,9 @@ public class RequestContent implements HttpRequestInterceptor {
             MessageSupport.addContentEncodingHeader(request, entity);
         }
     }
-
+    private boolean isContentEnclosingMethod(final String method) {
+        return (Method.POST.isSame(method)||Method.PUT.isSame(method)||Method.PATCH.isSame(method));
+    }
     /**
      * Validates the presence of the Content-Type header for an OPTIONS request.
      *
