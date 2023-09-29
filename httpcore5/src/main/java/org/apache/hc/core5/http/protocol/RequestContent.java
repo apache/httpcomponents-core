@@ -110,6 +110,10 @@ public class RequestContent implements HttpRequestInterceptor {
                 throw new ProtocolException("Content-Length header already present");
             }
         }
+        if (entity == null) {
+            request.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
+            return;
+        }
         if (entity != null) {
 
             // Check for OPTIONS request with content but no Content-Type header
