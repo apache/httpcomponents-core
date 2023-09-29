@@ -110,7 +110,7 @@ public class RequestContent implements HttpRequestInterceptor {
                 throw new ProtocolException("Content-Length header already present");
             }
         }
-        if (isContentEnclosingMethod(method) && entity == null) {
+        if (entity == null && isContentEnclosingMethod(method)) {
             request.addHeader(HttpHeaders.CONTENT_LENGTH, "0");
             return;
         }
