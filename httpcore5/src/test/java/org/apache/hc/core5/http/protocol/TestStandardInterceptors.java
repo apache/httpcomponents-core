@@ -128,7 +128,8 @@ public class TestStandardInterceptors {
         final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         interceptor.process(request, request.getEntity(), context);
         final Header header = request.getFirstHeader(HttpHeaders.CONTENT_LENGTH);
-        Assertions.assertNull(header);
+        Assertions.assertNotNull(header);
+        Assertions.assertEquals(0, Integer.parseInt(header.getValue()));
         Assertions.assertNull(request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING));
    }
 
