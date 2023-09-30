@@ -29,8 +29,10 @@ package org.apache.hc.core5.http2.impl;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.HttpProcessorBuilder;
+import org.apache.hc.core5.http.protocol.RequestConformance;
 import org.apache.hc.core5.http.protocol.RequestExpectContinue;
 import org.apache.hc.core5.http.protocol.RequestUserAgent;
+import org.apache.hc.core5.http.protocol.ResponseConformance;
 import org.apache.hc.core5.http.protocol.ResponseDate;
 import org.apache.hc.core5.http.protocol.ResponseServer;
 import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
@@ -52,13 +54,15 @@ public final class H2Processors {
     public static HttpProcessorBuilder customServer(final String serverInfo) {
         return HttpProcessorBuilder.create()
                 .addAll(
-                        new ResponseDate(),
+                        ResponseConformance.INSTANCE,
+                        ResponseDate.INSTANCE,
                         new ResponseServer(!TextUtils.isBlank(serverInfo) ? serverInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", H2Processors.class)),
                         H2ResponseContent.INSTANCE,
                         H2ResponseConnControl.INSTANCE)
                 .addAll(
-                        H2RequestValidateHost.INSTANCE);
+                        H2RequestValidateHost.INSTANCE,
+                        RequestConformance.INSTANCE);
     }
 
     public static HttpProcessor server(final String serverInfo) {

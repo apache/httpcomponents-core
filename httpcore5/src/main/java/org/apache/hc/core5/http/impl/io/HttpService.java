@@ -215,7 +215,6 @@ public class HttpService {
                         if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
                             throw new UnsupportedHttpVersionException(transportVersion);
                         }
-                        ServerSupport.validateResponse(response, response.getEntity());
                         context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
                         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
                         processor.process(response, response.getEntity(), context);
