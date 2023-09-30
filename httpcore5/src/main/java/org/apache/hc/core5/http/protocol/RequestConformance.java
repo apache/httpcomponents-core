@@ -28,35 +28,31 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
- * RequestTargetHost is responsible for copying {@code Host} header value to
- * {@link HttpRequest#setAuthority(URIAuthority)} of the incoming message.
- * This interceptor is required for server side protocol processors.
+ * ResponseConformance is responsible for making the protocol conformance checks
+ * of incoming request messages.
  *
- * @since 5.0
+ * @since 5.3
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class RequestValidateHost implements HttpRequestInterceptor {
+public class RequestConformance implements HttpRequestInterceptor {
 
-    public static final RequestValidateHost INSTANCE = new RequestValidateHost();
+    public static final RequestConformance INSTANCE = new RequestConformance();
 
-    public RequestValidateHost() {
+    public RequestConformance() {
         super();
     }
 
@@ -65,19 +61,17 @@ public class RequestValidateHost implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
 
-        final Header header = request.getHeader(HttpHeaders.HOST);
-        if (header != null) {
-            final URIAuthority authority;
-            try {
-                authority = URIAuthority.create(header.getValue());
-            } catch (final URISyntaxException ex) {
-                throw new ProtocolException(ex.getMessage(), ex);
-            }
-            request.setAuthority(authority);
-        } else {
-            final ProtocolVersion version = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
-            if (version.greaterEquals(HttpVersion.HTTP_1_1)) {
-                throw new ProtocolException("Host header is absent");
+        if (TextUtils.isBlank(request.getScheme())) {
+            throw new ProtocolException("Request scheme is not set");
+        }
+        if (TextUtils.isBlank(request.getPath())) {
+            throw new ProtocolException("Request path is not set");
+        }
+        final URIAuthority authority = request.getAuthority();
+        if (authority != null && (URIScheme.HTTP.same(request.getScheme()) || URIScheme.HTTPS.same(request.getScheme()))) {
+            final String hostName = authority.getHostName();
+            if (TextUtils.isBlank(hostName)) {
+                throw new ProtocolException("Request host is empty");
             }
         }
     }

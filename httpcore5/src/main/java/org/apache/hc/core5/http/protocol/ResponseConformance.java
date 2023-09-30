@@ -28,57 +28,43 @@
 package org.apache.hc.core5.http.protocol;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
-import org.apache.hc.core5.http.HttpRequest;
-import org.apache.hc.core5.http.HttpRequestInterceptor;
-import org.apache.hc.core5.http.HttpVersion;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpResponseInterceptor;
+import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.ProtocolException;
-import org.apache.hc.core5.http.ProtocolVersion;
-import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 
 /**
- * RequestTargetHost is responsible for copying {@code Host} header value to
- * {@link HttpRequest#setAuthority(URIAuthority)} of the incoming message.
- * This interceptor is required for server side protocol processors.
+ * ResponseConformance is responsible for making the protocol conformance checks
+ * of outgoing response messages.
  *
- * @since 5.0
+ * @since 5.3
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
-public class RequestValidateHost implements HttpRequestInterceptor {
+public class ResponseConformance implements HttpResponseInterceptor {
 
-    public static final RequestValidateHost INSTANCE = new RequestValidateHost();
+    public static final ResponseConformance INSTANCE = new ResponseConformance();
 
-    public RequestValidateHost() {
+    public ResponseConformance() {
         super();
     }
 
     @Override
-    public void process(final HttpRequest request, final EntityDetails entity, final HttpContext context)
+    public void process(final HttpResponse response, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
-        Args.notNull(request, "HTTP request");
-
-        final Header header = request.getHeader(HttpHeaders.HOST);
-        if (header != null) {
-            final URIAuthority authority;
-            try {
-                authority = URIAuthority.create(header.getValue());
-            } catch (final URISyntaxException ex) {
-                throw new ProtocolException(ex.getMessage(), ex);
-            }
-            request.setAuthority(authority);
-        } else {
-            final ProtocolVersion version = request.getVersion() != null ? request.getVersion() : HttpVersion.HTTP_1_1;
-            if (version.greaterEquals(HttpVersion.HTTP_1_1)) {
-                throw new ProtocolException("Host header is absent");
-            }
+        Args.notNull(response, "HTTP response");
+        final int status = response.getCode();
+        switch (status) {
+            case HttpStatus.SC_NO_CONTENT:
+            case HttpStatus.SC_NOT_MODIFIED:
+                if (entity != null) {
+                    throw new ProtocolException("Response " + status + " must not enclose an entity");
+                }
         }
     }
 
