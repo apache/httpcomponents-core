@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.message;
 
 import java.io.Serializable;
 
+import org.apache.hc.core5.http.Chars;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.util.Args;
@@ -59,6 +60,8 @@ public class BufferedHeader implements FormattedHeader, Serializable {
      * The beginning of the header value in the buffer
      */
     private final int valuePos;
+
+    private String value;
 
     /**
      * @since 5.0
@@ -110,7 +113,27 @@ public class BufferedHeader implements FormattedHeader, Serializable {
 
     @Override
     public String getValue() {
-        return this.buffer.substringTrimmed(this.valuePos, this.buffer.length());
+        if (value == null) {
+            int beginIdx = valuePos;
+            int endIdx = buffer.length();
+            while (beginIdx < buffer.length() && Tokenizer.isWhitespace(buffer.charAt(beginIdx))) {
+                beginIdx++;
+            }
+            while (endIdx > beginIdx && Tokenizer.isWhitespace(buffer.charAt(endIdx - 1))) {
+                endIdx--;
+            }
+            final StringBuilder buf = new StringBuilder(endIdx - beginIdx);
+            for (int i = beginIdx; i < endIdx; i++) {
+                final char ch = buffer.charAt(i);
+                if (ch == Chars.CR || ch == Chars.LF || ch == Chars.NULL) {
+                    buf.append((char) Chars.SP);
+                } else {
+                    buf.append(ch);
+                }
+            }
+            value = buf.toString();
+        }
+        return value;
     }
 
     @Override
