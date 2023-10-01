@@ -97,5 +97,27 @@ public class TestBufferedHeader {
         Assertions.assertThrows(ParseException.class, () -> new BufferedHeader(buf, true));
     }
 
+    @Test
+    public void testCRLFNullInHeaderValue() throws Exception {
+        final CharArrayBuffer buf = new CharArrayBuffer(16);
+        buf.clear();
+        buf.append("name:  blah\0blah  ");
+        final BufferedHeader header1 = new BufferedHeader(buf, false);
+        Assertions.assertEquals("name", header1.getName());
+        Assertions.assertEquals("blah blah", header1.getValue());
+
+        buf.clear();
+        buf.append("name:  blah\rblah  ");
+        final BufferedHeader header2 = new BufferedHeader(buf, false);
+        Assertions.assertEquals("name", header2.getName());
+        Assertions.assertEquals("blah blah", header2.getValue());
+
+        buf.clear();
+        buf.append("name:  blah\nblah  ");
+        final BufferedHeader header3 = new BufferedHeader(buf, false);
+        Assertions.assertEquals("name", header3.getName());
+        Assertions.assertEquals("blah blah", header3.getValue());
+    }
+
 }
 
