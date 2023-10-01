@@ -34,6 +34,7 @@ package org.apache.hc.core5.http;
  */
 public final class Chars {
 
+    public static final int NULL = 0; // <US-ASCII NUL, null (0)>
     public static final int CR = 13; // <US-ASCII CR, carriage return (13)>
     public static final int LF = 10; // <US-ASCII LF, linefeed (10)>
     public static final int SP = 32; // <US-ASCII SP, space (32)>
