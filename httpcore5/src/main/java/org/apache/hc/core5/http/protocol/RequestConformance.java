@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpRequestInterceptor;
+import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.net.URIAuthority;
@@ -73,6 +74,9 @@ public class RequestConformance implements HttpRequestInterceptor {
             if (TextUtils.isBlank(hostName)) {
                 throw new ProtocolException("Request host is empty");
             }
+        }
+        if (URIScheme.HTTPS.same(request.getScheme()) && context.getAttribute(HttpCoreContext.SSL_SESSION) == null) {
+            throw new MisdirectedRequestException("HTTPS request over non-secure connection");
         }
     }
 
