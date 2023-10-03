@@ -34,6 +34,19 @@ import java.security.cert.X509Certificate;
  * configured in the actual SSL context. This interface can be used to override the standard
  * JSSE certificate verification process.
  *
+ * <h2>Security Warning</h2>
+ * If a trust strategy considers a certificate chain to be trusted, then the default trust manager
+ * will not be consulted. Trust strategy implementations should therefore consider properly checking
+ * the complete certificate chain. Checking for example only the subject of a certificate does not
+ * protect against man-in-the-middle attacks. For self-signed certificates prefer specifying a keystore
+ * containing the certificate chain when calling the {@link SSLContextBuilder} {@code loadTrustMaterial}
+ * methods instead of implementing a custom trust strategy.
+ *
+ * <p>A trust strategy alone cannot be used for certificate pinning. When {@code isTrusted} returns
+ * {@code false} the certificate check falls back to the trust manager which might consider
+ * the certificate trusted. See the {@link #isTrusted(X509Certificate[], String)} documentation.
+ *
+ * @see SSLContextBuilder
  * @since 4.4
  */
 public interface TrustStrategy {

@@ -253,6 +253,11 @@ public class SSLContextBuilder {
         return this;
     }
 
+    /**
+     * @param trustStrategy
+     *            custom trust strategy to use; can be {@code null} in which case
+     *            only the default trust managers will be used
+     */
     public SSLContextBuilder loadTrustMaterial(
             final KeyStore trustStore,
             final TrustStrategy trustStrategy) throws NoSuchAlgorithmException, KeyStoreException {
