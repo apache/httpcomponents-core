@@ -29,6 +29,8 @@ package org.apache.hc.core5.http.protocol;
 
 import java.nio.charset.StandardCharsets;
 
+import javax.net.ssl.SSLSession;
+
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
@@ -38,6 +40,7 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.io.entity.BasicHttpEntity;
 import org.apache.hc.core5.http.io.entity.EmptyInputStream;
@@ -49,6 +52,7 @@ import org.apache.hc.core5.http.message.BasicHeader;
 import org.apache.hc.core5.net.URIAuthority;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 public class TestStandardInterceptors {
 
@@ -1053,6 +1057,31 @@ public class TestStandardInterceptors {
         request.setPath("/path");
         final RequestConformance interceptor = new RequestConformance();
         Assertions.assertThrows(ProtocolException.class, () ->
+                interceptor.process(request, request.getEntity(), context));
+    }
+
+    @Test
+    public void testRequestConformanceHttps() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        context.setAttribute(HttpCoreContext.SSL_SESSION, Mockito.mock(SSLSession.class));
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
+        request.setScheme("https");
+        request.setAuthority(new URIAuthority("somehost", 8888));
+        request.setPath("/path");
+        final RequestConformance interceptor = new RequestConformance();
+        interceptor.process(request, request.getEntity(), context);
+    }
+
+    @Test
+    public void testRequestConformanceHttpsInsecureConnection() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        context.setAttribute(HttpCoreContext.SSL_SESSION, null);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
+        request.setScheme("https");
+        request.setAuthority(new URIAuthority("somehost", 8888));
+        request.setPath("/path");
+        final RequestConformance interceptor = new RequestConformance();
+        Assertions.assertThrows(MisdirectedRequestException.class, () ->
                 interceptor.process(request, request.getEntity(), context));
     }
 
