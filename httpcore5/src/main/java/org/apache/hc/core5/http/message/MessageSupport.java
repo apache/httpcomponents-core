@@ -30,16 +30,19 @@ package org.apache.hc.core5.http.message;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.FormattedHeader;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HeaderElement;
+import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.HttpResponse;
@@ -429,6 +432,52 @@ public class MessageSupport {
         return status >= HttpStatus.SC_SUCCESS
                 && status != HttpStatus.SC_NO_CONTENT
                 && status != HttpStatus.SC_NOT_MODIFIED;
+    }
+
+    private final static Set<String> HOP_BY_HOP;
+
+    static {
+        final TreeSet<String> set = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        set.add(HttpHeaders.CONNECTION);
+        set.add(HttpHeaders.CONTENT_LENGTH);
+        set.add(HttpHeaders.TRANSFER_ENCODING);
+        set.add(HttpHeaders.HOST);
+        set.add(HttpHeaders.KEEP_ALIVE);
+        set.add(HttpHeaders.TE);
+        set.add(HttpHeaders.UPGRADE);
+        set.add(HttpHeaders.PROXY_AUTHORIZATION);
+        set.add("Proxy-Authentication-Info");
+        set.add(HttpHeaders.PROXY_AUTHENTICATE);
+        HOP_BY_HOP = Collections.unmodifiableSet(set);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static boolean isHopByHop(final String headerName) {
+        if (headerName == null) {
+            return false;
+        }
+        return HOP_BY_HOP.contains(headerName);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Set<String> hopByHopConnectionSpecific(final MessageHeaders headers) {
+        final Header connectionHeader = headers.getFirstHeader(HttpHeaders.CONNECTION);
+        final String connDirective = connectionHeader != null ? connectionHeader.getValue() : null;
+        // Disregard most common 'Close' and 'Keep-Alive' tokens
+        if (connDirective != null &&
+                !connDirective.equalsIgnoreCase(HeaderElements.CLOSE) &&
+                !connDirective.equalsIgnoreCase(HeaderElements.KEEP_ALIVE)) {
+            final TreeSet<String> result = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+            result.addAll(HOP_BY_HOP);
+            result.addAll(parseTokens(connectionHeader));
+            return result;
+        } else {
+            return HOP_BY_HOP;
+        }
     }
 
 }
