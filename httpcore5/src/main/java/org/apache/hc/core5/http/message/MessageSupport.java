@@ -203,6 +203,17 @@ public class MessageSupport {
         }
     }
 
+    /**
+     * @since 5.3
+     */
+    public static void parseTokens(final MessageHeaders headers, final String headerName, final Consumer<String> consumer) {
+        Args.notNull(headers, "Headers");
+        final Iterator<Header> it = headers.headerIterator(headerName);
+        while (it.hasNext()) {
+            parseTokens(it.next(), consumer);
+        }
+    }
+
     public static Set<String> parseTokens(final CharSequence src, final ParserCursor cursor) {
         Args.notNull(src, "Source");
         Args.notNull(cursor, "Cursor");
@@ -311,6 +322,17 @@ public class MessageSupport {
             final String value = header.getValue();
             final ParserCursor cursor = new ParserCursor(0, value.length());
             parseElements(value, cursor, consumer);
+        }
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static void parseElements(final MessageHeaders headers, final String headerName, final Consumer<HeaderElement> consumer) {
+        Args.notNull(headers, "Headers");
+        final Iterator<Header> it = headers.headerIterator(headerName);
+        while (it.hasNext()) {
+            parseElements(it.next(), consumer);
         }
     }
 
