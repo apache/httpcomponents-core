@@ -31,13 +31,12 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
+import org.apache.hc.core5.http.support.ExpectSupport;
+import org.apache.hc.core5.http.support.Expectation;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.util.Args;
 
@@ -74,8 +73,8 @@ public class BasicHttpServerExpectationDecorator implements HttpServerRequestHan
             final ClassicHttpRequest request,
             final ResponseTrigger responseTrigger,
             final HttpContext context) throws HttpException, IOException {
-        final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-        if (expect != null && HeaderElements.CONTINUE.equalsIgnoreCase(expect.getValue())) {
+        final Expectation expectation = ExpectSupport.parse(request, request.getEntity());
+        if (expectation == Expectation.CONTINUE) {
             final ClassicHttpResponse response = verify(request, context);
             if (response == null) {
                 responseTrigger.sendInformation(new BasicClassicHttpResponse(HttpStatus.SC_CONTINUE));
@@ -83,6 +82,10 @@ public class BasicHttpServerExpectationDecorator implements HttpServerRequestHan
                 responseTrigger.submitResponse(response);
                 return;
             }
+        } else if (expectation == Expectation.UNKNOWN) {
+            final ClassicHttpResponse expectationFailed = new BasicClassicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED);
+            responseTrigger.submitResponse(expectationFailed);
+            return;
         }
         requestHandler.handle(request, responseTrigger, context);
     }

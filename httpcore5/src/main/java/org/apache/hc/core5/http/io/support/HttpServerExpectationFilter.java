@@ -32,16 +32,15 @@ import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpFilterHandler;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
+import org.apache.hc.core5.http.support.ExpectSupport;
+import org.apache.hc.core5.http.support.Expectation;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
@@ -83,9 +82,8 @@ public class HttpServerExpectationFilter implements HttpFilterHandler {
             final HttpFilterChain.ResponseTrigger responseTrigger,
             final HttpContext context,
             final HttpFilterChain chain) throws HttpException, IOException {
-        final Header expect = request.getFirstHeader(HttpHeaders.EXPECT);
-        final boolean expectContinue = expect != null && HeaderElements.CONTINUE.equalsIgnoreCase(expect.getValue());
-        if (expectContinue) {
+        final Expectation expectation = ExpectSupport.parse(request, request.getEntity());
+        if (expectation == Expectation.CONTINUE) {
             final boolean verified = verify(request, context);
             if (verified) {
                 responseTrigger.sendInformation(new BasicClassicHttpResponse(HttpStatus.SC_CONTINUE));
@@ -96,6 +94,12 @@ public class HttpServerExpectationFilter implements HttpFilterHandler {
                 responseTrigger.submitResponse(expectationFailed);
                 return;
             }
+        } else if (expectation == Expectation.UNKNOWN) {
+            final ClassicHttpResponse expectationFailed = new BasicClassicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED);
+            final HttpEntity responseContent = generateResponseContent(expectationFailed);
+            expectationFailed.setEntity(responseContent);
+            responseTrigger.submitResponse(expectationFailed);
+            return;
         }
         chain.proceed(request, responseTrigger, context);
     }
