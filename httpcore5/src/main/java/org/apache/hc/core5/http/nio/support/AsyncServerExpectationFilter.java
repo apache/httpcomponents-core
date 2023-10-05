@@ -31,10 +31,7 @@ import java.io.IOException;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.EntityDetails;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
-import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
@@ -43,6 +40,8 @@ import org.apache.hc.core5.http.nio.AsyncDataConsumer;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncFilterChain;
 import org.apache.hc.core5.http.nio.AsyncFilterHandler;
+import org.apache.hc.core5.http.support.ExpectSupport;
+import org.apache.hc.core5.http.support.Expectation;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
@@ -66,19 +65,22 @@ public class AsyncServerExpectationFilter implements AsyncFilterHandler {
             final HttpContext context,
             final AsyncFilterChain.ResponseTrigger responseTrigger,
             final AsyncFilterChain chain) throws HttpException, IOException {
-        if (entityDetails != null) {
-            final Header h = request.getFirstHeader(HttpHeaders.EXPECT);
-            if (h != null && HeaderElements.CONTINUE.equalsIgnoreCase(h.getValue())) {
-                final boolean verified = verify(request, context);
-                if (verified) {
-                    responseTrigger.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
-                } else {
-                    final HttpResponse expectationFailed = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED);
-                    final AsyncEntityProducer responseContentProducer = generateResponseContent(expectationFailed);
-                    responseTrigger.submitResponse(expectationFailed, responseContentProducer);
-                    return null;
-                }
+        final Expectation expectation = ExpectSupport.parse(request, entityDetails);
+        if (expectation == Expectation.CONTINUE) {
+            final boolean verified = verify(request, context);
+            if (verified) {
+                responseTrigger.sendInformation(new BasicHttpResponse(HttpStatus.SC_CONTINUE));
+            } else {
+                final HttpResponse expectationFailed = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED);
+                final AsyncEntityProducer responseContentProducer = generateResponseContent(expectationFailed);
+                responseTrigger.submitResponse(expectationFailed, responseContentProducer);
+                return null;
             }
+        } else if (expectation == Expectation.UNKNOWN) {
+            final HttpResponse expectationFailed = new BasicHttpResponse(HttpStatus.SC_EXPECTATION_FAILED);
+            final AsyncEntityProducer responseContentProducer = generateResponseContent(expectationFailed);
+            responseTrigger.submitResponse(expectationFailed, responseContentProducer);
+            return null;
         }
         return chain.proceed(request, entityDetails, context, responseTrigger);
     }
