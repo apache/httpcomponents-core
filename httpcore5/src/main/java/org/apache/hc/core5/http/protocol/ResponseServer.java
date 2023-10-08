@@ -39,8 +39,11 @@ import org.apache.hc.core5.http.HttpResponseInterceptor;
 import org.apache.hc.core5.util.Args;
 
 /**
- * ResponseServer is responsible for adding {@code Server} header. This
- * interceptor is recommended for server side protocol processors.
+ * This response interceptor is responsible for adding {@code Server} header.
+ * <p>
+ * This interceptor is recommended for the HTTP protocol conformance and
+ * the correct operation of the server-side message processing pipeline.
+ * </p>
  *
  * @since 4.0
  */

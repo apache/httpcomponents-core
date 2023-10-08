@@ -40,8 +40,12 @@ import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.util.Args;
 
 /**
- * ResponseConformance is responsible for making the protocol conformance checks
+ * This response interceptor is responsible for making the protocol conformance checks
  * of outgoing response messages.
+ * <p>
+ * This interceptor is essential for the HTTP protocol conformance and
+ * the correct operation of the server-side message processing pipeline.
+ * </p>
  *
  * @since 5.3
  */

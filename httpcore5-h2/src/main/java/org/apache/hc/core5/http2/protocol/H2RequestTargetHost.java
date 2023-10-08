@@ -41,6 +41,10 @@ import org.apache.hc.core5.util.Args;
 
 /**
  * HTTP/2 compatible extension of {@link RequestTargetHost}.
+ * <p>
+ * This interceptor is essential for the HTTP protocol conformance and
+ * the correct operation of the client-side message processing pipeline.
+ * </p>
  *
  * @since 5.0
  */

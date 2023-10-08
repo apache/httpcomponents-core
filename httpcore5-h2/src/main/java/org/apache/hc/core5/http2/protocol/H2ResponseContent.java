@@ -42,6 +42,10 @@ import org.apache.hc.core5.util.Args;
 
 /**
  * HTTP/2 compatible extension of {@link ResponseContent}.
+ * <p>
+ * This interceptor is essential for the HTTP protocol conformance and
+ * the correct operation of the server-side message processing pipeline.
+ * </p>
  *
  * @since 5.0
  */
