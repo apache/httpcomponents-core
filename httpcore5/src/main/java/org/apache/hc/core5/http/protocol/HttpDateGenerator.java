@@ -47,8 +47,12 @@ public class HttpDateGenerator {
 
     private static final int GRANULARITY_MILLIS = 1000;
 
-    /** Date format pattern used to generate the header in RFC 1123 format. */
+    /**
+     * @deprecated Use {@link #INTERNET_MESSAGE_FORMAT}
+     */
+    @Deprecated
     public static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
+    public static final String INTERNET_MESSAGE_FORMAT = "EEE, dd MMM yyyy HH:mm:ss zzz";
 
     /**
      * @deprecated This attribute is no longer supported as a part of the public API.
@@ -60,7 +64,7 @@ public class HttpDateGenerator {
     public static final ZoneId GMT_ID = ZoneId.of("GMT");
 
     /** Singleton instance. */
-    public static final HttpDateGenerator INSTANCE = new HttpDateGenerator(PATTERN_RFC1123, GMT_ID);
+    public static final HttpDateGenerator INSTANCE = new HttpDateGenerator(INTERNET_MESSAGE_FORMAT, GMT_ID);
 
     private final DateTimeFormatter dateTimeFormatter;
     private long dateAsMillis;
@@ -68,17 +72,6 @@ public class HttpDateGenerator {
     private ZoneId zoneId;
 
     private final ReentrantLock lock;
-
-    HttpDateGenerator() {
-        dateTimeFormatter =new DateTimeFormatterBuilder()
-                .parseLenient()
-                .parseCaseInsensitive()
-                .appendPattern(PATTERN_RFC1123)
-                .toFormatter();
-        zoneId = GMT_ID;
-        this.lock = new ReentrantLock();
-
-    }
 
     private HttpDateGenerator(final String pattern, final ZoneId zoneId) {
         dateTimeFormatter = new DateTimeFormatterBuilder()
