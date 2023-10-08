@@ -115,7 +115,7 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
 
     /** Set up status code to "reason phrase" map. */
     static {
-        // HTTP 1.1 Server status codes -- see RFC 7231
+        // HTTP 1.1 Server status codes -- see RFC 9110
         setReason(HttpStatus.SC_OK,
                   "OK");
         setReason(HttpStatus.SC_CREATED,
@@ -210,8 +210,8 @@ public class EnglishReasonPhraseCatalog implements ReasonPhraseCatalog {
                 "Already Reported");
         setReason(HttpStatus.SC_IM_USED,
                 "IM Used");
-        setReason(HttpStatus.SC_UNPROCESSABLE_ENTITY,
-                  "Unprocessable Entity");
+        setReason(HttpStatus.SC_UNPROCESSABLE_CONTENT,
+                  "Unprocessable Content");
         setReason(HttpStatus.SC_INSUFFICIENT_SPACE_ON_RESOURCE,
                   "Insufficient Space On Resource");
         setReason(HttpStatus.SC_METHOD_FAILURE,
