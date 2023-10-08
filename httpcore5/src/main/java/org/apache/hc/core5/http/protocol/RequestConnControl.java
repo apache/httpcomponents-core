@@ -41,10 +41,13 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.util.Args;
 
 /**
- * RequestConnControl is responsible for adding {@code Connection} header
- * to the outgoing requests, which is essential for managing persistence of
- * {@code HTTP/1.0} connections. This interceptor is recommended for
- * client side protocol processors.
+ * This request interceptor is responsible for adding {@code Connection} header
+ * to outgoing requests, which is essential for managing persistence of
+ * {@code HTTP/1.0} connections.
+ * <p>
+ * This interceptor is recommended for the HTTP protocol conformance and
+ * the correct operation of the client-side message processing pipeline.
+ * </p>
  *
  * @since 4.0
  */

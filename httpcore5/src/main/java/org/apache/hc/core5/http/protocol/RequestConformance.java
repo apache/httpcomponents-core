@@ -43,8 +43,12 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.TextUtils;
 
 /**
- * ResponseConformance is responsible for making the protocol conformance checks
- * of incoming request messages.
+ * This request interceptor is responsible for execution of the protocol conformance
+ * checks on incoming request messages.
+ * <p>
+ * This interceptor is essential for the HTTP protocol conformance and
+ * the correct operation of the server-side message processing pipeline.
+ * </p>
  *
  * @since 5.3
  */

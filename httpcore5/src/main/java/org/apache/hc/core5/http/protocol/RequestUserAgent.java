@@ -39,8 +39,11 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.util.Args;
 
 /**
- * RequestUserAgent is responsible for adding {@code User-Agent} header.
- * This interceptor is recommended for client side protocol processors.
+ * This request interceptor is responsible for adding {@code User-Agent} header.
+ * <p>
+ * This interceptor is recommended for the HTTP protocol conformance and
+ * the correct operation of the client-side message processing pipeline.
+ * </p>
  *
  * @since 4.0
  */

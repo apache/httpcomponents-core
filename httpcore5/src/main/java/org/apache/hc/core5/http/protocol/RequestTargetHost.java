@@ -44,9 +44,12 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 
 /**
- * RequestHostOutgoing is responsible for adding {@code Host} header to the outgoing message.
- * This interceptor is required for client side protocol processors.
- *
+ * This request interceptor is responsible for adding {@code Host} header to
+ * outgoing request messages.
+ * <p>
+ * This interceptor is essential for the HTTP protocol conformance and
+ * the correct operation of the client-side message processing pipeline.
+ * </p>
  * @since 4.0
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE)
