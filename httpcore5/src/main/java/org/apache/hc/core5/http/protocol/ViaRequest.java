@@ -42,8 +42,8 @@ import org.apache.hc.core5.util.Args;
 
 
 /**
- * An Apache HttpComponents {@link HttpRequestInterceptor} to add the {@link HttpHeaders#VIA} HTTP
- * header to requests.
+ * This request interceptor can be used by an HTTP proxy or intemediary to add the
+ * {@link HttpHeaders#VIA} HTTP header to outgoing request messages.
  * <p>The {@link  HttpHeaders#VIA} header is used to indicate intermediate protocols and recipients
  * between the user agent and the server (on requests) or between the origin server and the client
  * (on responses). It can be used for tracking message forwards, avoiding request loops, and

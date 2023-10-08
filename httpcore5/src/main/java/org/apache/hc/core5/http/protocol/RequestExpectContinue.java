@@ -42,9 +42,12 @@ import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 
 /**
- * RequestExpectContinue is responsible for enabling the 'expect-continue'
- * handshake by adding {@code Expect} header. This interceptor is
- * recommended for client side protocol processors.
+ * This request interceptor is responsible for activation of the 'expect-continue'
+ * handshake by adding a {@code Expect} header describing client expectations.
+ * <p>
+ * This interceptor is recommended for the HTTP protocol conformance and
+ * the correct operation of the client-side message processing pipeline.
+ * </p>
  *
  * @since 4.0
  */

@@ -47,10 +47,10 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.util.Args;
 
 /**
- * The ForwardedRequest class is an implementation of the {@link HttpRequestInterceptor} interface
- * that can be used by a proxy server to add a Forwarded header to an HTTP request. The Forwarded
- * header is used to capture information about the intermediate nodes that a request has passed
- * through. This information can be useful for security purposes or for debugging purposes.
+ * This request interceptor can be used by an HTTP proxy or an intermediary to add a Forwarded header
+ * to outgoing request messages.
+ * The Forwarded header is used to capture information about the intermediate nodes that a request
+ * has passed through. This information can be useful for security purposes or for debugging purposes.
  * <p>
  * The Forwarded header consists of a list of key-value pairs separated by semicolons. The keys that
  * can be used in the Forwarded header include "host", "port", "proto", "for", and "by". The host
@@ -73,7 +73,6 @@ import org.apache.hc.core5.util.Args;
  * already exists in the request, the existing header is not overwritten; instead, the new header
  * value is appended to the existing header value, with a comma separator.
  * <p>
- * This implementation of the ForwardedRequest class is immutable and thread-safe.
  *
  * @since 5.3
  */

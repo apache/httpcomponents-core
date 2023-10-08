@@ -45,12 +45,13 @@ import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.util.Args;
 
 /**
- * ResponseContent is the most important interceptor for outgoing responses.
- * It is responsible for delimiting content length by adding
- * {@code Content-Length} or {@code Transfer-Content} headers based
+ * This response interceptor is responsible for delimiting the message content
+ * by adding {@code Content-Length} or {@code Transfer-Content} headers based
  * on the properties of the enclosed entity and the protocol version.
- * This interceptor is required for correct functioning of server side protocol
- * processors.
+ * <p>
+ * This interceptor is essential for the HTTP protocol conformance and
+ * the correct operation of the server-side message processing pipeline.
+ * </p>
  *
  * @since 4.0
  */

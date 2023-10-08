@@ -39,9 +39,12 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.util.Args;
 
 /**
- * RequestDate interceptor is responsible for adding {@code Date} header
- * to the outgoing requests This interceptor is optional for client side
- * protocol processors.
+ * This request interceptor is responsible for adding {@code Date} header
+ * to outgoing request messages.
+ * <p>
+ * This interceptor is recommended for the HTTP protocol conformance and
+ * the correct operation of the client-side message processing pipeline.
+ * </p>
  *
  * @since 4.0
  */
