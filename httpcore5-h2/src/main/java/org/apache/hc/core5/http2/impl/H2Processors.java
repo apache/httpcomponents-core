@@ -76,8 +76,8 @@ public final class H2Processors {
     public static HttpProcessorBuilder customClient(final String agentInfo) {
         return HttpProcessorBuilder.create()
                 .addAll(
-                        H2RequestContent.INSTANCE,
                         H2RequestTargetHost.INSTANCE,
+                        H2RequestContent.INSTANCE,
                         H2RequestConnControl.INSTANCE,
                         new RequestUserAgent(!TextUtils.isBlank(agentInfo) ? agentInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", HttpProcessors.class)),
