@@ -68,6 +68,11 @@ public class RequestValidateHost implements HttpRequestInterceptor {
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
 
+        // Request authority already specified (likely in an absolute request URI)
+        if (request.getAuthority() != null) {
+            return;
+        }
+
         final Header header = request.getHeader(HttpHeaders.HOST);
         if (header != null) {
             final URIAuthority authority;
