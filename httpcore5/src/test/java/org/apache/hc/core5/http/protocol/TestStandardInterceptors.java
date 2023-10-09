@@ -1015,6 +1015,16 @@ public class TestStandardInterceptors {
     }
 
     @Test
+    public void testRequestAbsoluteRequestURITakesPrecedenceOverHostHeader() throws Exception {
+        final HttpContext context = new BasicHttpContext(null);
+        final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "https://somehost/blah?huh");
+        request.setHeader(HttpHeaders.HOST, "blah");
+        final RequestValidateHost interceptor = new RequestValidateHost();
+        interceptor.process(request, request.getEntity(), context);
+        Assertions.assertEquals(new URIAuthority("somehost"), request.getAuthority());
+    }
+
+    @Test
     public void testRequestConformance() throws Exception {
         final HttpContext context = new BasicHttpContext(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
