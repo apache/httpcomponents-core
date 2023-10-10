@@ -320,6 +320,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             streamHandler = new ServerHttp1StreamHandler(
                     outputChannel,
                     httpProcessor,
+                    http1Config,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
                     context);
@@ -328,6 +329,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             streamHandler = new ServerHttp1StreamHandler(
                     new DelayedOutputChannel(outputChannel),
                     httpProcessor,
+                    http1Config,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
                     context);
@@ -350,6 +352,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             streamHandler = new ServerHttp1StreamHandler(
                     outputChannel,
                     httpProcessor,
+                    http1Config,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
                     context);
@@ -358,6 +361,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
             streamHandler = new ServerHttp1StreamHandler(
                     new DelayedOutputChannel(outputChannel),
                     httpProcessor,
+                    http1Config,
                     connectionReuseStrategy,
                     exchangeHandlerFactory,
                     context);

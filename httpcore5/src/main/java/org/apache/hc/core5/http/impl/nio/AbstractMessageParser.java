@@ -37,8 +37,8 @@ import org.apache.hc.core5.http.MessageConstraintException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LazyLineParser;
 import org.apache.hc.core5.http.message.LineParser;
-import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.http.nio.NHttpMessageParser;
+import org.apache.hc.core5.http.nio.SessionInputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -54,6 +54,9 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
         READ_HEAD_LINE, READ_HEADERS, COMPLETED
     }
 
+    private final Http1Config http1Config;
+    private final LineParser lineParser;
+
     private State state;
 
     private T message;
@@ -61,25 +64,23 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     private final List<CharArrayBuffer> headerBufs;
     private int emptyLineCount;
 
-    private final LineParser lineParser;
-    private final Http1Config messageConstraints;
-
     /**
-     * Creates an instance of AbstractMessageParser.
-     *
-     * @param lineParser the line parser. If {@code null}
-     *   {@link org.apache.hc.core5.http.message.LazyLineParser#INSTANCE} will be used.
-     * @param messageConstraints Message constraints. If {@code null}
-     *   {@link Http1Config#DEFAULT} will be used.
-     *
-     * @since 4.3
+     * @since 5.3
      */
-    public AbstractMessageParser(final LineParser lineParser, final Http1Config messageConstraints) {
+    public AbstractMessageParser(final Http1Config http1Config, final LineParser lineParser) {
         super();
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
-        this.messageConstraints = messageConstraints != null ? messageConstraints : Http1Config.DEFAULT;
         this.headerBufs = new ArrayList<>();
         this.state = State.READ_HEAD_LINE;
+    }
+
+    /**
+     * @deprecated Use {@link #AbstractMessageParser(Http1Config, LineParser)}
+     */
+    @Deprecated
+    public AbstractMessageParser(final LineParser lineParser, final Http1Config messageConstraints) {
+        this(messageConstraints, lineParser);
     }
 
     LineParser getLineParser() {
@@ -107,7 +108,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     private T parseHeadLine() throws IOException, HttpException {
         if (this.lineBuf.isEmpty()) {
             this.emptyLineCount++;
-            if (this.emptyLineCount >= this.messageConstraints.getMaxEmptyLineCount()) {
+            if (this.emptyLineCount >= this.http1Config.getMaxEmptyLineCount()) {
                 throw new MessageConstraintException("Maximum empty line limit exceeded");
             }
             return null;
@@ -129,7 +130,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 }
                 i++;
             }
-            final int maxLineLen = this.messageConstraints.getMaxLineLength();
+            final int maxLineLen = this.http1Config.getMaxLineLength();
             if (maxLineLen > 0 && previous.length() + 1 + current.length() - i > maxLineLen) {
                 throw new MessageConstraintException("Maximum line length limit exceeded");
             }
@@ -152,7 +153,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 this.lineBuf.clear();
             }
             final boolean lineComplete = sessionBuffer.readLine(this.lineBuf, endOfStream);
-            final int maxLineLen = this.messageConstraints.getMaxLineLength();
+            final int maxLineLen = this.http1Config.getMaxLineLength();
             if (maxLineLen > 0 &&
                     (this.lineBuf.length() > maxLineLen ||
                             (!lineComplete && sessionBuffer.length() > maxLineLen))) {
@@ -171,7 +172,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 break;
             case READ_HEADERS:
                 if (this.lineBuf.length() > 0) {
-                    final int maxHeaderCount = this.messageConstraints.getMaxHeaderCount();
+                    final int maxHeaderCount = this.http1Config.getMaxHeaderCount();
                     if (maxHeaderCount > 0 && headerBufs.size() >= maxHeaderCount) {
                         throw new MessageConstraintException("Maximum header count exceeded");
                     }

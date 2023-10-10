@@ -65,6 +65,7 @@ import org.apache.hc.core5.util.Timeout;
 public class RequesterBootstrap {
 
     private HttpProcessor httpProcessor;
+    private Http1Config http1Config;
     private ConnectionReuseStrategy connReuseStrategy;
     private SocketConfig socketConfig;
     private HttpConnectionFactory<? extends HttpClientConnection> connectFactory;
@@ -91,6 +92,14 @@ public class RequesterBootstrap {
      */
     public final RequesterBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
+        return this;
+    }
+
+    /**
+     * Sets HTTP/1 protocol configuration.
+     */
+    public final RequesterBootstrap setHttp1Config(final Http1Config http1Config) {
+        this.http1Config = http1Config;
         return this;
     }
 
@@ -179,7 +188,7 @@ public class RequesterBootstrap {
 
     public HttpRequester create() {
         final HttpRequestExecutor requestExecutor = new HttpRequestExecutor(
-                HttpRequestExecutor.DEFAULT_WAIT_FOR_CONTINUE,
+                http1Config,
                 connReuseStrategy != null ? connReuseStrategy : DefaultConnectionReuseStrategy.INSTANCE,
                 streamListener);
         final ManagedConnPool<HttpHost, HttpClientConnection> connPool;
@@ -209,7 +218,7 @@ public class RequesterBootstrap {
                 connPool,
                 socketConfig != null ? socketConfig : SocketConfig.DEFAULT,
                 connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
-                        Http1Config.DEFAULT, CharCodingConfig.DEFAULT),
+                        http1Config, CharCodingConfig.DEFAULT),
                 sslSocketFactory,
                 sslSetupHandler != null ? sslSetupHandler : new DefaultTlsSetupHandler(),
                 sslSessionVerifier,

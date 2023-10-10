@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.config;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Timeout;
 
@@ -47,6 +48,7 @@ public class Http1Config {
 
     public static final Http1Config DEFAULT = new Builder().build();
 
+    private final HttpVersion version;
     private final int bufferSize;
     private final int chunkSizeHint;
     private final Timeout waitForContinueTimeout;
@@ -55,10 +57,11 @@ public class Http1Config {
     private final int maxEmptyLineCount;
     private final int initialWindowSize;
 
-    Http1Config(final int bufferSize, final int chunkSizeHint, final Timeout waitForContinueTimeout,
-                final int maxLineLength, final int maxHeaderCount, final int maxEmptyLineCount,
-                final int initialWindowSize) {
+    Http1Config(final HttpVersion version, final int bufferSize, final int chunkSizeHint,
+                final Timeout waitForContinueTimeout, final int maxLineLength, final int maxHeaderCount,
+                final int maxEmptyLineCount, final int initialWindowSize) {
         super();
+        this.version = version;
         this.bufferSize = bufferSize;
         this.chunkSizeHint = chunkSizeHint;
         this.waitForContinueTimeout = waitForContinueTimeout;
@@ -66,6 +69,15 @@ public class Http1Config {
         this.maxHeaderCount = maxHeaderCount;
         this.maxEmptyLineCount = maxEmptyLineCount;
         this.initialWindowSize = initialWindowSize;
+    }
+
+    /**
+     * The effective protocol level expressed by the minor version of HTTP/1.x.
+     *
+     * @since 5.3
+     */
+    public HttpVersion getVersion() {
+        return version;
     }
 
     public int getBufferSize() {
@@ -99,7 +111,8 @@ public class Http1Config {
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
-        builder.append("[bufferSize=").append(bufferSize)
+        builder.append("[version=").append(version)
+                .append(", bufferSize=").append(bufferSize)
                 .append(", chunkSizeHint=").append(chunkSizeHint)
                 .append(", waitForContinueTimeout=").append(waitForContinueTimeout)
                 .append(", maxLineLength=").append(maxLineLength)
@@ -116,6 +129,7 @@ public class Http1Config {
     public static Http1Config.Builder copy(final Http1Config config) {
         Args.notNull(config, "Config");
         return new Builder()
+                .setVersion(config.getVersion())
                 .setBufferSize(config.getBufferSize())
                 .setChunkSizeHint(config.getChunkSizeHint())
                 .setWaitForContinueTimeout(config.getWaitForContinueTimeout())
@@ -135,6 +149,7 @@ public class Http1Config {
 
     public static class Builder {
 
+        private HttpVersion version;
         private int bufferSize;
         private int chunkSizeHint;
         private Timeout waitForContinueTimeout;
@@ -144,6 +159,7 @@ public class Http1Config {
         private int initialWindowSize;
 
         Builder() {
+            this.version = HttpVersion.HTTP_1_1;
             this.bufferSize = INIT_BUF_SIZE;
             this.chunkSizeHint = INIT_BUF_CHUNK;
             this.waitForContinueTimeout = INIT_WAIT_FOR_CONTINUE;
@@ -151,6 +167,20 @@ public class Http1Config {
             this.maxHeaderCount = INIT_MAX_HEADER_COUNT;
             this.maxEmptyLineCount = INIT_MAX_EMPTY_LINE_COUNT;
             this.initialWindowSize = INIT_WINDOW_SIZE;
+        }
+
+        /**
+         * Sets the effective HTTP/1.x protocol level (as expressed by the minor version).
+         * Presently only {@link HttpVersion#HTTP_1_0} and {@link HttpVersion#HTTP_1_1} are
+         * supported.
+         *
+         * @since 5.3
+         */
+        public Builder setVersion(final HttpVersion version) {
+            Args.notNull(version, "HTTP/1 protocol version");
+            Args.check(version.getMajor() == 1, "HTTP/1 protocol version is required");
+            this.version = version;
+            return this;
         }
 
         public Builder setBufferSize(final int bufferSize) {
@@ -191,6 +221,7 @@ public class Http1Config {
 
         public Http1Config build() {
             return new Http1Config(
+                    version,
                     bufferSize,
                     chunkSizeHint,
                     waitForContinueTimeout,

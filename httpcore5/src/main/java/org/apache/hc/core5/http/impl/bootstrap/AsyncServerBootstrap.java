@@ -374,11 +374,11 @@ public class AsyncServerBootstrap {
         final ServerHttp1StreamDuplexerFactory streamHandlerFactory = new ServerHttp1StreamDuplexerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 handlerFactory,
-                http1Config != null ? http1Config : Http1Config.DEFAULT,
+                http1Config,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 connStrategy != null ? connStrategy : DefaultConnectionReuseStrategy.INSTANCE,
-                DefaultHttpRequestParserFactory.INSTANCE,
-                DefaultHttpResponseWriterFactory.INSTANCE,
+                new DefaultHttpRequestParserFactory(http1Config),
+                new DefaultHttpResponseWriterFactory(http1Config),
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
                 streamListener);

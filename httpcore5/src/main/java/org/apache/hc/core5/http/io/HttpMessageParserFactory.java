@@ -37,6 +37,14 @@ import org.apache.hc.core5.http.config.Http1Config;
  */
 public interface HttpMessageParserFactory<T extends MessageHeaders> {
 
+    /**
+     * @deprecated Use {@link #create()}
+     */
+    @Deprecated
     HttpMessageParser<T> create(Http1Config http1Config);
+
+    default HttpMessageParser<T> create() {
+        return create(Http1Config.DEFAULT);
+    }
 
 }

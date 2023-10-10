@@ -46,6 +46,7 @@ import org.apache.hc.core5.http.MisdirectedRequestException;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.ServerSupport;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
@@ -68,6 +69,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     private final DataStreamChannel internalDataChannel;
     private final ResponseChannel responseChannel;
     private final HttpProcessor httpProcessor;
+    private final Http1Config http1Config;
     private final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory;
     private final ConnectionReuseStrategy connectionReuseStrategy;
     private final HttpCoreContext context;
@@ -83,6 +85,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
     ServerHttp1StreamHandler(
             final Http1StreamChannel<HttpResponse> outputChannel,
             final HttpProcessor httpProcessor,
+            final Http1Config http1Config,
             final ConnectionReuseStrategy connectionReuseStrategy,
             final HandlerFactory<AsyncServerExchangeHandler> exchangeHandlerFactory,
             final HttpCoreContext context) {
@@ -142,6 +145,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         };
 
         this.httpProcessor = httpProcessor;
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy;
         this.exchangeHandlerFactory = exchangeHandlerFactory;
         this.context = context;
@@ -158,8 +162,11 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         if (responseCommitted.compareAndSet(false, true)) {
 
             final ProtocolVersion transportVersion = response.getVersion();
-            if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
-                throw new UnsupportedHttpVersionException(transportVersion);
+            if (transportVersion != null) {
+                if (!transportVersion.lessEquals(http1Config.getVersion())) {
+                    throw new UnsupportedHttpVersionException(transportVersion);
+                }
+                context.setProtocolVersion(transportVersion);
             }
 
             final int status = response.getCode();
@@ -167,7 +174,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
                 throw new HttpException("Invalid response: " + status);
             }
 
-            context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
             context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
             httpProcessor.process(response, responseEntityDetails, context);
 
@@ -262,7 +268,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
             throw new UnsupportedHttpVersionException(transportVersion);
         }
-        context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
+        context.setProtocolVersion(transportVersion != null ? transportVersion : http1Config.getVersion());
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
         try {

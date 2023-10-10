@@ -51,36 +51,47 @@ public class DefaultHttpRequestParser<T extends HttpRequest> extends AbstractMes
     private final HttpRequestFactory<T> requestFactory;
 
     /**
-     * Creates an instance of DefaultHttpRequestParser.
-     *
-     * @param requestFactory the request factory.
-     * @param parser the line parser. If {@code null}
-     *   {@link org.apache.hc.core5.http.message.LazyLineParser#INSTANCE} will be used.
-     * @param http1Config Message http1Config. If {@code null}
-     *   {@link Http1Config#DEFAULT} will be used.
-     *
-     * @since 4.3
+     * @since 5.3
      */
     public DefaultHttpRequestParser(
-            final HttpRequestFactory<T> requestFactory,
+            final Http1Config http1Config,
             final LineParser parser,
-            final Http1Config http1Config) {
-        super(parser, http1Config);
+            final HttpRequestFactory<T> requestFactory) {
+        super(http1Config, parser);
         this.requestFactory = Args.notNull(requestFactory, "Request factory");
     }
 
     /**
-    * @since 4.3
-    */
+     * @since 5.3
+     */
+    public DefaultHttpRequestParser(final Http1Config http1Config, final HttpRequestFactory<T> requestFactory) {
+        this(http1Config, null, requestFactory);
+    }
+
+    /**
+     * @deprecated Use {@link #DefaultHttpRequestParser(Http1Config, HttpRequestFactory)}  }
+     */
+    @Deprecated
     public DefaultHttpRequestParser(final HttpRequestFactory<T> requestFactory, final Http1Config http1Config) {
         this(requestFactory, null, http1Config);
     }
 
     /**
-    * @since 4.3
-    */
+     * @deprecated Use {@link #DefaultHttpRequestParser(Http1Config, LineParser, HttpRequestFactory)}  }
+     */
+    @Deprecated
+    public DefaultHttpRequestParser(
+            final HttpRequestFactory<T> requestFactory,
+            final LineParser parser,
+            final Http1Config http1Config) {
+        this(http1Config, parser, requestFactory);
+    }
+
+    /**
+     * @since 4.3
+     */
     public DefaultHttpRequestParser(final HttpRequestFactory<T> requestFactory) {
-        this(requestFactory, null);
+        this(null, null, requestFactory);
     }
 
     @Override

@@ -47,23 +47,51 @@ public class DefaultHttpRequestParserFactory implements HttpMessageParserFactory
 
     public static final DefaultHttpRequestParserFactory INSTANCE = new DefaultHttpRequestParserFactory();
 
+    private final Http1Config http1Config;
     private final LineParser lineParser;
     private final HttpRequestFactory<ClassicHttpRequest> requestFactory;
 
-    public DefaultHttpRequestParserFactory(final LineParser lineParser,
+    /**
+     * @since 5.3
+     */
+    public DefaultHttpRequestParserFactory(
+            final Http1Config http1Config,
+            final LineParser lineParser,
             final HttpRequestFactory<ClassicHttpRequest> requestFactory) {
         super();
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.requestFactory = requestFactory != null ? requestFactory : DefaultClassicHttpRequestFactory.INSTANCE;
+    }
+
+    public DefaultHttpRequestParserFactory(final LineParser lineParser,
+            final HttpRequestFactory<ClassicHttpRequest> requestFactory) {
+        this(null, lineParser, requestFactory);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public DefaultHttpRequestParserFactory(final Http1Config http1Config) {
+        this(http1Config, null, null);
     }
 
     public DefaultHttpRequestParserFactory() {
         this(null, null);
     }
 
+    /**
+     * @deprecated Use {@link #create()}
+     */
+    @Deprecated
     @Override
     public HttpMessageParser<ClassicHttpRequest> create(final Http1Config http1Config) {
-        return new DefaultHttpRequestParser(this.lineParser, this.requestFactory, http1Config);
+        return new DefaultHttpRequestParser(http1Config, this.lineParser, this.requestFactory);
+    }
+
+    @Override
+    public HttpMessageParser<ClassicHttpRequest> create() {
+        return new DefaultHttpRequestParser(this.http1Config, this.lineParser, this.requestFactory);
     }
 
 }

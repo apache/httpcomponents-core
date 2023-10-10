@@ -409,8 +409,8 @@ public class H2ServerBootstrap {
                 http1Config != null ? http1Config : Http1Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
-                DefaultHttpRequestParserFactory.INSTANCE,
-                DefaultHttpResponseWriterFactory.INSTANCE,
+                new DefaultHttpRequestParserFactory(http1Config),
+                new DefaultHttpResponseWriterFactory(http1Config),
                 DefaultContentLengthStrategy.INSTANCE,
                 DefaultContentLengthStrategy.INSTANCE,
                 http1StreamListener);
