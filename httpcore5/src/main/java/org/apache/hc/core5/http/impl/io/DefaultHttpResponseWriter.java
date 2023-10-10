@@ -30,8 +30,9 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LineFormatter;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -44,27 +45,39 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public class DefaultHttpResponseWriter extends AbstractMessageWriter<ClassicHttpResponse> {
 
+    private final Http1Config http1Config;
+
     /**
-     * Creates an instance of DefaultHttpResponseWriter.
-     *
-     * @param formatter the line formatter If {@code null}
-     *  {@link org.apache.hc.core5.http.message.BasicLineFormatter#INSTANCE}
-     *   will be used.
+     * @since 5.3
      */
-    public DefaultHttpResponseWriter(final LineFormatter formatter) {
+    public DefaultHttpResponseWriter(final Http1Config http1Config, final LineFormatter formatter) {
         super(formatter);
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
+    }
+
+    public DefaultHttpResponseWriter(final LineFormatter formatter) {
+        this(null, formatter);
     }
 
     public DefaultHttpResponseWriter() {
-        super(null);
+        this(null, null);
+    }
+
+    /**
+     * Determines the HTTP protocol version to be communicated to the opposite
+     * endpoint in the message header.
+     *
+     * @since 5.3
+     */
+    protected HttpVersion protocolVersion(final HttpResponse message) {
+        return http1Config.getVersion();
     }
 
     @Override
     protected void writeHeadLine(
             final ClassicHttpResponse message, final CharArrayBuffer lineBuf) throws IOException {
-        final ProtocolVersion transportVersion = message.getVersion();
         getLineFormatter().formatStatusLine(lineBuf, new StatusLine(
-                transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1,
+                protocolVersion(message),
                 message.getCode(),
                 message.getReasonPhrase()));
     }

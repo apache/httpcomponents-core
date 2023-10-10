@@ -47,23 +47,51 @@ public class DefaultHttpResponseParserFactory implements HttpMessageParserFactor
 
     public static final DefaultHttpResponseParserFactory INSTANCE = new DefaultHttpResponseParserFactory();
 
+    private final Http1Config http1Config;
     private final LineParser lineParser;
     private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
 
-    public DefaultHttpResponseParserFactory(final LineParser lineParser,
+    /**
+     * @since 5.3
+     */
+    public DefaultHttpResponseParserFactory(
+            final Http1Config http1Config,
+            final LineParser lineParser,
             final HttpResponseFactory<ClassicHttpResponse> responseFactory) {
         super();
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.lineParser = lineParser != null ? lineParser : LazyLaxLineParser.INSTANCE;
         this.responseFactory = responseFactory != null ? responseFactory : DefaultClassicHttpResponseFactory.INSTANCE;
+    }
+
+    public DefaultHttpResponseParserFactory(final LineParser lineParser,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory) {
+        this(null, lineParser, responseFactory);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public DefaultHttpResponseParserFactory(final Http1Config http1Config) {
+        this(http1Config, null, null);
     }
 
     public DefaultHttpResponseParserFactory() {
         this(null, null);
     }
 
+    /**
+     * @deprecated Use {@link #create()}
+     */
+    @Deprecated
     @Override
     public HttpMessageParser<ClassicHttpResponse> create(final Http1Config http1Config) {
-        return new DefaultHttpResponseParser(this.lineParser, this.responseFactory, http1Config);
+        return new DefaultHttpResponseParser(http1Config, this.lineParser, this.responseFactory);
+    }
+
+    @Override
+    public HttpMessageParser<ClassicHttpResponse> create() {
+        return new DefaultHttpResponseParser(this.http1Config, this.lineParser, this.responseFactory);
     }
 
 }

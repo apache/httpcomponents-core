@@ -82,7 +82,7 @@ public class ClassicTestClient {
     public void start(final HttpProcessor httpProcessor) {
         if (requesterRef.get() == null) {
             final HttpRequestExecutor requestExecutor = new HttpRequestExecutor(
-                    HttpRequestExecutor.DEFAULT_WAIT_FOR_CONTINUE,
+                    Http1Config.DEFAULT,
                     DefaultConnectionReuseStrategy.INSTANCE,
                     LoggingHttp1StreamListener.INSTANCE);
             final StrictConnPool<HttpHost, HttpClientConnection> connPool = new StrictConnPool<>(

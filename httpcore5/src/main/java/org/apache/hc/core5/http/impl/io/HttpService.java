@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.impl.ServerSupport;
@@ -82,13 +83,13 @@ import org.apache.hc.core5.util.Args;
 public class HttpService {
 
     private final HttpProcessor processor;
+    private final Http1Config http1Config;
     private final HttpServerRequestHandler requestHandler;
     private final ConnectionReuseStrategy connReuseStrategy;
     private final Http1StreamListener streamListener;
 
     /**
      * Create a new HTTP service.
-     *
      * @param processor the processor to use on requests and responses
      * @param handlerMapper  the handler mapper
      * @param responseFactory  the response factory. If {@code null}
@@ -105,6 +106,7 @@ public class HttpService {
             final Http1StreamListener streamListener) {
         this(processor,
                 new BasicHttpServerExpectationDecorator(new BasicHttpServerRequestHandler(handlerMapper, responseFactory)),
+                Http1Config.DEFAULT,
                 connReuseStrategy,
                 streamListener);
     }
@@ -141,9 +143,31 @@ public class HttpService {
             final HttpServerRequestHandler requestHandler,
             final ConnectionReuseStrategy connReuseStrategy,
             final Http1StreamListener streamListener) {
+        this(processor, requestHandler, Http1Config.DEFAULT, connReuseStrategy, streamListener);
+    }
+
+    /**
+     * Create a new HTTP service.
+     *
+     * @param processor the processor to use on requests and responses
+     * @param requestHandler  the request handler.
+     * @param http1Config HTTP/1 protocol configuration.
+     * @param connReuseStrategy the connection reuse strategy. If {@code null}
+     *   {@link DefaultConnectionReuseStrategy#INSTANCE} will be used.
+     * @param streamListener message stream listener.
+     *
+     * @since 5.3
+     */
+    public HttpService(
+            final HttpProcessor processor,
+            final HttpServerRequestHandler requestHandler,
+            final Http1Config http1Config,
+            final ConnectionReuseStrategy connReuseStrategy,
+            final Http1StreamListener streamListener) {
         super();
         this.processor =  Args.notNull(processor, "HTTP processor");
         this.requestHandler =  Args.notNull(requestHandler, "Request handler");
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy : DefaultConnectionReuseStrategy.INSTANCE;
         this.streamListener = streamListener;
     }
@@ -156,7 +180,7 @@ public class HttpService {
      */
     public HttpService(
             final HttpProcessor processor, final HttpServerRequestHandler requestHandler) {
-        this(processor, requestHandler, null, null);
+        this(processor, requestHandler, Http1Config.DEFAULT, null, null);
     }
 
     /**
@@ -185,7 +209,10 @@ public class HttpService {
             }
             conn.receiveRequestEntity(request);
             final ProtocolVersion transportVersion = request.getVersion();
-            context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
+            if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+                throw new UnsupportedHttpVersionException(transportVersion);
+            }
+            context.setProtocolVersion(transportVersion != null ? transportVersion : http1Config.getVersion());
             context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
             context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
@@ -212,10 +239,12 @@ public class HttpService {
                 public void submitResponse(final ClassicHttpResponse response) throws HttpException, IOException {
                     try {
                         final ProtocolVersion transportVersion = response.getVersion();
-                        if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
-                            throw new UnsupportedHttpVersionException(transportVersion);
+                        if (transportVersion != null) {
+                            if (!transportVersion.lessEquals(http1Config.getVersion())) {
+                                throw new UnsupportedHttpVersionException(transportVersion);
+                            }
+                            context.setProtocolVersion(transportVersion);
                         }
-                        context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
                         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
                         processor.process(response, response.getEntity(), context);
 
@@ -300,6 +329,7 @@ public class HttpService {
 
         private HttpProcessor processor;
         private HttpServerRequestHandler requestHandler;
+        private Http1Config http1Config;
         private ConnectionReuseStrategy connReuseStrategy;
         private Http1StreamListener streamListener;
 
@@ -315,6 +345,11 @@ public class HttpService {
             return this;
         }
 
+        public Builder withHttp1Config(final Http1Config http1Config) {
+            this.http1Config = http1Config;
+            return this;
+        }
+
         public Builder withConnectionReuseStrategy(final ConnectionReuseStrategy connReuseStrategy) {
             this.connReuseStrategy = connReuseStrategy;
             return this;
@@ -324,6 +359,7 @@ public class HttpService {
             this.streamListener = streamListener;
             return this;
         }
+
         /**
          * Create a new HTTP service.
          *
@@ -333,6 +369,7 @@ public class HttpService {
             return new HttpService(
                     processor,
                     requestHandler,
+                    http1Config,
                     connReuseStrategy,
                     streamListener);
         }

@@ -44,6 +44,7 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.Http1StreamListener;
 import org.apache.hc.core5.http.io.HttpClientConnection;
@@ -75,31 +76,46 @@ public class HttpRequestExecutor {
 
     public static final Timeout DEFAULT_WAIT_FOR_CONTINUE = Timeout.ofSeconds(3);
 
-    private final Timeout waitForContinue;
+    private final Http1Config http1Config;
     private final ConnectionReuseStrategy connReuseStrategy;
     private final Http1StreamListener streamListener;
 
     /**
      * Creates new instance of HttpRequestExecutor.
      *
-     * @since 4.3
+     * @since 5.3
      */
     public HttpRequestExecutor(
-            final Timeout waitForContinue,
+            final Http1Config http1Config,
             final ConnectionReuseStrategy connReuseStrategy,
             final Http1StreamListener streamListener) {
         super();
-        this.waitForContinue = Args.positive(waitForContinue, "Wait for continue time");
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy : DefaultConnectionReuseStrategy.INSTANCE;
         this.streamListener = streamListener;
     }
 
+    /**
+     * @deprecated Use {@link #HttpRequestExecutor(Http1Config, ConnectionReuseStrategy, Http1StreamListener)}
+     */
+    @Deprecated
+    public HttpRequestExecutor(
+            final Timeout waitForContinue,
+            final ConnectionReuseStrategy connReuseStrategy,
+            final Http1StreamListener streamListener) {
+        this(Http1Config.custom()
+                .setWaitForContinueTimeout(waitForContinue)
+                .build(),
+                connReuseStrategy,
+                streamListener);
+    }
+
     public HttpRequestExecutor(final ConnectionReuseStrategy connReuseStrategy) {
-        this(DEFAULT_WAIT_FOR_CONTINUE, connReuseStrategy, null);
+        this(Http1Config.DEFAULT, connReuseStrategy, null);
     }
 
     public HttpRequestExecutor() {
-        this(DEFAULT_WAIT_FOR_CONTINUE, null, null);
+        this(Http1Config.DEFAULT, null, null);
     }
 
     /**
@@ -145,7 +161,8 @@ public class HttpRequestExecutor {
             ClassicHttpResponse response = null;
             while (response == null) {
                 if (expectContinue) {
-                    if (conn.isDataAvailable(this.waitForContinue)) {
+                    final Timeout timeout = http1Config.getWaitForContinueTimeout() != null ? http1Config.getWaitForContinueTimeout() : DEFAULT_WAIT_FOR_CONTINUE;
+                    if (conn.isDataAvailable(timeout)) {
                         response = conn.receiveResponseHeader();
                         if (streamListener != null) {
                             streamListener.onResponseHead(conn, response);
@@ -238,10 +255,10 @@ public class HttpRequestExecutor {
         Args.notNull(processor, "HTTP processor");
         Args.notNull(context, "HTTP context");
         final ProtocolVersion transportVersion = request.getVersion();
-        if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+        if (transportVersion != null && !transportVersion.lessEquals(http1Config.getVersion())) {
             throw new UnsupportedHttpVersionException(transportVersion);
         }
-        context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
+        context.setProtocolVersion(transportVersion != null ? transportVersion : http1Config.getVersion());
         context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
         processor.process(request, request.getEntity(), context);
     }
@@ -271,7 +288,12 @@ public class HttpRequestExecutor {
         Args.notNull(processor, "HTTP processor");
         Args.notNull(context, "HTTP context");
         final ProtocolVersion transportVersion = response.getVersion();
-        context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
+        if (transportVersion != null) {
+            if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+                throw new UnsupportedHttpVersionException(transportVersion);
+            }
+            context.setProtocolVersion(transportVersion);
+        }
         context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
         processor.process(response, response.getEntity(), context);
     }

@@ -48,30 +48,32 @@ public class DefaultHttpResponseParser extends AbstractMessageParser<ClassicHttp
     private final HttpResponseFactory<ClassicHttpResponse> responseFactory;
 
     /**
-     * Creates new instance of DefaultHttpResponseParser.
-     *
-     * @param lineParser the line parser. If {@code null}
-     *   {@link org.apache.hc.core5.http.message.LazyLineParser#INSTANCE} will be used
-     * @param responseFactory the response factory. If {@code null}
-     *   {@link DefaultClassicHttpResponseFactory#INSTANCE} will be used.
-     * @param http1Config the message http1Config. If {@code null}
-     *   {@link Http1Config#DEFAULT} will be used.
-     *
-     * @since 4.3
+     * @since 5.3
      */
+    public DefaultHttpResponseParser(
+            final Http1Config http1Config,
+            final LineParser lineParser,
+            final HttpResponseFactory<ClassicHttpResponse> responseFactory) {
+        super(http1Config, lineParser);
+        this.responseFactory = responseFactory != null ? responseFactory : DefaultClassicHttpResponseFactory.INSTANCE;
+    }
+
+    /**
+     * @deprecated Use {@link #DefaultHttpResponseParser(Http1Config, LineParser, HttpResponseFactory)}
+     */
+    @Deprecated
     public DefaultHttpResponseParser(
             final LineParser lineParser,
             final HttpResponseFactory<ClassicHttpResponse> responseFactory,
             final Http1Config http1Config) {
-        super(lineParser, http1Config);
-        this.responseFactory = responseFactory != null ? responseFactory : DefaultClassicHttpResponseFactory.INSTANCE;
+        this(http1Config, lineParser, responseFactory);
     }
 
     /**
      * @since 4.3
      */
     public DefaultHttpResponseParser(final Http1Config http1Config) {
-        this(null, null, http1Config);
+        this(http1Config, null, null);
     }
 
     /**

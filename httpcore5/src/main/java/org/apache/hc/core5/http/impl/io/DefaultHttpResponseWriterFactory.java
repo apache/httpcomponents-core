@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.io;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.HttpMessageWriter;
 import org.apache.hc.core5.http.io.HttpMessageWriterFactory;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
@@ -45,20 +46,36 @@ public class DefaultHttpResponseWriterFactory implements HttpMessageWriterFactor
 
     public static final DefaultHttpResponseWriterFactory INSTANCE = new DefaultHttpResponseWriterFactory();
 
+    private final Http1Config http1Config;
     private final LineFormatter lineFormatter;
 
-    public DefaultHttpResponseWriterFactory(final LineFormatter lineFormatter) {
+    /**
+     * @since 5.3
+     */
+    public DefaultHttpResponseWriterFactory(final Http1Config http1Config, final LineFormatter lineFormatter) {
         super();
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.lineFormatter = lineFormatter != null ? lineFormatter : BasicLineFormatter.INSTANCE;
     }
 
+    /**
+     * @since 5.3
+     */
+    public DefaultHttpResponseWriterFactory(final Http1Config http1Config) {
+        this(http1Config, null);
+    }
+
+    public DefaultHttpResponseWriterFactory(final LineFormatter lineFormatter) {
+        this(null, lineFormatter);
+    }
+
     public DefaultHttpResponseWriterFactory() {
-        this(null);
+        this(null, null);
     }
 
     @Override
     public HttpMessageWriter<ClassicHttpResponse> create() {
-        return new DefaultHttpResponseWriter(this.lineFormatter);
+        return new DefaultHttpResponseWriter(http1Config, lineFormatter);
     }
 
 }

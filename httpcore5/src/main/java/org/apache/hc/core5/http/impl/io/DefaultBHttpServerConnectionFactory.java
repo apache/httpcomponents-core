@@ -72,8 +72,10 @@ public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactor
         this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.incomingContentStrategy = incomingContentStrategy;
         this.outgoingContentStrategy = outgoingContentStrategy;
-        this.requestParserFactory = requestParserFactory;
-        this.responseWriterFactory = responseWriterFactory;
+        this.requestParserFactory = requestParserFactory != null ? requestParserFactory :
+            new DefaultHttpRequestParserFactory(this.http1Config);
+        this.responseWriterFactory = responseWriterFactory != null ? responseWriterFactory :
+            new DefaultHttpResponseWriterFactory(this.http1Config);
     }
 
     public DefaultBHttpServerConnectionFactory(

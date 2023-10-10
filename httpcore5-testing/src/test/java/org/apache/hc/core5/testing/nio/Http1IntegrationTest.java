@@ -101,6 +101,7 @@ import org.apache.hc.core5.http.nio.NHttpMessageWriter;
 import org.apache.hc.core5.http.nio.ResponseChannel;
 import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.entity.AsyncEntityProducers;
+import org.apache.hc.core5.http.nio.entity.BasicAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.DigestingEntityProducer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
@@ -520,6 +521,28 @@ public abstract class Http1IntegrationTest {
             Assertions.assertEquals(200, response1.getCode());
             Assertions.assertEquals("Hi back", entity1);
         }
+    }
+
+    @Test
+    public void testHTTP11FeaturesDisabledWithHTTP10Requests() throws Exception {
+        final Http1TestServer server = resources.server();
+        final Http1TestClient client = resources.client();
+
+        server.register("/hello", () -> new SingleLineResponseHandler("Hi back"));
+        final InetSocketAddress serverEndpoint = server.start();
+
+        client.start();
+        final Future<ClientSessionEndpoint> connectFuture = client.connect(
+                "localhost", serverEndpoint.getPort(), TIMEOUT);
+        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
+
+        final HttpRequest request = new BasicHttpRequest(Method.POST, createRequestURI(serverEndpoint, "/hello"));
+        request.setVersion(HttpVersion.HTTP_1_0);
+        final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
+                new BasicRequestProducer(request, new BasicAsyncEntityProducer(new byte[] {'a', 'b', 'c'}, null, true)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
+        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, future::get);
+        Assertions.assertInstanceOf(ProtocolException.class, exception.getCause());
     }
 
     @Test
@@ -1602,45 +1625,6 @@ public abstract class Http1IntegrationTest {
         Assertions.assertNotNull(response1);
         Assertions.assertEquals(204, response1.getCode());
         Assertions.assertNull(result.getBody());
-    }
-
-    @Test
-    public void testAbsentHostHeader() throws Exception {
-        final Http1TestServer server = resources.server();
-        final Http1TestClient client = resources.client();
-
-        server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
-        final InetSocketAddress serverEndpoint = server.start();
-
-        client.start(new DefaultHttpProcessor(RequestContent.INSTANCE, RequestConnControl.INSTANCE), Http1Config.DEFAULT);
-
-        final Future<ClientSessionEndpoint> connectFuture = client.connect(
-                "localhost", serverEndpoint.getPort(), TIMEOUT);
-        final ClientSessionEndpoint streamEndpoint = connectFuture.get();
-
-        final HttpRequest request1 = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
-        request1.setVersion(HttpVersion.HTTP_1_0);
-        final Future<Message<HttpResponse, String>> future1 = streamEndpoint.execute(
-                new BasicRequestProducer(request1, null),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result1 = future1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result1);
-        final HttpResponse response1 = result1.getHead();
-        Assertions.assertNotNull(response1);
-        Assertions.assertEquals(200, response1.getCode());
-        Assertions.assertEquals("Hi there", result1.getBody());
-
-        final HttpRequest request2 = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
-        request2.setVersion(HttpVersion.HTTP_1_1);
-        final Future<Message<HttpResponse, String>> future2 = streamEndpoint.execute(
-                new BasicRequestProducer(request2, null),
-                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), null);
-        final Message<HttpResponse, String> result2 = future2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
-        Assertions.assertNotNull(result2);
-        final HttpResponse response2 = result2.getHead();
-        Assertions.assertNotNull(response2);
-        Assertions.assertEquals(400, response2.getCode());
-        Assertions.assertEquals("Host header is absent", result2.getBody());
     }
 
     @Test

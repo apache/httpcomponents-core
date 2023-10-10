@@ -85,9 +85,9 @@ public final class ServerHttp1StreamDuplexerFactory {
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.requestParserFactory = requestParserFactory != null ? requestParserFactory :
-                new DefaultHttpRequestParserFactory(http1Config);
+                new DefaultHttpRequestParserFactory(this.http1Config);
         this.responseWriterFactory = responseWriterFactory != null ? responseWriterFactory :
-                DefaultHttpResponseWriterFactory.INSTANCE;
+                new DefaultHttpResponseWriterFactory(this.http1Config);
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
                 DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :

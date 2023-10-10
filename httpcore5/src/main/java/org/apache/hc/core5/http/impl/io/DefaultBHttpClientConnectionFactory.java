@@ -73,8 +73,10 @@ public class DefaultBHttpClientConnectionFactory
         this.incomingContentStrategy = incomingContentStrategy;
         this.outgoingContentStrategy = outgoingContentStrategy;
         this.responseOutOfOrderStrategy = responseOutOfOrderStrategy;
-        this.requestWriterFactory = requestWriterFactory;
-        this.responseParserFactory = responseParserFactory;
+        this.requestWriterFactory = requestWriterFactory != null ? requestWriterFactory :
+                new DefaultHttpRequestWriterFactory(this.http1Config) ;
+        this.responseParserFactory = responseParserFactory != null ? responseParserFactory :
+                new DefaultHttpResponseParserFactory(this.http1Config);
     }
 
     public DefaultBHttpClientConnectionFactory(

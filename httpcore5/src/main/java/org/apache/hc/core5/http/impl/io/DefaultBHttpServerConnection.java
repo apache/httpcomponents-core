@@ -95,7 +95,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
         super(http1Config, charDecoder, charEncoder);
         this.scheme = scheme;
         this.requestParser = (requestParserFactory != null ? requestParserFactory :
-            DefaultHttpRequestParserFactory.INSTANCE).create(http1Config);
+            DefaultHttpRequestParserFactory.INSTANCE).create();
         this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :
             DefaultHttpResponseWriterFactory.INSTANCE).create();
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :

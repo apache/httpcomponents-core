@@ -49,6 +49,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
+import org.apache.hc.core5.http.ProtocolException;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
@@ -279,9 +280,6 @@ public abstract class ClassicIntegrationTest {
                 final byte[] data = EntityUtils.toByteArray(entity);
                 response.setEntity(new ByteArrayEntity(data, null));
             }
-            if (HttpVersion.HTTP_1_0.equals(request.getVersion())) {
-                response.addHeader("Version", "1.0");
-            }
         });
 
         server.start();
@@ -298,10 +296,6 @@ public abstract class ClassicIntegrationTest {
             post.setEntity(new ByteArrayEntity(data, null));
 
             try (final ClassicHttpResponse response = client.execute(host, post, context)) {
-                Assertions.assertEquals(HttpVersion.HTTP_1_1, response.getVersion());
-                final Header h1 = response.getFirstHeader("Version");
-                Assertions.assertNotNull(h1);
-                Assertions.assertEquals("1.0", h1.getValue());
                 final byte[] received = EntityUtils.toByteArray(response.getEntity());
                 final byte[] expected = testData.get(r);
 
@@ -311,6 +305,32 @@ public abstract class ClassicIntegrationTest {
                 }
             }
         }
+    }
+
+    /**
+     * This test case ensures that HTTP/1.1 features are disabled when executing
+     * HTTP/1.0 compatible requests.
+     */
+    @Test
+    public void testHTTP11FeaturesDisabledWithHTTP10Requests() throws Exception {
+        final ClassicTestServer server = testResources.server();
+        final ClassicTestClient client = testResources.client();
+
+        server.start();
+        client.start();
+
+        final HttpCoreContext context = HttpCoreContext.create();
+        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
+
+        final BasicClassicHttpRequest post = new BasicClassicHttpRequest(Method.POST, "/");
+        post.setVersion(HttpVersion.HTTP_1_0);
+        post.setEntity(new ByteArrayEntity(new byte[] {'a', 'b', 'c'}, null, true));
+
+        Assertions.assertThrows(ProtocolException.class, () -> {
+            try (final ClassicHttpResponse response = client.execute(host, post, context)) {
+                EntityUtils.consume(response.getEntity());
+            }
+        });
     }
 
     /**
@@ -687,34 +707,6 @@ public abstract class ClassicIntegrationTest {
             try (final ClassicHttpResponse response = client.execute(host, get, context)) {
                 Assertions.assertNull(response.getEntity());
             }
-        }
-    }
-
-    @Test
-    public void testAbsentHostHeader() throws Exception {
-        final ClassicTestServer server = testResources.server();
-        final ClassicTestClient client = testResources.client();
-
-        // Initialize the server-side request handler
-        server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
-
-        server.start();
-        client.start(new DefaultHttpProcessor(RequestContent.INSTANCE, new RequestConnControl()));
-
-        final HttpCoreContext context = HttpCoreContext.create();
-        final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
-
-        final BasicClassicHttpRequest get1 = new BasicClassicHttpRequest(Method.GET, "/");
-        get1.setVersion(HttpVersion.HTTP_1_0);
-        try (final ClassicHttpResponse response1 = client.execute(host, get1, context)) {
-            Assertions.assertEquals(200, response1.getCode());
-            EntityUtils.consume(response1.getEntity());
-        }
-
-        final BasicClassicHttpRequest get2 = new BasicClassicHttpRequest(Method.GET, "/");
-        try (final ClassicHttpResponse response2 = client.execute(host, get2, context)) {
-            Assertions.assertEquals(400, response2.getCode());
-            EntityUtils.consume(response2.getEntity());
         }
     }
 

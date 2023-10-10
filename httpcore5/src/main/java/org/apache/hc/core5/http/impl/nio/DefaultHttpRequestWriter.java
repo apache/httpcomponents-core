@@ -31,7 +31,7 @@ import java.io.IOException;
 
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.LineFormatter;
 import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.util.CharArrayBuffer;
@@ -43,6 +43,16 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public class DefaultHttpRequestWriter<T extends HttpRequest> extends AbstractMessageWriter<T> {
 
+    private final Http1Config http1Config;
+
+    /**
+     * @since 5.3
+     */
+    public DefaultHttpRequestWriter(final Http1Config http1Config, final LineFormatter formatter) {
+        super(formatter);
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
+    }
+
     /**
      * Creates an instance of DefaultHttpRequestWriter.
      *
@@ -52,24 +62,33 @@ public class DefaultHttpRequestWriter<T extends HttpRequest> extends AbstractMes
      * @since 4.3
      */
     public DefaultHttpRequestWriter(final LineFormatter formatter) {
-        super(formatter);
+        this(null, formatter);
     }
 
     /**
      * @since 4.3
      */
     public DefaultHttpRequestWriter() {
-        super(null);
+        this(null, null);
+    }
+
+    /**
+     * Determines the HTTP protocol version to be communicated to the opposite
+     * endpoint in the message header.
+     *
+     * @since 5.3
+     */
+    protected HttpVersion protocolVersion(final T request) {
+        return http1Config.getVersion();
     }
 
     @Override
     protected void writeHeadLine(final T message, final CharArrayBuffer lineBuf) throws IOException {
         lineBuf.clear();
-        final ProtocolVersion transportVersion = message.getVersion();
         getLineFormatter().formatRequestLine(lineBuf, new RequestLine(
                 message.getMethod(),
                 message.getRequestUri(),
-                transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1));
+                protocolVersion(message)));
     }
 
 }
