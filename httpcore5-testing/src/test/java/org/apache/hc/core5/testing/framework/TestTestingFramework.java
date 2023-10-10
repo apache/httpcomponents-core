@@ -33,7 +33,6 @@ import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.HEADERS;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.METHOD;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.NAME;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.PATH;
-import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.PROTOCOL_VERSION;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.QUERY;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.REQUEST;
 import static org.apache.hc.core5.testing.framework.ClientPOJOAdapter.RESPONSE;
@@ -46,8 +45,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.HttpVersion;
-import org.apache.hc.core5.http.ProtocolVersion;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -654,30 +651,6 @@ public class TestTestingFramework {
                 final String contentType = (String) request.get(CONTENT_TYPE);
                 Assertions.assertNotNull(contentType);
                 request.put(CONTENT_TYPE, request.get(CONTENT_TYPE) + "junk");
-                return super.execute(defaultURI, request, requestHandler, responseExpectations);
-            }
-        };
-
-        final TestingFramework framework = newFrameworkAndSetAdapter(adapter);
-
-        framework.addTest();
-
-        Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
-    }
-
-    @Test
-    public void changeProtocolVersion() throws Exception {
-        final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
-            @Override
-            public Map<String, Object> execute(
-                    final String defaultURI,
-                    final Map<String, Object> request,
-                    final TestingFrameworkRequestHandler requestHandler,
-                    final Map<String, Object> responseExpectations) throws TestingFrameworkException {
-                // change the request from what is expected.
-                final ProtocolVersion protocolVersion = (ProtocolVersion) request.get(PROTOCOL_VERSION);
-                Assertions.assertNotNull(protocolVersion);
-                request.put(PROTOCOL_VERSION, HttpVersion.HTTP_1_0);
                 return super.execute(defaultURI, request, requestHandler, responseExpectations);
             }
         };

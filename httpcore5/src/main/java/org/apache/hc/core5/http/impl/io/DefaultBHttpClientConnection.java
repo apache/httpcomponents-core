@@ -108,7 +108,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
         this.requestWriter = (requestWriterFactory != null ? requestWriterFactory :
             DefaultHttpRequestWriterFactory.INSTANCE).create();
         this.responseParser = (responseParserFactory != null ? responseParserFactory :
-            DefaultHttpResponseParserFactory.INSTANCE).create(http1Config);
+            DefaultHttpResponseParserFactory.INSTANCE).create();
         this.incomingContentStrategy = incomingContentStrategy != null ? incomingContentStrategy :
             DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :

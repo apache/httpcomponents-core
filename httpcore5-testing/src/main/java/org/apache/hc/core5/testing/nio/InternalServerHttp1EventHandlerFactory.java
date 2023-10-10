@@ -95,7 +95,7 @@ class InternalServerHttp1EventHandlerFactory implements IOEventHandlerFactory {
         this.sslSessionInitializer = sslSessionInitializer;
         this.sslSessionVerifier = sslSessionVerifier;
         this.requestParserFactory = new DefaultHttpRequestParserFactory(this.http1Config);
-        this.responseWriterFactory = DefaultHttpResponseWriterFactory.INSTANCE;
+        this.responseWriterFactory = new DefaultHttpResponseWriterFactory(this.http1Config);
     }
 
     protected ServerHttp1StreamDuplexer createServerHttp1StreamDuplexer(

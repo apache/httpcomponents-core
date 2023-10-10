@@ -140,7 +140,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Sets connection configuration.
+     * Sets HTTP/1 protocol configuration.
      */
     public final ServerBootstrap setHttp1Config(final Http1Config http1Config) {
         this.http1Config = http1Config;
@@ -380,6 +380,7 @@ public class ServerBootstrap {
         final HttpService httpService = new HttpService(
                 this.httpProcessor != null ? this.httpProcessor : HttpProcessors.server(),
                 requestHandler,
+                this.http1Config,
                 this.connStrategy != null ? this.connStrategy : DefaultConnectionReuseStrategy.INSTANCE,
                 this.streamListener);
 

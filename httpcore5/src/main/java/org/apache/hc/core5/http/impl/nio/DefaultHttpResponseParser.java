@@ -46,27 +46,40 @@ public class DefaultHttpResponseParser<T extends HttpResponse> extends AbstractM
     private final HttpResponseFactory<T> responseFactory;
 
     /**
-     * Creates an instance of DefaultHttpResponseParser.
-     *
-     * @param responseFactory the response factory.
-     * @param parser the line parser. If {@code null}
-     *   {@link org.apache.hc.core5.http.message.LazyLineParser#INSTANCE} will be used.
-     * @param http1Config Message http1Config. If {@code null}
-     *   {@link Http1Config#DEFAULT} will be used.
-     *
-     * @since 4.3
+     * @since 5.3
      */
     public DefaultHttpResponseParser(
-            final HttpResponseFactory<T> responseFactory,
+            final Http1Config http1Config,
             final LineParser parser,
-            final Http1Config http1Config) {
-        super(parser, http1Config);
+            final HttpResponseFactory<T> responseFactory) {
+        super(http1Config, parser);
         this.responseFactory = Args.notNull(responseFactory, "Response factory");
     }
 
     /**
-     * @since 4.3
+     * @since 5.3
      */
+    public DefaultHttpResponseParser(
+            final Http1Config http1Config,
+            final HttpResponseFactory<T> responseFactory) {
+        this(http1Config, null, responseFactory);
+    }
+
+    /**
+     * @deprecated Use {@link #DefaultHttpResponseParser(Http1Config, LineParser, HttpResponseFactory)}
+     */
+    @Deprecated
+    public DefaultHttpResponseParser(
+            final HttpResponseFactory<T> responseFactory,
+            final LineParser parser,
+            final Http1Config http1Config) {
+        this(http1Config, parser, responseFactory);
+    }
+
+    /**
+     * @deprecated Use {@link #DefaultHttpResponseParser(Http1Config, HttpResponseFactory)}
+     */
+    @Deprecated
     public DefaultHttpResponseParser(final HttpResponseFactory<T> responseFactory, final Http1Config http1Config) {
         this(responseFactory, null, http1Config);
     }
@@ -75,7 +88,7 @@ public class DefaultHttpResponseParser<T extends HttpResponse> extends AbstractM
      * @since 4.3
      */
     public DefaultHttpResponseParser(final HttpResponseFactory<T> responseFactory) {
-        this(responseFactory, null);
+        this(null, null, responseFactory);
     }
 
     @Override

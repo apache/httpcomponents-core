@@ -56,6 +56,8 @@ import org.apache.hc.core5.util.Timeout;
 
 class ClientHttp1StreamHandler implements ResourceHolder {
 
+    public static final Timeout DEFAULT_WAIT_FOR_CONTINUE = Timeout.ofSeconds(3);
+
     private final Http1StreamChannel<HttpRequest> outputChannel;
     private final DataStreamChannel internalDataChannel;
     private final HttpProcessor httpProcessor;
@@ -144,10 +146,10 @@ class ClientHttp1StreamHandler implements ResourceHolder {
     private void commitRequest(final HttpRequest request, final EntityDetails entityDetails) throws IOException, HttpException {
         if (requestCommitted.compareAndSet(false, true)) {
             final ProtocolVersion transportVersion = request.getVersion();
-            if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+            if (transportVersion != null && !transportVersion.lessEquals(http1Config.getVersion())) {
                 throw new UnsupportedHttpVersionException(transportVersion);
             }
-            context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
+            context.setProtocolVersion(transportVersion != null ? transportVersion : http1Config.getVersion());
             context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
 
             httpProcessor.process(request, entityDetails, context);
@@ -165,7 +167,8 @@ class ClientHttp1StreamHandler implements ResourceHolder {
                 if (expectContinue) {
                     requestState = MessageState.ACK;
                     timeout = outputChannel.getSocketTimeout();
-                    outputChannel.setSocketTimeout(http1Config.getWaitForContinueTimeout());
+                    final Timeout timeout = http1Config.getWaitForContinueTimeout() != null ? http1Config.getWaitForContinueTimeout() : DEFAULT_WAIT_FOR_CONTINUE;
+                    outputChannel.setSocketTimeout(timeout);
                 } else {
                     requestState = MessageState.BODY;
                     exchangeHandler.produce(internalDataChannel);
@@ -196,8 +199,11 @@ class ClientHttp1StreamHandler implements ResourceHolder {
             throw new ProtocolException("Unexpected message head");
         }
         final ProtocolVersion transportVersion = response.getVersion();
-        if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
-            throw new UnsupportedHttpVersionException(transportVersion);
+        if (transportVersion != null) {
+            if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
+                throw new UnsupportedHttpVersionException(transportVersion);
+            }
+            context.setProtocolVersion(transportVersion);
         }
 
         final int status = response.getCode();

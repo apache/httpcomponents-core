@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.impl.nio;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.HttpRequest;
+import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
 import org.apache.hc.core5.http.message.LineFormatter;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
@@ -45,20 +46,36 @@ public class DefaultHttpRequestWriterFactory implements NHttpMessageWriterFactor
 
     public static final DefaultHttpRequestWriterFactory INSTANCE = new DefaultHttpRequestWriterFactory();
 
+    private final Http1Config http1Config;
     private final LineFormatter lineFormatter;
 
-    public DefaultHttpRequestWriterFactory(final LineFormatter lineFormatter) {
+    /**
+     * @since 5.3
+     */
+    public DefaultHttpRequestWriterFactory(final Http1Config http1Config, final LineFormatter lineFormatter) {
         super();
+        this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.lineFormatter = lineFormatter != null ? lineFormatter : BasicLineFormatter.INSTANCE;
     }
 
+    /**
+     * @since 5.3
+     */
+    public DefaultHttpRequestWriterFactory(final Http1Config http1Config) {
+        this(http1Config, null);
+    }
+
+    public DefaultHttpRequestWriterFactory(final LineFormatter lineFormatter) {
+        this(null, lineFormatter);
+    }
+
     public DefaultHttpRequestWriterFactory() {
-        this(null);
+        this(null, null);
     }
 
     @Override
     public NHttpMessageWriter<HttpRequest> create() {
-        return new DefaultHttpRequestWriter<>(this.lineFormatter);
+        return new DefaultHttpRequestWriter<>(http1Config, lineFormatter);
     }
 
 }

@@ -65,22 +65,23 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
     private T message;
 
     /**
-     * Creates new instance of AbstractMessageParser.
-     *
-     * @param lineParser the line parser. If {@code null}
-     *   {@link org.apache.hc.core5.http.message.LazyLineParser#INSTANCE} will be used.
-     * @param http1Config the message http1Config. If {@code null}
-     *   {@link Http1Config#DEFAULT} will be used.
-     *
-     * @since 4.3
+     * @since 5.3
      */
-    public AbstractMessageParser(final LineParser lineParser, final Http1Config http1Config) {
+    public AbstractMessageParser(final Http1Config http1Config, final LineParser lineParser) {
         super();
-        this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
+        this.lineParser = lineParser != null ? lineParser : LazyLineParser.INSTANCE;
         this.headerLines = new ArrayList<>();
         this.headLine = new CharArrayBuffer(128);
         this.state = HEAD_LINE;
+    }
+
+    /**
+     * @deprecated Use {@link #AbstractMessageParser(Http1Config, LineParser)}
+     */
+    @Deprecated
+    public AbstractMessageParser(final LineParser lineParser, final Http1Config http1Config) {
+        this(http1Config, lineParser);
     }
 
     LineParser getLineParser() {
