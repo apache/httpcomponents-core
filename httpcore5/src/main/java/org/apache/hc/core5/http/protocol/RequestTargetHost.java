@@ -65,6 +65,7 @@ public class RequestTargetHost implements HttpRequestInterceptor {
         super();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void process(final HttpRequest request, final EntityDetails entity, final HttpContext context)
             throws HttpException, IOException {
