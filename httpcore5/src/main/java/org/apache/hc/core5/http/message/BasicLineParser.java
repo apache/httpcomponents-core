@@ -180,20 +180,31 @@ public class BasicLineParser implements LineParser {
         this.tokenizer.skipWhiteSpace(buffer, cursor);
         final ProtocolVersion ver = parseProtocolVersion(buffer, cursor);
         this.tokenizer.skipWhiteSpace(buffer, cursor);
-        final String s = this.tokenizer.parseToken(buffer, cursor, BLANKS);
-        for (int i = 0; i < s.length(); i++) {
-            if (!Character.isDigit(s.charAt(i))) {
+        int statusCode = 0;
+        for (int i = 1; i <= 3; i++) {
+            if (cursor.atEnd()) {
+                throw new ParseException("Status line contains invalid status code",
+                        buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
+            }
+            final char ch = buffer.charAt(cursor.getPos());
+            if (ch >= '0' && ch <= '9') {
+                statusCode = (statusCode * 10) + (ch - '0');
+            } else {
+                throw new ParseException("Status line contains invalid status code",
+                        buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
+            }
+            cursor.updatePos(cursor.getPos() + 1);
+        }
+        if (!cursor.atEnd()) {
+            final char ch = buffer.charAt(cursor.getPos());
+            if (Tokenizer.isWhitespace(ch)) {
+                cursor.updatePos(cursor.getPos() + 1);
+            } else {
                 throw new ParseException("Status line contains invalid status code",
                         buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
             }
         }
-        final int statusCode;
-        try {
-            statusCode = Integer.parseInt(s);
-        } catch (final NumberFormatException e) {
-            throw new ParseException("Status line contains invalid status code",
-                    buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
-        }
+        this.tokenizer.skipWhiteSpace(buffer, cursor);
         final String text = buffer.substringTrimmed(cursor.getPos(), cursor.getUpperBound());
         return new StatusLine(ver, statusCode, text);
     }

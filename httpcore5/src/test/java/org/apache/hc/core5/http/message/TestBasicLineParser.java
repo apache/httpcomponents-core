@@ -186,6 +186,12 @@ public class TestBasicLineParser {
         buf.clear();
         buf.append("HTTP/1.1 -200 OK");
         Assertions.assertThrows(ParseException.class, () -> parser.parseStatusLine(buf));
+        buf.clear();
+        buf.append("HTTP/1.1 0200 OK");
+        Assertions.assertThrows(ParseException.class, () -> parser.parseStatusLine(buf));
+        buf.clear();
+        buf.append("HTTP/1.1 2000 OK");
+        Assertions.assertThrows(ParseException.class, () -> parser.parseStatusLine(buf));
     }
 
     @Test
