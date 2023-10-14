@@ -74,20 +74,56 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithIdentityTransferEncoding() throws Exception {
+    public void testEntityWithChunkTransferEncodingAndEmptyTokens() throws Exception {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
-        message.addHeader("Transfer-Encoding", "Identity");
+        message.addHeader("Transfer-Encoding", ",,Chunked,,");
+
+        Assertions.assertEquals(ContentLengthStrategy.CHUNKED, lenStrategy.determineLength(message));
+    }
+
+    @Test
+    public void testEntityWithChunkTransferEncodingDoubleChunk() throws Exception {
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
+        final HttpMessage message = new TestHttpMessage();
+        message.addHeader("Transfer-Encoding", "Chunked,Chunked");
         Assertions.assertThrows(NotImplementedException.class, () ->
                 lenStrategy.determineLength(message));
     }
 
     @Test
-    public void testEntityWithInvalidTransferEncoding() throws Exception {
+    public void testEntityWithChunkTransferEncodingUnknown1() throws Exception {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
-        message.addHeader("Transfer-Encoding", "whatever");
-        Assertions.assertThrows(ProtocolException.class, () ->
+        message.addHeader("Transfer-Encoding", "blah");
+        Assertions.assertThrows(NotImplementedException.class, () ->
+                lenStrategy.determineLength(message));
+    }
+
+    @Test
+    public void testEntityWithChunkTransferEncodingUnknown2() throws Exception {
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
+        final HttpMessage message = new TestHttpMessage();
+        message.addHeader("Transfer-Encoding", "blah, chunked");
+        Assertions.assertThrows(NotImplementedException.class, () ->
+                lenStrategy.determineLength(message));
+    }
+
+    @Test
+    public void testEntityWithChunkTransferEncodingUnknown3() throws Exception {
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
+        final HttpMessage message = new TestHttpMessage();
+        message.addHeader("Transfer-Encoding", "chunked,blah");
+        Assertions.assertThrows(NotImplementedException.class, () ->
+                lenStrategy.determineLength(message));
+    }
+
+    @Test
+    public void testEntityWithIdentityTransferEncoding() throws Exception {
+        final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
+        final HttpMessage message = new TestHttpMessage();
+        message.addHeader("Transfer-Encoding", "Identity");
+        Assertions.assertThrows(NotImplementedException.class, () ->
                 lenStrategy.determineLength(message));
     }
 

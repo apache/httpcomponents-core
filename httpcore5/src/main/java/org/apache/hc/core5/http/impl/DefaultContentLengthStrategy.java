@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http.impl;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -37,7 +39,9 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.NotImplementedException;
 import org.apache.hc.core5.http.ProtocolException;
+import org.apache.hc.core5.http.message.MessageSupport;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.TextUtils;
 
 /**
  * The default implementation of the content length strategy. This class
@@ -61,19 +65,29 @@ public class DefaultContentLengthStrategy implements ContentLengthStrategy {
     public DefaultContentLengthStrategy() {
     }
 
+    enum Coding { UNKNOWN, CHUNK }
+
     @Override
     public long determineLength(final HttpMessage message) throws HttpException {
         Args.notNull(message, "HTTP message");
-        // Although Transfer-Encoding is specified as a list, in practice
-        // it is either missing or has the single value "chunked". So we
-        // treat it as a single-valued header here.
-        final Header transferEncodingHeader = message.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
-        if (transferEncodingHeader != null) {
-            final String headerValue = transferEncodingHeader.getValue();
-            if (HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase(headerValue)) {
+        final Header teh = message.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
+        if (teh != null) {
+            final AtomicReference<Coding> codingRef = new AtomicReference<>();
+            MessageSupport.parseTokens(message, HttpHeaders.TRANSFER_ENCODING, e -> {
+                if (!TextUtils.isBlank(e)) {
+                    if (e.equalsIgnoreCase(HeaderElements.CHUNKED_ENCODING)) {
+                        if (!codingRef.compareAndSet(null, Coding.CHUNK)) {
+                            codingRef.set(Coding.UNKNOWN);
+                        }
+                    } else {
+                        codingRef.set(Coding.UNKNOWN);
+                    }
+                }
+            });
+            if (codingRef.get() == Coding.CHUNK) {
                 return CHUNKED;
             }
-            throw new NotImplementedException("Unsupported transfer encoding: " + headerValue);
+            throw new NotImplementedException("Unsupported transfer encoding: " + teh.getValue());
         }
         if (message.countHeaders(HttpHeaders.CONTENT_LENGTH) > 1) {
             throw new ProtocolException("Multiple Content-Length headers");

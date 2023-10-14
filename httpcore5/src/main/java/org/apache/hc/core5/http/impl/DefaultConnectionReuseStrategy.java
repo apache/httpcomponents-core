@@ -81,6 +81,10 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
         Args.notNull(response, "HTTP response");
 
         if (request != null) {
+            // Consider framing of a request message with both Content-Length and Content-Length headers faulty
+            if (request.containsHeader(HttpHeaders.CONTENT_LENGTH) && request.containsHeader(HttpHeaders.TRANSFER_ENCODING)) {
+                return false;
+            }
             final Iterator<String> it = MessageSupport.iterateTokens(request, HttpHeaders.CONNECTION);
             while (it.hasNext()) {
                 final String token = it.next();
@@ -88,6 +92,21 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
                     return false;
                 }
             }
+        }
+
+        // If Transfer-Encoding is not present consider framing of a response message
+        // with multiple Content-Length headers faulty
+        final Header teh = response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
+        if (teh == null
+                && MessageSupport.canResponseHaveBody(request != null ? request.getMethod() : null, response)
+                && response.countHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
+            return false;
+        }
+
+        final ProtocolVersion ver = response.getVersion() != null ? response.getVersion() : context.getProtocolVersion();
+        // Consider framing of a HTTP/1.0 response message with Transfer-Content header faulty
+        if (ver.lessEquals(HttpVersion.HTTP_1_0) && teh != null) {
+            return false;
         }
 
         // If a HTTP 204 No Content response contains a Content-length with value > 0 or Transfer-Encoding header,
@@ -110,21 +129,6 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             }
         }
 
-        // Check for a self-terminating entity. If the end of the entity will
-        // be indicated by closing the connection, there is no keep-alive.
-        final Header teh = response.getFirstHeader(HttpHeaders.TRANSFER_ENCODING);
-        if (teh != null) {
-            if (!HeaderElements.CHUNKED_ENCODING.equalsIgnoreCase(teh.getValue())) {
-                return false;
-            }
-        } else {
-            final String method = request != null ? request.getMethod() : null;
-            if (MessageSupport.canResponseHaveBody(method, response)
-                    && response.countHeaders(HttpHeaders.CONTENT_LENGTH) != 1) {
-                return false;
-            }
-        }
-
         // Check for the "Connection" header. If that is absent, check for
         // the "Proxy-Connection" header. The latter is an unspecified and
         // broken but unfortunately common extension of HTTP.
@@ -133,7 +137,6 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
             headerIterator = response.headerIterator("Proxy-Connection");
         }
 
-        final ProtocolVersion ver = response.getVersion() != null ? response.getVersion() : context.getProtocolVersion();
         if (headerIterator.hasNext()) {
             if (ver.greaterEquals(HttpVersion.HTTP_1_1)) {
                 final Iterator<String> it = new BasicTokenIterator(headerIterator);
