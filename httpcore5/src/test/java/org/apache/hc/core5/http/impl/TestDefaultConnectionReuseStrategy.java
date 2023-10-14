@@ -309,5 +309,15 @@ public class TestDefaultConnectionReuseStrategy {
         response.addHeader("Connection", "keep-alive");
         Assertions.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
+
+    @Test
+    public void testResponseHTTP10TransferEncodingPresent() throws Exception {
+        final HttpResponse response = new BasicHttpResponse(200, "OK");
+        response.setVersion(HttpVersion.HTTP_1_0);
+        response.addHeader("Transfer-Encoding", "chunked");
+        response.addHeader("Connection", "keep-alive");
+        Assertions.assertFalse(reuseStrategy.keepAlive(null, response, context));
+    }
+
 }
 
