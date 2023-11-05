@@ -48,6 +48,9 @@ public class IOReactorConfigTest {
                 .setSndBufSize(32767)
                 .setRcvBufSize(8192)
                 .setBacklogSize(5)
+                .setTcpKeepIdle(100)
+                .setTcpKeepInterval(12)
+                .setTcpKeepCount(4)
                 .setSocksProxyAddress(new InetSocketAddress(8888))
                 .setSocksProxyUsername("socksProxyUsername")
                 .setSocksProxyPassword("socksProxyPassword")
@@ -64,6 +67,9 @@ public class IOReactorConfigTest {
         Assertions.assertEquals(32767, reactorConfig.getSndBufSize());
         Assertions.assertEquals(8192, reactorConfig.getRcvBufSize());
         Assertions.assertEquals(5, reactorConfig.getBacklogSize());
+        Assertions.assertEquals(100, reactorConfig.getTcpKeepIdle());
+        Assertions.assertEquals(12, reactorConfig.getTcpKeepInterval());
+        Assertions.assertEquals(4, reactorConfig.getTcpKeepCount());
         Assertions.assertEquals(new InetSocketAddress(8888), reactorConfig.getSocksProxyAddress());
         Assertions.assertEquals("socksProxyUsername", reactorConfig.getSocksProxyUsername());
         Assertions.assertEquals("socksProxyPassword", reactorConfig.getSocksProxyPassword());

@@ -27,10 +27,21 @@
 
 package org.apache.hc.core5.reactor;
 
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
+import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.Closer;
+import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.Timeout;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.net.SocketOption;
 import java.net.UnknownHostException;
 import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
@@ -45,15 +56,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.io.Closer;
-import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
-import org.apache.hc.core5.util.Timeout;
+import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPCOUNT;
+import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPIDLE;
+import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPINTERVAL;
+import static org.apache.hc.core5.net.ExtendedSocketOptions.getExtendedSocketOptionOrNull;
 
 class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
 
@@ -190,7 +196,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             final SocketChannel socketChannel = entry.channel;
             final Object attachment = entry.attachment;
             try {
-                prepareSocket(socketChannel.socket());
+                prepareSocket(socketChannel);
                 socketChannel.configureBlocking(false);
             } catch (final IOException ex) {
                 logException(ex);
@@ -265,7 +271,8 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         return sessionRequest;
     }
 
-    private void prepareSocket(final Socket socket) throws IOException {
+    private void prepareSocket(final SocketChannel socketChannel) throws IOException {
+        final Socket socket = socketChannel.socket();
         socket.setTcpNoDelay(this.reactorConfig.isTcpNoDelay());
         socket.setKeepAlive(this.reactorConfig.isSoKeepAlive());
         if (this.reactorConfig.getSndBufSize() > 0) {
@@ -281,6 +288,24 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         if (linger >= 0) {
             socket.setSoLinger(true, linger);
         }
+        if (this.reactorConfig.getTcpKeepIdle() > 0) {
+            setExtendedSocketOption(socketChannel, TCP_KEEPIDLE, this.reactorConfig.getTcpKeepIdle());
+        }
+        if (this.reactorConfig.getTcpKeepInterval() > 0) {
+            setExtendedSocketOption(socketChannel, TCP_KEEPINTERVAL, this.reactorConfig.getTcpKeepInterval());
+        }
+        if (this.reactorConfig.getTcpKeepInterval() > 0) {
+            setExtendedSocketOption(socketChannel, TCP_KEEPCOUNT, this.reactorConfig.getTcpKeepCount());
+        }
+    }
+
+    <T> void setExtendedSocketOption(final SocketChannel socketChannel,
+                                             final String optionName, final T value) throws IOException {
+        final SocketOption<T> socketOption = getExtendedSocketOptionOrNull(optionName);
+        if (socketOption == null) {
+            throw new IllegalArgumentException(optionName + " is not supported in the current jdk");
+        }
+        socketChannel.setOption(socketOption, value);
     }
 
     private void validateAddress(final SocketAddress address) throws UnknownHostException {
@@ -315,7 +340,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
 
     private void processConnectionRequest(final SocketChannel socketChannel, final IOSessionRequest sessionRequest) throws IOException {
         socketChannel.configureBlocking(false);
-        prepareSocket(socketChannel.socket());
+        prepareSocket(socketChannel);
 
         validateAddress(sessionRequest.localAddress);
         if (sessionRequest.localAddress != null) {

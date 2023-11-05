@@ -57,6 +57,9 @@ public final class IOReactorConfig {
     private final int sndBufSize;
     private final int rcvBufSize;
     private final int backlogSize;
+    private final int tcpKeepIdle;
+    private final int tcpKeepInterval;
+    private final int tcpKeepCount;
     private final SocketAddress socksProxyAddress;
     private final String socksProxyUsername;
     private final String socksProxyPassword;
@@ -73,6 +76,9 @@ public final class IOReactorConfig {
             final int sndBufSize,
             final int rcvBufSize,
             final int backlogSize,
+            final int tcpKeepIdle,
+            final int tcpKeepInterval,
+            final int tcpKeepCount,
             final SocketAddress socksProxyAddress,
             final String socksProxyUsername,
             final String socksProxyPassword) {
@@ -88,6 +94,9 @@ public final class IOReactorConfig {
         this.sndBufSize = sndBufSize;
         this.rcvBufSize = rcvBufSize;
         this.backlogSize = backlogSize;
+        this.tcpKeepIdle = tcpKeepIdle;
+        this.tcpKeepInterval = tcpKeepInterval;
+        this.tcpKeepCount = tcpKeepCount;
         this.socksProxyAddress = socksProxyAddress;
         this.socksProxyUsername = socksProxyUsername;
         this.socksProxyPassword = socksProxyPassword;
@@ -183,6 +192,27 @@ public final class IOReactorConfig {
     }
 
     /**
+     * @see Builder#setTcpKeepIdle(int)
+     */
+    public int getTcpKeepIdle() {
+        return this.tcpKeepIdle;
+    }
+
+    /**
+     * @see Builder#setTcpKeepInterval(int)
+     */
+    public int getTcpKeepInterval() {
+        return this.tcpKeepInterval;
+    }
+
+    /**
+     * @see Builder#setTcpKeepCount(int)
+     */
+    public int getTcpKeepCount() {
+        return this.tcpKeepCount;
+    }
+
+    /**
      * @see Builder#setSocksProxyAddress(SocketAddress)
      */
     public SocketAddress getSocksProxyAddress() {
@@ -220,6 +250,9 @@ public final class IOReactorConfig {
             .setSndBufSize(config.getSndBufSize())
             .setRcvBufSize(config.getRcvBufSize())
             .setBacklogSize(config.getBacklogSize())
+            .setTcpKeepIdle(config.getTcpKeepIdle())
+            .setTcpKeepInterval(config.getTcpKeepInterval())
+            .setTcpKeepCount(config.getTcpKeepCount())
             .setSocksProxyAddress(config.getSocksProxyAddress())
             .setSocksProxyUsername(config.getSocksProxyUsername())
             .setSocksProxyPassword(config.getSocksProxyPassword());
@@ -265,6 +298,9 @@ public final class IOReactorConfig {
         private int sndBufSize;
         private int rcvBufSize;
         private int backlogSize;
+        private int tcpKeepIdle;
+        private int tcpKeepInterval;
+        private int tcpKeepCount;
         private SocketAddress socksProxyAddress;
         private String socksProxyUsername;
         private String socksProxyPassword;
@@ -281,6 +317,9 @@ public final class IOReactorConfig {
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
             this.backlogSize = 0;
+            this.tcpKeepIdle = -1;
+            this.tcpKeepInterval = -1;
+            this.tcpKeepCount = -1;
             this.socksProxyAddress = null;
             this.socksProxyUsername = null;
             this.socksProxyPassword = null;
@@ -462,6 +501,21 @@ public final class IOReactorConfig {
             return this;
         }
 
+        public Builder setTcpKeepIdle(final int tcpKeepIdle) {
+            this.tcpKeepIdle = tcpKeepIdle;
+            return this;
+        }
+
+        public Builder setTcpKeepInterval(final int tcpKeepInterval) {
+            this.tcpKeepInterval = tcpKeepInterval;
+            return this;
+        }
+
+        public Builder setTcpKeepCount(final int tcpKeepCount) {
+            this.tcpKeepCount = tcpKeepCount;
+            return this;
+        }
+
         /**
          * The address of the SOCKS proxy to use.
          */
@@ -497,6 +551,7 @@ public final class IOReactorConfig {
                     tcpNoDelay,
                     trafficClass,
                     sndBufSize, rcvBufSize, backlogSize,
+                    tcpKeepIdle, tcpKeepInterval, tcpKeepCount,
                     socksProxyAddress, socksProxyUsername, socksProxyPassword);
         }
 
