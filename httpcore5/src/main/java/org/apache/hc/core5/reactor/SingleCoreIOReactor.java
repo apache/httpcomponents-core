@@ -27,6 +27,7 @@
 
 package org.apache.hc.core5.reactor;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
@@ -58,6 +59,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.hc.core5.util.ReflectionUtils.getExtendedSocketOptionOrNull;
 
+@Internal
 public class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
 
     public static final String TCP_KEEPIDLE = "TCP_KEEPIDLE";
