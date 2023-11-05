@@ -56,13 +56,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPCOUNT;
-import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPIDLE;
-import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPINTERVAL;
-import static org.apache.hc.core5.net.ExtendedSocketOptions.getExtendedSocketOptionOrNull;
+import static org.apache.hc.core5.util.ReflectionUtils.getExtendedSocketOptionOrNull;
 
-class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
+public class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
 
+    public static final String TCP_KEEPIDLE = "TCP_KEEPIDLE";
+    public static final String TCP_KEEPINTERVAL = "TCP_KEEPINTERVAL";
+    public static final String TCP_KEEPCOUNT = "TCP_KEEPCOUNT";
     private static final int MAX_CHANNEL_REQUESTS = 10000;
 
     private final IOEventHandlerFactory eventHandlerFactory;
@@ -299,11 +299,14 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         }
     }
 
+    /**
+     * @since 5.3
+     */
     <T> void setExtendedSocketOption(final SocketChannel socketChannel,
                                              final String optionName, final T value) throws IOException {
         final SocketOption<T> socketOption = getExtendedSocketOptionOrNull(optionName);
         if (socketOption == null) {
-            throw new IllegalArgumentException(optionName + " is not supported in the current jdk");
+            throw new UnsupportedOperationException(optionName + " is not supported in the current jdk");
         }
         socketChannel.setOption(socketOption, value);
     }

@@ -25,23 +25,20 @@
  *
  */
 
-package org.apache.hc.core5.net;
+package org.apache.hc.core5.util;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.net.SocketOption;
 
-import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPCOUNT;
-import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPIDLE;
-import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPINTERVAL;
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPCOUNT;
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPIDLE;
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPINTERVAL;
 import static org.apache.hc.core5.util.ReflectionUtils.determineJRELevel;
+import static org.apache.hc.core5.util.ReflectionUtils.getExtendedSocketOptionOrNull;
 
-/**
- * Unit tests for {@link ExtendedSocketOptions}.
- *
- */
-public class TestExtendedSocketOptions {
+public class TestReflectionUtils {
 
     @Test
     public void testGetExtendedSocketOptionOrNull() {
@@ -51,11 +48,10 @@ public class TestExtendedSocketOptions {
     }
 
     private void testGetExtendedSocketOption(final String option) {
-        final SocketOption socketOption = ExtendedSocketOptions.getExtendedSocketOptionOrNull(option);
+        final SocketOption socketOption = getExtendedSocketOptionOrNull(option);
+        // Partial versions of jdk1.8 contain TCP_KEEPIDLE, TCP_KEEPINTERVAL, TCP_KEEPCOUNT.
         if (determineJRELevel() > 8) {
             Assertions.assertNotNull(socketOption);
-        } else {
-            Assertions.assertNull(socketOption);
         }
     }
 }

@@ -193,6 +193,8 @@ public final class IOReactorConfig {
 
     /**
      * @see Builder#setTcpKeepIdle(int)
+     *
+     * @since 5.3
      */
     public int getTcpKeepIdle() {
         return this.tcpKeepIdle;
@@ -200,6 +202,8 @@ public final class IOReactorConfig {
 
     /**
      * @see Builder#setTcpKeepInterval(int)
+     *
+     * @since 5.3
      */
     public int getTcpKeepInterval() {
         return this.tcpKeepInterval;
@@ -207,6 +211,8 @@ public final class IOReactorConfig {
 
     /**
      * @see Builder#setTcpKeepCount(int)
+     *
+     * @since 5.3
      */
     public int getTcpKeepCount() {
         return this.tcpKeepCount;
@@ -501,16 +507,32 @@ public final class IOReactorConfig {
             return this;
         }
 
+        /**
+         * Determines the time (in seconds) the connection needs to remain idle before TCP starts
+         * sending keepalive probes.
+         *
+         * @since 5.3
+         */
         public Builder setTcpKeepIdle(final int tcpKeepIdle) {
             this.tcpKeepIdle = tcpKeepIdle;
             return this;
         }
 
+        /**
+         * Determines the time (in seconds) between individual keepalive probes.
+         *
+         * @since 5.3
+         */
         public Builder setTcpKeepInterval(final int tcpKeepInterval) {
             this.tcpKeepInterval = tcpKeepInterval;
             return this;
         }
 
+        /**
+         * Determines the maximum number of keepalive probes TCP should send before dropping the connection.
+         *
+         * @since 5.3
+         */
         public Builder setTcpKeepCount(final int tcpKeepCount) {
             this.tcpKeepCount = tcpKeepCount;
             return this;

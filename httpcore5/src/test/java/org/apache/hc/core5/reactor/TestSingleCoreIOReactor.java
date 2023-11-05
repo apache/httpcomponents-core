@@ -34,11 +34,11 @@ import java.io.IOException;
 import java.net.SocketOption;
 import java.nio.channels.SocketChannel;
 
-import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPCOUNT;
-import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPIDLE;
-import static org.apache.hc.core5.net.ExtendedSocketOptions.TCP_KEEPINTERVAL;
-import static org.apache.hc.core5.net.ExtendedSocketOptions.getExtendedSocketOptionOrNull;
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPCOUNT;
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPIDLE;
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPINTERVAL;
 import static org.apache.hc.core5.util.ReflectionUtils.determineJRELevel;
+import static org.apache.hc.core5.util.ReflectionUtils.getExtendedSocketOptionOrNull;
 import static org.mockito.Mockito.mock;
 
 public class TestSingleCoreIOReactor {
@@ -49,6 +49,7 @@ public class TestSingleCoreIOReactor {
         final SocketOption<Integer> tcpKeepIdle;
         final SocketOption<Integer> tcpKeepInterval;
         final SocketOption<Integer> tcpKeepCount;
+        // Partial versions of jdk1.8 contain TCP_KEEPIDLE, TCP_KEEPINTERVAL, TCP_KEEPCOUNT.
         if (determineJRELevel() > 8) {
             reactor.setExtendedSocketOption(socketChannel, TCP_KEEPIDLE, 100);
             reactor.setExtendedSocketOption(socketChannel, TCP_KEEPINTERVAL, 10);
@@ -60,13 +61,6 @@ public class TestSingleCoreIOReactor {
             Assertions.assertEquals(100, socketChannel.getOption(tcpKeepIdle));
             Assertions.assertEquals(10, socketChannel.getOption(tcpKeepInterval));
             Assertions.assertEquals(10, socketChannel.getOption(tcpKeepCount));
-        } else {
-            tcpKeepIdle = getExtendedSocketOptionOrNull(TCP_KEEPIDLE);
-            tcpKeepInterval = getExtendedSocketOptionOrNull(TCP_KEEPINTERVAL);
-            tcpKeepCount = getExtendedSocketOptionOrNull(TCP_KEEPCOUNT);
-            Assertions.assertNull(tcpKeepIdle);
-            Assertions.assertNull(tcpKeepInterval);
-            Assertions.assertNull(tcpKeepCount);
         }
     }
 }
