@@ -27,17 +27,6 @@
 
 package org.apache.hc.core5.reactor;
 
-import org.apache.hc.core5.annotation.Internal;
-import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.function.Callback;
-import org.apache.hc.core5.function.Decorator;
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.io.Closer;
-import org.apache.hc.core5.net.NamedEndpoint;
-import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
-import org.apache.hc.core5.util.Timeout;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -56,6 +45,17 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.function.Decorator;
+import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.io.Closer;
+import org.apache.hc.core5.net.NamedEndpoint;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
+import org.apache.hc.core5.util.Timeout;
 
 import static org.apache.hc.core5.util.ReflectionUtils.getExtendedSocketOptionOrNull;
 
