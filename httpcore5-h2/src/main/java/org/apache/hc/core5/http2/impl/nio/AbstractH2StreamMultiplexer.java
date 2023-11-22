@@ -351,7 +351,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             if (capacity <= 0) {
                 return 0;
             }
-            final int maxPayloadSize = Math.min(capacity, remoteConfig.getMaxFrameSize());
+            final int maxPayloadSize = Math.min(capacity, outputBuffer.getMaxFramePayloadSize());
             final int chunk;
             if (payload.remaining() <= maxPayloadSize) {
                 chunk = payload.remaining();
