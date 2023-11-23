@@ -1,3 +1,20 @@
+Release 5.2.4
+------------------
+
+This is a maintenance release that corrects a major defect discovered since release 5.2.3 that
+can lead to an H2 connection failing at runtime with the message "Frame size exceeds maximum" when
+executing requests with an enclosed message body and the remote endpoint having negotiated
+a maximum frame size larger than the protocol default (16KB).
+
+
+Change Log
+-------------------
+
+* HTTPCORE-762: H2 protocol handler incorrectly determines the maximum frame size for outgoing frames
+  in case the remote endpoint negotiated a max frame size larger than the protocol default.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
 Release 5.2.3
 ------------------
 
