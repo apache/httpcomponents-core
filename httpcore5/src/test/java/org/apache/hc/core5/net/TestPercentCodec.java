@@ -28,11 +28,15 @@
 package org.apache.hc.core5.net;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.charset.StandardCharsets;
+import java.util.stream.Stream;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Unit tests for {@link PercentCodec}.
@@ -66,6 +70,32 @@ public class TestPercentCodec {
                 CoreMatchers.equalTo("blah! %a"));
         assertThat(PercentCodec.decode("blah%21%20%wa", StandardCharsets.UTF_8),
                 CoreMatchers.equalTo("blah! %wa"));
+    }
+
+    @ParameterizedTest
+    @MethodSource("params")
+    public void testRfc5987EncodingDecoding(final String input, final String expected) {
+        assertEquals(expected, PercentCodec.RFC5987.encode(input));
+        assertEquals(input, PercentCodec.RFC5987.decode(expected));
+    }
+
+    static Stream<Object[]> params() {
+        return Stream.of(
+                new Object[]{"foo-ä-€.html", "foo-%C3%A4-%E2%82%AC.html"},
+                new Object[]{"世界ーファイル 2.jpg", "%E4%B8%96%E7%95%8C%E3%83%BC%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%202.jpg"},
+                new Object[]{"foo.jpg", "foo.jpg"},
+                new Object[]{"simple", "simple"},  // Unreserved characters
+                new Object[]{"reserved/chars?", "reserved%2Fchars%3F"},  // Reserved characters
+                new Object[]{"", ""},  // Empty string
+                new Object[]{"space test", "space%20test"},  // String with space
+                new Object[]{"ümlaut", "%C3%BCmlaut"}  // Non-ASCII characters
+        );
+    }
+
+    @Test
+    public void verifyRfc5987EncodingandDecoding() {
+        final String s = "!\"$£%^&*()_-+={[}]:@~;'#,./<>?\\|✓éèæðŃœ";
+        assertThat(PercentCodec.RFC5987.decode(PercentCodec.RFC5987.encode(s)), CoreMatchers.equalTo(s));
     }
 
 }
