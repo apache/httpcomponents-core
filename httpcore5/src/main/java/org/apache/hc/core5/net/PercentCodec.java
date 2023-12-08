@@ -34,7 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.BitSet;
 
 /**
- * Percent-encoding mechanism defined in RFC 3986
+ * Percent-encoding.
  *
  * @since 5.1
  */
@@ -82,6 +82,35 @@ public class PercentCodec {
         UNRESERVED.set('~');
         URIC.or(SUB_DELIMS);
         URIC.or(UNRESERVED);
+    }
+
+    static final BitSet RFC5987_UNRESERVED = new BitSet(256);
+
+    static {
+        // Alphanumeric characters
+        for (int i = 'a'; i <= 'z'; i++) {
+            RFC5987_UNRESERVED.set(i);
+        }
+        for (int i = 'A'; i <= 'Z'; i++) {
+            RFC5987_UNRESERVED.set(i);
+        }
+        for (int i = '0'; i <= '9'; i++) {
+            RFC5987_UNRESERVED.set(i);
+        }
+
+        // Additional characters as per RFC 5987 attr-char
+        RFC5987_UNRESERVED.set('!');
+        RFC5987_UNRESERVED.set('#');
+        RFC5987_UNRESERVED.set('$');
+        RFC5987_UNRESERVED.set('&');
+        RFC5987_UNRESERVED.set('+');
+        RFC5987_UNRESERVED.set('-');
+        RFC5987_UNRESERVED.set('.');
+        RFC5987_UNRESERVED.set('^');
+        RFC5987_UNRESERVED.set('_');
+        RFC5987_UNRESERVED.set('`');
+        RFC5987_UNRESERVED.set('|');
+        RFC5987_UNRESERVED.set('~');
     }
 
     private static final int RADIX = 16;
@@ -158,6 +187,45 @@ public class PercentCodec {
 
     public static String decode(final CharSequence content, final Charset charset) {
         return decode(content, charset, false);
+    }
+
+    public static final PercentCodec RFC3986 = new PercentCodec(UNRESERVED);
+    public static final PercentCodec RFC5987 = new PercentCodec(RFC5987_UNRESERVED);
+
+    private final BitSet unreserved;
+
+    private PercentCodec(final BitSet unreserved) {
+        this.unreserved = unreserved;
+    }
+
+    public PercentCodec() {
+        this.unreserved = UNRESERVED;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void encode(final StringBuilder buf, final CharSequence content) {
+        encode(buf, content, StandardCharsets.UTF_8, unreserved, false);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public String encode(final CharSequence content) {
+        if (content == null) {
+            return null;
+        }
+        final StringBuilder buf = new StringBuilder();
+        encode(buf, content, StandardCharsets.UTF_8, unreserved, false);
+        return buf.toString();
+    }
+
+    /**
+     * @since 5.3
+     */
+    public String decode(final CharSequence content) {
+        return decode(content, StandardCharsets.UTF_8, false);
     }
 
 }
