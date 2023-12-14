@@ -166,7 +166,7 @@ public class TestBasicHeaderValueFormatter {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final NameValuePair param = new BasicNameValuePair("param", "regular_stuff");
         final NameValuePair[] params = new NameValuePair[] {param};
-        final HeaderElement element = new BasicHeaderElement("name1", "value1", null);
+        final HeaderElement element = new BasicHeaderElement("name1", "value1", (NameValuePair[]) null);
         final HeaderElement[] elements = new HeaderElement[] {element};
 
         Assertions.assertThrows(NullPointerException.class, () ->

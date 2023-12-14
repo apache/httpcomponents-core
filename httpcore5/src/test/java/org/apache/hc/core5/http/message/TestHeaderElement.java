@@ -63,7 +63,7 @@ public class TestHeaderElement {
 
     @Test
     public void testInvalidName() {
-        Assertions.assertThrows(NullPointerException.class, () -> new BasicHeaderElement(null, null, null));
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHeaderElement(null, null, (NameValuePair[]) null));
     }
 
     @Test

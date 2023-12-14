@@ -73,7 +73,7 @@ public class BasicHeaderElement implements HeaderElement {
      * @param value header element value. May be {@code null}
      */
     public BasicHeaderElement(final String name, final String value) {
-       this(name, value, null);
+       this(name, value, (NameValuePair[]) null);
     }
 
     @Override
