@@ -28,8 +28,6 @@
 package org.apache.hc.core5.util;
 
 import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 import org.apache.hc.core5.annotation.Internal;
 
@@ -40,7 +38,7 @@ public final class ReflectionUtils {
         try {
             final Class<?> clazz = object.getClass();
             final Method method = clazz.getMethod("set" + setterName, type);
-            setAccessible(method);
+            method.setAccessible(true);
             method.invoke(object, value);
         } catch (final Exception ignore) {
         }
@@ -50,18 +48,11 @@ public final class ReflectionUtils {
         try {
             final Class<?> clazz = object.getClass();
             final Method method = clazz.getMethod("get" + getterName);
-            setAccessible(method);
+            method.setAccessible(true);
             return resultType.cast(method.invoke(object));
         } catch (final Exception ignore) {
             return null;
         }
-    }
-
-    private static void setAccessible(final Method method) {
-        AccessController.doPrivileged((PrivilegedAction<Object>) () -> {
-            method.setAccessible(true);
-            return null;
-        });
     }
 
     public static int determineJRELevel() {

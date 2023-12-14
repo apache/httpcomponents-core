@@ -36,9 +36,6 @@ import java.nio.channels.CancelledKeyException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -52,7 +49,6 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.util.Args;
-import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
 class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements ConnectionInitiator {
@@ -330,17 +326,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         // Run this under a doPrivileged to support lib users that run under a SecurityManager this allows granting connect permissions
         // only to this library
         validateAddress(remoteAddress);
-        final boolean connected;
-        try {
-            connected = AccessController.doPrivileged(
-                    (PrivilegedExceptionAction<Boolean>) () -> socketChannel.connect(remoteAddress));
-        } catch (final PrivilegedActionException e) {
-            Asserts.check(e.getCause() instanceof  IOException,
-                    "method contract violation only checked exceptions are wrapped: " + e.getCause());
-            // only checked exceptions are wrapped - error and RTExceptions are rethrown by doPrivileged
-            throw (IOException) e.getCause();
-        }
-
+        final boolean connected = socketChannel.connect(remoteAddress);
         final SelectionKey key = socketChannel.register(this.selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
         final IOSession ioSession = new IOSessionImpl("c", key, socketChannel);
         final InternalDataChannel dataChannel = new InternalDataChannel(
