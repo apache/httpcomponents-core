@@ -1,3 +1,114 @@
+Release 5.3 ALPHA1
+------------------
+
+This is the first ALPHA release in the 5.3 release series that improves HTTP protocol support by ensuring conformance
+to the latest HTTP specification (RFC 9110 and RFC 9112) and also ensuring compatibility with Java Virtual Threads by
+replacing 'synchronized' keywords in critical sections with Java lock primitives.
+
+
+Notable changes and features included in the 5.3 series:
+
+* Improved conformance to RFC 9110 and RFC 9112.
+
+* Compatibility with Java Virtual Threads and Java 21 Runtime.
+
+
+Change Log
+-------------------
+
+* Removed AccessController checks (AccessController deprecated in Java 21).
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Support for percent coding as defined in RFC 5987.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCORE-756: Improved Transfer-Encoding handling and message frame validity verification per RFC 9112 section 6.1.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-756: Stricter parsing of response status code per RFC 9112 section 3.2; less intermediate garbage while
+  parsing response status lines.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-756: Support for the effective HTTP/1.x protocol level config parameter; HTTP/1.1 endpoints to signal their
+  actual supported protocol level (the minor version in HTTP/1.x) in the message control data as per RFC 9110
+  section 6.2.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-756: Authority from an absolute request URI to take precedence over Host header per RFC 9112 section 3.2.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-756: Client protocol handlers to try to send `Host` as the first header in the request header section
+  per RFC 9110 section 7.2.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-756: Updated response status codes as per RFC 9110 section 18.3.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-756: Expect-Continue handshake improvements per RFC 9110 section 10.1.1.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Additional message support methods.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-756: Support methods for handling hop-by-hop and connection specific headers.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-756: Reject HTTPS requests received over insecure (non-TLS) connection per RFC 9110 section 7.4.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-756: Replace CR, LF, NULL in header values with SP per RFC 9110 section 5.5.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-759: Add Content-Length to POST, PUT and PATCH with null entity request content (#435).
+  Contributed by Billy <10576351+chrysophylax at users.noreply.github.com>
+
+* Improved name/value parsing code.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* ':path' pseudo-Header validation for HTTP/2 Requests (#428).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCORE-756: Implement RFC9110 Content-Type validation for OPTIONS requests. Enforce the presence of a valid
+  Content-Type header for OPTIONS requests containing content as per RFC9110 (#424).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCORE-756: Enforced non-empty host identifier for http/https URIs. (#423)
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCORE-756: Deprecate and remove userInfo from URIAuthority and URIBuilder in compliance with RFC 9110 (#418).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Async requesters to populate request URI authority based on the target host when not explicitly set by the caller.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Async requesters to support custom / resolved target endpoints
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Replace 'synchronized' blocks with ReentrantLock. (#412)
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* HTTPCORE-744: Removed references to URI normalization from URIBuilder.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Use Timeout#INFINITE instead of Timeout#DISABLED for network operations.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Add support for Internationalized Domain Names (IDN).
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Added a request interceptor to generate 'Forwarded' HTTP header.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Use either US-ASCII or UTF-8 encoding for text where appropriate.
+  Contributed by Michael Osipov <michaelo at apache.org>
+
+* Fixed an issue with invalid scoped IPv6 addresses in InetAddressUtils.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+* Added a request interceptor to generate 'Via' HTTP header.
+  Contributed by Arturo Bernal <abernal at apache.org>
+
+
 Release 5.2.4
 ------------------
 
