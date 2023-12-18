@@ -27,8 +27,14 @@
 package org.apache.hc.core5.pool;
 
 import java.util.Collections;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.HttpConnection;
 import org.apache.hc.core5.io.CloseMode;
@@ -97,6 +103,51 @@ public class TestLaxConnPool {
             Assertions.assertEquals(2, totals.getAvailable());
             Assertions.assertEquals(0, totals.getLeased());
             Assertions.assertEquals(0, totals.getPending());
+        }
+    }
+
+    @Test
+    public void testLeaseReleaseMultiThreaded() throws Exception {
+        try (final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2)) {
+
+            final int c = 10;
+            final CountDownLatch latch = new CountDownLatch(c);
+            final AtomicInteger n = new AtomicInteger(c + 100);
+            final AtomicReference<AssertionError> exRef = new AtomicReference<>();
+
+            final ExecutorService executorService = Executors.newFixedThreadPool(c);
+            try {
+                final Random rnd = new Random();
+                for (int i = 0; i < c; i++) {
+                    executorService.execute(() -> {
+                        try {
+                            while (n.decrementAndGet() > 0) {
+                                try {
+                                    final Future<PoolEntry<String, HttpConnection>> future = pool.lease("somehost", null);
+                                    final PoolEntry<String, HttpConnection> poolEntry = future.get(1, TimeUnit.MINUTES);
+                                    Thread.sleep(rnd.nextInt(1));
+                                    pool.release(poolEntry, false);
+                                } catch (final Exception ex) {
+                                    Assertions.fail(ex.getMessage(), ex);
+                                }
+                            }
+                        } catch (final AssertionError ex) {
+                            exRef.compareAndSet(null, ex);
+                        } finally {
+                            latch.countDown();
+                        }
+                    });
+                }
+
+                Assertions.assertTrue(latch.await(5, TimeUnit.MINUTES));
+            } finally {
+                executorService.shutdownNow();
+            }
+
+            final AssertionError assertionError = exRef.get();
+            if (assertionError != null) {
+                throw assertionError;
+            }
         }
     }
 

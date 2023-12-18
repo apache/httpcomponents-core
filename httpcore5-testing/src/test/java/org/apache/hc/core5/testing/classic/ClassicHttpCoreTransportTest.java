@@ -30,6 +30,12 @@ package org.apache.hc.core5.testing.classic;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
@@ -46,6 +52,7 @@ import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public abstract class ClassicHttpCoreTransportTest {
@@ -119,6 +126,53 @@ public abstract class ClassicHttpCoreTransportTest {
             assertThat(response3.getCode(), CoreMatchers.equalTo(HttpStatus.SC_OK));
             final String body3 = EntityUtils.toString(response3.getEntity());
             assertThat(body3, CoreMatchers.equalTo("some more stuff"));
+        }
+    }
+
+    @Test
+    public void testMultiThreadedRequests() throws Exception {
+        final HttpServer server = serverStart();
+        final HttpRequester requester = clientStart();
+
+        final int c = 10;
+        final CountDownLatch latch = new CountDownLatch(c);
+        final AtomicLong n = new AtomicLong(c + 100);
+        final AtomicReference<AssertionError> exRef = new AtomicReference<>();
+        final ExecutorService executorService = Executors.newFixedThreadPool(c);
+        try {
+            final HttpHost target = new HttpHost(scheme.id, "localhost", server.getLocalPort());
+            for (int i = 0; i < c; i++) {
+                executorService.execute(() -> {
+                    try {
+                        while (n.decrementAndGet() > 0) {
+                            try {
+                                final HttpCoreContext context = HttpCoreContext.create();
+                                final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
+                                request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
+                                requester.execute(target, request1, TIMEOUT, context, response -> {
+                                    Assertions.assertEquals(HttpStatus.SC_OK, response.getCode());
+                                    Assertions.assertEquals("some stuff", EntityUtils.toString(response.getEntity()));
+                                    return null;
+                                });
+                            } catch (final Exception ex) {
+                                Assertions.fail(ex);
+                            }
+                        }
+                    } catch (final AssertionError ex) {
+                        exRef.compareAndSet(null, ex);
+                    } finally {
+                        latch.countDown();
+                    }
+                });
+            }
+            Assertions.assertTrue(latch.await(5, TimeUnit.MINUTES));
+        } finally {
+            executorService.shutdownNow();
+        }
+
+        final AssertionError assertionError = exRef.get();
+        if (assertionError != null) {
+            throw assertionError;
         }
     }
 

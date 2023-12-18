@@ -468,14 +468,11 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
                 @Override
                 public PoolEntry<T, C> get(
                         final long timeout, final TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
-                    lock.lock();
                     try {
                         return super.get(timeout, unit);
                     } catch (final TimeoutException ex) {
                         cancel();
                         throw ex;
-                    } finally {
-                        lock.unlock();
                     }
                 }
 
