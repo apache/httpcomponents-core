@@ -41,6 +41,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.UnsupportedHttpVersionException;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultContentLengthStrategy;
@@ -93,7 +94,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
             final HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory,
             final HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory) {
         super(http1Config, charDecoder, charEncoder);
-        this.scheme = scheme;
+        this.scheme = scheme != null ? scheme : URIScheme.HTTP.getId();
         this.requestParser = (requestParserFactory != null ? requestParserFactory :
             DefaultHttpRequestParserFactory.INSTANCE).create();
         this.responseWriter = (responseWriterFactory != null ? responseWriterFactory :

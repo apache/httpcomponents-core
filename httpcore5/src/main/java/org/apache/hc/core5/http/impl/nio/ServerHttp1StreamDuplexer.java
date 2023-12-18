@@ -46,6 +46,7 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStatus;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.BasicHttpConnectionMetrics;
@@ -109,7 +110,7 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
                 incomingContentStrategy, outgoingContentStrategy);
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.exchangeHandlerFactory = Args.notNull(exchangeHandlerFactory, "Exchange handler factory");
-        this.scheme = scheme;
+        this.scheme = scheme != null ? scheme : URIScheme.HTTP.getId();
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
