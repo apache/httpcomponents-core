@@ -392,6 +392,8 @@ public class TestURIBuilder {
         //
         uribuilder = new URIBuilder("http://localhost:80/?param=some%20other%20stuff&blah=blah&blah=blah2");
         Assertions.assertEquals("blah", uribuilder.getFirstQueryParam("blah").getValue());
+        uribuilder.removeQuery();
+        Assertions.assertNull(uribuilder.getFirstQueryParam("param"));
     }
 
     @Test
