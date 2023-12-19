@@ -967,7 +967,8 @@ public class URIBuilder {
      * @since 5.2
      */
     public NameValuePair getFirstQueryParam(final String name) {
-        return getQueryParams().stream().filter(e -> name.equals(e.getName())).findFirst().orElse(null);
+        if (this.queryParams == null) return null;
+        return queryParams.stream().filter(e -> name.equals(e.getName())).findFirst().orElse(null);
     }
 
     /**
