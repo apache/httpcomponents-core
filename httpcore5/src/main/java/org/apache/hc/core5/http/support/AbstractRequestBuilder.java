@@ -173,7 +173,7 @@ public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T
         } else {
             this.scheme = uri.getScheme();
             if (uri.getHost() != null) {
-                this.authority = new URIAuthority(uri.getHost(), uri.getPort());
+                this.authority = new URIAuthority(uri.getRawUserInfo(), uri.getHost(), uri.getPort());
             } else if (uri.getRawAuthority() != null) {
                 try {
                     this.authority = URIAuthority.create(uri.getRawAuthority());

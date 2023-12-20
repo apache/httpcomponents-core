@@ -177,14 +177,6 @@ public class TestURIBuilder {
     }
 
     @Test
-    public void testMutationToRelativeUri() throws Exception {
-        final URI uri = new URI("http://stuff@localhost:80/stuff?param=stuff#fragment");
-        final URIBuilder uribuilder = new URIBuilder(uri).setHost("localhost");
-        final URI result = uribuilder.build();
-        Assertions.assertEquals(new URI("http://localhost:80/stuff?param=stuff#fragment"), result);
-    }
-
-    @Test
     public void testMutationRemoveFragment() throws Exception {
         final URI uri = new URI("http://stuff@localhost:80/stuff?param=stuff#fragment");
         final URI result = new URIBuilder(uri).setFragment(null).build();
@@ -202,7 +194,7 @@ public class TestURIBuilder {
     public void testMutationRemovePort() throws Exception {
         final URI uri = new URI("http://stuff@localhost:80/stuff?param=stuff#fragment");
         final URI result = new URIBuilder(uri).setPort(-1).build();
-        Assertions.assertEquals(new URI("http://localhost/stuff?param=stuff#fragment"), result);
+        Assertions.assertEquals(new URI("http://stuff@localhost/stuff?param=stuff#fragment"), result);
     }
 
     @Test
@@ -244,7 +236,7 @@ public class TestURIBuilder {
 
        Assertions.assertEquals(uri.getHost(), bld.getHost());
 
-       Assertions.assertNotEquals(uri.getUserInfo(), bld.getUserInfo());
+       Assertions.assertEquals(uri.getUserInfo(), bld.getUserInfo());
 
        Assertions.assertEquals(uri.getPath(), bld.getPath());
 
@@ -271,7 +263,7 @@ public class TestURIBuilder {
 
        Assertions.assertEquals(uri.getHost(), bld.getHost());
 
-       Assertions.assertNotEquals(uri.getUserInfo(), bld.getUserInfo());
+       Assertions.assertEquals(uri.getUserInfo(), bld.getUserInfo());
 
        Assertions.assertEquals(uri.getPath(), bld.getPath());
 
@@ -358,7 +350,7 @@ public class TestURIBuilder {
 
     @Test
     public void testSetAuthorityFromURIAuthority() throws Exception {
-        final URIAuthority authority = URIAuthority.create("@localhost:88");
+        final URIAuthority authority = URIAuthority.create("u:p@localhost:88");
         final URIBuilder uribuilder = new URIBuilder().setScheme(URIScheme.HTTP.id).setAuthority(authority);
         // Check builder
         Assertions.assertEquals(authority.getUserInfo(), uribuilder.getAuthority().getUserInfo());
@@ -370,12 +362,7 @@ public class TestURIBuilder {
         Assertions.assertEquals(authority.getHostName(), result.getHost());
         Assertions.assertEquals(authority.getPort(), result.getPort());
         Assertions.assertEquals(authority.toString(), result.getAuthority());
-        Assertions.assertEquals(new URI("http://localhost:88"), result);
-    }
-
-    @Test
-    public void testSetAuthorityFromURIAuthorityWhitUserPass() {
-        Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create("u:p@localhost:88"));
+        Assertions.assertEquals(new URI("http://u:p@localhost:88"), result);
     }
 
     @Test
@@ -505,7 +492,7 @@ public class TestURIBuilder {
 
         Assertions.assertEquals(uri.getHost(), bld.getHost());
 
-        Assertions.assertNotEquals(uri.getUserInfo(), bld.getUserInfo());
+        Assertions.assertEquals(uri.getUserInfo(), bld.getUserInfo());
 
         Assertions.assertEquals(uri.getPath(), bld.getPath());
 
@@ -640,8 +627,8 @@ public class TestURIBuilder {
     @Test
     public void testGetHostWithReservedChars() throws Exception {
         final URIBuilder uribuilder = new URIBuilder("http://someuser%21@%21example%21.com/");
-        Assertions.assertEquals(null, uribuilder.getHost(), "SHOULD parse for userinfo and treat its presence as an error");
-        Assertions.assertEquals(null, uribuilder.getUserInfo());
+        Assertions.assertEquals("!example!.com", uribuilder.getHost());
+        Assertions.assertEquals("someuser!", uribuilder.getUserInfo());
     }
 
     @Test

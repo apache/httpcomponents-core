@@ -47,23 +47,25 @@ import org.apache.hc.core5.util.Tokenizer;
 public final class URIAuthority implements NamedEndpoint, Serializable {
 
     private static final long serialVersionUID = 1L;
+    private final String userInfo;
     private final Host host;
 
     static URIAuthority parse(final CharSequence s, final Tokenizer.Cursor cursor) throws URISyntaxException {
         final Tokenizer tokenizer = Tokenizer.INSTANCE;
+        String userInfo = null;
         final int initPos = cursor.getPos();
         final String token = tokenizer.parseContent(s, cursor, URISupport.HOST_SEPARATORS);
         if (!cursor.atEnd() && s.charAt(cursor.getPos()) == '@') {
             cursor.updatePos(cursor.getPos() + 1);
             if (!TextUtils.isBlank(token)) {
-                throw URISupport.createException(s, cursor, "Userinfo component is deprecated for http and https URIs");
+                userInfo = token;
             }
         } else {
             //Rewind
             cursor.updatePos(initPos);
         }
         final Host host = Host.parse(s, cursor);
-        return new URIAuthority(host);
+        return new URIAuthority(userInfo, host);
     }
 
     static URIAuthority parse(final CharSequence s) throws URISyntaxException {
@@ -71,9 +73,17 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         return parse(s, cursor);
     }
 
+    static void format(final StringBuilder buf, final URIAuthority uriAuthority) {
+        if (uriAuthority.getUserInfo() != null) {
+            buf.append(uriAuthority.getUserInfo());
+            buf.append("@");
+        }
+        Host.format(buf, uriAuthority);
+    }
+
     static String format(final URIAuthority uriAuthority) {
         final StringBuilder buf = new StringBuilder();
-        Host.format(buf, uriAuthority);
+        format(buf, uriAuthority);
         return buf.toString();
     }
 
@@ -83,49 +93,46 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
      * @throws IllegalArgumentException
      *             If the port parameter is outside the specified range of valid port values, which is between 0 and
      *             65535, inclusive. {@code -1} indicates the scheme default port.
-     * @deprecated
      */
-    @Deprecated
     public URIAuthority(final String userInfo, final String hostname, final int port) {
-      this(hostname, port);
+        super();
+        this.userInfo = userInfo;
+        this.host = new Host(hostname, port);
     }
 
     public URIAuthority(final String hostname, final int port) {
-        super();
-        this.host = new Host(hostname, port);
+        this(null, hostname, port);
     }
 
     /**
      * @since 5.2
-     * @deprecated
      */
-    @Deprecated
     public URIAuthority(final String userInfo, final Host host) {
-      this(host);
+        super();
+        Args.notNull(host, "Host");
+        this.userInfo = userInfo;
+        this.host = host;
     }
 
     /**
      * @since 5.2
      */
     public URIAuthority(final Host host) {
-        super();
-        Args.notNull(host, "Host");
-        this.host = host;
+        this(null, host);
     }
 
     /**
      * @since 5.2
-     * @deprecated
      */
-    @Deprecated
     public URIAuthority(final String userInfo, final NamedEndpoint endpoint) {
-        this(endpoint);
-    }
-
-    public URIAuthority(final NamedEndpoint endpoint) {
         super();
         Args.notNull(endpoint, "Endpoint");
+        this.userInfo = userInfo;
         this.host = new Host(endpoint.getHostName(), endpoint.getPort());
+    }
+
+    public URIAuthority(final NamedEndpoint namedEndpoint) {
+        this(null, namedEndpoint);
     }
 
     /**
@@ -144,15 +151,11 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     }
 
     public URIAuthority(final String hostname) {
-        this( hostname, -1);
+        this(null, hostname, -1);
     }
 
-    /**
-     * @deprecated do not use.
-     */
-    @Deprecated
     public String getUserInfo() {
-        return null;
+        return userInfo;
     }
 
     @Override
@@ -177,7 +180,8 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         }
         if (obj instanceof URIAuthority) {
             final URIAuthority that = (URIAuthority) obj;
-            return Objects.equals(this.host, that.host);
+            return Objects.equals(this.userInfo, that.userInfo) &&
+                    Objects.equals(this.host, that.host);
         }
         return false;
     }
@@ -185,6 +189,7 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
     @Override
     public int hashCode() {
         int hash = LangUtils.HASH_SEED;
+        hash = LangUtils.hashCode(hash, userInfo);
         hash = LangUtils.hashCode(hash, host);
         return hash;
     }

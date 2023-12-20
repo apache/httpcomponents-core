@@ -75,6 +75,8 @@ public class URIBuilder {
     private String scheme;
     private String encodedSchemeSpecificPart;
     private String encodedAuthority;
+    private String userInfo;
+    private String encodedUserInfo;
     private String host;
     private int port;
     private String encodedPath;
@@ -141,6 +143,7 @@ public class URIBuilder {
      * @since 5.2
      */
     public URIBuilder setAuthority(final NamedEndpoint authority) {
+        setUserInfo(null);
         setHost(authority.getHostName());
         setPort(authority.getPort());
         return this;
@@ -154,6 +157,7 @@ public class URIBuilder {
      * @since 5.2
      */
     public URIBuilder setAuthority(final URIAuthority authority) {
+        setUserInfo(authority.getUserInfo());
         setHost(authority.getHostName());
         setPort(authority.getPort());
         return this;
@@ -177,7 +181,7 @@ public class URIBuilder {
      * @since 5.2
      */
     public URIAuthority getAuthority() {
-        return new URIAuthority(getHost(), getPort());
+        return new URIAuthority(getUserInfo(), getHost(), getPort());
     }
 
     /**
@@ -327,6 +331,19 @@ public class URIBuilder {
                 authoritySpecified = true;
             } else if (this.host != null) {
                 sb.append("//");
+                if (this.encodedUserInfo != null) {
+                    sb.append(this.encodedUserInfo).append("@");
+                } else if (this.userInfo != null) {
+                    final int idx = this.userInfo.indexOf(':');
+                    if (idx != -1) {
+                        PercentCodec.encode(sb, this.userInfo.substring(0, idx), this.charset);
+                        sb.append(':');
+                        PercentCodec.encode(sb, this.userInfo.substring(idx + 1), this.charset);
+                    } else {
+                        PercentCodec.encode(sb, this.userInfo, this.charset);
+                    }
+                    sb.append("@");
+                }
                 if (InetAddressUtils.isIPv6Address(this.host)) {
                     sb.append("[").append(this.host).append("]");
                 } else {
@@ -377,9 +394,13 @@ public class URIBuilder {
                 ? uriHost.substring(1, uriHost.length() - 1)
                 : uriHost;
         this.port = uri.getPort();
+        this.encodedUserInfo = uri.getRawUserInfo();
+        this.userInfo = uri.getUserInfo();
         if (this.encodedAuthority != null && this.host == null) {
             try {
                 final URIAuthority uriAuthority = URIAuthority.parse(this.encodedAuthority);
+                this.encodedUserInfo = uriAuthority.getUserInfo();
+                this.userInfo = PercentCodec.decode(uriAuthority.getUserInfo(), charset);
                 this.host = PercentCodec.decode(uriAuthority.getHostName(), charset);
                 this.port = uriAuthority.getPort();
             } catch (final URISyntaxException ignore) {
@@ -454,13 +475,14 @@ public class URIBuilder {
     /**
      * Sets URI user info. The value is expected to be unescaped and may contain non ASCII
      * characters.
-     * @deprecated
+     *
      * @return this.
      */
-    @Deprecated
     public URIBuilder setUserInfo(final String userInfo) {
+        this.userInfo = !TextUtils.isBlank(userInfo) ? userInfo : null;
         this.encodedSchemeSpecificPart = null;
         this.encodedAuthority = null;
+        this.encodedUserInfo = null;
         return this;
     }
 
@@ -879,12 +901,11 @@ public class URIBuilder {
 
     /**
      * Gets the user info.
-     * @deprecated do not use.
-     * @return  {@code null}.
+     *
+     * @return  the user info.
      */
-    @Deprecated
     public String getUserInfo() {
-        return null;
+        return this.userInfo;
     }
 
     /**
@@ -1018,6 +1039,7 @@ public class URIBuilder {
         // Force Percent-Encoding re-encoding
         this.encodedSchemeSpecificPart = null;
         this.encodedAuthority = null;
+        this.encodedUserInfo = null;
         this.encodedPath = null;
         this.encodedQuery = null;
         this.encodedFragment = null;
