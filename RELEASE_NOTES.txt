@@ -10,6 +10,8 @@ Notable changes and features included in the 5.3 series:
 
 * Improved conformance to RFC 9110 and RFC 9112.
 
+* UTF-8 encoding to be used by default for text where appropriate.
+
 * Compatibility with Java Virtual Threads and Java 21 Runtime.
 
 
@@ -73,9 +75,6 @@ Change Log
   Contributed by Arturo Bernal <abernal at apache.org>
 
 * HTTPCORE-756: Enforced non-empty host identifier for http/https URIs. (#423)
-  Contributed by Arturo Bernal <abernal at apache.org>
-
-* HTTPCORE-756: Deprecate and remove userInfo from URIAuthority and URIBuilder in compliance with RFC 9110 (#418).
   Contributed by Arturo Bernal <abernal at apache.org>
 
 * Async requesters to populate request URI authority based on the target host when not explicitly set by the caller.
