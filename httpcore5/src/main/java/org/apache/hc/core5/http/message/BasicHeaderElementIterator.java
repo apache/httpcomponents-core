@@ -46,13 +46,13 @@ public class BasicHeaderElementIterator extends AbstractHeaderElementIterator<He
      * Creates a new instance of BasicHeaderElementIterator
      */
     public BasicHeaderElementIterator(
-            final Iterator<Header> headerIterator,
+            final Iterator<? extends Header> headerIterator,
             final HeaderValueParser parser) {
         super(headerIterator);
         this.parser = Args.notNull(parser, "Parser");
     }
 
-    public BasicHeaderElementIterator(final Iterator<Header> headerIterator) {
+    public BasicHeaderElementIterator(final Iterator<? extends Header> headerIterator) {
         this(headerIterator, BasicHeaderValueParser.INSTANCE);
     }
 

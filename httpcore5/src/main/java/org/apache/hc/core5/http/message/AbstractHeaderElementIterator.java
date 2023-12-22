@@ -41,7 +41,7 @@ import org.apache.hc.core5.util.Args;
  */
 abstract class AbstractHeaderElementIterator<T> implements Iterator<T> {
 
-    private final Iterator<Header> headerIt;
+    private final Iterator<? extends Header> headerIt;
 
     private T currentElement;
     private CharSequence buffer;
@@ -50,7 +50,7 @@ abstract class AbstractHeaderElementIterator<T> implements Iterator<T> {
     /**
      * Creates a new instance of BasicHeaderElementIterator
      */
-    AbstractHeaderElementIterator(final Iterator<Header> headerIterator) {
+    AbstractHeaderElementIterator(final Iterator<? extends Header> headerIterator) {
         this.headerIt = Args.notNull(headerIterator, "Header iterator");
     }
 

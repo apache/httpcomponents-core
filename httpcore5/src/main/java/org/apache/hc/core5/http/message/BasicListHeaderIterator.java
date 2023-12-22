@@ -46,7 +46,7 @@ class BasicListHeaderIterator implements Iterator<Header> {
      * A list of headers to iterate over.
      * Not all elements of this array are necessarily part of the iteration.
      */
-    private final List<Header> allHeaders;
+    private final List<? extends Header> allHeaders;
 
     /**
      * The position of the next header in {@link #allHeaders allHeaders}.
@@ -73,7 +73,7 @@ class BasicListHeaderIterator implements Iterator<Header> {
      * @param name      the name of the headers over which to iterate, or
      *                  {@code null} for any
      */
-    public BasicListHeaderIterator(final List<Header> headers, final String name) {
+    public BasicListHeaderIterator(final List<? extends Header> headers, final String name) {
         super();
         this.allHeaders = Args.notNull(headers, "Header list");
         this.headerName = name;

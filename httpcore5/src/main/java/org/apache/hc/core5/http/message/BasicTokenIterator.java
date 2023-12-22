@@ -50,7 +50,7 @@ public class BasicTokenIterator extends AbstractHeaderElementIterator<String> {
      *
      * @param headerIterator    the iterator for the headers to tokenize
      */
-    public BasicTokenIterator(final Iterator<Header> headerIterator) {
+    public BasicTokenIterator(final Iterator<? extends Header> headerIterator) {
         super(headerIterator);
         this.tokenizer = Tokenizer.INSTANCE;
     }
