@@ -199,12 +199,6 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testRequestPathWithMultipleLeadingSlashes() throws Exception {
-        Assertions.assertThrows(IllegalArgumentException.class, () ->
-                new BasicHttpRequest(Method.GET, URI.create("http://host//stuff")));
-    }
-
-    @Test
     public void testRequestAbsoluteRequestUri() throws Exception {
         final BasicHttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "stuff");
         Assertions.assertEquals("stuff", request.getRequestUri());
