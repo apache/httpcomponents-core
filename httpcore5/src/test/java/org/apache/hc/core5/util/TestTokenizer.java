@@ -61,7 +61,7 @@ public class TestTokenizer {
         Assertions.assertEquals(3, cursor.getPos());
 
         final StringBuilder strbuf1 = new StringBuilder();
-        parser.copyContent(raw, cursor, Tokenizer.INIT_BITSET(':'), strbuf1);
+        parser.copyContent(raw, cursor, Tokenizer.delimiters(':'), strbuf1);
 
         Assertions.assertFalse(cursor.atEnd());
         Assertions.assertEquals(6, cursor.getPos());
@@ -99,7 +99,7 @@ public class TestTokenizer {
         Assertions.assertEquals(0, cursor.getPos());
 
         final StringBuilder strbuf1 = new StringBuilder();
-        parser.copyContent(raw, cursor, Tokenizer.INIT_BITSET(':'), strbuf1);
+        parser.copyContent(raw, cursor, Tokenizer.delimiters(':'), strbuf1);
 
         Assertions.assertFalse(cursor.atEnd());
         Assertions.assertEquals("raw", strbuf1.toString());
@@ -132,7 +132,7 @@ public class TestTokenizer {
         final String s = "  stuff and   \tsome\tmore  stuff  ;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
-        final String result = parser.parseToken(raw, cursor, Tokenizer.INIT_BITSET(';'));
+        final String result = parser.parseToken(raw, cursor, Tokenizer.delimiters(';'));
         Assertions.assertEquals("stuff and some more stuff", result);
     }
 
@@ -141,7 +141,7 @@ public class TestTokenizer {
         final String s = "  stuff and    \" some more \"   \"stuff  ;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
+        final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
         Assertions.assertEquals("stuff and  some more  stuff  ;", result);
     }
 
@@ -150,7 +150,7 @@ public class TestTokenizer {
         final String s = "stuff\"more\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
+        final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
         Assertions.assertEquals("stuffmorestuff", result);
     }
 
@@ -159,7 +159,7 @@ public class TestTokenizer {
         final String s = "stuff\"\\\"more\\\"\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
+        final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
         Assertions.assertEquals("stuff\"more\"stuff", result);
     }
 
@@ -168,7 +168,7 @@ public class TestTokenizer {
         final String s = "stuff\"\\\"more\\\";\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
+        final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
         Assertions.assertEquals("stuff\"more\";stuff", result);
     }
 
@@ -177,7 +177,7 @@ public class TestTokenizer {
         final String s = "stuff\"\\\"more\\\";\\\\\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
+        final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
         Assertions.assertEquals("stuff\"more\";\\stuff", result);
     }
 
@@ -186,7 +186,7 @@ public class TestTokenizer {
         final String s = "stuff\\; more stuff;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
-        final String result = parser.parseValue(raw, cursor, Tokenizer.INIT_BITSET(';'));
+        final String result = parser.parseValue(raw, cursor, Tokenizer.delimiters(';'));
         Assertions.assertEquals("stuff\\", result);
     }
 }

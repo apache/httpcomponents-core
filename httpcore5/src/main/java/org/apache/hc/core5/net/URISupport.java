@@ -33,10 +33,9 @@ import org.apache.hc.core5.util.Tokenizer;
 
 final class URISupport {
 
-    static final BitSet HOST_SEPARATORS = new BitSet(256);
-    static final BitSet IPV6_HOST_TERMINATORS = new BitSet(256);
-    static final BitSet PORT_SEPARATORS = new BitSet(256);
-    static final BitSet TERMINATORS = new BitSet(256);
+    private static final BitSet HOST_SEPARATORS = new BitSet(256);
+    private static final BitSet PORT_SEPARATORS = new BitSet(256);
+    private static final BitSet TERMINATORS = new BitSet(256);
 
     static {
         TERMINATORS.set('/');
@@ -44,10 +43,14 @@ final class URISupport {
         TERMINATORS.set('?');
         HOST_SEPARATORS.or(TERMINATORS);
         HOST_SEPARATORS.set('@');
-        IPV6_HOST_TERMINATORS.set(']');
         PORT_SEPARATORS.or(TERMINATORS);
         PORT_SEPARATORS.set(':');
     }
+
+    static final Tokenizer.Delimiter DELIMITERS = Tokenizer.delimiters(TERMINATORS);
+    static final Tokenizer.Delimiter HOST_DELIMITERS = Tokenizer.delimiters(HOST_SEPARATORS);
+    static final Tokenizer.Delimiter IPV6_HOST_DELIMITERS = Tokenizer.delimiters(']');
+    static final Tokenizer.Delimiter PORT_DELIMITERS = Tokenizer.delimiters(PORT_SEPARATORS);
 
     static URISyntaxException createException(
             final CharSequence input, final Tokenizer.Cursor cursor, final String reason) {

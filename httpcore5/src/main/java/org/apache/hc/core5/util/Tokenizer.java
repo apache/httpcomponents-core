@@ -96,6 +96,10 @@ public class Tokenizer {
 
     }
 
+    /**
+     * @deprecated Do not use.
+     */
+    @Deprecated
     public static BitSet INIT_BITSET(final int ... b) {
         final BitSet bitset = new BitSet();
         for (final int aB : b) {
@@ -119,6 +123,60 @@ public class Tokenizer {
         return ch == SP || ch == HT || ch == CR || ch == LF;
     }
 
+    /**
+     * Represents a predicate whether the given character is a delimiter.
+     *
+     * @since 5.3
+     */
+    @FunctionalInterface
+    public interface Delimiter {
+
+        boolean test(char ch);
+
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Delimiter delimiters(final BitSet delimiters) {
+        return delimiters::get;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Delimiter delimiters(final char... delimiters) {
+        return ch -> {
+            for (final char delimiter : delimiters) {
+                if (delimiter == ch) {
+                    return true;
+                }
+            }
+            return false;
+        };
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Delimiter delimiters(final char delimiter) {
+        return ch -> ch == delimiter;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Delimiter delimiters(final char delimiter1, final char delimiter2) {
+        return ch -> ch == delimiter1 || ch == delimiter2;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static Delimiter delimiters(final char delimiter1, final char delimiter2, final char delimiter3) {
+        return ch -> ch == delimiter1 || ch == delimiter2 || ch == delimiter3;
+    }
+
     public static final Tokenizer INSTANCE = new Tokenizer();
 
     /**
@@ -127,15 +185,23 @@ public class Tokenizer {
      *
      * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
-     * @param delimiters set of delimiting characters. Can be {@code null} if the token
+     * @param delimiterPredicate delimiter predicate. Can be {@code null} if the token
      *  is not delimited by any character.
      */
-    public String parseContent(final CharSequence buf, final Cursor cursor, final BitSet delimiters) {
+    public String parseContent(final CharSequence buf, final Cursor cursor, final Delimiter delimiterPredicate) {
         Args.notNull(buf, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
         final StringBuilder dst = new StringBuilder();
-        copyContent(buf, cursor, delimiters, dst);
+        copyContent(buf, cursor, delimiterPredicate, dst);
         return dst.toString();
+    }
+
+    /**
+     * @deprecated use {@link #parseContent(CharSequence, Cursor, Delimiter)}
+     */
+    @Deprecated
+    public String parseContent(final CharSequence buf, final Cursor cursor, final BitSet bitSet) {
+        return parseContent(buf, cursor, bitSet != null ? bitSet::get : null);
     }
 
     /**
@@ -144,17 +210,17 @@ public class Tokenizer {
      *
      * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
-     * @param delimiters set of delimiting characters. Can be {@code null} if the token
+     * @param delimiterPredicate delimiter predicate. Can be {@code null} if the token
      *  is not delimited by any character.
      */
-    public String parseToken(final CharSequence buf, final Cursor cursor, final BitSet delimiters) {
+    public String parseToken(final CharSequence buf, final Cursor cursor, final Delimiter delimiterPredicate) {
         Args.notNull(buf, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
         final StringBuilder dst = new StringBuilder();
         boolean whitespace = false;
         while (!cursor.atEnd()) {
             final char current = buf.charAt(cursor.getPos());
-            if (delimiters != null && delimiters.get(current)) {
+            if (delimiterPredicate != null && delimiterPredicate.test(current)) {
                 break;
             } else if (isWhitespace(current)) {
                 skipWhiteSpace(buf, cursor);
@@ -163,11 +229,19 @@ public class Tokenizer {
                 if (whitespace && dst.length() > 0) {
                     dst.append(' ');
                 }
-                copyContent(buf, cursor, delimiters, dst);
+                copyContent(buf, cursor, delimiterPredicate, dst);
                 whitespace = false;
             }
         }
         return dst.toString();
+    }
+
+    /**
+     * @deprecated use {@link #parseToken(CharSequence, Cursor, Delimiter)}
+     */
+    @Deprecated
+    public String parseToken(final CharSequence buf, final Cursor cursor, final BitSet bitSet) {
+        return parseToken(buf, cursor, bitSet != null ? bitSet::get : null);
     }
 
     /**
@@ -177,17 +251,17 @@ public class Tokenizer {
      *
      * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
-     * @param delimiters set of delimiting characters. Can be {@code null} if the value
+     * @param delimiterPredicate delimiter predicate. Can be {@code null} if the token
      *  is not delimited by any character.
      */
-    public String parseValue(final CharSequence buf, final Cursor cursor, final BitSet delimiters) {
+    public String parseValue(final CharSequence buf, final Cursor cursor, final Delimiter delimiterPredicate) {
         Args.notNull(buf, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
         final StringBuilder dst = new StringBuilder();
         boolean whitespace = false;
         while (!cursor.atEnd()) {
             final char current = buf.charAt(cursor.getPos());
-            if (delimiters != null && delimiters.get(current)) {
+            if (delimiterPredicate != null && delimiterPredicate.test(current)) {
                 break;
             } else if (isWhitespace(current)) {
                 skipWhiteSpace(buf, cursor);
@@ -202,11 +276,19 @@ public class Tokenizer {
                 if (whitespace && dst.length() > 0) {
                     dst.append(' ');
                 }
-                copyUnquotedContent(buf, cursor, delimiters, dst);
+                copyUnquotedContent(buf, cursor, delimiterPredicate, dst);
                 whitespace = false;
             }
         }
         return dst.toString();
+    }
+
+    /**
+     * @deprecated use {@link #parseValue(CharSequence, Cursor, Delimiter)}
+     */
+    @Deprecated
+    public String parseValue(final CharSequence buf, final Cursor cursor, final BitSet bitSet) {
+        return parseValue(buf, cursor, bitSet != null ? bitSet::get : null);
     }
 
     /**
@@ -238,11 +320,11 @@ public class Tokenizer {
      *
      * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
-     * @param delimiters set of delimiting characters. Can be {@code null} if the value
+     * @param delimiterPredicate delimiter predicate. Can be {@code null} if the token
      *  is delimited by a whitespace only.
      * @param dst destination buffer
      */
-    public void copyContent(final CharSequence buf, final Cursor cursor, final BitSet delimiters,
+    public void copyContent(final CharSequence buf, final Cursor cursor, final Delimiter delimiterPredicate,
                             final StringBuilder dst) {
         Args.notNull(buf, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
@@ -252,7 +334,7 @@ public class Tokenizer {
         final int indexTo = cursor.getUpperBound();
         for (int i = indexFrom; i < indexTo; i++) {
             final char current = buf.charAt(i);
-            if ((delimiters != null && delimiters.get(current)) || isWhitespace(current)) {
+            if ((delimiterPredicate != null && delimiterPredicate.test(current)) || isWhitespace(current)) {
                 break;
             }
             pos++;
@@ -262,17 +344,26 @@ public class Tokenizer {
     }
 
     /**
+     * @deprecated Use {@link #copyContent(CharSequence, Cursor, Delimiter, StringBuilder)}
+     */
+    @Deprecated
+    public void copyContent(final CharSequence buf, final Cursor cursor, final BitSet bitSet,
+                            final StringBuilder dst) {
+        copyContent(buf, cursor, bitSet != null ? bitSet::get : null, dst);
+    }
+
+    /**
      * Transfers content into the destination buffer until a whitespace character,  a quote,
      * or any of the given delimiters is encountered.
      *
      * @param buf buffer with the sequence of chars to be parsed
      * @param cursor defines the bounds and current position of the buffer
-     * @param delimiters set of delimiting characters. Can be {@code null} if the value
+     * @param delimiterPredicate delimiter predicate. Can be {@code null} if the token
      *  is delimited by a whitespace or a quote only.
      * @param dst destination buffer
      */
     public void copyUnquotedContent(final CharSequence buf, final Cursor cursor,
-            final BitSet delimiters, final StringBuilder dst) {
+            final Delimiter delimiterPredicate, final StringBuilder dst) {
         Args.notNull(buf, "Char sequence");
         Args.notNull(cursor, "Parser cursor");
         Args.notNull(dst, "String builder");
@@ -281,7 +372,7 @@ public class Tokenizer {
         final int indexTo = cursor.getUpperBound();
         for (int i = indexFrom; i < indexTo; i++) {
             final char current = buf.charAt(i);
-            if ((delimiters != null && delimiters.get(current))
+            if ((delimiterPredicate != null && delimiterPredicate.test(current))
                     || isWhitespace(current) || current == DQUOTE) {
                 break;
             }
@@ -289,6 +380,15 @@ public class Tokenizer {
             dst.append(current);
         }
         cursor.updatePos(pos);
+    }
+
+    /**
+     * @deprecated Use {@link #copyUnquotedContent(CharSequence, Cursor, Delimiter, StringBuilder)}
+     */
+    @Deprecated
+    public void copyUnquotedContent(final CharSequence buf, final Cursor cursor,
+                                    final BitSet bitSet, final StringBuilder dst) {
+        copyUnquotedContent(buf, cursor, bitSet != null ? bitSet::get : null, dst);
     }
 
     /**

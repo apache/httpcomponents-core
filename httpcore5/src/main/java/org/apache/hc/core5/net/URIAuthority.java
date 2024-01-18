@@ -54,7 +54,7 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
         final Tokenizer tokenizer = Tokenizer.INSTANCE;
         String userInfo = null;
         final int initPos = cursor.getPos();
-        final String token = tokenizer.parseContent(s, cursor, URISupport.HOST_SEPARATORS);
+        final String token = tokenizer.parseContent(s, cursor, URISupport.HOST_DELIMITERS);
         if (!cursor.atEnd() && s.charAt(cursor.getPos()) == '@') {
             cursor.updatePos(cursor.getPos() + 1);
             if (!TextUtils.isBlank(token)) {

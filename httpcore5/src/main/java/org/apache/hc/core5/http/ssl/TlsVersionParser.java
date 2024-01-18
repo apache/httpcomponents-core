@@ -27,8 +27,6 @@
 
 package org.apache.hc.core5.http.ssl;
 
-import java.util.BitSet;
-
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Tokenizer;
@@ -46,7 +44,7 @@ final class TlsVersionParser {
     ProtocolVersion parse(
             final CharSequence buffer,
             final Tokenizer.Cursor cursor,
-            final BitSet delimiters) throws ParseException {
+            final Tokenizer.Delimiter delimiterPredicate) throws ParseException {
         final int lowerBound = cursor.getLowerBound();
         final int upperBound = cursor.getUpperBound();
 
@@ -63,7 +61,7 @@ final class TlsVersionParser {
         if (cursor.atEnd()) {
             throw new ParseException("Invalid TLS version", buffer, lowerBound, upperBound, pos);
         }
-        final String s = this.tokenizer.parseToken(buffer, cursor, delimiters);
+        final String s = this.tokenizer.parseToken(buffer, cursor, delimiterPredicate);
         final int idx = s.indexOf('.');
         if (idx == -1) {
             final int major;

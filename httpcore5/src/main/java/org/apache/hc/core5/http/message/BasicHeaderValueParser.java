@@ -28,7 +28,6 @@
 package org.apache.hc.core5.http.message;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -51,10 +50,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
     private final static char PARAM_DELIMITER                = ';';
     private final static char ELEM_DELIMITER                 = ',';
 
-    // IMPORTANT!
-    // These private static variables must be treated as immutable and never exposed outside this class
-    private static final BitSet TOKEN_DELIMITER = Tokenizer.INIT_BITSET('=', PARAM_DELIMITER, ELEM_DELIMITER);
-    private static final BitSet VALUE_DELIMITER = Tokenizer.INIT_BITSET(PARAM_DELIMITER, ELEM_DELIMITER);
+    private static final Tokenizer.Delimiter TOKEN_DELIMITER = Tokenizer.delimiters('=', PARAM_DELIMITER, ELEM_DELIMITER);
+    private static final Tokenizer.Delimiter VALUE_DELIMITER = Tokenizer.delimiters(PARAM_DELIMITER, ELEM_DELIMITER);
 
     private final Tokenizer tokenizer;
 

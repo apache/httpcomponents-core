@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.message;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -147,6 +146,7 @@ public class MessageSupport {
         return BufferedHeader.create(buffer);
     }
 
+    private static final Tokenizer.Delimiter COMMA = Tokenizer.delimiters(',');
     /**
      * @since 5.3
      */
@@ -166,8 +166,6 @@ public class MessageSupport {
     public static Header format(final String name, final String... tokens) {
         return headerOfTokens(name, Arrays.asList(tokens));
     }
-
-    private static final BitSet COMMA = Tokenizer.INIT_BITSET(',');
 
     /**
      * @since 5.3

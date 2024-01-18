@@ -76,7 +76,7 @@ public final class Host implements NamedEndpoint, Serializable {
         final boolean ipv6Brackets = !cursor.atEnd() && s.charAt(cursor.getPos()) == '[';
         if (ipv6Brackets) {
             cursor.updatePos(cursor.getPos() + 1);
-            hostName = tokenizer.parseContent(s, cursor, URISupport.IPV6_HOST_TERMINATORS);
+            hostName = tokenizer.parseContent(s, cursor, URISupport.IPV6_HOST_DELIMITERS);
             if (cursor.atEnd() || !(s.charAt(cursor.getPos()) == ']')) {
                 throw URISupport.createException(s, cursor, "Expected an IPv6 closing bracket ']'");
             }
@@ -85,12 +85,12 @@ public final class Host implements NamedEndpoint, Serializable {
                 throw URISupport.createException(s, cursor, "Expected an IPv6 address");
             }
         } else {
-            hostName = tokenizer.parseContent(s, cursor, URISupport.PORT_SEPARATORS);
+            hostName = tokenizer.parseContent(s, cursor, URISupport.PORT_DELIMITERS);
         }
         String portText = null;
         if (!cursor.atEnd() && s.charAt(cursor.getPos()) == ':') {
             cursor.updatePos(cursor.getPos() + 1);
-            portText = tokenizer.parseContent(s, cursor, URISupport.TERMINATORS);
+            portText = tokenizer.parseContent(s, cursor, URISupport.DELIMITERS);
         }
         final int port;
         if (!TextUtils.isBlank(portText)) {

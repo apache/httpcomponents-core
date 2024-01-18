@@ -27,8 +27,6 @@
 
 package org.apache.hc.core5.http.message;
 
-import java.util.BitSet;
-
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
@@ -50,11 +48,9 @@ public class BasicLineParser implements LineParser {
 
     public final static BasicLineParser INSTANCE = new BasicLineParser();
 
-    // IMPORTANT!
-    // These private static variables must be treated as immutable and never exposed outside this class
-    private static final BitSet FULL_STOP = Tokenizer.INIT_BITSET('.');
-    private static final BitSet BLANKS = Tokenizer.INIT_BITSET(' ', '\t');
-    private static final BitSet COLON = Tokenizer.INIT_BITSET(':');
+    private static final Tokenizer.Delimiter FULL_STOP = Tokenizer.delimiters('.');
+    private static final Tokenizer.Delimiter BLANKS = Tokenizer.delimiters(' ', '\t');
+    private static final Tokenizer.Delimiter COLON = Tokenizer.delimiters(':');
 
     /**
      * A version of the protocol to parse.

@@ -34,7 +34,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -197,16 +196,8 @@ public class URIBuilder {
     private static final char PARAM_VALUE_SEPARATOR = '=';
     private static final char PATH_SEPARATOR = '/';
 
-    private static final BitSet QUERY_PARAM_SEPARATORS = new BitSet(256);
-    private static final BitSet QUERY_VALUE_SEPARATORS = new BitSet(256);
-    private static final BitSet PATH_SEPARATORS = new BitSet(256);
-
-    static {
-        QUERY_PARAM_SEPARATORS.set(QUERY_PARAM_SEPARATOR);
-        QUERY_PARAM_SEPARATORS.set(PARAM_VALUE_SEPARATOR);
-        QUERY_VALUE_SEPARATORS.set(QUERY_PARAM_SEPARATOR);
-        PATH_SEPARATORS.set(PATH_SEPARATOR);
-    }
+    private static final Tokenizer.Delimiter QUERY_PARAM_SEPARATORS = Tokenizer.delimiters(QUERY_PARAM_SEPARATOR, PARAM_VALUE_SEPARATOR);
+    private static final Tokenizer.Delimiter QUERY_VALUE_SEPARATORS = Tokenizer.delimiters(QUERY_PARAM_SEPARATOR);
 
     static List<NameValuePair> parseQuery(final CharSequence s, final Charset charset, final boolean plusAsBlank) {
         if (s == null) {
@@ -246,7 +237,7 @@ public class URIBuilder {
         if (cursor.atEnd()) {
             return new ArrayList<>(0);
         }
-        if (PATH_SEPARATORS.get(s.charAt(cursor.getPos()))) {
+        if (s.charAt(cursor.getPos()) == PATH_SEPARATOR) {
             cursor.updatePos(cursor.getPos() + 1);
         }
         final List<String> list = new ArrayList<>();
@@ -257,7 +248,7 @@ public class URIBuilder {
                 break;
             }
             final char current = s.charAt(cursor.getPos());
-            if (PATH_SEPARATORS.get(current)) {
+            if (current == PATH_SEPARATOR) {
                 list.add(buf.toString());
                 buf.setLength(0);
             } else {

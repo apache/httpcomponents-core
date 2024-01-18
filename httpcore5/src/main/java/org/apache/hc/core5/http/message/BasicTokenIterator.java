@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.http.message;
 
-import java.util.BitSet;
 import java.util.Iterator;
 
 import org.apache.hc.core5.http.Header;
@@ -41,7 +40,7 @@ import org.apache.hc.core5.util.Tokenizer;
  */
 public class BasicTokenIterator extends AbstractHeaderElementIterator<String> {
 
-    private static final BitSet COMMA = Tokenizer.INIT_BITSET(',');
+    private static final Tokenizer.Delimiter COMMA = Tokenizer.delimiters(',');
 
     private final Tokenizer tokenizer;
 

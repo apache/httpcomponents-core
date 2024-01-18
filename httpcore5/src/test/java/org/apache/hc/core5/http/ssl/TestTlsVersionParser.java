@@ -61,7 +61,7 @@ public class TestTlsVersionParser {
     @Test
     public void testParseBuffer() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
-        assertThat(impl.parse(" TLSv1.2,0000", cursor, Tokenizer.INIT_BITSET(',')),
+        assertThat(impl.parse(" TLSv1.2,0000", cursor, Tokenizer.delimiters(',')),
                 CoreMatchers.equalTo(TLS.V_1_2.getVersion()));
         assertThat(cursor.getPos(), CoreMatchers.equalTo(8));
     }
