@@ -27,10 +27,14 @@
 
 package org.apache.hc.core5.http.ssl;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.util.Tokenizer;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -86,4 +90,32 @@ class TLSTest {
             Assertions.assertTrue(TLS.isSecure(protocol));
         }
     }
+
+    @Test
+    public void testParseBasic() throws Exception {
+        assertThat(TLS.parse("TLSv1"), CoreMatchers.equalTo(TLS.V_1_0.getVersion()));
+        assertThat(TLS.parse("TLSv1.1"), CoreMatchers.equalTo(TLS.V_1_1.getVersion()));
+        assertThat(TLS.parse("TLSv1.2"), CoreMatchers.equalTo(TLS.V_1_2.getVersion()));
+        assertThat(TLS.parse("TLSv1.3  "), CoreMatchers.equalTo(TLS.V_1_3.getVersion()));
+        assertThat(TLS.parse("TLSv22.356"), CoreMatchers.equalTo(new ProtocolVersion("TLS", 22, 356)));
+    }
+
+    @Test
+    public void testParseBuffer() throws Exception {
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
+        assertThat(TLS.parse(" TLSv1.2,0000", cursor, Tokenizer.delimiters(',')),
+                CoreMatchers.equalTo(TLS.V_1_2.getVersion()));
+        assertThat(cursor.getPos(), CoreMatchers.equalTo(8));
+    }
+
+    @Test
+    public void testParseFailure() throws Exception {
+        Assertions.assertThrows(ParseException.class, () -> TLS.parse("Tlsv1"));
+        Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSV1"));
+        Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSv"));
+        Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSv1A"));
+        Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSv1.A"));
+        Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSv1.1 huh?"));
+    }
+
 }

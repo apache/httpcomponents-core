@@ -31,6 +31,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -198,9 +199,9 @@ public class TestBasicLineParser {
     public void testHttpVersionParsing() throws Exception {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("HTTP/1.1");
-        ParserCursor cursor = new ParserCursor(0, buffer.length());
+        final ParserCursor cursor = new ParserCursor(0, buffer.length());
 
-        HttpVersion version = (HttpVersion) parser.parseProtocolVersion(buffer, cursor);
+        final ProtocolVersion version = parser.parseProtocolVersion(buffer, cursor);
         Assertions.assertEquals("HTTP", version.getProtocol(), "HTTP protocol name");
         Assertions.assertEquals(1, version.getMajor(), "HTTP major version number");
         Assertions.assertEquals(1, version.getMinor(), "HTTP minor version number");
@@ -210,16 +211,16 @@ public class TestBasicLineParser {
 
         buffer.clear();
         buffer.append("HTTP/1.123 123");
-        cursor = new ParserCursor(0, buffer.length());
+        final ParserCursor cursor2 = new ParserCursor(0, buffer.length());
 
-        version = (HttpVersion) parser.parseProtocolVersion(buffer, cursor);
-        Assertions.assertEquals( "HTTP", version.getProtocol(), "HTTP protocol name");
-        Assertions.assertEquals( 1, version.getMajor(), "HTTP major version number");
-        Assertions.assertEquals(123, version.getMinor(), "HTTP minor version number");
-        Assertions.assertEquals("HTTP/1.123", version.toString(), "HTTP version number");
-        Assertions.assertEquals(' ', buffer.charAt(cursor.getPos()));
-        Assertions.assertEquals(buffer.length() - 4, cursor.getPos());
-        Assertions.assertFalse(cursor.atEnd());
+        final ProtocolVersion version2 = parser.parseProtocolVersion(buffer, cursor2);
+        Assertions.assertEquals( "HTTP", version2.getProtocol(), "HTTP protocol name");
+        Assertions.assertEquals( 1, version2.getMajor(), "HTTP major version number");
+        Assertions.assertEquals(123, version2.getMinor(), "HTTP minor version number");
+        Assertions.assertEquals("HTTP/1.123", version2.toString(), "HTTP version number");
+        Assertions.assertEquals(' ', buffer.charAt(cursor2.getPos()));
+        Assertions.assertEquals(buffer.length() - 4, cursor2.getPos());
+        Assertions.assertFalse(cursor2.atEnd());
     }
 
     @Test
@@ -250,11 +251,6 @@ public class TestBasicLineParser {
         final ParserCursor cursor5 = new ParserCursor(0, buffer.length());
         Assertions.assertThrows(ParseException.class, () ->
                 parser.parseProtocolVersion(buffer, cursor5));
-        buffer.clear();
-        buffer.append("HTTP/1234");
-        final ParserCursor cursor6 = new ParserCursor(0, buffer.length());
-        Assertions.assertThrows(ParseException.class, () ->
-                parser.parseProtocolVersion(buffer, cursor6));
         buffer.clear();
         buffer.append("HTTP/1.");
         final ParserCursor cursor7 = new ParserCursor(0, buffer.length());

@@ -27,6 +27,10 @@
 
 package org.apache.hc.core5.http;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
+import org.apache.hc.core5.util.Tokenizer;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -43,6 +47,33 @@ public class TestProtocolVersion {
         Assertions.assertTrue(PROTOCOL_VERSION_1_2.equals(1, 2));
         //
         Assertions.assertFalse(PROTOCOL_VERSION_1_2.equals(2, 0));
+    }
+
+    @Test
+    public void testParseBasic() throws Exception {
+        assertThat(ProtocolVersion.parse("PROTO/1"), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 1, 0)));
+        assertThat(ProtocolVersion.parse("PROTO/1.1"), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 1, 1)));
+        assertThat(ProtocolVersion.parse("PROTO/1.2"), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 1, 2)));
+        assertThat(ProtocolVersion.parse("PROTO/1.3  "), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 1, 3)));
+        assertThat(ProtocolVersion.parse("PROTO/000.0000  "), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 0, 0)));
+        assertThat(ProtocolVersion.parse("PROTO/22.356"), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 22, 356)));
+    }
+
+    @Test
+    public void testParseBuffer() throws Exception {
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
+        assertThat(ProtocolVersion.parse(" PROTO/1.2,0000", cursor, Tokenizer.delimiters(',')), CoreMatchers.equalTo(new ProtocolVersion("PROTO", 1, 2)));
+        assertThat(cursor.getPos(), CoreMatchers.equalTo(10));
+    }
+
+    @Test
+    public void testParseFailure() throws Exception {
+        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse("/1"));
+        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse(" /1"));
+        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse("PROTO/"));
+        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse("PROTO/1A"));
+        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse("PROTO/1.A"));
+        Assertions.assertThrows(ParseException.class, () -> ProtocolVersion.parse("PROTO/1.1 huh?"));
     }
 
 }

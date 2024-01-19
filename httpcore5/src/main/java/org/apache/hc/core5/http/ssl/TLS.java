@@ -30,8 +30,10 @@ package org.apache.hc.core5.http.ssl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.ProtocolVersionParser;
 import org.apache.hc.core5.util.Tokenizer;
 
 /**
@@ -90,12 +92,41 @@ public enum TLS {
         return version.lessEquals(protocolVersion);
     }
 
+    @Internal
+    public static ProtocolVersion parse(
+            final CharSequence buffer,
+            final Tokenizer.Cursor cursor,
+            final Tokenizer.Delimiter delimiterPredicate) throws ParseException {
+        final int lowerBound = cursor.getLowerBound();
+        final int upperBound = cursor.getUpperBound();
+
+        int pos = cursor.getPos();
+        if (pos + 4 > cursor.getUpperBound()) {
+            throw new ParseException("Invalid TLS protocol version", buffer, lowerBound, upperBound, pos);
+        }
+        if (buffer.charAt(pos) != 'T' || buffer.charAt(pos + 1) != 'L' || buffer.charAt(pos + 2) != 'S'
+                || buffer.charAt(pos + 3) != 'v') {
+            throw new ParseException("Invalid TLS protocol version", buffer, lowerBound, upperBound, pos);
+        }
+        pos = pos + 4;
+        cursor.updatePos(pos);
+        if (cursor.atEnd()) {
+            throw new ParseException("Invalid TLS version", buffer, lowerBound, upperBound, pos);
+        }
+        return ProtocolVersionParser.INSTANCE.parse("TLS", null, buffer, cursor, delimiterPredicate);
+    }
+
     public static ProtocolVersion parse(final String s) throws ParseException {
         if (s == null) {
             return null;
         }
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
-        return TlsVersionParser.INSTANCE.parse(s, cursor, null);
+        final ProtocolVersion protocolVersion = parse(s, cursor, null);
+        Tokenizer.INSTANCE.skipWhiteSpace(s, cursor);
+        if (!cursor.atEnd()) {
+            throw new ParseException("Invalid TLS protocol version; trailing content");
+        }
+        return protocolVersion;
     }
 
     public static String[] excludeWeak(final String... protocols) {

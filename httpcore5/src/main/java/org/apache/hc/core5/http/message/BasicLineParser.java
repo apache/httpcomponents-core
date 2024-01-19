@@ -33,6 +33,7 @@ import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ParseException;
 import org.apache.hc.core5.http.ProtocolVersion;
+import org.apache.hc.core5.http.ProtocolVersionParser;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
@@ -48,7 +49,6 @@ public class BasicLineParser implements LineParser {
 
     public final static BasicLineParser INSTANCE = new BasicLineParser();
 
-    private static final Tokenizer.Delimiter FULL_STOP = Tokenizer.delimiters('.');
     private static final Tokenizer.Delimiter BLANKS = Tokenizer.delimiters(' ', '\t');
     private static final Tokenizer.Delimiter COLON = Tokenizer.delimiters(':');
 
@@ -108,29 +108,7 @@ public class BasicLineParser implements LineParser {
         }
 
         cursor.updatePos(pos + protolength + 1);
-
-        final String token1 = this.tokenizer.parseToken(buffer, cursor, FULL_STOP);
-        final int major;
-        try {
-            major = Integer.parseInt(token1);
-        } catch (final NumberFormatException e) {
-            throw new ParseException("Invalid protocol major version number",
-                    buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
-        }
-        if (cursor.atEnd()) {
-            throw new ParseException("Invalid protocol version",
-                    buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
-        }
-        cursor.updatePos(cursor.getPos() + 1);
-        final String token2 = this.tokenizer.parseToken(buffer, cursor, BLANKS);
-        final int minor;
-        try {
-            minor = Integer.parseInt(token2);
-        } catch (final NumberFormatException e) {
-            throw new ParseException("Invalid protocol minor version number",
-                    buffer, cursor.getLowerBound(), cursor.getUpperBound(), cursor.getPos());
-        }
-        return HttpVersion.get(major, minor);
+        return ProtocolVersionParser.INSTANCE.parse(protoname, HttpVersion::get, buffer, cursor, null);
     }
 
     /**

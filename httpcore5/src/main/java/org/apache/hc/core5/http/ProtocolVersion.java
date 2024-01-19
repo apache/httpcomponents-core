@@ -30,8 +30,10 @@ package org.apache.hc.core5.http;
 import java.io.Serializable;
 
 import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Tokenizer;
 
 /**
  * Represents a protocol version. The "major.minor" numbering
@@ -239,6 +241,29 @@ public class ProtocolVersion implements Serializable {
         return isComparable(version) && (compareToVersion(version) <= 0);
     }
 
+    @Internal
+    public static ProtocolVersion parse(
+            final CharSequence buffer,
+            final Tokenizer.Cursor cursor,
+            final Tokenizer.Delimiter delimiterPredicate) throws ParseException {
+        return ProtocolVersionParser.INSTANCE.parse(buffer, cursor, delimiterPredicate);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public static ProtocolVersion parse(final String s) throws ParseException {
+        if (s == null) {
+            return null;
+        }
+        final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
+        final ProtocolVersion protocolVersion = ProtocolVersionParser.INSTANCE.parse(s, cursor, null);
+        Tokenizer.INSTANCE.skipWhiteSpace(s, cursor);
+        if (!cursor.atEnd()) {
+            throw new ParseException("Invalid protocol version; trailing content");
+        }
+        return protocolVersion;
+    }
 
     /**
      * Converts this protocol version to a string.
