@@ -80,10 +80,14 @@ public final class HttpVersion extends ProtocolVersion {
      * @since 5.0
      */
     public static HttpVersion get(final int major, final int minor) {
-        for (int i = 0; i < ALL.length; i++) {
-            if (ALL[i].equals(major, minor)) {
-                return ALL[i];
+        if (major == 1) {
+            if (minor == 1) {
+                return HTTP_1_1;
+            } else if (minor == 0) {
+                return HTTP_1_0;
             }
+        } else if (major == 2 && minor == 0) {
+            return HTTP_2_0;
         }
         // argument checking is done in the constructor
         return new HttpVersion(major, minor);
