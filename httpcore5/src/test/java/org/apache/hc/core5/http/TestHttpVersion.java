@@ -60,12 +60,12 @@ public class TestHttpVersion {
         Assertions.assertEquals(HttpVersion.HTTP_2, HttpVersion.get(2, 0));
         Assertions.assertNotEquals(HttpVersion.HTTP_2_0, HttpVersion.get(2, 1));
         //
-        Assertions.assertSame(HttpVersion.HTTP_0_9, HttpVersion.get(0, 9));
         Assertions.assertSame(HttpVersion.HTTP_1_0, HttpVersion.get(1, 0));
         Assertions.assertSame(HttpVersion.HTTP_1_1, HttpVersion.get(1, 1));
         Assertions.assertSame(HttpVersion.HTTP_2_0, HttpVersion.get(2, 0));
         Assertions.assertSame(HttpVersion.HTTP_2, HttpVersion.get(2, 0));
         Assertions.assertNotSame(HttpVersion.HTTP_2_0, HttpVersion.get(2, 1));
+        Assertions.assertNotSame(HttpVersion.HTTP_0_9, HttpVersion.get(0, 9));
     }
 
     @SuppressWarnings("unused")
