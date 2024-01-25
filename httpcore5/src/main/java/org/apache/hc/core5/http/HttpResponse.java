@@ -41,6 +41,8 @@ public interface HttpResponse extends HttpMessage {
      * Obtains the code of this response message.
      *
      * @return  the status code.
+     *
+     * @see HttpStatus
      */
     int getCode();
 

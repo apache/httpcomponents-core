@@ -174,6 +174,7 @@ public final class StatusLine implements Serializable {
 
     /**
      * Standard classes of HTTP status codes, plus {@code OTHER} for non-standard codes.
+     * @see org.apache.hc.core5.http.HttpStatus
      */
     public enum StatusClass {
 
@@ -212,6 +213,7 @@ public final class StatusLine implements Serializable {
          *
          * @param statusCode response status code to get the class for.
          * @return class of the response status code.
+         * @see org.apache.hc.core5.http.HttpStatus
          */
         public static StatusClass from(final int statusCode) {
             final StatusClass statusClass;
