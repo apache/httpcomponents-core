@@ -31,6 +31,8 @@ package org.apache.hc.core5.http;
  * Constants enumerating the HTTP status codes.
  *
  * @since 4.0
+ * @see org.apache.hc.core5.http.message.StatusLine.StatusClass
+ * @see org.apache.hc.core5.http.message.StatusLine.StatusClass#from(int)
  */
 public final class HttpStatus {
 
