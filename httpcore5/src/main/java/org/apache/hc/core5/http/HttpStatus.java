@@ -45,6 +45,8 @@ package org.apache.hc.core5.http;
  * @see <a href="https://tools.ietf.org/html/rfc2817">RFC 2817 (Upgrading to TLS Within HTTP/1.1)</a>
  * @see <a href="https://tools.ietf.org/html/rfc8470">RFC 8470 (Using Early Data in HTTP)</a>
  * @since 4.0
+ * @see org.apache.hc.core5.http.message.StatusLine.StatusClass
+ * @see org.apache.hc.core5.http.message.StatusLine.StatusClass#from(int)
  */
 public final class HttpStatus {
 
