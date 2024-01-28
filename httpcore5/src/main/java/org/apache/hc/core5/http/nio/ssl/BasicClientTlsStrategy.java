@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.nio.ssl;
 import java.net.SocketAddress;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
@@ -105,8 +106,21 @@ public class BasicClientTlsStrategy implements TlsStrategy {
             final Object attachment,
             final Timeout handshakeTimeout,
             final FutureCallback<TransportSecurityLayer> callback) {
-        tlsSession.startTls(sslContext, endpoint, sslBufferMode,
-                TlsSupport.enforceStrongSecurity(initializer), verifier, handshakeTimeout, callback);
+        tlsSession.startTls(
+                sslContext,
+                endpoint,
+                sslBufferMode,
+                (e, sslEngine) -> {
+                    final SSLParameters sslParameters = sslEngine.getSSLParameters();
+                    sslParameters.setEndpointIdentificationAlgorithm(URIScheme.HTTPS.id);
+                    sslEngine.setSSLParameters(TlsSupport.enforceStrongSecurity(sslParameters));
+                    if (initializer != null) {
+                        initializer.initialize(e, sslEngine);
+                    }
+                },
+                verifier,
+                handshakeTimeout,
+                callback);
     }
 
     /**

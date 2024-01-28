@@ -30,6 +30,7 @@ package org.apache.hc.core5.http.io.ssl;
 import javax.net.ssl.SSLParameters;
 
 import org.apache.hc.core5.function.Callback;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.ssl.TLS;
 import org.apache.hc.core5.http.ssl.TlsCiphers;
 
@@ -40,10 +41,29 @@ import org.apache.hc.core5.http.ssl.TlsCiphers;
  */
 public final class DefaultTlsSetupHandler implements Callback<SSLParameters> {
 
+    public final static DefaultTlsSetupHandler SERVER = new DefaultTlsSetupHandler(false);
+    public final static DefaultTlsSetupHandler CLIENT = new DefaultTlsSetupHandler(true);
+
+    private final boolean client;
+
+    public DefaultTlsSetupHandler() {
+        this.client = false;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public DefaultTlsSetupHandler(final boolean client) {
+        this.client = client;
+    }
+
     @Override
     public void execute(final SSLParameters sslParameters) {
         sslParameters.setProtocols(TLS.excludeWeak(sslParameters.getProtocols()));
         sslParameters.setCipherSuites(TlsCiphers.excludeWeak(sslParameters.getCipherSuites()));
+        if (client) {
+            sslParameters.setEndpointIdentificationAlgorithm(URIScheme.HTTPS.id);
+        }
     }
 
 }

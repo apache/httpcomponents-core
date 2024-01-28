@@ -30,8 +30,10 @@ package org.apache.hc.core5.testing.classic;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -49,6 +51,8 @@ import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
+import org.apache.hc.core5.http.protocol.BasicHttpContext;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.ssl.TLS;
 import org.apache.hc.core5.io.CloseMode;
@@ -288,6 +292,40 @@ public class ClassicTLSIntegrationTest {
                 }
             });
         }
+    }
+
+    @Test
+    public void testHostNameVerification() throws Exception {
+        server = ServerBootstrap.bootstrap()
+                .setSslContext(SSLTestContexts.createServerSSLContext())
+                .create();
+        server.start();
+
+        requester = RequesterBootstrap.bootstrap()
+                .setSslContext(SSLTestContexts.createClientSSLContext())
+                .setSocketConfig(SocketConfig.custom()
+                        .setSoTimeout(TIMEOUT)
+                        .build())
+                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
+                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
+                .create();
+
+        final HttpContext context = new BasicHttpContext();
+        final HttpHost target1 = new HttpHost("https", InetAddress.getLocalHost(), "localhost", server.getLocalPort());
+        final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
+        request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
+        try (final ClassicHttpResponse response1 = requester.execute(target1, request1, TIMEOUT, context)) {
+            EntityUtils.consume(response1.getEntity());
+        }
+
+        Assertions.assertThrows(SSLHandshakeException.class, () -> {
+            final HttpHost target2 = new HttpHost("https", InetAddress.getLocalHost(), "some-other-host", server.getLocalPort());
+            final ClassicHttpRequest request2 = new BasicClassicHttpRequest(Method.POST, "/stuff");
+            request2.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
+            try (final ClassicHttpResponse response2 = requester.execute(target2, request2, TIMEOUT, context)) {
+                EntityUtils.consume(response2.getEntity());
+            }
+        });
     }
 
 }

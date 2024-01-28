@@ -54,6 +54,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLSession;
@@ -714,6 +715,70 @@ public class TestSSLContextBuilder {
                 Assertions.assertThrows(SSLException.class, clientSocket::startHandshake);
             }
         }
+    }
+
+    @Test
+    public void testJSSEEndpointIdentification() throws Exception {
+        final URL resource1 = getResource("/test-server.p12");
+        final String storePassword = "nopassword";
+        final String keyPassword = "nopassword";
+        final SSLContext serverSslContext = SSLContextBuilder.create()
+                .loadKeyMaterial(resource1, storePassword.toCharArray(), keyPassword.toCharArray())
+                .build();
+        Assertions.assertNotNull(serverSslContext);
+        final URL resource2 = getResource("/test-client.p12");
+        final SSLContext clientSslContext = SSLContextBuilder.create()
+                .loadTrustMaterial(resource2, storePassword.toCharArray())
+                .build();
+        Assertions.assertNotNull(clientSslContext);
+        final SSLServerSocket serverSocket = (SSLServerSocket) serverSslContext.getServerSocketFactory().createServerSocket();
+        serverSocket.bind(new InetSocketAddress(0));
+
+        this.executorService = Executors.newSingleThreadExecutor();
+        this.executorService.submit(() -> {
+            for (;;) {
+                try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
+                    socket.getSession();
+                    socket.shutdownOutput();
+                } catch (final IOException ex) {
+                    return Boolean.FALSE;
+                }
+            }
+        });
+
+        final int localPort1 = serverSocket.getLocalPort();
+        try (final Socket clientSocket = new Socket()) {
+            clientSocket.connect(new InetSocketAddress("localhost", localPort1));
+            try (SSLSocket sslSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket(clientSocket, "localhost", -1, true)) {
+                final SSLParameters sslParameters = sslSocket.getSSLParameters();
+                sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
+                sslSocket.setSSLParameters(sslParameters);
+                sslSocket.startHandshake();
+            }
+        }
+        final int localPort2 = serverSocket.getLocalPort();
+        try (final Socket clientSocket = new Socket()) {
+            clientSocket.connect(new InetSocketAddress("localhost", localPort2));
+            try (SSLSocket sslSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket(clientSocket, "otherhost", -1, true)) {
+                final SSLParameters sslParameters = sslSocket.getSSLParameters();
+                sslParameters.setEndpointIdentificationAlgorithm(null);
+                sslSocket.setSSLParameters(sslParameters);
+                sslSocket.startHandshake();
+            }
+        }
+        final int localPort3 = serverSocket.getLocalPort();
+
+        Assertions.assertThrows(SSLException.class, () -> {
+            try (final Socket clientSocket = new Socket()) {
+                clientSocket.connect(new InetSocketAddress("localhost", localPort3));
+                try (SSLSocket sslSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket(clientSocket, "otherhost", -1, true)) {
+                    final SSLParameters sslParameters = sslSocket.getSSLParameters();
+                    sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
+                    sslSocket.setSSLParameters(sslParameters);
+                    sslSocket.startHandshake();
+                }
+            }
+        });
     }
 
 }

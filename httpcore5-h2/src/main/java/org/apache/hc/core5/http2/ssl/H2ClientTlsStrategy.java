@@ -30,6 +30,7 @@ package org.apache.hc.core5.http2.ssl;
 import java.net.SocketAddress;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.HttpHost;
@@ -110,7 +111,14 @@ public class H2ClientTlsStrategy implements TlsStrategy {
                 sslContext,
                 endpoint,
                 sslBufferMode,
-                H2TlsSupport.enforceRequirements(attachment, initializer),
+                (e, sslEngine) -> {
+                    final SSLParameters sslParameters = sslEngine.getSSLParameters();
+                    sslParameters.setEndpointIdentificationAlgorithm(URIScheme.HTTPS.id);
+                    sslEngine.setSSLParameters(H2TlsSupport.enforceRequirements(attachment, sslParameters));
+                    if (initializer != null) {
+                        initializer.initialize(e, sslEngine);
+                    }
+                },
                 verifier,
                 handshakeTimeout,
                 callback);
