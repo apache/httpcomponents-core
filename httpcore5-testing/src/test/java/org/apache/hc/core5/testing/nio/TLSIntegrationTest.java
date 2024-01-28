@@ -28,6 +28,7 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.ExecutionException;
@@ -355,6 +356,40 @@ public class TLSIntegrationTest {
                 tlsSessionFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
         final Throwable cause = exception.getCause();
         Assertions.assertInstanceOf(IOException.class, cause);
+    }
+
+    @Test
+    public void testHostNameVerification() throws Exception {
+        server = createServer(new BasicClientTlsStrategy(SSLTestContexts.createServerSSLContext()));
+        server.start();
+
+        client = createClient(new BasicClientTlsStrategy(SSLTestContexts.createClientSSLContext()));
+        client.start();
+
+        final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
+        final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        final InetSocketAddress address = (InetSocketAddress) listener.getAddress();
+
+        final HttpHost target1 = new HttpHost(URIScheme.HTTPS.id, InetAddress.getLocalHost(), "localhost", address.getPort());
+        final Future<Message<HttpResponse, String>> resultFuture1 = client.execute(
+                target1,
+                new BasicRequestProducer(Method.POST, target1, "/stuff",
+                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+        final Message<HttpResponse, String> message1 = resultFuture1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
+        Assertions.assertNotNull(message1);
+        Assertions.assertEquals(200, message1.getHead().getCode());
+
+        final HttpHost target2 = new HttpHost(URIScheme.HTTPS.id, InetAddress.getLocalHost(), "some-other-host", address.getPort());
+        final Future<Message<HttpResponse, String>> resultFuture2 = client.execute(
+                target2,
+                new BasicRequestProducer(Method.POST, target2, "/stuff",
+                        new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
+                new BasicResponseConsumer<>(new StringAsyncEntityConsumer()), TIMEOUT, null);
+        final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
+                resultFuture2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+        final Throwable cause = exception.getCause();
+        Assertions.assertInstanceOf(SSLHandshakeException.class, cause);
     }
 
     static class SupportedTLSProtocolProvider implements ArgumentsProvider {

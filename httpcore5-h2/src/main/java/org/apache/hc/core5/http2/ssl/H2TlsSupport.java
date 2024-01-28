@@ -67,16 +67,24 @@ public final class H2TlsSupport {
         }
     }
 
+    /**
+     * @since 5.3
+     */
+    public static SSLParameters enforceRequirements(
+            final Object attachment,
+            final SSLParameters sslParameters) {
+        sslParameters.setProtocols(TLS.excludeWeak(sslParameters.getProtocols()));
+        sslParameters.setCipherSuites(TlsCiphers.excludeH2Blacklisted(sslParameters.getCipherSuites()));
+        setEnableRetransmissions(sslParameters, false);
+        sslParameters.setApplicationProtocols(selectApplicationProtocols(attachment));
+        return sslParameters;
+    }
+
     public static SSLSessionInitializer enforceRequirements(
             final Object attachment,
             final SSLSessionInitializer initializer) {
         return (endpoint, sslEngine) -> {
-            final SSLParameters sslParameters = sslEngine.getSSLParameters();
-            sslParameters.setProtocols(TLS.excludeWeak(sslParameters.getProtocols()));
-            sslParameters.setCipherSuites(TlsCiphers.excludeH2Blacklisted(sslParameters.getCipherSuites()));
-            setEnableRetransmissions(sslParameters, false);
-            sslParameters.setApplicationProtocols(selectApplicationProtocols(attachment));
-            sslEngine.setSSLParameters(sslParameters);
+            sslEngine.setSSLParameters(enforceRequirements(attachment, sslEngine.getSSLParameters()));
             if (initializer != null) {
                 initializer.initialize(endpoint, sslEngine);
             }

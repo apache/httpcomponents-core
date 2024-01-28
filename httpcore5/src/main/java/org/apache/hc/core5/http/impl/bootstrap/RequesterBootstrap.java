@@ -220,7 +220,7 @@ public class RequesterBootstrap {
                 connectFactory != null ? connectFactory : new DefaultBHttpClientConnectionFactory(
                         http1Config, CharCodingConfig.DEFAULT),
                 sslSocketFactory,
-                sslSetupHandler != null ? sslSetupHandler : new DefaultTlsSetupHandler(),
+                sslSetupHandler != null ? sslSetupHandler : DefaultTlsSetupHandler.CLIENT,
                 sslSessionVerifier,
                 DefaultAddressResolver.INSTANCE);
     }

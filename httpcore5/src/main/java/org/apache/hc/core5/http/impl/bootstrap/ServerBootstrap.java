@@ -406,7 +406,7 @@ public class ServerBootstrap {
                 this.socketConfig != null ? this.socketConfig : SocketConfig.DEFAULT,
                 serverSocketFactoryCopy,
                 connectionFactoryCopy,
-                sslSetupHandler != null ? sslSetupHandler : new DefaultTlsSetupHandler(),
+                sslSetupHandler != null ? sslSetupHandler : DefaultTlsSetupHandler.SERVER,
                 this.exceptionListener != null ? this.exceptionListener : ExceptionListener.NO_OP);
     }
 

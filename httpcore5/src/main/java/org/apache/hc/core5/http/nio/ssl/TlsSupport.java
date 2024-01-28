@@ -40,12 +40,18 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
  */
 public final class TlsSupport {
 
+    /**
+     * @since 5.3
+     */
+    public static SSLParameters enforceStrongSecurity(final SSLParameters sslParameters) {
+        sslParameters.setProtocols(TLS.excludeWeak(sslParameters.getProtocols()));
+        sslParameters.setCipherSuites(TlsCiphers.excludeWeak(sslParameters.getCipherSuites()));
+        return sslParameters;
+    }
+
     public static SSLSessionInitializer enforceStrongSecurity(final SSLSessionInitializer initializer) {
         return (endpoint, sslEngine) -> {
-            final SSLParameters sslParameters = sslEngine.getSSLParameters();
-            sslParameters.setProtocols(TLS.excludeWeak(sslParameters.getProtocols()));
-            sslParameters.setCipherSuites(TlsCiphers.excludeWeak(sslParameters.getCipherSuites()));
-            sslEngine.setSSLParameters(sslParameters);
+            sslEngine.setSSLParameters(enforceStrongSecurity(sslEngine.getSSLParameters()));
             if (initializer != null) {
                 initializer.initialize(endpoint, sslEngine);
             }
