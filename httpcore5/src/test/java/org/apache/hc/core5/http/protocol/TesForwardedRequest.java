@@ -75,7 +75,7 @@ public class TesForwardedRequest {
 
         // Create a mock HTTP context with the endpoint and protocol version
         final ProtocolVersion version = HttpVersion.HTTP_1_1;
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create() ;
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, endpointDetails);
 
         // Process the HTTP request
@@ -110,7 +110,7 @@ public class TesForwardedRequest {
 
         // Create a mock HTTP context with the endpoint and protocol version
         final ProtocolVersion version = HttpVersion.HTTP_1_1;
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create() ;
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, endpointDetails);
 
         // Process the HTTP request
@@ -137,7 +137,7 @@ public class TesForwardedRequest {
 
         // Create a mock HTTP context with the endpoint and protocol version
         final ProtocolVersion version = HttpVersion.HTTP_1_1;
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create() ;
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, null);
 
         // Process the HTTP request
@@ -161,7 +161,7 @@ public class TesForwardedRequest {
 
         // Create a mock HTTP context with the endpoint and protocol version
         final ProtocolVersion version = HttpVersion.HTTP_1_1;
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create() ;
         context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, null);
         final String forwaredHeaderValue = "host=oldhost;port=8855;proto=HTTP";
 

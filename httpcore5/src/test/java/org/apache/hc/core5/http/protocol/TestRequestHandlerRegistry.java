@@ -38,12 +38,12 @@ import org.junit.jupiter.api.Test;
 public class TestRequestHandlerRegistry {
 
     private RequestHandlerRegistry<String> handlerRegistry;
-    private HttpContext context;
+    private HttpCoreContext context;
 
     @BeforeEach
     public void setUp() {
         handlerRegistry = new RequestHandlerRegistry<>("myhost", UriPatternMatcher::new);
-        context = new BasicHttpContext();
+        context = HttpCoreContext.create();
     }
 
     @Test

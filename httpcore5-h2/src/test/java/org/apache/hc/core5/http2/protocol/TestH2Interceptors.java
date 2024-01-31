@@ -39,8 +39,7 @@ import org.apache.hc.core5.http.io.entity.HttpEntities;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHeader;
-import org.apache.hc.core5.http.protocol.BasicHttpContext;
-import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,12 +49,12 @@ public class TestH2Interceptors {
     /**
      * HTTP context.
      */
-    private HttpContext context;
+    private HttpCoreContext context;
 
 
     @BeforeEach
     public void setUp() {
-        context = new BasicHttpContext(null);
+        context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_2);
     }
 
@@ -104,7 +103,7 @@ public class TestH2Interceptors {
     @Test
     public void testH2RequestContentOptionMethodNullContentTypeProtocolException() {
         final H2RequestContent interceptor = new H2RequestContent();
-        final HttpContext context = new BasicHttpContext(null);
+        final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.OPTIONS, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "10"));
         request.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "whatever"));
@@ -116,7 +115,7 @@ public class TestH2Interceptors {
     @Test
     public void testH2RequestContentOptionMethodInvalidContentTypeProtocolException() {
         final H2RequestContent interceptor = new H2RequestContent();
-        final HttpContext context = new BasicHttpContext(null);
+        final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.OPTIONS, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONTENT_LENGTH, "10"));
         request.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "whatever"));

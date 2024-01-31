@@ -45,7 +45,7 @@ public class ViaRequestTest {
     @Test
     public void testViaRequestGenerated() throws Exception {
 
-        final HttpContext context = new BasicHttpContext(null);
+        final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setAuthority(new URIAuthority("somehost", 8888));
         context.setProtocolVersion(HttpVersion.HTTP_1_1);
@@ -61,7 +61,7 @@ public class ViaRequestTest {
     @Test
     public void testViaRequestGeneratedWithOutPort() throws Exception {
 
-        final HttpContext context = new BasicHttpContext(null);
+        final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setAuthority(new URIAuthority("somehost"));
         context.setProtocolVersion(HttpVersion.HTTP_1_1);
@@ -76,7 +76,7 @@ public class ViaRequestTest {
 
         @Test
     public void testViaRequestInvalidHttpVersion() {
-        final HttpContext context = new BasicHttpContext(null);
+        final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         context.setProtocolVersion(HttpVersion.HTTP_0_9);
         request.setAuthority(new URIAuthority("somehost", 8888));
@@ -88,7 +88,7 @@ public class ViaRequestTest {
 
     @Test
     public void testViaRequestInvalidAuthority() {
-        final HttpContext context = new BasicHttpContext(null);
+        final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         context.setProtocolVersion(HttpVersion.HTTP_1_1);
 
@@ -100,7 +100,7 @@ public class ViaRequestTest {
     @Test
     public void testViaRequestNotCreatedAlreadyAdded() throws Exception {
 
-        final HttpContext context = new BasicHttpContext(null);
+        final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         context.setProtocolVersion(HttpVersion.HTTP_1_1);
         request.setAuthority(new URIAuthority("somehost", 8888));

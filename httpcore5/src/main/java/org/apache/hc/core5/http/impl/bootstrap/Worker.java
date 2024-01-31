@@ -29,7 +29,6 @@ package org.apache.hc.core5.http.impl.bootstrap;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpServerConnection;
-import org.apache.hc.core5.http.protocol.BasicHttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.io.CloseMode;
 
@@ -56,11 +55,9 @@ class Worker implements Runnable {
     @Override
     public void run() {
         try {
-            final BasicHttpContext localContext = new BasicHttpContext();
-            final HttpCoreContext context = HttpCoreContext.adapt(localContext);
             while (!Thread.interrupted() && this.conn.isOpen()) {
+                final HttpCoreContext context = HttpCoreContext.create();
                 this.httpservice.handleRequest(this.conn, context);
-                localContext.clear();
             }
             this.conn.close();
         } catch (final Exception ex) {

@@ -35,8 +35,7 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.http.message.BasicHttpResponse;
-import org.apache.hc.core5.http.protocol.BasicHttpContext;
-import org.apache.hc.core5.http.protocol.HttpContext;
+import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +43,7 @@ import org.junit.jupiter.api.Test;
 public class TestDefaultConnectionReuseStrategy {
 
     /** HTTP context. */
-    private HttpContext context;
+    private HttpCoreContext context;
 
     /** The reuse strategy to be tested. */
     private ConnectionReuseStrategy reuseStrategy;
@@ -52,7 +51,7 @@ public class TestDefaultConnectionReuseStrategy {
     @BeforeEach
     public void setUp() {
         reuseStrategy = DefaultConnectionReuseStrategy.INSTANCE;
-        context = new BasicHttpContext(null);
+        context = HttpCoreContext.create();
     }
 
     @Test
