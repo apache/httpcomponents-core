@@ -105,16 +105,17 @@ public class ForwardedRequest implements HttpRequestInterceptor {
      * @param request the HTTP request to which the Forwarded header is to be added (not
      *                {@code null})
      * @param entity  the entity details of the request (can be {@code null})
-     * @param context the HTTP context in which the request is being executed (not {@code null})
+     * @param localContext the HTTP context in which the request is being executed (not {@code null})
      * @throws HttpException     if there is an error processing the request
      * @throws IOException       if an IO error occurs while processing the request
      * @throws ProtocolException if the request authority is not specified
      */
     @Override
-    public void process(final HttpRequest request, final EntityDetails entity, final HttpContext context) throws HttpException, IOException {
+    public void process(final HttpRequest request, final EntityDetails entity, final HttpContext localContext) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
-        Args.notNull(context, "HTTP context");
+        Args.notNull(localContext, "HTTP context");
 
+        final HttpCoreContext context = HttpCoreContext.cast(localContext);
         final ProtocolVersion ver = context.getProtocolVersion() != null ? context.getProtocolVersion() : HttpVersion.HTTP_1_1;
 
         final URIAuthority authority = request.getAuthority();
@@ -134,7 +135,7 @@ public class ForwardedRequest implements HttpRequestInterceptor {
         }
 
         // Add the current hop details
-        final EndpointDetails endpointDetails = (EndpointDetails) context.getAttribute(HttpCoreContext.CONNECTION_ENDPOINT);
+        final EndpointDetails endpointDetails = context.getEndpointDetails();
 
         // Add the "by" parameter
         if (endpointDetails != null) {

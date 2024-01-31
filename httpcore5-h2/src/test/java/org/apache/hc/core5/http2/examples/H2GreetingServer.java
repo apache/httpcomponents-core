@@ -134,10 +134,10 @@ public class H2GreetingServer {
         @Override
         protected void handle(final Message<HttpRequest, String> requestMessage,
                               final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                              final HttpContext context) throws HttpException, IOException {
+                              final HttpContext localContext) throws HttpException, IOException {
 
-            final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-            final EndpointDetails endpoint = coreContext.getEndpointDetails();
+            final HttpCoreContext context = HttpCoreContext.cast(localContext);
+            final EndpointDetails endpoint = context.getEndpointDetails();
             final HttpRequest req = requestMessage.getHead();
             final String httpEntity = requestMessage.getBody();
 
@@ -146,7 +146,7 @@ public class H2GreetingServer {
 
             // recording the request
             System.out.printf("[%s] %s %s %s%n", Instant.now(),
-                    endpoint.getRemoteAddress(),
+                    endpoint != null ? endpoint.getRemoteAddress() : null,
                     req.getMethod(),
                     req.getPath());
 

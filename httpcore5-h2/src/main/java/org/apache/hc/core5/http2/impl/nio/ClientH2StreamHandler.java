@@ -137,7 +137,7 @@ class ClientH2StreamHandler implements H2StreamHandler {
     private void commitRequest(final HttpRequest request, final EntityDetails entityDetails) throws HttpException, IOException {
         if (requestCommitted.compareAndSet(false, true)) {
             context.setProtocolVersion(HttpVersion.HTTP_2);
-            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+            context.setRequest(request);
 
             httpProcessor.process(request, entityDetails, context);
 
@@ -205,7 +205,7 @@ class ClientH2StreamHandler implements H2StreamHandler {
                 }
 
                 final EntityDetails entityDetails = endStream ? null : new IncomingEntityDetails(response, -1);
-                context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+                context.setResponse(response);
                 httpProcessor.process(response, entityDetails, context);
                 connMetrics.incrementResponseCount();
 

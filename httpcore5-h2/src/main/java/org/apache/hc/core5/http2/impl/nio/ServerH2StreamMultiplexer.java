@@ -105,8 +105,8 @@ public class ServerH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final BasicHttpConnectionMetrics connMetrics,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) throws IOException {
         final HttpCoreContext context = HttpCoreContext.create();
-        context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
-        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+        context.setSSLSession(getSSLSession());
+        context.setEndpointDetails(getEndpointDetails());
         return new ServerH2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandlerFactory, context);
     }
 

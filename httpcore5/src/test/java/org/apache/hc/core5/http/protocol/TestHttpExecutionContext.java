@@ -36,8 +36,8 @@ public class TestHttpExecutionContext {
 
     @Test
     public void testContextOperations() {
-        final HttpContext parentContext = new BasicHttpContext(null);
-        final HttpContext currentContext = new BasicHttpContext(parentContext);
+        final HttpCoreContext parentContext = new HttpCoreContext();
+        final HttpCoreContext currentContext = new HttpCoreContext(parentContext);
 
         parentContext.setAttribute("param1", "1");
         parentContext.setAttribute("param2", "2");
@@ -66,18 +66,10 @@ public class TestHttpExecutionContext {
 
     @Test
     public void testEmptyContextOperations() {
-        final HttpContext currentContext = new BasicHttpContext(null);
+        final HttpCoreContext currentContext = new HttpCoreContext();
         Assertions.assertNull(currentContext.getAttribute("param1"));
         currentContext.removeAttribute("param1");
         Assertions.assertNull(currentContext.getAttribute("param1"));
-    }
-
-    @Test
-    public void testContextInvalidInput() throws Exception {
-        final HttpContext currentContext = new BasicHttpContext(null);
-        Assertions.assertThrows(NullPointerException.class, () -> currentContext.setAttribute(null, null));
-        Assertions.assertThrows(NullPointerException.class, () -> currentContext.getAttribute(null));
-        Assertions.assertThrows(NullPointerException.class, () -> currentContext.removeAttribute(null));
     }
 
 }

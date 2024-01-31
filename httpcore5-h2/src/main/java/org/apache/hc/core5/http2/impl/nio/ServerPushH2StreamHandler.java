@@ -166,7 +166,7 @@ class ServerPushH2StreamHandler implements H2StreamHandler {
         if (responseCommitted.compareAndSet(false, true)) {
 
             context.setProtocolVersion(HttpVersion.HTTP_2);
-            context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+            context.setResponse(response);
             httpProcessor.process(response, responseEntityDetails, context);
 
             final List<Header> headers = DefaultH2ResponseConverter.INSTANCE.convert(response);
@@ -186,7 +186,7 @@ class ServerPushH2StreamHandler implements H2StreamHandler {
             final AsyncPushProducer pushProducer) throws HttpException, IOException {
 
         context.setProtocolVersion(HttpVersion.HTTP_2);
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, promise);
+        context.setRequest(promise);
         httpProcessor.process(promise, null, context);
 
         final List<Header> headers = DefaultH2RequestConverter.INSTANCE.convert(promise);

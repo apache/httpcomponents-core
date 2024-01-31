@@ -102,7 +102,8 @@ public class AsyncFileServerExample {
                     public void handle(
                             final Message<HttpRequest, Void> message,
                             final ResponseTrigger responseTrigger,
-                            final HttpContext context) throws HttpException, IOException {
+                            final HttpContext localContext) throws HttpException, IOException {
+                        final HttpCoreContext context = HttpCoreContext.cast(localContext);
                         final HttpRequest request = message.getHead();
                         final URI requestUri;
                         try {
@@ -145,8 +146,7 @@ public class AsyncFileServerExample {
                                 contentType = ContentType.DEFAULT_BINARY;
                             }
 
-                            final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                            final EndpointDetails endpoint = coreContext.getEndpointDetails();
+                            final EndpointDetails endpoint = context.getEndpointDetails();
 
                             println(endpoint + " | serving file " + file.getPath());
 

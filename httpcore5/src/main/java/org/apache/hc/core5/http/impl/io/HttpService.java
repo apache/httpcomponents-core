@@ -188,16 +188,17 @@ public class HttpService {
      * given execution context and sends a response back to the client.
      *
      * @param conn the active connection to the client
-     * @param context the actual execution context.
+     * @param localContext the actual execution context.
      * @throws IOException in case of an I/O error.
      * @throws HttpException in case of HTTP protocol violation or a processing
      *   problem.
      */
     public void handleRequest(
             final HttpServerConnection conn,
-            final HttpContext context) throws IOException, HttpException {
+            final HttpContext localContext) throws IOException, HttpException {
 
         final AtomicBoolean responseSubmitted = new AtomicBoolean(false);
+        final HttpCoreContext context = HttpCoreContext.cast(localContext);
         try {
             final ClassicHttpRequest request = conn.receiveRequestHeader();
             if (request == null) {
@@ -213,9 +214,9 @@ public class HttpService {
                 throw new UnsupportedHttpVersionException(transportVersion);
             }
             context.setProtocolVersion(transportVersion != null ? transportVersion : http1Config.getVersion());
-            context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
-            context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
-            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+            context.setRequest(request);
+            context.setSSLSession(conn.getSSLSession());
+            context.setEndpointDetails(conn.getEndpointDetails());
             this.processor.process(request, request.getEntity(), context);
 
             this.requestHandler.handle(request, new HttpServerRequestHandler.ResponseTrigger() {
@@ -245,7 +246,7 @@ public class HttpService {
                             }
                             context.setProtocolVersion(transportVersion);
                         }
-                        context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+                        context.setResponse(response);
                         processor.process(response, response.getEntity(), context);
 
                         responseSubmitted.set(true);
@@ -280,7 +281,7 @@ public class HttpService {
             try (final ClassicHttpResponse errorResponse = new BasicClassicHttpResponse(HttpStatus.SC_INTERNAL_SERVER_ERROR)) {
                 handleException(ex, errorResponse);
                 errorResponse.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-                context.setAttribute(HttpCoreContext.HTTP_RESPONSE, errorResponse);
+                context.setResponse(errorResponse);
                 this.processor.process(errorResponse, errorResponse.getEntity(), context);
 
                 conn.sendResponseHeader(errorResponse);

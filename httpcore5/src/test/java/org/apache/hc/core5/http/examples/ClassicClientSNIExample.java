@@ -87,16 +87,16 @@ public class ClassicClientSNIExample {
         final InetAddress targetAddress = InetAddress.getByName("www.google.com");
         // Target host (google.ch)
         final HttpHost target = new HttpHost("https", targetAddress, "www.google.ch", 443);
-        final HttpCoreContext coreContext = HttpCoreContext.create();
+        final HttpCoreContext context = HttpCoreContext.create();
 
         final ClassicHttpRequest request = ClassicRequestBuilder.get()
                 .setPath("/")
                 .build();
 
-        try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
+        try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), context)) {
             System.out.println(request.getUri() + "->" + response.getCode());
 
-            final SSLSession sslSession = coreContext.getSSLSession();
+            final SSLSession sslSession = context.getSSLSession();
             if (sslSession != null) {
                 System.out.println("Peer: " + sslSession.getPeerPrincipal());
                 System.out.println("TLS protocol: " + sslSession.getProtocol());

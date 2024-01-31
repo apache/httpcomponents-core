@@ -144,8 +144,9 @@ public class ClassicFileServerExample {
         public void handle(
                 final ClassicHttpRequest request,
                 final ClassicHttpResponse response,
-                final HttpContext context) throws HttpException, IOException {
+                final HttpContext localContext) throws HttpException, IOException {
 
+            final HttpCoreContext context = HttpCoreContext.cast(localContext);
             final String method = request.getMethod();
             if (!Method.GET.isSame(method) && !Method.HEAD.isSame(method) && !Method.POST.isSame(method)) {
                 throw new MethodNotSupportedException(method + " method not supported");
@@ -180,8 +181,7 @@ public class ClassicFileServerExample {
                 System.out.println(msg);
 
             } else {
-                final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                final EndpointDetails endpoint = coreContext.getEndpointDetails();
+                final EndpointDetails endpoint = context.getEndpointDetails();
                 response.setCode(HttpStatus.SC_OK);
                 final FileEntity body = new FileEntity(file, ContentType.create("text/html", (Charset) null));
                 response.setEntity(body);

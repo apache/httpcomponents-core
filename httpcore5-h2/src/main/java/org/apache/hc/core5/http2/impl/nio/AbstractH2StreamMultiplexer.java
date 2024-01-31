@@ -1420,8 +1420,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     localConfig.getInitialWindowSize(),
                     remoteConfig.getInitialWindowSize());
             final HttpCoreContext context = HttpCoreContext.create();
-            context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
-            context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+            context.setSSLSession(getSSLSession());
+            context.setEndpointDetails(getEndpointDetails());
             final H2StreamHandler streamHandler = new ServerPushH2StreamHandler(
                     channel, httpProcessor, connMetrics, pushProducer, context);
             final H2Stream stream = new H2Stream(channel, streamHandler, false);

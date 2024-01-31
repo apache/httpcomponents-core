@@ -170,7 +170,7 @@ class ServerH2StreamHandler implements H2StreamHandler {
             if (status < HttpStatus.SC_SUCCESS) {
                 throw new HttpException("Invalid response: " + status);
             }
-            context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+            context.setResponse(response);
             httpProcessor.process(response, responseEntityDetails, context);
 
             final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
@@ -230,7 +230,7 @@ class ServerH2StreamHandler implements H2StreamHandler {
                 exchangeHandler = handler;
 
                 context.setProtocolVersion(HttpVersion.HTTP_2);
-                context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+                context.setRequest(request);
 
                 try {
                     httpProcessor.process(request, requestEntityDetails, context);

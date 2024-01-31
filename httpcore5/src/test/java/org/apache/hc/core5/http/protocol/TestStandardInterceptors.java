@@ -507,7 +507,7 @@ public class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "keep-alive"));
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setRequest(request);
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, null));
         final ResponseConnControl interceptor = new ResponseConnControl();
@@ -534,7 +534,7 @@ public class TestStandardInterceptors {
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "keep-alive"));
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setRequest(request);
 
         final BasicClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, null));
@@ -550,7 +550,7 @@ public class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "keep-alive"));
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setRequest(request);
 
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new StringEntity("whatever"));
@@ -565,7 +565,7 @@ public class TestStandardInterceptors {
     public void testResponseConnControlClientRequest2() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setRequest(request);
 
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new StringEntity("whatever"));
@@ -580,7 +580,7 @@ public class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setRequest(request);
 
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new StringEntity("whatever"));
@@ -596,7 +596,7 @@ public class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "keep-alive"));
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setRequest(request);
 
         final ResponseConnControl interceptor = new ResponseConnControl();
 
@@ -624,7 +624,7 @@ public class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "keep-alive"));
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setRequest(request);
 
         final ResponseConnControl interceptor = new ResponseConnControl();
 
@@ -641,7 +641,7 @@ public class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "blah, keep-alive, close"));
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setRequest(request);
 
         final ResponseConnControl interceptor = new ResponseConnControl();
 
@@ -1073,7 +1073,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestConformanceHttps() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
-        context.setAttribute(HttpCoreContext.SSL_SESSION, Mockito.mock(SSLSession.class));
+        context.setSSLSession(Mockito.mock(SSLSession.class));
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setScheme("https");
         request.setAuthority(new URIAuthority("somehost", 8888));
@@ -1085,7 +1085,7 @@ public class TestStandardInterceptors {
     @Test
     public void testRequestConformanceHttpsInsecureConnection() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
-        context.setAttribute(HttpCoreContext.SSL_SESSION, null);
+        context.setSSLSession(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setScheme("https");
         request.setAuthority(new URIAuthority("somehost", 8888));

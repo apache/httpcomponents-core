@@ -125,7 +125,7 @@ public class HttpRequestExecutor {
      * @param conn      the connection over which to execute the request.
      * @param informationCallback   callback to execute upon receipt of information status (1xx).
      *                              May be null.
-     * @param context the context
+     * @param localContext the context
      * @return  the response to the request.
      *
      * @throws IOException in case of an I/O error.
@@ -136,13 +136,14 @@ public class HttpRequestExecutor {
             final ClassicHttpRequest request,
             final HttpClientConnection conn,
             final HttpResponseInformationCallback informationCallback,
-            final HttpContext context) throws IOException, HttpException {
+            final HttpContext localContext) throws IOException, HttpException {
         Args.notNull(request, "HTTP request");
         Args.notNull(conn, "Client connection");
-        Args.notNull(context, "HTTP context");
+        Args.notNull(localContext, "HTTP context");
+        final HttpCoreContext context = HttpCoreContext.cast(localContext);
         try {
-            context.setAttribute(HttpCoreContext.SSL_SESSION, conn.getSSLSession());
-            context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, conn.getEndpointDetails());
+            context.setSSLSession(conn.getSSLSession());
+            context.setEndpointDetails(conn.getEndpointDetails());
 
             conn.sendRequestHeader(request);
             if (streamListener != null) {
@@ -241,7 +242,7 @@ public class HttpRequestExecutor {
      *
      * @param request   the request to prepare
      * @param processor the processor to use
-     * @param context   the context for sending the request
+     * @param localContext the context for sending the request
      *
      * @throws IOException in case of an I/O error.
      * @throws HttpException in case of HTTP protocol violation or a processing
@@ -250,16 +251,17 @@ public class HttpRequestExecutor {
     public void preProcess(
             final ClassicHttpRequest request,
             final HttpProcessor processor,
-            final HttpContext context) throws HttpException, IOException {
+            final HttpContext localContext) throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
         Args.notNull(processor, "HTTP processor");
-        Args.notNull(context, "HTTP context");
+        Args.notNull(localContext, "HTTP context");
         final ProtocolVersion transportVersion = request.getVersion();
         if (transportVersion != null && !transportVersion.lessEquals(http1Config.getVersion())) {
             throw new UnsupportedHttpVersionException(transportVersion);
         }
+        final HttpCoreContext context = HttpCoreContext.cast(localContext);
         context.setProtocolVersion(transportVersion != null ? transportVersion : http1Config.getVersion());
-        context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+        context.setRequest(request);
         processor.process(request, request.getEntity(), context);
     }
 
@@ -274,7 +276,7 @@ public class HttpRequestExecutor {
      *
      * @param response  the response object to post-process
      * @param processor the processor to use
-     * @param context   the context for post-processing the response
+     * @param localContext the context for post-processing the response
      *
      * @throws IOException in case of an I/O error.
      * @throws HttpException in case of HTTP protocol violation or a processing
@@ -283,10 +285,11 @@ public class HttpRequestExecutor {
     public void postProcess(
             final ClassicHttpResponse response,
             final HttpProcessor processor,
-            final HttpContext context) throws HttpException, IOException {
+            final HttpContext localContext) throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
         Args.notNull(processor, "HTTP processor");
-        Args.notNull(context, "HTTP context");
+        Args.notNull(localContext, "HTTP context");
+        final HttpCoreContext context = HttpCoreContext.cast(localContext);
         final ProtocolVersion transportVersion = response.getVersion();
         if (transportVersion != null) {
             if (transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
@@ -294,7 +297,7 @@ public class HttpRequestExecutor {
             }
             context.setProtocolVersion(transportVersion);
         }
-        context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+        context.setResponse(response);
         processor.process(response, response.getEntity(), context);
     }
 

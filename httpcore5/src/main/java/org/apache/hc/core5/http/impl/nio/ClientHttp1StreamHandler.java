@@ -150,7 +150,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
                 throw new UnsupportedHttpVersionException(transportVersion);
             }
             context.setProtocolVersion(transportVersion != null ? transportVersion : http1Config.getVersion());
-            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+            context.setRequest(request);
 
             httpProcessor.process(request, entityDetails, context);
 
@@ -239,7 +239,7 @@ class ClientHttp1StreamHandler implements ResourceHolder {
         }
 
         context.setProtocolVersion(transportVersion != null ? transportVersion : HttpVersion.HTTP_1_1);
-        context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+        context.setResponse(response);
         httpProcessor.process(response, entityDetails, context);
 
         if (entityDetails == null && !keepAlive) {
