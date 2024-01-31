@@ -27,52 +27,60 @@
 
 package org.apache.hc.core5.http.protocol;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.HttpVersion;
 import org.apache.hc.core5.http.ProtocolVersion;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Implementation of {@link HttpContext} that provides convenience
- * setters for user assignable attributes and getter for readable attributes.
+ * Core execution {@link HttpContext}.
+ * <p>
+ * IMPORTANT: This class is NOT thread-safe and MUST NOT be used concurrently by
+ * multiple message exchanges.
  *
  * @since 4.3
  */
 public class HttpCoreContext implements HttpContext {
 
     /**
-     * Attribute name of a {@link EndpointDetails} object that
-     * represents the actual connection endpoint details.
+     * @deprecated Use getter methods
      */
+    @Deprecated
     public static final String CONNECTION_ENDPOINT  = HttpContext.RESERVED_PREFIX + "connection-endpoint";
 
     /**
-     * Attribute name of a {@link SSLSession} object that
-     * represents the actual connection endpoint details.
+     * @deprecated Use getter methods
      */
+    @Deprecated
     public static final String SSL_SESSION = HttpContext.RESERVED_PREFIX + "ssl-session";
 
     /**
-     * Attribute name of a {@link HttpRequest} object that
-     * represents the actual HTTP request.
+     * @deprecated Use getter methods
      */
+    @Deprecated
     public static final String HTTP_REQUEST     = HttpContext.RESERVED_PREFIX + "request";
 
     /**
-     * Attribute name of a {@link HttpResponse} object that
-     * represents the actual HTTP response.
+     * @deprecated Use getter methods
      */
+    @Deprecated
     public static final String HTTP_RESPONSE    = HttpContext.RESERVED_PREFIX + "response";
 
     public static HttpCoreContext create() {
         return new HttpCoreContext();
     }
 
+    /**
+     * @deprecated Use {@link #cast(HttpContext)}.
+     */
+    @Deprecated
     public static HttpCoreContext adapt(final HttpContext context) {
         if (context == null) {
             return new HttpCoreContext();
@@ -83,24 +91,49 @@ public class HttpCoreContext implements HttpContext {
         return new HttpCoreContext(context);
     }
 
-    private final HttpContext context;
+    /**
+     * Casts the given generic {@link HttpContext} as {@link HttpCoreContext}
+     * or creates a new {@link HttpCoreContext} with the given {@link HttpContext}
+     * as a parent.
+     *
+     * @since 5.3
+     */
+    public static HttpCoreContext cast(final HttpContext context) {
+        if (context instanceof HttpCoreContext) {
+            return (HttpCoreContext) context;
+        }
+        return new HttpCoreContext(context);
+    }
 
-    public HttpCoreContext(final HttpContext context) {
+    private final HttpContext parentContext;
+    private Map<String, Object> map;
+    private ProtocolVersion version;
+    private HttpRequest request;
+    private HttpResponse response;
+    private EndpointDetails endpointDetails;
+    private SSLSession sslSession;
+
+    public HttpCoreContext(final HttpContext parentContext) {
         super();
-        this.context = Objects.requireNonNull(context);
+        this.parentContext = parentContext;
     }
 
     public HttpCoreContext() {
         super();
-        this.context = new BasicHttpContext();
+        this.parentContext = null;
     }
 
     /**
+     * Represents the protocol version used by the message exchange.
+     * <p>
+     * This context attribute is expected to be populated by the protocol handler
+     * in the course of request execution.
+     *
      * @since 5.0
      */
     @Override
     public ProtocolVersion getProtocolVersion() {
-        return this.context.getProtocolVersion();
+        return this.version != null ? this.version : HttpVersion.HTTP_1_1;
     }
 
     /**
@@ -108,27 +141,38 @@ public class HttpCoreContext implements HttpContext {
      */
     @Override
     public void setProtocolVersion(final ProtocolVersion version) {
-        this.context.setProtocolVersion(version);
+        this.version = version;
     }
 
     @Override
     public Object getAttribute(final String id) {
-        return context.getAttribute(id);
+        Object o = map != null ? map.get(id) : null;
+        if (o == null && parentContext != null) {
+            o = parentContext.getAttribute(id);
+        }
+        return o;
     }
 
     @Override
     public Object setAttribute(final String id, final Object obj) {
-        return context.setAttribute(id, obj);
+        if (map == null) {
+            map = new HashMap<>();
+        }
+        return map.put(id, obj);
     }
 
     @Override
     public Object removeAttribute(final String id) {
-        return context.removeAttribute(id);
+        if (map != null) {
+            return map.remove(id);
+        } else {
+            return null;
+        }
     }
 
-    public <T> T getAttribute(final String attribname, final Class<T> clazz) {
+    public <T> T getAttribute(final String id, final Class<T> clazz) {
         Args.notNull(clazz, "Attribute class");
-        final Object obj = getAttribute(attribname);
+        final Object obj = getAttribute(id);
         if (obj == null) {
             return null;
         }
@@ -136,30 +180,84 @@ public class HttpCoreContext implements HttpContext {
     }
 
     /**
-     * @since 5.0
+     * Represents current request message head.
+     * <p>
+     * This context attribute is expected to be populated by the protocol handler
+     * in the course of request execution.
      */
-    public SSLSession getSSLSession() {
-        return getAttribute(SSL_SESSION, SSLSession.class);
+    public HttpRequest getRequest() {
+        return request;
     }
 
     /**
+     * @since 5.3
+     */
+    public void setRequest(final HttpRequest request) {
+        this.request = request;
+    }
+
+    /**
+     * Represents current response message head.
+     * <p>
+     * This context attribute is expected to be populated by the protocol handler
+     * in the course of request execution.
+     */
+    public HttpResponse getResponse() {
+        return response;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void setResponse(final HttpResponse response) {
+        this.response = response;
+    }
+
+    /**
+     * Represents current connection endpoint details.
+     * <p>
+     * This context attribute is expected to be populated by the protocol handler
+     * in the course of request execution.
      * @since 5.0
      */
     public EndpointDetails getEndpointDetails() {
-        return getAttribute(CONNECTION_ENDPOINT, EndpointDetails.class);
+        return endpointDetails;
     }
 
-    public HttpRequest getRequest() {
-        return getAttribute(HTTP_REQUEST, HttpRequest.class);
+    /**
+     * @since 5.3
+     */
+    public void setEndpointDetails(final EndpointDetails endpointDetails) {
+        this.endpointDetails = endpointDetails;
     }
 
-    public HttpResponse getResponse() {
-        return getAttribute(HTTP_RESPONSE, HttpResponse.class);
+    /**
+     * Represents current TLS session details.
+     * <p>
+     * This context attribute is expected to be populated by the protocol handler
+     * in the course of request execution.
+     * @since 5.0
+     */
+    public SSLSession getSSLSession() {
+        return sslSession;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void setSSLSession(final SSLSession sslSession) {
+        this.sslSession = sslSession;
     }
 
     @Override
     public String toString() {
-        return context.toString();
+        return "HttpCoreContext{" +
+                "version=" + version +
+                ", request=" + request +
+                ", response=" + response +
+                ", endpointDetails=" + endpointDetails +
+                ", sslSession=" + sslSession +
+                '}';
     }
 
 }

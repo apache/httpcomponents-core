@@ -101,7 +101,7 @@ public class AsyncClientSNIExample {
         final InetAddress targetAddress = InetAddress.getByName("www.google.com");
         // Target host (google.ch)
         final HttpHost target = new HttpHost("https", targetAddress, "www.google.ch", 443);
-        final HttpCoreContext coreContext = HttpCoreContext.create();
+        final HttpCoreContext context = HttpCoreContext.create();
 
         final CountDownLatch latch = new CountDownLatch(1);
         final HttpRequest request = BasicRequestBuilder.get()
@@ -113,14 +113,14 @@ public class AsyncClientSNIExample {
                 new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
                 null,
                 Timeout.ofSeconds(5),
-                coreContext,
+                context,
                 new FutureCallback<Message<HttpResponse, String>>() {
 
                     @Override
                     public void completed(final Message<HttpResponse, String> message) {
                         final HttpResponse response = message.getHead();
                         System.out.println(request.getRequestUri() + "->" + response.getCode());
-                        final SSLSession sslSession = coreContext.getSSLSession();
+                        final SSLSession sslSession = context.getSSLSession();
                         if (sslSession != null) {
                             try {
                                 System.out.println("Peer: " + sslSession.getPeerPrincipal());

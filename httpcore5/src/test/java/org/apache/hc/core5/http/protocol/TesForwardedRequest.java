@@ -76,7 +76,7 @@ public class TesForwardedRequest {
         // Create a mock HTTP context with the endpoint and protocol version
         final ProtocolVersion version = HttpVersion.HTTP_1_1;
         final HttpCoreContext context = HttpCoreContext.create() ;
-        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, endpointDetails);
+        context.setEndpointDetails(endpointDetails);
 
         // Process the HTTP request
         processor.process(request, new BasicEntityDetails(1, ContentType.APPLICATION_JSON), context);
@@ -111,7 +111,7 @@ public class TesForwardedRequest {
         // Create a mock HTTP context with the endpoint and protocol version
         final ProtocolVersion version = HttpVersion.HTTP_1_1;
         final HttpCoreContext context = HttpCoreContext.create() ;
-        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, endpointDetails);
+        context.setEndpointDetails(endpointDetails);
 
         // Process the HTTP request
         processor.process(request, new BasicEntityDetails(1, ContentType.APPLICATION_JSON), context);
@@ -138,7 +138,7 @@ public class TesForwardedRequest {
         // Create a mock HTTP context with the endpoint and protocol version
         final ProtocolVersion version = HttpVersion.HTTP_1_1;
         final HttpCoreContext context = HttpCoreContext.create() ;
-        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, null);
+        context.setEndpointDetails(null);
 
         // Process the HTTP request
         processor.process(request, new BasicEntityDetails(1, ContentType.APPLICATION_JSON), context);
@@ -162,7 +162,7 @@ public class TesForwardedRequest {
         // Create a mock HTTP context with the endpoint and protocol version
         final ProtocolVersion version = HttpVersion.HTTP_1_1;
         final HttpCoreContext context = HttpCoreContext.create() ;
-        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, null);
+        context.setEndpointDetails(null);
         final String forwaredHeaderValue = "host=oldhost;port=8855;proto=HTTP";
 
         request.setHeader(new BasicHeader(FORWARDED_HEADER_NAME, forwaredHeaderValue));

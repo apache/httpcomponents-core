@@ -137,7 +137,8 @@ public class H2FileServerExample {
                     public void handle(
                             final Message<HttpRequest, Void> message,
                             final ResponseTrigger responseTrigger,
-                            final HttpContext context) throws HttpException, IOException {
+                            final HttpContext localContext) throws HttpException, IOException {
+                        final HttpCoreContext context = HttpCoreContext.cast(localContext);
                         final HttpRequest request = message.getHead();
                         final URI requestUri;
                         try {
@@ -180,8 +181,7 @@ public class H2FileServerExample {
                                 contentType = ContentType.DEFAULT_BINARY;
                             }
 
-                            final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                            final EndpointDetails endpoint = coreContext.getEndpointDetails();
+                            final EndpointDetails endpoint = context.getEndpointDetails();
                             System.out.println(endpoint + ": serving file " + file.getPath());
                             responseTrigger.submitResponse(
                                     AsyncResponseBuilder.create(HttpStatus.SC_OK)

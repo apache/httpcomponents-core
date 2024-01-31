@@ -315,8 +315,8 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         suspendSessionInput();
         final ServerHttp1StreamHandler streamHandler;
         final HttpCoreContext context = HttpCoreContext.create();
-        context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
-        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+        context.setSSLSession(getSSLSession());
+        context.setEndpointDetails(getEndpointDetails());
         if (outgoing == null) {
             streamHandler = new ServerHttp1StreamHandler(
                     outputChannel,
@@ -347,8 +347,8 @@ public class ServerHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
         }
         final ServerHttp1StreamHandler streamHandler;
         final HttpCoreContext context = HttpCoreContext.create();
-        context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
-        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+        context.setSSLSession(getSSLSession());
+        context.setEndpointDetails(getEndpointDetails());
         if (outgoing == null) {
             streamHandler = new ServerHttp1StreamHandler(
                     outputChannel,

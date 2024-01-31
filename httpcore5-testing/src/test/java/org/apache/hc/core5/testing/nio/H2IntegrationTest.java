@@ -922,16 +922,16 @@ public abstract class H2IntegrationTest {
 
             final HttpRequest request = new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/hello"));
             request.addHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
-            final HttpCoreContext coreContext = HttpCoreContext.create();
+            final HttpCoreContext context = HttpCoreContext.create();
             final Future<Message<HttpResponse, String>> future = streamEndpoint.execute(
                         new BasicRequestProducer(request, null),
                         new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                        coreContext, null);
+                        context, null);
             final ExecutionException exception = Assertions.assertThrows(ExecutionException.class, () ->
                     future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
             assertThat(exception.getCause(), CoreMatchers.instanceOf(ProtocolException.class));
 
-            final EndpointDetails endpointDetails = coreContext.getEndpointDetails();
+            final EndpointDetails endpointDetails = context.getEndpointDetails();
             assertThat(endpointDetails.getRequestCount(), CoreMatchers.equalTo(0L));
         }
     }

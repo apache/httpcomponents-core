@@ -115,7 +115,7 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
             }
 
             context.setProtocolVersion(HttpVersion.HTTP_2);
-            context.setAttribute(HttpCoreContext.HTTP_REQUEST, request);
+            context.setRequest(request);
 
             httpProcessor.process(request, null, context);
             connMetrics.incrementRequestCount();
@@ -134,7 +134,7 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
             final HttpResponse response = DefaultH2ResponseConverter.INSTANCE.convert(headers);
             final EntityDetails entityDetails = endStream ? null : new IncomingEntityDetails(request, -1);
 
-            context.setAttribute(HttpCoreContext.HTTP_RESPONSE, response);
+            context.setResponse(response);
             httpProcessor.process(response, entityDetails, context);
             connMetrics.incrementResponseCount();
 

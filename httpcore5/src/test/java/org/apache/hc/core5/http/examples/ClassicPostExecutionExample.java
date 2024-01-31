@@ -85,7 +85,7 @@ public class ClassicPostExecutionExample {
                         .setSoTimeout(5, TimeUnit.SECONDS)
                         .build())
                 .create();
-        final HttpCoreContext coreContext = HttpCoreContext.create();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost target = new HttpHost("httpbin.org");
 
         final HttpEntity[] requestBodies = {
@@ -111,7 +111,7 @@ public class ClassicPostExecutionExample {
                     .setPath(requestUri)
                     .build();
             request.setEntity(requestBodies[i]);
-            try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
+            try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), context)) {
                 System.out.println(requestUri + "->" + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");

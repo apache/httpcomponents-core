@@ -67,11 +67,12 @@ public class ResponseConnControl implements HttpResponseInterceptor {
     }
 
     @Override
-    public void process(final HttpResponse response, final EntityDetails entity, final HttpContext context)
+    public void process(final HttpResponse response, final EntityDetails entity, final HttpContext localContext)
             throws HttpException, IOException {
         Args.notNull(response, "HTTP response");
-        Args.notNull(context, "HTTP context");
+        Args.notNull(localContext, "HTTP context");
 
+        final HttpCoreContext context = HttpCoreContext.cast(localContext);
         // Always drop connection after certain type of responses
         final int status = response.getCode();
         if (status == HttpStatus.SC_BAD_REQUEST ||
@@ -91,8 +92,7 @@ public class ResponseConnControl implements HttpResponseInterceptor {
             if (entity != null && entity.getContentLength() < 0 && ver.lessEquals(HttpVersion.HTTP_1_0)) {
                 response.setHeader(HttpHeaders.CONNECTION, HeaderElements.CLOSE);
             } else {
-                final HttpCoreContext coreContext = HttpCoreContext.adapt(context);
-                final HttpRequest request = coreContext.getRequest();
+                final HttpRequest request = context.getRequest();
                 boolean closeRequested = false;
                 boolean keepAliveRequested = false;
                 if (request != null) {

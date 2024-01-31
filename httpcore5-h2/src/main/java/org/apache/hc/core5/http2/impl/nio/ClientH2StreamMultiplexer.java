@@ -111,9 +111,9 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
             final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory = executionCommand.getPushHandlerFactory();
-            final HttpCoreContext context = HttpCoreContext.adapt(executionCommand.getContext());
-            context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
-            context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+            final HttpCoreContext context = HttpCoreContext.cast(executionCommand.getContext());
+            context.setSSLSession(getSSLSession());
+            context.setEndpointDetails(getEndpointDetails());
             return new ClientH2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandler,
                     pushHandlerFactory != null ? pushHandlerFactory : this.pushHandlerFactory,
                     context);
@@ -128,8 +128,8 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final BasicHttpConnectionMetrics connMetrics,
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory) throws IOException {
         final HttpCoreContext context = HttpCoreContext.create();
-        context.setAttribute(HttpCoreContext.SSL_SESSION, getSSLSession());
-        context.setAttribute(HttpCoreContext.CONNECTION_ENDPOINT, getEndpointDetails());
+        context.setSSLSession(getSSLSession());
+        context.setEndpointDetails(getEndpointDetails());
         return new ClientPushH2StreamHandler(channel, httpProcessor, connMetrics,
                 pushHandlerFactory != null ? pushHandlerFactory : this.pushHandlerFactory,
                 context);

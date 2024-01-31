@@ -42,8 +42,9 @@ import org.apache.hc.core5.util.Args;
  * Please note instances of this class can be thread unsafe if the
  * parent context is not thread safe.
  *
- * @since 4.0
+ * @deprecated Do not use.
  */
+@Deprecated
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
 public class BasicHttpContext implements HttpContext {
 

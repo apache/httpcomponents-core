@@ -62,7 +62,7 @@ public class RequestConformance implements HttpRequestInterceptor {
     }
 
     @Override
-    public void process(final HttpRequest request, final EntityDetails entity, final HttpContext context)
+    public void process(final HttpRequest request, final EntityDetails entity, final HttpContext localContext)
             throws HttpException, IOException {
         Args.notNull(request, "HTTP request");
 
@@ -79,7 +79,8 @@ public class RequestConformance implements HttpRequestInterceptor {
                 throw new ProtocolException("Request host is empty");
             }
         }
-        if (URIScheme.HTTPS.same(request.getScheme()) && context.getAttribute(HttpCoreContext.SSL_SESSION) == null) {
+        final HttpCoreContext context = HttpCoreContext.cast(localContext);
+        if (URIScheme.HTTPS.same(request.getScheme()) && context.getSSLSession() == null) {
             throw new MisdirectedRequestException("HTTPS request over non-secure connection");
         }
     }

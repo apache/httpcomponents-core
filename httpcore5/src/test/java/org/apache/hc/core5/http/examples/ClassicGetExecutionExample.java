@@ -81,7 +81,7 @@ public class ClassicGetExecutionExample {
                         .build())
                 .create();
 
-        final HttpCoreContext coreContext = HttpCoreContext.create();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost target = new HttpHost("httpbin.org");
         final String[] requestUris = new String[] {"/", "/ip", "/user-agent", "/headers"};
 
@@ -91,7 +91,7 @@ public class ClassicGetExecutionExample {
                     .setHttpHost(target)
                     .setPath(requestUri)
                     .build();
-            try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), coreContext)) {
+            try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), context)) {
                 System.out.println(requestUri + "->" + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));
                 System.out.println("==============");
