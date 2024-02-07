@@ -1,3 +1,51 @@
+Release 5.3 ALPHA2
+------------------
+
+This is the second and likely the last ALPHA release in the 5.3 release series.
+It finalizes the API changes introduced in the previous ALPHA release and also
+improves Message Parsing APIs and client side TLS defaults by making use of
+JSSE Endpoint Identification.
+
+
+Notable changes and features included in the 5.3 series:
+
+* Improved conformance to RFC 9110 and RFC 9112.
+
+* UTF-8 encoding to be used by default for text where appropriate.
+
+* Compatibility with Java Virtual Threads and Java 21 Runtime.
+
+* Message parsing API improvements and performance optimization
+
+* TLS client endpoints to make use of JSSE Endpoint Identification by default.
+
+
+Change Log
+-------------------
+
+* HttpCoreContext to use instance variables for standard attributes.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* TLS client endpoints to make use of JSSE Endpoint Identification by default.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Mention HttpStatus and StatusCode in JavaDoc in more places (#454).
+  Contributed by Dmitrii Naumenko <dimanaumenko1994 at mail.ru>
+
+* Improved protocol version parsing.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Replaced token delimitation based on BitSet with a predicate function.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-763: remove checks that assert a path does not start with "//".
+  Contributed by Marco Bungart <marco.bungart at googlemail.com>
+
+* Corrected declaration of generic Header iterators.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
 Release 5.3 ALPHA1
 ------------------
 
