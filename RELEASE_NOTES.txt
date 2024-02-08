@@ -3,7 +3,7 @@ Release 5.3 ALPHA2
 
 This is the second and likely the last ALPHA release in the 5.3 release series.
 It finalizes the API changes introduced in the previous ALPHA release and also
-improves Message Parsing APIs and client side TLS defaults by making use of
+improves Message Parsing APIs and client-side TLS defaults by making use of
 JSSE Endpoint Identification.
 
 
