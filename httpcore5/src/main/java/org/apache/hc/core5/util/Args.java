@@ -103,10 +103,6 @@ public class Args {
         return new IllegalArgumentException(name + " must not be empty");
     }
 
-    private static NullPointerException NullPointerException(final String name) {
-        return new NullPointerException(name + " must not be null");
-    }
-
     public static <T extends CharSequence> T notBlank(final T argument, final String name) {
         notNull(argument, name);
         if (TextUtils.isBlank(argument)) {

@@ -98,7 +98,7 @@ public final class TextUtils {
         if (strLen == 0) {
             return false;
         }
-        for (int i = 0; i < s.length(); i++) {
+        for (int i = 0; i < strLen; i++) {
             if (Character.isWhitespace(s.charAt(i))) {
                 return true;
             }
@@ -119,7 +119,7 @@ public final class TextUtils {
         if (bytes == null) {
             return null;
         }
-        final StringBuilder buffer = new StringBuilder();
+        final StringBuilder buffer = new StringBuilder(bytes.length * 2);
         for (int i = 0; i < bytes.length; i++) {
             final int unsignedB = bytes[i] & 0xff;
             if (unsignedB < 16) {
@@ -153,7 +153,8 @@ public final class TextUtils {
      * @since 5.3
      */
     public static boolean isAllASCII(final CharSequence s) {
-        for (int i = 0; i < s.length(); i++) {
+        final int strLen = length(s);
+        for (int i = 0; i < strLen; i++) {
             if (s.charAt(i) > 0x7F) {
                 return false;
             }
