@@ -51,8 +51,6 @@ import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
-import org.apache.hc.core5.http.protocol.BasicHttpContext;
-import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.protocol.HttpCoreContext;
 import org.apache.hc.core5.http.ssl.TLS;
 import org.apache.hc.core5.io.CloseMode;
@@ -310,7 +308,7 @@ public class ClassicTLSIntegrationTest {
                 .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                 .create();
 
-        final HttpContext context = new BasicHttpContext();
+        final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost target1 = new HttpHost("https", InetAddress.getLocalHost(), "localhost", server.getLocalPort());
         final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
         request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));
