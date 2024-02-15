@@ -32,6 +32,7 @@ import java.util.Map;
 
 import javax.net.ssl.SSLSession;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
@@ -192,6 +193,7 @@ public class HttpCoreContext implements HttpContext {
     /**
      * @since 5.3
      */
+    @Internal
     public void setRequest(final HttpRequest request) {
         this.request = request;
     }
@@ -209,6 +211,7 @@ public class HttpCoreContext implements HttpContext {
     /**
      * @since 5.3
      */
+    @Internal
     public void setResponse(final HttpResponse response) {
         this.response = response;
     }
@@ -227,6 +230,7 @@ public class HttpCoreContext implements HttpContext {
     /**
      * @since 5.3
      */
+    @Internal
     public void setEndpointDetails(final EndpointDetails endpointDetails) {
         this.endpointDetails = endpointDetails;
     }
@@ -245,6 +249,7 @@ public class HttpCoreContext implements HttpContext {
     /**
      * @since 5.3
      */
+    @Internal
     public void setSSLSession(final SSLSession sslSession) {
         this.sslSession = sslSession;
     }
