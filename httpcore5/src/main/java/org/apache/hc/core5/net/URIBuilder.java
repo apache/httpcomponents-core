@@ -335,7 +335,7 @@ public class URIBuilder {
                     }
                     sb.append("@");
                 }
-                if (InetAddressUtils.isIPv6Address(this.host)) {
+                if (InetAddressUtils.isIPv6(this.host)) {
                     sb.append("[").append(this.host).append("]");
                 } else {
                     sb.append(PercentCodec.encode(this.host, this.charset));
@@ -381,7 +381,7 @@ public class URIBuilder {
         final String uriHost = uri.getHost();
         // URI.getHost incorrectly returns bracketed (encoded) IPv6 values. Brackets are an
         // encoding detail of the URI and not part of the host string.
-        this.host = uriHost != null && InetAddressUtils.isIPv6URLBracketedAddress(uriHost)
+        this.host = uriHost != null && InetAddressUtils.isIPv6URLBracketed(uriHost)
                 ? uriHost.substring(1, uriHost.length() - 1)
                 : uriHost;
         this.port = uri.getPort();

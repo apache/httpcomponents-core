@@ -81,7 +81,7 @@ public final class Host implements NamedEndpoint, Serializable {
                 throw URISupport.createException(s, cursor, "Expected an IPv6 closing bracket ']'");
             }
             cursor.updatePos(cursor.getPos() + 1);
-            if (!InetAddressUtils.isIPv6Address(hostName)) {
+            if (!InetAddressUtils.isIPv6(hostName)) {
                 throw URISupport.createException(s, cursor, "Expected an IPv6 address");
             }
         } else {
@@ -115,7 +115,7 @@ public final class Host implements NamedEndpoint, Serializable {
 
     static void format(final StringBuilder buf, final NamedEndpoint endpoint) {
         final String hostName = endpoint.getHostName();
-        if (InetAddressUtils.isIPv6Address(hostName)) {
+        if (InetAddressUtils.isIPv6(hostName)) {
             buf.append('[').append(hostName).append(']');
         } else {
             if (TextUtils.isAllASCII(hostName)) {
