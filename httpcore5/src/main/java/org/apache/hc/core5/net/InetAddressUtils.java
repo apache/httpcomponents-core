@@ -88,7 +88,7 @@ public class InetAddressUtils {
     /**
      * Delimiter used to separate an IPv6 address from its scope ID.
      */
-    private static final String SCOPE_ID_DELIMITER = "%";
+    private static final char SCOPE_ID_DELIMITER = '%';
 
 
 
@@ -101,20 +101,44 @@ public class InetAddressUtils {
     private static final int MAX_COLON_COUNT = 7;
 
     /**
+     * @deprecated Use {@link #isIPv4(CharSequence)}
+     */
+    @Deprecated
+    public static boolean isIPv4Address(final String input) {
+        return isIPv4(input);
+    }
+
+    /**
      * Checks whether the parameter is a valid IPv4 address
      *
-     * @param input the address string to check for validity
+     * @param input the address character sequence to check for validity
      * @return true if the input parameter is a valid IPv4 address
+     * @since 5.3
      */
-    public static boolean isIPv4Address(final String input) {
+    public static boolean isIPv4(final CharSequence input) {
         return IPV4_PATTERN.matcher(input).matches();
     }
 
+    /**
+     * @deprecated Use {@link #isIPv4MappedIPv6(CharSequence)}
+     */
+    @Deprecated
     public static boolean isIPv4MappedIPv64Address(final String input) {
+        return isIPv4MappedIPv6(input);
+    }
+
+    /**
+     * Check if an IPv6 address is an IPv4-mapped IPv6 address.
+     *
+     * @param  input the IPv6 address to be checked
+     * @return true if the IPv6 address is an IPv4-mapped IPv6 address, false otherwise.
+     * @since 5.3
+     */
+    public static boolean isIPv4MappedIPv6(final CharSequence input) {
         return IPV4_MAPPED_IPV6_PATTERN.matcher(input).matches();
     }
 
-    static boolean hasValidIPv6ColonCount(final String input) {
+    static boolean hasValidIPv6ColonCount(final CharSequence input) {
         int colonCount = 0;
         for (int i = 0; i < input.length(); i++) {
             if (input.charAt(i) == COLON_CHAR) {
@@ -126,42 +150,75 @@ public class InetAddressUtils {
     }
 
     /**
+     * @deprecated Use {@link #isIPv6Std(CharSequence)}
+     */
+    @Deprecated
+    public static boolean isIPv6StdAddress(final String input) {
+        return isIPv6Std(input);
+    }
+
+    /**
      * Checks whether the parameter is a valid standard (non-compressed) IPv6 address
      *
-     * @param input the address string to check for validity
+     * @param input the address character sequence to check for validity
      * @return true if the input parameter is a valid standard (non-compressed) IPv6 address
+     * @since 5.3
      */
-    public static boolean isIPv6StdAddress(final String input) {
+    public static boolean isIPv6Std(final CharSequence input) {
         return hasValidIPv6ColonCount(input) && IPV6_STD_PATTERN.matcher(input).matches();
+    }
+
+    /**
+     * @deprecated Use {@link #isIPv6HexCompressed(CharSequence)}
+     */
+    @Deprecated
+    public static boolean isIPv6HexCompressedAddress(final String input) {
+        return isIPv6HexCompressed(input);
     }
 
     /**
      * Checks whether the parameter is a valid compressed IPv6 address
      *
-     * @param input the address string to check for validity
+     * @param input the address character sequence to check for validity
      * @return true if the input parameter is a valid compressed IPv6 address
+     * @since 5.3
      */
-    public static boolean isIPv6HexCompressedAddress(final String input) {
+    public static boolean isIPv6HexCompressed(final CharSequence input) {
         return hasValidIPv6ColonCount(input) && IPV6_HEX_COMPRESSED_PATTERN.matcher(input).matches();
+    }
+
+    /**
+     * @deprecated Use {@link #isIPv6(CharSequence)}
+     */
+    @Deprecated
+    public static boolean isIPv6Address(final String input) {
+        return isIPv6(input);
     }
 
     /**
      * Checks whether the parameter is a valid IPv6 address (including compressed).
      *
-     * @param input the address string to check for validity
+     * @param input the address character sequence to check for validity
      * @return true if the input parameter is a valid standard or compressed IPv6 address
+     * @since 5.3
      */
-    public static boolean isIPv6Address(final String input) {
-        final int index = input.indexOf(SCOPE_ID_DELIMITER);
+    public static boolean isIPv6(final CharSequence input) {
+        int index = -1;
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) == SCOPE_ID_DELIMITER) {
+                index = i;
+                break;
+            }
+        }
         if (index == -1) {
-            return isIPv6StdAddress(input) || isIPv6HexCompressedAddress(input);
+            return isIPv6Std(input) || isIPv6HexCompressed(input);
         } else {
-            final String address = input.substring(0, index);
-            if (isIPv6StdAddress(address) || isIPv6HexCompressedAddress(address)) {
+            final CharSequence address = input.subSequence(0, index);
+            if (isIPv6Std(address) || isIPv6HexCompressed(address)) {
                 // Check if the scope ID is valid
-                final String scopeId = input.substring(index + 1);
-                // Scope ID should be a non-empty string consisting of only alphanumeric characters or "-"
-                return !scopeId.isEmpty() && SCOPE_ID_PATTERN.matcher(scopeId).matches();
+                final CharSequence scopeId = input.subSequence(index + 1, input.length());
+                // Scope ID should be a non-empty character sequence consisting of only alphanumeric characters or "-"
+                return scopeId.length() != 0 && SCOPE_ID_PATTERN.matcher(scopeId).matches();
             } else {
                 return false;
             }
@@ -169,14 +226,28 @@ public class InetAddressUtils {
     }
 
     /**
+     * @deprecated Use {@link #isIPv6URLBracketed(CharSequence)}
+     */
+    @Deprecated
+    public static boolean isIPv6URLBracketedAddress(final String input) {
+        return isIPv6URLBracketed(input);
+    }
+
+    /**
      * Checks whether the parameter is a valid URL formatted bracketed IPv6 address (including compressed).
      * This matches only bracketed values e.g. {@code [::1]}.
      *
-     * @param input the address string to check for validity
+     * @param input the address character sequence to check for validity
      * @return true if the input parameter is a valid URL-formatted bracketed IPv6 address
+     * @since 5.3
      */
-    public static boolean isIPv6URLBracketedAddress(final String input) {
-        return input.startsWith("[") && input.endsWith("]") && isIPv6Address(input.substring(1, input.length() - 1));
+    public static boolean isIPv6URLBracketed(final CharSequence input) {
+        if (input.length() == 0) {
+            return false;
+        }
+        return input.charAt(0) == '['
+                && input.charAt(input.length() - 1) == ']'
+                && isIPv6(input.subSequence(1, input.length() - 1));
     }
 
     /**
