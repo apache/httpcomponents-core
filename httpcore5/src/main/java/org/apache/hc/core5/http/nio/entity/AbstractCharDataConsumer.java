@@ -111,6 +111,7 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
     }
 
     private CharsetDecoder getCharsetDecoder() {
+        CharsetDecoder charsetDecoder = this.charsetDecoder;
         if (charsetDecoder == null) {
             Charset charset = this.charset;
             if (charset == null) {
@@ -120,6 +121,7 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
                 charset = StandardCharsets.UTF_8;
             }
             charsetDecoder = charset.newDecoder();
+            this.charsetDecoder = charsetDecoder;
             if (charCodingConfig.getMalformedInputAction() != null) {
                 charsetDecoder.onMalformedInput(charCodingConfig.getMalformedInputAction());
             }
@@ -134,6 +136,7 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
     public final void consume(final ByteBuffer src) throws IOException {
         final CharsetDecoder charsetDecoder = getCharsetDecoder();
         while (src.hasRemaining()) {
+            ByteBuffer byteBuffer = this.byteBuffer;
             if (byteBuffer != null && byteBuffer.position() > 0) {
                 // There are some left-overs from the previous input operation
                 final int n = byteBuffer.remaining();
@@ -159,6 +162,7 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
                     // in case of input underflow src can be expected to be very small (one incomplete UTF8 char)
                     if (byteBuffer == null) {
                         byteBuffer = ByteBuffer.allocate(Math.max(src.remaining(), 1024));
+                        this.byteBuffer = byteBuffer;
                     }
                     byteBuffer.put(src);
                 }
