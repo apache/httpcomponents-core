@@ -104,7 +104,10 @@ public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
         ioSession.setEvent(SelectionKey.OP_WRITE);
     }
 
-    private void writeOutPreface(final IOSession session) throws IOException  {
+    /**
+     * @return true if the entire preface has been written out
+     */
+    private boolean writeOutPreface(final IOSession session, final ByteBuffer preface) throws IOException  {
         if (preface.hasRemaining()) {
             session.write(preface);
         }
@@ -115,8 +118,9 @@ public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
             if (inBuf != null) {
                 inBuf.clear();
             }
-            preface = null;
+            return true;
         }
+        return false;
     }
 
     @Override
@@ -131,8 +135,11 @@ public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
         if (initialized.compareAndSet(false, true)) {
             initialize();
         }
+        final ByteBuffer preface = this.preface;
         if (preface != null) {
-            writeOutPreface(session);
+            if (writeOutPreface(session, preface)) {
+                this.preface = null;
+            }
         } else {
             throw new ProtocolNegotiationException("Unexpected output");
         }
@@ -146,8 +153,11 @@ public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
             }
             inBuf.put(src);
         }
+        final ByteBuffer preface = this.preface;
         if (preface != null) {
-            writeOutPreface(session);
+            if (writeOutPreface(session, preface)) {
+                this.preface = null;
+            }
         } else {
             throw new ProtocolNegotiationException("Unexpected input");
         }
