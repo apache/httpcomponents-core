@@ -29,6 +29,8 @@ package org.apache.hc.core5.testing.nio;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 public class JSSEProviderIntegrationTests {
 
@@ -44,6 +46,7 @@ public class JSSEProviderIntegrationTests {
 
     @Nested
     @DisplayName("Conscrypt (TLSv1.2)")
+    @DisabledOnOs(OS.MAC)
     public class ConscryptTlsV1_2 extends JSSEProviderIntegrationTest {
 
         public ConscryptTlsV1_2() {
@@ -54,6 +57,7 @@ public class JSSEProviderIntegrationTests {
 
     @Nested
     @DisplayName("Conscrypt (TLSv1.3)")
+    @DisabledOnOs(OS.MAC)
     public class ConscryptTlsV1_3 extends JSSEProviderIntegrationTest {
 
         public ConscryptTlsV1_3() {
