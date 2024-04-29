@@ -158,6 +158,10 @@ public final class HPackDecoder {
         }
     }
 
+    int getTmpBufSize() {
+        return tmpBuf == null ? 0 : tmpBuf.capacity();
+    }
+
     private void clearState() {
 
         if (this.tmpBuf != null) {
@@ -182,7 +186,7 @@ public final class HPackDecoder {
         if (this.tmpBuf == null) {
             this.tmpBuf = CharBuffer.allocate(Math.max(256, extra));
         }
-        final int requiredCapacity = this.tmpBuf.remaining() + extra;
+        final int requiredCapacity = this.tmpBuf.position() + extra;
         if (requiredCapacity > this.tmpBuf.capacity()) {
             expandCapacity(requiredCapacity);
         }
