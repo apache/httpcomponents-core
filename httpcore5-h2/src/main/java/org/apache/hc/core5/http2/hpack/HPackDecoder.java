@@ -158,7 +158,7 @@ public final class HPackDecoder {
         }
     }
 
-    public int getTmpBufSize() {
+    int getTmpBufSize() {
         return tmpBuf == null ? 0 : tmpBuf.capacity();
     }
 
