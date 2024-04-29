@@ -226,6 +226,23 @@ public class TestHPackCoding {
         Assertions.assertEquals("this and that and Huffman", strBuf.toString());
     }
 
+    @Test
+    public void testEnsureCapacity() throws Exception {
+
+        final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
+        final HPackDecoder decoder = new HPackDecoder(StandardCharsets.UTF_8);
+
+        final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
+        encoder.encodeString(buffer, "this and that", false);
+
+        final StringBuilder strBuf = new StringBuilder();
+        for (int i = 0; i < 1000; i++) {
+            decoder.decodeString(wrap(buffer), strBuf);
+            strBuf.delete(0,strBuf.length());
+        }
+        Assertions.assertEquals(decoder.getTmpBufSize(), 256);
+    }
+
     static final int SWISS_GERMAN_HELLO[] = {
             0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
     };
