@@ -61,17 +61,6 @@ import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-
-//    @Parameterized.Parameters(name = "{0} {1}")
-//    public static Collection<Object[]> protocols() {
-//        return Arrays.asList(new Object[][]{
-//                {"Oracle", null},
-//                {"Conscrypt", "TLSv1.2"},
-//                {"Conscrypt", "TLSv1.3"},
-//        });
-//    }
-
-
 public abstract class JSSEProviderIntegrationTest {
 
     private final String securityProviderName;
