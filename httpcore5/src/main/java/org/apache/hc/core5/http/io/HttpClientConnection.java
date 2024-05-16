@@ -44,7 +44,7 @@ public interface HttpClientConnection extends BHttpConnection {
     /**
      * Checks whether this connection is in a consistent state.
      *
-     * @return  {@code true} if the connection is known to be
+     * @return  {@code false} if the connection is known to be
      * in a inconsistent state and cannot be re-used.
      *
      * @see #terminateRequest(ClassicHttpRequest)
