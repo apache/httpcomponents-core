@@ -122,6 +122,7 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
      *
      * @param dst destination.
      * @return number of bytes transferred.
+     * @throws IOException If an I/O error occurs.
      *
      * @since 4.3
      */
@@ -135,7 +136,9 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
 
     /**
      * Reads from the channel to the session buffer.
-     * @return number of bytes transferred.
+     *
+     * @return number of bytes transferred, possibly zero, or {@code -1} if the channel has reached end-of-stream.
+     * @throws IOException If an I/O error occurs.
      *
      * @since 4.3
      */
@@ -152,7 +155,8 @@ public abstract class AbstractContentDecoder implements ContentDecoder {
      *
      * @param dst destination.
      * @param limit max number of bytes to transfer.
-     * @return number of bytes transferred.
+     * @return number of bytes transferred, possibly zero, or {@code -1} if the channel has reached end-of-stream.
+     * @throws IOException If an I/O error occurs.
      *
      * @since 4.3
      */
