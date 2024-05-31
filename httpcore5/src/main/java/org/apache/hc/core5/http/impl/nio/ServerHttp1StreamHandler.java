@@ -250,20 +250,6 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         receivedRequest = request;
         requestState = requestEntityDetails == null ? MessageState.COMPLETE : MessageState.BODY;
 
-        AsyncServerExchangeHandler handler;
-        try {
-            handler = exchangeHandlerFactory.create(request, context);
-        } catch (final MisdirectedRequestException ex) {
-            handler =  new ImmediateResponseExchangeHandler(HttpStatus.SC_MISDIRECTED_REQUEST, ex.getMessage());
-        } catch (final HttpException ex) {
-            handler =  new ImmediateResponseExchangeHandler(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
-        }
-        if (handler == null) {
-            handler = new ImmediateResponseExchangeHandler(HttpStatus.SC_NOT_FOUND, "Cannot handle request");
-        }
-
-        exchangeHandler = handler;
-
         final ProtocolVersion transportVersion = request.getVersion();
         if (transportVersion != null && transportVersion.greaterEquals(HttpVersion.HTTP_2)) {
             throw new UnsupportedHttpVersionException(transportVersion);
@@ -273,6 +259,20 @@ class ServerHttp1StreamHandler implements ResourceHolder {
 
         try {
             httpProcessor.process(request, requestEntityDetails, context);
+
+            AsyncServerExchangeHandler handler;
+            try {
+                handler = exchangeHandlerFactory.create(request, context);
+            } catch (final MisdirectedRequestException ex) {
+                handler =  new ImmediateResponseExchangeHandler(HttpStatus.SC_MISDIRECTED_REQUEST, ex.getMessage());
+            } catch (final HttpException ex) {
+                handler =  new ImmediateResponseExchangeHandler(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+            }
+            if (handler == null) {
+                handler = new ImmediateResponseExchangeHandler(HttpStatus.SC_NOT_FOUND, "Cannot handle request");
+            }
+            exchangeHandler = handler;
+
             exchangeHandler.handleRequest(request, requestEntityDetails, responseChannel, context);
         } catch (final HttpException ex) {
             if (!responseCommitted.get()) {
