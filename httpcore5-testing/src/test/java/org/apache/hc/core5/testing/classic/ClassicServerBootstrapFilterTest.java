@@ -42,7 +42,9 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.io.HttpFilterChain;
+import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
@@ -72,7 +74,10 @@ public abstract class ClassicServerBootstrapFilterTest {
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
-                .register("*", new EchoHandler())
+                .setRequestRouter(RequestRouter.<HttpRequestHandler>builder()
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", new EchoHandler())
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build())
                 .addFilterLast("test-filter", (request, responseTrigger, context, chain) ->
                         chain.proceed(request, new HttpFilterChain.ResponseTrigger() {
 

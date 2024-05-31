@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.http.impl.routing.PathPatternMatcher;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -55,8 +56,12 @@ import org.apache.hc.core5.util.Args;
  *
  * @param <T> The type of registered objects.
  * @since 4.0
+ *
+ * @deprecated Use {@link org.apache.hc.core5.http.impl.routing.RequestRouter} for
+ * request routing.
  */
 @Contract(threading = ThreadingBehavior.SAFE)
+@Deprecated
 public class UriPatternMatcher<T> implements LookupRegistry<T> {
 
     private final Map<String, T> map;
@@ -168,11 +173,7 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
      * @return {@code true} if the request URI matches the pattern, {@code false} otherwise.
      */
     protected boolean matchUriRequestPattern(final String pattern, final String path) {
-        if (pattern.equals("*")) {
-            return true;
-        }
-        return (pattern.endsWith("*") && path.startsWith(pattern.substring(0, pattern.length() - 1)))
-                || (pattern.startsWith("*") && path.endsWith(pattern.substring(1)));
+        return PathPatternMatcher.INSTANCE.match(pattern, path);
     }
 
     @Override

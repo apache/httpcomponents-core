@@ -46,8 +46,11 @@ import org.apache.hc.core5.util.TextUtils;
  * @param <T> request handler type.
  *
  * @since 5.0
+ *
+ * @deprecated Use {@link org.apache.hc.core5.http.impl.routing.RequestRouter}.
  */
 @Contract(threading = ThreadingBehavior.SAFE_CONDITIONAL)
+@Deprecated
 public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
 
     private final static String LOCALHOST = "localhost";
@@ -65,8 +68,23 @@ public class RequestHandlerRegistry<T> implements HttpRequestMapper<T> {
         this.virtualMap = new ConcurrentHashMap<>();
     }
 
+    static <T> LookupRegistry<T> newMatcher(final UriPatternType type) {
+        if (type == null) {
+            return new UriPatternMatcher<>();
+        }
+        switch (type) {
+            case REGEX:
+                return new UriRegexMatcher<>();
+            case URI_PATTERN_IN_ORDER:
+                return new UriPatternOrderedMatcher<>();
+            case URI_PATTERN:
+            default:
+                return new UriPatternMatcher<>();
+        }
+    }
+
     public RequestHandlerRegistry(final String canonicalHostName, final UriPatternType patternType) {
-        this(canonicalHostName, () -> UriPatternType.newMatcher(patternType));
+        this(canonicalHostName, () -> newMatcher(patternType));
     }
 
     public RequestHandlerRegistry(final UriPatternType patternType) {

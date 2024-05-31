@@ -24,31 +24,42 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
-final class HandlerEntry<T> {
+package org.apache.hc.core5.http.impl.routing;
 
-    final String hostname;
-    final String uriPattern;
-    final T handler;
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
 
-    public HandlerEntry(final String hostname, final String uriPattern, final T handler) {
-        this.hostname = hostname;
-        this.uriPattern = uriPattern;
-        this.handler = handler;
+/**
+ * URI path component pattern matcher.
+ * <p>
+ * Patterns may have three formats:
+ * </p>
+ * <ul>
+ * <li>{@code *}</li>
+ * <li>{@code *<uri-path>}</li>
+ * <li>{@code <uri-path>*}</li>
+ * </ul>
+ *
+ * @since 5.3
+ */
+@Contract(threading = ThreadingBehavior.STATELESS)
+public final class PathPatternMatcher {
+
+    public static final PathPatternMatcher INSTANCE = new PathPatternMatcher();
+
+    public boolean match(final String pattern, final String path) {
+        if (pattern.equals("*") || pattern.equals(path)) {
+            return true;
+        }
+        return (pattern.endsWith("*") && path.startsWith(pattern.substring(0, pattern.length() - 1)))
+                || (pattern.startsWith("*") && path.endsWith(pattern.substring(1)));
     }
 
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("HandlerEntry [hostname=");
-        builder.append(hostname);
-        builder.append(", uriPattern=");
-        builder.append(uriPattern);
-        builder.append(", handler=");
-        builder.append(handler);
-        builder.append("]");
-        return builder.toString();
+    public boolean isBetter(final String pattern, final String bestMatch) {
+        return bestMatch == null
+                || (bestMatch.length() < pattern.length())
+                || (bestMatch.length() == pattern.length() && pattern.endsWith("*"));
     }
 
 }

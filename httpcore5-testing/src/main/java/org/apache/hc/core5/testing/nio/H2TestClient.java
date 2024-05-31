@@ -28,20 +28,23 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
+import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
@@ -59,7 +62,7 @@ public class H2TestClient extends AsyncRequester {
     private final SSLContext sslContext;
     private final SSLSessionInitializer sslSessionInitializer;
     private final SSLSessionVerifier sslSessionVerifier;
-    private final RequestHandlerRegistry<Supplier<AsyncPushConsumer>> registry;
+    private final List<RequestRouter.Entry<Supplier<AsyncPushConsumer>>> routeEntries;
 
     public H2TestClient(
             final IOReactorConfig ioReactorConfig,
@@ -70,7 +73,7 @@ public class H2TestClient extends AsyncRequester {
         this.sslContext = sslContext;
         this.sslSessionInitializer = sslSessionInitializer;
         this.sslSessionVerifier = sslSessionVerifier;
-        this.registry = new RequestHandlerRegistry<>();
+        this.routeEntries = new ArrayList<>();
     }
 
     public H2TestClient() throws IOException {
@@ -79,8 +82,8 @@ public class H2TestClient extends AsyncRequester {
 
     public void register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notNull(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
-        registry.register(null, uriPattern, supplier);
+        Args.notNull(supplier, "Push consumer supplier");
+        routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
     }
 
     public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
@@ -90,7 +93,8 @@ public class H2TestClient extends AsyncRequester {
     public void start(final HttpProcessor httpProcessor, final H2Config h2Config) throws IOException {
         start(new InternalClientProtocolNegotiationStarter(
                 httpProcessor,
-                new DefaultAsyncPushConsumerFactory(registry),
+                new DefaultAsyncPushConsumerFactory(RequestRouter.create(
+                        RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null)),
                 HttpVersionPolicy.FORCE_HTTP_2,
                 h2Config,
                 Http1Config.DEFAULT,
@@ -103,7 +107,8 @@ public class H2TestClient extends AsyncRequester {
     public void start(final HttpProcessor httpProcessor, final Http1Config http1Config) throws IOException {
         start(new InternalClientProtocolNegotiationStarter(
                 httpProcessor,
-                new DefaultAsyncPushConsumerFactory(registry),
+                new DefaultAsyncPushConsumerFactory(RequestRouter.create(
+                        RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null)),
                 HttpVersionPolicy.FORCE_HTTP_1,
                 H2Config.DEFAULT,
                 http1Config,

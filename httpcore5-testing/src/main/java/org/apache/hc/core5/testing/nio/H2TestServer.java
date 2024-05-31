@@ -29,6 +29,8 @@ package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
@@ -38,28 +40,32 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.HttpProcessors;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
+import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 
 public class H2TestServer extends AsyncServer {
 
     private final SSLContext sslContext;
     private final SSLSessionInitializer sslSessionInitializer;
     private final SSLSessionVerifier sslSessionVerifier;
-    private final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry;
+    private final List<RequestRouter.Entry<Supplier<AsyncServerExchangeHandler>>> routeEntries;
 
     public H2TestServer(
             final IOReactorConfig ioReactorConfig,
@@ -70,7 +76,7 @@ public class H2TestServer extends AsyncServer {
         this.sslContext = sslContext;
         this.sslSessionInitializer = sslSessionInitializer;
         this.sslSessionVerifier = sslSessionVerifier;
-        this.registry = new RequestHandlerRegistry<>();
+        this.routeEntries = new ArrayList<>();
     }
 
     public H2TestServer() throws IOException {
@@ -78,7 +84,10 @@ public class H2TestServer extends AsyncServer {
     }
 
     public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
-        registry.register(null, uriPattern, supplier);
+        Args.notNull(uriPattern, "URI pattern");
+        Args.notNull(supplier, "Exchange handler supplier");
+        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Server has already been started");
+        routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
     }
 
     public <T> void register(
@@ -98,7 +107,7 @@ public class H2TestServer extends AsyncServer {
         start(new InternalServerProtocolNegotiationStarter(
                 httpProcessor != null ? httpProcessor : H2Processors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
-                        registry,
+                        RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null),
                         exchangeHandlerDecorator != null ? exchangeHandlerDecorator : BasicAsyncServerExpectationDecorator::new),
                 HttpVersionPolicy.FORCE_HTTP_2,
                 h2Config,
@@ -119,7 +128,7 @@ public class H2TestServer extends AsyncServer {
         start(new InternalServerProtocolNegotiationStarter(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
-                        registry,
+                        RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null),
                         exchangeHandlerDecorator != null ? exchangeHandlerDecorator : BasicAsyncServerExpectationDecorator::new),
                 HttpVersionPolicy.FORCE_HTTP_1,
                 H2Config.DEFAULT,

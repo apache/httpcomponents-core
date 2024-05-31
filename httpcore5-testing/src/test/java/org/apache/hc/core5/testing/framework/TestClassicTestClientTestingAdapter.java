@@ -176,7 +176,7 @@ public class TestClassicTestClientTestingAdapter {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         // Initialize the server-side request handler
-        server.registerHandler("/echo/*", new EchoHandler());
+        server.register("/echo/*", new EchoHandler());
 
 
         this.server.start();
@@ -223,7 +223,7 @@ public class TestClassicTestClientTestingAdapter {
                 }
             }
         };
-        server.registerHandler("/custom/*", requestHandler);
+        server.register("/custom/*", requestHandler);
 
         this.server.start();
         final HttpHost target = new HttpHost("localhost", this.server.getPort());

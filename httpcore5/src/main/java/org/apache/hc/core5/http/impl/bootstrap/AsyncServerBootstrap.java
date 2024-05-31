@@ -33,6 +33,7 @@ import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ConnectionReuseStrategy;
+import org.apache.hc.core5.http.HttpRequestMapper;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.config.NamedElementChain;
@@ -44,6 +45,7 @@ import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestParserFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseWriterFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1IOEventHandlerFactory;
 import org.apache.hc.core5.http.impl.nio.ServerHttp1StreamDuplexerFactory;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncFilterHandler;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
@@ -57,10 +59,9 @@ import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.nio.support.TerminalAsyncServerFilter;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.LookupRegistry;
-import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.net.InetAddressUtils;
+import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOSession;
@@ -73,12 +74,14 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 5.0
  */
+@SuppressWarnings("deprecation")
 public class AsyncServerBootstrap {
 
-    private final List<HandlerEntry<Supplier<AsyncServerExchangeHandler>>> handlerList;
+    private final List<RequestRouter.Entry<Supplier<AsyncServerExchangeHandler>>> routeEntries;
     private final List<FilterEntry<AsyncFilterHandler>> filters;
     private String canonicalHostName;
-    private LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry;
+    private HttpRequestMapper<Supplier<AsyncServerExchangeHandler>> requestRouter;
+    private org.apache.hc.core5.http.protocol.LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry;
     private IOReactorConfig ioReactorConfig;
     private Http1Config http1Config;
     private CharCodingConfig charCodingConfig;
@@ -92,7 +95,7 @@ public class AsyncServerBootstrap {
     private Http1StreamListener streamListener;
 
     private AsyncServerBootstrap() {
-        this.handlerList = new ArrayList<>();
+        this.routeEntries = new ArrayList<>();
         this.filters = new ArrayList<>();
     }
 
@@ -189,10 +192,22 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link LookupRegistry} instance.
+     * @deprecated Use {@link RequestRouter}.
      */
-    public final AsyncServerBootstrap setLookupRegistry(final LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry) {
+    @Deprecated
+    public final AsyncServerBootstrap setLookupRegistry(final org.apache.hc.core5.http.protocol.LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry) {
         this.lookupRegistry = lookupRegistry;
+        return this;
+    }
+
+    /**
+     * Assigns {@link HttpRequestMapper} instance.
+     *
+     * @see org.apache.hc.core5.http.impl.routing.RequestRouter
+     * @since 5.3
+     */
+    public final AsyncServerBootstrap setRequestRouter(final HttpRequestMapper<Supplier<AsyncServerExchangeHandler>> requestRouter) {
+        this.requestRouter = requestRouter;
         return this;
     }
 
@@ -215,8 +230,8 @@ public class AsyncServerBootstrap {
      */
     public final AsyncServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
-        handlerList.add(new HandlerEntry<>(null, uriPattern, supplier));
+        Args.notNull(supplier, "Exchange handler supplier");
+        routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
         return this;
     }
 
@@ -227,13 +242,23 @@ public class AsyncServerBootstrap {
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
+     *
+     * @since 5.3
      */
-    public final AsyncServerBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
+    public final AsyncServerBootstrap register(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
-        handlerList.add(new HandlerEntry<>(hostname, uriPattern, supplier));
+        Args.notNull(supplier, "Exchange handler supplier");
+        routeEntries.add(new RequestRouter.Entry<>(hostname, uriPattern, supplier));
         return this;
+    }
+
+    /**
+     * @deprecated use {@link #register(String, String, Supplier)}.
+     */
+    @Deprecated
+    public final AsyncServerBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
+        return register(hostname, uriPattern, supplier);
     }
 
     /**
@@ -257,13 +282,23 @@ public class AsyncServerBootstrap {
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param requestHandler the handler.
+     *
+     * @since 5.3
      */
+    public final <T> AsyncServerBootstrap register(final String hostname, final String uriPattern, final AsyncServerRequestHandler<T> requestHandler) {
+        register(hostname, uriPattern, () -> new BasicServerExchangeHandler<>(requestHandler));
+        return this;
+    }
+
+    /**
+     * @deprecated Use {@link #register(String, String, AsyncServerRequestHandler)}.
+     */
+    @Deprecated
     public final <T> AsyncServerBootstrap registerVirtual(
             final String hostname,
             final String uriPattern,
             final AsyncServerRequestHandler<T> requestHandler) {
-        registerVirtual(hostname, uriPattern, () -> new BasicServerExchangeHandler<>(requestHandler));
-        return this;
+        return register(hostname, uriPattern, requestHandler);
     }
 
     /**
@@ -319,19 +354,32 @@ public class AsyncServerBootstrap {
     }
 
     public HttpAsyncServer create() {
-        final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry = new RequestHandlerRegistry<>(
-                canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName(),
-                () -> lookupRegistry != null ? lookupRegistry :
-                        UriPatternType.newMatcher(UriPatternType.URI_PATTERN));
-        for (final HandlerEntry<Supplier<AsyncServerExchangeHandler>> entry: handlerList) {
-            registry.register(entry.hostname, entry.uriPattern, entry.handler);
+        final String actualCanonicalHostName = canonicalHostName != null ? canonicalHostName : InetAddressUtils.getCanonicalLocalHostName();
+        final HttpRequestMapper<Supplier<AsyncServerExchangeHandler>> requestRouterCopy;
+        if (lookupRegistry != null && requestRouter == null) {
+            final org.apache.hc.core5.http.protocol.RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> handlerRegistry = new org.apache.hc.core5.http.protocol.RequestHandlerRegistry<>(
+                    actualCanonicalHostName,
+                    () -> lookupRegistry != null ? lookupRegistry : new org.apache.hc.core5.http.protocol.UriPatternMatcher<>());
+            for (final RequestRouter.Entry<Supplier<AsyncServerExchangeHandler>> entry: routeEntries) {
+                handlerRegistry.register(entry.uriAuthority != null ? entry.uriAuthority.getHostName() : null, entry.route.pattern, entry.route.handler);
+            }
+            requestRouterCopy = handlerRegistry;
+        } else {
+            if (routeEntries.isEmpty()) {
+                requestRouterCopy = requestRouter;
+            } else {
+                requestRouterCopy = RequestRouter.create(
+                        new URIAuthority(actualCanonicalHostName),
+                        UriPatternType.URI_PATTERN, routeEntries,
+                        RequestRouter.IGNORE_PORT_AUTHORITY_RESOLVER,
+                        requestRouter);
+            }
         }
-
         final HandlerFactory<AsyncServerExchangeHandler> handlerFactory;
         if (!filters.isEmpty()) {
             final NamedElementChain<AsyncFilterHandler> filterChainDefinition = new NamedElementChain<>();
             filterChainDefinition.addLast(
-                    new TerminalAsyncServerFilter(new DefaultAsyncResponseExchangeHandlerFactory(registry)),
+                    new TerminalAsyncServerFilter(new DefaultAsyncResponseExchangeHandlerFactory(requestRouterCopy)),
                     StandardFilter.MAIN_HANDLER.name());
             filterChainDefinition.addFirst(
                     new AsyncServerExpectationFilter(),
@@ -368,7 +416,7 @@ public class AsyncServerBootstrap {
 
             handlerFactory = new AsyncServerFilterChainExchangeHandlerFactory(execChain, exceptionCallback);
         } else {
-            handlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(registry, handler -> new BasicAsyncServerExpectationDecorator(handler, exceptionCallback));
+            handlerFactory = new DefaultAsyncResponseExchangeHandlerFactory(requestRouterCopy, handler -> new BasicAsyncServerExpectationDecorator(handler, exceptionCallback));
         }
 
         final ServerHttp1StreamDuplexerFactory streamHandlerFactory = new ServerHttp1StreamDuplexerFactory(

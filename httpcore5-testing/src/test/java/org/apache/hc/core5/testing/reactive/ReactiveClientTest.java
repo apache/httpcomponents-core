@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.HttpStreamResetException;
 import org.apache.hc.core5.http.Message;
@@ -54,6 +55,8 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactive.ReactiveEntityProducer;
@@ -93,7 +96,10 @@ public abstract class ReactiveClientTest {
                         IOReactorConfig.custom()
                                 .setSoTimeout(SOCKET_TIMEOUT)
                                 .build())
-                .register("*", () -> new ReactiveServerExchangeHandler(new ReactiveEchoProcessor()))
+                .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new ReactiveServerExchangeHandler(new ReactiveEchoProcessor()))
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build())
         );
         this.clientResource = new H2AsyncRequesterResource(bootstrap -> bootstrap
                 .setVersionPolicy(versionPolicy)

@@ -31,6 +31,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 import java.util.stream.Stream;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.EntityDetails;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpRequest;
@@ -40,11 +41,14 @@ import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncRequestConsumer;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.entity.DiscardingEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AsyncResponseBuilder;
 import org.apache.hc.core5.http.nio.support.BasicRequestConsumer;
+import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.impl.nio.bootstrap.H2ServerBootstrap;
@@ -71,29 +75,33 @@ public class BenchmarkToolTest {
 
     public void setup(final HttpVersionPolicy versionPolicy) throws Exception {
         server = H2ServerBootstrap.bootstrap()
-                .register("/", new AsyncServerRequestHandler<Message<HttpRequest, Void>>() {
+                .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new BasicServerExchangeHandler<>(
+                                new AsyncServerRequestHandler<Message<HttpRequest, Void>>() {
 
-                    @Override
-                    public AsyncRequestConsumer<Message<HttpRequest, Void>> prepare(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final HttpContext context) throws HttpException {
-                        return new BasicRequestConsumer<>(entityDetails != null ? new DiscardingEntityConsumer<>() : null);
-                    }
+                                    @Override
+                                    public AsyncRequestConsumer<Message<HttpRequest, Void>> prepare(
+                                            final HttpRequest request,
+                                            final EntityDetails entityDetails,
+                                            final HttpContext context) throws HttpException {
+                                        return new BasicRequestConsumer<>(entityDetails != null ? new DiscardingEntityConsumer<>() : null);
+                                    }
 
-                    @Override
-                    public void handle(
-                            final Message<HttpRequest, Void> requestObject,
-                            final ResponseTrigger responseTrigger,
-                            final HttpContext context) throws HttpException, IOException {
-                        responseTrigger.submitResponse(
-                                AsyncResponseBuilder.create(HttpStatus.SC_OK)
-                                        .setEntity("0123456789ABCDEF")
-                                        .build(),
-                                context);
-                    }
+                                    @Override
+                                    public void handle(
+                                            final Message<HttpRequest, Void> requestObject,
+                                            final ResponseTrigger responseTrigger,
+                                            final HttpContext context) throws HttpException, IOException {
+                                        responseTrigger.submitResponse(
+                                                AsyncResponseBuilder.create(HttpStatus.SC_OK)
+                                                        .setEntity("0123456789ABCDEF")
+                                                        .build(),
+                                                context);
+                                    }
 
-                })
+                                }))
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build())
                 .setVersionPolicy(versionPolicy)
                 .create();
         server.start();

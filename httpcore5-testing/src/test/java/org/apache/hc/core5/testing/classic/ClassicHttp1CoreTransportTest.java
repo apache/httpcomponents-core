@@ -37,7 +37,9 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.io.HttpFilterChain;
+import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.testing.classic.extension.HttpRequesterResource;
 import org.apache.hc.core5.testing.classic.extension.HttpServerResource;
@@ -59,7 +61,10 @@ public abstract class ClassicHttp1CoreTransportTest extends ClassicHttpCoreTrans
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
                         .build())
-                .register("*", new EchoHandler())
+                .setRequestRouter(RequestRouter.<HttpRequestHandler>builder()
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", new EchoHandler())
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build())
                 .addFilterBefore(StandardFilter.MAIN_HANDLER.name(), "no-keep-alive", (request, responseTrigger, context, chain) ->
                         chain.proceed(request, new HttpFilterChain.ResponseTrigger() {
 

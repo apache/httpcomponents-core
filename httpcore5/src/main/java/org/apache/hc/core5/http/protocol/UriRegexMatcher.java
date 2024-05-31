@@ -47,8 +47,12 @@ import org.apache.hc.core5.util.Args;
  *
  * @param <T> The type of registered objects.
  * @since 5.0
+ *
+ * @deprecated Use {@link org.apache.hc.core5.http.impl.routing.RequestRouter} for
+ * request routing.
  */
 @Contract(threading = ThreadingBehavior.SAFE)
+@Deprecated
 public class UriRegexMatcher<T> implements LookupRegistry<T> {
 
     private final Map<String, T> objectMap;

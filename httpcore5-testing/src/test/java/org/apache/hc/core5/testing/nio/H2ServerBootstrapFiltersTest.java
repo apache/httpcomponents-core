@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpException;
@@ -45,14 +46,15 @@ import org.apache.hc.core5.http.Method;
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncFilterChain;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityProducer;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
-import org.apache.hc.core5.http.protocol.UriPatternMatcher;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
@@ -69,13 +71,15 @@ public abstract class H2ServerBootstrapFiltersTest {
 
     @RegisterExtension
     private final H2AsyncServerResource serverResource = new H2AsyncServerResource((bootstrap) -> bootstrap
-            .setLookupRegistry(new UriPatternMatcher<>())
             .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
             .setIOReactorConfig(
                     IOReactorConfig.custom()
                             .setSoTimeout(TIMEOUT)
                             .build())
-            .register("*", () -> new EchoHandler(2048))
+            .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build())
             .addFilterLast("test-filter", (request, entityDetails, context, responseTrigger, chain) ->
                     chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
 

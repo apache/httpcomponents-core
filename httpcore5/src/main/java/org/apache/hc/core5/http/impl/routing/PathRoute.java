@@ -24,31 +24,40 @@
  * <http://www.apache.org/>.
  *
  */
-package org.apache.hc.core5.http.impl.bootstrap;
+package org.apache.hc.core5.http.impl.routing;
 
-final class HandlerEntry<T> {
+import java.util.Objects;
 
-    final String hostname;
-    final String uriPattern;
-    final T handler;
+import org.apache.hc.core5.annotation.Internal;
+import org.apache.hc.core5.util.Args;
 
-    public HandlerEntry(final String hostname, final String uriPattern, final T handler) {
-        this.hostname = hostname;
-        this.uriPattern = uriPattern;
-        this.handler = handler;
+@Internal
+public final class PathRoute<T, H> {
+
+    public final T pattern;
+    public final H handler;
+
+    public PathRoute(final T pattern, final H handler) {
+        this.pattern = Args.notNull(pattern, "Pattern");
+        this.handler = Args.notNull(handler, "Handler");
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final PathRoute<?, ?> other = (PathRoute<?, ?>) o;
+        return Objects.equals(pattern, other.pattern);
+    }
+
+    @Override
+    public int hashCode() {
+        return pattern.hashCode();
     }
 
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        builder.append("HandlerEntry [hostname=");
-        builder.append(hostname);
-        builder.append(", uriPattern=");
-        builder.append(uriPattern);
-        builder.append(", handler=");
-        builder.append(handler);
-        builder.append("]");
-        return builder.toString();
+        return pattern + " -> " + handler;
     }
 
 }

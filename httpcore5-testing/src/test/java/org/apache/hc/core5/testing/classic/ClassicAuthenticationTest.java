@@ -47,6 +47,8 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
+import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -78,7 +80,10 @@ public abstract class ClassicAuthenticationTest {
                         SocketConfig.custom()
                                 .setSoTimeout(TIMEOUT)
                                 .build())
-                .register("*", new EchoHandler())
+                .setRequestRouter(RequestRouter.<HttpRequestHandler>builder()
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", new EchoHandler())
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build())
                 .replaceFilter(StandardFilter.EXPECT_CONTINUE.name(), new AbstractHttpServerAuthFilter<String>(respondImmediately) {
 
                     @Override
