@@ -29,6 +29,7 @@ package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 
+import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpHeaders;
@@ -38,10 +39,11 @@ import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
 import org.apache.hc.core5.http.impl.bootstrap.StandardFilter;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncEntityProducer;
 import org.apache.hc.core5.http.nio.AsyncFilterChain;
 import org.apache.hc.core5.http.nio.AsyncPushProducer;
-import org.apache.hc.core5.http.protocol.UriPatternMatcher;
+import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.extension.SocksProxyResource;
 import org.apache.hc.core5.testing.nio.extension.HttpAsyncRequesterResource;
@@ -70,8 +72,10 @@ public abstract class Http1SocksProxyCoreTransportTest extends HttpCoreTransport
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
                                 .build())
-                .setLookupRegistry(new UriPatternMatcher<>())
-                .register("*", () -> new EchoHandler(2048))
+                .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build())
                 .addFilterBefore(StandardFilter.MAIN_HANDLER.name(), "no-keepalive", (request, entityDetails, context, responseTrigger, chain) ->
                         chain.proceed(request, entityDetails, context, new AsyncFilterChain.ResponseTrigger() {
 

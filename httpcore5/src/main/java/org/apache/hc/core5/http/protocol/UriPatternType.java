@@ -34,6 +34,10 @@ public enum UriPatternType {
 
     REGEX, URI_PATTERN, URI_PATTERN_IN_ORDER;
 
+    /**
+     * @deprecated Do not use.
+     */
+    @Deprecated
     public static <T> LookupRegistry<T> newMatcher(final UriPatternType type) {
         if (type == null) {
             return new UriPatternMatcher<>();

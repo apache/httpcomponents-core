@@ -47,6 +47,8 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
 import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
+import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
@@ -111,7 +113,10 @@ public class ClassicTLSIntegrationTest {
                 .setSslContext(SSLTestContexts.createServerSSLContext())
                 .setExceptionListener(LoggingExceptionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                .register("*", new EchoHandler())
+                .setRequestRouter(RequestRouter.<HttpRequestHandler>builder()
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", new EchoHandler())
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build())
                 .create();
         server.start();
 
@@ -217,6 +222,7 @@ public class ClassicTLSIntegrationTest {
         server = ServerBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createServerSSLContext())
                 .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{"SSLv3"}))
+                .setRequestRouter((r, c) -> null)
                 .create();
         server.start();
 
@@ -273,6 +279,7 @@ public class ClassicTLSIntegrationTest {
             server = ServerBootstrap.bootstrap()
                     .setSslContext(SSLTestContexts.createServerSSLContext())
                     .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{cipherSuite}))
+                    .setRequestRouter((r, c) -> null)
                     .create();
             Assertions.assertThrows(Exception.class, () -> {
                 try {
@@ -296,6 +303,7 @@ public class ClassicTLSIntegrationTest {
     public void testHostNameVerification() throws Exception {
         server = ServerBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createServerSSLContext())
+                .setRequestRouter((r, c) -> null)
                 .create();
         server.start();
 

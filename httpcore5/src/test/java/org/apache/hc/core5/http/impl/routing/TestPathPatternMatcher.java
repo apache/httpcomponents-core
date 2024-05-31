@@ -25,29 +25,34 @@
  *
  */
 
-package org.apache.hc.core5.http.protocol;
+package org.apache.hc.core5.http.impl.routing;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestUriPatternType {
+public class TestPathPatternMatcher {
 
     @Test
-    public void testRegex() {
-        final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.REGEX);
-        Assertions.assertTrue(matcher instanceof UriRegexMatcher);
+    public void testPathMatching() throws Exception {
+        final PathPatternMatcher matcher = PathPatternMatcher.INSTANCE;
+
+        Assertions.assertTrue(matcher.match("/*", "/foo/request"));
+        Assertions.assertTrue(matcher.match("/foo/*", "/foo/request"));
+        Assertions.assertTrue(matcher.match("/foo/req*", "/foo/request"));
+        Assertions.assertTrue(matcher.match("/foo/request", "/foo/request"));
+        Assertions.assertFalse(matcher.match("/foo/request", "/foo/requesta"));
+        Assertions.assertFalse(matcher.match("/foo/*", "foo/request"));
+        Assertions.assertFalse(matcher.match("/foo/*", "/bar/foo"));
     }
 
     @Test
-    public void testUriPattern() {
-        final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.URI_PATTERN);
-        Assertions.assertTrue(matcher instanceof UriPatternMatcher);
-    }
+    public void testBetterMatch() throws Exception {
+        final PathPatternMatcher matcher = PathPatternMatcher.INSTANCE;
 
-    @Test
-    public void testUriPatternInOrder() {
-        final LookupRegistry<Object> matcher = UriPatternType.newMatcher(UriPatternType.URI_PATTERN_IN_ORDER);
-        Assertions.assertTrue(matcher instanceof UriPatternOrderedMatcher);
+        Assertions.assertTrue(matcher.isBetter("/a*", "/*"));
+        Assertions.assertTrue(matcher.isBetter("/a*", "*"));
+        Assertions.assertTrue(matcher.isBetter("/*", "*"));
+        Assertions.assertTrue(matcher.isBetter("/a/b*", "/a*"));
     }
 
 }

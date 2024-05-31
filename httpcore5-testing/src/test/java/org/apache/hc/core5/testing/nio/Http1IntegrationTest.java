@@ -1574,6 +1574,7 @@ public abstract class Http1IntegrationTest {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
+        server.register("/ehh", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
         client.start();

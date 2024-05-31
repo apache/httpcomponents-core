@@ -29,6 +29,8 @@ package org.apache.hc.core5.testing.nio;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
@@ -39,22 +41,25 @@ import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncServerRequestHandler;
 import org.apache.hc.core5.http.nio.support.BasicAsyncServerExpectationDecorator;
 import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
+import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.apache.hc.core5.util.Asserts;
 
 public class Http1TestServer extends AsyncServer {
 
-    private final RequestHandlerRegistry<Supplier<AsyncServerExchangeHandler>> registry;
+    private final List<RequestRouter.Entry<Supplier<AsyncServerExchangeHandler>>> routeEntries;
     private final SSLContext sslContext;
     private final SSLSessionInitializer sslSessionInitializer;
     private final SSLSessionVerifier sslSessionVerifier;
@@ -65,7 +70,7 @@ public class Http1TestServer extends AsyncServer {
             final SSLSessionInitializer sslSessionInitializer,
             final SSLSessionVerifier sslSessionVerifier) throws IOException {
         super(ioReactorConfig);
-        this.registry = new RequestHandlerRegistry<>();
+        this.routeEntries = new ArrayList<>();
         this.sslContext = sslContext;
         this.sslSessionInitializer = sslSessionInitializer;
         this.sslSessionVerifier = sslSessionVerifier;
@@ -76,7 +81,8 @@ public class Http1TestServer extends AsyncServer {
     }
 
     public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
-        registry.register(null, uriPattern, supplier);
+        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Server has already been started");
+        routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
     }
 
     public <T> void register(
@@ -99,7 +105,7 @@ public class Http1TestServer extends AsyncServer {
         return start(new InternalServerHttp1EventHandlerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
-                        registry,
+                        RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null),
                         exchangeHandlerDecorator != null ? exchangeHandlerDecorator : BasicAsyncServerExpectationDecorator::new),
                 http1Config,
                 CharCodingConfig.DEFAULT,

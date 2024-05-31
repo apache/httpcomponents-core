@@ -30,7 +30,11 @@ package org.apache.hc.core5.http.protocol;
  * A lookup registry.
  *
  * @param <T> The type of objects to register and lookup.
+ *
+ * @deprecated Use {@link org.apache.hc.core5.http.impl.routing.RequestRouter} for
+ * request routing.
  */
+@Deprecated
 public interface LookupRegistry<T> {
 
     /**

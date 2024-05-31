@@ -42,6 +42,8 @@ import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.io.DefaultBHttpClientConnectionFactory;
 import org.apache.hc.core5.http.impl.io.MonitoringResponseOutOfOrderStrategy;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
+import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.entity.AbstractHttpEntity;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
@@ -78,10 +80,13 @@ public abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
                         .setRcvBufSize(BUFFER_SIZE)
                         .setSoKeepAlive(false)
                         .build())
-                .register("*", (request, response, context) -> {
-                    response.setCode(400);
-                    response.setEntity(new AllOnesHttpEntity(200000));
-                }));
+                .setRequestRouter(RequestRouter.<HttpRequestHandler>builder()
+                        .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", (request, response, context) -> {
+                            response.setCode(400);
+                            response.setEntity(new AllOnesHttpEntity(200000));
+                        })
+                        .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
+                        .build()));
 
         this.clientResource = new HttpRequesterResource(bootstrap -> bootstrap
                 .setSocketConfig(SocketConfig.custom()

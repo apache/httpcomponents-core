@@ -43,10 +43,10 @@ import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.nio.ClientHttp1StreamDuplexerFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpRequestWriterFactory;
 import org.apache.hc.core5.http.impl.nio.DefaultHttpResponseParserFactory;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.http2.config.H2Config;
@@ -78,7 +78,7 @@ import org.apache.hc.core5.util.Timeout;
  */
 public class H2RequesterBootstrap {
 
-    private final List<HandlerEntry<Supplier<AsyncPushConsumer>>> pushConsumerList;
+    private final List<RequestRouter.Entry<Supplier<AsyncPushConsumer>>> routeEntries;
     private UriPatternType uriPatternType;
     private IOReactorConfig ioReactorConfig;
     private HttpProcessor httpProcessor;
@@ -101,7 +101,7 @@ public class H2RequesterBootstrap {
     private ConnPoolListener<HttpHost> connPoolListener;
 
     private H2RequesterBootstrap() {
-        this.pushConsumerList = new ArrayList<>();
+        this.routeEntries = new ArrayList<>();
     }
 
     public static H2RequesterBootstrap bootstrap() {
@@ -266,8 +266,8 @@ public class H2RequesterBootstrap {
      */
     public final H2RequesterBootstrap register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
-        pushConsumerList.add(new HandlerEntry<>(null, uriPattern, supplier));
+        Args.notNull(supplier, "Push consumer supplier");
+        routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
         return this;
     }
 
@@ -278,13 +278,23 @@ public class H2RequesterBootstrap {
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
+     *
+     * @since 5.3
      */
-    public final H2RequesterBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
+    public final H2RequesterBootstrap register(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
-        pushConsumerList.add(new HandlerEntry<>(hostname, uriPattern, supplier));
+        Args.notNull(supplier, "Push consumer supplier");
+        routeEntries.add(new RequestRouter.Entry<>(hostname, uriPattern, supplier));
         return this;
+    }
+
+    /**
+     * @deprecated Use {@link #register(String, String, Supplier)}.
+     */
+    @Deprecated
+    public final H2RequesterBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
+        return register(hostname, uriPattern, supplier);
     }
 
     public H2AsyncRequester create() {
@@ -309,14 +319,12 @@ public class H2RequesterBootstrap {
                         connPoolListener);
                 break;
         }
-        final RequestHandlerRegistry<Supplier<AsyncPushConsumer>> registry = new RequestHandlerRegistry<>(uriPatternType);
-        for (final HandlerEntry<Supplier<AsyncPushConsumer>> entry: pushConsumerList) {
-            registry.register(entry.hostname, entry.uriPattern, entry.handler);
-        }
+        final RequestRouter<Supplier<AsyncPushConsumer>> requestRouter = RequestRouter.create(
+                null, uriPatternType, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null);
 
         final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientH2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : H2Processors.client(),
-                new DefaultAsyncPushConsumerFactory(registry),
+                new DefaultAsyncPushConsumerFactory(requestRouter),
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 streamListener);

@@ -29,6 +29,8 @@ package org.apache.hc.core5.testing.classic;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ServerSocketFactory;
@@ -42,20 +44,22 @@ import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
 import org.apache.hc.core5.http.impl.io.HttpService;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.HttpServerRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.http.io.support.BasicHttpServerExpectationDecorator;
 import org.apache.hc.core5.http.io.support.BasicHttpServerRequestHandler;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
+import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.util.Args;
 
 public class ClassicTestServer {
 
     private final SSLContext sslContext;
     private final SocketConfig socketConfig;
-    private final RequestHandlerRegistry<HttpRequestHandler> registry;
+    private final List<RequestRouter.Entry<HttpRequestHandler>> routeEntries;
 
     private final AtomicReference<HttpServer> serverRef;
 
@@ -63,7 +67,7 @@ public class ClassicTestServer {
         super();
         this.sslContext = sslContext;
         this.socketConfig = socketConfig != null ? socketConfig : SocketConfig.DEFAULT;
-        this.registry = new RequestHandlerRegistry<>();
+        this.routeEntries = new ArrayList<>();
         this.serverRef = new AtomicReference<>();
     }
 
@@ -75,12 +79,41 @@ public class ClassicTestServer {
         this(null, null);
     }
 
+    /**
+     * @deprecated Use {@link #register(String, HttpRequestHandler)}.
+     */
+    @Deprecated
     public void registerHandler(final String pattern, final HttpRequestHandler handler) {
-        this.registry.register(null, pattern, handler);
+        register(pattern, handler);
     }
 
+    /**
+     * @deprecated Use {@link #register(String, String, HttpRequestHandler)}.
+     */
+    @Deprecated
     public void registerHandlerVirtual(final String hostname, final String pattern, final HttpRequestHandler handler) {
-        this.registry.register(hostname, pattern, handler);
+        register(hostname, pattern, handler);
+    }
+
+    public void register(final String uriPattern, final HttpRequestHandler handler) {
+        Args.notNull(uriPattern, "URI pattern");
+        Args.notNull(handler, "Request handler");
+        final HttpServer server = this.serverRef.get();
+        if (server != null) {
+            throw new IllegalStateException("Server is already running");
+        }
+        routeEntries.add(new RequestRouter.Entry<>(uriPattern, handler));
+    }
+
+    public void register(final String hostname, final String uriPattern, final HttpRequestHandler handler) {
+        Args.notNull(hostname, "Hostname");
+        Args.notNull(uriPattern, "URI pattern");
+        Args.notNull(handler, "Request handler");
+        final HttpServer server = this.serverRef.get();
+        if (server != null) {
+            throw new IllegalStateException("Server is already running");
+        }
+        routeEntries.add(new RequestRouter.Entry<>(hostname, uriPattern, handler));
     }
 
     public int getPort() {
@@ -104,7 +137,8 @@ public class ClassicTestServer {
             final HttpProcessor httpProcessor,
             final Decorator<HttpServerRequestHandler> handlerDecorator) throws IOException {
         if (serverRef.get() == null) {
-            final HttpServerRequestHandler handler = new BasicHttpServerRequestHandler(registry);
+            final HttpServerRequestHandler handler = new BasicHttpServerRequestHandler(
+                    RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null));
             final HttpService httpService = new HttpService(
                     httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                     handlerDecorator != null ? handlerDecorator.decorate(handler) : new BasicHttpServerExpectationDecorator(handler),

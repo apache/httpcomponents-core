@@ -34,15 +34,15 @@ import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.impl.DefaultAddressResolver;
+import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.nio.ssl.TlsStrategy;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
-import org.apache.hc.core5.http.protocol.RequestHandlerRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.http2.config.H2Config;
 import org.apache.hc.core5.http2.impl.H2Processors;
-import org.apache.hc.core5.http2.impl.nio.ClientH2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.ClientH2PrefaceHandler;
+import org.apache.hc.core5.http2.impl.nio.ClientH2StreamMultiplexerFactory;
 import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
@@ -58,7 +58,7 @@ import org.apache.hc.core5.util.Args;
  */
 public class H2MultiplexingRequesterBootstrap {
 
-    private final List<HandlerEntry<Supplier<AsyncPushConsumer>>> pushConsumerList;
+    private final List<RequestRouter.Entry<Supplier<AsyncPushConsumer>>> routeEntries;
     private UriPatternType uriPatternType;
     private IOReactorConfig ioReactorConfig;
     private HttpProcessor httpProcessor;
@@ -72,7 +72,7 @@ public class H2MultiplexingRequesterBootstrap {
     private H2StreamListener streamListener;
 
     private H2MultiplexingRequesterBootstrap() {
-        this.pushConsumerList = new ArrayList<>();
+        this.routeEntries = new ArrayList<>();
     }
 
     public static H2MultiplexingRequesterBootstrap bootstrap() {
@@ -173,8 +173,8 @@ public class H2MultiplexingRequesterBootstrap {
      */
     public final H2MultiplexingRequesterBootstrap register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
-        pushConsumerList.add(new HandlerEntry<>(null, uriPattern, supplier));
+        Args.notNull(supplier, "Push consumer supplier");
+        routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
         return this;
     }
 
@@ -185,23 +185,31 @@ public class H2MultiplexingRequesterBootstrap {
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
+     *
+     * @since 5.3
      */
-    public final H2MultiplexingRequesterBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
+    public final H2MultiplexingRequesterBootstrap register(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(hostname, "Hostname");
         Args.notBlank(uriPattern, "URI pattern");
-        Args.notNull(supplier, "Supplier");
-        pushConsumerList.add(new HandlerEntry<>(hostname, uriPattern, supplier));
+        Args.notNull(supplier, "Push consumer supplier");
+        routeEntries.add(new RequestRouter.Entry<>(hostname, uriPattern, supplier));
         return this;
     }
 
+    /**
+     * @deprecated Use {@link #register(String, String, Supplier)}.
+     */
+    @Deprecated
+    public final H2MultiplexingRequesterBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
+        return register(hostname, uriPattern, supplier);
+    }
+
     public H2MultiplexingRequester create() {
-        final RequestHandlerRegistry<Supplier<AsyncPushConsumer>> registry = new RequestHandlerRegistry<>(uriPatternType);
-        for (final HandlerEntry<Supplier<AsyncPushConsumer>> entry: pushConsumerList) {
-            registry.register(entry.hostname, entry.uriPattern, entry.handler);
-        }
+        final RequestRouter<Supplier<AsyncPushConsumer>> requestRouter = RequestRouter.create(
+                null, uriPatternType, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null);
         final ClientH2StreamMultiplexerFactory http2StreamHandlerFactory = new ClientH2StreamMultiplexerFactory(
                 httpProcessor != null ? httpProcessor : H2Processors.client(),
-                new DefaultAsyncPushConsumerFactory(registry),
+                new DefaultAsyncPushConsumerFactory(requestRouter),
                 h2Config != null ? h2Config : H2Config.DEFAULT,
                 charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT,
                 streamListener);

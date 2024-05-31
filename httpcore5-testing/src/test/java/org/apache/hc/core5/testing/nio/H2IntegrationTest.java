@@ -497,7 +497,6 @@ public abstract class H2IntegrationTest {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
-        final InetSocketAddress serverEndpoint = server.start();
         server.register("/hello", () -> new MessageExchangeHandler<Void>(new DiscardingEntityConsumer<>()) {
 
             @Override
@@ -506,7 +505,7 @@ public abstract class H2IntegrationTest {
                     final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
                     final HttpContext context) throws IOException, HttpException {
                 responseTrigger.pushPromise(
-                        new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/stuff")),
+                        new BasicHttpRequest(Method.GET, new HttpHost(scheme.id, "localhost"), "/stuff"),
                         context,
                         new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)));
                 responseTrigger.submitResponse(
@@ -514,6 +513,7 @@ public abstract class H2IntegrationTest {
                         context);
             }
         });
+        final InetSocketAddress serverEndpoint = server.start();
 
         client.start(H2Config.custom().setPushEnabled(true).build());
 
@@ -569,7 +569,6 @@ public abstract class H2IntegrationTest {
         final H2TestClient client = resources.client();
 
         final BlockingQueue<Exception> pushResultQueue = new LinkedBlockingDeque<>();
-        final InetSocketAddress serverEndpoint = server.start();
         server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
 
             @Override
@@ -583,7 +582,7 @@ public abstract class H2IntegrationTest {
                             final HttpContext context) throws IOException, HttpException {
 
                         responseTrigger.pushPromise(
-                                new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/stuff")),
+                                new BasicHttpRequest(Method.GET, new HttpHost(scheme.id, "localhost"), "/stuff"),
                                 context, new BasicPushProducer(AsyncEntityProducers.create("Pushing all sorts of stuff")) {
 
                             @Override
@@ -594,7 +593,7 @@ public abstract class H2IntegrationTest {
 
                         });
                         responseTrigger.pushPromise(
-                                new BasicHttpRequest(Method.GET, createRequestURI(serverEndpoint, "/more-stuff")),
+                                new BasicHttpRequest(Method.GET, new HttpHost(scheme.id, "localhost"), "/more-stuff"),
                                 context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)) {
 
                             @Override
@@ -612,6 +611,7 @@ public abstract class H2IntegrationTest {
             }
 
         });
+        final InetSocketAddress serverEndpoint = server.start();
 
         client.start(H2Config.custom().setPushEnabled(true).build());
 

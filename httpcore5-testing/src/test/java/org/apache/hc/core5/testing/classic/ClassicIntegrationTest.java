@@ -109,7 +109,7 @@ public abstract class ClassicIntegrationTest {
 
 
         // Initialize the server-side request handler
-        server.registerHandler("*", (request, response, context) -> {
+        server.register("*", (request, response, context) -> {
 
             String s = request.getPath();
             if (s.startsWith("/?")) {
@@ -164,7 +164,7 @@ public abstract class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        server.registerHandler("*", (request, response, context) -> {
+        server.register("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -219,7 +219,7 @@ public abstract class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        server.registerHandler("*", (request, response, context) -> {
+        server.register("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -273,7 +273,7 @@ public abstract class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        server.registerHandler("*", (request, response, context) -> {
+        server.register("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -356,7 +356,7 @@ public abstract class ClassicIntegrationTest {
         }
 
         // Initialize the server-side request handler
-        server.registerHandler("*", (request, response, context) -> {
+        server.register("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -400,7 +400,7 @@ public abstract class ClassicIntegrationTest {
         final int reqNo = 20;
 
         // Initialize the server-side request handler
-        server.registerHandler("*", (request, response, context) -> response.setEntity(new StringEntity("No content")));
+        server.register("*", (request, response, context) -> response.setEntity(new StringEntity("No content")));
 
         server.start(null, null, handler -> new BasicHttpServerExpectationDecorator(handler) {
 
@@ -529,7 +529,7 @@ public abstract class ClassicIntegrationTest {
         };
 
         // Initialize the server-side request handler
-        server.registerHandler("*", (request, response, context) -> {
+        server.register("*", (request, response, context) -> {
 
             int n = 1;
             String s = request.getPath();
@@ -594,7 +594,7 @@ public abstract class ClassicIntegrationTest {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
-        server.registerHandler("*", (request, response, context) -> {
+        server.register("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -624,7 +624,7 @@ public abstract class ClassicIntegrationTest {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
-        server.registerHandler("*", (request, response, context) -> {
+        server.register("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -658,7 +658,7 @@ public abstract class ClassicIntegrationTest {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
-        server.registerHandler("*", (request, response, context) -> {
+        server.register("*", (request, response, context) -> {
 
             final HttpEntity entity = request.getEntity();
             if (entity != null) {
@@ -694,7 +694,7 @@ public abstract class ClassicIntegrationTest {
         final int reqNo = 20;
 
         // Initialize the server-side request handler
-        server.registerHandler("*", (request, response, context) -> response.setCode(HttpStatus.SC_NO_CONTENT));
+        server.register("*", (request, response, context) -> response.setCode(HttpStatus.SC_NO_CONTENT));
 
         server.start();
         client.start();
@@ -715,7 +715,7 @@ public abstract class ClassicIntegrationTest {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
-        server.registerHandler("*", (request, response, context) ->
+        server.register("*", (request, response, context) ->
                 response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
 
         server.start(
@@ -743,7 +743,7 @@ public abstract class ClassicIntegrationTest {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
-        server.registerHandler("*", (request, response, context) ->
+        server.register("*", (request, response, context) ->
                 response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
 
         server.start(
