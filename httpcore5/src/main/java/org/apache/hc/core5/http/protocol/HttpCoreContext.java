@@ -93,17 +93,29 @@ public class HttpCoreContext implements HttpContext {
     }
 
     /**
-     * Casts the given generic {@link HttpContext} as {@link HttpCoreContext}
-     * or creates a new {@link HttpCoreContext} with the given {@link HttpContext}
-     * as a parent.
+     * Casts the given generic {@link HttpContext} as {@link HttpCoreContext}.
      *
      * @since 5.3
      */
     public static HttpCoreContext cast(final HttpContext context) {
+        if (context == null) {
+            return null;
+        }
         if (context instanceof HttpCoreContext) {
             return (HttpCoreContext) context;
+        } else {
+            return new Delegate(context);
         }
-        return new HttpCoreContext(context);
+    }
+
+    /**
+     * Casts the given generic {@link HttpContext} as {@link HttpCoreContext} or
+     * creates new {@link HttpCoreContext} if the given context is null.
+     *
+     * @since 5.4
+     */
+    public static HttpCoreContext castOrCreate(final HttpContext context) {
+        return context != null ? cast(context) : create();
     }
 
     private final HttpContext parentContext;
@@ -252,6 +264,106 @@ public class HttpCoreContext implements HttpContext {
     @Internal
     public void setSSLSession(final SSLSession sslSession) {
         this.sslSession = sslSession;
+    }
+
+    /**
+     * Internal adaptor class that delegates all its method calls to a plain {@link HttpContext}.
+     * To be removed in the future.
+     */
+    @SuppressWarnings("deprecation")
+    @Internal
+    static class Delegate extends HttpCoreContext {
+
+        private final HttpContext httpContext;
+
+        Delegate(final HttpContext httpContext) {
+            super(null);
+            this.httpContext = httpContext;
+        }
+
+        <T> T getAttr(final String id, final Class<T> clazz) {
+            final Object obj = httpContext.getAttribute(id);
+            if (obj == null) {
+                return null;
+            }
+            return clazz.cast(obj);
+        }
+
+        @Override
+        public HttpRequest getRequest() {
+            return getAttr(HTTP_REQUEST, HttpRequest.class);
+        }
+
+        @Override
+        public void setRequest(final HttpRequest request) {
+            httpContext.setAttribute(HTTP_REQUEST, request);
+        }
+
+        @Override
+        public HttpResponse getResponse() {
+            return getAttr(HTTP_RESPONSE, HttpResponse.class);
+        }
+
+        @Override
+        public void setResponse(final HttpResponse response) {
+            httpContext.setAttribute(HTTP_RESPONSE, response);
+        }
+
+        @Override
+        public EndpointDetails getEndpointDetails() {
+            return getAttr(CONNECTION_ENDPOINT, EndpointDetails.class);
+        }
+
+        @Override
+        public void setEndpointDetails(final EndpointDetails endpointDetails) {
+            httpContext.setAttribute(CONNECTION_ENDPOINT, endpointDetails);
+        }
+
+        @Override
+        public SSLSession getSSLSession() {
+            return getAttr(SSL_SESSION, SSLSession.class);
+        }
+
+        @Override
+        public void setSSLSession(final SSLSession sslSession) {
+            httpContext.setAttribute(SSL_SESSION, sslSession);
+        }
+
+        @Override
+        public ProtocolVersion getProtocolVersion() {
+            return httpContext.getProtocolVersion();
+        }
+
+        @Override
+        public void setProtocolVersion(final ProtocolVersion version) {
+            httpContext.setProtocolVersion(version);
+        }
+
+        @Override
+        public Object getAttribute(final String id) {
+            return httpContext.getAttribute(id);
+        }
+
+        @Override
+        public Object setAttribute(final String id, final Object obj) {
+            return httpContext.setAttribute(id, obj);
+        }
+
+        @Override
+        public Object removeAttribute(final String id) {
+            return httpContext.removeAttribute(id);
+        }
+
+        @Override
+        public <T> T getAttribute(final String id, final Class<T> clazz) {
+            return getAttr(id, clazz);
+        }
+
+        @Override
+        public String toString() {
+            return httpContext.toString();
+        }
+
     }
 
     @Override

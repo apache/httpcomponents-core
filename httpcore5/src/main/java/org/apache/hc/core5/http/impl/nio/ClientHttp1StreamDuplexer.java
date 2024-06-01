@@ -309,7 +309,7 @@ public class ClientHttp1StreamDuplexer extends AbstractHttp1StreamDuplexer<HttpR
     @Override
     void execute(final RequestExecutionCommand executionCommand) throws HttpException, IOException {
         final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
-        final HttpCoreContext context = HttpCoreContext.cast(executionCommand.getContext());
+        final HttpCoreContext context = HttpCoreContext.castOrCreate(executionCommand.getContext());
         context.setSSLSession(getSSLSession());
         context.setEndpointDetails(getEndpointDetails());
         final ClientHttp1StreamHandler handler = new ClientHttp1StreamHandler(

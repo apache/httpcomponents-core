@@ -111,7 +111,7 @@ public class ClientH2StreamMultiplexer extends AbstractH2StreamMultiplexer {
             final RequestExecutionCommand executionCommand = (RequestExecutionCommand) command;
             final AsyncClientExchangeHandler exchangeHandler = executionCommand.getExchangeHandler();
             final HandlerFactory<AsyncPushConsumer> pushHandlerFactory = executionCommand.getPushHandlerFactory();
-            final HttpCoreContext context = HttpCoreContext.cast(executionCommand.getContext());
+            final HttpCoreContext context = HttpCoreContext.castOrCreate(executionCommand.getContext());
             context.setSSLSession(getSSLSession());
             context.setEndpointDetails(getEndpointDetails());
             return new ClientH2StreamHandler(channel, httpProcessor, connMetrics, exchangeHandler,

@@ -140,7 +140,7 @@ public class HttpRequestExecutor {
         Args.notNull(request, "HTTP request");
         Args.notNull(conn, "Client connection");
         Args.notNull(localContext, "HTTP context");
-        final HttpCoreContext context = HttpCoreContext.cast(localContext);
+        final HttpCoreContext context = HttpCoreContext.castOrCreate(localContext);
         try {
             context.setSSLSession(conn.getSSLSession());
             context.setEndpointDetails(conn.getEndpointDetails());
