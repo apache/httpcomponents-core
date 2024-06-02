@@ -32,11 +32,19 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
+import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.http.ExceptionListener;
 import org.apache.hc.core5.http.impl.io.HttpService;
 import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.io.SocketConfig;
+import org.apache.hc.core5.io.Closer;
 
 class RequestListener implements Runnable {
 
@@ -44,6 +52,8 @@ class RequestListener implements Runnable {
     private final ServerSocket serverSocket;
     private final HttpService httpService;
     private final HttpConnectionFactory<? extends HttpServerConnection> connectionFactory;
+    private final SSLSocketFactory sslSocketFactory;
+    private final Callback<SSLParameters> sslSetupHandler;
     private final ExceptionListener exceptionListener;
     private final ExecutorService executorService;
     private final AtomicBoolean terminated;
@@ -53,34 +63,63 @@ class RequestListener implements Runnable {
             final ServerSocket serversocket,
             final HttpService httpService,
             final HttpConnectionFactory<? extends HttpServerConnection> connectionFactory,
+            final SSLSocketFactory sslSocketFactory,
+            final Callback<SSLParameters> sslSetupHandler,
             final ExceptionListener exceptionListener,
             final ExecutorService executorService) {
         this.socketConfig = socketConfig;
         this.serverSocket = serversocket;
-        this.connectionFactory = connectionFactory;
         this.httpService = httpService;
+        this.connectionFactory = connectionFactory;
+        this.sslSocketFactory = sslSocketFactory;
+        this.sslSetupHandler = sslSetupHandler;
         this.exceptionListener = exceptionListener;
         this.executorService = executorService;
         this.terminated = new AtomicBoolean(false);
+    }
+
+    private Socket createSocket(final Socket socket) throws IOException {
+        socket.setSoTimeout(this.socketConfig.getSoTimeout().toMillisecondsIntBound());
+        socket.setKeepAlive(this.socketConfig.isSoKeepAlive());
+        socket.setTcpNoDelay(this.socketConfig.isTcpNoDelay());
+        if (this.socketConfig.getRcvBufSize() > 0) {
+            socket.setReceiveBufferSize(this.socketConfig.getRcvBufSize());
+        }
+        if (this.socketConfig.getSndBufSize() > 0) {
+            socket.setSendBufferSize(this.socketConfig.getSndBufSize());
+        }
+        if (this.socketConfig.getSoLinger().toSeconds() >= 0) {
+            socket.setSoLinger(true, this.socketConfig.getSoLinger().toSecondsIntBound());
+        }
+        if (!(socket instanceof SSLSocket) && sslSocketFactory != null) {
+            final SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket, null, -1, true);
+            sslSocket.setUseClientMode(false);
+            if (this.sslSetupHandler != null) {
+                final SSLParameters sslParameters = sslSocket.getSSLParameters();
+                this.sslSetupHandler.execute(sslParameters);
+                sslSocket.setSSLParameters(sslParameters);
+            }
+            try {
+                sslSocket.startHandshake();
+                final SSLSession session = sslSocket.getSession();
+                if (session == null) {
+                    throw new SSLHandshakeException("SSL session not available");
+                }
+                return sslSocket;
+            } catch (final IOException ex) {
+                Closer.closeQuietly(sslSocket);
+                throw ex;
+            }
+        } else {
+            return socket;
+        }
     }
 
     @Override
     public void run() {
         try {
             while (!isTerminated() && !Thread.interrupted()) {
-                final Socket socket = this.serverSocket.accept();
-                socket.setSoTimeout(this.socketConfig.getSoTimeout().toMillisecondsIntBound());
-                socket.setKeepAlive(this.socketConfig.isSoKeepAlive());
-                socket.setTcpNoDelay(this.socketConfig.isTcpNoDelay());
-                if (this.socketConfig.getRcvBufSize() > 0) {
-                    socket.setReceiveBufferSize(this.socketConfig.getRcvBufSize());
-                }
-                if (this.socketConfig.getSndBufSize() > 0) {
-                    socket.setSendBufferSize(this.socketConfig.getSndBufSize());
-                }
-                if (this.socketConfig.getSoLinger().toSeconds() >= 0) {
-                    socket.setSoLinger(true, this.socketConfig.getSoLinger().toSecondsIntBound());
-                }
+                final Socket socket = createSocket(this.serverSocket.accept());
                 final HttpServerConnection conn = this.connectionFactory.createConnection(socket);
                 final Worker worker = new Worker(this.httpService, conn, this.exceptionListener);
                 this.executorService.execute(worker);

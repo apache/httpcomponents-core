@@ -424,18 +424,10 @@ public class ServerBootstrap {
                 this.connStrategy != null ? this.connStrategy : DefaultConnectionReuseStrategy.INSTANCE,
                 this.streamListener);
 
-        ServerSocketFactory serverSocketFactoryCopy = this.serverSocketFactory;
-        if (serverSocketFactoryCopy == null) {
-            if (this.sslContext != null) {
-                serverSocketFactoryCopy = this.sslContext.getServerSocketFactory();
-            } else {
-                serverSocketFactoryCopy = ServerSocketFactory.getDefault();
-            }
-        }
-
         HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactoryCopy = this.connectionFactory;
         if (connectionFactoryCopy == null) {
-            final String scheme = serverSocketFactoryCopy instanceof SSLServerSocketFactory ? URIScheme.HTTPS.id : URIScheme.HTTP.id;
+            final String scheme = serverSocketFactory instanceof SSLServerSocketFactory || sslContext != null ?
+                    URIScheme.HTTPS.id : URIScheme.HTTP.id;
             connectionFactoryCopy = new DefaultBHttpServerConnectionFactory(scheme, this.http1Config, this.charCodingConfig);
         }
 
@@ -444,8 +436,9 @@ public class ServerBootstrap {
                 httpService,
                 this.localAddress,
                 this.socketConfig != null ? this.socketConfig : SocketConfig.DEFAULT,
-                serverSocketFactoryCopy,
+                serverSocketFactory,
                 connectionFactoryCopy,
+                sslContext,
                 sslSetupHandler != null ? sslSetupHandler : DefaultTlsSetupHandler.SERVER,
                 this.exceptionListener != null ? this.exceptionListener : ExceptionListener.NO_OP);
     }

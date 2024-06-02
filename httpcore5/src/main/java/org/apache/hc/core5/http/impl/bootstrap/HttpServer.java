@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
@@ -74,6 +75,7 @@ public class HttpServer implements ModalCloseable {
     private final ServerSocketFactory serverSocketFactory;
     private final HttpService httpService;
     private final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory;
+    private final SSLContext sslContext;
     private final Callback<SSLParameters> sslSetupHandler;
     private final ExceptionListener exceptionListener;
     private final ThreadPoolExecutor listenerExecutorService;
@@ -92,6 +94,7 @@ public class HttpServer implements ModalCloseable {
             final SocketConfig socketConfig,
             final ServerSocketFactory serverSocketFactory,
             final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory,
+            final SSLContext sslContext,
             final Callback<SSLParameters> sslSetupHandler,
             final ExceptionListener exceptionListener) {
         this.port = Args.notNegative(port, "Port value is negative");
@@ -103,6 +106,7 @@ public class HttpServer implements ModalCloseable {
                 this.serverSocketFactory instanceof SSLServerSocketFactory ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
                 Http1Config.DEFAULT,
                 CharCodingConfig.DEFAULT);
+        this.sslContext = sslContext;
         this.sslSetupHandler = sslSetupHandler;
         this.exceptionListener = exceptionListener != null ? exceptionListener : ExceptionListener.NO_OP;
         this.listenerExecutorService = new ThreadPoolExecutor(
@@ -152,6 +156,8 @@ public class HttpServer implements ModalCloseable {
                     this.serverSocket,
                     this.httpService,
                     this.connectionFactory,
+                    this.sslContext != null ? this.sslContext.getSocketFactory() : null,
+                    this.sslSetupHandler,
                     this.exceptionListener,
                     this.workerExecutorService);
             this.listenerExecutorService.execute(this.requestListener);
