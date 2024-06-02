@@ -30,7 +30,6 @@ package org.apache.hc.core5.http.impl.nio;
 import java.io.IOException;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.WritableByteChannel;
@@ -499,7 +498,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         ioSession.getLock().lock();
         try {
             if (outgoingMessage == null) {
-                throw new ClosedChannelException();
+                throw new ConnectionClosedException();
             }
             final ContentEncoder contentEncoder = outgoingMessage.getBody();
             final int bytesWritten = contentEncoder.write(src);
