@@ -113,8 +113,7 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
             DefaultContentLengthStrategy.INSTANCE;
         this.outgoingContentStrategy = outgoingContentStrategy != null ? outgoingContentStrategy :
             DefaultContentLengthStrategy.INSTANCE;
-        this.responseOutOfOrderStrategy = responseOutOfOrderStrategy != null ? responseOutOfOrderStrategy :
-            NoResponseOutOfOrderStrategy.INSTANCE;
+        this.responseOutOfOrderStrategy = responseOutOfOrderStrategy;
         this.consistent = true;
     }
 
@@ -220,21 +219,27 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
 
                     @Override
                     public void write(final byte[] b) throws IOException {
-                        checkForEarlyResponse(totalBytes, b.length);
+                        if (responseOutOfOrderStrategy != null) {
+                            checkForEarlyResponse(totalBytes, b.length);
+                        }
                         totalBytes += b.length;
                         socketOutputStream.write(b);
                     }
 
                     @Override
                     public void write(final byte[] b, final int off, final int len) throws IOException {
-                        checkForEarlyResponse(totalBytes, len);
+                        if (responseOutOfOrderStrategy != null) {
+                            checkForEarlyResponse(totalBytes, len);
+                        }
                         totalBytes += len;
                         socketOutputStream.write(b, off, len);
                     }
 
                     @Override
                     public void write(final int b) throws IOException {
-                        checkForEarlyResponse(totalBytes, 1);
+                        if (responseOutOfOrderStrategy != null) {
+                            checkForEarlyResponse(totalBytes, 1);
+                        }
                         totalBytes++;
                         socketOutputStream.write(b);
                     }
