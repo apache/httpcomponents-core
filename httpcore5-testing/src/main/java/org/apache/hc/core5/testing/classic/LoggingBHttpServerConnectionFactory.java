@@ -93,9 +93,8 @@ public class LoggingBHttpServerConnectionFactory implements HttpConnectionFactor
         this(null, null, null, null, null, null, null);
     }
 
-    @Override
-    public LoggingBHttpServerConnection createConnection(final Socket socket) throws IOException {
-        final LoggingBHttpServerConnection conn = new LoggingBHttpServerConnection(
+    LoggingBHttpServerConnection createDetached(final Socket socket) {
+        return new LoggingBHttpServerConnection(
                 scheme != null ? scheme : (socket instanceof SSLSocket ? URIScheme.HTTPS.id : URIScheme.HTTP.id),
                 http1Config,
                 CharCodingSupport.createDecoder(charCodingConfig),
@@ -104,7 +103,22 @@ public class LoggingBHttpServerConnectionFactory implements HttpConnectionFactor
                 outgoingContentStrategy,
                 requestParserFactory,
                 responseWriterFactory);
+    }
+
+    @Override
+    public LoggingBHttpServerConnection createConnection(final Socket socket) throws IOException {
+        final LoggingBHttpServerConnection conn = createDetached(socket);
         conn.bind(socket);
+        return conn;
+    }
+
+    /**
+     * @since 5.3
+     */
+    @Override
+    public LoggingBHttpServerConnection createConnection(final SSLSocket sslSocket, final Socket socket) throws IOException {
+        final LoggingBHttpServerConnection conn = createDetached(socket);
+        conn.bind(sslSocket, socket);
         return conn;
     }
 

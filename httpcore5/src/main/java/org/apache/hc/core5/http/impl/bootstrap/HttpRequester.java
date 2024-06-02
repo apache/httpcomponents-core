@@ -238,7 +238,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         }
     }
 
-    private Socket createSocket(final HttpHost targetHost) throws IOException {
+    private HttpClientConnection createConnection(final HttpHost targetHost) throws IOException {
         final Socket sock;
         if (socketConfig.getSocksProxyAddress() != null) {
             sock = new Socket(new Proxy(Proxy.Type.SOCKS, socketConfig.getSocksProxyAddress()));
@@ -264,7 +264,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         sock.connect(targetAddress, socketConfig.getSoTimeout().toMillisecondsIntBound());
         if (URIScheme.HTTPS.same(targetHost.getSchemeName())) {
             final SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(
-                    sock, targetHost.getHostName(), targetAddress.getPort(), true);
+                    sock, targetHost.getHostName(), targetAddress.getPort(), false);
             if (this.sslSetupHandler != null) {
                 final SSLParameters sslParameters = sslSocket.getSSLParameters();
                 this.sslSetupHandler.execute(sslParameters);
@@ -279,13 +279,14 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
                 if (sslSessionVerifier != null) {
                     sslSessionVerifier.verify(targetHost, session);
                 }
+                return connectFactory.createConnection(sslSocket, sock);
             } catch (final IOException ex) {
                 Closer.closeQuietly(sslSocket);
                 throw ex;
             }
-            return sslSocket;
+        } else {
+            return connectFactory.createConnection(sock);
         }
-        return sock;
     }
 
     public ClassicHttpResponse execute(
@@ -313,8 +314,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         try {
             HttpClientConnection connection = poolEntry.getConnection();
             if (connection == null) {
-                final Socket socket = createSocket(targetHost);
-                connection = connectFactory.createConnection(socket);
+                connection = createConnection(targetHost);
                 poolEntry.assignConnection(connection);
             }
             if (request.getAuthority() == null) {

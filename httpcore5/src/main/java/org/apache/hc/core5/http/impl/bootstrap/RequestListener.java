@@ -78,7 +78,7 @@ class RequestListener implements Runnable {
         this.terminated = new AtomicBoolean(false);
     }
 
-    private Socket createSocket(final Socket socket) throws IOException {
+    private HttpServerConnection createConnection(final Socket socket) throws IOException {
         socket.setSoTimeout(this.socketConfig.getSoTimeout().toMillisecondsIntBound());
         socket.setKeepAlive(this.socketConfig.isSoKeepAlive());
         socket.setTcpNoDelay(this.socketConfig.isTcpNoDelay());
@@ -92,7 +92,7 @@ class RequestListener implements Runnable {
             socket.setSoLinger(true, this.socketConfig.getSoLinger().toSecondsIntBound());
         }
         if (!(socket instanceof SSLSocket) && sslSocketFactory != null) {
-            final SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket, null, -1, true);
+            final SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket, null, -1, false);
             sslSocket.setUseClientMode(false);
             if (this.sslSetupHandler != null) {
                 final SSLParameters sslParameters = sslSocket.getSSLParameters();
@@ -105,13 +105,13 @@ class RequestListener implements Runnable {
                 if (session == null) {
                     throw new SSLHandshakeException("SSL session not available");
                 }
-                return sslSocket;
+                return this.connectionFactory.createConnection(sslSocket, socket);
             } catch (final IOException ex) {
                 Closer.closeQuietly(sslSocket);
                 throw ex;
             }
         } else {
-            return socket;
+            return this.connectionFactory.createConnection(socket);
         }
     }
 
@@ -119,8 +119,7 @@ class RequestListener implements Runnable {
     public void run() {
         try {
             while (!isTerminated() && !Thread.interrupted()) {
-                final Socket socket = createSocket(this.serverSocket.accept());
-                final HttpServerConnection conn = this.connectionFactory.createConnection(socket);
+                final HttpServerConnection conn = createConnection(this.serverSocket.accept());
                 final Worker worker = new Worker(this.httpService, conn, this.exceptionListener);
                 this.executorService.execute(worker);
             }

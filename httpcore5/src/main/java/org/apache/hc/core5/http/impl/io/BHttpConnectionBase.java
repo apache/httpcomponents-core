@@ -233,15 +233,34 @@ class BHttpConnectionBase implements BHttpConnection {
     public void close(final CloseMode closeMode) {
         final SocketHolder socketHolder = this.socketHolderRef.getAndSet(null);
         if (socketHolder != null) {
-            final Socket socket = socketHolder.getSocket();
-            try {
-                if (closeMode == CloseMode.IMMEDIATE) {
+            final SSLSocket sslSocket = socketHolder.getSSLSocket();
+            final Socket baseSocket = socketHolder.getBaseSocket();
+            if (closeMode == CloseMode.IMMEDIATE) {
+                try {
                     // force abortive close (RST)
-                    socket.setSoLinger(true, 0);
+                    baseSocket.setSoLinger(true, 0);
+                } catch (final IOException ignore) {
+                } finally {
+                    Closer.closeQuietly(baseSocket);
                 }
-            } catch (final IOException ignore) {
-            } finally {
-                Closer.closeQuietly(socket);
+            } else {
+                // Close TLS layer first.
+                try {
+                    if (sslSocket != null) {
+                        try {
+                            if (!sslSocket.isOutputShutdown()) {
+                                sslSocket.shutdownOutput();
+                            }
+                            if (!sslSocket.isInputShutdown()) {
+                                sslSocket.shutdownInput();
+                            }
+                            sslSocket.close();
+                        } catch (final IOException ignore) {
+                        }
+                    }
+                } finally {
+                    Closer.closeQuietly(baseSocket);
+                }
             }
         }
     }
@@ -250,9 +269,13 @@ class BHttpConnectionBase implements BHttpConnection {
     public void close() throws IOException {
         final SocketHolder socketHolder = this.socketHolderRef.getAndSet(null);
         if (socketHolder != null) {
-            try (final Socket socket = socketHolder.getSocket()) {
+            try (final Socket baseSocket = socketHolder.getBaseSocket()) {
                 this.inBuffer.clear();
                 this.outbuffer.flush(socketHolder.getOutputStream());
+                final SSLSocket sslSocket = socketHolder.getSSLSocket();
+                if (sslSocket != null) {
+                    sslSocket.close();
+                }
             }
         }
     }

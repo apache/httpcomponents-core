@@ -33,6 +33,9 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.net.ssl.SSLSocket;
+
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.util.Args;
 
 /**
@@ -43,18 +46,46 @@ import org.apache.hc.core5.util.Args;
  */
 public class SocketHolder {
 
-    private final Socket socket;
+    private final SSLSocket sslSocket;
+    private final Socket baseSocket;
     private final AtomicReference<InputStream> inputStreamRef;
     private final AtomicReference<OutputStream> outputStreamRef;
 
+    /**
+     * @since 5.3
+     */
+    public SocketHolder(final SSLSocket sslSocket, final Socket baseSocket) {
+        this.sslSocket = Args.notNull(sslSocket, "SSL Socket");
+        this.baseSocket = Args.notNull(baseSocket, "Socket");
+        this.inputStreamRef = new AtomicReference<>();
+        this.outputStreamRef = new AtomicReference<>();
+    }
+
     public SocketHolder(final Socket socket) {
-        this.socket = Args.notNull(socket, "Socket");
+        this.baseSocket = Args.notNull(socket, "Socket");
+        this.sslSocket = null;
         this.inputStreamRef = new AtomicReference<>();
         this.outputStreamRef = new AtomicReference<>();
     }
 
     public final Socket getSocket() {
-        return socket;
+        return sslSocket != null ? sslSocket : baseSocket;
+    }
+
+    /**
+     * @since 5.3
+     */
+    @Internal
+    public Socket getBaseSocket() {
+        return baseSocket;
+    }
+
+    /**
+     * @since 5.3
+     */
+    @Internal
+    public SSLSocket getSSLSocket() {
+        return sslSocket;
     }
 
     public final InputStream getInputStream() throws IOException {
@@ -62,7 +93,7 @@ public class SocketHolder {
         if (local != null) {
             return local;
         }
-        local = getInputStream(socket);
+        local = getInputStream(getSocket());
         if (inputStreamRef.compareAndSet(null, local)) {
             return local;
         }
@@ -82,7 +113,7 @@ public class SocketHolder {
         if (local != null) {
             return local;
         }
-        local = getOutputStream(socket);
+        local = getOutputStream(getSocket());
         if (outputStreamRef.compareAndSet(null, local)) {
             return local;
         }
@@ -91,7 +122,10 @@ public class SocketHolder {
 
     @Override
     public String toString() {
-        return socket.toString();
+        return "SocketHolder{" +
+                "sslSocket=" + sslSocket +
+                ", baseSocket=" + baseSocket +
+                '}';
     }
 
 }
