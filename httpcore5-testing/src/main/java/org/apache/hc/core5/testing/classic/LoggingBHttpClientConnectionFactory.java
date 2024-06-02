@@ -30,6 +30,8 @@ package org.apache.hc.core5.testing.classic;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.net.ssl.SSLSocket;
+
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -85,9 +87,8 @@ public class LoggingBHttpClientConnectionFactory implements HttpConnectionFactor
         this(null, null, null, null, null, null);
     }
 
-    @Override
-    public LoggingBHttpClientConnection createConnection(final Socket socket) throws IOException {
-        final LoggingBHttpClientConnection conn = new LoggingBHttpClientConnection(
+    LoggingBHttpClientConnection createDetached() {
+        return new LoggingBHttpClientConnection(
                 http1Config,
                 CharCodingSupport.createDecoder(charCodingConfig),
                 CharCodingSupport.createEncoder(charCodingConfig),
@@ -95,7 +96,22 @@ public class LoggingBHttpClientConnectionFactory implements HttpConnectionFactor
                 outgoingContentStrategy,
                 requestWriterFactory,
                 responseParserFactory);
+    }
+
+    @Override
+    public LoggingBHttpClientConnection createConnection(final Socket socket) throws IOException {
+        final LoggingBHttpClientConnection conn = createDetached();
         conn.bind(socket);
+        return conn;
+    }
+
+    /**
+     * @since 5.3
+     */
+    @Override
+    public LoggingBHttpClientConnection createConnection(final SSLSocket sslSocket, final Socket socket) throws IOException {
+        final LoggingBHttpClientConnection conn = createDetached();
+        conn.bind(sslSocket, socket);
         return conn;
     }
 

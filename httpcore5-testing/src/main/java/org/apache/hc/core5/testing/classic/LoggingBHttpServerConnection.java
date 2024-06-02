@@ -33,6 +33,8 @@ import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.net.ssl.SSLSocket;
+
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -46,8 +48,8 @@ import org.apache.hc.core5.http.message.RequestLine;
 import org.apache.hc.core5.http.message.StatusLine;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Identifiable;
-import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection implements Identifiable {
 
     private static final AtomicLong COUNT = new AtomicLong();
@@ -103,6 +105,13 @@ public class LoggingBHttpServerConnection extends DefaultBHttpServerConnection i
     @Override
     public void bind(final Socket socket) throws IOException {
         super.bind(this.wire.isEnabled() ? new LoggingSocketHolder(socket, wire) : new SocketHolder(socket));
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void bind(final SSLSocket sslSocket, final Socket baseSocket) throws IOException {
+        super.bind(this.wire.isEnabled() ? new LoggingSocketHolder(sslSocket, baseSocket, wire) : new SocketHolder(sslSocket, baseSocket));
     }
 
     @Override

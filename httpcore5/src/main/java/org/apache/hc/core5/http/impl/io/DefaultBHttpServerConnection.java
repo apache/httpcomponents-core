@@ -33,6 +33,8 @@ import java.net.Socket;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
 
+import javax.net.ssl.SSLSocket;
+
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
@@ -128,6 +130,13 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     @Override
     public void bind(final Socket socket) throws IOException {
         super.bind(socket);
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void bind(final SSLSocket sslSocket, final Socket baseSocket) throws IOException {
+        super.bind(new SocketHolder(sslSocket, baseSocket));
     }
 
     @Override

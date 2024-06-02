@@ -32,11 +32,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
+import javax.net.ssl.SSLSocket;
+
 import org.apache.hc.core5.http.impl.io.SocketHolder;
 
 class LoggingSocketHolder extends SocketHolder {
 
     private final Wire wire;
+
+    LoggingSocketHolder(final SSLSocket sslSocket, final Socket baseSocket, final Wire wire) {
+        super(sslSocket, baseSocket);
+        this.wire = wire;
+    }
 
     LoggingSocketHolder(final Socket socket, final Wire wire) {
         super(socket);

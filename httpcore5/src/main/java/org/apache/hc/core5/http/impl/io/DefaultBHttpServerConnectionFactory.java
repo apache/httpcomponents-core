@@ -30,11 +30,14 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.net.ssl.SSLSocket;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentLengthStrategy;
+import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.impl.CharCodingSupport;
@@ -94,10 +97,9 @@ public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactor
         this(scheme, http1Config, charCodingConfig, null, null, null, null);
     }
 
-    @Override
-    public DefaultBHttpServerConnection createConnection(final Socket socket) throws IOException {
-        final DefaultBHttpServerConnection conn = new DefaultBHttpServerConnection(
-                this.scheme,
+    DefaultBHttpServerConnection createDetached(final Socket socket) {
+        return new DefaultBHttpServerConnection(
+                scheme != null ? scheme : (socket instanceof SSLSocket ? URIScheme.HTTPS.id : URIScheme.HTTP.id),
                 this.http1Config,
                 CharCodingSupport.createDecoder(this.charCodingConfig),
                 CharCodingSupport.createEncoder(this.charCodingConfig),
@@ -105,7 +107,22 @@ public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactor
                 this.outgoingContentStrategy,
                 this.requestParserFactory,
                 this.responseWriterFactory);
+    }
+
+    @Override
+    public DefaultBHttpServerConnection createConnection(final Socket socket) throws IOException {
+        final DefaultBHttpServerConnection conn = createDetached(socket);
         conn.bind(socket);
+        return conn;
+    }
+
+    /**
+     * @since 5.3
+     */
+    @Override
+    public DefaultBHttpServerConnection createConnection(final SSLSocket sslSocket, final Socket socket) throws IOException {
+        final DefaultBHttpServerConnection conn = createDetached(sslSocket);
+        conn.bind(sslSocket, socket);
         return conn;
     }
 

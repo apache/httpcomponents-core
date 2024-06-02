@@ -30,6 +30,8 @@ package org.apache.hc.core5.http.impl.io;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.net.ssl.SSLSocket;
+
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.ClassicHttpRequest;
@@ -114,9 +116,8 @@ public class DefaultBHttpClientConnectionFactory
         this(null, null, null, null, null, null);
     }
 
-    @Override
-    public DefaultBHttpClientConnection createConnection(final Socket socket) throws IOException {
-        final DefaultBHttpClientConnection conn = new DefaultBHttpClientConnection(
+    DefaultBHttpClientConnection createDetached() {
+        return new DefaultBHttpClientConnection(
                 this.http1Config,
                 CharCodingSupport.createDecoder(this.charCodingConfig),
                 CharCodingSupport.createEncoder(this.charCodingConfig),
@@ -125,7 +126,22 @@ public class DefaultBHttpClientConnectionFactory
                 this.responseOutOfOrderStrategy,
                 this.requestWriterFactory,
                 this.responseParserFactory);
+    }
+
+    @Override
+    public DefaultBHttpClientConnection createConnection(final Socket socket) throws IOException {
+        final DefaultBHttpClientConnection conn = createDetached();
         conn.bind(socket);
+        return conn;
+    }
+
+    /**
+     * @since 5.3
+     */
+    @Override
+    public DefaultBHttpClientConnection createConnection(final SSLSocket sslSocket, final Socket socket) throws IOException {
+        final DefaultBHttpClientConnection conn = createDetached();
+        conn.bind(sslSocket, socket);
         return conn;
     }
 

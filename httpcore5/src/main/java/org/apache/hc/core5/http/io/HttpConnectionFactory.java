@@ -30,6 +30,8 @@ package org.apache.hc.core5.http.io;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.net.ssl.SSLSocket;
+
 import org.apache.hc.core5.http.HttpConnection;
 
 /**
@@ -40,5 +42,16 @@ import org.apache.hc.core5.http.HttpConnection;
 public interface HttpConnectionFactory<T extends HttpConnection> {
 
     T createConnection(Socket socket) throws IOException;
+
+    /**
+     * Create TLS connection with a {@link SSLSocket} layered over a plain {@link Socket}.
+     * @param sslSocket the SSL socket. May be {@code null}.
+     * @param socket the plain socket SSL socket has been layered over.
+     *
+     * @since 5.3
+     */
+    default T createConnection(SSLSocket sslSocket, Socket socket) throws IOException {
+        return createConnection(sslSocket != null ? sslSocket : socket);
+    }
 
 }
