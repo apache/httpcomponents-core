@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.net.ServerSocketFactory;
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.function.Decorator;
@@ -149,11 +148,12 @@ public class ClassicTestServer {
                     httpService,
                     null,
                     socketConfig,
-                    sslContext != null ? sslContext.getServerSocketFactory() : ServerSocketFactory.getDefault(),
+                    null,
                     new LoggingBHttpServerConnectionFactory(
                             sslContext != null ? URIScheme.HTTPS.id : URIScheme.HTTP.id,
                             http1Config != null ? http1Config : Http1Config.DEFAULT,
                             CharCodingConfig.DEFAULT),
+                    sslContext,
                     null,
                     LoggingExceptionListener.INSTANCE);
             if (serverRef.compareAndSet(null, server)) {

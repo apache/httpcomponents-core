@@ -68,7 +68,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ClassicTLSIntegrationTest {
 
-    private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
+    private static final Timeout TIMEOUT = Timeout.ofSeconds(1);
 
     private HttpServer server;
 
@@ -278,8 +278,8 @@ public class ClassicTLSIntegrationTest {
         for (final String cipherSuite : weakCiphersSuites) {
             server = ServerBootstrap.bootstrap()
                     .setSslContext(SSLTestContexts.createServerSSLContext())
-                    .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{cipherSuite}))
                     .setRequestRouter((r, c) -> null)
+                    .setSslSetupHandler(sslParameters -> sslParameters.setCipherSuites(new String[]{cipherSuite}))
                     .create();
             Assertions.assertThrows(Exception.class, () -> {
                 try {
