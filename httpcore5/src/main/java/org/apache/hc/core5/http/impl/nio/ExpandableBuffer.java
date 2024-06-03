@@ -43,8 +43,16 @@ import org.apache.hc.core5.annotation.Internal;
 @Internal
 public class ExpandableBuffer {
 
+    /**
+     * A buffer's mode.
+     */
     public enum Mode {
-        INPUT, OUTPUT
+
+        /** A buffer is in the input mode. */
+        INPUT,
+
+        /** A buffer is in the output mode. */
+        OUTPUT
     }
 
     private Mode mode;
@@ -53,7 +61,7 @@ public class ExpandableBuffer {
     /**
      * Allocates buffer of the given size using the given allocator.
      * <p>
-     * Sets the mode to input.
+     * Sets the mode to {@link Mode#INPUT INPUT}.
      * </p>
      *
      * @param bufferSize the buffer size.
@@ -66,12 +74,12 @@ public class ExpandableBuffer {
 
     /**
      * Returns the current mode:
-     * <p>
-     * {@link Mode#INPUT}: the buffer is in the input mode.
-     * <p>
-     * {@link Mode#OUTPUT}: the buffer is in the output mode.
+     * <ul>
+     * <li>{@link Mode#INPUT INPUT}: the buffer is in the input mode.</li>
+     * <li>{@link Mode#OUTPUT OUTPUT}: the buffer is in the output mode.</li>
+     * </ul>
      *
-     * @return current input/output mode.
+     * @return current input/output mode, never null.
      */
     protected Mode mode() {
         return this.mode;
@@ -82,7 +90,7 @@ public class ExpandableBuffer {
     }
 
     /**
-     * Sets the mode to output. The buffer can now be read from.
+     * Sets the mode to {@link Mode#OUTPUT OUTPUT}. The buffer can now be read from.
      */
     protected void setOutputMode() {
         if (this.mode != Mode.OUTPUT) {
@@ -92,7 +100,7 @@ public class ExpandableBuffer {
     }
 
     /**
-     * Sets the mode to input. The buffer can now be written into.
+     * Sets the mode to {@link Mode#INPUT INPUT}. The buffer can now be written into.
      */
     protected void setInputMode() {
         if (this.mode != Mode.INPUT) {
@@ -204,7 +212,7 @@ public class ExpandableBuffer {
     /**
      * Clears buffer.
      * <p>
-     * Sets the mode to input.
+     * Sets the mode to {@link Mode#INPUT INPUT}.
      * </p>
      */
     protected void clear() {
