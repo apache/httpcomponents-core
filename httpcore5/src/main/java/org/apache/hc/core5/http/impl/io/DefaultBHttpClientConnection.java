@@ -39,6 +39,7 @@ import javax.net.ssl.SSLSocket;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.ContentLengthStrategy;
 import org.apache.hc.core5.http.HeaderElements;
 import org.apache.hc.core5.http.HttpEntity;
@@ -212,8 +213,15 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
 
                     final OutputStream socketOutputStream = socketHolder.getOutputStream();
                     final InputStream socketInputStream = socketHolder.getInputStream();
+                    final SSLSocket sslSocket = socketHolder.getSSLSocket();
 
                     long totalBytes;
+
+                    void checkTLS(final SSLSocket sslSocket) throws IOException {
+                        if (sslSocket.isInputShutdown()) {
+                            throw new ConnectionClosedException();
+                        }
+                    }
 
                     void checkForEarlyResponse(final long totalBytesSent, final int nextWriteSize) throws IOException {
                         if (responseOutOfOrderStrategy.isEarlyResponseDetected(
@@ -228,6 +236,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
 
                     @Override
                     public void write(final byte[] b) throws IOException {
+                        if (sslSocket != null) {
+                            checkTLS(sslSocket);
+                        }
                         if (responseOutOfOrderStrategy != null) {
                             checkForEarlyResponse(totalBytes, b.length);
                         }
@@ -237,6 +248,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
 
                     @Override
                     public void write(final byte[] b, final int off, final int len) throws IOException {
+                        if (sslSocket != null) {
+                            checkTLS(sslSocket);
+                        }
                         if (responseOutOfOrderStrategy != null) {
                             checkForEarlyResponse(totalBytes, len);
                         }
@@ -246,6 +260,9 @@ public class DefaultBHttpClientConnection extends BHttpConnectionBase
 
                     @Override
                     public void write(final int b) throws IOException {
+                        if (sslSocket != null) {
+                            checkTLS(sslSocket);
+                        }
                         if (responseOutOfOrderStrategy != null) {
                             checkForEarlyResponse(totalBytes, 1);
                         }
