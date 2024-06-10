@@ -93,7 +93,7 @@ public class BasicHttpEntity extends AbstractHttpEntity {
 
     @Override
     public final boolean isStreaming() {
-        return this.content != null && this.content != EmptyInputStream.INSTANCE;
+        return this.content != null;
     }
 
     @Override
