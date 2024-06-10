@@ -43,6 +43,9 @@ import org.apache.hc.core5.util.Args;
 /**
  * Abstract base class for mutable entities. Provides the commonly used attributes for streamed and
  * self-contained implementations.
+ * <p>
+ * This class contains immutable attributes but subclasses may contain additional immutable or mutable attributes.
+ * </p>
  *
  * @since 4.0
  */
@@ -54,26 +57,60 @@ public abstract class AbstractHttpEntity implements HttpEntity {
     private final String contentEncoding;
     private final boolean chunked;
 
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     *
+     * @param contentType     The content-type string, may be null.
+     * @param contentEncoding The content encoding string, may be null.
+     * @param chunked         Whether this entity should be chunked.
+     */
     protected AbstractHttpEntity(final String contentType, final String contentEncoding, final boolean chunked) {
         this.contentType = contentType;
         this.contentEncoding = contentEncoding;
         this.chunked = chunked;
     }
 
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     *
+     * @param contentType     The content-type, may be null.
+     * @param contentEncoding The content encoding string, may be null.
+     * @param chunked         Whether this entity should be chunked.
+     */
     protected AbstractHttpEntity(final ContentType contentType, final String contentEncoding, final boolean chunked) {
         this.contentType = contentType != null ? contentType.toString() : null;
         this.contentEncoding = contentEncoding;
         this.chunked = chunked;
     }
 
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     *
+     * @param contentType     The content-type string, may be null.
+     * @param contentEncoding The content encoding string, may be null.
+     */
     protected AbstractHttpEntity(final String contentType, final String contentEncoding) {
         this(contentType, contentEncoding, false);
     }
 
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     *
+     * @param contentType     The content-type, may be null.
+     * @param contentEncoding The content encoding string, may be null.
+     */
     protected AbstractHttpEntity(final ContentType contentType, final String contentEncoding) {
         this(contentType, contentEncoding, false);
     }
 
+    /**
+     * Writes an entity to an OutputStream.
+     *
+     * @param entity    The entity to write, never null.
+     * @param outStream Where to write the entity, never null.
+     * @throws IOException                   if the entity cannot generate its content stream; also thrown if the output stream is closed.
+     * @throws UnsupportedOperationException if entity content cannot be represented as {@link java.io.InputStream}.
+     */
     public static void writeTo(final HttpEntity entity, final OutputStream outStream) throws IOException {
         Args.notNull(entity, "Entity");
         Args.notNull(outStream, "Output stream");
@@ -88,6 +125,13 @@ public abstract class AbstractHttpEntity implements HttpEntity {
         }
     }
 
+    /**
+     * Writes this entity to an OutputStream.
+     *
+     * @param outStream Where to write the entity, never null.
+     * @throws IOException                   if the entity cannot generate its content stream; also thrown if the output stream is closed.
+     * @throws UnsupportedOperationException if entity content cannot be represented as {@link java.io.InputStream}.
+     */
     @Override
     public void writeTo(final OutputStream outStream) throws IOException {
         writeTo(this, outStream);
@@ -103,21 +147,45 @@ public abstract class AbstractHttpEntity implements HttpEntity {
         return contentEncoding;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code false}.
+     * </p>
+     */
     @Override
     public final boolean isChunked() {
         return chunked;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code false}.
+     * </p>
+     */
     @Override
     public boolean isRepeatable() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code null}.
+     * </p>
+     */
     @Override
     public Supplier<List<? extends Header>> getTrailers() {
         return null;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns an immutable empty set.
+     * </p>
+     */
     @Override
     public Set<String> getTrailerNames() {
         return Collections.emptySet();

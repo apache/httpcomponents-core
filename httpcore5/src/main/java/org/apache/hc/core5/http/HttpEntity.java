@@ -69,7 +69,7 @@ import org.apache.hc.core5.function.Supplier;
 public interface HttpEntity extends EntityDetails, Closeable {
 
     /**
-     * Tells if the entity is capable of producing its data more than once.
+     * Tests if the entity is capable of producing its data more than once.
      * A repeatable entity's getContent() and writeTo(OutputStream) methods
      * can be called more than once whereas a non-repeatable entity's can not.
      * @return true if the entity is repeatable, false otherwise.
@@ -77,7 +77,7 @@ public interface HttpEntity extends EntityDetails, Closeable {
     boolean isRepeatable();
 
     /**
-     * Returns a content stream of the entity.
+     * Gets a content stream of the entity.
      * {@link #isRepeatable Repeatable} entities are expected
      * to create a new instance of {@link InputStream} for each invocation
      * of this method and therefore can be consumed multiple times.
@@ -123,7 +123,7 @@ public interface HttpEntity extends EntityDetails, Closeable {
     void writeTo(OutputStream outStream) throws IOException;
 
     /**
-     * Tells whether this entity depends on an underlying stream.
+     * Tests whether this entity depends on an underlying stream.
      * Streamed entities that read data directly from the socket should
      * return {@code true}. Self-contained entities should return
      * {@code false}. Wrapping entities should delegate this call
@@ -135,7 +135,7 @@ public interface HttpEntity extends EntityDetails, Closeable {
     boolean isStreaming(); // don't expect an exception here
 
     /**
-     * Returns supplier of message trailers - headers sent after message body.
+     * Gets supplier of message trailers - headers sent after message body.
      * May return {@code null} if trailers are not available.
      *
      * @since 5.0

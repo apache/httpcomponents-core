@@ -37,31 +37,40 @@ import java.util.Set;
 public interface EntityDetails {
 
     /**
-     * Returns length of the entity, if known.
+     * Gets length of this entity, if known.
+     *
+     * @return the length of this entity, may be {@code 0}.
      */
     long getContentLength();
 
     /**
-     * Returns content type of the entity, if known.
+     * Gets content type of this entity, if known.
+     *
+     * @return the content type of this entity, may be {@code null}.
      */
     String getContentType();
 
     /**
-     * Returns content encoding of the entity, if known.
+     * Gets content encoding of this entity, if known.
+     *
+     * @return the content encoding of this entity, may be {@code null}.
      */
     String getContentEncoding();
 
     /**
-     * Returns chunked transfer hint for this entity.
+     * Tests the chunked transfer hint for this entity.
      * <p>
      * The behavior of wrapping entities is implementation dependent,
      * but should respect the primary purpose.
      * </p>
+     * @return the chunked transfer hint for this entity.
      */
     boolean isChunked();
 
     /**
-     * Preliminary declaration of trailing headers.
+     * Gets the preliminary declaration of trailing headers.
+     *
+     * @return the preliminary declaration of trailing headers.
      */
     Set<String> getTrailerNames();
 
