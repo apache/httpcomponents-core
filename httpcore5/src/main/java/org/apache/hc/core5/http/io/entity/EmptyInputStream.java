@@ -34,6 +34,9 @@ import java.io.InputStream;
  */
 public final class EmptyInputStream extends InputStream {
 
+    /**
+     * Singleton instance of EmptyInputStream.
+     */
     public static final EmptyInputStream INSTANCE = new EmptyInputStream();
 
     private EmptyInputStream() {
