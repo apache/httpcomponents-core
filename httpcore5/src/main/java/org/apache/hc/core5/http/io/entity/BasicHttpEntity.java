@@ -181,9 +181,15 @@ public class BasicHttpEntity extends AbstractHttpEntity {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code true}.
+     * </p>
+     */
     @Override
     public final boolean isStreaming() {
-        return this.content != null;
+        return true;
     }
 
     @Override

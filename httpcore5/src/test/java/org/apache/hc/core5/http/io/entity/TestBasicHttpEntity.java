@@ -45,10 +45,33 @@ public class TestBasicHttpEntity {
     public void testBasics() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity httpentity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length, null);
-
         Assertions.assertEquals(bytes.length, httpentity.getContentLength());
+        // always false
         Assertions.assertFalse(httpentity.isRepeatable());
+        // always true
         Assertions.assertTrue(httpentity.isStreaming());
+    }
+
+    @Test
+    public void testConstructorNullContent() throws Exception {
+        // BasicHttpEntity(InputStream, ContentType)
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, ContentType.APPLICATION_ATOM_XML));
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, null));
+        // BasicHttpEntity(InputStream, ContentType, boolean)
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, ContentType.APPLICATION_ATOM_XML, false));
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, null, false));
+        // BasicHttpEntity(InputStream, ContentType, String)
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, ContentType.APPLICATION_ATOM_XML, ""));
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, null, ""));
+        // BasicHttpEntity(InputStream, long, ContentType)
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, ContentType.APPLICATION_ATOM_XML));
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, null));
+        // BasicHttpEntity(InputStream, long, ContentType, String)
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, ContentType.APPLICATION_ATOM_XML, ""));
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, null, ""));
+        // BasicHttpEntity(InputStream, long, ContentType, String, boolean)
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, ContentType.APPLICATION_ATOM_XML, "", false));
+        Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, 0, null, "", false));
     }
 
     @Test
@@ -66,7 +89,10 @@ public class TestBasicHttpEntity {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity httpentity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length,
                 ContentType.TEXT_PLAIN);
-
+        // always false
+        Assertions.assertFalse(httpentity.isRepeatable());
+        // always true
+        Assertions.assertTrue(httpentity.isStreaming());
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         httpentity.writeTo(out);
         final byte[] bytes2 = out.toByteArray();
