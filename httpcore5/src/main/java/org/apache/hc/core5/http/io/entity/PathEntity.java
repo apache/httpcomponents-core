@@ -39,22 +39,58 @@ import org.apache.hc.core5.util.Args;
 
 /**
  * A self contained, repeatable entity that obtains its content from a path.
+ * <p>
+ * This class contains {@link ThreadingBehavior#IMMUTABLE_CONDITIONAL immutable attributes} but subclasses may contain
+ * additional immutable or mutable attributes.
+ * </p>
  */
 @Contract(threading = ThreadingBehavior.IMMUTABLE_CONDITIONAL)
 public class PathEntity extends AbstractHttpEntity {
 
     private final Path path;
 
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * </ul>
+     *
+     * @param path            The message body contents will be set from this path.
+     * @param contentType     The content-type, may be null.
+     * @param contentEncoding The content encoding string, may be null.
+     */
     public PathEntity(final Path path, final ContentType contentType, final String contentEncoding) {
         super(contentType, contentEncoding);
         this.path = Args.notNull(path, "Path");
     }
 
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * <li>does not define a content encoding.</li>
+     * </ul>
+     *
+     * @param path            The message body contents will be set from this path.
+     * @param contentType     The content-type, may be null.
+     */
     public PathEntity(final Path path, final ContentType contentType) {
         super(contentType, null);
         this.path = Args.notNull(path, "Path");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code false}.
+     * </p>
+     */
     @Override
     public final boolean isRepeatable() {
         return true;
@@ -74,11 +110,23 @@ public class PathEntity extends AbstractHttpEntity {
         return Files.newInputStream(path);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code false}.
+     * </p>
+     */
     @Override
     public final boolean isStreaming() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation is a no-op.
+     * </p>
+     */
     @Override
     public final void close() throws IOException {
         // do nothing

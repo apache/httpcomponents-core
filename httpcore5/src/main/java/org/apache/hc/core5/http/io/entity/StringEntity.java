@@ -41,6 +41,10 @@ import org.apache.hc.core5.util.Args;
 
 /**
  * A self contained, repeatable entity that obtains its content from a {@link String}.
+ * <p>
+ * This class contains {@link ThreadingBehavior#IMMUTABLE immutable attributes} but subclasses may contain
+ * additional immutable or mutable attributes.
+ * </p>
  *
  * @since 4.0
  */
@@ -50,12 +54,13 @@ public class StringEntity extends AbstractHttpEntity {
     private final byte[] content;
 
     /**
-     * Creates a StringEntity with the specified content and content type.
+     * Constructs a StringEntity with the specified content and content type.
      *
-     * @param string content to be used. Not {@code null}.
-     * @param contentType content type to be used. May be {@code null}, in which case the default
-     *   MIME type {@link ContentType#TEXT_PLAIN} is assumed.
-     *
+     * @param string          The content to be used. Not {@code null}.
+     * @param contentType     The content type to be used. May be {@code null}, in which case the default MIME type {@link ContentType#TEXT_PLAIN} is assumed.
+     * @param contentEncoding The content encoding string, may be null.
+     * @param chunked         Whether this entity should be chunked.
+     * @throws NullPointerException Thrown if string is null.
      * @since 5.0
      */
     public StringEntity(
@@ -66,44 +71,102 @@ public class StringEntity extends AbstractHttpEntity {
         this.content = string.getBytes(charset);
     }
 
+    /**
+     * Constructs a StringEntity with the specified content and content type.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>does not define a content encoding.</li>
+     * </ul>
+     *
+     * @param string          The content to be used. Not {@code null}.
+     * @param contentType     The content type to be used. May be {@code null}, in which case the default MIME type {@link ContentType#TEXT_PLAIN} is assumed.
+     * @param chunked         Whether this entity should be chunked.
+     * @throws NullPointerException Thrown if string is null.
+     */
     public StringEntity(final String string, final ContentType contentType, final boolean chunked) {
         this(string, contentType, null, chunked);
     }
 
+    /**
+     * Constructs a StringEntity with the specified content and content type.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * <li>does not define a content encoding.</li>
+     * </ul>
+     *
+     * @param string          The content to be used. Not {@code null}.
+     * @param contentType     The content type to be used. May be {@code null}, in which case the default MIME type {@link ContentType#TEXT_PLAIN} is assumed.
+     * @throws NullPointerException Thrown if string is null.
+     */
     public StringEntity(final String string, final ContentType contentType) {
         this(string, contentType, null, false);
     }
 
     /**
-     * Creates a StringEntity with the specified content and charset. The MIME type defaults
-     * to "text/plain".
+     * Constructs a StringEntity with the specified content and charset. The MIME type defaults to "text/plain".
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * <li>sets the content type to {@code "text/plain"} and the given Charset.</li>
+     * </ul>
      *
-     * @param string content to be used. Not {@code null}.
-     * @param charset character set to be used. May be {@code null}, in which case the default
-     *   is {@link StandardCharsets#UTF_8} is assumed
-     *
+     * @param string  The content to be used. Not {@code null}.
+     * @param charset The character set to be used. May be {@code null}, in which case the default is {@link StandardCharsets#UTF_8} is assumed.
+     * @throws NullPointerException Thrown if string is null.
      * @since 4.2
      */
     public StringEntity(final String string, final Charset charset) {
         this(string, ContentType.TEXT_PLAIN.withCharset(charset));
     }
 
+    /**
+     * Constructs a StringEntity with the specified content and content type.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>sets the content type to {@code "text/plain"} and the given Charset.</li>
+     * </ul>
+     *
+     * @param string          The content to be used. Not {@code null}.
+     * @param charset The character set to be used. May be {@code null}, in which case the default is {@link StandardCharsets#UTF_8} is assumed.
+     * @param chunked         Whether this entity should be chunked.
+     * @throws NullPointerException Thrown if string is null.
+     */
     public StringEntity(final String string, final Charset charset, final boolean chunked) {
         this(string, ContentType.TEXT_PLAIN.withCharset(charset), chunked);
     }
 
     /**
-     * Creates a StringEntity with the specified content. The content type defaults to
-     * {@link ContentType#TEXT_PLAIN}.
+     * Constructs a StringEntity with the specified content and content type.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * <li>sets the content type to {@code "text/plain"} and the given Charset.</li>
+     * </ul>
      *
-     * @param string content to be used. Not {@code null}.
-     *
-     * @throws IllegalArgumentException if the string parameter is null
+     * @param string          The content to be used. Not {@code null}.
+     * @throws NullPointerException Thrown if string is null.
      */
     public StringEntity(final String string) {
         this(string, ContentType.DEFAULT_TEXT);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code true}.
+     * </p>
+     */
     @Override
     public final boolean isRepeatable() {
         return true;
@@ -126,11 +189,23 @@ public class StringEntity extends AbstractHttpEntity {
         outStream.flush();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code false}.
+     * </p>
+     */
     @Override
     public final boolean isStreaming() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation is a no-op.
+     * </p>
+     */
     @Override
     public final void close() throws IOException {
         // nothing to do

@@ -42,6 +42,19 @@ public class ByteBufferEntity extends AbstractHttpEntity {
     private final ByteBuffer buffer;
     private final long length;
 
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * </ul>
+     *
+     * @param buffer          The message body contents as a byte buffer.
+     * @param contentType     The content-type, may be null.
+     * @param contentEncoding The content encoding string, may be null.
+     */
     public ByteBufferEntity(final ByteBuffer buffer, final ContentType contentType, final String contentEncoding) {
         super(contentType, contentEncoding);
         Args.notNull(buffer, "Source byte buffer");
@@ -49,10 +62,29 @@ public class ByteBufferEntity extends AbstractHttpEntity {
         this.length = buffer.remaining();
     }
 
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * <li>does not define a content encoding.</li>
+     * </ul>
+     *
+     * @param buffer          The message body contents as a byte buffer.
+     * @param contentType     The content-type, may be null.
+     */
     public ByteBufferEntity(final ByteBuffer buffer, final ContentType contentType) {
         this(buffer, contentType, null);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code true}.
+     * </p>
+     */
     @Override
     public final boolean isRepeatable() {
         return false;
@@ -87,11 +119,23 @@ public class ByteBufferEntity extends AbstractHttpEntity {
         };
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code false}.
+     * </p>
+     */
     @Override
     public final boolean isStreaming() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation is a no-op.
+     * </p>
+     */
     @Override
     public final void close() throws IOException {
     }

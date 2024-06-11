@@ -42,6 +42,10 @@ import org.apache.hc.core5.util.Args;
 /**
  * Entity that delegates the process of content generation to a {@link IOCallback}
  * with {@link OutputStream} as output sink.
+ * <p>
+ * This class contains {@link ThreadingBehavior#IMMUTABLE_CONDITIONAL immutable attributes} but subclasses may contain
+ * additional immutable or mutable attributes.
+ * </p>
  *
  * @since 4.0
  */
@@ -51,6 +55,20 @@ public final class EntityTemplate extends AbstractHttpEntity {
     private final long contentLength;
     private final IOCallback<OutputStream> callback;
 
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * </ul>
+     *
+     * @param contentLength   The value for the {@code Content-Length} header for the size of the message body, in bytes.
+     * @param contentType     The content-type, may be null.
+     * @param contentEncoding The content encoding string, may be null.
+     * @param callback        A consumer that write the message body to an output stream.
+     */
     public EntityTemplate(
             final long contentLength, final ContentType contentType, final String contentEncoding,
             final IOCallback<OutputStream> callback) {
@@ -71,6 +89,12 @@ public final class EntityTemplate extends AbstractHttpEntity {
         return new ByteArrayInputStream(buf.toByteArray());
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code true}.
+     * </p>
+     */
     @Override
     public boolean isRepeatable() {
         return true;
@@ -82,11 +106,23 @@ public final class EntityTemplate extends AbstractHttpEntity {
         this.callback.execute(outStream);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code false}.
+     * </p>
+     */
     @Override
     public boolean isStreaming() {
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation is a no-op.
+     * </p>
+     */
     @Override
     public void close() throws IOException {
     }

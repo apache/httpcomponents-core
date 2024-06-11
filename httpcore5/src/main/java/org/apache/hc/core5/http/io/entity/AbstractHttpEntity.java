@@ -85,6 +85,12 @@ public abstract class AbstractHttpEntity implements HttpEntity {
 
     /**
      * Constructs a new instance with the given attributes kept as immutable.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * </ul>
      *
      * @param contentType     The content-type string, may be null.
      * @param contentEncoding The content encoding string, may be null.
@@ -95,6 +101,12 @@ public abstract class AbstractHttpEntity implements HttpEntity {
 
     /**
      * Constructs a new instance with the given attributes kept as immutable.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * </ul>
      *
      * @param contentType     The content-type, may be null.
      * @param contentEncoding The content encoding string, may be null.

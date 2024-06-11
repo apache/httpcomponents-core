@@ -42,6 +42,10 @@ import org.apache.hc.core5.util.Args;
 
 /**
  * A streamed entity that obtains its content from a {@link Serializable}.
+ * <p>
+ * This class contains {@link ThreadingBehavior#IMMUTABLE_CONDITIONAL immutable attributes} but subclasses may contain
+ * additional immutable or mutable attributes.
+ * </p>
  *
  * @since 4.0
  */
@@ -52,6 +56,12 @@ public class SerializableEntity extends AbstractHttpEntity {
 
     /**
      * Creates new instance of this class.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * </ul>
      *
      * @param serializable the serializable object.
      * @param contentType the content type.
@@ -65,6 +75,13 @@ public class SerializableEntity extends AbstractHttpEntity {
 
     /**
      * Creates new instance of this class.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * <li>does not define a content encoding.</li>
+     * </ul>
      *
      * @param serializable the serializable object.
      * @param contentType the content type.
@@ -80,16 +97,34 @@ public class SerializableEntity extends AbstractHttpEntity {
         return new ByteArrayInputStream(buf.toByteArray());
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code -1}.
+     * </p>
+     */
     @Override
     public final long getContentLength() {
         return -1;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code true}.
+     * </p>
+     */
     @Override
     public final boolean isRepeatable() {
         return true;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code false}.
+     * </p>
+     */
     @Override
     public final boolean isStreaming() {
         return false;
@@ -103,6 +138,12 @@ public class SerializableEntity extends AbstractHttpEntity {
         out.flush();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation is a no-op.
+     * </p>
+     */
     @Override
     public final void close() throws IOException {
     }

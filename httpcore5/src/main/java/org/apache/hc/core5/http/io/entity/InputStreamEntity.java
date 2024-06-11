@@ -44,28 +44,78 @@ public class InputStreamEntity extends AbstractHttpEntity {
     private final InputStream content;
     private final long length;
 
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * </ul>
+     *
+     * @param content         The message body contents as an InputStream.
+     * @param contentLength   The value for the {@code Content-Length} header for the size of the message body, in bytes.
+     * @param contentType     The content-type, may be null.
+     * @param contentEncoding The content encoding string, may be null.
+     */
     public InputStreamEntity(
-            final InputStream inStream, final long length, final ContentType contentType, final String contentEncoding) {
+            final InputStream content, final long contentLength, final ContentType contentType, final String contentEncoding) {
         super(contentType, contentEncoding);
-        this.content = Args.notNull(inStream, "Source input stream");
-        this.length = length;
+        this.content = Args.notNull(content, "Source input stream");
+        this.length = contentLength;
     }
 
-    public InputStreamEntity(final InputStream inStream, final long length, final ContentType contentType) {
-        this(inStream, length, contentType, null);
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * <li>does not define a content encoding.</li>
+     * </ul>
+     *
+     * @param content         The message body contents as an InputStream.
+     * @param contentLength   The value for the {@code Content-Length} header for the size of the message body, in bytes.
+     * @param contentType     The content-type, may be null.
+     */
+    public InputStreamEntity(final InputStream content, final long contentLength, final ContentType contentType) {
+        this(content, contentLength, contentType, null);
     }
 
-    public InputStreamEntity(final InputStream inStream, final ContentType contentType) {
-        this(inStream, -1, contentType, null);
+    /**
+     * Constructs a new instance with the given attributes kept as immutable.
+     * <p>
+     * The new instance:
+     * </p>
+     * <ul>
+     * <li>is not chunked.</li>
+     * <li>does not define a content length.</li>
+     * <li>does not define a content encoding.</li>
+     * </ul>
+     *
+     * @param content         The message body contents as an InputStream.
+     * @param contentType     The content-type, may be null.
+     */
+    public InputStreamEntity(final InputStream content, final ContentType contentType) {
+        this(content, -1, contentType, null);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code false}.
+     * </p>
+     */
     @Override
     public final boolean isRepeatable() {
         return false;
     }
 
     /**
-     * @return the content length or {@code -1} if unknown
+     * {@inheritDoc}
+     *
+     * @return the content length or {@code -1} if unknown.
      */
     @Override
     public final long getContentLength() {
@@ -110,6 +160,12 @@ public class InputStreamEntity extends AbstractHttpEntity {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This implementation always returns {@code true}.
+     * </p>
+     */
     @Override
     public final boolean isStreaming() {
         return true;
