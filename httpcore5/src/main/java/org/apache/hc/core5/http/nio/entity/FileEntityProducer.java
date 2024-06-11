@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -87,7 +88,7 @@ public final class FileEntityProducer implements AsyncEntityProducer {
 
     @Override
     public String getContentType() {
-        return contentType != null ? contentType.toString() : null;
+        return Objects.toString(contentType, null);
     }
 
     @Override

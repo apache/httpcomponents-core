@@ -36,6 +36,7 @@ import org.reactivestreams.Publisher;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -105,7 +106,7 @@ public final class ReactiveEntityProducer implements AsyncEntityProducer {
 
     @Override
     public String getContentType() {
-        return contentType != null ? contentType.toString() : null;
+        return Objects.toString(contentType, null);
     }
 
     @Override

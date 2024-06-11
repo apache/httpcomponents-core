@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.impl;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.http.EntityDetails;
@@ -55,7 +56,7 @@ public final class BasicEntityDetails implements EntityDetails {
 
     @Override
     public String getContentType() {
-        return contentType != null ? contentType.toString() : null;
+        return Objects.toString(contentType, null);
     }
 
     @Override

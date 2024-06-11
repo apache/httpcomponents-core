@@ -28,6 +28,7 @@ package org.apache.hc.core5.http.nio.support.classic;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
@@ -104,7 +105,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
 
     @Override
     public final String getContentType() {
-        return contentType != null ? contentType.toString() : null;
+        return Objects.toString(contentType, null);
     }
 
     @Override

@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -153,7 +154,7 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
 
     @Override
     public final String getContentType() {
-        return contentType != null ? contentType.toString() : null;
+        return Objects.toString(contentType, null);
     }
 
     @Override

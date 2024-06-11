@@ -32,6 +32,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.apache.hc.core5.function.Supplier;
@@ -78,7 +79,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      * @param chunked         Whether this entity should be chunked.
      */
     protected AbstractHttpEntity(final ContentType contentType, final String contentEncoding, final boolean chunked) {
-        this.contentType = contentType != null ? contentType.toString() : null;
+        this.contentType = Objects.toString(contentType, null);
         this.contentEncoding = contentEncoding;
         this.chunked = chunked;
     }

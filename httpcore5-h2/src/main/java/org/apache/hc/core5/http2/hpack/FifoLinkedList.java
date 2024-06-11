@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.http2.hpack;
 
+import java.util.Objects;
+
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.util.Args;
 
@@ -138,7 +140,7 @@ final class FifoLinkedList {
         @Override
         public String toString() {
             return "[" +
-                    (header != null ? header.toString() : "master") +
+                    Objects.toString(header, "master") +
                     "; seqNum=" + seqNum +
                     "; previous=" + (previous != null ? previous.header : null) +
                     "; next=" + (next != null ? next.header : null) +
