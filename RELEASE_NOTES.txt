@@ -1,26 +1,9 @@
-Release 5.3 ALPHA3
+Release 5.3 BETA1
 ------------------
 
-Notable changes and features included in the 5.3 series:
-
-* Improved Javadoc.
-
-
-Change Log
--------------------
-
-* Improved Javadoc.
-  Contributed by Gary Gregory <ggregory at apache.org>
-
-
-
-Release 5.3 ALPHA2
-------------------
-
-This is the second and likely the last ALPHA release in the 5.3 release series.
-It finalizes the API changes introduced in the previous ALPHA release and also
-improves Message Parsing APIs and client-side TLS defaults by making use of
-JSSE Endpoint Identification.
+This is the first BETA release in the 5.3 release series. It features a re-designed
+classic (blocking) TLS session management and server-side request routing APIs.
+It is likely to be the last BETA release in the 5.3 release series.
 
 
 Notable changes and features included in the 5.3 series:
@@ -34,6 +17,59 @@ Notable changes and features included in the 5.3 series:
 * Message parsing API improvements and performance optimization
 
 * TLS client endpoints to make use of JSSE Endpoint Identification by default.
+
+* Redesign of server-side request routing API.
+
+* Redesign of TLS session handling by classic (blocking) connections.
+
+
+Change Log
+-------------------
+
+* Improved Javadoc.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCLIENT-2328: Blocking i/o connections to check if the opposite TLS endpoint has been
+  closed by the opposite endpoint while writing out request body.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCLIENT-2328: Better control over the TLS layer of blocking connections. TLS layer no
+  longer automatically closes the underlying network socket. Connections close the network
+  socket manually after TLS session termination.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* More flexible TLS layer initialization by the classic HTTP server bootstrap.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-766: redesign of server-side request routing.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: corrected exception type thrown in case of unexpected connection termination.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Made HttpCoreContext consistent with the behavior of HttpContext implementations in HttpClient.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: HTTP/1.1 server-side stream handler to validate the request message before
+  the request routing and handler resolution.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HPackDecoder incorrectly calculates required buffer length causing G1 Humongous Allocation
+  and OOM (#465).
+  Contributed by crazylulululu <42406448+crazylulululu at users.noreply.github.com>
+
+* Update the method parameter of InetAddressUtils from String to CharSequence.
+  Contributed by wangkai <wangkaicloud at 163.com>
+
+
+
+Release 5.3 ALPHA2
+------------------
+
+This is the second and likely the last ALPHA release in the 5.3 release series.
+It finalizes the API changes introduced in the previous ALPHA release and also
+improves Message Parsing APIs and client-side TLS defaults by making use of
+JSSE Endpoint Identification.
 
 
 Change Log
@@ -68,15 +104,6 @@ Release 5.3 ALPHA1
 This is the first ALPHA release in the 5.3 release series that improves HTTP protocol support by ensuring conformance
 to the latest HTTP specification (RFC 9110 and RFC 9112) and also ensuring compatibility with Java Virtual Threads by
 replacing 'synchronized' keywords in critical sections with Java lock primitives.
-
-
-Notable changes and features included in the 5.3 series:
-
-* Improved conformance to RFC 9110 and RFC 9112.
-
-* UTF-8 encoding to be used by default for text where appropriate.
-
-* Compatibility with Java Virtual Threads and Java 21 Runtime.
 
 
 Change Log
@@ -275,7 +302,7 @@ Change Log
 * SOCKS protocol handling: Delegate resolution of unknown hostnames to the SOCKS proxy.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* I/O reactor to validate remote endpoint address at the last moment immediately before connect.
+* I/O reactor to validate remote endpoint address at the last moment immediately before connecting.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * Bug fix: I/O reactor must handle all runtime exceptions when connecting to remote endpoints.
@@ -832,7 +859,7 @@ Change Log
   Contributed by Lee Ray <liruigo at gmail.com>
 
 * Added exception callback to async server implementations enabling logging of unexpected and
-  fatal exceptions in the server side protocol handlers.
+  fatal exceptions in the server-side protocol handlers.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
@@ -2008,7 +2035,7 @@ Change Log
 * HTTPCORE-424: added ConnPool policy parameter to control connection re-use policy.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* HTTPCORE-413: Minimal chunk side can now be specified as H1Config#chunkSizeHint.
+* HTTPCORE-413: Minimal chunk size can now be specified as H1Config#chunkSizeHint.
   The value is treated as a hint. Both classic and NIO attempt to apply it when sending / receiving
   messages without providing a strict guarantee.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
@@ -2230,7 +2257,7 @@ the 4.4 series are:
 
 * Support for pipelined request processing on the server-side
 
-* Support for pipelined request execution on the client side
+* Support for pipelined request execution on the client-side
 
 * Simplified bootstrapping of blocking and non-blocking (NIO) HTTP server implementations   
 
@@ -2257,7 +2284,7 @@ the 4.4 series are:
 
 * Support for pipelined request processing on the server-side
 
-* Support for pipelined request execution on the client side
+* Support for pipelined request execution on the client-side
 
 * Simplified bootstrapping of blocking and non-blocking (NIO) HTTP server implementations   
 
@@ -2279,7 +2306,7 @@ this release are:
 
 * Support for pipelined request processing on the server-side
 
-* Support for pipelined request execution on the client side
+* Support for pipelined request execution on the client-side
 
 * Simplified bootstrapping of blocking and non-blocking (NIO) HTTP server implementations   
 
@@ -3120,7 +3147,7 @@ Release 4.0 Beta 2
 
 The second BETA version of HttpComponents Core has been released. This release
 adds a number of improvements to the NIO components, most notable being improved
-asynchronous client side and server-side protocol handlers.
+asynchronous client-side and server-side protocol handlers.
 
 There has been a number of important bug fixes in HttpCore NIO module, whereas
 HttpCore base module has had very few changes.
@@ -3532,7 +3559,7 @@ a small number of I/O threads.
   abstract I/O transport such as those based on NIO API.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
-* [HTTPCORE-10] Non-blocking (async) client side I/O transport based on NIO.
+* [HTTPCORE-10] Non-blocking (async) client-side I/O transport based on NIO.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 * [HTTPCORE-9] Non-blocking (async) server-side I/O transport based on NIO.
