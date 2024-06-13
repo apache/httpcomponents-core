@@ -50,7 +50,7 @@ import org.apache.hc.core5.net.WWWFormCodec;
 import org.apache.hc.core5.util.Args;
 
 /**
- * {HttpEntity} factory methods.
+ * {@link HttpEntity} factory methods.
  *
  * @since 5.0
  */
