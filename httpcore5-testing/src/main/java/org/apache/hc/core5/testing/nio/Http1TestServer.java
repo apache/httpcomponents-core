@@ -64,6 +64,10 @@ public class Http1TestServer extends AsyncServer {
     private final SSLSessionInitializer sslSessionInitializer;
     private final SSLSessionVerifier sslSessionVerifier;
 
+    private Http1Config http1Config;
+    private HttpProcessor httpProcessor;
+    private Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator;
+
     public Http1TestServer(
             final IOReactorConfig ioReactorConfig,
             final SSLContext sslContext,
@@ -80,8 +84,12 @@ public class Http1TestServer extends AsyncServer {
         this(IOReactorConfig.DEFAULT, null, null, null);
     }
 
+    private void ensureNotRunning() {
+        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Server is already running");
+    }
+
     public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
-        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Server has already been started");
+        ensureNotRunning();
         routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
     }
 
@@ -91,6 +99,30 @@ public class Http1TestServer extends AsyncServer {
         register(uriPattern, () -> new BasicServerExchangeHandler<>(requestHandler));
     }
 
+    /**
+     * @since 5.3
+     */
+    public void configure(final Http1Config http1Config) {
+        ensureNotRunning();
+        this.http1Config = http1Config;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final HttpProcessor httpProcessor) {
+        ensureNotRunning();
+        this.httpProcessor = httpProcessor;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator) {
+        ensureNotRunning();
+        this.exchangeHandlerDecorator = exchangeHandlerDecorator;
+    }
+
     public InetSocketAddress start(final IOEventHandlerFactory handlerFactory) throws Exception {
         execute(handlerFactory);
         final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
@@ -98,10 +130,31 @@ public class Http1TestServer extends AsyncServer {
         return (InetSocketAddress) listener.getAddress();
     }
 
+    /**
+     * @deprecated Use {@link #configure(Http1Config)}, {@link #configure(HttpProcessor)}, {@link #configure(Decorator)}, {@link #start()}.
+     */
+    @Deprecated
     public InetSocketAddress start(
             final HttpProcessor httpProcessor,
             final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
             final Http1Config http1Config) throws Exception {
+        configure(http1Config);
+        configure(exchangeHandlerDecorator);
+        configure(httpProcessor);
+        return start();
+    }
+
+    /**
+     * @deprecated Use {@link #configure(Http1Config)}, {@link #configure(HttpProcessor)}, {@link #start()}.
+     */
+    @Deprecated
+    public InetSocketAddress start(final HttpProcessor httpProcessor, final Http1Config http1Config) throws Exception {
+        configure(http1Config);
+        configure(httpProcessor);
+        return start();
+    }
+
+    public InetSocketAddress start() throws Exception {
         return start(new InternalServerHttp1EventHandlerFactory(
                 httpProcessor != null ? httpProcessor : HttpProcessors.server(),
                 new DefaultAsyncResponseExchangeHandlerFactory(
@@ -113,14 +166,6 @@ public class Http1TestServer extends AsyncServer {
                 sslContext,
                 sslSessionInitializer,
                 sslSessionVerifier));
-    }
-
-    public InetSocketAddress start(final HttpProcessor httpProcessor, final Http1Config http1Config) throws Exception {
-        return start(httpProcessor, null, http1Config);
-    }
-
-    public InetSocketAddress start() throws Exception {
-        return start(null, null, Http1Config.DEFAULT);
     }
 
 }

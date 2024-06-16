@@ -41,6 +41,7 @@ import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
+import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
@@ -51,10 +52,12 @@ import org.apache.hc.core5.http2.impl.H2Processors;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
 public class H2TestClient extends AsyncRequester {
@@ -63,6 +66,10 @@ public class H2TestClient extends AsyncRequester {
     private final SSLSessionInitializer sslSessionInitializer;
     private final SSLSessionVerifier sslSessionVerifier;
     private final List<RequestRouter.Entry<Supplier<AsyncPushConsumer>>> routeEntries;
+
+    private H2Config h2Config;
+    private Http1Config http1Config;
+    private HttpProcessor httpProcessor;
 
     public H2TestClient(
             final IOReactorConfig ioReactorConfig,
@@ -80,54 +87,121 @@ public class H2TestClient extends AsyncRequester {
         this(IOReactorConfig.DEFAULT, null, null, null);
     }
 
+    private void ensureNotRunning() {
+        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Client is already running");
+    }
+
     public void register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notNull(uriPattern, "URI pattern");
         Args.notNull(supplier, "Push consumer supplier");
         routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
     }
 
+    /**
+     * @since 5.3
+     */
+    public void configure(final H2Config h2Config) {
+        ensureNotRunning();
+        this.h2Config = h2Config;
+        this.http1Config = null;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final Http1Config http1Config) {
+        ensureNotRunning();
+        this.http1Config = http1Config;
+        this.h2Config = null;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final HttpProcessor httpProcessor) {
+        ensureNotRunning();
+        this.httpProcessor = httpProcessor;
+    }
+
     public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
         super.execute(handlerFactory);
     }
 
+    /**
+     * @deprecated Use {@link #configure(H2Config)}, {@link #configure(HttpProcessor)}, {@link #start()}.
+     */
+    @Deprecated
     public void start(final HttpProcessor httpProcessor, final H2Config h2Config) throws IOException {
-        start(new InternalClientProtocolNegotiationStarter(
-                httpProcessor,
-                new DefaultAsyncPushConsumerFactory(RequestRouter.create(
-                        RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null)),
-                HttpVersionPolicy.FORCE_HTTP_2,
-                h2Config,
-                Http1Config.DEFAULT,
-                CharCodingConfig.DEFAULT,
-                sslContext,
-                sslSessionInitializer,
-                sslSessionVerifier));
+        configure(h2Config);
+        configure(httpProcessor);
+        try {
+            start();
+        } catch (final IOException | RuntimeException ex) {
+            throw ex;
+        } catch (final Exception ex) {
+            throw new IOException(ex);
+        }
     }
 
+    /**
+     * @deprecated Use {@link #configure(Http1Config)}, {@link #configure(HttpProcessor)}, {@link #start()}.
+     */
+    @Deprecated
     public void start(final HttpProcessor httpProcessor, final Http1Config http1Config) throws IOException {
-        start(new InternalClientProtocolNegotiationStarter(
-                httpProcessor,
-                new DefaultAsyncPushConsumerFactory(RequestRouter.create(
-                        RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null)),
-                HttpVersionPolicy.FORCE_HTTP_1,
-                H2Config.DEFAULT,
-                http1Config,
-                CharCodingConfig.DEFAULT,
-                sslContext,
-                sslSessionInitializer,
-                sslSessionVerifier));
+        configure(http1Config);
+        configure(httpProcessor);
+        try {
+            start();
+        } catch (final IOException | RuntimeException ex) {
+            throw ex;
+        } catch (final Exception ex) {
+            throw new IOException(ex);
+        }
     }
 
+    /**
+     * @deprecated Use {@link #configure(H2Config)}, {@link #start()}.
+     */
+    @Deprecated
     public void start(final H2Config h2Config) throws IOException {
-        start(H2Processors.client(), h2Config);
+        start(null, h2Config);
     }
 
+    /**
+     * @deprecated Use {@link #configure(Http1Config)}, {@link #start()}.
+     */
+    @Deprecated
     public void start(final Http1Config http1Config) throws IOException {
-        start(H2Processors.client(), http1Config);
+        start(null, http1Config);
     }
 
     public void start() throws Exception {
-        start(H2Config.DEFAULT);
+        if (http1Config != null) {
+            start(new InternalClientProtocolNegotiationStarter(
+                    httpProcessor != null ? httpProcessor : HttpProcessors.client(),
+                    new DefaultAsyncPushConsumerFactory(RequestRouter.create(
+                            RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null)),
+                    HttpVersionPolicy.FORCE_HTTP_1,
+                    H2Config.DEFAULT,
+                    http1Config,
+                    CharCodingConfig.DEFAULT,
+                    sslContext,
+                    sslSessionInitializer,
+                    sslSessionVerifier));
+        } else {
+            start(new InternalClientProtocolNegotiationStarter(
+                    httpProcessor != null ? httpProcessor : H2Processors.client(),
+                    new DefaultAsyncPushConsumerFactory(RequestRouter.create(
+                            RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null)),
+                    HttpVersionPolicy.FORCE_HTTP_2,
+                    h2Config,
+                    Http1Config.DEFAULT,
+                    CharCodingConfig.DEFAULT,
+                    sslContext,
+                    sslSessionInitializer,
+                    sslSessionVerifier));
+        }
+
     }
 
     public Future<ClientSessionEndpoint> connect(

@@ -135,7 +135,7 @@ public class ClassicTestClientAdapter extends ClientPOJOAdapter {
             httpRequest.setEntity(entity);
         }
 
-        client.start(null);
+        client.start();
 
         // Now start the request.
         final HttpHost host = new HttpHost(uri.getHost(), uri.getPort());

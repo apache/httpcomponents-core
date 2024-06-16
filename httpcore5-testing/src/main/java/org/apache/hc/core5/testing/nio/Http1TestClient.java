@@ -32,9 +32,9 @@ import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLContext;
 
-import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
 import org.apache.hc.core5.http.config.Http1Config;
@@ -42,9 +42,11 @@ import org.apache.hc.core5.http.impl.DefaultConnectionReuseStrategy;
 import org.apache.hc.core5.http.impl.HttpProcessors;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorStatus;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
+import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
 public class Http1TestClient extends AsyncRequester  {
@@ -52,6 +54,9 @@ public class Http1TestClient extends AsyncRequester  {
     private final SSLContext sslContext;
     private final SSLSessionInitializer sslSessionInitializer;
     private final SSLSessionVerifier sslSessionVerifier;
+
+    private Http1Config http1Config;
+    private HttpProcessor httpProcessor;
 
     public Http1TestClient(
             final IOReactorConfig ioReactorConfig,
@@ -68,25 +73,55 @@ public class Http1TestClient extends AsyncRequester  {
         this(IOReactorConfig.DEFAULT, null, null, null);
     }
 
+    private void ensureNotRunning() {
+        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Client is already running");
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final Http1Config http1Config) {
+        ensureNotRunning();
+        this.http1Config = http1Config;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final HttpProcessor httpProcessor) {
+        ensureNotRunning();
+        this.httpProcessor = httpProcessor;
+    }
+
+    /**
+     * @deprecated Use {@link #configure(Http1Config)}, {@link #configure(HttpProcessor)}, {@link #start()}.
+     */
+    @Deprecated
     public void start(
             final HttpProcessor httpProcessor,
             final Http1Config http1Config) throws IOException {
+        configure(http1Config);
+        configure(httpProcessor);
+        start();
+    }
+
+    /**
+     * @deprecated Use {@link #configure(Http1Config)}, {@link #start()}.
+     */
+    @Deprecated
+    public void start(final Http1Config http1Config) throws IOException {
+        start(null, http1Config);
+    }
+
+    public void start() throws IOException {
         execute(new InternalClientHttp1EventHandlerFactory(
-                httpProcessor,
+                httpProcessor != null ? httpProcessor : HttpProcessors.client(),
                 http1Config,
                 CharCodingConfig.DEFAULT,
                 DefaultConnectionReuseStrategy.INSTANCE,
                 sslContext,
                 sslSessionInitializer,
                 sslSessionVerifier));
-    }
-
-    public void start(final Http1Config http1Config) throws IOException {
-        start(HttpProcessors.client(), http1Config);
-    }
-
-    public void start() throws IOException {
-        start(Http1Config.DEFAULT);
     }
 
     public Future<ClientSessionEndpoint> connect(

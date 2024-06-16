@@ -51,6 +51,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
+import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.TimeValue;
 
 public class ClassicTestClient {
@@ -59,6 +60,8 @@ public class ClassicTestClient {
     private final SocketConfig socketConfig;
 
     private final AtomicReference<HttpRequester> requesterRef;
+
+    private HttpProcessor httpProcessor;
 
     public ClassicTestClient(final SSLContext sslContext, final SocketConfig socketConfig) {
         super();
@@ -75,11 +78,35 @@ public class ClassicTestClient {
         this(null, null);
     }
 
-    public void start() {
-        start(null);
+    private HttpRequester ensureRunning() {
+        final HttpRequester requester = this.requesterRef.get();
+        Asserts.check(requester != null, "Requester is not running");
+        return requester;
     }
 
+    private void ensureNotRunning() {
+        final HttpRequester requester = this.requesterRef.get();
+        Asserts.check(requester == null, "Requester is already running");
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final HttpProcessor httpProcessor) {
+        ensureNotRunning();
+        this.httpProcessor = httpProcessor;
+    }
+
+    /**
+     * @deprecated Use {@link #configure(HttpProcessor)}, {@link #start()}.
+     */
+    @Deprecated
     public void start(final HttpProcessor httpProcessor) {
+        configure(httpProcessor);
+        start();
+    }
+
+    public void start() {
         if (requesterRef.get() == null) {
             final HttpRequestExecutor requestExecutor = new HttpRequestExecutor(
                     Http1Config.DEFAULT,
@@ -118,10 +145,7 @@ public class ClassicTestClient {
             final HttpHost targetHost,
             final ClassicHttpRequest request,
             final HttpContext context) throws HttpException, IOException {
-        final HttpRequester requester = this.requesterRef.get();
-        if (requester == null) {
-            throw new IllegalStateException("Requester has not been started");
-        }
+        final HttpRequester requester = ensureRunning();
         if (request.getAuthority() == null) {
             request.setAuthority(new URIAuthority(targetHost));
         }

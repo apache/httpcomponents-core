@@ -53,6 +53,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.Asserts;
 
 public class ClassicTestServer {
 
@@ -61,6 +62,10 @@ public class ClassicTestServer {
     private final List<RequestRouter.Entry<HttpRequestHandler>> routeEntries;
 
     private final AtomicReference<HttpServer> serverRef;
+
+    private Http1Config http1Config;
+    private HttpProcessor httpProcessor;
+    private Decorator<HttpServerRequestHandler> handlerDecorator;
 
     public ClassicTestServer(final SSLContext sslContext, final SocketConfig socketConfig) {
         super();
@@ -94,47 +99,87 @@ public class ClassicTestServer {
         register(hostname, pattern, handler);
     }
 
+    private HttpServer ensureRunning() {
+        final HttpServer server = this.serverRef.get();
+        Asserts.check(server != null, "Server is not running");
+        return server;
+    }
+
+    private void ensureNotRunning() {
+        final HttpServer server = this.serverRef.get();
+        Asserts.check(server == null, "Server is already running");
+    }
+
+    /**
+     * @since 5.3
+     */
     public void register(final String uriPattern, final HttpRequestHandler handler) {
         Args.notNull(uriPattern, "URI pattern");
         Args.notNull(handler, "Request handler");
-        final HttpServer server = this.serverRef.get();
-        if (server != null) {
-            throw new IllegalStateException("Server is already running");
-        }
+        ensureNotRunning();
         routeEntries.add(new RequestRouter.Entry<>(uriPattern, handler));
     }
 
+    /**
+     * @since 5.3
+     */
     public void register(final String hostname, final String uriPattern, final HttpRequestHandler handler) {
         Args.notNull(hostname, "Hostname");
         Args.notNull(uriPattern, "URI pattern");
         Args.notNull(handler, "Request handler");
-        final HttpServer server = this.serverRef.get();
-        if (server != null) {
-            throw new IllegalStateException("Server is already running");
-        }
+        ensureNotRunning();
         routeEntries.add(new RequestRouter.Entry<>(hostname, uriPattern, handler));
     }
 
+    /**
+     * @since 5.3
+     */
+    public void configure(final Http1Config http1Config) {
+        ensureNotRunning();
+        this.http1Config = http1Config;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final HttpProcessor httpProcessor) {
+        ensureNotRunning();
+        this.httpProcessor = httpProcessor;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final Decorator<HttpServerRequestHandler> handlerDecorator) {
+        ensureNotRunning();
+        this.handlerDecorator = handlerDecorator;
+    }
+
     public int getPort() {
-        final HttpServer server = this.serverRef.get();
-        if (server != null) {
-            return server.getLocalPort();
-        }
-        throw new IllegalStateException("Server not running");
+        final HttpServer server = ensureRunning();
+        return server.getLocalPort();
     }
 
     public InetAddress getInetAddress() {
-        final HttpServer server = this.serverRef.get();
-        if (server != null) {
-            return server.getInetAddress();
-        }
-        throw new IllegalStateException("Server not running");
+        final HttpServer server = ensureRunning();
+        return server.getInetAddress();
     }
 
+    /**
+     * @deprecated Use {@link #configure(Http1Config)}, {@link #configure(HttpProcessor)}, {@link #configure(Decorator)}, {@link #start()}.
+     */
+    @Deprecated
     public void start(
             final Http1Config http1Config,
             final HttpProcessor httpProcessor,
             final Decorator<HttpServerRequestHandler> handlerDecorator) throws IOException {
+        configure(http1Config);
+        configure(httpProcessor);
+        configure(handlerDecorator);
+        start();
+    }
+
+    public void start() throws IOException {
         if (serverRef.get() == null) {
             final HttpServerRequestHandler handler = new BasicHttpServerRequestHandler(
                     RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null));
@@ -162,10 +207,6 @@ public class ClassicTestServer {
         } else {
             throw new IllegalStateException("Server already running");
         }
-    }
-
-    public void start() throws IOException {
-        start(null, null, null);
     }
 
     public void shutdown(final CloseMode closeMode) {

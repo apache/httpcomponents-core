@@ -401,8 +401,7 @@ public abstract class ClassicIntegrationTest {
 
         // Initialize the server-side request handler
         server.register("*", (request, response, context) -> response.setEntity(new StringEntity("No content")));
-
-        server.start(null, null, handler -> new BasicHttpServerExpectationDecorator(handler) {
+        server.configure(handler -> new BasicHttpServerExpectationDecorator(handler) {
 
             @Override
             protected ClassicHttpResponse verify(final ClassicHttpRequest request, final HttpContext context) {
@@ -426,6 +425,7 @@ public abstract class ClassicIntegrationTest {
             }
 
         });
+        server.start();
         client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
@@ -634,11 +634,12 @@ public abstract class ClassicIntegrationTest {
         });
 
         server.start();
-        client.start(new DefaultHttpProcessor(
+        client.configure(new DefaultHttpProcessor(
                 RequestTargetHost.INSTANCE,
                 RequestConnControl.INSTANCE,
                 RequestUserAgent.INSTANCE,
                 RequestExpectContinue.INSTANCE));
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
@@ -668,12 +669,13 @@ public abstract class ClassicIntegrationTest {
         });
 
         server.start();
-        client.start(new DefaultHttpProcessor(
+        client.configure(new DefaultHttpProcessor(
                 (request, entity, context) -> request.addHeader(HttpHeaders.TRANSFER_ENCODING, "identity"),
                 RequestTargetHost.INSTANCE,
                 RequestConnControl.INSTANCE,
                 RequestUserAgent.INSTANCE,
                 RequestExpectContinue.INSTANCE));
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());
@@ -717,13 +719,11 @@ public abstract class ClassicIntegrationTest {
 
         server.register("*", (request, response, context) ->
                 response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
-
-        server.start(
+        server.configure(
                 Http1Config.custom()
                         .setMaxLineLength(100)
-                        .build(),
-                null,
-                null);
+                        .build());
+        server.start();
         client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
@@ -746,14 +746,14 @@ public abstract class ClassicIntegrationTest {
         server.register("*", (request, response, context) ->
                 response.setEntity(new StringEntity("All is well", StandardCharsets.US_ASCII)));
 
-        server.start(
+        server.configure(
                 Http1Config.custom()
                         .setMaxLineLength(100)
-                        .build(),
-                null,
-                null);
-        client.start(
+                        .build());
+        server.start();
+        client.configure(
                 new DefaultHttpProcessor(RequestContent.INSTANCE, RequestTargetHost.INSTANCE, RequestConnControl.INSTANCE));
+        client.start();
 
         final HttpCoreContext context = HttpCoreContext.create();
         final HttpHost host = new HttpHost(scheme.id, "localhost", server.getPort());

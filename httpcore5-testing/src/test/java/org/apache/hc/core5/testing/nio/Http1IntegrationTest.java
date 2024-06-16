@@ -224,8 +224,8 @@ public abstract class Http1IntegrationTest {
         final Http1TestClient client = resources.client();
 
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
-        final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
-        final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
+        server.configure(new DefaultHttpProcessor(new RequestValidateHost()));
+        final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
 
@@ -258,8 +258,8 @@ public abstract class Http1IntegrationTest {
         final Http1TestClient client = resources.client();
 
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
-        final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
-        final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
+        server.configure(new DefaultHttpProcessor(new RequestValidateHost()));
+        final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
 
@@ -293,8 +293,8 @@ public abstract class Http1IntegrationTest {
         final Http1TestClient client = resources.client();
 
         server.register("/hello", () -> new ImmediateResponseExchangeHandler(500, "Go away"));
-        final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
-        final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
+        server.configure(new DefaultHttpProcessor(new RequestValidateHost()));
+        final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
 
@@ -779,7 +779,7 @@ public abstract class Http1IntegrationTest {
 
             }
         });
-        final InetSocketAddress serverEndpoint = server.start(null, handler -> new BasicAsyncServerExpectationDecorator(handler) {
+        server.configure(handler -> new BasicAsyncServerExpectationDecorator(handler) {
 
             @Override
             protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
@@ -790,7 +790,8 @@ public abstract class Http1IntegrationTest {
                     return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
                 }
             }
-        }, Http1Config.DEFAULT);
+        });
+        final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
         final Future<IOSession> sessionFuture = client.requestSession(
@@ -870,7 +871,7 @@ public abstract class Http1IntegrationTest {
 
             }
         });
-        final InetSocketAddress serverEndpoint = server.start(null, handler -> new BasicAsyncServerExpectationDecorator(handler) {
+        server.configure(handler -> new BasicAsyncServerExpectationDecorator(handler) {
 
             @Override
             protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
@@ -883,7 +884,8 @@ public abstract class Http1IntegrationTest {
                     return new BasicResponseProducer(response, "You shall not pass");
                 }
             }
-        }, Http1Config.DEFAULT);
+        });
+        final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
         final Future<IOSession> sessionFuture = client.requestSession(
@@ -994,7 +996,11 @@ public abstract class Http1IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(Http1Config.custom().setWaitForContinueTimeout(Timeout.ofMilliseconds(100)).build());
+        client.configure(Http1Config.custom()
+                .setWaitForContinueTimeout(Timeout.ofMilliseconds(100))
+                .build());
+        client.start();
+
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
@@ -1120,7 +1126,10 @@ public abstract class Http1IntegrationTest {
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcd", 100));
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(Http1Config.custom().setBufferSize(256).build());
+        client.configure(Http1Config.custom()
+                .setBufferSize(256)
+                .build());
+        client.start();
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -1269,7 +1278,10 @@ public abstract class Http1IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(Http1Config.custom().setBufferSize(256).build());
+        client.configure(Http1Config.custom()
+                .setBufferSize(256)
+                .build());
+        client.start();
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -1768,9 +1780,10 @@ public abstract class Http1IntegrationTest {
         final Http1TestClient client = resources.client();
 
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
-        final InetSocketAddress serverEndpoint = server.start(null, Http1Config.custom()
+        server.configure(Http1Config.custom()
                 .setMaxLineLength(100)
                 .build());
+        final InetSocketAddress serverEndpoint = server.start();
         client.start();
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
@@ -1797,11 +1810,13 @@ public abstract class Http1IntegrationTest {
         final Http1TestClient client = resources.client();
 
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
-        final InetSocketAddress serverEndpoint = server.start(null, Http1Config.custom()
+        server.configure(Http1Config.custom()
                 .setMaxLineLength(100)
                 .build());
-        client.start(
-                new DefaultHttpProcessor(RequestContent.INSTANCE, RequestTargetHost.INSTANCE, RequestConnControl.INSTANCE), null);
+        final InetSocketAddress serverEndpoint = server.start();
+        client.configure(
+                new DefaultHttpProcessor(RequestContent.INSTANCE, RequestTargetHost.INSTANCE, RequestConnControl.INSTANCE));
+        client.start();
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);

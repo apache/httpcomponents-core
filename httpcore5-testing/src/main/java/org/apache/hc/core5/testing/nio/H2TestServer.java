@@ -67,6 +67,11 @@ public class H2TestServer extends AsyncServer {
     private final SSLSessionVerifier sslSessionVerifier;
     private final List<RequestRouter.Entry<Supplier<AsyncServerExchangeHandler>>> routeEntries;
 
+    private H2Config h2Config;
+    private Http1Config http1Config;
+    private HttpProcessor httpProcessor;
+    private Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator;
+
     public H2TestServer(
             final IOReactorConfig ioReactorConfig,
             final SSLContext sslContext,
@@ -83,10 +88,15 @@ public class H2TestServer extends AsyncServer {
         this(IOReactorConfig.DEFAULT, null, null, null);
     }
 
+    private void ensureNotRunning() {
+        Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Server is already running");
+    }
+
     public void register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notNull(uriPattern, "URI pattern");
         Args.notNull(supplier, "Exchange handler supplier");
         Asserts.check(getStatus() == IOReactorStatus.INACTIVE, "Server has already been started");
+        ensureNotRunning();
         routeEntries.add(new RequestRouter.Entry<>(uriPattern, supplier));
     }
 
@@ -96,62 +106,131 @@ public class H2TestServer extends AsyncServer {
         register(uriPattern, () -> new BasicServerExchangeHandler<>(requestHandler));
     }
 
+    /**
+     * @since 5.3
+     */
+    public void configure(final H2Config h2Config) {
+        ensureNotRunning();
+        this.h2Config = h2Config;
+        this.http1Config = null;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final Http1Config http1Config) {
+        ensureNotRunning();
+        this.http1Config = http1Config;
+        this.h2Config = null;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final HttpProcessor httpProcessor) {
+        ensureNotRunning();
+        this.httpProcessor = httpProcessor;
+    }
+
+    /**
+     * @since 5.3
+     */
+    public void configure(final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator) {
+        ensureNotRunning();
+        this.exchangeHandlerDecorator = exchangeHandlerDecorator;
+    }
+
     public void start(final IOEventHandlerFactory handlerFactory) throws IOException {
         execute(handlerFactory);
     }
 
-    public InetSocketAddress start(
-            final HttpProcessor httpProcessor,
-            final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
-            final H2Config h2Config) throws Exception {
-        start(new InternalServerProtocolNegotiationStarter(
-                httpProcessor != null ? httpProcessor : H2Processors.server(),
-                new DefaultAsyncResponseExchangeHandlerFactory(
-                        RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null),
-                        exchangeHandlerDecorator != null ? exchangeHandlerDecorator : BasicAsyncServerExpectationDecorator::new),
-                HttpVersionPolicy.FORCE_HTTP_2,
-                h2Config,
-                Http1Config.DEFAULT,
-                CharCodingConfig.DEFAULT,
-                sslContext,
-                sslSessionInitializer,
-                sslSessionVerifier));
-        final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
-        final ListenerEndpoint listener = future.get();
-        return (InetSocketAddress) listener.getAddress();
-    }
-
+    /**
+     * @deprecated Use {@link #configure(Http1Config)}, {@link #configure(HttpProcessor)}, {@link #configure(Decorator)}, {@link #start()}.
+     */
+    @Deprecated
     public InetSocketAddress start(
             final HttpProcessor httpProcessor,
             final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
             final Http1Config http1Config) throws Exception {
-        start(new InternalServerProtocolNegotiationStarter(
-                httpProcessor != null ? httpProcessor : HttpProcessors.server(),
-                new DefaultAsyncResponseExchangeHandlerFactory(
-                        RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null),
-                        exchangeHandlerDecorator != null ? exchangeHandlerDecorator : BasicAsyncServerExpectationDecorator::new),
-                HttpVersionPolicy.FORCE_HTTP_1,
-                H2Config.DEFAULT,
-                http1Config,
-                CharCodingConfig.DEFAULT,
-                sslContext,
-                sslSessionInitializer,
-                sslSessionVerifier));
-        final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
-        final ListenerEndpoint listener = future.get();
-        return (InetSocketAddress) listener.getAddress();
+        configure(http1Config);
+        configure(exchangeHandlerDecorator);
+        configure(httpProcessor);
+        return start();
     }
 
+    /**
+     * @deprecated Use {@link #configure(H2Config)}, {@link #configure(HttpProcessor)}, {@link #configure(Decorator)}, {@link #start()}.
+     */
+    @Deprecated
+    public InetSocketAddress start(
+            final HttpProcessor httpProcessor,
+            final Decorator<AsyncServerExchangeHandler> exchangeHandlerDecorator,
+            final H2Config h2Config) throws Exception {
+        configure(h2Config);
+        configure(exchangeHandlerDecorator);
+        configure(httpProcessor);
+        return start();
+    }
+
+    /**
+     * @deprecated Use {@link #configure(Http1Config)}, {@link #configure(HttpProcessor)}, {@link #start()}.
+     */
+    @Deprecated
+    public InetSocketAddress start(final HttpProcessor httpProcessor, final Http1Config http1Config) throws Exception {
+        configure(http1Config);
+        configure(httpProcessor);
+        return start();
+    }
+
+    /**
+     * @deprecated Use {@link #configure(H2Config)}, {@link #start()}.
+     */
+    @Deprecated
     public InetSocketAddress start(final H2Config h2Config) throws Exception {
-        return start(null, null, h2Config);
+        configure(h2Config);
+        return start();
     }
 
+    /**
+     * @deprecated Use {@link #configure(Http1Config)}, {@link #start()}.
+     */
+    @Deprecated
     public InetSocketAddress start(final Http1Config http1Config) throws Exception {
-        return start(null, null, http1Config);
+        configure(http1Config);
+        return start();
     }
 
     public InetSocketAddress start() throws Exception {
-        return start(H2Config.DEFAULT);
+        if (http1Config != null) {
+            start(new InternalServerProtocolNegotiationStarter(
+                    httpProcessor != null ? httpProcessor : HttpProcessors.server(),
+                    new DefaultAsyncResponseExchangeHandlerFactory(
+                            RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null),
+                            exchangeHandlerDecorator != null ? exchangeHandlerDecorator : BasicAsyncServerExpectationDecorator::new),
+                    HttpVersionPolicy.FORCE_HTTP_1,
+                    H2Config.DEFAULT,
+                    http1Config,
+                    CharCodingConfig.DEFAULT,
+                    sslContext,
+                    sslSessionInitializer,
+                    sslSessionVerifier));
+        } else {
+            start(new InternalServerProtocolNegotiationStarter(
+                    httpProcessor != null ? httpProcessor : H2Processors.server(),
+                    new DefaultAsyncResponseExchangeHandlerFactory(
+                            RequestRouter.create(RequestRouter.LOCAL_AUTHORITY, UriPatternType.URI_PATTERN, routeEntries, RequestRouter.LOCAL_AUTHORITY_RESOLVER, null),
+                            exchangeHandlerDecorator != null ? exchangeHandlerDecorator : BasicAsyncServerExpectationDecorator::new),
+                    HttpVersionPolicy.FORCE_HTTP_2,
+                    h2Config,
+                    Http1Config.DEFAULT,
+                    CharCodingConfig.DEFAULT,
+                    sslContext,
+                    sslSessionInitializer,
+                    sslSessionVerifier));
+        }
+        final Future<ListenerEndpoint> future = listen(new InetSocketAddress(0));
+        final ListenerEndpoint listener = future.get();
+        return (InetSocketAddress) listener.getAddress();
     }
 
 }

@@ -119,6 +119,7 @@ import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
@@ -135,6 +136,12 @@ public abstract class H2IntegrationTest {
     public H2IntegrationTest(final URIScheme scheme) {
         this.scheme = scheme;
         this.resources = new H2TestResources(scheme, TIMEOUT);
+    }
+
+    @BeforeEach
+    public void setup() {
+        resources.server().configure(H2Config.DEFAULT);
+        resources.client().configure(H2Config.DEFAULT);
     }
 
     private URI createRequestURI(final InetSocketAddress serverEndpoint, final String path) {
@@ -320,7 +327,11 @@ public abstract class H2IntegrationTest {
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcd", 3));
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H2Config.custom().setInitialWindowSize(16).build());
+        client.configure(H2Config.custom()
+                .setInitialWindowSize(16)
+                .build());
+        client.start();
+
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
@@ -467,9 +478,10 @@ public abstract class H2IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H2Config.custom()
+        client.configure(H2Config.custom()
                 .setInitialWindowSize(512)
                 .build());
+        client.start();
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -515,7 +527,10 @@ public abstract class H2IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H2Config.custom().setPushEnabled(true).build());
+        client.configure(H2Config.custom()
+                .setPushEnabled(true)
+                .build());
+        client.start();
 
         final BlockingQueue<Message<HttpResponse, String>> pushMessageQueue = new LinkedBlockingDeque<>();
 
@@ -613,7 +628,10 @@ public abstract class H2IntegrationTest {
         });
         final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H2Config.custom().setPushEnabled(true).build());
+        client.configure(H2Config.custom()
+                .setPushEnabled(true)
+                .build());
+        client.start();
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -647,9 +665,16 @@ public abstract class H2IntegrationTest {
         final H2TestClient client = resources.client();
 
         server.register("/", () -> new MultiLineResponseHandler("0123456789abcdef", 2000));
-        final InetSocketAddress serverEndpoint = server.start(H2Config.custom().setMaxConcurrentStreams(20).build());
+        server.configure(H2Config.custom()
+                .setMaxConcurrentStreams(20)
+                .build());
+        final InetSocketAddress serverEndpoint = server.start();
 
-        client.start(H2Config.custom().setMaxConcurrentStreams(20).build());
+        client.configure(H2Config.custom()
+                .setMaxConcurrentStreams(20)
+                .build());
+        client.start();
+
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
         final ClientSessionEndpoint streamEndpoint = connectFuture.get();
@@ -689,7 +714,7 @@ public abstract class H2IntegrationTest {
 
             }
         });
-        final InetSocketAddress serverEndpoint = server.start(null, handler -> new BasicAsyncServerExpectationDecorator(handler) {
+        server.configure(handler -> new BasicAsyncServerExpectationDecorator(handler) {
 
             @Override
             protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
@@ -700,8 +725,20 @@ public abstract class H2IntegrationTest {
                     return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
                 }
             }
-        }, H2Config.DEFAULT);
+        });
+        server.configure(handler -> new BasicAsyncServerExpectationDecorator(handler) {
 
+            @Override
+            protected AsyncResponseProducer verify(final HttpRequest request, final HttpContext context) throws IOException, HttpException {
+                final Header h = request.getFirstHeader("password");
+                if (h != null && "secret".equals(h.getValue())) {
+                    return null;
+                } else {
+                    return new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
+                }
+            }
+        });
+        final InetSocketAddress serverEndpoint = server.start();
         client.start();
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);
@@ -942,9 +979,11 @@ public abstract class H2IntegrationTest {
         final H2TestClient client = resources.client();
 
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
-        final InetSocketAddress serverEndpoint = server.start(H2Config.custom()
+        server.configure(H2Config.custom()
                 .setMaxHeaderListSize(100)
                 .build());
+        final InetSocketAddress serverEndpoint = server.start();
+
         client.start();
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
@@ -971,12 +1010,13 @@ public abstract class H2IntegrationTest {
         final H2TestClient client = resources.client();
 
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
-        final InetSocketAddress serverEndpoint = server.start(H2Config.custom()
+        server.configure(H2Config.custom()
                 .setMaxHeaderListSize(100)
                 .build());
-        client.start(
-                new DefaultHttpProcessor(H2RequestContent.INSTANCE, H2RequestTargetHost.INSTANCE, H2RequestConnControl.INSTANCE),
-                H2Config.DEFAULT);
+        final InetSocketAddress serverEndpoint = server.start();
+        client.configure(
+                new DefaultHttpProcessor(H2RequestContent.INSTANCE, H2RequestTargetHost.INSTANCE, H2RequestConnControl.INSTANCE));
+        client.start();
 
         final Future<ClientSessionEndpoint> connectFuture = client.connect(
                 "localhost", serverEndpoint.getPort(), TIMEOUT);

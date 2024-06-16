@@ -40,13 +40,11 @@ import org.apache.hc.core5.http.HttpHeaders;
 import org.apache.hc.core5.http.HttpResponse;
 import org.apache.hc.core5.http.Message;
 import org.apache.hc.core5.http.Method;
-import org.apache.hc.core5.http.config.Http1Config;
 import org.apache.hc.core5.http.nio.entity.StringAsyncEntityConsumer;
 import org.apache.hc.core5.http.nio.support.AsyncRequestBuilder;
 import org.apache.hc.core5.http.nio.support.BasicRequestProducer;
 import org.apache.hc.core5.http.nio.support.BasicResponseConsumer;
 import org.apache.hc.core5.http.protocol.DefaultHttpProcessor;
-import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.http.protocol.RequestValidateHost;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.ssl.SSLContextBuilder;
@@ -252,8 +250,8 @@ public abstract class JSSEProviderIntegrationTest {
     @Test
     public void testSimpleGetIdentityTransfer() throws Exception {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
-        final HttpProcessor httpProcessor = new DefaultHttpProcessor(new RequestValidateHost());
-        final InetSocketAddress serverEndpoint = server.start(httpProcessor, Http1Config.DEFAULT);
+        server.configure(new DefaultHttpProcessor(new RequestValidateHost()));
+        final InetSocketAddress serverEndpoint = server.start();
 
         client.start();
 
