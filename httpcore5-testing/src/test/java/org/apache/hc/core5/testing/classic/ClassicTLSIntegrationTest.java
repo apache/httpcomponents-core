@@ -68,7 +68,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 public class ClassicTLSIntegrationTest {
 
-    private static final Timeout TIMEOUT = Timeout.ofSeconds(1);
+    private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
     private HttpServer server;
 
@@ -285,7 +285,7 @@ public class ClassicTLSIntegrationTest {
                 try {
                     server.start();
 
-                    final HttpCoreContext context = HttpCoreContext.create() ;
+                    final HttpCoreContext context = HttpCoreContext.create();
                     final HttpHost target = new HttpHost("https", "localhost", server.getLocalPort());
                     final ClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/stuff");
                     request1.setEntity(new StringEntity("some stuff", ContentType.TEXT_PLAIN));

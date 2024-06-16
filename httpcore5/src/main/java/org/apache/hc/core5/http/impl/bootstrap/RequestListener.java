@@ -119,9 +119,15 @@ class RequestListener implements Runnable {
     public void run() {
         try {
             while (!isTerminated() && !Thread.interrupted()) {
-                final HttpServerConnection conn = createConnection(this.serverSocket.accept());
-                final Worker worker = new Worker(this.httpService, conn, this.exceptionListener);
-                this.executorService.execute(worker);
+                final Socket socket = this.serverSocket.accept();
+                try {
+                    final HttpServerConnection conn = createConnection(socket);
+                    final Worker worker = new Worker(this.httpService, conn, this.exceptionListener);
+                    this.executorService.execute(worker);
+                } catch (final IOException | RuntimeException ex) {
+                    Closer.closeQuietly(socket);
+                    throw ex;
+                }
             }
         } catch (final Exception ex) {
             this.exceptionListener.onError(ex);

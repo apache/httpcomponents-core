@@ -238,13 +238,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         }
     }
 
-    private HttpClientConnection createConnection(final HttpHost targetHost) throws IOException {
-        final Socket sock;
-        if (socketConfig.getSocksProxyAddress() != null) {
-            sock = new Socket(new Proxy(Proxy.Type.SOCKS, socketConfig.getSocksProxyAddress()));
-        } else {
-            sock = new Socket();
-        }
+    private HttpClientConnection createConnection(final Socket sock, final HttpHost targetHost) throws IOException {
         sock.setSoTimeout(socketConfig.getSoTimeout().toMillisecondsIntBound());
         sock.setReuseAddress(socketConfig.isSoReuseAddress());
         sock.setTcpNoDelay(socketConfig.isTcpNoDelay());
@@ -314,8 +308,19 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         try {
             HttpClientConnection connection = poolEntry.getConnection();
             if (connection == null) {
-                connection = createConnection(targetHost);
-                poolEntry.assignConnection(connection);
+                final Socket sock;
+                if (socketConfig.getSocksProxyAddress() != null) {
+                    sock = new Socket(new Proxy(Proxy.Type.SOCKS, socketConfig.getSocksProxyAddress()));
+                } else {
+                    sock = new Socket();
+                }
+                try {
+                    connection = createConnection(sock, targetHost);
+                    poolEntry.assignConnection(connection);
+                } catch (IOException | RuntimeException ex) {
+                    Closer.closeQuietly(sock);
+                    throw ex;
+                }
             }
             if (request.getAuthority() == null) {
                 request.setAuthority(new URIAuthority(targetHost.getHostName(), targetHost.getPort()));
