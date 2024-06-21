@@ -41,8 +41,8 @@ import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpRequestHandler;
 import org.apache.hc.core5.http.io.SocketConfig;
-import org.apache.hc.core5.testing.classic.extension.HttpRequesterResource;
-import org.apache.hc.core5.testing.classic.extension.HttpServerResource;
+import org.apache.hc.core5.testing.extension.classic.HttpRequesterResource;
+import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

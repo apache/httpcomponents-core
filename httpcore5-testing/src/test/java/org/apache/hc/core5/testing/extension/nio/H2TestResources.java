@@ -25,16 +25,15 @@
  *
  */
 
-package org.apache.hc.core5.testing.classic.extension;
+package org.apache.hc.core5.testing.extension.nio;
 
-import java.util.function.Consumer;
-
-import org.apache.hc.core5.http.impl.bootstrap.HttpRequester;
-import org.apache.hc.core5.http.impl.bootstrap.RequesterBootstrap;
-import org.apache.hc.core5.io.CloseMode;
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
-import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
+import org.apache.hc.core5.testing.nio.H2TestClient;
+import org.apache.hc.core5.testing.nio.H2TestServer;
+import org.apache.hc.core5.util.TimeValue;
+import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -42,45 +41,59 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpRequesterResource implements BeforeEachCallback, AfterEachCallback {
+public class H2TestResources implements BeforeEachCallback, AfterEachCallback {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HttpRequesterResource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(H2TestResources.class);
 
-    private final Consumer<RequesterBootstrap> bootstrapCustomizer;
+    private final URIScheme scheme;
+    private final Timeout socketTimeout;
 
-    private HttpRequester requester;
+    private H2TestServer server;
+    private H2TestClient client;
 
-    public HttpRequesterResource(final Consumer<RequesterBootstrap> bootstrapCustomizer) {
-        this.bootstrapCustomizer = bootstrapCustomizer;
+    public H2TestResources(final URIScheme scheme, final Timeout socketTimeout) {
+        this.scheme = scheme;
+        this.socketTimeout = socketTimeout;
     }
 
     @Override
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
+        LOG.debug("Starting up test server");
+        server = new H2TestServer(
+                IOReactorConfig.custom()
+                        .setSoTimeout(socketTimeout)
+                        .build(),
+                scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null, null, null);
+
         LOG.debug("Starting up test client");
-        final RequesterBootstrap bootstrap = RequesterBootstrap.bootstrap()
-                .setSslContext(SSLTestContexts.createClientSSLContext())
-                .setMaxTotal(2)
-                .setDefaultMaxPerRoute(2)
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE)
-                .setConnPoolListener(LoggingConnPoolListener.INSTANCE);
-        bootstrapCustomizer.accept(bootstrap);
-        requester = bootstrap.create();
+        client = new H2TestClient(
+                IOReactorConfig.custom()
+                        .setSoTimeout(socketTimeout)
+                        .build(),
+                scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null, null, null);
     }
 
     @Override
     public void afterEach(final ExtensionContext extensionContext) throws Exception {
         LOG.debug("Shutting down test client");
-        if (requester != null) {
-            try {
-                requester.close(CloseMode.GRACEFUL);
-            } catch (final Exception ignore) {
-            }
+        if (client != null) {
+            client.shutdown(TimeValue.ofSeconds(5));
+        }
+
+        LOG.debug("Shutting down test server");
+        if (server != null) {
+            server.shutdown(TimeValue.ofSeconds(5));
         }
     }
 
-    public HttpRequester start() {
-        Assertions.assertNotNull(requester);
-        return requester;
+    public H2TestClient client() {
+        Assertions.assertNotNull(client);
+        return client;
+    }
+
+    public H2TestServer server() {
+        Assertions.assertNotNull(server);
+        return server;
     }
 
 }

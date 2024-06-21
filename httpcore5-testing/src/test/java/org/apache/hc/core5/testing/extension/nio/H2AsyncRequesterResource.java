@@ -25,17 +25,19 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio.extension;
+package org.apache.hc.core5.testing.extension.nio;
 
 import java.util.function.Consumer;
 
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequester;
-import org.apache.hc.core5.http2.impl.nio.bootstrap.H2MultiplexingRequesterBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
+import org.apache.hc.core5.http2.impl.nio.bootstrap.H2RequesterBootstrap;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.SSLTestContexts;
+import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.testing.nio.LoggingExceptionCallback;
 import org.apache.hc.core5.testing.nio.LoggingH2StreamListener;
+import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
 import org.junit.jupiter.api.Assertions;
@@ -45,24 +47,26 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class H2MultiplexingRequesterResource implements BeforeEachCallback, AfterEachCallback {
+public class H2AsyncRequesterResource implements BeforeEachCallback, AfterEachCallback {
 
-    private static final Logger LOG = LoggerFactory.getLogger(H2MultiplexingRequesterResource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(H2AsyncRequesterResource.class);
 
-    private final Consumer<H2MultiplexingRequesterBootstrap> bootstrapCustomizer;
+    private final Consumer<H2RequesterBootstrap> bootstrapCustomizer;
 
-    private H2MultiplexingRequester requester;
+    private HttpAsyncRequester requester;
 
-    public H2MultiplexingRequesterResource(final Consumer<H2MultiplexingRequesterBootstrap> bootstrapCustomizer) {
+    public H2AsyncRequesterResource(final Consumer<H2RequesterBootstrap> bootstrapCustomizer) {
         this.bootstrapCustomizer = bootstrapCustomizer;
     }
 
     @Override
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
         LOG.debug("Starting up test client");
-        final H2MultiplexingRequesterBootstrap bootstrap = H2MultiplexingRequesterBootstrap.bootstrap()
+        final H2RequesterBootstrap bootstrap = H2RequesterBootstrap.bootstrap()
                 .setTlsStrategy(new H2ClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+                .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                 .setStreamListener(LoggingH2StreamListener.INSTANCE)
+                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE);
@@ -81,7 +85,7 @@ public class H2MultiplexingRequesterResource implements BeforeEachCallback, Afte
         }
     }
 
-    public H2MultiplexingRequester start() {
+    public HttpAsyncRequester start() {
         Assertions.assertNotNull(requester);
         requester.start();
         return requester;

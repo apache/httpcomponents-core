@@ -127,7 +127,7 @@ import org.apache.hc.core5.http.protocol.RequestValidateHost;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.testing.nio.extension.Http1TestResources;
+import org.apache.hc.core5.testing.extension.nio.Http1TestResources;
 import org.apache.hc.core5.util.CharArrayBuffer;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;

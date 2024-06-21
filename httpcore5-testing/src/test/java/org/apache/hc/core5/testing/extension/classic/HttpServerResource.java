@@ -25,20 +25,18 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio.extension;
+package org.apache.hc.core5.testing.extension.classic;
 
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
-import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
-import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
+import org.apache.hc.core5.http.URIScheme;
+import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
+import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.testing.nio.LoggingExceptionCallback;
-import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
-import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
-import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
+import org.apache.hc.core5.testing.classic.LoggingExceptionListener;
+import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -46,15 +44,17 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpAsyncServerResource implements BeforeEachCallback, AfterEachCallback {
+public class HttpServerResource implements BeforeEachCallback, AfterEachCallback {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HttpAsyncServerResource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpServerResource.class);
 
-    private final Consumer<AsyncServerBootstrap> bootstrapCustomizer;
+    private final URIScheme scheme;
+    private final Consumer<ServerBootstrap> bootstrapCustomizer;
 
-    private HttpAsyncServer server;
+    private HttpServer server;
 
-    public HttpAsyncServerResource(final Consumer<AsyncServerBootstrap> bootstrapCustomizer) {
+    public HttpServerResource(final URIScheme scheme, final Consumer<ServerBootstrap> bootstrapCustomizer) {
+        this.scheme = scheme;
         this.bootstrapCustomizer = bootstrapCustomizer;
     }
 
@@ -62,12 +62,10 @@ public class HttpAsyncServerResource implements BeforeEachCallback, AfterEachCal
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
         LOG.debug("Starting up test server");
 
-        final AsyncServerBootstrap bootstrap = AsyncServerBootstrap.bootstrap()
-                .setTlsStrategy(new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
-                .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
-                .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                .setIOSessionListener(LoggingIOSessionListener.INSTANCE);
+        final ServerBootstrap bootstrap = ServerBootstrap.bootstrap()
+                .setSslContext(scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null)
+                .setExceptionListener(LoggingExceptionListener.INSTANCE)
+                .setStreamListener(LoggingHttp1StreamListener.INSTANCE);
         bootstrapCustomizer.accept(bootstrap);
         server = bootstrap.create();
     }
@@ -83,7 +81,7 @@ public class HttpAsyncServerResource implements BeforeEachCallback, AfterEachCal
         }
     }
 
-    public HttpAsyncServer start() throws IOException {
+    public HttpServer start() throws IOException {
         Assertions.assertNotNull(server);
         server.start();
         return server;

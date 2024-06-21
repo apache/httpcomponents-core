@@ -25,7 +25,7 @@
  *
  */
 
-package org.apache.hc.core5.testing.nio.extension;
+package org.apache.hc.core5.testing.extension.nio;
 
 import org.apache.hc.core5.http.URIScheme;
 import org.apache.hc.core5.reactor.IOReactorConfig;

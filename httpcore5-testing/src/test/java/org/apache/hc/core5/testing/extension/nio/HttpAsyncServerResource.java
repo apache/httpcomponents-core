@@ -25,15 +25,20 @@
  *
  */
 
-package org.apache.hc.core5.testing.classic.extension;
+package org.apache.hc.core5.testing.extension.nio;
 
-import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.io.SocketConfig;
+import java.io.IOException;
+import java.util.function.Consumer;
+
+import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
+import org.apache.hc.core5.http.nio.ssl.BasicServerTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.testing.classic.ClassicTestClient;
-import org.apache.hc.core5.testing.classic.ClassicTestServer;
-import org.apache.hc.core5.util.Timeout;
+import org.apache.hc.core5.testing.nio.LoggingExceptionCallback;
+import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
+import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
+import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -41,58 +46,46 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClassicTestResources implements BeforeEachCallback, AfterEachCallback {
+public class HttpAsyncServerResource implements BeforeEachCallback, AfterEachCallback {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClassicTestResources.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpAsyncServerResource.class);
 
-    private final URIScheme scheme;
-    private final Timeout socketTimeout;
+    private final Consumer<AsyncServerBootstrap> bootstrapCustomizer;
 
-    private ClassicTestServer server;
-    private ClassicTestClient client;
+    private HttpAsyncServer server;
 
-    public ClassicTestResources(final URIScheme scheme, final Timeout socketTimeout) {
-        this.scheme = scheme;
-        this.socketTimeout = socketTimeout;
+    public HttpAsyncServerResource(final Consumer<AsyncServerBootstrap> bootstrapCustomizer) {
+        this.bootstrapCustomizer = bootstrapCustomizer;
     }
 
     @Override
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
         LOG.debug("Starting up test server");
-        server = new ClassicTestServer(
-                scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null,
-                SocketConfig.custom()
-                        .setSoTimeout(socketTimeout)
-                        .build());
 
-        LOG.debug("Starting up test client");
-        client = new ClassicTestClient(
-                scheme == URIScheme.HTTPS  ? SSLTestContexts.createClientSSLContext() : null,
-                SocketConfig.custom()
-                        .setSoTimeout(socketTimeout)
-                        .build());
+        final AsyncServerBootstrap bootstrap = AsyncServerBootstrap.bootstrap()
+                .setTlsStrategy(new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext()))
+                .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
+                .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
+                .setIOSessionListener(LoggingIOSessionListener.INSTANCE);
+        bootstrapCustomizer.accept(bootstrap);
+        server = bootstrap.create();
     }
 
     @Override
     public void afterEach(final ExtensionContext extensionContext) throws Exception {
-        LOG.debug("Shutting down test client");
-        if (client != null) {
-            client.shutdown(CloseMode.IMMEDIATE);
-        }
-
         LOG.debug("Shutting down test server");
         if (server != null) {
-            server.shutdown(CloseMode.IMMEDIATE);
+            try {
+                server.close(CloseMode.IMMEDIATE);
+            } catch (final Exception ignore) {
+            }
         }
     }
 
-    public ClassicTestClient client() {
-        Assertions.assertNotNull(client);
-        return client;
-    }
-
-    public ClassicTestServer server() {
+    public HttpAsyncServer start() throws IOException {
         Assertions.assertNotNull(server);
+        server.start();
         return server;
     }
 

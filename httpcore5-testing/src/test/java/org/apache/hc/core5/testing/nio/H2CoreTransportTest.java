@@ -37,8 +37,8 @@ import org.apache.hc.core5.http.impl.routing.RequestRouter;
 import org.apache.hc.core5.http.nio.AsyncServerExchangeHandler;
 import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
-import org.apache.hc.core5.testing.nio.extension.H2AsyncRequesterResource;
-import org.apache.hc.core5.testing.nio.extension.H2AsyncServerResource;
+import org.apache.hc.core5.testing.extension.nio.H2AsyncRequesterResource;
+import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 

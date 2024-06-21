@@ -25,18 +25,19 @@
  *
  */
 
-package org.apache.hc.core5.testing.classic.extension;
+package org.apache.hc.core5.testing.extension.nio;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
-import org.apache.hc.core5.http.URIScheme;
-import org.apache.hc.core5.http.impl.bootstrap.HttpServer;
-import org.apache.hc.core5.http.impl.bootstrap.ServerBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.AsyncRequesterBootstrap;
+import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncRequester;
+import org.apache.hc.core5.http.nio.ssl.BasicClientTlsStrategy;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.SSLTestContexts;
-import org.apache.hc.core5.testing.classic.LoggingExceptionListener;
-import org.apache.hc.core5.testing.classic.LoggingHttp1StreamListener;
+import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
+import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
+import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
+import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -44,47 +45,48 @@ import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HttpServerResource implements BeforeEachCallback, AfterEachCallback {
+public class HttpAsyncRequesterResource implements BeforeEachCallback, AfterEachCallback {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HttpServerResource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpAsyncRequesterResource.class);
 
-    private final URIScheme scheme;
-    private final Consumer<ServerBootstrap> bootstrapCustomizer;
+    private final Consumer<AsyncRequesterBootstrap> bootstrapCustomizer;
 
-    private HttpServer server;
+    private HttpAsyncRequester requester;
 
-    public HttpServerResource(final URIScheme scheme, final Consumer<ServerBootstrap> bootstrapCustomizer) {
-        this.scheme = scheme;
+    public HttpAsyncRequesterResource(final Consumer<AsyncRequesterBootstrap> bootstrapCustomizer) {
         this.bootstrapCustomizer = bootstrapCustomizer;
     }
 
     @Override
     public void beforeEach(final ExtensionContext extensionContext) throws Exception {
-        LOG.debug("Starting up test server");
-
-        final ServerBootstrap bootstrap = ServerBootstrap.bootstrap()
-                .setSslContext(scheme == URIScheme.HTTPS ? SSLTestContexts.createServerSSLContext() : null)
-                .setExceptionListener(LoggingExceptionListener.INSTANCE)
-                .setStreamListener(LoggingHttp1StreamListener.INSTANCE);
+        LOG.debug("Starting up test client");
+        final AsyncRequesterBootstrap bootstrap = AsyncRequesterBootstrap.bootstrap()
+                .setTlsStrategy(new BasicClientTlsStrategy(SSLTestContexts.createClientSSLContext()))
+                .setMaxTotal(2)
+                .setDefaultMaxPerRoute(2)
+                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
+                .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
+                .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
+                .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE);
         bootstrapCustomizer.accept(bootstrap);
-        server = bootstrap.create();
+        requester = bootstrap.create();
     }
 
     @Override
     public void afterEach(final ExtensionContext extensionContext) throws Exception {
-        LOG.debug("Shutting down test server");
-        if (server != null) {
+        LOG.debug("Shutting down test client");
+        if (requester != null) {
             try {
-                server.close(CloseMode.IMMEDIATE);
+                requester.close(CloseMode.GRACEFUL);
             } catch (final Exception ignore) {
             }
         }
     }
 
-    public HttpServer start() throws IOException {
-        Assertions.assertNotNull(server);
-        server.start();
-        return server;
+    public HttpAsyncRequester start() {
+        Assertions.assertNotNull(requester);
+        requester.start();
+        return requester;
     }
 
 }

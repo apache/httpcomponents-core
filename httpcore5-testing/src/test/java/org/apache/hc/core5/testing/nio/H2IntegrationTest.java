@@ -114,7 +114,7 @@ import org.apache.hc.core5.http2.protocol.H2RequestContent;
 import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
 import org.apache.hc.core5.reactor.Command;
 import org.apache.hc.core5.reactor.IOSession;
-import org.apache.hc.core5.testing.nio.extension.H2TestResources;
+import org.apache.hc.core5.testing.extension.nio.H2TestResources;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
