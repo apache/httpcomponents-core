@@ -34,6 +34,9 @@ import java.net.URL;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.http.HttpHeaders;
@@ -52,6 +55,7 @@ import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 import org.conscrypt.Conscrypt;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.AfterEachCallback;
@@ -80,6 +84,9 @@ public abstract class JSSEProviderIntegrationTest {
         @Override
         public void beforeEach(final ExtensionContext context) throws Exception {
             if ("Conscrypt".equalsIgnoreCase(securityProviderName)) {
+                final Set<String> supportedArchitectures = new HashSet<>(Arrays.asList("x86", "x86_64",
+                        "x86-64", "amd64", "aarch64", "armeabi-v7a", "arm64-v8a"));
+                Assumptions.assumeTrue(supportedArchitectures.contains(System.getProperty("os.arch")));
                 try {
                     securityProvider = Conscrypt.newProviderBuilder().provideTrustManager(true).build();
                 } catch (final UnsatisfiedLinkError e) {
