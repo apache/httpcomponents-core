@@ -1,3 +1,39 @@
+Release 5.2.5
+------------------
+
+This is a maintenance release that corrects several minor defects discovered since
+release 5.2.4.
+
+Change Log
+-------------------
+
+* Minor performance optimization of response out of sequence check.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: Corrected exception type thrown in case of an unexpected connection
+  termination.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Bug fix: HTTP/1.1 server-side stream handler to validate the request message before
+  the request routing and handler resolution.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HPackDecoder incorrectly calculates required buffer length causing G1 Humongous
+  Allocation and OOM (#465).
+  Contributed by crazylulululu <42406448+crazylulululu@users.noreply.github.com>
+
+* Performance optimization: HttpVersion#get is called in the critical execution path
+  of the HTTP/1.1 protocol.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* HTTPCORE-763: remove checks that assert a path does not start with "//"
+  Contributed by Marco Bungart <marco.bungart@googlemail.com>
+
+* Fix: URIBuilder#getFirstQueryParam(String) throws NPE when query is empty (#449).
+  Contributed by Konstantin Sorokin <skssxf@gmail.com>
+
+
+
 Release 5.2.4
 ------------------
 
@@ -658,7 +694,7 @@ Change Log
   Contributed by Lee Ray <liruigo at gmail.com>
 
 * Added exception callback to async server implementations enabling logging of unexpected and
-  fatal exceptions in the server side protocol handlers.
+  fatal exceptions in the server-side protocol handlers.
   Contributed by Oleg Kalnichevski <olegk at apache.org>
 
 
