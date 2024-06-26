@@ -37,10 +37,10 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestStringAsyncEntityProducer {
+class TestStringAsyncEntityProducer {
 
     @Test
-    public void testTextContent() throws Exception {
+    void testTextContent() throws Exception {
 
         final AsyncEntityProducer producer = new StringAsyncEntityProducer(
                 "abc", ContentType.TEXT_PLAIN);
@@ -59,7 +59,7 @@ public class TestStringAsyncEntityProducer {
     }
 
     @Test
-    public void testTextContentRepeatable() throws Exception {
+    void testTextContentRepeatable() throws Exception {
         final AsyncEntityProducer producer = new StringAsyncEntityProducer(
                 "abc", ContentType.TEXT_PLAIN);
 

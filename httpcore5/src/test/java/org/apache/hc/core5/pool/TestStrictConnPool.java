@@ -48,10 +48,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-public class TestStrictConnPool {
+class TestStrictConnPool {
 
     @Test
-    public void testEmptyPool() throws Exception {
+    void testEmptyPool() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10)) {
             final PoolStats totals = pool.getTotalStats();
             Assertions.assertEquals(0, totals.getAvailable());
@@ -69,7 +69,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testInvalidConstruction() throws Exception {
+    void testInvalidConstruction() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 new StrictConnPool<String, HttpConnection>(-1, 1));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
@@ -77,7 +77,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testLeaseRelease() throws Exception {
+    void testLeaseRelease() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
@@ -112,7 +112,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testLeaseReleaseMultiThreaded() throws Exception {
+    void testLeaseReleaseMultiThreaded() throws Exception {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10)) {
 
             final int c = 10;
@@ -157,7 +157,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testLeaseInvalid() throws Exception {
+    void testLeaseInvalid() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 10)) {
             Assertions.assertThrows(NullPointerException.class, () ->
                     pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null));
@@ -167,7 +167,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testReleaseUnknownEntry() throws Exception {
+    void testReleaseUnknownEntry() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
                 Assertions.assertThrows(IllegalStateException.class, () ->
                     pool.release(new PoolEntry<>("somehost"), true));
@@ -175,7 +175,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testMaxLimits() throws Exception {
+    void testMaxLimits() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
@@ -256,7 +256,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testConnectionRedistributionOnTotalMaxLimit() throws Exception {
+    void testConnectionRedistributionOnTotalMaxLimit() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn3 = Mockito.mock(HttpConnection.class);
@@ -343,7 +343,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testStatefulConnectionRedistributionOnPerRouteMaxLimit() throws Exception {
+    void testStatefulConnectionRedistributionOnPerRouteMaxLimit() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
 
@@ -407,7 +407,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testCreateNewIfExpired() throws Exception {
+    void testCreateNewIfExpired() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
 
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
@@ -441,7 +441,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testCloseExpired() throws Exception {
+    void testCloseExpired() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
 
@@ -484,7 +484,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testCloseIdle() throws Exception {
+    void testCloseIdle() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
         final HttpConnection conn2 = Mockito.mock(HttpConnection.class);
 
@@ -540,7 +540,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testLeaseRequestTimeout() throws Exception {
+    void testLeaseRequestTimeout() throws Exception {
         final HttpConnection conn1 = Mockito.mock(HttpConnection.class);
 
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1)) {
@@ -581,7 +581,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testLeaseRequestLockTimeout() throws Exception {
+    void testLeaseRequestLockTimeout() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
         final CountDownLatch lockHeld = new CountDownLatch(1);
         final Thread holdInternalLock = new HoldInternalLockThread(pool, lockHeld);
@@ -599,7 +599,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testLeaseRequestInterrupted() throws Exception {
+    void testLeaseRequestInterrupted() throws Exception {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1);
         final CountDownLatch lockHeld = new CountDownLatch(1);
         final Thread holdInternalLock = new HoldInternalLockThread(pool, lockHeld);
@@ -617,7 +617,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testLeaseRequestCanceled() throws Exception {
+    void testLeaseRequestCanceled() throws Exception {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(1, 1)) {
 
             final Future<PoolEntry<String, HttpConnection>> future1 = pool.lease("somehost", null,
@@ -641,14 +641,14 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testGetStatsInvalid() throws Exception {
+    void testGetStatsInvalid() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
             Assertions.assertThrows(NullPointerException.class, () -> pool.getStats(null));
         }
     }
 
     @Test
-    public void testSetMaxInvalid() throws Exception {
+    void testSetMaxInvalid() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
             Assertions.assertThrows(IllegalArgumentException.class, () ->
                     pool.setMaxTotal(-1));
@@ -660,7 +660,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testSetMaxPerRoute() throws Exception {
+    void testSetMaxPerRoute() {
         try (final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2)) {
             pool.setMaxPerRoute("somehost", 1);
             Assertions.assertEquals(1, pool.getMaxPerRoute("somehost"));
@@ -672,7 +672,7 @@ public class TestStrictConnPool {
     }
 
     @Test
-    public void testShutdown() throws Exception {
+    void testShutdown() {
         final StrictConnPool<String, HttpConnection> pool = new StrictConnPool<>(2, 2);
         pool.close(CloseMode.GRACEFUL);
         Assertions.assertThrows(IllegalStateException.class, () -> pool.lease("somehost", null));

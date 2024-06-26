@@ -37,10 +37,10 @@ import org.apache.hc.core5.http.nio.BasicDataStreamChannel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestDigestingEntityProducer {
+class TestDigestingEntityProducer {
 
     @Test
-    public void testProduceData() throws Exception {
+    void testProduceData() throws Exception {
 
         final DigestingEntityProducer producer = new DigestingEntityProducer("MD5",
                 new StringAsyncEntityProducer("12345", ContentType.TEXT_PLAIN));

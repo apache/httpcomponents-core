@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link org.apache.hc.core5.http.message.StatusLine}.
  */
-public class TestBasicStatusLine {
+class TestBasicStatusLine {
 
     @Test
-    public void testGetStatusClass() {
+    void testGetStatusClass() {
         StatusLine statusLine = new StatusLine(new BasicHttpResponse(100, "Continue"));
         Assertions.assertEquals(StatusClass.INFORMATIONAL, statusLine.getStatusClass());
 
@@ -58,7 +58,7 @@ public class TestBasicStatusLine {
     }
 
     @Test
-    public void testGetStatusShorthand() {
+    void testGetStatusShorthand() {
         StatusLine statusLine = new StatusLine(new BasicHttpResponse(100, "Continue"));
         Assertions.assertTrue(statusLine.isInformational());
         Assertions.assertFalse(statusLine.isSuccessful());

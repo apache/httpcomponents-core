@@ -48,7 +48,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class TestSharedOutputBuffer {
+class TestSharedOutputBuffer {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -113,7 +113,7 @@ public class TestSharedOutputBuffer {
     }
 
     @Test
-    public void testBasis() throws Exception {
+    void testBasis() throws Exception {
 
         final Charset charset = StandardCharsets.US_ASCII;
         final SharedOutputBuffer outputBuffer = new SharedOutputBuffer(30);
@@ -140,7 +140,7 @@ public class TestSharedOutputBuffer {
     }
 
     @Test
-    public void testFlush() throws Exception {
+    void testFlush() throws Exception {
 
         final Charset charset = StandardCharsets.US_ASCII;
         final SharedOutputBuffer outputBuffer = new SharedOutputBuffer(30);
@@ -165,7 +165,7 @@ public class TestSharedOutputBuffer {
     }
 
     @Test
-    public void testMultithreadingWriteStream() throws Exception {
+    void testMultithreadingWriteStream() throws Exception {
 
         final Charset charset = StandardCharsets.US_ASCII;
         final SharedOutputBuffer outputBuffer = new SharedOutputBuffer(20);
@@ -207,7 +207,7 @@ public class TestSharedOutputBuffer {
     }
 
     @Test
-    public void testMultithreadingWriteStreamAbort() throws Exception {
+    void testMultithreadingWriteStreamAbort() throws Exception {
 
         final Charset charset = StandardCharsets.US_ASCII;
         final SharedOutputBuffer outputBuffer = new SharedOutputBuffer(20);
@@ -236,7 +236,7 @@ public class TestSharedOutputBuffer {
     }
 
     @Test
-    public void testEndStreamOnlyCalledOnce() throws IOException {
+    void testEndStreamOnlyCalledOnce() throws IOException {
 
         final DataStreamChannel channel = Mockito.mock(DataStreamChannel.class);
         final SharedOutputBuffer outputBuffer = new SharedOutputBuffer(20);

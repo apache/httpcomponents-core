@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link BasicHttpEntity}.
  *
  */
-public class TestBasicHttpEntity {
+class TestBasicHttpEntity {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity httpentity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length, null);
         Assertions.assertEquals(bytes.length, httpentity.getContentLength());
@@ -53,7 +53,7 @@ public class TestBasicHttpEntity {
     }
 
     @Test
-    public void testConstructorNullContent() throws Exception {
+    void testConstructorNullContent() {
         // BasicHttpEntity(InputStream, ContentType)
         Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, ContentType.APPLICATION_ATOM_XML));
         Assertions.assertThrows(NullPointerException.class, () -> new BasicHttpEntity(null, null));
@@ -75,7 +75,7 @@ public class TestBasicHttpEntity {
     }
 
     @Test
-    public void testToString() throws Exception {
+    void testToString() throws Exception {
         try (final BasicHttpEntity httpentity = new BasicHttpEntity(EmptyInputStream.INSTANCE, 10,
                 ContentType.parseLenient("blah"), "yada", true)) {
             Assertions.assertEquals(
@@ -85,7 +85,7 @@ public class TestBasicHttpEntity {
     }
 
     @Test
-    public void testWriteTo() throws Exception {
+    void testWriteTo() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity httpentity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length,
                 ContentType.TEXT_PLAIN);

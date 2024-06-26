@@ -42,7 +42,7 @@ import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestAbstractCharAsyncEntityConsumer {
+class TestAbstractCharAsyncEntityConsumer {
 
     static private class StringBuilderAsyncEntityConsumer extends AbstractCharAsyncEntityConsumer<String> {
 
@@ -80,7 +80,7 @@ public class TestAbstractCharAsyncEntityConsumer {
     }
 
     @Test
-    public void testConsumeData() throws Exception {
+    void testConsumeData() throws Exception {
 
         final AsyncEntityConsumer<String> consumer = new StringBuilderAsyncEntityConsumer();
 
@@ -116,7 +116,7 @@ public class TestAbstractCharAsyncEntityConsumer {
     }
 
     @Test
-    public void testConsumeIncompleteData() throws Exception {
+    void testConsumeIncompleteData() throws Exception {
 
         final AsyncEntityConsumer<String> consumer = new StringBuilderAsyncEntityConsumer();
 

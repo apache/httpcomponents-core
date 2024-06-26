@@ -32,22 +32,22 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class HttpBinIT {
+class HttpBinIT {
     private H2CompatibilityTest h2CompatibilityTest;
 
     @BeforeEach
-    public void start() throws Exception {
+    void start() throws Exception {
         h2CompatibilityTest = new H2CompatibilityTest();
         h2CompatibilityTest.start();
     }
 
     @AfterEach
-    public void shutdown() throws Exception {
+    void shutdown() throws Exception {
         h2CompatibilityTest.shutdown();
     }
 
     @Test
-    public void executeHttpBin() throws Exception {
+    void executeHttpBin() throws Exception {
         h2CompatibilityTest.executeHttpBin(new HttpHost("http", "localhost", 8082));
     }
 }

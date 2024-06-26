@@ -40,10 +40,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link PathEntity}.
  */
-public class TestPathEntity {
+class TestPathEntity {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final Path tmpPath = Files.createTempFile("testfile", ".txt");
         // Mark the file for deletion on VM exit if an assertion fails.
         tmpPath.toFile().deleteOnExit();
@@ -60,12 +60,12 @@ public class TestPathEntity {
     }
 
     @Test
-    public void testNullConstructor() throws Exception {
+    void testNullConstructor() {
         Assertions.assertThrows(NullPointerException.class, () -> new PathEntity(null, ContentType.TEXT_PLAIN));
     }
 
     @Test
-    public void testWriteTo() throws Exception {
+    void testWriteTo() throws Exception {
         final Path tmpPath = Files.createTempFile("testfile", ".txt");
         // Mark the file for deletion on VM exit if an assertion fails.
         tmpPath.toFile().deleteOnExit();

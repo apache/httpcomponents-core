@@ -41,17 +41,17 @@ import org.junit.jupiter.api.Test;
  * Tests for {@link BasicLineParser}.
  *
  */
-public class TestBasicLineParser {
+class TestBasicLineParser {
 
     private BasicLineParser parser;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.parser = BasicLineParser.INSTANCE;
     }
 
     @Test
-    public void testRLParse() throws Exception {
+    void testRLParse() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         //typical request line
         buf.clear();
@@ -81,7 +81,7 @@ public class TestBasicLineParser {
     }
 
     @Test
-    public void testRLParseFailure() throws Exception {
+    void testRLParseFailure() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         buf.clear();
         buf.append("    ");
@@ -101,7 +101,7 @@ public class TestBasicLineParser {
     }
 
     @Test
-    public void testSLParse() throws Exception {
+    void testSLParse() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         //typical status line
         buf.clear();
@@ -170,7 +170,7 @@ public class TestBasicLineParser {
     }
 
     @Test
-    public void testSLParseFailure() throws Exception {
+    void testSLParseFailure() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         buf.clear();
         buf.append("xxx 200 OK");
@@ -196,7 +196,7 @@ public class TestBasicLineParser {
     }
 
     @Test
-    public void testHttpVersionParsing() throws Exception {
+    void testHttpVersionParsing() throws Exception {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("HTTP/1.1");
         final ParserCursor cursor = new ParserCursor(0, buffer.length());
@@ -224,7 +224,7 @@ public class TestBasicLineParser {
     }
 
     @Test
-    public void testInvalidHttpVersionParsing() throws Exception {
+    void testInvalidHttpVersionParsing() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.clear();
         buffer.append("    ");
@@ -269,7 +269,7 @@ public class TestBasicLineParser {
     }
 
     @Test
-    public void testHeaderParse() throws Exception {
+    void testHeaderParse() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         //typical request line
         buf.clear();
@@ -287,7 +287,7 @@ public class TestBasicLineParser {
     }
 
     @Test
-    public void testInvalidHeaderParsing() throws Exception {
+    void testInvalidHeaderParsing() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.clear();
         buffer.append("");

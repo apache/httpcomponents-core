@@ -41,10 +41,10 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestDefaultH2RequestConverter {
+class TestDefaultH2RequestConverter {
 
     @Test
-    public void testConvertFromFieldsBasic() throws Exception {
+    void testConvertFromFieldsBasic() throws Exception {
 
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
@@ -67,7 +67,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsUpperCaseHeaderName() throws Exception {
+    void testConvertFromFieldsUpperCaseHeaderName() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -81,7 +81,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsConnectionHeader() throws Exception {
+    void testConvertFromFieldsConnectionHeader() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -95,7 +95,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsPseudoHeaderSequence() throws Exception {
+    void testConvertFromFieldsPseudoHeaderSequence() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -109,7 +109,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsMissingMethod() throws Exception {
+    void testConvertFromFieldsMissingMethod() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":scheme", "http"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -122,7 +122,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsMissingScheme() throws Exception {
+    void testConvertFromFieldsMissingScheme() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -135,7 +135,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsMissingPath() throws Exception {
+    void testConvertFromFieldsMissingPath() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -148,7 +148,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsUnknownPseudoHeader() throws Exception {
+    void testConvertFromFieldsUnknownPseudoHeader() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -162,7 +162,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsMultipleMethod() throws Exception {
+    void testConvertFromFieldsMultipleMethod() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":method", "GET"),
@@ -177,7 +177,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsMultipleScheme() throws Exception {
+    void testConvertFromFieldsMultipleScheme() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -192,7 +192,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsMultiplePath() throws Exception {
+    void testConvertFromFieldsMultiplePath() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "https"),
@@ -207,7 +207,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsConnect() throws Exception {
+    void testConvertFromFieldsConnect() throws Exception {
 
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
@@ -219,7 +219,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsConnectMissingAuthority() throws Exception {
+    void testConvertFromFieldsConnectMissingAuthority() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader("custom", "value"));
@@ -230,7 +230,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsConnectPresentScheme() throws Exception {
+    void testConvertFromFieldsConnectPresentScheme() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader(":scheme", "http"),
@@ -243,7 +243,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsConnectPresentPath() throws Exception {
+    void testConvertFromFieldsConnectPresentPath() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "CONNECT"),
                 new BasicHeader(":authority", "www.example.com"),
@@ -256,7 +256,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromMessageBasic() throws Exception {
+    void testConvertFromMessageBasic() throws Exception {
 
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("custom123", "Value");
@@ -284,7 +284,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromMessageMissingScheme() throws Exception {
+    void testConvertFromMessageMissingScheme() {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Custom123", "Value");
         request.setScheme(null);
@@ -294,7 +294,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromMessageMissingPath() throws Exception {
+    void testConvertFromMessageMissingPath() {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Custom123", "Value");
         request.setPath(null);
@@ -304,7 +304,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromMessageConnect() throws Exception {
+    void testConvertFromMessageConnect() throws Exception {
 
         final HttpRequest request = new BasicHttpRequest("CONNECT", new HttpHost("host:80"), null);
         request.addHeader("custom123", "Value");
@@ -326,7 +326,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromMessageConnectMissingAuthority() throws Exception {
+    void testConvertFromMessageConnectMissingAuthority() {
         final HttpRequest request = new BasicHttpRequest("CONNECT", null, null);
         request.addHeader("Custom123", "Value");
 
@@ -336,7 +336,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromMessageConnectWithPath() throws Exception {
+    void testConvertFromMessageConnectWithPath() {
         final HttpRequest request = new BasicHttpRequest("CONNECT", "/");
         request.setAuthority(new URIAuthority("host"));
         request.addHeader("Custom123", "Value");
@@ -347,7 +347,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromMessageConnectionHeader() throws Exception {
+    void testConvertFromMessageConnectionHeader() {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Connection", "Keep-Alive");
 
@@ -357,7 +357,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsKeepAliveHeader() throws Exception {
+    void testConvertFromFieldsKeepAliveHeader() {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Keep-Alive", "timeout=5, max=1000");
 
@@ -367,7 +367,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsProxyConnectionHeader() throws Exception {
+    void testConvertFromFieldsProxyConnectionHeader() {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Proxy-Connection", "keep-alive");
 
@@ -377,7 +377,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsTransferEncodingHeader() throws Exception {
+    void testConvertFromFieldsTransferEncodingHeader() {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Transfer-Encoding", "gzip");
 
@@ -387,7 +387,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsHostHeader() throws Exception {
+    void testConvertFromFieldsHostHeader() {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Host", "host");
 
@@ -397,7 +397,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsUpgradeHeader() throws Exception {
+    void testConvertFromFieldsUpgradeHeader() {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("Upgrade", "example/1, foo/2");
 
@@ -407,7 +407,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsTEHeader() throws Exception {
+    void testConvertFromFieldsTEHeader() {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader("TE", "gzip");
 
@@ -417,7 +417,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromFieldsTETrailerHeader() throws Exception {
+    void testConvertFromFieldsTETrailerHeader() throws Exception {
 
         final List<Header> headers = Arrays.asList(
             new BasicHeader(":method", "GET"),
@@ -440,7 +440,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testConvertFromMessageInvalidHeader() throws Exception {
+    void testConvertFromMessageInvalidHeader() {
         final HttpRequest request = new BasicHttpRequest("GET", new HttpHost("host"), "/");
         request.addHeader(":custom", "stuff");
 
@@ -451,7 +451,7 @@ public class TestDefaultH2RequestConverter {
 
 
     @Test
-    public void testValidPath() throws Exception {
+    void testValidPath() throws Exception {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -469,7 +469,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testInvalidPathEmpty() {
+    void testInvalidPathEmpty() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -483,7 +483,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testInvalidPathNoSlash() {
+    void testInvalidPathNoSlash() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "GET"),
                 new BasicHeader(":scheme", "http"),
@@ -497,7 +497,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testValidOptionsAsterisk() throws Exception {
+    void testValidOptionsAsterisk() throws Exception {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "OPTIONS"),
                 new BasicHeader(":scheme", "http"),
@@ -513,7 +513,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testValidOptionsWithRootPath() throws HttpException {
+    void testValidOptionsWithRootPath() throws HttpException {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "OPTIONS"),
                 new BasicHeader(":scheme", "http"),
@@ -529,7 +529,7 @@ public class TestDefaultH2RequestConverter {
     }
 
     @Test
-    public void testInvalidOptionsNeitherAsteriskNorRoot() {
+    void testInvalidOptionsNeitherAsteriskNorRoot() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":method", "OPTIONS"),
                 new BasicHeader(":scheme", "http"),

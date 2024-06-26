@@ -31,12 +31,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestTokenizer {
+class TestTokenizer {
 
     private Tokenizer parser;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() {
         parser = new Tokenizer();
     }
 
@@ -50,7 +50,7 @@ public class TestTokenizer {
     }
 
     @Test
-    public void testBasicTokenParsing() throws Exception {
+    void testBasicTokenParsing() {
         final String s = "   raw: \" some stuff \"";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
@@ -88,7 +88,7 @@ public class TestTokenizer {
     }
 
     @Test
-    public void testTokenParsingWithQuotedPairs() throws Exception {
+    void testTokenParsingWithQuotedPairs() {
         final String s = "raw: \"\\\"some\\stuff\\\\\"";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
@@ -118,7 +118,7 @@ public class TestTokenizer {
     }
 
     @Test
-    public void testTokenParsingIncompleteQuote() throws Exception {
+    void testTokenParsingIncompleteQuote() {
         final String s = "\"stuff and more stuff  ";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
@@ -128,7 +128,7 @@ public class TestTokenizer {
     }
 
     @Test
-    public void testTokenParsingTokensWithUnquotedBlanks() throws Exception {
+    void testTokenParsingTokensWithUnquotedBlanks() {
         final String s = "  stuff and   \tsome\tmore  stuff  ;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
@@ -137,7 +137,7 @@ public class TestTokenizer {
     }
 
     @Test
-    public void testTokenParsingMixedValuesAndQuotedValues() throws Exception {
+    void testTokenParsingMixedValuesAndQuotedValues() {
         final String s = "  stuff and    \" some more \"   \"stuff  ;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
@@ -146,7 +146,7 @@ public class TestTokenizer {
     }
 
     @Test
-    public void testTokenParsingMixedValuesAndQuotedValues2() throws Exception {
+    void testTokenParsingMixedValuesAndQuotedValues2() {
         final String s = "stuff\"more\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
@@ -155,7 +155,7 @@ public class TestTokenizer {
     }
 
     @Test
-    public void testTokenParsingEscapedQuotes() throws Exception {
+    void testTokenParsingEscapedQuotes() {
         final String s = "stuff\"\\\"more\\\"\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
@@ -164,7 +164,7 @@ public class TestTokenizer {
     }
 
     @Test
-    public void testTokenParsingEscapedDelimiter() throws Exception {
+    void testTokenParsingEscapedDelimiter() {
         final String s = "stuff\"\\\"more\\\";\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
@@ -173,7 +173,7 @@ public class TestTokenizer {
     }
 
     @Test
-    public void testTokenParsingEscapedSlash() throws Exception {
+    void testTokenParsingEscapedSlash() {
         final String s = "stuff\"\\\"more\\\";\\\\\"stuff;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());
@@ -182,7 +182,7 @@ public class TestTokenizer {
     }
 
     @Test
-    public void testTokenParsingSlashOutsideQuotes() throws Exception {
+    void testTokenParsingSlashOutsideQuotes() {
         final String s = "stuff\\; more stuff;";
         final CharArrayBuffer raw = createBuffer(s);
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(0, s.length());

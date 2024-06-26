@@ -136,7 +136,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class Http1IntegrationTest {
+abstract class Http1IntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
     private static final Timeout LONG_TIMEOUT = Timeout.ofMinutes(2);
@@ -162,7 +162,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testSimpleGet() throws Exception {
+    void testSimpleGet() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -189,7 +189,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testSimpleGetConnectionClose() throws Exception {
+    void testSimpleGetConnectionClose() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -219,7 +219,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testSimpleGetIdentityTransfer() throws Exception {
+    void testSimpleGetIdentityTransfer() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -253,7 +253,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testPostIdentityTransfer() throws Exception {
+    void testPostIdentityTransfer() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -288,7 +288,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testPostIdentityTransferOutOfSequenceResponse() throws Exception {
+    void testPostIdentityTransferOutOfSequenceResponse() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -323,7 +323,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testSimpleGetsPipelined() throws Exception {
+    void testSimpleGetsPipelined() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -354,7 +354,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testLargeGet() throws Exception {
+    void testLargeGet() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -400,7 +400,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testLargeGetsPipelined() throws Exception {
+    void testLargeGetsPipelined() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -435,7 +435,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testBasicPost() throws Exception {
+    void testBasicPost() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -463,7 +463,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testBasicPostPipelined() throws Exception {
+    void testBasicPostPipelined() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -495,7 +495,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testHttp10Post() throws Exception {
+    void testHttp10Post() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -524,7 +524,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testHTTP11FeaturesDisabledWithHTTP10Requests() throws Exception {
+    void testHTTP11FeaturesDisabledWithHTTP10Requests() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -546,7 +546,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testNoEntityPost() throws Exception {
+    void testNoEntityPost() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -574,7 +574,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testLargePost() throws Exception {
+    void testLargePost() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -606,7 +606,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testPostsPipelinedLargeResponse() throws Exception {
+    void testPostsPipelinedLargeResponse() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -643,7 +643,7 @@ public abstract class Http1IntegrationTest {
 
 
     @Test
-    public void testLargePostsPipelined() throws Exception {
+    void testLargePostsPipelined() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -679,7 +679,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testSimpleHead() throws Exception {
+    void testSimpleHead() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -705,7 +705,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testSimpleHeadConnectionClose() throws Exception {
+    void testSimpleHeadConnectionClose() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -734,7 +734,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testHeadPipelined() throws Exception {
+    void testHeadPipelined() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -764,7 +764,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testExpectationFailed() throws Exception {
+    void testExpectationFailed() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -856,7 +856,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testExpectationFailedCloseConnection() throws Exception {
+    void testExpectationFailedCloseConnection() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -912,7 +912,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testDelayedExpectationVerification() throws Exception {
+    void testDelayedExpectationVerification() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1024,7 +1024,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testPrematureResponse() throws Exception {
+    void testPrematureResponse() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1119,7 +1119,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testSlowResponseConsumer() throws Exception {
+    void testSlowResponseConsumer() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1176,7 +1176,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testSlowRequestProducer() throws Exception {
+    void testSlowRequestProducer() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1225,7 +1225,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testSlowResponseProducer() throws Exception {
+    void testSlowResponseProducer() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1305,7 +1305,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testPipelinedConnectionClose() throws Exception {
+    void testPipelinedConnectionClose() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1366,7 +1366,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testPipelinedInvalidRequest() throws Exception {
+    void testPipelinedInvalidRequest() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1463,7 +1463,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testTruncatedChunk() throws Exception {
+    void testTruncatedChunk() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1548,7 +1548,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testExceptionInHandler() throws Exception {
+    void testExceptionInHandler() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1582,7 +1582,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testNoServiceHandler() throws Exception {
+    void testNoServiceHandler() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1607,7 +1607,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testResponseNoContent() throws Exception {
+    void testResponseNoContent() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1641,7 +1641,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testMessageWithTrailers() throws Exception {
+    void testMessageWithTrailers() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1699,7 +1699,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testProtocolException() throws Exception {
+    void testProtocolException() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1775,7 +1775,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testHeaderTooLarge() throws Exception {
+    void testHeaderTooLarge() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 
@@ -1805,7 +1805,7 @@ public abstract class Http1IntegrationTest {
     }
 
     @Test
-    public void testHeaderTooLargePost() throws Exception {
+    void testHeaderTooLargePost() throws Exception {
         final Http1TestServer server = resources.server();
         final Http1TestClient client = resources.client();
 

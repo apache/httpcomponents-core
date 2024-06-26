@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
  * Tests for {@link BasicHeaderElementIterator}.
  *
  */
-public class TestBasicHeaderElementIterator {
+class TestBasicHeaderElementIterator {
 
     @Test
-    public void testMultiHeader() {
+    void testMultiHeader() {
         final Header[] headers = new Header[]{
                 new BasicHeader("Name", "value0"),
                 new BasicHeader("Name", "value1")
@@ -66,7 +66,7 @@ public class TestBasicHeaderElementIterator {
     }
 
     @Test
-    public void testMultiHeaderSameLine() {
+    void testMultiHeaderSameLine() {
         final Header[] headers = new Header[]{
                 new BasicHeader("name", "value0,value1"),
                 new BasicHeader("nAme", "cookie1=1,cookie2=2")
@@ -89,7 +89,7 @@ public class TestBasicHeaderElementIterator {
     }
 
     @Test
-    public void testFringeCases() {
+    void testFringeCases() {
         final Header[] headers = new Header[]{
                 new BasicHeader("Name", null),
                 new BasicHeader("Name", "    "),

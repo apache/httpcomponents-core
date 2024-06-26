@@ -51,16 +51,16 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link EntityUtils}.
  *
  */
-public class TestEntityUtils {
+class TestEntityUtils {
 
     @Test
-    public void testNullEntityToByteArray() throws Exception {
+    void testNullEntityToByteArray() {
         Assertions.assertThrows(NullPointerException.class, () ->
                 EntityUtils.toByteArray(null));
     }
 
     @Test
-    public void testMaxIntContentToByteArray() throws Exception {
+    void testMaxIntContentToByteArray() {
         final byte[] content = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(content),
                 Integer.MAX_VALUE + 100L, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.US_ASCII));
@@ -69,7 +69,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testUnknownLengthContentToByteArray() throws Exception {
+    void testUnknownLengthContentToByteArray() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), -1, null);
         final byte[] bytes2 = EntityUtils.toByteArray(entity);
@@ -81,7 +81,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testKnownLengthContentToByteArray() throws Exception {
+    void testKnownLengthContentToByteArray() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length, null);
         final byte[] bytes2 = EntityUtils.toByteArray(entity);
@@ -93,12 +93,12 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testNullEntityToString() throws Exception {
+    void testNullEntityToString() {
         Assertions.assertThrows(NullPointerException.class, () -> EntityUtils.toString(null));
     }
 
     @Test
-    public void testMaxIntContentToString() throws Exception {
+    void testMaxIntContentToString() {
         final byte[] content = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(content),
                 Integer.MAX_VALUE + 100L, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.US_ASCII));
@@ -107,7 +107,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testUnknownLengthContentToString() throws Exception {
+    void testUnknownLengthContentToString() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), -1, null);
         final String s = EntityUtils.toString(entity, "US-ASCII");
@@ -115,7 +115,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testKnownLengthContentToString() throws Exception {
+    void testKnownLengthContentToString() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), bytes.length,
                 ContentType.TEXT_PLAIN.withCharset(StandardCharsets.US_ASCII));
@@ -143,7 +143,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testNoCharsetContentToString() throws Exception {
+    void testNoCharsetContentToString() {
         final String content = constructString(SWISS_GERMAN_HELLO);
         final byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), ContentType.TEXT_PLAIN);
@@ -151,7 +151,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testDefaultCharsetContentToString() throws Exception {
+    void testDefaultCharsetContentToString() throws Exception {
         final String content = constructString(RUSSIAN_HELLO);
         final byte[] bytes = content.getBytes(Charset.forName("KOI8-R"));
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes),
@@ -161,7 +161,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testContentWithContentTypeToString() throws Exception {
+    void testContentWithContentTypeToString() throws Exception {
         final String content = constructString(RUSSIAN_HELLO);
         final byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes),
@@ -171,7 +171,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testContentWithInvalidContentTypeToString() throws Exception {
+    void testContentWithInvalidContentTypeToString() throws Exception {
         final String content = constructString(RUSSIAN_HELLO);
         final byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         final HttpEntity entity = new AbstractHttpEntity("text/plain; charset=nosuchcharset", null) {
@@ -209,7 +209,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testParseEntity() throws Exception {
+    void testParseEntity() throws Exception {
         final StringEntity entity1 = new StringEntity("Name1=Value1", ContentType.APPLICATION_FORM_URLENCODED);
         final List<NameValuePair> result = EntityUtils.parse(entity1);
         Assertions.assertEquals(1, result.size());
@@ -220,7 +220,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testParseUTF8Entity() throws Exception {
+    void testParseUTF8Entity() throws Exception {
         final String ru_hello = constructString(RUSSIAN_HELLO);
         final String ch_hello = constructString(SWISS_GERMAN_HELLO);
         final List <NameValuePair> parameters = new ArrayList<>();
@@ -240,7 +240,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testByteArrayMaxResultLength() throws IOException {
+    void testByteArrayMaxResultLength() throws IOException {
         final byte[] allBytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final Map<Integer, byte[]> testCases = new HashMap<>();
         testCases.put(0, new byte[]{});
@@ -262,7 +262,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testByteArrayMaxResultLengthWithNoContentLength() throws IOException {
+    void testByteArrayMaxResultLengthWithNoContentLength() throws IOException {
         final byte b = 'b';
         final byte[] allBytes = new byte[5000];
         Arrays.fill(allBytes, b);
@@ -286,7 +286,7 @@ public class TestEntityUtils {
     }
 
     @Test
-    public void testStringMaxResultLength() throws IOException, ParseException {
+    void testStringMaxResultLength() throws IOException, ParseException {
         final String allMessage = "Message content";
         final byte[] allBytes = allMessage.getBytes(StandardCharsets.US_ASCII);
         final Map<Integer, String> testCases = new HashMap<>();

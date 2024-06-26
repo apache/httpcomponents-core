@@ -33,10 +33,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link TlsCiphers}.
  */
-public class TestTlsCiphers {
+class TestTlsCiphers {
 
     @Test
-    public void testStrongCipherSuites() {
+    void testStrongCipherSuites() {
         final String[] strongCipherSuites = {
                 "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
                 "TLS_RSA_WITH_AES_256_CBC_SHA256",
@@ -51,7 +51,7 @@ public class TestTlsCiphers {
     }
 
     @Test
-    public void testWeakCiphersDisabledByDefault() {
+    void testWeakCiphersDisabledByDefault() {
         final String[] weakCiphersSuites = {
                 "SSL_RSA_WITH_RC4_128_SHA",
                 "SSL_RSA_WITH_3DES_EDE_CBC_SHA",

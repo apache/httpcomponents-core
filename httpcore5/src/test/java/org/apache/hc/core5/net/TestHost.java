@@ -40,10 +40,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link Host}.
  *
  */
-public class TestHost {
+class TestHost {
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         final Host host1 = new Host("somehost", 8080);
         Assertions.assertEquals("somehost", host1.getHostName());
         Assertions.assertEquals(8080, host1.getPort());
@@ -63,7 +63,7 @@ public class TestHost {
     }
 
     @Test
-    public void testHashCode() throws Exception {
+    void testHashCode() {
         final Host host1 = new Host("somehost", 8080);
         final Host host2 = new Host("somehost", 80);
         final Host host3 = new Host("someotherhost", 8080);
@@ -76,7 +76,7 @@ public class TestHost {
     }
 
     @Test
-    public void testEquals() throws Exception {
+    void testEquals() {
         final Host host1 = new Host("somehost", 8080);
         final Host host2 = new Host("somehost", 80);
         final Host host3 = new Host("someotherhost", 8080);
@@ -89,13 +89,13 @@ public class TestHost {
     }
 
     @Test
-    public void testToString() throws Exception {
+    void testToString() {
         final Host host1 = new Host("somehost", 8888);
         Assertions.assertEquals("somehost:8888", host1.toString());
     }
 
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization() throws Exception {
         final Host orig = new Host("somehost", 8080);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
         final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
@@ -109,7 +109,7 @@ public class TestHost {
     }
 
     @Test
-    public void testCreateFromString() throws Exception {
+    void testCreateFromString() throws Exception {
         Assertions.assertEquals(new Host("somehost", 8080), Host.create("somehost:8080"));
         Assertions.assertEquals(new Host("somehost", 1234), Host.create("somehost:1234"));
         Assertions.assertEquals(new Host("somehost", 0), Host.create("somehost:0"));
@@ -118,32 +118,32 @@ public class TestHost {
     }
 
     @Test
-    public void testCreateFromStringInvalid() throws Exception {
+    void testCreateFromStringInvalid() {
         Assertions.assertThrows(URISyntaxException.class, () -> Host.create(" host "));
         Assertions.assertThrows(URISyntaxException.class, () -> Host.create("host :8080"));
         Assertions.assertThrows(IllegalArgumentException.class, () -> Host.create(""));
     }
 
     @Test
-    public void testIpv6HostAndPort() throws Exception {
+    void testIpv6HostAndPort() throws Exception {
         final Host host = Host.create("[::1]:80");
         Assertions.assertEquals("::1", host.getHostName());
         Assertions.assertEquals(80, host.getPort());
     }
 
     @Test
-    public void testIpv6HostAndPortWithoutBrackets() {
+    void testIpv6HostAndPortWithoutBrackets() {
         // ambiguous
         Assertions.assertThrows(URISyntaxException.class, () -> Host.create("::1:80"));
     }
 
     @Test
-    public void testIpv6HostWithoutPort() {
+    void testIpv6HostWithoutPort() {
         Assertions.assertThrows(URISyntaxException.class, () -> Host.create("::1"));
     }
 
     @Test
-    public void testIpv6HostToString() {
+    void testIpv6HostToString() {
         Assertions.assertEquals("[::1]:80", new Host("::1", 80).toString());
         Assertions.assertEquals("[::1]", new Host("::1", -1).toString());
     }

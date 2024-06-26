@@ -69,7 +69,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class Http1AuthenticationTest {
+abstract class Http1AuthenticationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -128,7 +128,7 @@ public abstract class Http1AuthenticationTest {
     }
 
     @Test
-    public void testGetRequestAuthentication() throws Exception {
+    void testGetRequestAuthentication() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
@@ -162,7 +162,7 @@ public abstract class Http1AuthenticationTest {
     }
 
     @Test
-    public void testPostRequestAuthentication() throws Exception {
+    void testPostRequestAuthentication() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();
@@ -200,7 +200,7 @@ public abstract class Http1AuthenticationTest {
     }
 
     @Test
-    public void testPostRequestAuthenticationNoExpectContinue() throws Exception {
+    void testPostRequestAuthenticationNoExpectContinue() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);
         final ListenerEndpoint listener = future.get();

@@ -40,10 +40,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link AbstractMessageParser}.
  */
-public class TestMessageParser {
+class TestMessageParser {
 
     @Test
-    public void testBasicHeaderParsing() throws Exception {
+    void testBasicHeaderParsing() throws Exception {
         final String s =
             "header1: stuff\r\n" +
             "header2:  stuff \r\n" +
@@ -66,7 +66,7 @@ public class TestMessageParser {
     }
 
     @Test
-    public void testParsingHeader() throws Exception {
+    void testParsingHeader() throws Exception {
         final String s = "header1: stuff; param1 = value1; param2 = \"value 2\" \r\n" +
                 "\r\n";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
@@ -78,7 +78,7 @@ public class TestMessageParser {
     }
 
     @Test
-    public void testParsingInvalidHeaders() throws Exception {
+    void testParsingInvalidHeaders() {
         final String s1 = "    stuff\r\n" +
             "header1: stuff\r\n" +
             "\r\n";
@@ -96,7 +96,7 @@ public class TestMessageParser {
     }
 
     @Test
-    public void testParsingMalformedFirstHeader() throws Exception {
+    void testParsingMalformedFirstHeader() throws Exception {
         final String s =
             "    header1: stuff\r\n" +
             "header2: stuff \r\n";
@@ -112,7 +112,7 @@ public class TestMessageParser {
     }
 
     @Test
-    public void testEmptyDataStream() throws Exception {
+    void testEmptyDataStream() throws Exception {
         final String s = "";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.US_ASCII.newDecoder());
@@ -122,7 +122,7 @@ public class TestMessageParser {
     }
 
     @Test
-    public void testMaxHeaderCount() throws Exception {
+    void testMaxHeaderCount() {
         final String s =
             "header1: stuff\r\n" +
             "header2: stuff \r\n" +
@@ -135,7 +135,7 @@ public class TestMessageParser {
     }
 
     @Test
-    public void testMaxHeaderCountForFoldedHeader() throws Exception {
+    void testMaxHeaderCountForFoldedHeader() {
         final String s =
             "header1: stuff\r\n" +
             " stuff \r\n" +

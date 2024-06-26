@@ -42,10 +42,10 @@ import org.apache.hc.core5.http2.impl.BasicH2TransportMetrics;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestFrameInOutBuffers {
+class TestFrameInOutBuffers {
 
     @Test
-    public void testReadWriteFrame() throws Exception {
+    void testReadWriteFrame() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(16 * 1024);
 
@@ -80,7 +80,7 @@ public class TestFrameInOutBuffers {
     }
 
     @Test
-    public void testReadFrameMultiple() throws Exception {
+    void testReadFrameMultiple() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(
                 new byte[] {
@@ -118,7 +118,7 @@ public class TestFrameInOutBuffers {
     }
 
     @Test
-    public void testReadFrameMultipleSmallBuffer() throws Exception {
+    void testReadFrameMultipleSmallBuffer() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(new BasicH2TransportMetrics(), 20, 10);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(
                 new byte[] {
@@ -170,7 +170,7 @@ public class TestFrameInOutBuffers {
     }
 
     @Test
-    public void testReadFramePartialReads() throws Exception {
+    void testReadFramePartialReads() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final MultiByteArrayInputStream inputStream = new MultiByteArrayInputStream(
                 new byte[] {0,0},
@@ -197,7 +197,7 @@ public class TestFrameInOutBuffers {
     }
 
     @Test
-    public void testReadEmptyFrame() throws Exception {
+    void testReadEmptyFrame() throws Exception {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {0,0,0,0,0,0,0,0,0});
 
@@ -210,7 +210,7 @@ public class TestFrameInOutBuffers {
     }
 
     @Test
-    public void testReadFrameConnectionClosed() throws Exception {
+    void testReadFrameConnectionClosed() {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {});
 
@@ -218,7 +218,7 @@ public class TestFrameInOutBuffers {
     }
 
     @Test
-    public void testReadFrameCorruptFrame() throws Exception {
+    void testReadFrameCorruptFrame() {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {0,0});
 
@@ -226,7 +226,7 @@ public class TestFrameInOutBuffers {
     }
 
     @Test
-    public void testWriteFrameExceedingLimit() throws Exception {
+    void testWriteFrameExceedingLimit() {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(1024);
 
@@ -236,7 +236,7 @@ public class TestFrameInOutBuffers {
     }
 
     @Test
-    public void testReadFrameExceedingLimit() throws Exception {
+    void testReadFrameExceedingLimit() {
         final FrameInputBuffer inBuffer = new FrameInputBuffer(16 * 1024);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(
                 new byte[] {0,-128,-128,0,0,0,0,0,1});

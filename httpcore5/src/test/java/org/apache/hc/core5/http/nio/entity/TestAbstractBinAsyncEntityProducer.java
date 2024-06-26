@@ -40,7 +40,7 @@ import org.apache.hc.core5.http.nio.StreamChannel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestAbstractBinAsyncEntityProducer {
+class TestAbstractBinAsyncEntityProducer {
 
     static private class ChunkByteAsyncEntityProducer extends AbstractBinAsyncEntityProducer {
 
@@ -83,7 +83,7 @@ public class TestAbstractBinAsyncEntityProducer {
     }
 
     @Test
-    public void testProduceDataNoBuffering() throws Exception {
+    void testProduceDataNoBuffering() throws Exception {
 
         final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
                 0, ContentType.TEXT_PLAIN,
@@ -109,7 +109,7 @@ public class TestAbstractBinAsyncEntityProducer {
     }
 
     @Test
-    public void testProduceDataWithBuffering1() throws Exception {
+    void testProduceDataWithBuffering1() throws Exception {
 
         final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
                 5, ContentType.TEXT_PLAIN,
@@ -139,7 +139,7 @@ public class TestAbstractBinAsyncEntityProducer {
     }
 
     @Test
-    public void testProduceDataWithBuffering2() throws Exception {
+    void testProduceDataWithBuffering2() throws Exception {
 
         final AsyncEntityProducer producer = new ChunkByteAsyncEntityProducer(
                 5, ContentType.TEXT_PLAIN,

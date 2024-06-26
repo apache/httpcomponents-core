@@ -69,7 +69,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link SSLContextBuilder}.
  */
-public class TestSSLContextBuilder {
+class TestSSLContextBuilder {
 
     static final String PROVIDER_SUN_JSSE = "SunJSSE";
     static final String PROVIDER_SUN_JCE = "SunJCE";
@@ -82,7 +82,7 @@ public class TestSSLContextBuilder {
     private ExecutorService executorService;
 
     @AfterEach
-    public void cleanup() throws Exception {
+    void cleanup() throws Exception {
         if (this.executorService != null) {
             this.executorService.shutdown();
             this.executorService.awaitTermination(5, TimeUnit.SECONDS);
@@ -94,7 +94,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildAllDefaults() throws Exception {
+    void testBuildAllDefaults() throws Exception {
         final SSLContext sslContext = SSLContextBuilder.create()
                 .setKeyStoreType(KeyStore.getDefaultType())
                 .setKeyManagerFactoryAlgorithm(KeyManagerFactory.getDefaultAlgorithm())
@@ -111,7 +111,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildAllNull() throws Exception {
+    void testBuildAllNull() throws Exception {
         final SSLContext sslContext = SSLContextBuilder.create()
                 .setKeyStoreType(null)
                 .setKeyManagerFactoryAlgorithm(null)
@@ -128,7 +128,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildAllNull_deprecated() throws Exception {
+    void testBuildAllNull_deprecated() throws Exception {
         final SSLContext sslContext = SSLContextBuilder.create()
                 .setProtocol(null)
                 .setSecureRandom(null)
@@ -140,12 +140,12 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildDefault() throws Exception {
-        new SSLContextBuilder().build();
+    void testBuildDefault() {
+        Assertions.assertDoesNotThrow(() -> new SSLContextBuilder().build());
     }
 
     @Test
-    public void testBuildNoSuchKeyManagerFactoryAlgorithm() throws Exception {
+    void testBuildNoSuchKeyManagerFactoryAlgorithm() {
         final URL resource1 = getResource("/test-keypasswd.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "password";
@@ -157,7 +157,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildNoSuchKeyStoreType() throws Exception {
+    void testBuildNoSuchKeyStoreType() {
         final URL resource1 = getResource("/test-keypasswd.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "password";
@@ -169,7 +169,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildNoSuchTrustManagerFactoryAlgorithm() throws Exception {
+    void testBuildNoSuchTrustManagerFactoryAlgorithm() {
         final URL resource1 = getResource("/test-keypasswd.p12");
         final String storePassword = "nopassword";
         Assertions.assertThrows(NoSuchAlgorithmException.class, () ->
@@ -180,7 +180,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildWithProvider() throws Exception {
+    void testBuildWithProvider() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -193,7 +193,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildWithProviderName() throws Exception {
+    void testBuildWithProviderName() throws Exception {
 
         final DummyProvider provider = new DummyProvider();
         Security.insertProviderAt(provider, 1);
@@ -214,7 +214,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildKSWithNoSuchProvider() {
+    void testBuildKSWithNoSuchProvider() {
         Assertions.assertThrows(NoSuchProviderException.class,
                 () -> SSLContextBuilder.create()
                 .setKeyStoreProvider("no-such-provider")
@@ -222,7 +222,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildKSWithProvider() throws Exception {
+    void testBuildKSWithProvider() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -235,7 +235,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildKSWithProviderName() throws Exception {
+    void testBuildKSWithProviderName() throws Exception {
 
         final DummyProvider provider = new DummyProvider();
         Security.insertProviderAt(provider, 1);
@@ -256,7 +256,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildTSWithNoSuchProvider() {
+    void testBuildTSWithNoSuchProvider() {
         Assertions.assertThrows(NoSuchProviderException.class, ()->
             SSLContextBuilder.create()
                     .setTrustStoreProvider("no-such-provider")
@@ -264,7 +264,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildTSWithProvider() throws Exception {
+    void testBuildTSWithProvider() throws Exception {
         final DummyProvider provider = new DummyProvider();
         SSLContextBuilder.create()
                 .setTrustStoreProvider(provider)
@@ -274,7 +274,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testBuildTSWithProviderName() throws Exception {
+    void testBuildTSWithProviderName() throws Exception {
 
         final DummyProvider provider = new DummyProvider();
         Security.insertProviderAt(provider, 1);
@@ -293,7 +293,7 @@ public class TestSSLContextBuilder {
 
 
     @Test
-    public void testKeyWithAlternatePasswordInvalid() throws Exception {
+    void testKeyWithAlternatePasswordInvalid() {
         final URL resource1 = getResource("/test-keypasswd.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "!password";
@@ -305,7 +305,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHandshakeServerTrusted() throws Exception {
+    void testSSLHandshakeServerTrusted() throws Exception {
         final URL resource1 = getResource("/test.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -345,7 +345,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHandshakeServerNotTrusted() throws Exception {
+    void testSSLHandshakeServerNotTrusted() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -377,7 +377,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHandshakeServerCustomTrustStrategy() throws Exception {
+    void testSSLHandshakeServerCustomTrustStrategy() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -444,7 +444,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHandshakeClientUnauthenticated() throws Exception {
+    void testSSLHandshakeClientUnauthenticated() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -496,7 +496,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHandshakeClientUnauthenticatedError() throws Exception {
+    void testSSLHandshakeClientUnauthenticatedError() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -534,7 +534,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHandshakeClientAuthenticated() throws Exception {
+    void testSSLHandshakeClientAuthenticated() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -580,7 +580,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHandshakeClientAuthenticatedPrivateKeyStrategy() throws Exception {
+    void testSSLHandshakeClientAuthenticatedPrivateKeyStrategy() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -631,7 +631,7 @@ public class TestSSLContextBuilder {
 
 
     @Test
-    public void testSSLHandshakeProtocolMismatch1() throws Exception {
+    void testSSLHandshakeProtocolMismatch1() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -674,7 +674,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testSSLHandshakeProtocolMismatch2() throws Exception {
+    void testSSLHandshakeProtocolMismatch2() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";
@@ -718,7 +718,7 @@ public class TestSSLContextBuilder {
     }
 
     @Test
-    public void testJSSEEndpointIdentification() throws Exception {
+    void testJSSEEndpointIdentification() throws Exception {
         final URL resource1 = getResource("/test-server.p12");
         final String storePassword = "nopassword";
         final String keyPassword = "nopassword";

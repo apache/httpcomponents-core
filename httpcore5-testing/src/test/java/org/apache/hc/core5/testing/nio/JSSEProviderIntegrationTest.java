@@ -63,7 +63,7 @@ import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class JSSEProviderIntegrationTest {
+abstract class JSSEProviderIntegrationTest {
 
     private final String securityProviderName;
     private final String protocolVersion;
@@ -204,7 +204,7 @@ public abstract class JSSEProviderIntegrationTest {
     }
 
     @Test
-    public void testSimpleGet() throws Exception {
+    void testSimpleGet() throws Exception {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -228,7 +228,7 @@ public abstract class JSSEProviderIntegrationTest {
     }
 
     @Test
-    public void testSimpleGetConnectionClose() throws Exception {
+    void testSimpleGetConnectionClose() throws Exception {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -255,7 +255,7 @@ public abstract class JSSEProviderIntegrationTest {
     }
 
     @Test
-    public void testSimpleGetIdentityTransfer() throws Exception {
+    void testSimpleGetIdentityTransfer() throws Exception {
         server.register("/hello", () -> new SingleLineResponseHandler("Hi there"));
         server.configure(new DefaultHttpProcessor(new RequestValidateHost()));
         final InetSocketAddress serverEndpoint = server.start();

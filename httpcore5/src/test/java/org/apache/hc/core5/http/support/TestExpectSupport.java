@@ -34,10 +34,10 @@ import org.apache.hc.core5.http.impl.BasicEntityDetails;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestExpectSupport {
+class TestExpectSupport {
 
     @Test
-    public void testExpectParsingBasics() throws Exception {
+    void testExpectParsingBasics() throws Exception {
         Assertions.assertEquals(Expectation.CONTINUE,
                 ExpectSupport.parse(
                         BasicRequestBuilder.post()
@@ -47,7 +47,7 @@ public class TestExpectSupport {
     }
 
     @Test
-    public void testExpectParsingTolerateEmptyTokens() throws Exception {
+    void testExpectParsingTolerateEmptyTokens() throws Exception {
         Assertions.assertEquals(Expectation.CONTINUE,
                 ExpectSupport.parse(
                         BasicRequestBuilder.post()
@@ -59,7 +59,7 @@ public class TestExpectSupport {
     }
 
     @Test
-    public void testExpectParsingMissingEntity() throws Exception {
+    void testExpectParsingMissingEntity() {
         Assertions.assertThrows(ProtocolException.class,
                 () -> ExpectSupport.parse(
                         BasicRequestBuilder.post()
@@ -69,7 +69,7 @@ public class TestExpectSupport {
     }
 
     @Test
-    public void testExpectParsingUnknownExpectation() throws Exception {
+    void testExpectParsingUnknownExpectation() throws Exception {
         Assertions.assertEquals(Expectation.UNKNOWN,
                 ExpectSupport.parse(
                         BasicRequestBuilder.post()
@@ -80,7 +80,7 @@ public class TestExpectSupport {
     }
 
     @Test
-    public void testExpectParsingUnknownExpectation2() throws Exception {
+    void testExpectParsingUnknownExpectation2() throws Exception {
         Assertions.assertEquals(Expectation.UNKNOWN,
                 ExpectSupport.parse(
                         BasicRequestBuilder.post()
@@ -90,7 +90,7 @@ public class TestExpectSupport {
     }
 
     @Test
-    public void testExpectParsingNoExpectation() throws Exception {
+    void testExpectParsingNoExpectation() throws Exception {
         Assertions.assertNull(ExpectSupport.parse(
                         BasicRequestBuilder.post()
                                 .build(),
@@ -98,7 +98,7 @@ public class TestExpectSupport {
     }
 
     @Test
-    public void testExpectParsingIgnoreHTTP10() throws Exception {
+    void testExpectParsingIgnoreHTTP10() throws Exception {
         Assertions.assertNull(ExpectSupport.parse(
                 BasicRequestBuilder.post()
                         .setVersion(HttpVersion.HTTP_1_0)

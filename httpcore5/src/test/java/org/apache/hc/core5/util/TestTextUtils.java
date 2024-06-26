@@ -34,17 +34,17 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link TextUtils}.
  *
  */
-public class TestTextUtils {
+class TestTextUtils {
 
     @Test
-    public void testTextEmpty() {
+    void testTextEmpty() {
         Assertions.assertTrue(TextUtils.isEmpty(null));
         Assertions.assertTrue(TextUtils.isEmpty(""));
         Assertions.assertFalse(TextUtils.isEmpty("\t"));
     }
 
     @Test
-    public void testTextBlank() {
+    void testTextBlank() {
         Assertions.assertTrue(TextUtils.isBlank(null));
         Assertions.assertTrue(TextUtils.isBlank(""));
         Assertions.assertTrue(TextUtils.isBlank("   "));
@@ -52,7 +52,7 @@ public class TestTextUtils {
     }
 
     @Test
-    public void testTextContainsBlanks() {
+    void testTextContainsBlanks() {
         Assertions.assertFalse(TextUtils.containsBlanks(null));
         Assertions.assertFalse(TextUtils.containsBlanks(""));
         Assertions.assertTrue(TextUtils.containsBlanks("   "));
@@ -62,7 +62,7 @@ public class TestTextUtils {
     }
 
     @Test
-    public void testToHexString() {
+    void testToHexString() {
         Assertions.assertEquals("000c2001ff", TextUtils.toHexString(new byte[] { 0, 12, 32, 1 , -1}));
         Assertions.assertNull(TextUtils.toHexString(null));
     }

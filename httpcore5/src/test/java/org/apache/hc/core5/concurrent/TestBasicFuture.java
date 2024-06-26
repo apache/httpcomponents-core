@@ -46,10 +46,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class TestBasicFuture {
+class TestBasicFuture {
 
     @Test
-    public void testCompleted() throws Exception {
+    void testCompleted() throws Exception {
         final FutureCallback<Object> callback = Mockito.mock(FutureCallback.class);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
 
@@ -70,7 +70,7 @@ public class TestBasicFuture {
     }
 
     @Test
-    public void testCompletedWithTimeout() throws Exception {
+    void testCompletedWithTimeout() throws Exception {
         final FutureCallback<Object> callback = Mockito.mock(FutureCallback.class);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
 
@@ -90,7 +90,7 @@ public class TestBasicFuture {
     }
 
     @Test
-    public void testFailed() throws Exception {
+    void testFailed() throws Exception {
         final FutureCallback<Object> callback = Mockito.mock(FutureCallback.class);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
         final Object result = new Object();
@@ -111,7 +111,7 @@ public class TestBasicFuture {
     }
 
     @Test
-    public void testCancelled() throws Exception {
+    void testCancelled() {
         final FutureCallback<Object> callback = Mockito.mock(FutureCallback.class);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
         final Object result = new Object();
@@ -129,7 +129,7 @@ public class TestBasicFuture {
     }
 
     @Test
-    public void testAsyncCompleted() throws Exception {
+    void testAsyncCompleted() throws Exception {
         final BasicFuture<Object> future = new BasicFuture<>(null);
         final Object result = new Object();
 
@@ -148,7 +148,7 @@ public class TestBasicFuture {
     }
 
     @Test
-    public void testAsyncFailed() throws Exception {
+    void testAsyncFailed() throws Exception {
         final BasicFuture<Object> future = new BasicFuture<>(null);
         final Exception boom = new Exception();
 
@@ -171,7 +171,7 @@ public class TestBasicFuture {
     }
 
     @Test
-    public void testAsyncCancelled() throws Exception {
+    void testAsyncCancelled() {
         final BasicFuture<Object> future = new BasicFuture<>(null);
 
         final Thread t = new Thread(() -> {
@@ -188,7 +188,7 @@ public class TestBasicFuture {
     }
 
     @Test
-    public void testAsyncTimeout() throws Exception {
+    void testAsyncTimeout() {
         final BasicFuture<Object> future = new BasicFuture<>(null);
         final Object result = new Object();
 
@@ -206,14 +206,14 @@ public class TestBasicFuture {
     }
 
     @Test
-    public void testAsyncNegativeTimeout() throws Exception {
+    void testAsyncNegativeTimeout() {
         final BasicFuture<Object> future = new BasicFuture<>(null);
         assertThrows(TimeoutValueException.class, () ->
                 future.get(-1, TimeUnit.MILLISECONDS));
     }
 
     @Test
-    public void testConcurrentOperations() throws InterruptedException, ExecutionException {
+    void testConcurrentOperations() throws InterruptedException, ExecutionException {
         final FutureCallback<Object> callback = new FutureCallback<Object>() {
             public void completed(final Object result) {
             }

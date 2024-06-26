@@ -34,10 +34,10 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestUriPathRouter {
+class TestUriPathRouter {
 
     @Test
-    public void testBestMatchWildCardMatching() throws Exception {
+    void testBestMatchWildCardMatching() {
         final UriPathRouter.BestMatcher<Long> matcher = new UriPathRouter.BestMatcher<>();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("*", 0L),
@@ -57,7 +57,7 @@ public class TestUriPathRouter {
     }
 
     @Test
-    public void testBestMatchWildCardMatchingSuffixPrefixPrecedence() throws Exception {
+    void testBestMatchWildCardMatchingSuffixPrefixPrecedence() {
         final UriPathRouter.BestMatcher<Long> matcher = new UriPathRouter.BestMatcher<>();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("/ma*", 1L),
@@ -66,7 +66,7 @@ public class TestUriPathRouter {
     }
 
     @Test
-    public void testBestMatchWildCardMatchingExactMatch() throws Exception {
+    void testBestMatchWildCardMatchingExactMatch() {
         final UriPathRouter.BestMatcher<Long> matcher = new UriPathRouter.BestMatcher<>();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("exact", 1L),
@@ -75,7 +75,7 @@ public class TestUriPathRouter {
     }
 
     @Test
-    public void testBestMatchWildCardMatchingNoMatch() throws Exception {
+    void testBestMatchWildCardMatchingNoMatch() {
         final UriPathRouter.BestMatcher<Long> matcher = new UriPathRouter.BestMatcher<>();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("/this/*", 1L),
@@ -84,7 +84,7 @@ public class TestUriPathRouter {
     }
 
     @Test
-    public void testOrderedWildCardMatching1() throws Exception {
+    void testOrderedWildCardMatching1() {
         final UriPathRouter.OrderedMatcher<Long> matcher = new UriPathRouter.OrderedMatcher<>();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("*", 0L),
@@ -120,7 +120,7 @@ public class TestUriPathRouter {
     }
 
     @Test
-    public void testOrderedWildCardMatchingSuffixPrefixPrecedence() throws Exception {
+    void testOrderedWildCardMatchingSuffixPrefixPrecedence() {
         final UriPathRouter.OrderedMatcher<Long> matcher = new UriPathRouter.OrderedMatcher<>();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("/ma*", 1L),
@@ -129,7 +129,7 @@ public class TestUriPathRouter {
     }
 
     @Test
-    public void testOrderedStarAndExact() {
+    void testOrderedStarAndExact() {
         final UriPathRouter.OrderedMatcher<Long> matcher = new UriPathRouter.OrderedMatcher<>();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("*", 0L),
@@ -138,7 +138,7 @@ public class TestUriPathRouter {
     }
 
     @Test
-    public void testOrderedExactAndStar() {
+    void testOrderedExactAndStar() {
         final UriPathRouter.OrderedMatcher<Long> matcher = new UriPathRouter.OrderedMatcher<>();
         final List<PathRoute<String, Long>> routes = Arrays.asList(
                 new PathRoute<>("exact", 1L),
@@ -147,7 +147,7 @@ public class TestUriPathRouter {
     }
 
     @Test
-    public void testRegExMatching() throws Exception {
+    void testRegExMatching() {
         final UriPathRouter.RegexMatcher<Long> matcher = new UriPathRouter.RegexMatcher<>();
         final List<PathRoute<Pattern, Long>> routes = Arrays.asList(
                 new PathRoute<>(Pattern.compile("/one/two/three/.*"), 3L),
@@ -166,7 +166,7 @@ public class TestUriPathRouter {
     }
 
     @Test
-    public void testRegExWildCardMatchingSuffixPrefixPrecedence() throws Exception {
+    void testRegExWildCardMatchingSuffixPrefixPrecedence() {
         final UriPathRouter.RegexMatcher<Long> matcher = new UriPathRouter.RegexMatcher<>();
         final List<PathRoute<Pattern, Long>> routes = Arrays.asList(
                 new PathRoute<>(Pattern.compile("/ma.*"), 1L),

@@ -36,7 +36,7 @@ import java.io.Serializable;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestSerializableEntity {
+class TestSerializableEntity {
 
     public static class SerializableObject implements Serializable {
 
@@ -50,7 +50,7 @@ public class TestSerializableEntity {
     }
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final ObjectOutputStream out = new ObjectOutputStream(baos);
 
@@ -67,7 +67,7 @@ public class TestSerializableEntity {
     }
 
     @Test
-    public void testWriteTo() throws Exception {
+    void testWriteTo() throws Exception {
         final Serializable serializableObj = new SerializableObject();
         try (final SerializableEntity httpentity = new SerializableEntity(serializableObj, null)) {
 

@@ -30,10 +30,10 @@ package org.apache.hc.core5.http2.hpack;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestFifoLinkedList {
+class TestFifoLinkedList {
 
     @Test
-    public void testAddRemoveCycle() throws Exception {
+    void testAddRemoveCycle() {
 
         final FifoLinkedList fifoLinkedList = new FifoLinkedList();
 
@@ -90,7 +90,7 @@ public class TestFifoLinkedList {
     }
 
     @Test
-    public void testGetIndex() throws Exception {
+    void testGetIndex() {
 
         final FifoLinkedList fifoLinkedList = new FifoLinkedList();
 

@@ -41,10 +41,10 @@ import org.junit.jupiter.params.provider.MethodSource;
 /**
  * Unit tests for {@link PercentCodec}.
  */
-public class TestPercentCodec {
+class TestPercentCodec {
 
     @Test
-    public void testCoding() {
+    void testCoding() {
         final StringBuilder buf = new StringBuilder();
         PercentCodec.encode(buf, "blah!", StandardCharsets.UTF_8);
         PercentCodec.encode(buf, " ~ ", StandardCharsets.UTF_8);
@@ -53,7 +53,7 @@ public class TestPercentCodec {
     }
 
     @Test
-    public void testDecoding() {
+    void testDecoding() {
         assertThat(PercentCodec.decode("blah%21%20~%20huh%3F", StandardCharsets.UTF_8),
                 CoreMatchers.equalTo("blah! ~ huh?"));
         assertThat(PercentCodec.decode("blah%21+~%20huh%3F", StandardCharsets.UTF_8),
@@ -63,7 +63,7 @@ public class TestPercentCodec {
     }
 
     @Test
-    public void testDecodingPartialContent() {
+    void testDecodingPartialContent() {
         assertThat(PercentCodec.decode("blah%21%20%", StandardCharsets.UTF_8),
                 CoreMatchers.equalTo("blah! %"));
         assertThat(PercentCodec.decode("blah%21%20%a", StandardCharsets.UTF_8),
@@ -74,7 +74,7 @@ public class TestPercentCodec {
 
     @ParameterizedTest
     @MethodSource("params")
-    public void testRfc5987EncodingDecoding(final String input, final String expected) {
+    void testRfc5987EncodingDecoding(final String input, final String expected) {
         assertEquals(expected, PercentCodec.RFC5987.encode(input));
         assertEquals(input, PercentCodec.RFC5987.decode(expected));
     }
@@ -93,7 +93,7 @@ public class TestPercentCodec {
     }
 
     @Test
-    public void verifyRfc5987EncodingandDecoding() {
+    void verifyRfc5987EncodingandDecoding() {
         final String s = "!\"$£%^&*()_-+={[}]:@~;'#,./<>?\\|✓éèæðŃœ";
         assertThat(PercentCodec.RFC5987.decode(PercentCodec.RFC5987.encode(s)), CoreMatchers.equalTo(s));
     }

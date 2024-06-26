@@ -38,17 +38,17 @@ import org.junit.jupiter.api.Test;
  *
  *
  */
-public class TestBasicHeaderValueFormatter {
+class TestBasicHeaderValueFormatter {
 
     private BasicHeaderValueFormatter formatter;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.formatter = BasicHeaderValueFormatter.INSTANCE;
     }
 
     @Test
-    public void testNVPFormatting() throws Exception {
+    void testNVPFormatting() {
         final NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
         final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
         final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
@@ -105,7 +105,7 @@ public class TestBasicHeaderValueFormatter {
     }
 
     @Test
-    public void testParamsFormatting() throws Exception {
+    void testParamsFormatting() {
         final NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
         final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
         final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
@@ -124,7 +124,7 @@ public class TestBasicHeaderValueFormatter {
     }
 
     @Test
-    public void testHEFormatting() throws Exception {
+    void testHEFormatting() {
         final NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
         final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
         final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
@@ -140,7 +140,7 @@ public class TestBasicHeaderValueFormatter {
     }
 
     @Test
-    public void testElementsFormatting() throws Exception {
+    void testElementsFormatting() {
         final NameValuePair param1 = new BasicNameValuePair("param", "regular_stuff");
         final NameValuePair param2 = new BasicNameValuePair("param", "this\\that");
         final NameValuePair param3 = new BasicNameValuePair("param", "this,that");
@@ -162,7 +162,7 @@ public class TestBasicHeaderValueFormatter {
 
 
     @Test
-    public void testInvalidArguments() throws Exception {
+    void testInvalidArguments() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final NameValuePair param = new BasicNameValuePair("param", "regular_stuff");
         final NameValuePair[] params = new NameValuePair[] {param};

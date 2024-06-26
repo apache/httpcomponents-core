@@ -37,10 +37,10 @@ import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestBasicAsyncEntityProducer {
+class TestBasicAsyncEntityProducer {
 
     @Test
-    public void testBinaryContent() throws Exception {
+    void testBinaryContent() throws Exception {
 
         final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
                 new byte[] { 'a', 'b', 'c' }, ContentType.DEFAULT_BINARY);
@@ -59,7 +59,7 @@ public class TestBasicAsyncEntityProducer {
     }
 
     @Test
-    public void testTextContent() throws Exception {
+    void testTextContent() throws Exception {
 
         final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
                 "abc", ContentType.TEXT_PLAIN);
@@ -78,7 +78,7 @@ public class TestBasicAsyncEntityProducer {
     }
 
     @Test
-    public void testTextContentRepeatable() throws Exception {
+    void testTextContentRepeatable() throws Exception {
         final AsyncEntityProducer producer = new BasicAsyncEntityProducer(
                 "abc", ContentType.TEXT_PLAIN);
 
@@ -100,7 +100,7 @@ public class TestBasicAsyncEntityProducer {
     }
 
     @Test
-    public void testTextContentRepeatableUTF() throws Exception {
+    void testTextContentRepeatableUTF() throws Exception {
         final String content = "<testtag></testtag>";
         final AsyncEntityProducer producer = new BasicAsyncEntityProducer(content, ContentType.TEXT_XML);
         for (int i = 0; i < 3; i++) {

@@ -50,7 +50,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class TestBHttpConnectionBase {
+class TestBHttpConnectionBase {
 
     @Mock
     private Socket socket;
@@ -58,13 +58,13 @@ public class TestBHttpConnectionBase {
     private BHttpConnectionBase conn;
 
     @BeforeEach
-    public void prepareMocks() {
+    void prepareMocks() {
         MockitoAnnotations.openMocks(this);
         conn = new BHttpConnectionBase(Http1Config.DEFAULT, null, null);
     }
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() {
         Assertions.assertFalse(conn.isOpen());
         Assertions.assertNull(conn.getLocalAddress());
         Assertions.assertNull(conn.getRemoteAddress());
@@ -72,7 +72,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testSocketBind() throws Exception {
+    void testSocketBind() throws Exception {
         final InetAddress localAddress = InetAddress.getByAddress(new byte[] {127, 0, 0, 1});
         final int localPort = 8888;
         final InetAddress remoteAddress = InetAddress.getByAddress(new byte[] {10, 0, 0, 2});
@@ -93,7 +93,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testConnectionClose() throws Exception {
+    void testConnectionClose() throws Exception {
         final OutputStream outStream = Mockito.mock(OutputStream.class);
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
@@ -118,7 +118,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testConnectionShutdown() throws Exception {
+    void testConnectionShutdown() throws Exception {
         final OutputStream outStream = Mockito.mock(OutputStream.class);
 
         conn.bind(socket);
@@ -145,7 +145,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testCreateEntityLengthDelimited() throws Exception {
+    void testCreateEntityLengthDelimited() throws Exception {
         final InputStream inStream = Mockito.mock(InputStream.class);
         final ClassicHttpResponse message = new BasicClassicHttpResponse(200, "OK");
         message.addHeader("Content-Length", "10");
@@ -163,7 +163,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testCreateEntityInputChunked() throws Exception {
+    void testCreateEntityInputChunked() throws Exception {
         final InputStream inStream = Mockito.mock(InputStream.class);
         final ClassicHttpResponse message = new BasicClassicHttpResponse(200, "OK");
         final HttpEntity entity = conn.createIncomingEntity(message, conn.inBuffer, inStream, ContentLengthStrategy.CHUNKED);
@@ -176,7 +176,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testCreateEntityInputUndefined() throws Exception {
+    void testCreateEntityInputUndefined() throws Exception {
         final InputStream inStream = Mockito.mock(InputStream.class);
         final ClassicHttpResponse message = new BasicClassicHttpResponse(200, "OK");
         final HttpEntity entity = conn.createIncomingEntity(message, conn.inBuffer, inStream, ContentLengthStrategy.UNDEFINED);
@@ -189,7 +189,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testSetSocketTimeout() throws Exception {
+    void testSetSocketTimeout() throws Exception {
         conn.bind(socket);
 
         conn.setSocketTimeout(Timeout.ofMilliseconds(123));
@@ -198,7 +198,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testSetSocketTimeoutException() throws Exception {
+    void testSetSocketTimeoutException() throws Exception {
         conn.bind(socket);
 
         Mockito.doThrow(new SocketException()).when(socket).setSoTimeout(ArgumentMatchers.anyInt());
@@ -209,7 +209,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testGetSocketTimeout() throws Exception {
+    void testGetSocketTimeout() throws Exception {
         Assertions.assertEquals(Timeout.INFINITE, conn.getSocketTimeout());
 
         Mockito.when(socket.getSoTimeout()).thenReturn(345);
@@ -219,7 +219,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testGetSocketTimeoutException() throws Exception {
+    void testGetSocketTimeoutException() throws Exception {
         Assertions.assertEquals(Timeout.INFINITE, conn.getSocketTimeout());
 
         Mockito.when(socket.getSoTimeout()).thenThrow(new SocketException());
@@ -229,7 +229,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testAwaitInputInBuffer() throws Exception {
+    void testAwaitInputInBuffer() throws Exception {
         final ByteArrayInputStream inStream = new ByteArrayInputStream(
                 new byte[] {1, 2, 3, 4, 5});
         conn.bind(socket);
@@ -242,7 +242,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testAwaitInputInSocket() throws Exception {
+    void testAwaitInputInSocket() throws Exception {
         final ByteArrayInputStream inStream = new ByteArrayInputStream(
                 new byte[] {1, 2, 3, 4, 5});
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
@@ -258,7 +258,7 @@ public class TestBHttpConnectionBase {
         }
 
     @Test
-    public void testAwaitInputNoData() throws Exception {
+    void testAwaitInputNoData() throws Exception {
         final InputStream inStream = Mockito.mock(InputStream.class);
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
         Mockito.when(inStream.read(ArgumentMatchers.any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt()))
@@ -271,7 +271,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testStaleWhenClosed() throws Exception {
+    void testStaleWhenClosed() throws Exception {
         final OutputStream outStream = Mockito.mock(OutputStream.class);
 
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
@@ -283,7 +283,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testNotStaleWhenHasData() throws Exception {
+    void testNotStaleWhenHasData() throws Exception {
         final ByteArrayInputStream inStream = new ByteArrayInputStream(
                 new byte[] {1, 2, 3, 4, 5});
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
@@ -295,7 +295,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testStaleWhenEndOfStream() throws Exception {
+    void testStaleWhenEndOfStream() throws Exception {
         final InputStream inStream = Mockito.mock(InputStream.class);
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
         Mockito.when(inStream.read(ArgumentMatchers.any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt()))
@@ -308,7 +308,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testNotStaleWhenTimeout() throws Exception {
+    void testNotStaleWhenTimeout() throws Exception {
         final InputStream inStream = Mockito.mock(InputStream.class);
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
         Mockito.when(inStream.read(ArgumentMatchers.any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt()))
@@ -321,7 +321,7 @@ public class TestBHttpConnectionBase {
     }
 
     @Test
-    public void testStaleWhenIOError() throws Exception {
+    void testStaleWhenIOError() throws Exception {
         final InputStream inStream = Mockito.mock(InputStream.class);
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
         Mockito.when(inStream.read(ArgumentMatchers.any(), ArgumentMatchers.anyInt(), ArgumentMatchers.anyInt()))

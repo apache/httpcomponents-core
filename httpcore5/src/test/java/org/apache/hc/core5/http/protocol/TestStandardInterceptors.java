@@ -54,10 +54,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class TestStandardInterceptors {
+class TestStandardInterceptors {
 
     @Test
-    public void testRequestConnControlGenerated() throws Exception {
+    void testRequestConnControlGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         final HttpRequestInterceptor interceptor = RequestConnControl.INSTANCE;
@@ -68,7 +68,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestConnControlConnectMethod() throws Exception {
+    void testRequestConnControlConnectMethod() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.CONNECT, "/");
         final HttpRequestInterceptor interceptor = RequestConnControl.INSTANCE;
@@ -78,7 +78,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestConnControlCustom() throws Exception {
+    void testRequestConnControlCustom() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         final Header myheader = new BasicHeader(HttpHeaders.CONNECTION, "close");
@@ -92,7 +92,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestConnControlUpgrade() throws Exception {
+    void testRequestConnControlUpgrade() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(HttpHeaders.UPGRADE, "HTTP/2");
@@ -104,13 +104,13 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestConnControlInvalidInput() throws Exception {
+    void testRequestConnControlInvalidInput() {
         final HttpRequestInterceptor interceptor = RequestConnControl.INSTANCE;
         Assertions.assertThrows(NullPointerException.class, () -> interceptor.process(null, null, null));
     }
 
     @Test
-    public void testRequestContentProtocolException() throws Exception {
+    void testRequestContentProtocolException() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request1 = new BasicClassicHttpRequest(Method.POST, "/");
         request1.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "chunked"));
@@ -125,7 +125,7 @@ public class TestStandardInterceptors {
    }
 
     @Test
-    public void testRequestContentNullEntity() throws Exception {
+    void testRequestContentNullEntity() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
 
@@ -138,7 +138,7 @@ public class TestStandardInterceptors {
    }
 
     @Test
-    public void testRequestContentNullEntityNonEnclosingMethod() throws Exception {
+    void testRequestContentNullEntityNonEnclosingMethod() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
 
@@ -149,7 +149,7 @@ public class TestStandardInterceptors {
         Assertions.assertNull(request.getFirstHeader(HttpHeaders.TRANSFER_ENCODING));
     }
     @Test
-    public void testRequestContentEntityContentLengthDelimitedHTTP11() throws Exception {
+    void testRequestContentEntityContentLengthDelimitedHTTP11() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII));
@@ -163,7 +163,7 @@ public class TestStandardInterceptors {
    }
 
     @Test
-    public void testRequestContentEntityChunkedHTTP11() throws Exception {
+    void testRequestContentEntityChunkedHTTP11() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII, true));
@@ -177,7 +177,7 @@ public class TestStandardInterceptors {
    }
 
     @Test
-    public void testRequestContentEntityUnknownLengthHTTP11() throws Exception {
+    void testRequestContentEntityUnknownLengthHTTP11() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, -1, null));
@@ -191,7 +191,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestContentEntityChunkedHTTP10() throws Exception {
+    void testRequestContentEntityChunkedHTTP10() {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
@@ -203,7 +203,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestContentTypeAndEncoding() throws Exception {
+    void testRequestContentTypeAndEncoding() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE,
@@ -220,7 +220,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestContentNullTypeAndEncoding() throws Exception {
+    void testRequestContentNullTypeAndEncoding() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, null, null));
@@ -232,7 +232,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestContentEntityUnknownLengthHTTP10() throws Exception {
+    void testRequestContentEntityUnknownLengthHTTP10() {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
@@ -244,14 +244,14 @@ public class TestStandardInterceptors {
    }
 
     @Test
-    public void testRequestContentInvalidInput() throws Exception {
+    void testRequestContentInvalidInput() {
         final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
         Assertions.assertThrows(NullPointerException.class, () ->
                 interceptor.process(null, null, null));
     }
 
     @Test
-    public void testRequestContentIgnoreNonenclosingRequests() throws Exception {
+    void testRequestContentIgnoreNonenclosingRequests() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         final HttpRequestInterceptor interceptor = RequestContent.INSTANCE;
@@ -260,7 +260,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestContentOverwriteHeaders() throws Exception {
+    void testRequestContentOverwriteHeaders() throws Exception {
         final RequestContent interceptor = new RequestContent(true);
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
@@ -274,7 +274,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestContentAddHeaders() throws Exception {
+    void testRequestContentAddHeaders() throws Exception {
         final RequestContent interceptor = new RequestContent(true);
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
@@ -288,7 +288,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestContentEntityWithTrailers() throws Exception {
+    void testRequestContentEntityWithTrailers() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(HttpEntities.create("whatever", StandardCharsets.US_ASCII,
@@ -304,7 +304,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestContentTraceWithEntity() throws Exception {
+    void testRequestContentTraceWithEntity() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.TRACE, "/");
         request.setEntity(new StringEntity("stuff"));
@@ -314,7 +314,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestExpectContinueGenerated() throws Exception {
+    void testRequestExpectContinueGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII));
@@ -326,7 +326,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestExpectContinueHTTP10() throws Exception {
+    void testRequestExpectContinueHTTP10() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
@@ -338,7 +338,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestExpectContinueZeroContent() throws Exception {
+    void testRequestExpectContinueZeroContent() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("", StandardCharsets.US_ASCII));
@@ -349,14 +349,14 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestExpectContinueInvalidInput() throws Exception {
+    void testRequestExpectContinueInvalidInput() {
         final RequestExpectContinue interceptor = RequestExpectContinue.INSTANCE;
         Assertions.assertThrows(NullPointerException.class, () ->
                 interceptor.process(null, null, null));
     }
 
     @Test
-    public void testRequestExpectContinueIgnoreNonenclosingRequests() throws Exception {
+    void testRequestExpectContinueIgnoreNonenclosingRequests() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         final RequestExpectContinue interceptor = RequestExpectContinue.INSTANCE;
@@ -365,7 +365,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestTargetHostGenerated() throws Exception {
+    void testRequestTargetHostGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setAuthority(new URIAuthority("somehost", 8080));
@@ -377,7 +377,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestTargetHostNotGenerated() throws Exception {
+    void testRequestTargetHostNotGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setAuthority(new URIAuthority("somehost", 8080));
@@ -390,7 +390,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestTargetHostMissingHostHTTP10() throws Exception {
+    void testRequestTargetHostMissingHostHTTP10() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
@@ -401,7 +401,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestTargetHostMissingHostHTTP11() throws Exception {
+    void testRequestTargetHostMissingHostHTTP11() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         final HttpRequestInterceptor interceptor = RequestTargetHost.INSTANCE;
@@ -410,7 +410,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestTargetHostInvalidInput() throws Exception {
+    void testRequestTargetHostInvalidInput() {
         final HttpRequestInterceptor interceptor = RequestTargetHost.INSTANCE;
         Assertions.assertThrows(NullPointerException.class, () ->
                 interceptor.process(null, null, null));
@@ -419,7 +419,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestTargetHostConnectHttp11() throws Exception {
+    void testRequestTargetHostConnectHttp11() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.CONNECT, "/");
         request.setAuthority(new URIAuthority("somehost", 8080));
@@ -431,7 +431,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestTargetHostConnectHttp10() throws Exception {
+    void testRequestTargetHostConnectHttp10() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.CONNECT, "/");
@@ -443,7 +443,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestUserAgentGenerated() throws Exception {
+    void testRequestUserAgentGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         final RequestUserAgent interceptor = new RequestUserAgent("some agent");
@@ -454,7 +454,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestUserAgentNotGenerated() throws Exception {
+    void testRequestUserAgentNotGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.USER_AGENT, "whatever"));
@@ -466,7 +466,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestUserAgentMissingUserAgent() throws Exception {
+    void testRequestUserAgentMissingUserAgent() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         final HttpRequestInterceptor interceptor = RequestUserAgent.INSTANCE;
@@ -476,13 +476,13 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestUserAgentInvalidInput() throws Exception {
+    void testRequestUserAgentInvalidInput() {
         final HttpRequestInterceptor interceptor = RequestUserAgent.INSTANCE;
         Assertions.assertThrows(NullPointerException.class, () -> interceptor.process(null, null, null));
     }
 
     @Test
-    public void testResponseConnControlNoEntity() throws Exception {
+    void testResponseConnControlNoEntity() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         final ResponseConnControl interceptor = new ResponseConnControl();
@@ -492,7 +492,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlEntityContentLength() throws Exception {
+    void testResponseConnControlEntityContentLength() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new StringEntity("whatever"));
@@ -503,7 +503,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlEntityUnknownContentLengthExplicitKeepAlive() throws Exception {
+    void testResponseConnControlEntityUnknownContentLengthExplicitKeepAlive() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "keep-alive"));
@@ -518,7 +518,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlEntityChunked() throws Exception {
+    void testResponseConnControlEntityChunked() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, null, true));
@@ -529,7 +529,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlEntityUnknownContentLengthHTTP10() throws Exception {
+    void testResponseConnControlEntityUnknownContentLengthHTTP10() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
@@ -546,7 +546,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlClientRequest() throws Exception {
+    void testResponseConnControlClientRequest() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "keep-alive"));
@@ -562,7 +562,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlClientRequest2() throws Exception {
+    void testResponseConnControlClientRequest2() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         context.setRequest(request);
@@ -576,7 +576,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControl10Client11Response() throws Exception {
+    void testResponseConnControl10Client11Response() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
@@ -592,7 +592,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlStatusCode() throws Exception {
+    void testResponseConnControlStatusCode() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "keep-alive"));
@@ -620,7 +620,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlExplicitClose() throws Exception {
+    void testResponseConnControlExplicitClose() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "keep-alive"));
@@ -637,7 +637,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlClientRequestMixUp() throws Exception {
+    void testResponseConnControlClientRequestMixUp() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(new BasicHeader(HttpHeaders.CONNECTION, "blah, keep-alive, close"));
@@ -653,7 +653,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlUpgrade() throws Exception {
+    void testResponseConnControlUpgrade() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
 
         final ResponseConnControl interceptor = new ResponseConnControl();
@@ -667,7 +667,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConnControlHostInvalidInput() throws Exception {
+    void testResponseConnControlHostInvalidInput() {
         final ResponseConnControl interceptor = new ResponseConnControl();
         Assertions.assertThrows(NullPointerException.class, () ->
                 interceptor.process(null, null, null));
@@ -677,7 +677,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentNoEntity() throws Exception {
+    void testResponseContentNoEntity() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         final ResponseContent interceptor = new ResponseContent();
@@ -688,7 +688,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentStatusNoContent() throws Exception {
+    void testResponseContentStatusNoContent() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setCode(HttpStatus.SC_NO_CONTENT);
@@ -699,7 +699,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentStatusNotModified() throws Exception {
+    void testResponseContentStatusNotModified() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setCode(HttpStatus.SC_NOT_MODIFIED);
@@ -710,7 +710,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentEntityChunked() throws Exception {
+    void testResponseContentEntityChunked() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, null, true));
@@ -724,7 +724,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentEntityContentLenghtDelimited() throws Exception {
+    void testResponseContentEntityContentLenghtDelimited() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, 10, null));
@@ -738,7 +738,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentEntityUnknownContentLength() throws Exception {
+    void testResponseContentEntityUnknownContentLength() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, null));
@@ -752,8 +752,8 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentEntityChunkedHTTP10() throws Exception {
-        final HttpCoreContext context = HttpCoreContext.create();
+    void testResponseContentEntityChunkedHTTP10() throws Exception {
+    final HttpCoreContext context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final BasicClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, null, true));
@@ -766,7 +766,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentEntityNoContentTypeAndEncoding() throws Exception {
+    void testResponseContentEntityNoContentTypeAndEncoding() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE, null));
@@ -779,7 +779,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentEntityContentTypeAndEncoding() throws Exception {
+    void testResponseContentEntityContentTypeAndEncoding() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(new BasicHttpEntity(EmptyInputStream.INSTANCE,
@@ -795,13 +795,13 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentInvalidInput() throws Exception {
+    void testResponseContentInvalidInput() {
         final ResponseContent interceptor = new ResponseContent();
         Assertions.assertThrows(NullPointerException.class, () -> interceptor.process(null, null, null));
     }
 
     @Test
-    public void testResponseContentInvalidResponseState() throws Exception {
+    void testResponseContentInvalidResponseState() {
         final ResponseContent interceptor = new ResponseContent();
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response1 = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
@@ -815,7 +815,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentOverwriteHeaders() throws Exception {
+    void testResponseContentOverwriteHeaders() throws Exception {
         final ResponseContent interceptor = new ResponseContent(true);
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
@@ -826,7 +826,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentAddHeaders() throws Exception {
+    void testResponseContentAddHeaders() throws Exception {
         final ResponseContent interceptor = new ResponseContent(true);
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
@@ -836,7 +836,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseContentEntityWithTrailers() throws Exception {
+    void testResponseContentEntityWithTrailers() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setEntity(HttpEntities.create("whatever", StandardCharsets.US_ASCII,
@@ -852,7 +852,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseDateGenerated() throws Exception {
+    void testResponseDateGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         final ResponseDate interceptor = new ResponseDate();
@@ -865,7 +865,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseDateNotGenerated() throws Exception {
+    void testResponseDateNotGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.setCode(199);
@@ -876,14 +876,14 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseDateInvalidInput() throws Exception {
+    void testResponseDateInvalidInput() {
         final ResponseDate interceptor = new ResponseDate();
         Assertions.assertThrows(NullPointerException.class, () ->
                 interceptor.process(null, null, null));
     }
 
     @Test
-    public void testRequestDateGenerated() throws Exception {
+    void testRequestDateGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.setEntity(new StringEntity("stuff"));
@@ -898,7 +898,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestDateNotGenerated() throws Exception {
+    void testRequestDateNotGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
 
@@ -909,14 +909,14 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestDateInvalidInput() throws Exception {
+    void testRequestDateInvalidInput() {
         final HttpRequestInterceptor interceptor = RequestDate.INSTANCE;
         Assertions.assertThrows(NullPointerException.class, () ->
                 interceptor.process(null, null, null));
     }
 
     @Test
-    public void testResponseServerGenerated() throws Exception {
+    void testResponseServerGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         final ResponseServer interceptor = new ResponseServer("some server");
@@ -927,7 +927,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseServerNotGenerated() throws Exception {
+    void testResponseServerNotGenerated() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         response.addHeader(new BasicHeader(HttpHeaders.SERVER, "whatever"));
@@ -939,7 +939,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseServerMissing() throws Exception {
+    void testResponseServerMissing() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_OK, "OK");
         final ResponseServer interceptor = new ResponseServer();
@@ -949,13 +949,13 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseServerInvalidInput() throws Exception {
+    void testResponseServerInvalidInput() {
         final ResponseServer interceptor = new ResponseServer();
         Assertions.assertThrows(NullPointerException.class, () -> interceptor.process(null, null, null));
     }
 
     @Test
-    public void testRequestHttp10HostHeaderAbsent() throws Exception {
+    void testRequestHttp10HostHeaderAbsent() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setVersion(HttpVersion.HTTP_1_0);
@@ -964,7 +964,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestHttpHostHeader() throws Exception {
+    void testRequestHttpHostHeader() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setVersion(HttpVersion.HTTP_1_1);
@@ -975,7 +975,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestHttpHostHeaderNoPort() throws Exception {
+    void testRequestHttpHostHeaderNoPort() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setVersion(HttpVersion.HTTP_1_1);
@@ -986,7 +986,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestHttp11HostHeaderPresent() throws Exception {
+    void testRequestHttp11HostHeaderPresent() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setHeader(HttpHeaders.HOST, "blah");
@@ -995,7 +995,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestHttp11HostHeaderAbsent() throws Exception {
+    void testRequestHttp11HostHeaderAbsent() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         final RequestValidateHost interceptor = new RequestValidateHost();
@@ -1004,7 +1004,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestHttp11MultipleHostHeaders() throws Exception {
+    void testRequestHttp11MultipleHostHeaders() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.addHeader(HttpHeaders.HOST, "blah");
@@ -1015,7 +1015,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestAbsoluteRequestURITakesPrecedenceOverHostHeader() throws Exception {
+    void testRequestAbsoluteRequestURITakesPrecedenceOverHostHeader() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "https://somehost/blah?huh");
         request.setHeader(HttpHeaders.HOST, "blah");
@@ -1025,7 +1025,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestConformance() throws Exception {
+    void testRequestConformance() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setScheme("http");
@@ -1036,7 +1036,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestConformanceSchemeMissing() throws Exception {
+    void testRequestConformanceSchemeMissing() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setAuthority(new URIAuthority("somehost", 8888));
@@ -1047,7 +1047,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestConformancePathMissing() throws Exception {
+    void testRequestConformancePathMissing() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setScheme("http");
@@ -1059,7 +1059,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestConformanceHostMissing() throws Exception {
+    void testRequestConformanceHostMissing() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setScheme("http");
@@ -1071,7 +1071,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestConformanceHttps() throws Exception {
+    void testRequestConformanceHttps() {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setSSLSession(Mockito.mock(SSLSession.class));
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
@@ -1083,7 +1083,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testRequestConformanceHttpsInsecureConnection() throws Exception {
+    void testRequestConformanceHttpsInsecureConnection() {
         final HttpCoreContext context = HttpCoreContext.create();
         context.setSSLSession(null);
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
@@ -1096,7 +1096,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConformanceNoContent() throws Exception {
+    void testResponseConformanceNoContent() {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NO_CONTENT, "No Content");
         final ResponseConformance interceptor = new ResponseConformance();
@@ -1104,7 +1104,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConformanceNotModified() throws Exception {
+    void testResponseConformanceNotModified() {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not Modified");
         final ResponseConformance interceptor = new ResponseConformance();
@@ -1112,7 +1112,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConformanceNoContentWithEntity() throws Exception {
+    void testResponseConformanceNoContentWithEntity() {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NO_CONTENT, "No Content");
         response.setEntity(new StringEntity("stuff"));
@@ -1122,7 +1122,7 @@ public class TestStandardInterceptors {
     }
 
     @Test
-    public void testResponseConformanceNotModifiedWithEntity() throws Exception {
+    void testResponseConformanceNotModifiedWithEntity() {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not Modified");
         response.setEntity(new StringEntity("stuff"));

@@ -35,10 +35,10 @@ import org.apache.hc.core5.http.io.SessionOutputBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestContentLengthOutputStream {
+class TestContentLengthOutputStream {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final OutputStream out = new ContentLengthOutputStream(outbuffer, outputStream, 15L);
@@ -58,7 +58,7 @@ public class TestContentLengthOutputStream {
     }
 
     @Test
-    public void testClose() throws Exception {
+    void testClose() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final OutputStream out = new ContentLengthOutputStream(outbuffer, outputStream, 15L);

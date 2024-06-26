@@ -48,7 +48,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class TestAbstractIOSessionPool {
+class TestAbstractIOSessionPool {
 
     @Mock
     private Future<IOSession> connectFuture;
@@ -66,7 +66,7 @@ public class TestAbstractIOSessionPool {
     private AbstractIOSessionPool<String> impl;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
         impl = Mockito.mock(AbstractIOSessionPool.class, Mockito.withSettings()
                 .defaultAnswer(Answers.CALLS_REAL_METHODS)
@@ -74,7 +74,7 @@ public class TestAbstractIOSessionPool {
     }
 
     @Test
-    public void testGetSessions() throws Exception {
+    void testGetSessions() throws Exception {
 
         Mockito.when(impl.connectSession(
                 ArgumentMatchers.anyString(),
@@ -134,7 +134,7 @@ public class TestAbstractIOSessionPool {
     }
 
     @Test
-    public void testGetSessionConnectFailure() throws Exception {
+    void testGetSessionConnectFailure() {
 
         Mockito.when(impl.connectSession(
                 ArgumentMatchers.anyString(),
@@ -166,7 +166,7 @@ public class TestAbstractIOSessionPool {
     }
 
     @Test
-    public void testShutdownPool() throws Exception {
+    void testShutdownPool() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
         assertThat(entry1, CoreMatchers.notNullValue());
         entry1.session = ioSession1;
@@ -191,7 +191,7 @@ public class TestAbstractIOSessionPool {
     }
 
     @Test
-    public void testCloseIdleSessions() throws Exception {
+    void testCloseIdleSessions() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
         assertThat(entry1, CoreMatchers.notNullValue());
         entry1.session = ioSession1;
@@ -210,7 +210,7 @@ public class TestAbstractIOSessionPool {
     }
 
     @Test
-    public void testEnumSessions() throws Exception {
+    void testEnumSessions() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("host1");
         assertThat(entry1, CoreMatchers.notNullValue());
         entry1.session = ioSession1;
@@ -225,7 +225,7 @@ public class TestAbstractIOSessionPool {
     }
 
     @Test
-    public void testGetSessionReconnectAfterValidate() throws Exception {
+    void testGetSessionReconnectAfterValidate() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("somehost");
         assertThat(entry1, CoreMatchers.notNullValue());
         entry1.session = ioSession1;
@@ -246,7 +246,7 @@ public class TestAbstractIOSessionPool {
     }
 
     @Test
-    public void testGetSessionReconnectIfClosed() throws Exception {
+    void testGetSessionReconnectIfClosed() {
         final AbstractIOSessionPool.PoolEntry entry1 = impl.getPoolEntry("somehost");
         assertThat(entry1, CoreMatchers.notNullValue());
         entry1.session = ioSession1;
@@ -262,7 +262,7 @@ public class TestAbstractIOSessionPool {
     }
 
     @Test
-    public void testGetSessionConnectUnknownHost() throws Exception {
+    void testGetSessionConnectUnknownHost() {
 
         Mockito.when(connectFuture.isDone()).thenReturn(true);
         Mockito.when(impl.connectSession(

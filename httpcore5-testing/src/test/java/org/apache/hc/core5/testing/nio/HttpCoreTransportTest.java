@@ -56,7 +56,7 @@ import org.apache.hc.core5.util.Timeout;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 
-public abstract class HttpCoreTransportTest {
+abstract class HttpCoreTransportTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -71,7 +71,7 @@ public abstract class HttpCoreTransportTest {
     abstract HttpAsyncRequester clientStart() throws IOException;
 
     @Test
-    public void testSequentialRequests() throws Exception {
+    void testSequentialRequests() throws Exception {
         final HttpAsyncServer server = serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
@@ -114,7 +114,7 @@ public abstract class HttpCoreTransportTest {
     }
 
     @Test
-    public void testSequentialRequestsNonPersistentConnection() throws Exception {
+    void testSequentialRequestsNonPersistentConnection() throws Exception {
         final HttpAsyncServer server = serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
@@ -157,7 +157,7 @@ public abstract class HttpCoreTransportTest {
     }
 
     @Test
-    public void testSequentialRequestsSameEndpoint() throws Exception {
+    void testSequentialRequestsSameEndpoint() throws Exception {
         final HttpAsyncServer server = serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
@@ -208,7 +208,7 @@ public abstract class HttpCoreTransportTest {
     }
 
     @Test
-    public void testPipelinedRequests() throws Exception {
+    void testPipelinedRequests() throws Exception {
         final HttpAsyncServer server = serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
@@ -251,7 +251,7 @@ public abstract class HttpCoreTransportTest {
     }
 
     @Test
-    public void testNonPersistentHeads() throws Exception {
+    void testNonPersistentHeads() throws Exception {
         final HttpAsyncServer server = serverStart();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();

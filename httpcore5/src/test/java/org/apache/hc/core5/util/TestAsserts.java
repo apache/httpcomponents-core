@@ -33,51 +33,51 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link Asserts}.
  */
-public class TestAsserts {
+class TestAsserts {
 
     @Test
-    public void testExpressionCheckPass() {
+    void testExpressionCheckPass() {
         Asserts.check(true, "All is well");
     }
 
     @Test
-    public void testExpressionCheckFail() {
+    void testExpressionCheckFail() {
         Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.check(false, "Oopsie"));
     }
 
     @Test
-    public void testExpressionNotNullFail() {
+    void testExpressionNotNullFail() {
         Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notNull(null, "Stuff"));
     }
 
     @Test
-    public void testExpressionNotEmptyFail1() {
+    void testExpressionNotEmptyFail1() {
         Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notEmpty(null, "Stuff"));
     }
 
     @Test
-    public void testExpressionNotEmptyFail2() {
+    void testExpressionNotEmptyFail2() {
         Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notEmpty("", "Stuff"));
     }
 
     @Test
-    public void testExpressionNotEmptyBlank1() {
+    void testExpressionNotEmptyBlank1() {
         Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notBlank(null, "Stuff"));
     }
 
     @Test
-    public void testExpressionNotEmptyBlank2() {
+    void testExpressionNotEmptyBlank2() {
         Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notBlank("", "Stuff"));
     }
 
     @Test
-    public void testExpressionNotBlankFail3() {
+    void testExpressionNotBlankFail3() {
         Assertions.assertThrows(IllegalStateException.class, () ->
                 Asserts.notBlank(" \t \n\r", "Stuff"));
     }

@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestTimeout {
+class TestTimeout {
 
     private void checkToDays(final long value, final TimeUnit timeUnit) {
         Assertions.assertEquals(timeUnit.toDays(value), Timeout.of(value, timeUnit).toDays());
@@ -77,17 +77,17 @@ public class TestTimeout {
     }
 
     @Test
-    public void test0() {
+    void test0() {
         test(0);
     }
 
     @Test
-    public void test1() {
+    void test1() {
         test(1);
     }
 
     @Test
-    public void testDisabled() {
+    void testDisabled() {
         Assertions.assertTrue(Timeout.DISABLED.isDisabled());
         Assertions.assertFalse(Timeout.DISABLED.isEnabled());
     }
@@ -97,12 +97,12 @@ public class TestTimeout {
     }
 
     @Test
-    public void testFactoryForDays() {
+    void testFactoryForDays() {
         testFactory(TimeUnit.DAYS);
     }
 
     @Test
-    public void testFactoryForDuration() {
+    void testFactoryForDuration() {
         assertConvertion(Duration.ZERO);
         assertConvertion(Duration.ofDays(1));
         assertConvertion(Duration.ofHours(1));
@@ -117,59 +117,59 @@ public class TestTimeout {
     }
 
     @Test
-    public void testFactoryForHours() {
+    void testFactoryForHours() {
         testFactory(TimeUnit.HOURS);
     }
 
     @Test
-    public void testFactoryForMicroseconds() {
+    void testFactoryForMicroseconds() {
         testFactory(TimeUnit.MICROSECONDS);
     }
 
     @Test
-    public void testFactoryForMillisseconds() {
+    void testFactoryForMillisseconds() {
         testFactory(TimeUnit.MILLISECONDS);
     }
 
     @Test
-    public void testFactoryForMinutes() {
+    void testFactoryForMinutes() {
         testFactory(TimeUnit.MINUTES);
     }
 
     @Test
-    public void testFactoryForNanoseconds() {
+    void testFactoryForNanoseconds() {
         testFactory(TimeUnit.NANOSECONDS);
     }
 
     @Test
-    public void testFactoryForSeconds() {
+    void testFactoryForSeconds() {
         testFactory(TimeUnit.SECONDS);
     }
 
     @Test
-    public void testMaxInt() {
+    void testMaxInt() {
         test(Integer.MAX_VALUE);
     }
 
     @Test
-    public void testMaxLong() {
+    void testMaxLong() {
         test(Long.MAX_VALUE);
     }
 
     @Test
-    public void testNegative1() {
+    void testNegative1() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 test(-1));
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         Assertions.assertEquals("9223372036854775807 SECONDS", Timeout.ofSeconds(Long.MAX_VALUE).toString());
         Assertions.assertEquals("0 MILLISECONDS", Timeout.ZERO_MILLISECONDS.toString());
     }
 
     @Test
-    public void testFromString() throws ParseException {
+    void testFromString() throws ParseException {
         Assertions.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807 SECONDS"));
         Assertions.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807 Seconds"));
         Assertions.assertEquals(Timeout.ofSeconds(Long.MAX_VALUE), Timeout.parse("9223372036854775807  Seconds"));

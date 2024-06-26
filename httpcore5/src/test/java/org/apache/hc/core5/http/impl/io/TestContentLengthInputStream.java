@@ -39,10 +39,10 @@ import org.apache.hc.core5.http.io.SessionInputBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestContentLengthInputStream {
+class TestContentLengthInputStream {
 
     @Test
-    public void testBasics() throws IOException {
+    void testBasics() throws IOException {
         final String s = "1234567890123456";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
@@ -61,7 +61,7 @@ public class TestContentLengthInputStream {
     }
 
     @Test
-    public void testSkip() throws IOException {
+    void testSkip() throws IOException {
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(16);
         final InputStream in1 = new ContentLengthInputStream(inBuffer1, inputStream1, 10L);
@@ -96,7 +96,7 @@ public class TestContentLengthInputStream {
     }
 
     @Test
-    public void testAvailable() throws IOException {
+    void testAvailable() throws IOException {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {1, 2, 3});
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 3L);
@@ -107,7 +107,7 @@ public class TestContentLengthInputStream {
     }
 
     @Test
-    public void testClose() throws IOException {
+    void testClose() throws IOException {
         final String s = "1234567890123456-";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
@@ -122,7 +122,7 @@ public class TestContentLengthInputStream {
     }
 
     @Test
-    public void testTruncatedContent() throws IOException {
+    void testTruncatedContent() throws IOException {
         final String s = "1234567890123456";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);

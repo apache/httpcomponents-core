@@ -37,7 +37,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestTimeValue {
+class TestTimeValue {
 
     private void checkToDays(final long value, final TimeUnit timeUnit) {
         Assertions.assertEquals(timeUnit.toDays(value), TimeValue.of(value, timeUnit).toDays());
@@ -80,23 +80,23 @@ public class TestTimeValue {
     }
 
     @Test
-    public void test0() {
+    void test0() {
         test(0);
     }
 
     @Test
-    public void test1() {
+    void test1() {
         test(1);
     }
 
     @Test
-    public void testConvert() {
+    void testConvert() {
         Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).convert(TimeUnit.DAYS));
         Assertions.assertEquals(1000, TimeValue.ofSeconds(1).convert(TimeUnit.MILLISECONDS));
     }
 
     @Test
-    public void testDivide() {
+    void testDivide() {
         // nominator is 0, result should be 0.
         Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toDays());
         Assertions.assertEquals(0, TimeValue.ofMilliseconds(0).divide(2).toHours());
@@ -115,7 +115,7 @@ public class TestTimeValue {
     }
 
     @Test
-    public void testDivideBy0() {
+    void testDivideBy0() {
         Assertions.assertThrows(ArithmeticException.class, () ->
                 TimeValue.ofMilliseconds(0).divide(0));
     }
@@ -128,12 +128,12 @@ public class TestTimeValue {
     }
 
     @Test
-    public void testFactoryForDays() {
+    void testFactoryForDays() {
         testFactory(TimeUnit.DAYS);
     }
 
     @Test
-    public void testFactoryForDuration() {
+    void testFactoryForDuration() {
         assertConvertion(Duration.ZERO);
         assertConvertion(Duration.ofDays(1));
         assertConvertion(Duration.ofHours(1));
@@ -148,37 +148,37 @@ public class TestTimeValue {
     }
 
     @Test
-    public void testFactoryForHours() {
+    void testFactoryForHours() {
         testFactory(TimeUnit.HOURS);
     }
 
     @Test
-    public void testFactoryForMicroseconds() {
+    void testFactoryForMicroseconds() {
         testFactory(TimeUnit.MICROSECONDS);
     }
 
     @Test
-    public void testFactoryForMilliseconds() {
+    void testFactoryForMilliseconds() {
         testFactory(TimeUnit.MILLISECONDS);
     }
 
     @Test
-    public void testFactoryForMinutes() {
+    void testFactoryForMinutes() {
         testFactory(TimeUnit.MINUTES);
     }
 
     @Test
-    public void testFactoryForNanoseconds() {
+    void testFactoryForNanoseconds() {
         testFactory(TimeUnit.NANOSECONDS);
     }
 
     @Test
-    public void testFactoryForSeconds() {
+    void testFactoryForSeconds() {
         testFactory(TimeUnit.SECONDS);
     }
 
     @Test
-    public void testMin() {
+    void testMin() {
         final TimeValue nanos1 = TimeValue.ofNanoseconds(1);
         final TimeValue micros1 = TimeValue.ofMicroseconds(1);
         final TimeValue millis1 = TimeValue.ofMilliseconds(1);
@@ -253,28 +253,28 @@ public class TestTimeValue {
     }
 
     @Test
-    public void testMaxInt() {
+    void testMaxInt() {
         test(Integer.MAX_VALUE);
     }
 
     @Test
-    public void testMaxLong() {
+    void testMaxLong() {
         test(Long.MAX_VALUE);
     }
 
     @Test
-    public void testNegative1() {
+    void testNegative1() {
         test(-1);
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         Assertions.assertEquals("9223372036854775807 SECONDS", TimeValue.ofSeconds(Long.MAX_VALUE).toString());
         Assertions.assertEquals("0 MILLISECONDS", TimeValue.ZERO_MILLISECONDS.toString());
     }
 
     @Test
-    public void testFromString() throws ParseException {
+    void testFromString() throws ParseException {
         final TimeValue maxSeconds = TimeValue.ofSeconds(Long.MAX_VALUE);
         Assertions.assertEquals(maxSeconds, TimeValue.parse("9223372036854775807 SECONDS"));
         Assertions.assertEquals(maxSeconds, TimeValue.parse("9223372036854775807 SECONDS"));
@@ -287,12 +287,12 @@ public class TestTimeValue {
     }
 
     @Test
-    public void testToDuration() throws ParseException {
+    void testToDuration() throws ParseException {
         Assertions.assertEquals(Long.MAX_VALUE, TimeValue.parse("9223372036854775807 SECONDS").toDuration().getSeconds());
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         final TimeValue tv1 = TimeValue.ofMilliseconds(1000L);
         final TimeValue tv2 = TimeValue.ofMilliseconds(1001L);
         final TimeValue tv3 = TimeValue.ofMilliseconds(1000L);
@@ -315,7 +315,7 @@ public class TestTimeValue {
     }
 
     @Test
-    public void testCompareTo() {
+    void testCompareTo() {
         final TimeValue tv1 = TimeValue.ofMilliseconds(1000L);
         final TimeValue tv2 = TimeValue.ofMilliseconds(1001L);
         final TimeValue tv3 = TimeValue.ofMilliseconds(1000L);

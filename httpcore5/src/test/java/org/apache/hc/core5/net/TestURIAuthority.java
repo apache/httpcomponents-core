@@ -43,10 +43,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link URIAuthority}.
  *
  */
-public class TestURIAuthority {
+class TestURIAuthority {
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         final URIAuthority host1 = new URIAuthority("somehost");
         Assertions.assertEquals("somehost", host1.getHostName());
         Assertions.assertEquals(-1, host1.getPort());
@@ -59,7 +59,7 @@ public class TestURIAuthority {
     }
 
     @Test
-    public void testHashCode() throws Exception {
+    void testHashCode() {
         final URIAuthority host1 = new URIAuthority("somehost", 8080);
         final URIAuthority host2 = new URIAuthority("somehost", 80);
         final URIAuthority host3 = new URIAuthority("someotherhost", 8080);
@@ -78,7 +78,7 @@ public class TestURIAuthority {
     }
 
     @Test
-    public void testEquals() throws Exception {
+    void testEquals() {
         final URIAuthority host1 = new URIAuthority("somehost", 8080);
         final URIAuthority host2 = new URIAuthority("somehost", 80);
         final URIAuthority host3 = new URIAuthority("someotherhost", 8080);
@@ -97,7 +97,7 @@ public class TestURIAuthority {
     }
 
     @Test
-    public void testToString() throws Exception {
+    void testToString() {
         final URIAuthority host1 = new URIAuthority("somehost");
         Assertions.assertEquals("somehost", host1.toString());
         final URIAuthority host2 = new URIAuthority("somehost", -1);
@@ -107,7 +107,7 @@ public class TestURIAuthority {
     }
 
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization() throws Exception {
         final URIAuthority orig = new URIAuthority("somehost", 8080);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
         final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
@@ -121,7 +121,7 @@ public class TestURIAuthority {
     }
 
     @Test
-    public void testParse() throws Exception {
+    void testParse() throws Exception {
         assertThat(URIAuthority.parse("somehost"),
                 CoreMatchers.equalTo(new URIAuthority("somehost", -1)));
         assertThat(URIAuthority.parse("somehost/blah"),
@@ -182,7 +182,7 @@ public class TestURIAuthority {
     }
 
     @Test
-    public void testCreateFromString() throws Exception {
+    void testCreateFromString() throws Exception {
         Assertions.assertEquals(new URIAuthority("somehost", 8080), URIAuthority.create("somehost:8080"));
         Assertions.assertEquals(new URIAuthority("SomeHost", 8080), URIAuthority.create("SomeHost:8080"));
         Assertions.assertEquals(new URIAuthority("somehost", 1234), URIAuthority.create("somehost:1234"));
@@ -195,7 +195,7 @@ public class TestURIAuthority {
     }
 
     @Test
-    public void testCreateFromIPv6String() throws Exception {
+    void testCreateFromIPv6String() throws Exception {
         Assertions.assertEquals(new URIAuthority("::1", 8080), URIAuthority.create("[::1]:8080"));
         Assertions.assertEquals(new URIAuthority("::1", -1), URIAuthority.create("[::1]"));
         Assertions.assertThrows(URISyntaxException.class, () -> URIAuthority.create("::1"));
@@ -204,7 +204,7 @@ public class TestURIAuthority {
     }
 
     @Test
-    public void testIpv6HostToString() {
+    void testIpv6HostToString() {
         Assertions.assertEquals("[::1]:80", new URIAuthority("::1", 80).toString());
         Assertions.assertEquals("user@[::1]:80", new URIAuthority("user", "::1", 80).toString());
         Assertions.assertEquals("[::1]", new URIAuthority("::1", -1).toString());

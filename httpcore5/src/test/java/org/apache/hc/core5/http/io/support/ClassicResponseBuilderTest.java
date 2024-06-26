@@ -60,7 +60,7 @@ class ClassicResponseBuilderTest {
     ByteArrayOutputStream outStream;
 
     @BeforeEach
-    public void prepareMocks() throws IOException {
+    void prepareMocks() throws IOException {
         MockitoAnnotations.openMocks(this);
         conn = new DefaultBHttpServerConnection("http", Http1Config.DEFAULT,
                 null, null,

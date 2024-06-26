@@ -36,10 +36,10 @@ import org.apache.hc.core5.http.HttpVersion;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 
-public class ResultFormatterTest {
+class ResultFormatterTest {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final Results results = new Results(
                 "TestServer/1.1",
                 HttpVersion.HTTP_1_1,

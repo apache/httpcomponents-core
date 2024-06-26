@@ -32,10 +32,10 @@ import org.junit.jupiter.api.Test;
 
 // the name of this test is historic, the implementation classes of HttpContext
 // have been renamed to BasicHttpContext and SyncBasicHttpContext
-public class TestHttpExecutionContext {
+class TestHttpExecutionContext {
 
     @Test
-    public void testContextOperations() {
+    void testContextOperations() {
         final HttpCoreContext parentContext = new HttpCoreContext();
         final HttpCoreContext currentContext = new HttpCoreContext(parentContext);
 
@@ -65,7 +65,7 @@ public class TestHttpExecutionContext {
     }
 
     @Test
-    public void testEmptyContextOperations() {
+    void testEmptyContextOperations() {
         final HttpCoreContext currentContext = new HttpCoreContext();
         Assertions.assertNull(currentContext.getAttribute("param1"));
         currentContext.removeAttribute("param1");

@@ -39,24 +39,24 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link BasicLineFormatter}.
  */
-public class TestBasicLineFormatter {
+class TestBasicLineFormatter {
 
     private BasicLineFormatter formatter;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.formatter = BasicLineFormatter.INSTANCE;
     }
 
     @Test
-    public void testHttpVersionFormatting() throws Exception {
+    void testHttpVersionFormatting() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         this.formatter.formatProtocolVersion(buf, HttpVersion.HTTP_1_1);
         Assertions.assertEquals("HTTP/1.1", buf.toString());
     }
 
     @Test
-    public void testRLFormatting() throws Exception {
+    void testRLFormatting() {
         final RequestLine requestline = new RequestLine(Method.GET.name(), "/stuff", HttpVersion.HTTP_1_1);
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         this.formatter.formatRequestLine(buf, requestline);
@@ -64,7 +64,7 @@ public class TestBasicLineFormatter {
     }
 
     @Test
-    public void testRLFormattingInvalidInput() throws Exception {
+    void testRLFormattingInvalidInput() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final RequestLine requestline = new RequestLine(Method.GET.name(), "/stuff", HttpVersion.HTTP_1_1);
         Assertions.assertThrows(NullPointerException.class, () ->
@@ -74,7 +74,7 @@ public class TestBasicLineFormatter {
     }
 
     @Test
-    public void testSLFormatting() throws Exception {
+    void testSLFormatting() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final StatusLine statusline1 = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         this.formatter.formatStatusLine(buf, statusline1);
@@ -89,7 +89,7 @@ public class TestBasicLineFormatter {
     }
 
     @Test
-    public void testSLFormattingInvalidInput() throws Exception {
+    void testSLFormattingInvalidInput() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final StatusLine statusline = new StatusLine(HttpVersion.HTTP_1_1, HttpStatus.SC_OK, "OK");
         Assertions.assertThrows(NullPointerException.class, () ->
@@ -99,7 +99,7 @@ public class TestBasicLineFormatter {
     }
 
     @Test
-    public void testHeaderFormatting() throws Exception {
+    void testHeaderFormatting() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final Header header1 = new BasicHeader("name", "value");
         this.formatter.formatHeader(buf, header1);
@@ -112,7 +112,7 @@ public class TestBasicLineFormatter {
     }
 
     @Test
-    public void testHeaderFormattingInvalidInput() throws Exception {
+    void testHeaderFormattingInvalidInput() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final Header header = new BasicHeader("name", "value");
         Assertions.assertThrows(NullPointerException.class, () ->
@@ -122,7 +122,7 @@ public class TestBasicLineFormatter {
     }
 
     @Test
-    public void testHeaderFormattingRequestSplitting() throws Exception {
+    void testHeaderFormattingRequestSplitting() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         final Header header = new BasicHeader("Host", "apache.org\r\nOops: oops");
         formatter.formatHeader(buf, header);

@@ -42,226 +42,226 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link Args}.
  */
-public class TestArgs {
+class TestArgs {
 
     @Test
-    public void testArgCheckPass() {
+    void testArgCheckPass() {
         Args.check(true, "All is well");
     }
 
     @Test
-    public void testArgCheckFail() {
+    void testArgCheckFail() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.check(false, "Oopsie"));
     }
 
     @Test
-    public void testArgNotNullPass() {
+    void testArgNotNullPass() {
         final String stuff = "stuff";
         Assertions.assertSame(stuff, Args.notNull(stuff, "Stuff"));
     }
 
     @Test
-    public void testArgNotNullFail() {
+    void testArgNotNullFail() {
         Assertions.assertThrows(NullPointerException.class, () ->
                 Args.notNull(null, "Stuff"));
     }
 
     @Test
-    public void testArgNotEmptyPass() {
+    void testArgNotEmptyPass() {
         final String stuff = "stuff";
         Assertions.assertSame(stuff, Args.notEmpty(stuff, "Stuff"));
     }
 
     @Test
-    public void testArgNotEmptyFail1() {
+    void testArgNotEmptyFail1() {
         Assertions.assertThrows(NullPointerException.class, () ->
                 Args.notEmpty((String) null, "Stuff"));
     }
 
     @Test
-    public void testArgNotEmptyFail2() {
+    void testArgNotEmptyFail2() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.notEmpty("", "Stuff"));
     }
 
     @Test
-    public void testArgNotBlankFail1() {
+    void testArgNotBlankFail1() {
         Assertions.assertThrows(NullPointerException.class, () ->
                 Args.notBlank((String) null, "Stuff"));
     }
 
     @Test
-    public void testArgNotBlankFail2() {
+    void testArgNotBlankFail2() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.notBlank("", "Stuff"));
     }
 
     @Test
-    public void testArgNotBlankFail3() {
+    void testArgNotBlankFail3() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.notBlank(" \t \n\r", "Stuff"));
     }
 
     @Test
-    public void testArgCollectionNotEmptyPass() {
+    void testArgCollectionNotEmptyPass() {
         final List<String> list = Collections.singletonList("stuff");
         Assertions.assertSame(list, Args.notEmpty(list, "List"));
     }
 
     @Test
-    public void testArgCollectionNotEmptyFail1() {
+    void testArgCollectionNotEmptyFail1() {
         Assertions.assertThrows(NullPointerException.class, () ->
                 Args.notEmpty((List<?>) null, "List"));
     }
 
     @Test
-    public void testArgCollectionNotEmptyFail2() {
+    void testArgCollectionNotEmptyFail2() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.notEmpty(Collections.emptyList(), "List"));
     }
 
     @Test
-    public void testPositiveIntPass() {
+    void testPositiveIntPass() {
         Assertions.assertEquals(1, Args.positive(1, "Number"));
     }
 
     @Test
-    public void testPositiveIntFail1() {
+    void testPositiveIntFail1() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.positive(-1, "Number"));
     }
 
     @Test
-    public void testPositiveIntFail2() {
+    void testPositiveIntFail2() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.positive(0, "Number"));
     }
 
     @Test
-    public void testPositiveLongPass() {
+    void testPositiveLongPass() {
         Assertions.assertEquals(1L, Args.positive(1L, "Number"));
     }
 
     @Test
-    public void testPositiveTimeValuePass() throws ParseException {
+    void testPositiveTimeValuePass() throws ParseException {
         final Timeout timeout = Timeout.parse("1200 MILLISECONDS");
         Assertions.assertEquals(timeout, Args.positive(timeout, "No Error"));
     }
     @Test
-    public void testPositiveLongFail1() {
+    void testPositiveLongFail1() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.positive(-1L, "Number"));
     }
 
     @Test
-    public void testPositiveLongFail2() {
+    void testPositiveLongFail2() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.positive(0L, "Number"));
     }
 
     @Test
-    public void testNotNegativeIntPass1() {
+    void testNotNegativeIntPass1() {
         Assertions.assertEquals(1, Args.notNegative(1, "Number"));
     }
 
     @Test
-    public void testNotNegativeIntPass2() {
+    void testNotNegativeIntPass2() {
         Assertions.assertEquals(0, Args.notNegative(0, "Number"));
     }
 
     @Test
-    public void testNotNegativeIntFail1() {
+    void testNotNegativeIntFail1() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.notNegative(-1, "Number"));
     }
 
     @Test
-    public void testNotNegativeLongPass1() {
+    void testNotNegativeLongPass1() {
         Assertions.assertEquals(1L, Args.notNegative(1L, "Number"));
     }
 
     @Test
-    public void testNotNegativeLongPass2() {
+    void testNotNegativeLongPass2() {
         Assertions.assertEquals(0L, Args.notNegative(0L, "Number"));
     }
 
     @Test
-    public void testNotNegativeLongFail1() {
+    void testNotNegativeLongFail1() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.notNegative(-1L, "Number"));
     }
 
     @Test
-    public void testIntSmallestRangeOK() {
+    void testIntSmallestRangeOK() {
         Args.checkRange(0, 0, 0, "Number");
     }
 
     @Test
-    public void testIntSmallestRangeFailLow() {
+    void testIntSmallestRangeFailLow() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.checkRange(-1, 0, 0, "Number"));
     }
 
     @Test
-    public void testIntRangeFailLow() {
+    void testIntRangeFailLow() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.checkRange(-101, -100, 100, "Number"));
     }
 
     @Test
-    public void testIntRangeFailHigh() {
+    void testIntRangeFailHigh() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.checkRange(101, -100, 100, "Number"));
     }
 
     @Test
-    public void testIntSmallestRangeFailHigh() {
+    void testIntSmallestRangeFailHigh() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.checkRange(1, 0, 0, "Number"));
     }
 
     @Test
-    public void testIntFullRangeOK() {
+    void testIntFullRangeOK() {
         Args.checkRange(0, Integer.MIN_VALUE, Integer.MAX_VALUE, "Number");
     }
 
     @Test
-    public void testLongSmallestRangeOK() {
+    void testLongSmallestRangeOK() {
         Args.checkRange(0L, 0L, 0L, "Number");
     }
 
     @Test
-    public void testLongSmallestRangeFailLow() {
+    void testLongSmallestRangeFailLow() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.checkRange(-1L, 0L, 0L, "Number"));
     }
 
     @Test
-    public void testLongRangeFailLow() {
+    void testLongRangeFailLow() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.checkRange(-101L, -100L, 100L, "Number"));
     }
 
     @Test
-    public void testLongRangeFailHigh() {
+    void testLongRangeFailHigh() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.checkRange(101L, -100L, 100L, "Number"));
     }
 
     @Test
-    public void testLongSmallestRangeFailHigh() {
+    void testLongSmallestRangeFailHigh() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.checkRange(1L, 0L, 0L, "Number"));
     }
 
     @Test
-    public void testLongFullRangeOK() {
+    void testLongFullRangeOK() {
         Args.checkRange(0L, Long.MIN_VALUE, Long.MAX_VALUE, "Number");
     }
 
     @Test
-    public void testIsEmpty() {
+    void testIsEmpty() {
 
         final String[] NON_EMPTY_ARRAY = new String[] { "ABG", "NML", };
 
@@ -288,13 +288,13 @@ public class TestArgs {
     }
 
     @Test
-    public void testcontainsNoBlanks() {
+    void testContainsNoBlanks() {
         final String stuff = "abg";
         Assertions.assertSame(stuff, Args.containsNoBlanks(stuff, "abg"));
     }
 
     @Test
-    public void check() {
+    void check() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 Args.check(false, "Error,", "ABG"));
     }

@@ -54,27 +54,27 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class TestClassicTestClientTestingAdapter {
+class TestClassicTestClientTestingAdapter {
     private static final String ECHO_PATH = "echo/something";
     private static final String CUSTOM_PATH = "custom/something";
 
     private ClassicTestServer server;
 
-   @BeforeEach
-    public void initServer() throws Exception {
+    @BeforeEach
+    void initServer() {
        this.server = new ClassicTestServer(SocketConfig.custom()
                .setSoTimeout(5, TimeUnit.SECONDS).build());
     }
 
     @AfterEach
-    public void shutDownServer() throws Exception {
+    void shutDownServer() {
         if (this.server != null) {
             this.server.shutdown(CloseMode.IMMEDIATE);
         }
     }
 
     @Test
-    public void nullDefaultURI() throws Exception {
+    void nullDefaultURI() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = null;
@@ -87,7 +87,7 @@ public class TestClassicTestClientTestingAdapter {
     }
 
     @Test
-    public void nullRequest() throws Exception {
+    void nullRequest() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = "";
@@ -100,7 +100,7 @@ public class TestClassicTestClientTestingAdapter {
     }
 
     @Test
-    public void nullRequestHandler() throws Exception {
+    void nullRequestHandler() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = "";
@@ -113,7 +113,7 @@ public class TestClassicTestClientTestingAdapter {
     }
 
     @Test
-    public void nullResponseExpectations() throws Exception {
+    void nullResponseExpectations() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = "";
@@ -126,7 +126,7 @@ public class TestClassicTestClientTestingAdapter {
     }
 
     @Test
-    public void noPath() throws Exception {
+    void noPath() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = "";
@@ -139,7 +139,7 @@ public class TestClassicTestClientTestingAdapter {
     }
 
     @Test
-    public void noMethod() throws Exception {
+    void noMethod() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = "";
@@ -155,7 +155,7 @@ public class TestClassicTestClientTestingAdapter {
     }
 
     @Test
-    public void invalidMethod() throws Exception {
+    void invalidMethod() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final String defaultURI = "";
@@ -172,7 +172,7 @@ public class TestClassicTestClientTestingAdapter {
     }
 
     @Test
-    public void withLiveServerEcho() throws Exception {
+    void withLiveServerEcho() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         // Initialize the server-side request handler
@@ -209,7 +209,7 @@ public class TestClassicTestClientTestingAdapter {
     }
 
     @Test
-    public void withLiveServerCustomRequestHandler() throws Exception {
+    void withLiveServerCustomRequestHandler() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final TestingFrameworkRequestHandler requestHandler = new TestingFrameworkRequestHandler() {
@@ -241,7 +241,7 @@ public class TestClassicTestClientTestingAdapter {
     }
 
     @Test
-    public void modifyRequest() {
+    void modifyRequest() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final Map<String, Object> request = new HashMap<>();
@@ -251,7 +251,7 @@ public class TestClassicTestClientTestingAdapter {
     }
 
     @Test
-    public void modifyResponseExpectations() {
+    void modifyResponseExpectations() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final Map<String, Object> responseExpectations = new HashMap<>();

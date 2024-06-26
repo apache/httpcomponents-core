@@ -56,7 +56,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class ClassicServerBootstrapFilterTest {
+abstract class ClassicServerBootstrapFilterTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -103,7 +103,7 @@ public abstract class ClassicServerBootstrapFilterTest {
     }
 
     @Test
-    public void testFilters() throws Exception {
+    void testFilters() throws Exception {
         final HttpServer server = serverResource.start();
         final HttpRequester requester = clientResource.start();
 

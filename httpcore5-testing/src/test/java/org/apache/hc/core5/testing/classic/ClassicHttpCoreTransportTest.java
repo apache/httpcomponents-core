@@ -55,7 +55,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public abstract class ClassicHttpCoreTransportTest {
+abstract class ClassicHttpCoreTransportTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -70,7 +70,7 @@ public abstract class ClassicHttpCoreTransportTest {
     abstract HttpRequester clientStart() throws IOException;
 
     @Test
-    public void testSequentialRequests() throws Exception {
+    void testSequentialRequests() throws Exception {
         final HttpServer server = serverStart();
         final HttpRequester requester = clientStart();
 
@@ -100,7 +100,7 @@ public abstract class ClassicHttpCoreTransportTest {
     }
 
     @Test
-    public void testSequentialRequestsNonPersistentConnection() throws Exception {
+    void testSequentialRequestsNonPersistentConnection() throws Exception {
         final HttpServer server = serverStart();
         final HttpRequester requester = clientStart();
 
@@ -130,7 +130,7 @@ public abstract class ClassicHttpCoreTransportTest {
     }
 
     @Test
-    public void testMultiThreadedRequests() throws Exception {
+    void testMultiThreadedRequests() throws Exception {
         final HttpServer server = serverStart();
         final HttpRequester requester = clientStart();
 

@@ -51,7 +51,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class TestDefaultBHttpClientConnection {
+class TestDefaultBHttpClientConnection {
 
     @Mock
     private Socket socket;
@@ -59,7 +59,7 @@ public class TestDefaultBHttpClientConnection {
     private DefaultBHttpClientConnection conn;
 
     @BeforeEach
-    public void prepareMocks() {
+    void prepareMocks() {
         MockitoAnnotations.openMocks(this);
         conn = new DefaultBHttpClientConnection(Http1Config.DEFAULT,
                 null, null,
@@ -70,13 +70,13 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() {
         Assertions.assertFalse(conn.isOpen());
         Assertions.assertEquals("[Not bound]", conn.toString());
     }
 
     @Test
-    public void testReadResponseHead() throws Exception {
+    void testReadResponseHead() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nUser-Agent: test\r\n\r\n";
         final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
@@ -93,7 +93,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testReadResponseEntityWithoutContentLength() throws Exception {
+    void testReadResponseEntityWithoutContentLength() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\n\r\n123";
         final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
@@ -125,7 +125,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testReadResponseEntityWithContentLength() throws Exception {
+    void testReadResponseEntityWithContentLength() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\nContent-Length: 3\r\n\r\n123";
         final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
@@ -153,7 +153,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testReadResponseEntityChunkCoded() throws Exception {
+    void testReadResponseEntityChunkCoded() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: " +
                 "chunked\r\n\r\n3\r\n123\r\n0\r\n\r\n";
         final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
@@ -183,7 +183,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testReadResponseEntityIdentity() throws Exception {
+    void testReadResponseEntityIdentity() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\nTransfer-Encoding: identity\r\n\r\n123";
         final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
@@ -204,7 +204,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testReadResponseNoEntity() throws Exception {
+    void testReadResponseNoEntity() throws Exception {
         final String s = "HTTP/1.1 200 OK\r\nServer: test\r\n\r\n";
         final ByteArrayInputStream inStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         Mockito.when(socket.getInputStream()).thenReturn(inStream);
@@ -230,7 +230,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testWriteRequestHead() throws Exception {
+    void testWriteRequestHead() throws Exception {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
@@ -250,7 +250,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testWriteRequestEntityWithContentLength() throws Exception {
+    void testWriteRequestEntityWithContentLength() throws Exception {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
@@ -273,7 +273,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testWriteRequestEntityChunkCoded() throws Exception {
+    void testWriteRequestEntityChunkCoded() throws Exception {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
@@ -297,7 +297,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testWriteRequestEntityNoContentLength() throws Exception {
+    void testWriteRequestEntityNoContentLength() throws Exception {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
@@ -315,7 +315,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testWriteRequestNoEntity() throws Exception {
+    void testWriteRequestNoEntity() throws Exception {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
@@ -336,7 +336,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testTerminateRequestChunkedEntity() throws Exception {
+    void testTerminateRequestChunkedEntity() throws Exception {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
@@ -363,7 +363,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testTerminateRequestContentLengthShort() throws Exception {
+    void testTerminateRequestContentLengthShort() throws Exception {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 
@@ -389,7 +389,7 @@ public class TestDefaultBHttpClientConnection {
     }
 
     @Test
-    public void testTerminateRequestContentLengthLong() throws Exception {
+    void testTerminateRequestContentLengthLong() throws Exception {
         final ByteArrayOutputStream outStream = new ByteArrayOutputStream();
         Mockito.when(socket.getOutputStream()).thenReturn(outStream);
 

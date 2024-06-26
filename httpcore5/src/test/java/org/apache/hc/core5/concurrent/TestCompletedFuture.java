@@ -29,10 +29,10 @@ package org.apache.hc.core5.concurrent;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestCompletedFuture {
+class TestCompletedFuture {
 
     @Test
-    public void testCompleted() {
+    void testCompleted() {
         final Object result = new Object();
         final CompletedFuture<Object> future = new CompletedFuture<>(result);
         Assertions.assertSame(result, future.get());

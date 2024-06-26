@@ -31,11 +31,11 @@ import org.apache.hc.core5.http2.HttpVersionPolicy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 
-public class IntegrationTests {
+class IntegrationTests {
 
     @Nested
     @DisplayName("Reactive client (HTTP/1.1)")
-    public class CoreFunctions extends ReactiveClientTest {
+    class CoreFunctions extends ReactiveClientTest {
 
         public CoreFunctions() {
             super(HttpVersionPolicy.FORCE_HTTP_1);
@@ -45,7 +45,7 @@ public class IntegrationTests {
 
     @Nested
     @DisplayName("Reactive client (HTTP/2)")
-    public class CoreFunctionsTls extends ReactiveClientTest {
+    class CoreFunctionsTls extends ReactiveClientTest {
 
         public CoreFunctionsTls() {
             super(HttpVersionPolicy.FORCE_HTTP_2);

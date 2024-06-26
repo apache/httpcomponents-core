@@ -34,10 +34,10 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestChainBuilder {
+class TestChainBuilder {
 
     @Test
-    public void testBuildChain() throws Exception {
+    void testBuildChain() {
         final ChainBuilder<HttpRequestInterceptor> cb = new ChainBuilder<>();
         final HttpRequestInterceptor i1 = RequestContent.INSTANCE;
         final HttpRequestInterceptor i2 = RequestTargetHost.INSTANCE;

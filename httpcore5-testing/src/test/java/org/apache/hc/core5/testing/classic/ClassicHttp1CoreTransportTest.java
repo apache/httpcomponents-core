@@ -46,7 +46,7 @@ import org.apache.hc.core5.testing.extension.classic.HttpServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class ClassicHttp1CoreTransportTest extends ClassicHttpCoreTransportTest {
+abstract class ClassicHttp1CoreTransportTest extends ClassicHttpCoreTransportTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 

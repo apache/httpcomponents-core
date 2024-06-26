@@ -53,7 +53,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class TestAbstractH2StreamMultiplexer {
+class TestAbstractH2StreamMultiplexer {
 
     @Mock
     ProtocolIOSession protocolIOSession;
@@ -63,7 +63,7 @@ public class TestAbstractH2StreamMultiplexer {
     H2StreamListener h2StreamListener;
 
     @BeforeEach
-    public void prepareMocks() {
+    void prepareMocks() {
         MockitoAnnotations.openMocks(this);
     }
 
@@ -112,7 +112,7 @@ public class TestAbstractH2StreamMultiplexer {
     }
 
     @Test
-    public void testInputOneFrame() throws Exception {
+    void testInputOneFrame() throws Exception {
         final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(16 * 1024);
 
@@ -161,7 +161,7 @@ public class TestAbstractH2StreamMultiplexer {
     }
 
     @Test
-    public void testInputMultipleFrames() throws Exception {
+    void testInputMultipleFrames() throws Exception {
         final WritableByteChannelMock writableChannel = new WritableByteChannelMock(1024);
         final FrameOutputBuffer outbuffer = new FrameOutputBuffer(16 * 1024);
 

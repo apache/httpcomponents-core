@@ -38,10 +38,10 @@ import org.apache.hc.core5.http.message.BasicHttpResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestDefaultH2ResponseConverter {
+class TestDefaultH2ResponseConverter {
 
     @Test
-    public void testConvertFromFieldsBasic() throws Exception {
+    void testConvertFromFieldsBasic() throws Exception {
 
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
@@ -61,7 +61,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromFieldsUpperCaseHeaderName() throws Exception {
+    void testConvertFromFieldsUpperCaseHeaderName() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":Status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
@@ -73,7 +73,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromFieldsInvalidStatusCode() throws Exception {
+    void testConvertFromFieldsInvalidStatusCode() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "boom"),
                 new BasicHeader("location", "http://www.example.com/"),
@@ -84,7 +84,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromFieldsConnectionHeader() throws Exception {
+    void testConvertFromFieldsConnectionHeader() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader("location", "http://www.example.com/"),
@@ -96,7 +96,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromFieldsKeepAliveHeader() throws Exception {
+    void testConvertFromFieldsKeepAliveHeader() {
         final List<Header> headers = Arrays.asList(
             new BasicHeader(":status", "200"),
             new BasicHeader("location", "http://www.example.com/"),
@@ -108,7 +108,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromFieldsTransferEncodingHeader() throws Exception {
+    void testConvertFromFieldsTransferEncodingHeader() {
         final List<Header> headers = Arrays.asList(
             new BasicHeader(":status", "200"),
             new BasicHeader("location", "http://www.example.com/"),
@@ -120,7 +120,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromFieldsUpgradeHeader() throws Exception {
+    void testConvertFromFieldsUpgradeHeader() {
         final List<Header> headers = Arrays.asList(
             new BasicHeader(":status", "200"),
             new BasicHeader("location", "http://www.example.com/"),
@@ -132,7 +132,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromFieldsMissingStatus() throws Exception {
+    void testConvertFromFieldsMissingStatus() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader("location", "http://www.example.com/"),
                 new BasicHeader("custom", "value"));
@@ -143,7 +143,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromFieldsUnknownPseudoHeader() throws Exception {
+    void testConvertFromFieldsUnknownPseudoHeader() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader(":custom", "200"),
@@ -156,7 +156,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromFieldsMultipleStatus() throws Exception {
+    void testConvertFromFieldsMultipleStatus() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader(":status", "200"),
                 new BasicHeader(":status", "200"),
@@ -169,7 +169,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromMessageBasic() throws Exception {
+    void testConvertFromMessageBasic() throws Exception {
 
         final HttpResponse response = new BasicHttpResponse(200);
         response.addHeader("custom123", "Value");
@@ -188,7 +188,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromMessageInvalidStatus() throws Exception {
+    void testConvertFromMessageInvalidStatus() {
         final HttpResponse response = new BasicHttpResponse(99);
         response.addHeader("Custom123", "Value");
 
@@ -198,7 +198,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromMessageConnectionHeader() throws Exception {
+    void testConvertFromMessageConnectionHeader() {
         final HttpResponse response = new BasicHttpResponse(200);
         response.addHeader("Connection", "Keep-Alive");
 
@@ -208,7 +208,7 @@ public class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    public void testConvertFromMessageInvalidHeader() throws Exception {
+    void testConvertFromMessageInvalidHeader() {
         final HttpResponse response = new BasicHttpResponse(200);
         response.addHeader(":custom", "stuff");
 

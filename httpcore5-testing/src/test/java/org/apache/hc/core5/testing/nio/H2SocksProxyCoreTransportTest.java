@@ -44,7 +44,7 @@ import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class H2SocksProxyCoreTransportTest extends HttpCoreTransportTest {
+abstract class H2SocksProxyCoreTransportTest extends HttpCoreTransportTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 

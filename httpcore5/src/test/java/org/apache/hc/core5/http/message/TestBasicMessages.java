@@ -43,10 +43,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link org.apache.hc.core5.http.HttpMessage}.
  *
  */
-public class TestBasicMessages {
+class TestBasicMessages {
 
     @Test
-    public void testDefaultResponseConstructors() {
+    void testDefaultResponseConstructors() {
         final HttpResponse response1 = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");
         Assertions.assertEquals(HttpStatus.SC_BAD_REQUEST, response1.getCode());
 
@@ -56,7 +56,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testSetResponseStatus() {
+    void testSetResponseStatus() {
         final HttpResponse response1 = new BasicHttpResponse(200, "OK");
         Assertions.assertNotNull(response1.getCode());
         Assertions.assertEquals(200, response1.getCode());
@@ -73,7 +73,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testDefaultRequestConstructors() {
+    void testDefaultRequestConstructors() {
         final HttpRequest request1 = new BasicHttpRequest("WHATEVER", "/");
         Assertions.assertEquals("WHATEVER", request1.getMethod());
         Assertions.assertEquals("/", request1.getPath());
@@ -87,14 +87,14 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testResponseBasics() {
+    void testResponseBasics() {
         final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         Assertions.assertEquals(200, response.getCode());
         Assertions.assertEquals("OK", response.getReasonPhrase());
     }
 
     @Test
-    public void testResponseStatusLineMutation() {
+    void testResponseStatusLineMutation() {
         final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         Assertions.assertEquals(200, response.getCode());
         Assertions.assertEquals("OK", response.getReasonPhrase());
@@ -107,14 +107,14 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testResponseInvalidStatusCode() {
+    void testResponseInvalidStatusCode() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> new BasicHttpResponse(-200, "OK"));
         final BasicHttpResponse response = new BasicHttpResponse(200, "OK");
         Assertions.assertThrows(IllegalArgumentException.class, () -> response.setCode(-1));
     }
 
     @Test
-    public void testRequestBasics() throws Exception {
+    void testRequestBasics() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "/stuff");
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("/stuff", request.getPath());
@@ -123,7 +123,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testRequestWithRelativeURI() throws Exception {
+    void testRequestWithRelativeURI() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("/stuff"));
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("/stuff", request.getPath());
@@ -132,7 +132,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testRequestWithAbsoluteURI() throws Exception {
+    void testRequestWithAbsoluteURI() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("https://host:9443/stuff?param=value"));
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("/stuff?param=value", request.getPath());
@@ -142,7 +142,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testRequestWithAbsoluteURIAsPath() throws Exception {
+    void testRequestWithAbsoluteURIAsPath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "https://host:9443/stuff?param=value");
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("/stuff?param=value", request.getPath());
@@ -152,7 +152,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testRequestWithNoPath() throws Exception {
+    void testRequestWithNoPath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("http://host"));
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("/", request.getPath());
@@ -162,7 +162,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testRequestWithUserInfo() throws Exception {
+    void testRequestWithUserInfo() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("https://user:pwd@host:9443/stuff?param=value"));
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("/stuff?param=value", request.getPath());
@@ -172,7 +172,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testRequestWithAuthority() throws Exception {
+    void testRequestWithAuthority() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "/stuff");
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("/stuff", request.getPath());
@@ -181,7 +181,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testRequestWithAuthorityRelativePath() throws Exception {
+    void testRequestWithAuthorityRelativePath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "stuff");
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("stuff", request.getPath());
@@ -190,7 +190,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testRequestHostWithReservedChars() throws Exception {
+    void testRequestHostWithReservedChars() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://someuser%21@%21example%21.com/stuff"));
         Assertions.assertEquals(Method.GET.name(), request.getMethod());
         Assertions.assertEquals("/stuff", request.getPath());
@@ -199,7 +199,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testRequestAbsoluteRequestUri() throws Exception {
+    void testRequestAbsoluteRequestUri() {
         final BasicHttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "stuff");
         Assertions.assertEquals("stuff", request.getRequestUri());
         request.setAbsoluteRequestUri(true);
@@ -207,7 +207,7 @@ public class TestBasicMessages {
     }
 
     @Test
-    public void testModifyingExistingRequest() throws Exception {
+    void testModifyingExistingRequest() throws Exception {
         final URI uri = URI.create("https://example.org");
         final HttpRequest request = new BasicHttpRequest(Method.GET, uri);
 

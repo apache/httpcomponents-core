@@ -39,7 +39,7 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 
-public class TestWWWFormCodec {
+class TestWWWFormCodec {
 
     private static final String CH_HELLO = "\u0047\u0072\u00FC\u0065\u007A\u0069\u005F\u007A\u00E4\u006D\u00E4";
     private static final String RU_HELLO = "\u0412\u0441\u0435\u043C\u005F\u043F\u0440\u0438\u0432\u0435\u0442";
@@ -49,7 +49,7 @@ public class TestWWWFormCodec {
     }
 
     @Test
-    public void testParse() throws Exception {
+    void testParse() {
         assertThat(parse(""), NameValuePairListMatcher.isEmpty());
         assertThat(parse("Name0"),
                 NameValuePairListMatcher.equalsTo(new BasicNameValuePair("Name0", null)));
@@ -94,7 +94,7 @@ public class TestWWWFormCodec {
     }
 
     @Test
-    public void testFormat() throws Exception {
+    void testFormat() {
         assertThat(format(new BasicNameValuePair("Name0", null)), CoreMatchers.equalTo("Name0"));
         assertThat(format(new BasicNameValuePair("Name1", "Value1")), CoreMatchers.equalTo("Name1=Value1"));
         assertThat(format(new BasicNameValuePair("Name2", "")), CoreMatchers.equalTo("Name2="));

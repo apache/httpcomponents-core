@@ -30,10 +30,10 @@ package org.apache.hc.core5.http2.hpack;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestOutboundDynamicTable {
+class TestOutboundDynamicTable {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() {
 
         final OutboundDynamicTable table = new OutboundDynamicTable();
         Assertions.assertEquals(Integer.MAX_VALUE, table.getMaxSize());
@@ -49,7 +49,7 @@ public class TestOutboundDynamicTable {
     }
 
     @Test
-    public void testEviction() throws Exception {
+    void testEviction() {
 
         final OutboundDynamicTable table = new OutboundDynamicTable();
 

@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class HttpResponseWrapperTest {
+class HttpResponseWrapperTest {
 
     @Test
     void testDefaultResponseConstructors() {

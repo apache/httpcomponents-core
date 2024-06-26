@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link ByteBufferEntity}.
  *
  */
-public class TestByteBufferEntity {
+class TestByteBufferEntity {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final ByteBuffer bytes = ByteBuffer.wrap("Message content".getBytes(StandardCharsets.US_ASCII));
         try (final ByteBufferEntity httpentity = new ByteBufferEntity(bytes, null)) {
 
@@ -54,7 +54,7 @@ public class TestByteBufferEntity {
 
 
     @Test
-    public void testWriteTo() throws Exception {
+    void testWriteTo() throws Exception {
         final ByteBuffer bytes = ByteBuffer.wrap("Message content".getBytes(StandardCharsets.US_ASCII));
         try (final ByteBufferEntity httpentity = new ByteBufferEntity(bytes, null)) {
 

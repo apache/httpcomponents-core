@@ -67,7 +67,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class H2CoreTransportMultiplexingTest {
+abstract class H2CoreTransportMultiplexingTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -98,7 +98,7 @@ public abstract class H2CoreTransportMultiplexingTest {
     }
 
     @Test
-    public void testSequentialRequests() throws Exception {
+    void testSequentialRequests() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
@@ -141,7 +141,7 @@ public abstract class H2CoreTransportMultiplexingTest {
     }
 
     @Test
-    public void testMultiplexedRequests() throws Exception {
+    void testMultiplexedRequests() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
@@ -176,7 +176,7 @@ public abstract class H2CoreTransportMultiplexingTest {
     }
 
     @Test
-    public void testValidityCheck() throws Exception {
+    void testValidityCheck() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();
@@ -224,7 +224,7 @@ public abstract class H2CoreTransportMultiplexingTest {
     }
 
     @Test
-    public void testMultiplexedRequestCancellation() throws Exception {
+    void testMultiplexedRequestCancellation() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();

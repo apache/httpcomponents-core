@@ -57,7 +57,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class H2ConnPoolTest {
+class H2ConnPoolTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
@@ -98,12 +98,12 @@ public class H2ConnPoolTest {
     }
 
     @BeforeEach
-    public void resetCounts() {
+    void resetCounts() {
         clientConnCount.set(0);
     }
 
     @Test
-    public void testManyGetSession() throws Exception {
+    void testManyGetSession() throws Exception {
         final int n = 200;
 
         final HttpAsyncServer server = serverResource.start();
@@ -147,7 +147,7 @@ public class H2ConnPoolTest {
     }
 
     @Test
-    public void testManyGetSessionFailures() throws Exception {
+    void testManyGetSessionFailures() throws Exception {
         final int n = 200;
 
         final HttpHost target = new HttpHost(URIScheme.HTTP.id, "pampa.invalid", 8888);

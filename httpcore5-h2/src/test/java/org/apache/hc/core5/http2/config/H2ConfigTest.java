@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
-public class H2ConfigTest {
+class H2ConfigTest {
 
     @Test
     void builder() {

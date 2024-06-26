@@ -65,7 +65,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class ClassicAuthenticationTest {
+abstract class ClassicAuthenticationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -124,7 +124,7 @@ public abstract class ClassicAuthenticationTest {
     }
 
     @Test
-    public void testGetRequestAuthentication() throws Exception {
+    void testGetRequestAuthentication() throws Exception {
         final HttpServer server = serverResource.start();
         final HttpRequester requester = clientResource.start();
 
@@ -146,7 +146,7 @@ public abstract class ClassicAuthenticationTest {
     }
 
     @Test
-    public void testPostRequestAuthentication() throws Exception {
+    void testPostRequestAuthentication() throws Exception {
         final HttpServer server = serverResource.start();
         final HttpRequester requester = clientResource.start();
 
@@ -175,7 +175,7 @@ public abstract class ClassicAuthenticationTest {
     }
 
     @Test
-    public void testPostRequestAuthenticationNoExpectContinue() throws Exception {
+    void testPostRequestAuthenticationNoExpectContinue() throws Exception {
         final HttpServer server = serverResource.start();
         final HttpRequester requester = clientResource.start();
 

@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link NamedElementChain}.
  */
-public class TestNamedElementChain {
+class TestNamedElementChain {
 
     @Test
-    public void testBasics() {
+    void testBasics() {
         final NamedElementChain<Character> list = new NamedElementChain<>();
         assertThat(list.getFirst(), CoreMatchers.nullValue());
         assertThat(list.getLast(), CoreMatchers.nullValue());
@@ -100,7 +100,7 @@ public class TestNamedElementChain {
     }
 
     @Test
-    public void testFind() {
+    void testFind() {
         final NamedElementChain<Character> list = new NamedElementChain<>();
         list.addLast('c', "c");
         assertThat(list.find("c"), notNullValue());
@@ -108,7 +108,7 @@ public class TestNamedElementChain {
     }
 
     @Test
-    public void testReplace() {
+    void testReplace() {
         final NamedElementChain<Character> list = new NamedElementChain<>();
         list.addLast('c', "c");
         final boolean found = list.replace("c",'z' );

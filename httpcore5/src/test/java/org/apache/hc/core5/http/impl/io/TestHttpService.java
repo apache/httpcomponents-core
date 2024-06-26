@@ -59,7 +59,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-public class TestHttpService {
+class TestHttpService {
 
     @Mock
     private HttpProcessor httprocessor;
@@ -79,7 +79,7 @@ public class TestHttpService {
     private HttpService httpservice;
 
     @BeforeEach
-    public void prepareMocks() {
+    void prepareMocks() {
         MockitoAnnotations.openMocks(this);
         httpservice = new HttpService(
                 httprocessor,
@@ -89,7 +89,7 @@ public class TestHttpService {
     }
 
     @Test
-    public void testInvalidInitialization() throws Exception {
+    void testInvalidInitialization() {
         Assertions.assertThrows(NullPointerException.class, () ->
                 new HttpService(
                         null,
@@ -99,7 +99,7 @@ public class TestHttpService {
     }
 
     @Test
-    public void testBasicExecution() throws Exception {
+    void testBasicExecution() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -123,7 +123,7 @@ public class TestHttpService {
     }
 
     @Test
-    public void testExecutionEntityEnclosingRequest() throws Exception {
+    void testExecutionEntityEnclosingRequest() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         final InputStream inStream = Mockito.mock(InputStream.class);
@@ -155,7 +155,7 @@ public class TestHttpService {
     }
 
     @Test
-    public void testExecutionEntityEnclosingRequestWithExpectContinue() throws Exception {
+    void testExecutionEntityEnclosingRequestWithExpectContinue() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         request.addHeader(HttpHeaders.EXPECT, HeaderElements.CONTINUE);
@@ -192,7 +192,7 @@ public class TestHttpService {
     }
 
     @Test
-    public void testMethodNotSupported() throws Exception {
+    void testMethodNotSupported() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest("whatever", "/");
 
@@ -219,7 +219,7 @@ public class TestHttpService {
     }
 
     @Test
-    public void testUnsupportedHttpVersionException() throws Exception {
+    void testUnsupportedHttpVersionException() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest("whatever", "/");
 
@@ -246,7 +246,7 @@ public class TestHttpService {
     }
 
     @Test
-    public void testProtocolException() throws Exception {
+    void testProtocolException() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest("whatever", "/");
 
@@ -273,7 +273,7 @@ public class TestHttpService {
     }
 
     @Test
-    public void testConnectionKeepAlive() throws Exception {
+    void testConnectionKeepAlive() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         Mockito.when(conn.receiveRequestHeader()).thenReturn(request);
@@ -298,7 +298,7 @@ public class TestHttpService {
     }
 
     @Test
-    public void testNoContentResponse() throws Exception {
+    void testNoContentResponse() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
 
@@ -321,7 +321,7 @@ public class TestHttpService {
     }
 
     @Test
-    public void testResponseToHead() throws Exception {
+    void testResponseToHead() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.HEAD, "/");
 

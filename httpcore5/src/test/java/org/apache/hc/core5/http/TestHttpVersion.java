@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Test cases for HTTP version class
  */
-public class TestHttpVersion {
+class TestHttpVersion {
 
     @Test
-    public void testEqualsMajorMinor() {
+    void testEqualsMajorMinor() {
         Assertions.assertTrue(HttpVersion.HTTP_0_9.equals(0, 9));
         Assertions.assertTrue(HttpVersion.HTTP_1_0.equals(1, 0));
         Assertions.assertTrue(HttpVersion.HTTP_1_1.equals(1, 1));
@@ -52,7 +52,7 @@ public class TestHttpVersion {
     }
 
     @Test
-    public void testGet() {
+    void testGet() {
         Assertions.assertEquals(HttpVersion.HTTP_0_9, HttpVersion.get(0, 9));
         Assertions.assertEquals(HttpVersion.HTTP_1_0, HttpVersion.get(1, 0));
         Assertions.assertEquals(HttpVersion.HTTP_1_1, HttpVersion.get(1, 1));
@@ -70,13 +70,13 @@ public class TestHttpVersion {
 
     @SuppressWarnings("unused")
     @Test
-    public void testHttpVersionInvalidConstructorInput() throws Exception {
+    void testHttpVersionInvalidConstructorInput() {
         Assertions.assertThrows(IllegalArgumentException.class, () -> new HttpVersion(-1, -1));
         Assertions.assertThrows(IllegalArgumentException.class, () -> new HttpVersion(0, -1));
     }
 
     @Test
-    public void testHttpVersionEquality() throws Exception {
+    void testHttpVersionEquality() {
         final HttpVersion ver1 = new HttpVersion(1, 1);
         final HttpVersion ver2 = new HttpVersion(1, 1);
 
@@ -105,7 +105,7 @@ public class TestHttpVersion {
     }
 
     @Test
-    public void testHttpVersionComparison() {
+    void testHttpVersionComparison() {
         Assertions.assertTrue(HttpVersion.HTTP_0_9.lessEquals(HttpVersion.HTTP_1_1));
         Assertions.assertTrue(HttpVersion.HTTP_0_9.greaterEquals(HttpVersion.HTTP_0_9));
         Assertions.assertFalse(HttpVersion.HTTP_0_9.greaterEquals(HttpVersion.HTTP_1_0));
@@ -116,7 +116,7 @@ public class TestHttpVersion {
    }
 
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization() throws Exception {
         final HttpVersion orig = HttpVersion.HTTP_1_1;
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
         try (final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer)) {

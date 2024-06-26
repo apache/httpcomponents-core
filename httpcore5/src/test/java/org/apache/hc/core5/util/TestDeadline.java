@@ -35,24 +35,24 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests {@link Deadline}.
  */
-public class TestDeadline {
+class TestDeadline {
 
     @Test
-    public void testFormat() throws ParseException {
+    void testFormat() throws ParseException {
         final Deadline deadline = Deadline.fromUnixMilliseconds(1000);
         final Deadline deadline2 = Deadline.parse(deadline.toString());
         Assertions.assertEquals(1000, deadline2.getValue());
     }
 
     @Test
-    public void testIsBefore() {
+    void testIsBefore() {
         final long nowPlusOneMin = System.currentTimeMillis() + 60000;
         final Deadline deadline = Deadline.fromUnixMilliseconds(nowPlusOneMin);
         Assertions.assertTrue(deadline.isBefore(nowPlusOneMin + 1));
     }
 
     @Test
-    public void testIsExpired() {
+    void testIsExpired() {
         Assertions.assertTrue(Deadline.fromUnixMilliseconds(0).isExpired());
         Assertions.assertTrue(Deadline.fromUnixMilliseconds(1).isExpired());
         Assertions.assertFalse(Deadline.MAX_VALUE.isExpired());
@@ -60,7 +60,7 @@ public class TestDeadline {
     }
 
     @Test
-    public void testIsMax() {
+    void testIsMax() {
         Assertions.assertFalse(Deadline.fromUnixMilliseconds(0).isMax());
         Assertions.assertFalse(Deadline.fromUnixMilliseconds(1000).isMax());
         Assertions.assertFalse(Deadline.MIN_VALUE.isMax());
@@ -68,7 +68,7 @@ public class TestDeadline {
     }
 
     @Test
-    public void testIsMin() {
+    void testIsMin() {
         Assertions.assertTrue(Deadline.fromUnixMilliseconds(0).isMin());
         Assertions.assertFalse(Deadline.fromUnixMilliseconds(1000).isMin());
         Assertions.assertFalse(Deadline.MAX_VALUE.isMin());
@@ -76,7 +76,7 @@ public class TestDeadline {
     }
 
     @Test
-    public void testIsNotExpired() {
+    void testIsNotExpired() {
         Assertions.assertFalse(Deadline.fromUnixMilliseconds(0).isNotExpired());
         Assertions.assertFalse(Deadline.fromUnixMilliseconds(1).isNotExpired());
         Assertions.assertTrue(Deadline.MAX_VALUE.isNotExpired());
@@ -84,7 +84,7 @@ public class TestDeadline {
     }
 
     @Test
-    public void testMin() {
+    void testMin() {
         Assertions.assertEquals(Deadline.MIN_VALUE, Deadline.MIN_VALUE.min(Deadline.MAX_VALUE));
         Assertions.assertEquals(Deadline.MIN_VALUE, Deadline.MAX_VALUE.min(Deadline.MIN_VALUE));
         //
@@ -98,13 +98,13 @@ public class TestDeadline {
     }
 
     @Test
-    public void testParse() throws ParseException {
+    void testParse() throws ParseException {
         final Deadline deadline = Deadline.parse("1969-12-31T17:00:01.000-0700");
         Assertions.assertEquals(1000, deadline.getValue());
     }
 
     @Test
-    public void testRemaining() {
+    void testRemaining() {
         final int oneHourInMillis = 60_000 * 60;
         final long nowPlusOneHour = System.currentTimeMillis() + oneHourInMillis;
         final Deadline deadline = Deadline.fromUnixMilliseconds(nowPlusOneHour);
@@ -114,7 +114,7 @@ public class TestDeadline {
     }
 
     @Test
-    public void testRemainingTimeValue() {
+    void testRemainingTimeValue() {
         final int oneHourInMillis = 60_000 * 60;
         final long nowPlusOneHour = System.currentTimeMillis() + oneHourInMillis;
         final Deadline deadline = Deadline.fromUnixMilliseconds(nowPlusOneHour);
@@ -125,7 +125,7 @@ public class TestDeadline {
     }
 
     @Test
-    public void testValue() {
+    void testValue() {
         final long nowPlusOneMin = System.currentTimeMillis() + 60000;
         final Deadline deadline = Deadline.fromUnixMilliseconds(nowPlusOneMin);
         Assertions.assertEquals(nowPlusOneMin, deadline.getValue());

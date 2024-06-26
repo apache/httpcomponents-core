@@ -32,10 +32,10 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestComplexCancellable {
+class TestComplexCancellable {
 
     @Test
-    public void testCancelled() throws Exception {
+    void testCancelled() {
         final ComplexCancellable cancellable = new ComplexCancellable();
 
         final BasicFuture<Object> dependency1 = new BasicFuture<>(null);

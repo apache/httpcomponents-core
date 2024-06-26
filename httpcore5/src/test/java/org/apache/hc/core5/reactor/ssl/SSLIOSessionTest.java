@@ -71,7 +71,7 @@ class SSLIOSessionTest {
     private SSLSession sslSession;
 
     @BeforeEach
-    public void setUp() throws SSLException {
+    void setUp() throws SSLException {
         final String protocol = "TestProtocol";
 
         // Arrange

@@ -38,10 +38,10 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * @since 5.0
  */
-public class TestFileEntityProducer {
+class TestFileEntityProducer {
 
     @Test
-    public void testFileLengthMaxIntPlusOne(@TempDir final Path tempFolder) throws IOException {
+    void testFileLengthMaxIntPlusOne(@TempDir final Path tempFolder) throws IOException {
         final Path path = Files.createFile(tempFolder.resolve("test.bin"));
         try (RandomAccessFile raFile = new RandomAccessFile(path.toFile(), "rw")) {
             final long expectedLength = 1L + Integer.MAX_VALUE;

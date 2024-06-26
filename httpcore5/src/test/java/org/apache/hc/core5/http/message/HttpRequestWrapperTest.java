@@ -37,10 +37,10 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class HttpRequestWrapperTest {
+class HttpRequestWrapperTest {
 
     @Test
-    public void testRequestBasics() throws Exception {
+    void testRequestBasics() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "/stuff");
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
 
@@ -53,7 +53,7 @@ public class HttpRequestWrapperTest {
     }
 
     @Test
-    public void testDefaultRequestConstructors() {
+    void testDefaultRequestConstructors() {
         final HttpRequest request1 = new BasicHttpRequest("WHATEVER", "/");
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request1);
         Assertions.assertEquals("WHATEVER", httpRequestWrapper.getMethod());
@@ -70,7 +70,7 @@ public class HttpRequestWrapperTest {
 
 
     @Test
-    public void testRequestWithRelativeURI() throws Exception {
+    void testRequestWithRelativeURI() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("/stuff"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
         Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
@@ -80,7 +80,7 @@ public class HttpRequestWrapperTest {
     }
 
     @Test
-    public void testRequestWithAbsoluteURI() throws Exception {
+    void testRequestWithAbsoluteURI() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("https://host:9443/stuff?param=value"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
         Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
@@ -93,7 +93,7 @@ public class HttpRequestWrapperTest {
     }
 
     @Test
-    public void testRequestWithAbsoluteURIAsPath() throws Exception {
+    void testRequestWithAbsoluteURIAsPath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "https://host:9443/stuff?param=value");
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
         Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
@@ -104,7 +104,7 @@ public class HttpRequestWrapperTest {
     }
 
     @Test
-    public void testRequestWithNoPath() throws Exception {
+    void testRequestWithNoPath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("http://host"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
         Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
@@ -115,7 +115,7 @@ public class HttpRequestWrapperTest {
     }
 
     @Test
-    public void testRequestWithUserInfo() throws Exception {
+    void testRequestWithUserInfo() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new URI("https://user:pwd@host:9443/stuff?param=value"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
         Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
@@ -126,7 +126,7 @@ public class HttpRequestWrapperTest {
     }
 
     @Test
-    public void testRequestWithAuthority() throws Exception {
+    void testRequestWithAuthority() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "/stuff");
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
         Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
@@ -140,7 +140,7 @@ public class HttpRequestWrapperTest {
     }
 
     @Test
-    public void testRequestWithAuthorityRelativePath() throws Exception {
+    void testRequestWithAuthorityRelativePath() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, new HttpHost("http", "somehost", -1), "stuff");
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
         Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());
@@ -151,7 +151,7 @@ public class HttpRequestWrapperTest {
     }
 
     @Test
-    public void testRequestHostWithReservedChars() throws Exception {
+    void testRequestHostWithReservedChars() throws Exception {
         final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("http://someuser%21@%21example%21.com/stuff"));
         final HttpRequestWrapper httpRequestWrapper = new HttpRequestWrapper(request);
         Assertions.assertEquals(Method.GET.name(), httpRequestWrapper.getMethod());

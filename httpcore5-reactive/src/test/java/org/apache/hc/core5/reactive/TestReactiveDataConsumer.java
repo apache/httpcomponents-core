@@ -46,10 +46,10 @@ import org.junit.jupiter.api.Test;
 import org.reactivestreams.Subscriber;
 import org.reactivestreams.Subscription;
 
-public class TestReactiveDataConsumer {
+class TestReactiveDataConsumer {
 
     @Test
-    public void testStreamThatEndsNormally() throws Exception {
+    void testStreamThatEndsNormally() throws Exception {
         final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
 
         final List<ByteBuffer> output = Collections.synchronizedList(new ArrayList<>());
@@ -80,7 +80,7 @@ public class TestReactiveDataConsumer {
     }
 
     @Test
-    public void testStreamThatEndsWithError() {
+    void testStreamThatEndsWithError() {
         final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
         final Single<List<Notification<ByteBuffer>>> single = Observable.fromPublisher(consumer)
             .materialize()
@@ -93,7 +93,7 @@ public class TestReactiveDataConsumer {
     }
 
     @Test
-    public void testCancellation() throws Exception {
+    void testCancellation() {
         final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
         consumer.subscribe(new Subscriber<ByteBuffer>() {
             @Override
@@ -119,7 +119,7 @@ public class TestReactiveDataConsumer {
     }
 
     @Test
-    public void testCapacityIncrements() throws Exception {
+    void testCapacityIncrements() throws Exception {
         final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
         final ByteBuffer data = ByteBuffer.wrap(new byte[1024]);
 
@@ -166,7 +166,7 @@ public class TestReactiveDataConsumer {
     }
 
     @Test
-    public void testFullResponseBuffering() throws Exception {
+    void testFullResponseBuffering() throws Exception {
         // Due to inherent race conditions, is possible for the entire response to be buffered and completed before
         // the Subscriber shows up. This must be handled correctly.
         final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
@@ -181,7 +181,7 @@ public class TestReactiveDataConsumer {
     }
 
     @Test
-    public void testErrorBuffering() throws Exception {
+    void testErrorBuffering() throws Exception {
         final ReactiveDataConsumer consumer = new ReactiveDataConsumer();
         final ByteBuffer data = ByteBuffer.wrap(new byte[1024]);
 
@@ -199,7 +199,7 @@ public class TestReactiveDataConsumer {
     }
 
     @Test
-    public void testFailAfterCompletion() {
+    void testFailAfterCompletion() {
         // Calling consumer.failed() after consumer.streamEnd() must be a no-op.
         // The exception must be discarded, and the subscriber must see that
         // the stream was successfully completed.
