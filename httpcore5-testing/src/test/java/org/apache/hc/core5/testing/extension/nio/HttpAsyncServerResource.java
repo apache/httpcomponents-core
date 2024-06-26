@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.testing.extension.nio;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.impl.bootstrap.AsyncServerBootstrap;
@@ -83,7 +82,7 @@ public class HttpAsyncServerResource implements BeforeEachCallback, AfterEachCal
         }
     }
 
-    public HttpAsyncServer start() throws IOException {
+    public HttpAsyncServer start() {
         Assertions.assertNotNull(server);
         server.start();
         return server;

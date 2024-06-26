@@ -70,7 +70,7 @@ abstract class H2ServerBootstrapFiltersTest {
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     @RegisterExtension
-    private final H2AsyncServerResource serverResource = new H2AsyncServerResource((bootstrap) -> bootstrap
+    private final H2AsyncServerResource serverResource = new H2AsyncServerResource(bootstrap -> bootstrap
             .setVersionPolicy(HttpVersionPolicy.NEGOTIATE)
             .setIOReactorConfig(
                     IOReactorConfig.custom()

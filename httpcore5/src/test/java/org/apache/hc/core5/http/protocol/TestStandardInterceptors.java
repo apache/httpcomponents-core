@@ -986,7 +986,7 @@ class TestStandardInterceptors {
     }
 
     @Test
-    void testRequestHttp11HostHeaderPresent() {
+    void testRequestHttp11HostHeaderPresent() throws Exception {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setHeader(HttpHeaders.HOST, "blah");
