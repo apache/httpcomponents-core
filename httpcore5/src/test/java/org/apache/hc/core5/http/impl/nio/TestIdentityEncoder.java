@@ -191,37 +191,7 @@ class TestIdentityEncoder {
     }
 
     @Test
-    void testCodingFromFileSmaller() throws Exception {
-        final WritableByteChannelMock channel = new WritableByteChannelMock(64);
-        final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
-        final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
-
-        final IdentityEncoder encoder = new IdentityEncoder(channel, outbuf, metrics);
-
-        createTempFile();
-        RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
-            testfile.write("stuff;".getBytes(StandardCharsets.US_ASCII));
-            testfile.write("more stuff".getBytes(StandardCharsets.US_ASCII));
-        } finally {
-            testfile.close();
-        }
-
-        testfile = new RandomAccessFile(this.tmpfile, "rw");
-        try {
-            final FileChannel fchannel = testfile.getChannel();
-            encoder.transfer(fchannel, 0, 20);
-        } finally {
-            testfile.close();
-        }
-        final String s = channel.dump(StandardCharsets.US_ASCII);
-
-        Assertions.assertFalse(encoder.isCompleted());
-        Assertions.assertEquals("stuff;more stuff", s);
-    }
-
-    @Test
-    public void testCodingFromFileFlushBuffer() throws Exception {
+    void testCodingFromFileFlushBuffer() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();

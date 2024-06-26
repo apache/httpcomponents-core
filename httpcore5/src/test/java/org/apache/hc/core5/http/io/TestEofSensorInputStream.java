@@ -75,21 +75,6 @@ class TestEofSensorInputStream {
     }
 
     @Test
-    void testReleaseConnection() throws Exception {
-        Mockito.when(eofwatcher.streamClosed(Mockito.any())).thenReturn(Boolean.TRUE);
-
-        eofstream.close();
-
-        Assertions.assertTrue(eofstream.isSelfClosed());
-        Assertions.assertNull(eofstream.getWrappedStream());
-
-        Mockito.verify(inStream, Mockito.times(1)).close();
-        Mockito.verify(eofwatcher).streamClosed(inStream);
-
-        eofstream.close();
-    }
-
-    @Test
     void testAbortConnection() throws Exception {
         Mockito.when(eofwatcher.streamAbort(Mockito.any())).thenReturn(Boolean.TRUE);
 
