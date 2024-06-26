@@ -41,10 +41,8 @@ class TestHeaderElement {
     @Test
     void testConstructor3() {
         final HeaderElement element = new BasicHeaderElement("name", "value",
-                new NameValuePair[] {
-                    new BasicNameValuePair("param1", "value1"),
-                    new BasicNameValuePair("param2", "value2")
-                } );
+                new BasicNameValuePair("param1", "value1"),
+                new BasicNameValuePair("param2", "value2"));
         Assertions.assertEquals("name", element.getName());
         Assertions.assertEquals("value", element.getValue());
         Assertions.assertEquals(2, element.getParameters().length);
@@ -82,10 +80,8 @@ class TestHeaderElement {
     @Test
     void testToString() {
         final BasicHeaderElement element = new BasicHeaderElement("name", "value",
-                new NameValuePair[] {
-                        new BasicNameValuePair("param1", "value1"),
-                        new BasicNameValuePair("param2", "value2")
-                } );
+                new BasicNameValuePair("param1", "value1"),
+                new BasicNameValuePair("param2", "value2"));
         Assertions.assertEquals("name=value; param1=value1; param2=value2", element.toString());
     }
 

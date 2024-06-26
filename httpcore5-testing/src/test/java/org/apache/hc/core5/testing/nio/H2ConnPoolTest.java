@@ -28,7 +28,6 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
@@ -155,7 +154,7 @@ class H2ConnPoolTest {
         final H2MultiplexingRequester requester = clientResource.start();
         final H2ConnPool connPool = requester.getConnPool();
         final CountDownLatch latch = new CountDownLatch(n);
-        final ConcurrentLinkedQueue<Long> concurrentConnections = new ConcurrentLinkedQueue<>();
+
         for (int i = 0; i < n; i++) {
             connPool.getSession(target, TIMEOUT, new FutureCallback<IOSession>() {
 

@@ -96,7 +96,7 @@ public class H2CompatibilityTest {
         }
     }
 
-    H2CompatibilityTest() throws Exception {
+    H2CompatibilityTest() {
         this.client = H2RequesterBootstrap.bootstrap()
                 .setIOReactorConfig(IOReactorConfig.custom()
                         .setSoTimeout(TIMEOUT)
@@ -113,11 +113,11 @@ public class H2CompatibilityTest {
                 .create();
     }
 
-    void start() throws Exception {
+    void start() {
         client.start();
     }
 
-    void shutdown() throws Exception {
+    void shutdown() {
         client.close(CloseMode.GRACEFUL);
     }
 

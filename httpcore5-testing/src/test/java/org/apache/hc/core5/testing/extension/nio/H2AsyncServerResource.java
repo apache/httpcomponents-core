@@ -27,7 +27,6 @@
 
 package org.apache.hc.core5.testing.extension.nio;
 
-import java.io.IOException;
 import java.util.function.Consumer;
 
 import org.apache.hc.core5.http.impl.bootstrap.HttpAsyncServer;
@@ -85,7 +84,7 @@ public class H2AsyncServerResource implements BeforeEachCallback, AfterEachCallb
         }
     }
 
-    public HttpAsyncServer start() throws IOException {
+    public HttpAsyncServer start() {
         Assertions.assertNotNull(server);
         server.start();
         return server;

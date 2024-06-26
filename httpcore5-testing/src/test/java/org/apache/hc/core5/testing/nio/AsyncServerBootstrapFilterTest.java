@@ -105,7 +105,7 @@ abstract class AsyncServerBootstrapFilterTest {
                     })));
 
     @RegisterExtension
-    private final HttpAsyncRequesterResource clientResource = new HttpAsyncRequesterResource((bootstrap) -> bootstrap
+    private final HttpAsyncRequesterResource clientResource = new HttpAsyncRequesterResource(bootstrap -> bootstrap
             .setIOReactorConfig(IOReactorConfig.custom()
                     .setSoTimeout(TIMEOUT)
                     .build()));
