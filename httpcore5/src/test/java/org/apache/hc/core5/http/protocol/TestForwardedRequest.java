@@ -49,14 +49,14 @@ import org.apache.hc.core5.http.message.BasicHttpRequest;
 import org.apache.hc.core5.net.URIAuthority;
 import org.junit.jupiter.api.Test;
 
-public class TesForwardedRequest {
+class TestForwardedRequest {
     private final HttpRequest request = new BasicHttpRequest("GET", "/");
     private final HttpContext context = mock(HttpContext.class);
 
     private static final String FORWARDED_HEADER_NAME = "Forwarded";
 
     @Test
-    public void testProcess() throws IOException, HttpException {
+    void testProcess() throws IOException, HttpException {
         final HttpRequestInterceptor processor = new ForwardedRequest();
 
         // Create a mock endpoint with a remote address
@@ -91,7 +91,7 @@ public class TesForwardedRequest {
 
 
     @Test
-    public void testProcessWithIPv6() throws IOException, HttpException {
+    void testProcessWithIPv6() throws IOException, HttpException {
         final HttpRequestInterceptor processor = new ForwardedRequest();
 
         // Create a mock endpoint with a remote IPv6 address
@@ -150,7 +150,7 @@ public class TesForwardedRequest {
     }
 
     @Test
-    public void testWithForwardedHeader() throws Exception {
+    void testWithForwardedHeader() throws Exception {
         final HttpRequestInterceptor processor = new ForwardedRequest();
 
         // Create a mock HTTP request with a host and port
@@ -177,19 +177,19 @@ public class TesForwardedRequest {
     }
 
     @Test
-    public void testProcessWithNullHttpRequest() {
+    void testProcessWithNullHttpRequest() {
         final ForwardedRequest httpRequestModifier = new ForwardedRequest();
         assertThrows(NullPointerException.class, () -> httpRequestModifier.process(null, null, context));
     }
 
     @Test
-    public void testProcessWithNullHttpContext() {
+    void testProcessWithNullHttpContext() {
         final ForwardedRequest httpRequestModifier = new ForwardedRequest();
         assertThrows(NullPointerException.class, () -> httpRequestModifier.process(request, null, null));
     }
 
     @Test
-    public void testProcessWithNullAuthority() {
+    void testProcessWithNullAuthority() {
         final ForwardedRequest httpRequestModifier = new ForwardedRequest();
         assertThrows(ProtocolException.class, () -> httpRequestModifier.process(request, null, context));
     }

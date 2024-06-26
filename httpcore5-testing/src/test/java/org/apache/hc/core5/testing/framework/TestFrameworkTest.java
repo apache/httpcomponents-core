@@ -43,9 +43,9 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestFrameworkTest {
+class TestFrameworkTest {
     @Test
-    public void defaults() throws Exception {
+    void defaults() throws Exception {
         final FrameworkTest test = new FrameworkTest();
         final Map<String, Object> request = test.initRequest();
 
@@ -83,7 +83,7 @@ public class TestFrameworkTest {
     }
 
     @Test
-    public void changeStatus() throws Exception {
+    void changeStatus() {
         final Map<String, Object> testMap = new HashMap<>();
         final Map<String, Object> response = new HashMap<>();
         testMap.put(RESPONSE, response);
@@ -96,7 +96,7 @@ public class TestFrameworkTest {
     }
 
     @Test
-    public void changeMethod() throws Exception {
+    void changeMethod() throws Exception {
         final Map<String, Object> testMap = new HashMap<>();
         final Map<String, Object> request = new HashMap<>();
         testMap.put(REQUEST, request);

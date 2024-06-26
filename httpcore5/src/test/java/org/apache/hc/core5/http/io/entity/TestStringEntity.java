@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link StringEntity}.
  */
-public class TestStringEntity {
+class TestStringEntity {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final String s = "Message content";
         try (final StringEntity httpentity = new StringEntity(s, ContentType.TEXT_PLAIN)) {
 
@@ -54,12 +54,12 @@ public class TestStringEntity {
     }
 
     @Test
-    public void testNullConstructor() throws Exception {
+    void testNullConstructor() {
         Assertions.assertThrows(NullPointerException.class, () -> new StringEntity(null));
     }
 
     @Test
-    public void testDefaultContent() throws Exception {
+    void testDefaultContent() throws Exception {
         final String s = "Message content";
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/csv", "ANSI_X3.4-1968"));
         Assertions.assertEquals("text/csv; charset=US-ASCII", httpentity.getContentType());
@@ -84,7 +84,7 @@ public class TestStringEntity {
         };
 
     @Test
-    public void testNullCharset() throws Exception {
+    void testNullCharset() throws Exception {
         final String s = constructString(SWISS_GERMAN_HELLO);
         StringEntity httpentity = new StringEntity(s, ContentType.create("text/plain", (Charset) null));
         Assertions.assertNotNull(httpentity.getContentType());
@@ -97,7 +97,7 @@ public class TestStringEntity {
     }
 
     @Test
-    public void testWriteTo() throws Exception {
+    void testWriteTo() throws Exception {
         final String s = "Message content";
         final byte[] bytes = s.getBytes(StandardCharsets.UTF_8);
         try (final StringEntity httpentity = new StringEntity(s)) {

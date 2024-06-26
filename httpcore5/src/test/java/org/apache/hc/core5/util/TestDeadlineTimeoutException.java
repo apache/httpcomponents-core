@@ -30,10 +30,10 @@ package org.apache.hc.core5.util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestDeadlineTimeoutException {
+class TestDeadlineTimeoutException {
 
     @Test
-    public void testMessage() {
+    void testMessage() {
         final Deadline deadline = Deadline.fromUnixMilliseconds(1000).freeze();
         Assertions.assertTrue(deadline.isExpired(), deadline.toString());
         final String format = deadline.formatTarget();
@@ -43,7 +43,7 @@ public class TestDeadlineTimeoutException {
     }
 
     @Test
-    public void testInfiniteDeadlineMessage() {
+    void testInfiniteDeadlineMessage() {
         final Deadline deadline = Deadline.calculate(Timeout.ZERO_MILLISECONDS);
         Assertions.assertEquals("No deadline (infinite)",
                 DeadlineTimeoutException.from(deadline).getMessage());

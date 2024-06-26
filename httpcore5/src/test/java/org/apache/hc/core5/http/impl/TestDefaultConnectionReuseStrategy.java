@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestDefaultConnectionReuseStrategy {
+class TestDefaultConnectionReuseStrategy {
 
     /** HTTP context. */
     private HttpCoreContext context;
@@ -49,39 +49,39 @@ public class TestDefaultConnectionReuseStrategy {
     private ConnectionReuseStrategy reuseStrategy;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         reuseStrategy = DefaultConnectionReuseStrategy.INSTANCE;
         context = HttpCoreContext.create();
     }
 
     @Test
-    public void testInvalidResponseArg() throws Exception {
+    void testInvalidResponseArg() {
         Assertions.assertThrows(NullPointerException.class, () ->
                 reuseStrategy.keepAlive(null, null, this.context));
     }
 
     @Test
-    public void testNoContentLengthResponseHttp1_0() throws Exception {
+    void testNoContentLengthResponseHttp1_0() {
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         Assertions.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
-    public void testNoContentLengthResponseHttp1_1() throws Exception {
+    void testNoContentLengthResponseHttp1_1() {
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         Assertions.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
-    public void testChunkedContent() throws Exception {
+    void testChunkedContent() {
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
         Assertions.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
-    public void testIgnoreInvalidKeepAlive() throws Exception {
+    void testIgnoreInvalidKeepAlive() {
         context.setProtocolVersion(HttpVersion.HTTP_1_0);
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Connection", "keep-alive");
@@ -89,7 +89,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testExplicitClose() throws Exception {
+    void testExplicitClose() {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
@@ -98,7 +98,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testExplicitKeepAlive() throws Exception {
+    void testExplicitKeepAlive() {
         // Use HTTP 1.0
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.setVersion(HttpVersion.HTTP_1_0);
@@ -109,7 +109,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testHTTP10Default() throws Exception {
+    void testHTTP10Default() {
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.setVersion(HttpVersion.HTTP_1_0);
         response.addHeader("Content-Length", "10");
@@ -117,14 +117,14 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testHTTP11Default() throws Exception {
+    void testHTTP11Default() {
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Content-Length", "10");
         Assertions.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
-    public void testBrokenConnectionDirective1() throws Exception {
+    void testBrokenConnectionDirective1() {
         // Use HTTP 1.0
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.setVersion(HttpVersion.HTTP_1_0);
@@ -134,7 +134,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testBrokenConnectionDirective2() throws Exception {
+    void testBrokenConnectionDirective2() {
         // Use HTTP 1.0
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.setVersion(HttpVersion.HTTP_1_0);
@@ -144,7 +144,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testConnectionTokens1() throws Exception {
+    void testConnectionTokens1() {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
@@ -153,7 +153,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testConnectionTokens2() throws Exception {
+    void testConnectionTokens2() {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
@@ -162,7 +162,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testConnectionTokens3() throws Exception {
+    void testConnectionTokens3() {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
@@ -171,7 +171,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testConnectionTokens4() throws Exception {
+    void testConnectionTokens4() {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
@@ -182,7 +182,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testConnectionTokens5() throws Exception {
+    void testConnectionTokens5() {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
@@ -195,7 +195,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testConnectionTokens6() throws Exception {
+    void testConnectionTokens6() {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
@@ -207,7 +207,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testMultipleContentLength() throws Exception {
+    void testMultipleContentLength() {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.addHeader("Content-Length", "10");
@@ -216,14 +216,14 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testNoContentResponse() throws Exception {
+    void testNoContentResponse() {
         // Use HTTP 1.1
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_NO_CONTENT, "No Content");
         Assertions.assertTrue(reuseStrategy.keepAlive(null, response, context));
     }
 
     @Test
-    public void testNoContentResponseHttp10() throws Exception {
+    void testNoContentResponseHttp10() {
         // Use HTTP 1.0
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_NO_CONTENT, "No Content");
         response.setVersion(HttpVersion.HTTP_1_0);
@@ -231,7 +231,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testRequestExplicitClose() throws Exception {
+    void testRequestExplicitClose() {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "/");
         request.addHeader("Connection", "close");
 
@@ -242,7 +242,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testRequestNoExplicitClose() throws Exception {
+    void testRequestNoExplicitClose() {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "/");
         request.addHeader("Connection", "blah, blah, blah");
 
@@ -253,7 +253,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testRequestExplicitCloseMultipleTokens() throws Exception {
+    void testRequestExplicitCloseMultipleTokens() {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "/");
         request.addHeader("Connection", "blah, blah, blah");
         request.addHeader("Connection", "keep-alive");
@@ -266,7 +266,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testRequestClose() throws Exception {
+    void testRequestClose() {
         final HttpRequest request = new BasicHttpRequest(Method.GET, "/");
         request.addHeader("Connection", "close");
 
@@ -278,7 +278,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testHeadRequestWithout() throws Exception {
+    void testHeadRequestWithout() {
         final HttpRequest request = new BasicHttpRequest(Method.HEAD, "/");
         final HttpResponse response = new BasicHttpResponse(200, "OK");
 
@@ -286,7 +286,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testHttp204ContentLengthGreaterThanZero() throws Exception {
+    void testHttp204ContentLengthGreaterThanZero() {
         final HttpResponse response = new BasicHttpResponse(204, "OK");
         response.addHeader("Content-Length", "10");
         response.addHeader("Connection", "keep-alive");
@@ -294,7 +294,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testHttp204ContentLengthEqualToZero() throws Exception {
+    void testHttp204ContentLengthEqualToZero() {
         final HttpResponse response = new BasicHttpResponse(204, "OK");
         response.addHeader("Content-Length", "0");
         response.addHeader("Connection", "keep-alive");
@@ -302,7 +302,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testHttp204ChunkedContent() throws Exception {
+    void testHttp204ChunkedContent() {
         final HttpResponse response = new BasicHttpResponse(204, "OK");
         response.addHeader("Transfer-Encoding", "chunked");
         response.addHeader("Connection", "keep-alive");
@@ -310,7 +310,7 @@ public class TestDefaultConnectionReuseStrategy {
     }
 
     @Test
-    public void testResponseHTTP10TransferEncodingPresent() throws Exception {
+    void testResponseHTTP10TransferEncodingPresent() {
         final HttpResponse response = new BasicHttpResponse(200, "OK");
         response.setVersion(HttpVersion.HTTP_1_0);
         response.addHeader("Transfer-Encoding", "chunked");

@@ -38,17 +38,17 @@ import org.junit.jupiter.api.Test;
  *
  * @version $Id$
  */
-public class TestBasicHeaderValueParser {
+class TestBasicHeaderValueParser {
 
     private BasicHeaderValueParser parser;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         this.parser = BasicHeaderValueParser.INSTANCE;
     }
 
     @Test
-    public void testParseHeaderElements() throws Exception {
+    void testParseHeaderElements() {
         final String headerValue = "name1 = value1; name2; name3=\"value3\" , name4=value4; " +
             "name5=value5, name6= ; name7 = value7; name8 = \" value8\"";
         final CharArrayBuffer buf = new CharArrayBuffer(64);
@@ -85,7 +85,7 @@ public class TestBasicHeaderValueParser {
     }
 
     @Test
-    public void testParseHEEscaped() {
+    void testParseHEEscaped() {
         final String headerValue =
           "test1 =  \"\\\"stuff\\\"\", test2= \"\\\\\", test3 = \"stuff, stuff\"";
         final CharArrayBuffer buf = new CharArrayBuffer(64);
@@ -102,7 +102,7 @@ public class TestBasicHeaderValueParser {
     }
 
     @Test
-    public void testHEFringeCase1() throws Exception {
+    void testHEFringeCase1() {
         final String headerValue = "name1 = value1,";
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         buf.append(headerValue);
@@ -112,7 +112,7 @@ public class TestBasicHeaderValueParser {
     }
 
     @Test
-    public void testHEFringeCase2() throws Exception {
+    void testHEFringeCase2() {
         final String headerValue = "name1 = value1, ";
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         buf.append(headerValue);
@@ -122,7 +122,7 @@ public class TestBasicHeaderValueParser {
     }
 
     @Test
-    public void testHEFringeCase3() throws Exception {
+    void testHEFringeCase3() {
         final String headerValue = ",, ,, ,";
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         buf.append(headerValue);
@@ -132,7 +132,7 @@ public class TestBasicHeaderValueParser {
     }
 
     @Test
-    public void testNVParse() {
+    void testNVParse() {
 
         String s = "test";
         CharArrayBuffer buffer = new CharArrayBuffer(64);
@@ -247,7 +247,7 @@ public class TestBasicHeaderValueParser {
     }
 
     @Test
-    public void testNVParseAll() {
+    void testNVParseAll() {
         String s =
             "test; test1 =  stuff   ; test2 =  \"stuff; stuff\"; test3=\"stuff";
         CharArrayBuffer buffer = new CharArrayBuffer(16);
@@ -293,7 +293,7 @@ public class TestBasicHeaderValueParser {
     }
 
     @Test
-    public void testNVParseEscaped() {
+    void testNVParseEscaped() {
         final String headerValue =
           "test1 =  \"\\\"stuff\\\"\"; test2= \"\\\\\"; test3 = \"stuff; stuff\"";
         final CharArrayBuffer buf = new CharArrayBuffer(64);

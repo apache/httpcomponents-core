@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link BufferedHttpEntity}.
  *
  */
-public class TestBufferedHttpEntity {
+class TestBufferedHttpEntity {
 
     @Test
-    public void testBufferingEntity() throws Exception {
+    void testBufferingEntity() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final BufferedHttpEntity entity = new BufferedHttpEntity(
                 new InputStreamEntity(new ByteArrayInputStream(bytes), -1, null));
@@ -56,7 +56,7 @@ public class TestBufferedHttpEntity {
     }
 
     @Test
-    public void testWrappingEntity() throws Exception {
+    void testWrappingEntity() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes, null, true);
         try (final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity)) {
@@ -72,12 +72,12 @@ public class TestBufferedHttpEntity {
     }
 
     @Test
-    public void testIllegalConstructor() throws Exception {
+    void testIllegalConstructor() {
         Assertions.assertThrows(NullPointerException.class, () -> new BufferedHttpEntity(null));
     }
 
     @Test
-    public void testWriteToBuffered() throws Exception {
+    void testWriteToBuffered() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final InputStreamEntity httpentity = new InputStreamEntity(new ByteArrayInputStream(bytes), -1, null);
         try (final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity)) {
@@ -105,7 +105,7 @@ public class TestBufferedHttpEntity {
     }
 
     @Test
-    public void testWriteToWrapped() throws Exception {
+    void testWriteToWrapped() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final ByteArrayEntity httpentity = new ByteArrayEntity(bytes, null);
         try (final BufferedHttpEntity bufentity = new BufferedHttpEntity(httpentity)) {

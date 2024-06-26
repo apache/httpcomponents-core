@@ -35,21 +35,21 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 @SuppressWarnings({"boxing","static-access"}) // test code
-public class TestEofSensorInputStream {
+class TestEofSensorInputStream {
 
     private InputStream inStream;
     private EofSensorWatcher eofwatcher;
     private EofSensorInputStream eofstream;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void setup() {
         inStream = Mockito.mock(InputStream.class);
         eofwatcher = Mockito.mock(EofSensorWatcher.class);
         eofstream = new EofSensorInputStream(inStream, eofwatcher);
     }
 
     @Test
-    public void testClose() throws Exception {
+    void testClose() throws Exception {
         Mockito.when(eofwatcher.streamClosed(Mockito.any())).thenReturn(Boolean.TRUE);
 
         eofstream.close();
@@ -64,7 +64,7 @@ public class TestEofSensorInputStream {
     }
 
     @Test
-    public void testCloseIOError() throws Exception {
+    void testCloseIOError() throws Exception {
         Mockito.when(eofwatcher.streamClosed(Mockito.any())).thenThrow(new IOException());
 
         Assertions.assertThrows(IOException.class, () -> eofstream.close());
@@ -75,7 +75,7 @@ public class TestEofSensorInputStream {
     }
 
     @Test
-    public void testReleaseConnection() throws Exception {
+    void testReleaseConnection() throws Exception {
         Mockito.when(eofwatcher.streamClosed(Mockito.any())).thenReturn(Boolean.TRUE);
 
         eofstream.close();
@@ -90,7 +90,7 @@ public class TestEofSensorInputStream {
     }
 
     @Test
-    public void testAbortConnection() throws Exception {
+    void testAbortConnection() throws Exception {
         Mockito.when(eofwatcher.streamAbort(Mockito.any())).thenReturn(Boolean.TRUE);
 
         eofstream.abort();
@@ -105,7 +105,7 @@ public class TestEofSensorInputStream {
     }
 
     @Test
-    public void testAbortConnectionIOError() throws Exception {
+    void testAbortConnectionIOError() throws Exception {
         Mockito.when(eofwatcher.streamAbort(Mockito.any())).thenThrow(new IOException());
 
         Assertions.assertThrows(IOException.class, () -> eofstream.abort());
@@ -116,7 +116,7 @@ public class TestEofSensorInputStream {
     }
 
     @Test
-    public void testRead() throws Exception {
+    void testRead() throws Exception {
         Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
         Mockito.when(inStream.read()).thenReturn(0, -1);
 
@@ -139,7 +139,7 @@ public class TestEofSensorInputStream {
     }
 
     @Test
-    public void testReadIOError() throws Exception {
+    void testReadIOError() throws Exception {
         Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
         Mockito.when(inStream.read()).thenThrow(new IOException());
 
@@ -151,7 +151,7 @@ public class TestEofSensorInputStream {
     }
 
     @Test
-    public void testReadByteArray() throws Exception {
+    void testReadByteArray() throws Exception {
         Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
         Mockito.when(inStream.read(Mockito.any(), Mockito.anyInt(), Mockito.anyInt()))
             .thenReturn(1, -1);
@@ -177,7 +177,7 @@ public class TestEofSensorInputStream {
     }
 
     @Test
-    public void testReadByteArrayIOError() throws Exception {
+    void testReadByteArrayIOError() throws Exception {
         Mockito.when(eofwatcher.eofDetected(Mockito.any())).thenReturn(Boolean.TRUE);
         Mockito.when(inStream.read(Mockito.any(), Mockito.anyInt(), Mockito.anyInt()))
             .thenThrow(new IOException());
@@ -191,7 +191,7 @@ public class TestEofSensorInputStream {
     }
 
     @Test
-    public void testReadAfterAbort() throws Exception {
+    void testReadAfterAbort() throws Exception {
         Mockito.when(eofwatcher.streamAbort(Mockito.any())).thenReturn(Boolean.TRUE);
 
         eofstream.abort();

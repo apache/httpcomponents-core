@@ -65,7 +65,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class H2ServerBootstrapFiltersTest {
+abstract class H2ServerBootstrapFiltersTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -114,7 +114,7 @@ public abstract class H2ServerBootstrapFiltersTest {
                     .build()));
 
     @Test
-    public void testSequentialRequests() throws Exception {
+    void testSequentialRequests() throws Exception {
         final HttpAsyncServer server = serverResource.start();
 
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTP);

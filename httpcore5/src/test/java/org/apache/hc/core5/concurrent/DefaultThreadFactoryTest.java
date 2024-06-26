@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class DefaultThreadFactoryTest {
+class DefaultThreadFactoryTest {
 
     @Test
     void newThread() throws Exception {

@@ -46,7 +46,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Simple tests for {@link LengthDelimitedDecoder}.
  */
-public class TestLengthDelimitedDecoder {
+class TestLengthDelimitedDecoder {
 
     private File tmpfile;
 
@@ -56,14 +56,14 @@ public class TestLengthDelimitedDecoder {
     }
 
     @AfterEach
-    public void deleteTempFile() {
+    void deleteTempFile() {
         if (this.tmpfile != null && this.tmpfile.exists()) {
             this.tmpfile.delete();
         }
     }
 
     @Test
-    public void testBasicDecoding() throws Exception {
+    void testBasicDecoding() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
@@ -97,7 +97,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testCodingBeyondContentLimit() throws Exception {
+    void testCodingBeyondContentLimit() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {
                         "stuff;",
@@ -131,7 +131,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testBasicDecodingSmallBuffer() throws Exception {
+    void testBasicDecodingSmallBuffer() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
@@ -184,7 +184,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testDecodingFromSessionBuffer1() throws Exception {
+    void testDecodingFromSessionBuffer1() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
@@ -221,7 +221,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testDecodingFromSessionBuffer2() throws Exception {
+    void testDecodingFromSessionBuffer2() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {
                         "stuff;",
@@ -255,7 +255,7 @@ public class TestLengthDelimitedDecoder {
 
     /* ----------------- FileChannel Part testing --------------------------- */
     @Test
-    public void testBasicDecodingFile() throws Exception {
+    void testBasicDecodingFile() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, StandardCharsets.US_ASCII);
 
@@ -281,7 +281,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testDecodingFileWithBufferedSessionData() throws Exception {
+    void testDecodingFileWithBufferedSessionData() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!!!"}, StandardCharsets.US_ASCII);
 
@@ -310,7 +310,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testDecodingFileWithOffsetAndBufferedSessionData() throws Exception {
+    void testDecodingFileWithOffsetAndBufferedSessionData() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, StandardCharsets.US_ASCII);
 
@@ -357,7 +357,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testDecodingFileWithLimit() throws Exception {
+    void testDecodingFileWithLimit() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; more stuff; ", "a lot more stuff!!!"}, StandardCharsets.US_ASCII);
 
@@ -421,7 +421,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testWriteBeyondFileSize() throws Exception {
+    void testWriteBeyondFileSize() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"a"}, StandardCharsets.US_ASCII);
 
@@ -439,7 +439,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testCodingBeyondContentLimitFile() throws Exception {
+    void testCodingBeyondContentLimitFile() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {
                         "stuff;",
@@ -472,7 +472,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testInvalidConstructor() {
+    void testInvalidConstructor() {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
@@ -485,7 +485,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testInvalidInput() throws Exception {
+    void testInvalidInput() {
         final String s = "stuff";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
@@ -499,7 +499,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testZeroLengthDecoding() throws Exception {
+    void testZeroLengthDecoding() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff"}, StandardCharsets.US_ASCII);
 
@@ -517,7 +517,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testTruncatedContent() throws Exception {
+    void testTruncatedContent() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"1234567890"}, StandardCharsets.US_ASCII);
 
@@ -535,7 +535,7 @@ public class TestLengthDelimitedDecoder {
     }
 
     @Test
-    public void testTruncatedContentWithFile() throws Exception {
+    void testTruncatedContentWithFile() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"1234567890"}, StandardCharsets.US_ASCII);
 

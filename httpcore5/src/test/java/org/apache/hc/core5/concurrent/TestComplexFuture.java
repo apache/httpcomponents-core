@@ -34,10 +34,10 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestComplexFuture {
+class TestComplexFuture {
 
     @Test
-    public void testCancelled() throws Exception {
+    void testCancelled() {
         final ComplexFuture<Object> future = new ComplexFuture<>(null);
 
         final Future<Object> dependency1 = new BasicFuture<>(null);
@@ -55,7 +55,7 @@ public class TestComplexFuture {
     }
 
     @Test
-    public void testCompleted() throws Exception {
+    void testCompleted() {
         final ComplexFuture<Object> future = new ComplexFuture<>(null);
 
         final Future<Object> dependency1 = new BasicFuture<>(null);
@@ -73,7 +73,7 @@ public class TestComplexFuture {
     }
 
     @Test
-    public void testCancelledWithCallback() throws Exception {
+    void testCancelledWithCallback() {
         final ComplexFuture<Object> future = new ComplexFuture<>(null);
 
         final Future<Object> dependency1 = new BasicFuture<>(new FutureContribution<Object>(future) {
@@ -97,7 +97,7 @@ public class TestComplexFuture {
     }
 
     @Test
-    public void testCanceledAndFailed() {
+    void testCanceledAndFailed() {
         final ComplexFuture<Object> future = new ComplexFuture<>(null);
         assertThat(future.cancel(), CoreMatchers.is(true));
         assertThat(future.failed(new Exception()), CoreMatchers.is(false));

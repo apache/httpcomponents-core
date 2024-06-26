@@ -78,13 +78,13 @@ class ClassicRequestBuilderTest {
     }
 
     @Test
-    public void create() {
+    void create() {
         final ClassicHttpRequest classicHttpRequest = ClassicRequestBuilder.create(Method.HEAD.name()).build();
         assertEquals(Method.HEAD.name(), classicHttpRequest.getMethod());
     }
 
     @Test
-    public void get() throws UnknownHostException, URISyntaxException {
+    void get() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.get();
         assertEquals(Method.GET.name(), classicRequestBuilder.getMethod());
 
@@ -97,7 +97,7 @@ class ClassicRequestBuilderTest {
     }
 
     @Test
-    public void head() throws UnknownHostException, URISyntaxException {
+    void head() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.head();
         assertEquals(Method.HEAD.name(), classicRequestBuilder.getMethod());
 
@@ -110,7 +110,7 @@ class ClassicRequestBuilderTest {
     }
 
     @Test
-    public void patch() throws UnknownHostException, URISyntaxException {
+    void patch() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.patch();
         assertEquals(Method.PATCH.name(), classicRequestBuilder.getMethod());
 
@@ -123,7 +123,7 @@ class ClassicRequestBuilderTest {
     }
 
     @Test
-    public void post() throws UnknownHostException, URISyntaxException {
+    void post() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.post();
         assertEquals(Method.POST.name(), classicRequestBuilder.getMethod());
 
@@ -136,7 +136,7 @@ class ClassicRequestBuilderTest {
     }
 
     @Test
-    public void put() throws UnknownHostException, URISyntaxException {
+    void put() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.put();
         assertEquals(Method.PUT.name(), classicRequestBuilder.getMethod());
 
@@ -149,7 +149,7 @@ class ClassicRequestBuilderTest {
     }
 
     @Test
-    public void delete() throws UnknownHostException, URISyntaxException {
+    void delete() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.delete();
         assertEquals(Method.DELETE.name(), classicRequestBuilder.getMethod());
 
@@ -162,7 +162,7 @@ class ClassicRequestBuilderTest {
     }
 
     @Test
-    public void trace() throws UnknownHostException, URISyntaxException {
+    void trace() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.trace();
         assertEquals(Method.TRACE.name(), classicRequestBuilder.getMethod());
 
@@ -175,7 +175,7 @@ class ClassicRequestBuilderTest {
     }
 
     @Test
-    public void option() throws UnknownHostException, URISyntaxException {
+    void option() throws UnknownHostException, URISyntaxException {
         final ClassicRequestBuilder classicRequestBuilder = ClassicRequestBuilder.options();
         assertEquals(Method.OPTIONS.name(), classicRequestBuilder.getMethod());
 
@@ -188,7 +188,7 @@ class ClassicRequestBuilderTest {
     }
 
     @Test
-    public void builder() {
+    void builder() {
         final Header header = new BasicHeader("header2", "blah");
         final ClassicHttpRequest classicHttpRequest = ClassicRequestBuilder.get()
                 .setVersion(HttpVersion.HTTP_1_1)
@@ -228,7 +228,7 @@ class ClassicRequestBuilderTest {
 
 
     @Test
-    public void builderTraceThrowsIllegalStateException() {
+    void builderTraceThrowsIllegalStateException() {
         Assertions.assertThrows(IllegalStateException.class, () ->
                 ClassicRequestBuilder.trace()
                         .setVersion(HttpVersion.HTTP_1_1)

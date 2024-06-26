@@ -45,7 +45,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Simple tests for {@link LengthDelimitedDecoder}.
  */
-public class TestIdentityDecoder {
+class TestIdentityDecoder {
 
     private File tmpfile;
 
@@ -55,14 +55,14 @@ public class TestIdentityDecoder {
     }
 
     @AfterEach
-    public void deleteTempFile() {
+    void deleteTempFile() {
         if (this.tmpfile != null && this.tmpfile.exists()) {
             this.tmpfile.delete();
         }
     }
 
     @Test
-    public void testBasicDecoding() throws Exception {
+    void testBasicDecoding() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
@@ -101,7 +101,7 @@ public class TestIdentityDecoder {
     }
 
     @Test
-    public void testDecodingFromSessionBuffer() throws Exception {
+    void testDecodingFromSessionBuffer() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
@@ -144,7 +144,7 @@ public class TestIdentityDecoder {
     }
 
     @Test
-    public void testBasicDecodingFile() throws Exception {
+    void testBasicDecodingFile() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, StandardCharsets.US_ASCII);
 
@@ -171,7 +171,7 @@ public class TestIdentityDecoder {
     }
 
     @Test
-    public void testDecodingFileWithBufferedSessionData() throws Exception {
+    void testDecodingFileWithBufferedSessionData() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, StandardCharsets.US_ASCII);
 
@@ -202,7 +202,7 @@ public class TestIdentityDecoder {
     }
 
     @Test
-    public void testDecodingFileWithOffsetAndBufferedSessionData() throws Exception {
+    void testDecodingFileWithOffsetAndBufferedSessionData() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; ", "more stuff; ", "a lot more stuff!"}, StandardCharsets.US_ASCII);
 
@@ -249,7 +249,7 @@ public class TestIdentityDecoder {
     }
 
     @Test
-    public void testDecodingFileWithLimit() throws Exception {
+    void testDecodingFileWithLimit() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff; more stuff; ", "a lot more stuff!"}, StandardCharsets.US_ASCII);
 
@@ -313,7 +313,7 @@ public class TestIdentityDecoder {
     }
 
     @Test
-    public void testWriteBeyondFileSize() throws Exception {
+    void testWriteBeyondFileSize() throws Exception {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"a"}, StandardCharsets.US_ASCII);
 
@@ -331,7 +331,7 @@ public class TestIdentityDecoder {
     }
 
     @Test
-    public void testInvalidConstructor() {
+    void testInvalidConstructor() {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
@@ -342,7 +342,7 @@ public class TestIdentityDecoder {
     }
 
     @Test
-    public void testInvalidInput() throws Exception {
+    void testInvalidInput() {
         final String s = "stuff";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);

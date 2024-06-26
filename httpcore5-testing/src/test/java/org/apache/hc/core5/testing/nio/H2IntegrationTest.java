@@ -123,7 +123,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class H2IntegrationTest {
+abstract class H2IntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
     private static final Timeout LONG_TIMEOUT = Timeout.ofMinutes(2);
@@ -139,7 +139,7 @@ public abstract class H2IntegrationTest {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         resources.server().configure(H2Config.DEFAULT);
         resources.client().configure(H2Config.DEFAULT);
     }
@@ -153,7 +153,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testSimpleGet() throws Exception {
+    void testSimpleGet() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -185,7 +185,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testSimpleHead() throws Exception {
+    void testSimpleHead() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -211,7 +211,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testLargeGet() throws Exception {
+    void testLargeGet() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -257,7 +257,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testBasicPost() throws Exception {
+    void testBasicPost() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -290,7 +290,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testLargePost() throws Exception {
+    void testLargePost() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -320,7 +320,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testSlowResponseConsumer() throws Exception {
+    void testSlowResponseConsumer() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -376,7 +376,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testSlowRequestProducer() throws Exception {
+    void testSlowRequestProducer() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -425,7 +425,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testSlowResponseProducer() throws Exception {
+    void testSlowResponseProducer() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -505,7 +505,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testPush() throws Exception {
+    void testPush() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -579,7 +579,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testPushRefused() throws Exception {
+    void testPushRefused() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -660,7 +660,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testExcessOfConcurrentStreams() throws Exception {
+    void testExcessOfConcurrentStreams() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -699,7 +699,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testExpectationFailed() throws Exception {
+    void testExpectationFailed() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -769,7 +769,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testPrematureResponse() throws Exception {
+    void testPrematureResponse() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -854,7 +854,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testMessageWithTrailers() throws Exception {
+    void testMessageWithTrailers() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -912,7 +912,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testConnectionPing() throws Exception {
+    void testConnectionPing() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -944,7 +944,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testRequestWithInvalidConnectionHeader() throws Exception {
+    void testRequestWithInvalidConnectionHeader() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -974,7 +974,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testHeaderTooLarge() throws Exception {
+    void testHeaderTooLarge() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
@@ -1005,7 +1005,7 @@ public abstract class H2IntegrationTest {
     }
 
     @Test
-    public void testHeaderTooLargePost() throws Exception {
+    void testHeaderTooLargePost() throws Exception {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 

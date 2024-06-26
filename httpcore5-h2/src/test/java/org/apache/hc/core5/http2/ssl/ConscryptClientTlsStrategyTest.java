@@ -41,7 +41,7 @@ class ConscryptClientTlsStrategyTest {
     private SSLSessionVerifier sslSessionVerifier;
 
     @BeforeEach
-    public void prepareMocks() {
+    void prepareMocks() {
         MockitoAnnotations.openMocks(this);
     }
 

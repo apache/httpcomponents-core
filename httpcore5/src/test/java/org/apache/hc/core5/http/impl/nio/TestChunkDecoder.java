@@ -48,10 +48,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Simple tests for {@link ChunkDecoder}.
  */
-public class TestChunkDecoder {
+class TestChunkDecoder {
 
     @Test
-    public void testBasicDecoding() throws Exception {
+    void testBasicDecoding() throws Exception {
         final String s = "5\r\n01234\r\n5\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
@@ -75,7 +75,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testComplexDecoding() throws Exception {
+    void testComplexDecoding() throws Exception {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\nFooter2: fghij\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -112,7 +112,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testDecodingWithSmallBuffer() throws Exception {
+    void testDecodingWithSmallBuffer() throws Exception {
         final String s1 = "5\r\n01234\r\n5\r\n5678";
         final String s2 = "9\r\n6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -147,7 +147,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testMalformedChunk() throws Exception {
+    void testMalformedChunk() {
         final String s = "5\r\n01234----------------------------------------------------------" +
                 "-----------------------------------------------------------------------------" +
                 "-----------------------------------------------------------------------------";
@@ -164,7 +164,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testIncompleteChunkDecoding() throws Exception {
+    void testIncompleteChunkDecoding() throws Exception {
         final String[] chunks = {
                 "10;",
                 "key=\"value\"\r",
@@ -211,7 +211,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testMalformedChunkSizeDecoding() throws Exception {
+    void testMalformedChunkSizeDecoding() {
         final String s = "5\r\n01234\r\n5zz\r\n56789\r\n6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
@@ -226,7 +226,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testMalformedChunkEndingDecoding() throws Exception {
+    void testMalformedChunkEndingDecoding() {
         final String s = "5\r\n01234\r\n5\r\n56789\r\r6\r\nabcdef\r\n0\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
@@ -241,7 +241,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testMalformedChunkTruncatedChunk() throws Exception {
+    void testMalformedChunkTruncatedChunk() throws Exception {
         final String s = "3\r\n12";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
@@ -257,7 +257,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testFoldedFooters() throws Exception {
+    void testFoldedFooters() throws Exception {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1: abcde\r\n   \r\n  fghij\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -280,7 +280,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testMalformedFooters() throws Exception {
+    void testMalformedFooters() {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -296,7 +296,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testMissingLastCRLF() throws Exception {
+    void testMissingLastCRLF() {
         final String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -316,7 +316,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testMissingClosingChunk() throws Exception {
+    void testMissingClosingChunk() {
         final String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -347,7 +347,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testReadingWitSmallBuffer() throws Exception {
+    void testReadingWitSmallBuffer() throws Exception {
         final String s = "10\r\n1234567890123456\r\n" +
                 "40\r\n12345678901234561234567890123456" +
                 "12345678901234561234567890123456\r\n0\r\n";
@@ -380,7 +380,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testEndOfStreamConditionReadingFooters() throws Exception {
+    void testEndOfStreamConditionReadingFooters() throws Exception {
         final String s = "10\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -406,7 +406,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testTooLongChunkHeader() throws Exception {
+    void testTooLongChunkHeader() throws Exception {
         final String s = "5; and some very looooong comment\r\n12345\r\n0\r\n";
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
                 new String[] {s}, StandardCharsets.US_ASCII);
@@ -435,7 +435,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testTooLongFooter() throws Exception {
+    void testTooLongFooter() throws Exception {
         final String s = "10\r\n1234567890123456\r\n" +
                 "0\r\nFooter1: looooooooooooooooooooooooooooooooooooooooooooooooooooooog\r\n\r\n";
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
@@ -465,7 +465,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testTooLongFoldedFooter() throws Exception {
+    void testTooLongFoldedFooter() throws Exception {
         final String s = "10\r\n1234567890123456\r\n" +
                 "0\r\nFooter1: blah\r\n  blah\r\n  blah\r\n  blah\r\n  blah\r\n  blah\r\n  blah\r\n  blah\r\n\r\n";
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
@@ -498,7 +498,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testTooManyFooters() throws Exception {
+    void testTooManyFooters() throws Exception {
         final String s = "10\r\n1234567890123456\r\n" +
                 "0\r\nFooter1: blah\r\nFooter2: blah\r\nFooter3: blah\r\nFooter4: blah\r\n\r\n";
         final ReadableByteChannel channel1 = new ReadableByteChannelMock(
@@ -530,7 +530,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testInvalidConstructor() {
+    void testInvalidConstructor() {
         final ReadableByteChannel channel = new ReadableByteChannelMock(
                 new String[] {"stuff;", "more stuff"}, StandardCharsets.US_ASCII);
 
@@ -540,7 +540,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testInvalidInput() throws Exception {
+    void testInvalidInput() {
         final String s = "10;key=\"value\"\r\n1234567890123456\r\n" +
                 "5\r\n12345\r\n5\r\n12345\r\n0\r\nFooter1 abcde\r\n\r\n";
         final ReadableByteChannel channel = new ReadableByteChannelMock(
@@ -554,7 +554,7 @@ public class TestChunkDecoder {
     }
 
     @Test
-    public void testHugeChunk() throws Exception {
+    void testHugeChunk() throws Exception {
         final String s = "1234567890abcdef\r\n0123456789abcdef";
         final ReadableByteChannel channel = new ReadableByteChannelMock(new String[] {s}, StandardCharsets.US_ASCII);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(1024, 256, 0, StandardCharsets.US_ASCII);

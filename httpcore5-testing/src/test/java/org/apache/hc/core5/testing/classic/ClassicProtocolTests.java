@@ -31,11 +31,11 @@ import org.apache.hc.core5.http.URIScheme;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 
-public class ClassicProtocolTests {
+class ClassicProtocolTests {
 
     @Nested
     @DisplayName("Classic HTTP/1.1 (plain)")
-    public class Http1 extends ClassicIntegrationTest {
+    class Http1 extends ClassicIntegrationTest {
 
         public Http1() {
             super(URIScheme.HTTP);
@@ -45,7 +45,7 @@ public class ClassicProtocolTests {
 
     @Nested
     @DisplayName("Classic HTTP/1.1 (TLS)")
-    public class Http1Tls extends ClassicIntegrationTest {
+    class Http1Tls extends ClassicIntegrationTest {
 
         public Http1Tls() {
             super(URIScheme.HTTPS);

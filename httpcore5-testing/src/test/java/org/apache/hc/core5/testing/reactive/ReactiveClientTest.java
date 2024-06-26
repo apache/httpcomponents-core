@@ -75,7 +75,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.reactivestreams.Publisher;
 
-public abstract class ReactiveClientTest {
+abstract class ReactiveClientTest {
 
     private static final Timeout SOCKET_TIMEOUT = Timeout.ofSeconds(30);
     private static final Timeout RESULT_TIMEOUT = Timeout.ofSeconds(60);
@@ -110,7 +110,7 @@ public abstract class ReactiveClientTest {
     }
 
     @Test
-    public void testSimpleRequest() throws Exception {
+    void testSimpleRequest() throws Exception {
         final InetSocketAddress address = startServer();
         final HttpAsyncRequester requester = clientResource.start();
         final byte[] input = new byte[1024];
@@ -141,7 +141,7 @@ public abstract class ReactiveClientTest {
     }
 
     @Test
-    public void testLongRunningRequest() throws Exception {
+    void testLongRunningRequest() throws Exception {
         final InetSocketAddress address = startServer();
         final HttpAsyncRequester requester = clientResource.start();
         final long expectedLength = 6_554_200L;
@@ -161,7 +161,7 @@ public abstract class ReactiveClientTest {
     }
 
     @Test
-    public void testManySmallBuffers() throws Exception {
+    void testManySmallBuffers() throws Exception {
         // This test is not flaky. If it starts randomly failing, then there is a problem with how
         // ReactiveDataConsumer signals capacity with its capacity channel. The situations in which
         // this kind of bug manifests depend on the ordering of several events on different threads
@@ -188,7 +188,7 @@ public abstract class ReactiveClientTest {
     }
 
     @Test
-    public void testRequestError() throws Exception {
+    void testRequestError() throws Exception {
         final InetSocketAddress address = startServer();
         final HttpAsyncRequester requester = clientResource.start();
         final RuntimeException exceptionThrown = new RuntimeException("Test");
@@ -208,7 +208,7 @@ public abstract class ReactiveClientTest {
     }
 
     @Test
-    public void testRequestTimeout() throws Exception {
+    void testRequestTimeout() throws Exception {
         final InetSocketAddress address = startServer();
         final HttpAsyncRequester requester = clientResource.start();
         final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean(false);
@@ -234,7 +234,7 @@ public abstract class ReactiveClientTest {
     }
 
     @Test
-    public void testResponseCancellation() throws Exception {
+    void testResponseCancellation() throws Exception {
         final InetSocketAddress address = startServer();
         final HttpAsyncRequester requester = clientResource.start();
         final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean(false);

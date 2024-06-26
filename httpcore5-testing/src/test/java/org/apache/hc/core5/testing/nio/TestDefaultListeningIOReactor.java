@@ -46,12 +46,12 @@ import org.junit.jupiter.api.Test;
 /**
  * Basic tests for {@link DefaultListeningIOReactor}.
  */
-public class TestDefaultListeningIOReactor {
+class TestDefaultListeningIOReactor {
 
     private DefaultListeningIOReactor ioReactor;
 
     @BeforeEach
-    public void setup() throws Exception {
+    void setup() {
         final IOReactorConfig reactorConfig = IOReactorConfig.custom()
                 .setIoThreadCount(1)
                 .build();
@@ -59,14 +59,14 @@ public class TestDefaultListeningIOReactor {
     }
 
     @AfterEach
-    public void cleanup() throws Exception {
+    void cleanup() {
         if (this.ioReactor != null) {
             this.ioReactor.close(CloseMode.IMMEDIATE);
         }
     }
 
     @Test
-    public void testEndpointUpAndDown() throws Exception {
+    void testEndpointUpAndDown() throws Exception {
         ioReactor.start();
 
         Set<ListenerEndpoint> endpoints = ioReactor.getEndpoints();
@@ -100,7 +100,7 @@ public class TestDefaultListeningIOReactor {
     }
 
     @Test
-    public void testEndpointAlreadyBound() throws Exception {
+    void testEndpointAlreadyBound() throws Exception {
         ioReactor.start();
 
         final Future<ListenerEndpoint> future1 = ioReactor.listen(new InetSocketAddress(0));

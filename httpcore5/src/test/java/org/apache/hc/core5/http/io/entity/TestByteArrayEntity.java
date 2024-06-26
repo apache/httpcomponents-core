@@ -37,10 +37,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link ByteArrayEntity}.
  *
  */
-public class TestByteArrayEntity {
+class TestByteArrayEntity {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         try (final ByteArrayEntity entity = new ByteArrayEntity(bytes, null)) {
 
@@ -52,7 +52,7 @@ public class TestByteArrayEntity {
     }
 
     @Test
-    public void testBasicOffLen() throws Exception {
+    void testBasicOffLen() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         try (final ByteArrayEntity entity = new ByteArrayEntity(bytes, 8, 7, null)) {
 
@@ -64,34 +64,34 @@ public class TestByteArrayEntity {
     }
 
     @Test
-    public void testIllegalConstructorNullByteArray() throws Exception {
+    void testIllegalConstructorNullByteArray() {
         Assertions.assertThrows(NullPointerException.class, () ->
                 new ByteArrayEntity(null, null));
     }
 
     @Test
-    public void testIllegalConstructorBadLen() throws Exception {
+    void testIllegalConstructorBadLen() {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 new ByteArrayEntity(bytes, 0, bytes.length + 1, null));
     }
 
     @Test
-    public void testIllegalConstructorBadOff1() throws Exception {
+    void testIllegalConstructorBadOff1() {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 new ByteArrayEntity(bytes, -1, bytes.length, null));
     }
 
     @Test
-    public void testIllegalConstructorBadOff2() throws Exception {
+    void testIllegalConstructorBadOff2() {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 new ByteArrayEntity(bytes, bytes.length + 1, bytes.length, null));
     }
 
     @Test
-    public void testWriteTo() throws Exception {
+    void testWriteTo() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         try (final ByteArrayEntity entity = new ByteArrayEntity(bytes, null)) {
 
@@ -118,7 +118,7 @@ public class TestByteArrayEntity {
     }
 
     @Test
-    public void testWriteToOffLen() throws Exception {
+    void testWriteToOffLen() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final int off = 8;
         final int len = 7;

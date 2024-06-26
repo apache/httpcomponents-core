@@ -36,10 +36,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Simple tests for {@link HeaderElement}.
  */
-public class TestHeaderElement {
+class TestHeaderElement {
 
     @Test
-    public void testConstructor3() throws Exception {
+    void testConstructor3() {
         final HeaderElement element = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                     new BasicNameValuePair("param1", "value1"),
@@ -53,7 +53,7 @@ public class TestHeaderElement {
     }
 
     @Test
-    public void testConstructor2() throws Exception {
+    void testConstructor2() {
         final HeaderElement element = new BasicHeaderElement("name", "value");
         Assertions.assertEquals("name", element.getName());
         Assertions.assertEquals("value", element.getValue());
@@ -62,12 +62,12 @@ public class TestHeaderElement {
 
 
     @Test
-    public void testInvalidName() {
+    void testInvalidName() {
         Assertions.assertThrows(NullPointerException.class, () -> new BasicHeaderElement(null, null, (NameValuePair[]) null));
     }
 
     @Test
-    public void testParamByName() throws Exception {
+    void testParamByName() {
         final String s = "name = value; param1 = value1; param2 = value2";
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         buf.append(s);
@@ -80,7 +80,7 @@ public class TestHeaderElement {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         final BasicHeaderElement element = new BasicHeaderElement("name", "value",
                 new NameValuePair[] {
                         new BasicNameValuePair("param1", "value1"),

@@ -31,10 +31,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestClientTestingAdapter {
+class TestClientTestingAdapter {
 
     @Test
-    public void getHttpClientPOJOAdapter() throws Exception {
+    void getHttpClientPOJOAdapter() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final ClientPOJOAdapter pojoAdapter = adapter.getClientPOJOAdapter();
@@ -43,7 +43,7 @@ public class TestClientTestingAdapter {
     }
 
     @Test
-    public void isRequestSupported() throws Exception {
+    void isRequestSupported() {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final Map<String, Object> request = null;

@@ -40,10 +40,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 
-public class ViaRequestTest {
+class ViaRequestTest {
 
     @Test
-    public void testViaRequestGenerated() throws Exception {
+    void testViaRequestGenerated() throws Exception {
 
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
@@ -59,7 +59,7 @@ public class ViaRequestTest {
     }
 
     @Test
-    public void testViaRequestGeneratedWithOutPort() throws Exception {
+    void testViaRequestGeneratedWithOutPort() throws Exception {
 
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
@@ -75,7 +75,7 @@ public class ViaRequestTest {
 
 
         @Test
-    public void testViaRequestInvalidHttpVersion() {
+    void testViaRequestInvalidHttpVersion() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         context.setProtocolVersion(HttpVersion.HTTP_0_9);
@@ -87,7 +87,7 @@ public class ViaRequestTest {
     }
 
     @Test
-    public void testViaRequestInvalidAuthority() {
+    void testViaRequestInvalidAuthority() {
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         context.setProtocolVersion(HttpVersion.HTTP_1_1);
@@ -98,7 +98,7 @@ public class ViaRequestTest {
     }
 
     @Test
-    public void testViaRequestNotCreatedAlreadyAdded() throws Exception {
+    void testViaRequestNotCreatedAlreadyAdded() throws Exception {
 
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");

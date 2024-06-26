@@ -33,9 +33,9 @@ import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class IOReactorConfigTest {
+class IOReactorConfigTest {
     @Test
-    public void testCustomIOReactorConfig() throws Exception {
+    void testCustomIOReactorConfig() {
         final IOReactorConfig reactorConfig = IOReactorConfig.custom()
                 .setSelectInterval(TimeValue.ofMilliseconds(500))
                 .setIoThreadCount(2)

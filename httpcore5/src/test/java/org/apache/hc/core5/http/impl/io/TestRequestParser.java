@@ -42,10 +42,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link DefaultHttpRequestParser}.
  */
-public class TestRequestParser {
+class TestRequestParser {
 
     @Test
-    public void testBasicMessageParsing() throws Exception {
+    void testBasicMessageParsing() throws Exception {
         final String s =
             "GET / HTTP/1.1\r\n" +
             "Host: localhost\r\n" +
@@ -65,7 +65,7 @@ public class TestRequestParser {
     }
 
     @Test
-    public void testConnectionClosedException() throws Exception {
+    void testConnectionClosedException() throws Exception {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {});
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
 
@@ -75,7 +75,7 @@ public class TestRequestParser {
     }
 
     @Test
-    public void testBasicMessageParsingLeadingEmptyLines() throws Exception {
+    void testBasicMessageParsingLeadingEmptyLines() throws Exception {
         final String s =
                 "\r\n" +
                 "\r\n" +
@@ -96,7 +96,7 @@ public class TestRequestParser {
     }
 
     @Test
-    public void testBasicMessageParsingTooManyLeadingEmptyLines() throws Exception {
+    void testBasicMessageParsingTooManyLeadingEmptyLines() {
         final String s =
                 "\r\n" +
                 "\r\n" +
@@ -114,7 +114,7 @@ public class TestRequestParser {
     }
 
     @Test
-    public void testMessageParsingTimeout() throws Exception {
+    void testMessageParsingTimeout() throws Exception {
         final String s =
             "GET \000/ HTTP/1.1\r\000\n" +
             "Host: loca\000lhost\r\n" +

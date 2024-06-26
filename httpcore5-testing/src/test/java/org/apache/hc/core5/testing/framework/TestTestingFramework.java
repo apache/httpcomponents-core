@@ -53,10 +53,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-public class TestTestingFramework {
+class TestTestingFramework {
 
     @Test
-    public void ensureDefaultMapsUnmodifiable() throws Exception {
+    void ensureDefaultMapsUnmodifiable() {
         assertUnmodifiable(TestingFramework.DEFAULT_REQUEST_QUERY);
         assertUnmodifiable(TestingFramework.DEFAULT_RESPONSE_HEADERS);
     }
@@ -80,13 +80,13 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void runTestsWithoutSettingAdapterThrows() throws Exception {
+    void runTestsWithoutSettingAdapterThrows() throws Exception {
         final TestingFramework framework = newWebServerTestingFramework();
         Assertions.assertThrows(TestingFrameworkException.class, () -> framework.runTests());
     }
 
     @Test
-    public void nullAdapterThrows() throws Exception {
+    void nullAdapterThrows() throws Exception {
         final ClientTestingAdapter adapter = null;
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
@@ -94,7 +94,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void nullSetAdapterThrows() throws Exception {
+    void nullSetAdapterThrows() throws Exception {
         final ClientTestingAdapter adapter = null;
 
         final TestingFramework framework = newWebServerTestingFramework(adapter);
@@ -103,7 +103,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void goodAdapterWithConstructor() throws Exception {
+    void goodAdapterWithConstructor() throws Exception {
         final ClientTestingAdapter adapter = Mockito.mock(ClientTestingAdapter.class);
 
         // Have isRequestSupported() return false so no test will run.
@@ -135,7 +135,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void goodAdapterWithSetter() throws Exception {
+    void goodAdapterWithSetter() throws Exception {
         final ClientTestingAdapter adapter = Mockito.mock(ClientTestingAdapter.class);
 
         final TestingFramework framework = newFrameworkAndSetAdapter(adapter);
@@ -147,7 +147,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void addTest() throws Exception {
+    void addTest() throws Exception {
         final TestingFrameworkRequestHandler mockRequestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
 
         final ClientTestingAdapter adapter = new ClientTestingAdapter() {
@@ -210,7 +210,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void statusCheck() throws Exception {
+    void statusCheck() throws Exception {
         final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -246,7 +246,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void responseAlreadyChecked() throws Exception {
+    void responseAlreadyChecked() throws Exception {
             final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -267,7 +267,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void bodyCheck() throws Exception {
+    void bodyCheck() throws Exception {
         final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -295,7 +295,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void responseContentTypeCheck() throws Exception {
+    void responseContentTypeCheck() throws Exception {
        final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -326,7 +326,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void deepcopy() throws Exception {
+    void deepcopy() throws Exception {
         // save a copy of the headers to make sure they haven't changed at the end of this test.
         @SuppressWarnings("unchecked")
         final Map<String, String> headersCopy = (Map<String, String>) TestingFramework.deepcopy(TestingFramework.DEFAULT_RESPONSE_HEADERS);
@@ -348,7 +348,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void removedHeaderCheck() throws Exception {
+    void removedHeaderCheck() throws Exception {
         final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -384,7 +384,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void changedHeaderCheck() throws Exception {
+    void changedHeaderCheck() throws Exception {
         final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -429,7 +429,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void requestMethodUnexpected() throws Exception {
+    void requestMethodUnexpected() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -467,7 +467,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void status201() throws Exception {
+    void status201() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         final TestingFramework framework = newFrameworkAndSetAdapter(adapter);
@@ -483,7 +483,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void deepcopyOfTest() throws Exception {
+    void deepcopyOfTest() throws Exception {
         final ClientTestingAdapter adapter = new ClientTestingAdapter() {
 
             @Override
@@ -515,7 +515,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void removeParameter() throws Exception {
+    void removeParameter() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -540,7 +540,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void changeParameter() throws Exception {
+    void changeParameter() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -565,7 +565,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void removeHeader() throws Exception {
+    void removeHeader() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -590,7 +590,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void changeHeader() throws Exception {
+    void changeHeader() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -615,7 +615,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void changeBody() throws Exception {
+    void changeBody() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -639,7 +639,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void changeContentType() throws Exception {
+    void changeContentType() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -663,7 +663,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void changeResponseExpectationsFails() throws Exception {
+    void changeResponseExpectationsFails() throws Exception {
         final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -691,7 +691,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void changeResponseStatus() throws Exception {
+    void changeResponseStatus() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(
@@ -722,7 +722,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void modifyRequestCalled() throws Exception {
+    void modifyRequestCalled() throws Exception {
         final TestingFrameworkRequestHandler mockRequestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final String UNLIKELY_ITEM = "something_unlikely_to_be_in_a_real_request";
 
@@ -764,7 +764,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void modifyResponseExpectationsCalled() throws Exception {
+    void modifyResponseExpectationsCalled() throws Exception {
         final TestingFrameworkRequestHandler mockRequestHandler = Mockito.mock(TestingFrameworkRequestHandler.class);
         final String UNLIKELY_ITEM = "something_unlikely_to_be_in_a_real_response";
 
@@ -808,7 +808,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void adapterDoesNotSupport() throws Exception {
+    void adapterDoesNotSupport() throws Exception {
 
         final ClientTestingAdapter adapter = new ClientTestingAdapter() {
             @Override
@@ -836,7 +836,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void defaultTestsWithMockedAdapter() throws Exception {
+    void defaultTestsWithMockedAdapter() throws Exception {
         final Set<String> calledMethodSet = new HashSet<>();
 
         final ClientTestingAdapter adapter = new ClientTestingAdapter() {
@@ -864,7 +864,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void defaultTests() throws Exception {
+    void defaultTests() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter();
 
         // create the framework without deleting the default tests.
@@ -876,7 +876,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void addTestNoMocks() throws TestingFrameworkException {
+    void addTestNoMocks() throws TestingFrameworkException {
 
         final TestingFramework framework = new TestingFramework(new ClassicTestClientTestingAdapter());
 
@@ -945,7 +945,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void nulls() throws TestingFrameworkException {
+    void nulls() throws TestingFrameworkException {
 
         final TestingFramework framework = new TestingFramework(new ClassicTestClientTestingAdapter());
 
@@ -1005,7 +1005,7 @@ public class TestTestingFramework {
     }
 
     @Test
-    public void parameterInPath() throws Exception {
+    void parameterInPath() throws Exception {
         final ClientTestingAdapter adapter = new ClassicTestClientTestingAdapter() {
             @Override
             public Map<String, Object> execute(final String defaultURI, final Map<String, Object> request,

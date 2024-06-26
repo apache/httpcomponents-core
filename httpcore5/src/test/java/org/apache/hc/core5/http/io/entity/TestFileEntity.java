@@ -40,10 +40,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link FileEntity}.
  *
  */
-public class TestFileEntity {
+class TestFileEntity {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
         try (final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN)) {
@@ -59,12 +59,12 @@ public class TestFileEntity {
     }
 
     @Test
-    public void testNullConstructor() throws Exception {
+    void testNullConstructor() {
         Assertions.assertThrows(NullPointerException.class, () -> new FileEntity(null, ContentType.TEXT_PLAIN));
     }
 
     @Test
-    public void testWriteTo() throws Exception {
+    void testWriteTo() throws Exception {
         final File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
 

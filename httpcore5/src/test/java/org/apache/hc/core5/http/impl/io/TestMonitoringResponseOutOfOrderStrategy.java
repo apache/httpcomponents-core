@@ -42,12 +42,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-public class TestMonitoringResponseOutOfOrderStrategy {
+class TestMonitoringResponseOutOfOrderStrategy {
 
     private static final ClassicHttpRequest REQUEST = new BasicClassicHttpRequest("POST", "/path");
 
     @Test
-    public void testFirstByteIsNotCheckedSsl() throws IOException {
+    void testFirstByteIsNotCheckedSsl() throws IOException {
         final boolean earlyResponse = MonitoringResponseOutOfOrderStrategy.INSTANCE.isEarlyResponseDetected(
                 REQUEST,
                 connection(true, true),
@@ -59,7 +59,7 @@ public class TestMonitoringResponseOutOfOrderStrategy {
     }
 
     @Test
-    public void testFirstByteIsNotCheckedPlain() throws IOException {
+    void testFirstByteIsNotCheckedPlain() throws IOException {
         final boolean earlyResponse = MonitoringResponseOutOfOrderStrategy.INSTANCE.isEarlyResponseDetected(
                 REQUEST,
                 connection(true, false),
@@ -70,7 +70,7 @@ public class TestMonitoringResponseOutOfOrderStrategy {
     }
 
     @Test
-    public void testWritesWithinChunkAreNotChecked() throws IOException {
+    void testWritesWithinChunkAreNotChecked() throws IOException {
         final boolean earlyResponse = MonitoringResponseOutOfOrderStrategy.INSTANCE.isEarlyResponseDetected(
                 REQUEST,
                 connection(true, true),
@@ -81,7 +81,7 @@ public class TestMonitoringResponseOutOfOrderStrategy {
     }
 
     @Test
-    public void testWritesAcrossChunksAreChecked() throws IOException {
+    void testWritesAcrossChunksAreChecked() throws IOException {
         final boolean earlyResponse = MonitoringResponseOutOfOrderStrategy.INSTANCE.isEarlyResponseDetected(
                 REQUEST,
                 connection(true, true),
@@ -92,7 +92,7 @@ public class TestMonitoringResponseOutOfOrderStrategy {
     }
 
     @Test
-    public void testMaximumChunks() throws IOException {
+    void testMaximumChunks() throws IOException {
         final ResponseOutOfOrderStrategy strategy = new MonitoringResponseOutOfOrderStrategy(1, 2);
         Assertions.assertTrue(strategy.isEarlyResponseDetected(
                 REQUEST,

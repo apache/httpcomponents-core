@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link IdentityInputStream}.
  */
-public class TestIdentityInputStream {
+class TestIdentityInputStream {
 
     @Test
-    public void testBasicRead() throws Exception {
+    void testBasicRead() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
@@ -59,7 +59,7 @@ public class TestIdentityInputStream {
     }
 
     @Test
-    public void testClosedCondition() throws Exception {
+    void testClosedCondition() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
@@ -75,7 +75,7 @@ public class TestIdentityInputStream {
     }
 
     @Test
-    public void testAvailable() throws Exception {
+    void testAvailable() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 16, 1024, null);
@@ -86,7 +86,7 @@ public class TestIdentityInputStream {
     }
 
     @Test
-    public void testAvailableInStream() throws Exception {
+    void testAvailableInStream() throws Exception {
         final byte[] input = new byte[] {'a', 'b', 'c', 'd', 'e', 'f'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 0, 1024, null);

@@ -31,11 +31,11 @@ import org.apache.hc.core5.http.URIScheme;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 
-public class HttpProtocolTests {
+class HttpProtocolTests {
 
     @Nested
     @DisplayName("HTTP/1.1 (plain)")
-    public class Http1 extends Http1IntegrationTest {
+    class Http1 extends Http1IntegrationTest {
 
         public Http1() {
             super(URIScheme.HTTP);
@@ -45,7 +45,7 @@ public class HttpProtocolTests {
 
     @Nested
     @DisplayName("HTTP/1.1 (TLS)")
-    public class Http1Tls extends Http1IntegrationTest {
+    class Http1Tls extends Http1IntegrationTest {
 
         public Http1Tls() {
             super(URIScheme.HTTPS);
@@ -55,7 +55,7 @@ public class HttpProtocolTests {
 
     @Nested
     @DisplayName("HTTP/2 (plain)")
-    public class H2 extends H2IntegrationTest {
+    class H2 extends H2IntegrationTest {
 
         public H2() {
             super(URIScheme.HTTP);
@@ -65,7 +65,7 @@ public class HttpProtocolTests {
 
     @Nested
     @DisplayName("HTTP/2 (TLS)")
-    public class H2Tls extends H2IntegrationTest {
+    class H2Tls extends H2IntegrationTest {
 
         public H2Tls() {
             super(URIScheme.HTTPS);

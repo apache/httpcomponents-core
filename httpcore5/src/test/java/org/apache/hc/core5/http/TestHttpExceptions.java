@@ -33,14 +33,14 @@ import org.junit.jupiter.api.Test;
 /**
  * Simple tests for various HTTP exception classes.
  */
-public class TestHttpExceptions {
+class TestHttpExceptions {
 
     private static final String CLEAN_MESSAGE = "[0x00]Hello[0x06][0x07][0x08][0x09][0x0a][0x0b][0x0c][0x0d][0x0e][0x0f]World";
     private static final String nonPrintableMessage = String.valueOf(
             new char[] { 1, 'H', 'e', 'l', 'l', 'o', 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 'W', 'o', 'r', 'l', 'd' });
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         final Throwable cause = new Exception();
         new HttpException();
         new HttpException("Oppsie");
@@ -57,32 +57,32 @@ public class TestHttpExceptions {
     }
 
     @Test
-    public void testNonPrintableCharactersInConnectionClosedException() {
+    void testNonPrintableCharactersInConnectionClosedException() {
         Assertions.assertEquals(CLEAN_MESSAGE, new ConnectionClosedException(nonPrintableMessage).getMessage());
     }
 
     @Test
-    public void testNonPrintableCharactersInHttpException() {
+    void testNonPrintableCharactersInHttpException() {
         Assertions.assertEquals(CLEAN_MESSAGE, new HttpException(nonPrintableMessage).getMessage());
     }
 
     @Test
-    public void testNonPrintableCharactersInMethodNotSupportedException() {
+    void testNonPrintableCharactersInMethodNotSupportedException() {
         Assertions.assertEquals(CLEAN_MESSAGE, new MethodNotSupportedException(nonPrintableMessage).getMessage());
     }
 
     @Test
-    public void testNonPrintableCharactersInNoHttpResponseException() {
+    void testNonPrintableCharactersInNoHttpResponseException() {
         Assertions.assertEquals(CLEAN_MESSAGE, new NoHttpResponseException(nonPrintableMessage).getMessage());
     }
 
     @Test
-    public void testNonPrintableCharactersInProtocolException() {
+    void testNonPrintableCharactersInProtocolException() {
         Assertions.assertEquals(CLEAN_MESSAGE, new ProtocolException(nonPrintableMessage).getMessage());
     }
 
     @Test
-    public void testNonPrintableCharactersInUnsupportedHttpVersionException() {
+    void testNonPrintableCharactersInUnsupportedHttpVersionException() {
         Assertions.assertEquals(CLEAN_MESSAGE, new UnsupportedHttpVersionException(nonPrintableMessage).getMessage());
     }
 

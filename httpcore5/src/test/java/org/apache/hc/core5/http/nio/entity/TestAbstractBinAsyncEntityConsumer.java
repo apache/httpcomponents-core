@@ -40,7 +40,7 @@ import org.apache.hc.core5.util.ByteArrayBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestAbstractBinAsyncEntityConsumer {
+class TestAbstractBinAsyncEntityConsumer {
 
     static private class ByteArrayAsyncEntityConsumer extends AbstractBinAsyncEntityConsumer<byte[]> {
 
@@ -77,7 +77,7 @@ public class TestAbstractBinAsyncEntityConsumer {
     }
 
     @Test
-    public void testConsumeData() throws Exception {
+    void testConsumeData() throws Exception {
 
         final AsyncEntityConsumer<byte[]> consumer = new ByteArrayAsyncEntityConsumer();
 

@@ -43,12 +43,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-public class TestSharedInputBuffer {
+class TestSharedInputBuffer {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
     @Test
-    public void testBasis() throws Exception {
+    void testBasis() throws Exception {
 
         final Charset charset = StandardCharsets.US_ASCII;
         final SharedInputBuffer inputBuffer = new SharedInputBuffer(10);
@@ -85,7 +85,7 @@ public class TestSharedInputBuffer {
     }
 
     @Test
-    public void testMultithreadingRead() throws Exception {
+    void testMultithreadingRead() throws Exception {
 
         final SharedInputBuffer inputBuffer = new SharedInputBuffer(10);
 
@@ -112,7 +112,7 @@ public class TestSharedInputBuffer {
     }
 
     @Test
-    public void testMultithreadingSingleRead() throws Exception {
+    void testMultithreadingSingleRead() throws Exception {
 
         final SharedInputBuffer inputBuffer = new SharedInputBuffer(10);
 
@@ -136,7 +136,7 @@ public class TestSharedInputBuffer {
     }
 
     @Test
-    public void testMultithreadingReadStream() throws Exception {
+    void testMultithreadingReadStream() throws Exception {
 
         final SharedInputBuffer inputBuffer = new SharedInputBuffer(10);
 
@@ -175,7 +175,7 @@ public class TestSharedInputBuffer {
     }
 
     @Test
-    public void testMultithreadingReadStreamAbort() throws Exception {
+    void testMultithreadingReadStreamAbort() throws Exception {
 
         final SharedInputBuffer inputBuffer = new SharedInputBuffer(10);
 

@@ -32,10 +32,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 
-public class TestExpandableBuffer {
+class TestExpandableBuffer {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() {
         final ExpandableBuffer buffer = new ExpandableBuffer(16);
         assertThat(buffer.mode(), CoreMatchers.equalTo(ExpandableBuffer.Mode.INPUT));
         assertThat(buffer.hasData(), CoreMatchers.equalTo(false));
@@ -67,7 +67,7 @@ public class TestExpandableBuffer {
     }
 
     @Test
-    public void testAdjustCapacity() throws Exception {
+    void testAdjustCapacity() {
         final ExpandableBuffer buffer = new ExpandableBuffer(16);
         assertThat(buffer.capacity(), CoreMatchers.equalTo(16));
 

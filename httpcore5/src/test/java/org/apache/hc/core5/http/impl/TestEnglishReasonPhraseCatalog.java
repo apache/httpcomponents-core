@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link EnglishReasonPhraseCatalog}
  *
  */
-public class TestEnglishReasonPhraseCatalog {
+class TestEnglishReasonPhraseCatalog {
 
     @Test
-    public void testReasonPhrases() throws IllegalAccessException {
+    void testReasonPhrases() throws IllegalAccessException {
     final Field[] publicFields = HttpStatus.class.getFields();
 
     Assertions.assertNotNull( publicFields );
@@ -68,7 +68,7 @@ public class TestEnglishReasonPhraseCatalog {
 
 
     @Test
-    public void testStatusInvalid() throws Exception {
+    void testStatusInvalid() {
         Assertions.assertThrows(IllegalArgumentException.class, () ->
                 EnglishReasonPhraseCatalog.INSTANCE.getReason(-1, null));
         Assertions.assertThrows(IllegalArgumentException.class, () ->
@@ -78,7 +78,7 @@ public class TestEnglishReasonPhraseCatalog {
     }
 
     @Test
-    public void testStatusAll() throws Exception {
+    void testStatusAll() {
         for (int i = 100; i < 600; i++) {
             EnglishReasonPhraseCatalog.INSTANCE.getReason(i, null);
         }

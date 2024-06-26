@@ -41,17 +41,17 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link HeaderGroup}.
  *
  */
-public class TestHeaderGroup {
+class TestHeaderGroup {
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         final HeaderGroup headergroup = new HeaderGroup();
         Assertions.assertNotNull(headergroup.getHeaders());
         Assertions.assertEquals(0, headergroup.getHeaders().length);
     }
 
     @Test
-    public void testClear() {
+    void testClear() {
         final HeaderGroup headergroup = new HeaderGroup();
         headergroup.addHeader(new BasicHeader("name", "value"));
         Assertions.assertEquals(1, headergroup.getHeaders().length);
@@ -60,7 +60,7 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testAddRemoveHeader() {
+    void testAddRemoveHeader() {
         final HeaderGroup headerGroup = new HeaderGroup();
         final Header header = new BasicHeader("name", "value");
         headerGroup.addHeader(header);
@@ -72,7 +72,7 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testAddRemoveHeaders() {
+    void testAddRemoveHeaders() {
         final HeaderGroup headergroup = new HeaderGroup();
         final Header header = new BasicHeader("name", "value");
         headergroup.addHeader(header);
@@ -85,7 +85,7 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testAddRemoveHeaderWithDifferentButEqualHeaders() {
+    void testAddRemoveHeaderWithDifferentButEqualHeaders() {
         final HeaderGroup headergroup = new HeaderGroup();
         final Header header = new BasicHeader("name", "value");
         final Header header2 = new BasicHeader("name", "value");
@@ -96,7 +96,7 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testUpdateHeader() {
+    void testUpdateHeader() {
         final HeaderGroup headergroup = new HeaderGroup();
         final Header header1 = new BasicHeader("name1", "value1");
         final Header header2 = new BasicHeader("name2", "value2");
@@ -112,7 +112,7 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testSetHeaders() {
+    void testSetHeaders() {
         final HeaderGroup headergroup = new HeaderGroup();
         final Header header1 = new BasicHeader("name1", "value1");
         final Header header2 = new BasicHeader("name2", "value2");
@@ -131,7 +131,7 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testFirstLastHeaders() {
+    void testFirstLastHeaders() {
         final HeaderGroup headergroup = new HeaderGroup();
         final Header header1 = new BasicHeader("name", "value1");
         final Header header2 = new BasicHeader("name", "value2");
@@ -146,7 +146,7 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testCondensedHeader() {
+    void testCondensedHeader() {
         final HeaderGroup headergroup = new HeaderGroup();
         Assertions.assertNull(headergroup.getCondensedHeader("name"));
 
@@ -162,7 +162,7 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testIterator() {
+    void testIterator() {
         final HeaderGroup headergroup = new HeaderGroup();
         final Iterator<Header> i = headergroup.headerIterator();
         Assertions.assertNotNull(i);
@@ -170,7 +170,7 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testHeaderRemove() {
+    void testHeaderRemove() {
         final HeaderGroup headergroup = new HeaderGroup();
         final Header header1 = new BasicHeader("name", "value1");
         final Header header2 = new BasicHeader("name", "value2");
@@ -192,7 +192,7 @@ public class TestHeaderGroup {
     }
 
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization() throws Exception {
         final HeaderGroup orig = new HeaderGroup();
         final Header header1 = new BasicHeader("name", "value1");
         final Header header2 = new BasicHeader("name", "value2");

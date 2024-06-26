@@ -38,14 +38,14 @@ import org.junit.jupiter.api.Test;
 
 import io.reactivex.rxjava3.core.Flowable;
 
-public class TestReactiveEntityProducer {
+class TestReactiveEntityProducer {
 
     private static final long CONTENT_LENGTH = 1;
     private static final ContentType CONTENT_TYPE = ContentType.APPLICATION_JSON;
     private static final String GZIP_CONTENT_ENCODING = "gzip";
 
     @Test
-    public void testStreamThatEndsNormally() throws Exception {
+    void testStreamThatEndsNormally() throws Exception {
         final Flowable<ByteBuffer> publisher = Flowable.just(
                 ByteBuffer.wrap(new byte[]{'1', '2', '3'}),
                 ByteBuffer.wrap(new byte[]{'4', '5', '6'}));
@@ -76,7 +76,7 @@ public class TestReactiveEntityProducer {
 
     @Test
 
-    public void testStreamThatEndsWithError() throws Exception {
+    void testStreamThatEndsWithError() throws Exception {
         final Flowable<ByteBuffer> publisher = Flowable.concatArray(
                 Flowable.just(
                         ByteBuffer.wrap(new byte[]{'1'}),

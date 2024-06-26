@@ -36,9 +36,9 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestTestingFrameworkRequestHandler {
+class TestTestingFrameworkRequestHandler {
     @Test
-    public void assertNothingThrown() throws Exception {
+    void assertNothingThrown() throws Exception {
         final TestingFrameworkRequestHandler handler = new TestingFrameworkRequestHandler() {
 
             @Override
@@ -51,7 +51,7 @@ public class TestTestingFrameworkRequestHandler {
     }
 
     @Test
-    public void assertNothingThrownThrows() throws Exception {
+    void assertNothingThrownThrows() throws Exception {
         final String errorMessage = "thrown intentionally";
 
         final TestingFrameworkRequestHandler handler = new TestingFrameworkRequestHandler() {

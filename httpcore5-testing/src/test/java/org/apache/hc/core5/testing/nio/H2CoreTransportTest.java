@@ -42,7 +42,7 @@ import org.apache.hc.core5.testing.extension.nio.H2AsyncServerResource;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class H2CoreTransportTest extends HttpCoreTransportTest {
+abstract class H2CoreTransportTest extends HttpCoreTransportTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 

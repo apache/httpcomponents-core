@@ -35,10 +35,10 @@ import org.apache.hc.core5.http2.config.H2Setting;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestDefaultFrameFactory {
+class TestDefaultFrameFactory {
 
     @Test
-    public void testDataFrame() throws Exception {
+    void testDataFrame() {
 
         final FrameFactory frameFactory = new DefaultFrameFactory();
 
@@ -51,7 +51,7 @@ public class TestDefaultFrameFactory {
     }
 
     @Test
-    public void testSettingFrame() throws Exception {
+    void testSettingFrame() {
 
         final FrameFactory frameFactory = new DefaultFrameFactory();
         final Frame<ByteBuffer> settingsFrame = frameFactory.createSettings(
@@ -67,7 +67,7 @@ public class TestDefaultFrameFactory {
     }
 
     @Test
-    public void testResetStreamFrame() throws Exception {
+    void testResetStreamFrame() {
 
         final FrameFactory frameFactory = new DefaultFrameFactory();
         final Frame<ByteBuffer> rstStreamFrame = frameFactory.createResetStream(12, H2Error.INTERNAL_ERROR);
@@ -82,7 +82,7 @@ public class TestDefaultFrameFactory {
     }
 
     @Test
-    public void testGoAwayFrame() throws Exception {
+    void testGoAwayFrame() {
 
         final FrameFactory frameFactory = new DefaultFrameFactory();
         final Frame<ByteBuffer> goAwayFrame = frameFactory.createGoAway(13, H2Error.INTERNAL_ERROR, "Oopsie");

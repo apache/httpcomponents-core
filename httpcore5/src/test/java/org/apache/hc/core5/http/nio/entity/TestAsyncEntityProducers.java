@@ -44,10 +44,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests {@link AsyncEntityProducers}.
  */
-public class TestAsyncEntityProducers {
+class TestAsyncEntityProducers {
 
     @Test
-    public void testPathEntityProducer() throws IOException {
+    void testPathEntityProducer() throws IOException {
         final Path path = Paths.get("src/test/resources/test-ssl.txt");
         final AsyncEntityProducer producer = AsyncEntityProducers.create(path, ContentType.APPLICATION_OCTET_STREAM,
                 StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS);
@@ -61,7 +61,7 @@ public class TestAsyncEntityProducers {
     }
 
     @Test
-    public void testPathEntityProducerWithTrailers() throws IOException {
+    void testPathEntityProducerWithTrailers() throws IOException {
         final Path path = Paths.get("src/test/resources/test-ssl.txt");
         final Header header1 = new BasicHeader("Tailer1", "Value1");
         final Header header2 = new BasicHeader("Tailer2", "Value2");

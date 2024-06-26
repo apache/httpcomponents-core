@@ -48,10 +48,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-public class TestSessionInOutBuffers {
+class TestSessionInOutBuffers {
 
     @Test
-    public void testBasicBufferProperties() throws Exception {
+    void testBasicBufferProperties() throws Exception {
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] { 1, 2 , 3});
         Assertions.assertEquals(16, inBuffer.capacity());
@@ -72,7 +72,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testBasicReadWriteLine() throws Exception {
+    void testBasicReadWriteLine() throws Exception {
 
         final String[] teststrs = new String[5];
         teststrs[0] = "Hello";
@@ -126,7 +126,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testComplexReadWriteLine() throws Exception {
+    void testComplexReadWriteLine() throws Exception {
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         outbuffer.write(new byte[] {'a', '\n'}, outputStream);
@@ -219,7 +219,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testBasicReadWriteLineLargeBuffer() throws Exception {
+    void testBasicReadWriteLineLargeBuffer() throws Exception {
 
         final String[] teststrs = new String[5];
         teststrs[0] = "Hello";
@@ -270,7 +270,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testReadWriteBytes() throws Exception {
+    void testReadWriteBytes() throws Exception {
         // make the buffer larger than that of outbuffer
         final byte[] out = new byte[40];
         for (int i = 0; i < out.length; i++) {
@@ -333,7 +333,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testReadWriteByte() throws Exception {
+    void testReadWriteByte() throws Exception {
         // make the buffer larger than that of outbuffer
         final byte[] out = new byte[40];
         for (int i = 0; i < out.length; i++) {
@@ -370,7 +370,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testWriteSmallFragmentBuffering() throws Exception {
+    void testWriteSmallFragmentBuffering() throws Exception {
         final OutputStream outputStream = Mockito.mock(OutputStream.class);
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(new BasicHttpTransportMetrics(), 16, 16, null);
         outbuffer.write(1, outputStream);
@@ -383,7 +383,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testWriteSmallFragmentNoBuffering() throws Exception {
+    void testWriteSmallFragmentNoBuffering() throws Exception {
         final OutputStream outputStream = Mockito.mock(OutputStream.class);
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(new BasicHttpTransportMetrics(), 16, 0, null);
         outbuffer.write(1, outputStream);
@@ -395,7 +395,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testLineLimit() throws Exception {
+    void testLineLimit() throws Exception {
         final String s = "a very looooooooooooooooooooooooooooooooooooooooooong line\r\n";
         final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
         // no limit
@@ -415,7 +415,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testLineLimit2() throws Exception {
+    void testLineLimit2() throws Exception {
         final String s = "just a line\r\n";
         final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
         // no limit
@@ -435,7 +435,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test //HTTPCORE-472
-    public void testLineLimit3() throws Exception {
+    void testLineLimit3() throws Exception {
         final String s = "012345678\r\nblaaaaaaaaaaaaaaaaaah";
         final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(128);
@@ -446,7 +446,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testReadLineFringeCase1() throws Exception {
+    void testReadLineFringeCase1() throws Exception {
         final String s = "abc\r\n";
         final byte[] tmp = s.getBytes(StandardCharsets.US_ASCII);
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(128);
@@ -479,7 +479,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testMultibyteCodedReadWriteLine() throws Exception {
+    void testMultibyteCodedReadWriteLine() throws Exception {
         final String s1 = constructString(SWISS_GERMAN_HELLO);
         final String s2 = constructString(RUSSIAN_HELLO);
         final String s3 = "Like hello and stuff";
@@ -529,7 +529,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testMultibyteCodedReadWriteLongLine() throws Exception {
+    void testMultibyteCodedReadWriteLongLine() throws Exception {
         final String s1 = constructString(SWISS_GERMAN_HELLO);
         final String s2 = constructString(RUSSIAN_HELLO);
         final String s3 = "Like hello and stuff";
@@ -556,7 +556,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testNonAsciiReadWriteLine() throws Exception {
+    void testNonAsciiReadWriteLine() throws Exception {
         final String s1 = constructString(SWISS_GERMAN_HELLO);
 
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16, StandardCharsets.UTF_8.newEncoder());
@@ -595,7 +595,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testUnmappableInputActionReport() throws Exception {
+    void testUnmappableInputActionReport() {
         final String s = "This text contains a circumflex \u0302 !!!";
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
@@ -609,7 +609,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testUnmappableInputActionReplace() throws Exception {
+    void testUnmappableInputActionReplace() throws Exception {
         final String s = "This text contains a circumflex \u0302 !!!";
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
@@ -625,7 +625,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testUnmappableInputActionIgnore() throws Exception {
+    void testUnmappableInputActionIgnore() throws Exception {
         final String s = "This text contains a circumflex \u0302 !!!";
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
@@ -641,7 +641,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testMalformedInputActionReport() throws Exception {
+    void testMalformedInputActionReport() {
         final byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(StandardCharsets.ISO_8859_1);
         final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPORT);
@@ -654,7 +654,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testMalformedInputActionReplace() throws Exception {
+    void testMalformedInputActionReplace() throws Exception {
         final byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(StandardCharsets.ISO_8859_1);
         final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.REPLACE);
@@ -667,7 +667,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testMalformedInputActionIgnore() throws Exception {
+    void testMalformedInputActionIgnore() throws Exception {
         final byte[] tmp = constructString(SWISS_GERMAN_HELLO).getBytes(StandardCharsets.ISO_8859_1);
         final CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder();
         decoder.onMalformedInput(CodingErrorAction.IGNORE);

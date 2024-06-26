@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Test;
  * Tests for {@link BasicTokenIterator}.
  *
  */
-public class TestBasicTokenIterator {
+class TestBasicTokenIterator {
 
     @Test
-    public void testSingleHeader() {
+    void testSingleHeader() {
         Header[] headers = new Header[]{
             new BasicHeader("Name", "token0,token1, token2 , token3")
         };
@@ -73,7 +73,7 @@ public class TestBasicTokenIterator {
 
 
     @Test
-    public void testMultiHeader() {
+    void testMultiHeader() {
         final Header[] headers = new Header[]{
             new BasicHeader("Name", "token0,token1"),
             new BasicHeader("Name", ""),
@@ -101,7 +101,7 @@ public class TestBasicTokenIterator {
 
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         final Header[] headers = new Header[]{
             new BasicHeader("Name", " "),
             new BasicHeader("Name", ""),
@@ -122,7 +122,7 @@ public class TestBasicTokenIterator {
 
 
     @Test
-    public void testValueStart() {
+    void testValueStart() {
         final Header[] headers = new Header[]{
             new BasicHeader("Name", "token0"),
             new BasicHeader("Name", " token1"),
@@ -151,7 +151,7 @@ public class TestBasicTokenIterator {
 
 
     @Test
-    public void testValueEnd() {
+    void testValueEnd() {
         final Header[] headers = new Header[]{
             new BasicHeader("Name", "token0"),
             new BasicHeader("Name", "token1 "),
@@ -179,7 +179,7 @@ public class TestBasicTokenIterator {
     }
 
     @Test
-    public void testWrongPublic() {
+    void testWrongPublic() {
         Assertions.assertThrows(NullPointerException.class, () -> new BasicTokenIterator(null));
 
         final Header[] headers = new Header[]{

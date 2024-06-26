@@ -60,7 +60,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class H2ProtocolNegotiationTest {
+class H2ProtocolNegotiationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -90,7 +90,7 @@ public class H2ProtocolNegotiationTest {
     }
 
     @Test
-    public void testForceHttp1() throws Exception {
+    void testForceHttp1() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
@@ -113,7 +113,7 @@ public class H2ProtocolNegotiationTest {
     }
 
     @Test
-    public void testForceHttp2() throws Exception {
+    void testForceHttp2() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();
@@ -136,7 +136,7 @@ public class H2ProtocolNegotiationTest {
     }
 
     @Test
-    public void testNegotiateProtocol() throws Exception {
+    void testNegotiateProtocol() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();

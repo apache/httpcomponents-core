@@ -33,10 +33,10 @@ import org.apache.hc.core5.util.TextUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestDigestingEntityConsumer {
+class TestDigestingEntityConsumer {
 
     @Test
-    public void testConsumeData() throws Exception {
+    void testConsumeData() throws Exception {
 
         final DigestingEntityConsumer<String> consumer = new DigestingEntityConsumer<>("MD5",
                 new StringAsyncEntityConsumer());

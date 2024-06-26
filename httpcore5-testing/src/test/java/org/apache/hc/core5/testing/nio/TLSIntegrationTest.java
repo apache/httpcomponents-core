@@ -96,7 +96,7 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-public class TLSIntegrationTest {
+class TLSIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
@@ -204,7 +204,7 @@ public class TLSIntegrationTest {
 
     @ParameterizedTest(name = "TLS protocol {0}")
     @ArgumentsSource(SupportedTLSProtocolProvider.class)
-    public void testTLSSuccess(final TLS tlsProtocol) throws Exception {
+    void testTLSSuccess(final TLS tlsProtocol) throws Exception {
         final TlsStrategy serverTlsStrategy = new TestTlsStrategy(
                 SSLTestContexts.createServerSSLContext(),
                 (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{tlsProtocol.getId()}),
@@ -230,7 +230,7 @@ public class TLSIntegrationTest {
     }
 
     @Test
-    public void testTLSTrustFailure() throws Exception {
+    void testTLSTrustFailure() throws Exception {
         final TlsStrategy serverTlsStrategy = new BasicServerTlsStrategy(SSLTestContexts.createServerSSLContext());
         server = createServer(serverTlsStrategy);
         server.start();
@@ -248,7 +248,7 @@ public class TLSIntegrationTest {
     }
 
     @Test
-    public void testTLSClientAuthFailure() throws Exception {
+    void testTLSClientAuthFailure() throws Exception {
         final TlsStrategy serverTlsStrategy = new BasicServerTlsStrategy(
                 SSLTestContexts.createServerSSLContext(),
                 (endpoint, sslEngine) -> sslEngine.setNeedClientAuth(true),
@@ -278,7 +278,7 @@ public class TLSIntegrationTest {
     }
 
     @Test
-    public void testSSLDisabledByDefault() throws Exception {
+    void testSSLDisabledByDefault() throws Exception {
         final TlsStrategy serverTlsStrategy = new TestTlsStrategy(
                 SSLTestContexts.createServerSSLContext(),
                 (endpoint, sslEngine) -> sslEngine.setEnabledProtocols(new String[]{"SSLv3"}),
@@ -314,7 +314,7 @@ public class TLSIntegrationTest {
             "TLS_KRB5_EXPORT_WITH_RC4_40_SHA",
             "SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5"
     })
-    public void testWeakCipherDisabledByDefault(final String cipher) throws Exception {
+    void testWeakCipherDisabledByDefault(final String cipher) throws Exception {
         final TlsStrategy serverTlsStrategy = new TestTlsStrategy(
                 SSLTestContexts.createServerSSLContext(),
                 (endpoint, sslEngine) -> sslEngine.setEnabledCipherSuites(new String[]{cipher}),
@@ -333,7 +333,7 @@ public class TLSIntegrationTest {
     }
 
     @Test
-    public void testTLSVersionMismatch() throws Exception {
+    void testTLSVersionMismatch() throws Exception {
         final TlsStrategy serverTlsStrategy = new TestTlsStrategy(
                 SSLTestContexts.createServerSSLContext(),
                 (endpoint, sslEngine) -> {
@@ -363,7 +363,7 @@ public class TLSIntegrationTest {
     }
 
     @Test
-    public void testHostNameVerification() throws Exception {
+    void testHostNameVerification() throws Exception {
         server = createServer(new BasicClientTlsStrategy(SSLTestContexts.createServerSSLContext()));
         server.start();
 

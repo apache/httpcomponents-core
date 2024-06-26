@@ -35,22 +35,22 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link NameValuePair}.
  *
  */
-public class TestNameValuePair {
+class TestNameValuePair {
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         final NameValuePair param = new BasicNameValuePair("name", "value");
         Assertions.assertEquals("name", param.getName());
         Assertions.assertEquals("value", param.getValue());
     }
 
     @Test
-    public void testInvalidName() {
+    void testInvalidName() {
         Assertions.assertThrows(NullPointerException.class, () -> new BasicNameValuePair(null, null));
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         final NameValuePair param1 = new BasicNameValuePair("name1", "value1");
         Assertions.assertEquals("name1=value1", param1.toString());
         final NameValuePair param2 = new BasicNameValuePair("name1", null);
@@ -58,21 +58,21 @@ public class TestNameValuePair {
     }
 
     @Test
-    public void testNullNotEqual() throws Exception {
+    void testNullNotEqual() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
 
         Assertions.assertNotEquals(null, NameValuePair);
     }
 
     @Test
-    public void testObjectNotEqual() throws Exception {
+    void testObjectNotEqual() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
 
         Assertions.assertNotEquals(NameValuePair, new Object());
     }
 
     @Test
-    public void testNameEquals() throws Exception {
+    void testNameEquals() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("NAME", "value");
 
@@ -87,7 +87,7 @@ public class TestNameValuePair {
     }
 
     @Test
-    public void testValueEquals() throws Exception {
+    void testValueEquals() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value");
 
@@ -96,7 +96,7 @@ public class TestNameValuePair {
     }
 
     @Test
-    public void testNameNotEqual() throws Exception {
+    void testNameNotEqual() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name2", "value");
 
@@ -104,7 +104,7 @@ public class TestNameValuePair {
     }
 
     @Test
-    public void testValueNotEqual() throws Exception {
+    void testValueNotEqual() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value2");
 
@@ -122,7 +122,7 @@ public class TestNameValuePair {
     }
 
     @Test
-    public void testNullValuesEquals() throws Exception {
+    void testNullValuesEquals() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", null);
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", null);
 
@@ -131,7 +131,7 @@ public class TestNameValuePair {
     }
 
     @Test
-    public void testNullValueNotEqual() throws Exception {
+    void testNullValueNotEqual() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", null);
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value");
 
@@ -139,7 +139,7 @@ public class TestNameValuePair {
     }
 
     @Test
-    public void testNullValue2NotEqual() throws Exception {
+    void testNullValue2NotEqual() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", null);
 
@@ -147,7 +147,7 @@ public class TestNameValuePair {
     }
 
     @Test
-    public void testEquals() throws Exception {
+    void testEquals() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", "value");
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name", "value");
 
@@ -160,7 +160,7 @@ public class TestNameValuePair {
     }
 
     @Test
-    public void testHashCode() throws Exception {
+    void testHashCode() {
         final NameValuePair NameValuePair = new BasicNameValuePair("name", null);
         final NameValuePair NameValuePair2 = new BasicNameValuePair("name2", null);
 

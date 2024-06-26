@@ -51,10 +51,10 @@ import java.util.Arrays;
 /**
  * Simple tests for {@link BasicResponseBuilder} and {@link BasicRequestBuilder}.
  */
-public class TestBasicMessageBuilders {
+class TestBasicMessageBuilders {
 
     @Test
-    public void testResponseBasics() throws Exception {
+    void testResponseBasics() {
         final BasicResponseBuilder builder = BasicResponseBuilder.create(200);
         Assertions.assertEquals(200, builder.getStatus());
         Assertions.assertNull(builder.getHeaders());
@@ -112,7 +112,7 @@ public class TestBasicMessageBuilders {
     }
 
     @Test
-    public void testRequestBasics() throws Exception {
+    void testRequestBasics() throws Exception {
         final BasicRequestBuilder builder = BasicRequestBuilder.get();
         Assertions.assertEquals(URI.create("/"), builder.getUri());
         Assertions.assertEquals("GET", builder.getMethod());
@@ -206,7 +206,7 @@ public class TestBasicMessageBuilders {
     }
 
     @Test
-    public void testResponseCopy() throws Exception {
+    void testResponseCopy() {
         final HttpResponse response = new BasicHttpResponse(400);
         response.addHeader("h1", "v1");
         response.addHeader("h1", "v2");
@@ -221,7 +221,7 @@ public class TestBasicMessageBuilders {
     }
 
     @Test
-    public void testRequestCopy() throws Exception {
+    void testRequestCopy() {
         final HttpRequest request = new BasicHttpRequest(Method.GET, URI.create("https://host:3456/stuff?blah")) ;
         request.addHeader("h1", "v1");
         request.addHeader("h1", "v2");

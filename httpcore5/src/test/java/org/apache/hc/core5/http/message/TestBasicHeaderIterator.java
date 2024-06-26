@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
  * Tests for {@link java.util.Iterator} of {@link org.apache.hc.core5.http.Header}s.
  *
  */
-public class TestBasicHeaderIterator {
+class TestBasicHeaderIterator {
 
     @Test
-    public void testAllSame() {
+    void testAllSame() {
         final Header[] headers = new Header[]{
             new BasicHeader("Name", "value0"),
             new BasicHeader("nAme", "value1, value1.1"),
@@ -76,7 +76,7 @@ public class TestBasicHeaderIterator {
 
 
     @Test
-    public void testFirstLastOneNone() {
+    void testFirstLastOneNone() {
         final Header[] headers = new Header[]{
             new BasicHeader("match"   , "value0"),
             new BasicHeader("mismatch", "value1, value1.1"),
@@ -117,7 +117,7 @@ public class TestBasicHeaderIterator {
 
 
     @Test
-    public void testInterspersed() {
+    void testInterspersed() {
         final Header[] headers = new Header[]{
             new BasicHeader("yellow", "00"),
             new BasicHeader("maroon", "01"),
@@ -215,7 +215,7 @@ public class TestBasicHeaderIterator {
 
 
     @Test
-    public void testInvalid() {
+    void testInvalid() {
         Assertions.assertThrows(NullPointerException.class, () -> new BasicHeaderIterator(null, "whatever"));
         // this is not invalid
         final Iterator<Header> hit = new BasicHeaderIterator(new Header[0], "whatever");
@@ -226,7 +226,7 @@ public class TestBasicHeaderIterator {
     }
 
     @Test
-    public void testRemaining() {
+    void testRemaining() {
         // to satisfy Clover and take coverage to 100%
 
         final Header[] headers = new Header[]{

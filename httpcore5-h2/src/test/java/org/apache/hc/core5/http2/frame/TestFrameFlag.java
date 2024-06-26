@@ -29,10 +29,10 @@ package org.apache.hc.core5.http2.frame;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestFrameFlag {
+class TestFrameFlag {
 
     @Test
-    public void testFrameFlagBasics() throws Exception {
+    void testFrameFlagBasics() {
 
         final int flags = FrameFlag.of(FrameFlag.END_STREAM, FrameFlag.PADDED, FrameFlag.PRIORITY);
         Assertions.assertEquals(0x01 | 0x08 | 0x20, flags);

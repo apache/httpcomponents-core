@@ -39,19 +39,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-public class TestPoolEntry {
+class TestPoolEntry {
 
     private AtomicLong count;
     private Supplier<Long> currentTimeSupplier;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         count = new AtomicLong(1);
         currentTimeSupplier = () -> count.addAndGet(1);
     }
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
                 "route1", TimeValue.of(10L, TimeUnit.MILLISECONDS), currentTimeSupplier);
 
@@ -72,13 +72,13 @@ public class TestPoolEntry {
     }
 
     @Test
-    public void testNullConstructor() throws Exception {
+    void testNullConstructor() {
         Assertions.assertThrows(NullPointerException.class, () ->
                 new PoolEntry<String, HttpConnection>(null));
     }
 
     @Test
-    public void testValidInfinitely() throws Exception {
+    void testValidInfinitely() {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
                 "route1", TimeValue.ZERO_MILLISECONDS, currentTimeSupplier);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
@@ -87,7 +87,7 @@ public class TestPoolEntry {
     }
 
     @Test
-    public void testExpiry() throws Exception {
+    void testExpiry() {
         final PoolEntry<String, HttpConnection> entry1 = new PoolEntry<>(
                 "route1", TimeValue.ZERO_MILLISECONDS, currentTimeSupplier);
         entry1.assignConnection(Mockito.mock(HttpConnection.class));
@@ -109,7 +109,7 @@ public class TestPoolEntry {
     }
 
     @Test
-    public void testInvalidExpiry() throws Exception {
+    void testInvalidExpiry() {
         final PoolEntry<String, HttpConnection> entry = new PoolEntry<>(
                 "route1", TimeValue.of(0L, TimeUnit.MILLISECONDS), currentTimeSupplier);
         Assertions.assertThrows(NullPointerException.class, () ->
@@ -117,7 +117,7 @@ public class TestPoolEntry {
     }
 
     @Test
-    public void testExpiryDoesNotOverflow() {
+    void testExpiryDoesNotOverflow() {
         final PoolEntry<String, HttpConnection> entry = new PoolEntry<>(
                 "route1", TimeValue.of(Long.MAX_VALUE, TimeUnit.MILLISECONDS), currentTimeSupplier);
         entry.assignConnection(Mockito.mock(HttpConnection.class));

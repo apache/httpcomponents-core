@@ -29,10 +29,10 @@ package org.apache.hc.core5.http.config;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestRegistry {
+class TestRegistry {
 
     @Test
-    public void testCompleted() throws Exception {
+    void testCompleted() {
         final Registry<String> reg = RegistryBuilder.<String>create().register("Stuff", "Stuff").build();
         Assertions.assertEquals("Stuff", reg.lookup("Stuff"));
         Assertions.assertEquals("Stuff", reg.lookup("stuff"));

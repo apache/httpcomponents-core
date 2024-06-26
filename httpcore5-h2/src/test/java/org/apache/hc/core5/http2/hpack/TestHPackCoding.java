@@ -42,10 +42,10 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestHPackCoding {
+class TestHPackCoding {
 
     @Test
-    public void testIntegerEncodingRFC7541Examples() throws Exception {
+    void testIntegerEncodingRFC7541Examples() {
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackEncoder.encodeInt(buffer, 5, 10, 0x0);
@@ -82,7 +82,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testIntegerCoding() throws Exception {
+    void testIntegerCoding() throws Exception {
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
 
@@ -107,7 +107,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testIntegerCodingLimit() throws Exception {
+    void testIntegerCodingLimit() throws Exception {
 
         final ByteBuffer src1 = createByteBuffer(0x7f, 0x80, 0xff, 0xff, 0xff, 0x07);
         Assertions.assertEquals(Integer.MAX_VALUE, HPackDecoder.decodeInt(src1, 7));
@@ -135,7 +135,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testPlainStringDecoding() throws Exception {
+    void testPlainStringDecoding() throws Exception {
 
         final ByteBuffer src = createByteBuffer(
                 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65, 0x79);
@@ -147,7 +147,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testPlainStringDecodingRemainingContent() throws Exception {
+    void testPlainStringDecodingRemainingContent() throws Exception {
 
         final ByteBuffer src = createByteBuffer(
                 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65, 0x79, 0x01, 0x01, 0x01, 0x01);
@@ -159,7 +159,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testPlainStringDecodingReadOnly() throws Exception {
+    void testPlainStringDecodingReadOnly() throws Exception {
 
         final ByteBuffer src = createByteBuffer(
                 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65, 0x79, 0x50, 0x50, 0x50, 0x50);
@@ -172,7 +172,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testPlainStringDecodingTruncated() throws Exception {
+    void testPlainStringDecodingTruncated() {
 
         final ByteBuffer src = createByteBuffer(
                 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65);
@@ -182,7 +182,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testHuffmanDecodingRFC7541Examples() throws Exception {
+    void testHuffmanDecodingRFC7541Examples() throws Exception {
         final ByteBuffer src = createByteBuffer(
                 0x8c, 0xf1, 0xe3, 0xc2, 0xe5, 0xf2, 0x3a, 0x6b, 0xa0, 0xab, 0x90, 0xf4, 0xff);
 
@@ -198,7 +198,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testHuffmanEncoding() throws Exception {
+    void testHuffmanEncoding() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackEncoder.encodeHuffman(buffer, createByteBuffer("www.example.com", StandardCharsets.US_ASCII));
         final ByteBuffer expected = createByteBuffer(
@@ -207,7 +207,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testBasicStringCoding() throws Exception {
+    void testBasicStringCoding() throws Exception {
 
         final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
         final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
@@ -227,7 +227,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testEnsureCapacity() throws Exception {
+    void testEnsureCapacity() throws Exception {
 
         final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
         final HPackDecoder decoder = new HPackDecoder(StandardCharsets.UTF_8);
@@ -266,7 +266,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testComplexStringCoding1() throws Exception {
+    void testComplexStringCoding1() throws Exception {
 
         for (final Charset charset : new Charset[]{StandardCharsets.ISO_8859_1, StandardCharsets.UTF_8, StandardCharsets.UTF_16}) {
 
@@ -294,7 +294,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testComplexStringCoding2() throws Exception {
+    void testComplexStringCoding2() throws Exception {
 
         for (final Charset charset : new Charset[]{Charset.forName("KOI8-R"), StandardCharsets.UTF_8, StandardCharsets.UTF_16}) {
 
@@ -330,7 +330,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testLiteralHeaderWithIndexingDecodingRFC7541Examples() throws Exception {
+    void testLiteralHeaderWithIndexingDecodingRFC7541Examples() throws Exception {
 
         final ByteBuffer src = createByteBuffer(
                 0x40, 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x2d, 0x6b, 0x65, 0x79, 0x0d, 0x63, 0x75, 0x73,
@@ -347,7 +347,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testLiteralHeaderWithoutIndexingDecodingRFC7541Examples() throws Exception {
+    void testLiteralHeaderWithoutIndexingDecodingRFC7541Examples() throws Exception {
 
         final ByteBuffer src = createByteBuffer(
                 0x04, 0x0c, 0x2f, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2f, 0x70, 0x61, 0x74, 0x68);
@@ -362,7 +362,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testLiteralHeaderNeverIndexedDecodingRFC7541Examples() throws Exception {
+    void testLiteralHeaderNeverIndexedDecodingRFC7541Examples() throws Exception {
 
         final ByteBuffer src = createByteBuffer(
                 0x10, 0x08, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64, 0x06, 0x73, 0x65, 0x63, 0x72, 0x65, 0x74);
@@ -377,7 +377,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testIndexedHeaderDecodingRFC7541Examples() throws Exception {
+    void testIndexedHeaderDecodingRFC7541Examples() throws Exception {
 
         final ByteBuffer src = createByteBuffer(0x82);
 
@@ -391,7 +391,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testRequestDecodingWithoutHuffmanRFC7541Examples() throws Exception {
+    void testRequestDecodingWithoutHuffmanRFC7541Examples() throws Exception {
 
         final ByteBuffer src1 = createByteBuffer(
                 0x82, 0x86, 0x84, 0x41, 0x0f, 0x77, 0x77, 0x77, 0x2e, 0x65, 0x78, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x2e,
@@ -449,7 +449,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testRequestDecodingWithHuffmanRFC7541Examples() throws Exception {
+    void testRequestDecodingWithHuffmanRFC7541Examples() throws Exception {
 
         final ByteBuffer src1 = createByteBuffer(
                 0x82, 0x86, 0x84, 0x41, 0x8c, 0xf1, 0xe3, 0xc2, 0xe5, 0xf2, 0x3a, 0x6b, 0xa0, 0xab, 0x90, 0xf4, 0xff);
@@ -506,7 +506,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testResponseDecodingWithoutHuffmanRFC7541Examples() throws Exception {
+    void testResponseDecodingWithoutHuffmanRFC7541Examples() throws Exception {
 
         final ByteBuffer src1 = createByteBuffer(
                 0x48, 0x03, 0x33, 0x30, 0x32, 0x58, 0x07, 0x70, 0x72, 0x69, 0x76, 0x61, 0x74, 0x65, 0x61, 0x1d, 0x4d,
@@ -579,7 +579,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testResponseDecodingWithHuffmanRFC7541Examples() throws Exception {
+    void testResponseDecodingWithHuffmanRFC7541Examples() throws Exception {
 
         final ByteBuffer src1 = createByteBuffer(
                 0x48, 0x82, 0x64, 0x02, 0x58, 0x85, 0xae, 0xc3, 0x77, 0x1a, 0x4b, 0x61, 0x96, 0xd0, 0x7a, 0xbe, 0x94,
@@ -658,7 +658,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testLiteralHeaderWithIndexingEncodingRFC7541Examples() throws Exception {
+    void testLiteralHeaderWithIndexingEncodingRFC7541Examples() throws Exception {
 
         final OutboundDynamicTable dynamicTable = new OutboundDynamicTable();
         final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.US_ASCII);
@@ -676,7 +676,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testLiteralHeaderWithoutIndexingEncodingRFC7541Examples() throws Exception {
+    void testLiteralHeaderWithoutIndexingEncodingRFC7541Examples() throws Exception {
 
         final OutboundDynamicTable dynamicTable = new OutboundDynamicTable();
         final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.US_ASCII);
@@ -702,7 +702,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testLiteralHeaderNeverIndexedEncodingRFC7541Examples() throws Exception {
+    void testLiteralHeaderNeverIndexedEncodingRFC7541Examples() throws Exception {
 
         final OutboundDynamicTable dynamicTable = new OutboundDynamicTable();
         final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.US_ASCII);
@@ -718,7 +718,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testIndexedHeaderEncodingRFC7541Examples() throws Exception {
+    void testIndexedHeaderEncodingRFC7541Examples() {
 
         final OutboundDynamicTable dynamicTable = new OutboundDynamicTable();
         final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.US_ASCII);
@@ -731,7 +731,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testRequestEncodingWithoutHuffmanRFC7541Examples() throws Exception {
+    void testRequestEncodingWithoutHuffmanRFC7541Examples() throws Exception {
 
         final OutboundDynamicTable dynamicTable = new OutboundDynamicTable();
         final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.US_ASCII);
@@ -796,7 +796,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testRequestEncodingWithHuffmanRFC7541Examples() throws Exception {
+    void testRequestEncodingWithHuffmanRFC7541Examples() throws Exception {
 
         final OutboundDynamicTable dynamicTable = new OutboundDynamicTable();
         final HPackEncoder encoder = new HPackEncoder(dynamicTable, StandardCharsets.US_ASCII);
@@ -860,7 +860,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testResponseEncodingWithoutHuffmanRFC7541Examples() throws Exception {
+    void testResponseEncodingWithoutHuffmanRFC7541Examples() throws Exception {
 
         final OutboundDynamicTable dynamicTable = new OutboundDynamicTable();
         dynamicTable.setMaxSize(256);
@@ -940,7 +940,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testResponseEncodingWithHuffmanRFC7541Examples() throws Exception {
+    void testResponseEncodingWithHuffmanRFC7541Examples() throws Exception {
 
         final OutboundDynamicTable dynamicTable = new OutboundDynamicTable();
         dynamicTable.setMaxSize(256);
@@ -1018,7 +1018,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testHeaderEntrySizeNonAscii() throws Exception {
+    void testHeaderEntrySizeNonAscii() throws Exception {
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(128);
         final Header header = new BasicHeader("hello", constructHelloString(SWISS_GERMAN_HELLO, 1));
@@ -1058,7 +1058,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testHeaderSizeLimit() throws Exception {
+    void testHeaderSizeLimit() throws Exception {
 
         final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
         final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
@@ -1083,7 +1083,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testHeaderEmptyASCII() throws Exception {
+    void testHeaderEmptyASCII() throws Exception {
 
         final HPackEncoder encoder = new HPackEncoder(StandardCharsets.US_ASCII);
         final HPackDecoder decoder = new HPackDecoder(StandardCharsets.US_ASCII);
@@ -1097,7 +1097,7 @@ public class TestHPackCoding {
     }
 
     @Test
-    public void testHeaderEmptyUTF8() throws Exception {
+    void testHeaderEmptyUTF8() throws Exception {
 
         final HPackEncoder encoder = new HPackEncoder(StandardCharsets.UTF_8);
         final HPackDecoder decoder = new HPackDecoder(StandardCharsets.UTF_8);

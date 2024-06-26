@@ -30,11 +30,11 @@ package org.apache.hc.core5.testing.nio;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 
-public class H2AlpnTests {
+class H2AlpnTests {
 
     @Nested
     @DisplayName("Strict h2 ALPN, h2 allowed")
-    public class StrictH2AlpnH2Allowed extends H2AlpnTest {
+    class StrictH2AlpnH2Allowed extends H2AlpnTest {
 
         public StrictH2AlpnH2Allowed() throws Exception {
             super(true, true);
@@ -44,9 +44,9 @@ public class H2AlpnTests {
 
     @Nested
     @DisplayName("Strict h2 ALPN, h2 disallowed")
-    public class StrictH2AlpnH2Disllowed extends H2AlpnTest {
+    class StrictH2AlpnH2Disallowed extends H2AlpnTest {
 
-        public StrictH2AlpnH2Disllowed() throws Exception {
+        public StrictH2AlpnH2Disallowed() throws Exception {
             super(true, false);
         }
 
@@ -54,9 +54,9 @@ public class H2AlpnTests {
 
     @Nested
     @DisplayName("Non-strict h2 ALPN, h2 allowed")
-    public class NonStrictH2AlpnH2Disllowed extends H2AlpnTest {
+    class NonStrictH2AlpnH2Disallowed extends H2AlpnTest {
 
-        public NonStrictH2AlpnH2Disllowed() throws Exception {
+        public NonStrictH2AlpnH2Disallowed() throws Exception {
             super(false, true);
         }
 

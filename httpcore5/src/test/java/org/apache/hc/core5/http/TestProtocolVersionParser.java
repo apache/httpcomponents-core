@@ -39,12 +39,12 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link ProtocolVersionParser}.
  */
-public class TestProtocolVersionParser {
+class TestProtocolVersionParser {
 
     private ProtocolVersionParser impl;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         impl = new ProtocolVersionParser();
     }
 
@@ -69,7 +69,7 @@ public class TestProtocolVersionParser {
     }
 
     @Test
-    public void testParseVersion() throws Exception {
+    void testParseVersion() throws Exception {
         Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 0), parseStr("PROTO", "1  "));
         Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 1), parseStr("PROTO", "1.1   "));
         Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 20), parseStr("PROTO", "1.020  "));
@@ -81,14 +81,14 @@ public class TestProtocolVersionParser {
     }
 
     @Test
-    public void testParseVersionWithCursor() throws Exception {
+    void testParseVersionWithCursor() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(2, 13);
         Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 20), parseStr("PROTO", "  1.20,0000,00000", cursor, Tokenizer.delimiters(',')));
         assertThat(cursor.getPos(), CoreMatchers.equalTo(6));
     }
 
     @Test
-    public void testParseProtocolVersion() throws Exception {
+    void testParseProtocolVersion() throws Exception {
         Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 0), parseStr("PROTO/1  "));
         Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 1), parseStr("PROTO/1.1   "));
         Assertions.assertEquals(new ProtocolVersion("PROTO", 1, 20), parseStr("PROTO/1.020  "));
@@ -100,7 +100,7 @@ public class TestProtocolVersionParser {
     }
 
     @Test
-    public void testParseFailures() throws Exception {
+    void testParseFailures() {
         Assertions.assertThrows(ParseException.class, () -> parseStr("PROTO", "blah"));
         Assertions.assertThrows(ParseException.class, () -> parseStr("PROTO", "1.blah"));
         Assertions.assertThrows(ParseException.class, () -> parseStr("PROTO", "1A.0"));

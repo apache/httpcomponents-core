@@ -73,7 +73,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class ClassicIntegrationTest {
+abstract class ClassicIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -90,7 +90,7 @@ public abstract class ClassicIntegrationTest {
      * This test case executes a series of simple GET requests
      */
     @Test
-    public void testSimpleBasicHttpRequests() throws Exception {
+    void testSimpleBasicHttpRequests() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -146,7 +146,7 @@ public abstract class ClassicIntegrationTest {
      * delimited content.
      */
     @Test
-    public void testSimpleHttpPostsWithContentLength() throws Exception {
+    void testSimpleHttpPostsWithContentLength() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -201,7 +201,7 @@ public abstract class ClassicIntegrationTest {
      * coded content content.
      */
     @Test
-    public void testSimpleHttpPostsChunked() throws Exception {
+    void testSimpleHttpPostsChunked() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -255,7 +255,7 @@ public abstract class ClassicIntegrationTest {
      * This test case executes a series of simple HTTP/1.0 POST requests.
      */
     @Test
-    public void testSimpleHttpPostsHTTP10() throws Exception {
+    void testSimpleHttpPostsHTTP10() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -312,7 +312,7 @@ public abstract class ClassicIntegrationTest {
      * HTTP/1.0 compatible requests.
      */
     @Test
-    public void testHTTP11FeaturesDisabledWithHTTP10Requests() throws Exception {
+    void testHTTP11FeaturesDisabledWithHTTP10Requests() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -338,7 +338,7 @@ public abstract class ClassicIntegrationTest {
      * the 'expect: continue' handshake.
      */
     @Test
-    public void testHttpPostsWithExpectContinue() throws Exception {
+    void testHttpPostsWithExpectContinue() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -393,7 +393,7 @@ public abstract class ClassicIntegrationTest {
      * meet the target server expectations.
      */
     @Test
-    public void testHttpPostsWithExpectationVerification() throws Exception {
+    void testHttpPostsWithExpectationVerification() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -504,7 +504,7 @@ public abstract class ClassicIntegrationTest {
     }
 
     @Test
-    public void testHttpContent() throws Exception {
+    void testHttpContent() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -590,7 +590,7 @@ public abstract class ClassicIntegrationTest {
     }
 
     @Test
-    public void testHttpPostNoEntity() throws Exception {
+    void testHttpPostNoEntity() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -620,7 +620,7 @@ public abstract class ClassicIntegrationTest {
     }
 
     @Test
-    public void testHttpPostNoContentLength() throws Exception {
+    void testHttpPostNoContentLength() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -655,7 +655,7 @@ public abstract class ClassicIntegrationTest {
     }
 
     @Test
-    public void testHttpPostIdentity() throws Exception {
+    void testHttpPostIdentity() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -689,7 +689,7 @@ public abstract class ClassicIntegrationTest {
     }
 
     @Test
-    public void testNoContentResponse() throws Exception {
+    void testNoContentResponse() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -713,7 +713,7 @@ public abstract class ClassicIntegrationTest {
     }
 
     @Test
-    public void testHeaderTooLarge() throws Exception {
+    void testHeaderTooLarge() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 
@@ -739,7 +739,7 @@ public abstract class ClassicIntegrationTest {
     }
 
     @Test
-    public void testHeaderTooLargePost() throws Exception {
+    void testHeaderTooLargePost() throws Exception {
         final ClassicTestServer server = testResources.server();
         final ClassicTestClient client = testResources.client();
 

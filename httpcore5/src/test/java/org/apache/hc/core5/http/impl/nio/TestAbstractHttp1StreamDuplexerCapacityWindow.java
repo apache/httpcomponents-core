@@ -41,7 +41,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-public class TestAbstractHttp1StreamDuplexerCapacityWindow {
+class TestAbstractHttp1StreamDuplexerCapacityWindow {
 
     @Mock
     private IOSession ioSession;
@@ -49,17 +49,17 @@ public class TestAbstractHttp1StreamDuplexerCapacityWindow {
     private AutoCloseable closeable;
 
     @BeforeEach
-    public void prepareMocks() {
+    void prepareMocks() {
         closeable = MockitoAnnotations.openMocks(this);
     }
 
     @AfterEach
-    public void releaseMocks() throws Exception {
+    void releaseMocks() throws Exception {
         closeable.close();
     }
 
     @Test
-    public void testWindowUpdate() throws IOException {
+    void testWindowUpdate() throws IOException {
         final CapacityWindow window = new CapacityWindow(0, ioSession);
         window.update(1);
         Assertions.assertEquals(1, window.getWindow());
@@ -68,7 +68,7 @@ public class TestAbstractHttp1StreamDuplexerCapacityWindow {
     }
 
     @Test
-    public void testRemoveCapacity() {
+    void testRemoveCapacity() {
         final CapacityWindow window = new CapacityWindow(1, ioSession);
         window.removeCapacity(1);
         Assertions.assertEquals(0, window.getWindow());
@@ -77,7 +77,7 @@ public class TestAbstractHttp1StreamDuplexerCapacityWindow {
     }
 
     @Test
-    public void noReadsSetAfterWindowIsClosed() throws IOException {
+    void noReadsSetAfterWindowIsClosed() throws IOException {
         final CapacityWindow window = new CapacityWindow(1, ioSession);
         window.close();
         window.update(1);
@@ -85,21 +85,21 @@ public class TestAbstractHttp1StreamDuplexerCapacityWindow {
     }
 
     @Test
-    public void windowCannotUnderflow() {
+    void windowCannotUnderflow() {
         final CapacityWindow window = new CapacityWindow(Integer.MIN_VALUE, ioSession);
         window.removeCapacity(1);
         Assertions.assertEquals(Integer.MIN_VALUE, window.getWindow());
     }
 
     @Test
-    public void windowCannotOverflow() throws IOException{
+    void windowCannotOverflow() throws IOException{
         final CapacityWindow window = new CapacityWindow(Integer.MAX_VALUE, ioSession);
         window.update(1);
         Assertions.assertEquals(Integer.MAX_VALUE, window.getWindow());
     }
 
     @Test
-    public void noChangesIfUpdateIsNonPositive() throws IOException {
+    void noChangesIfUpdateIsNonPositive() throws IOException {
         final CapacityWindow window = new CapacityWindow(1, ioSession);
         window.update(0);
         window.update(-1);

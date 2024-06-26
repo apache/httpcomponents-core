@@ -44,7 +44,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestH2Interceptors {
+class TestH2Interceptors {
 
     /**
      * HTTP context.
@@ -53,13 +53,13 @@ public class TestH2Interceptors {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         context = HttpCoreContext.create();
         context.setProtocolVersion(HttpVersion.HTTP_2);
     }
 
     @Test
-    public void testH2RequestContentProtocolException() {
+    void testH2RequestContentProtocolException() {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.TRACE, "/");
         request.addHeader(new BasicHeader(HttpHeaders.TRANSFER_ENCODING, "chunked"));
         request.setEntity(new StringEntity("whatever", StandardCharsets.US_ASCII));
@@ -70,7 +70,7 @@ public class TestH2Interceptors {
     }
 
     @Test
-    public void testH2RequestContentNullEntity() throws Exception {
+    void testH2RequestContentNullEntity() throws Exception {
 
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.POST, "/");
         final HttpRequestInterceptor interceptor = H2RequestContent.INSTANCE;
@@ -82,7 +82,7 @@ public class TestH2Interceptors {
 
 
     @Test
-    public void testH2RequestContentValid() throws Exception {
+    void testH2RequestContentValid() throws Exception {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
 
         // Create a mock entity with ContentType, ContentEncoding, and TrailerNames
@@ -101,7 +101,7 @@ public class TestH2Interceptors {
     }
 
     @Test
-    public void testH2RequestContentOptionMethodNullContentTypeProtocolException() {
+    void testH2RequestContentOptionMethodNullContentTypeProtocolException() {
         final H2RequestContent interceptor = new H2RequestContent();
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.OPTIONS, "/");
@@ -113,7 +113,7 @@ public class TestH2Interceptors {
     }
 
     @Test
-    public void testH2RequestContentOptionMethodInvalidContentTypeProtocolException() {
+    void testH2RequestContentOptionMethodInvalidContentTypeProtocolException() {
         final H2RequestContent interceptor = new H2RequestContent();
         final HttpCoreContext context = HttpCoreContext.create();
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.OPTIONS, "/");
@@ -126,7 +126,7 @@ public class TestH2Interceptors {
     }
 
     @Test
-    public void testH2RequestContentValidOptionsMethod() throws Exception {
+    void testH2RequestContentValidOptionsMethod() throws Exception {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.OPTIONS, "/");
 
         // Create a mock entity with ContentType, ContentEncoding, and TrailerNames

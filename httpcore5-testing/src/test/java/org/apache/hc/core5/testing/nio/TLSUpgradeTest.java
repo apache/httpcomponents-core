@@ -64,7 +64,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TLSUpgradeTest {
+class TLSUpgradeTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
@@ -92,7 +92,7 @@ public class TLSUpgradeTest {
     }
 
     @Test
-    public void testTLSUpgrade() throws Exception {
+    void testTLSUpgrade() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());

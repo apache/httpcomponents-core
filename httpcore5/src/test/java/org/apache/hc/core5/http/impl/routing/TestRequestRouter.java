@@ -35,10 +35,10 @@ import org.apache.hc.core5.net.URIAuthority;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestRequestRouter {
+class TestRequestRouter {
 
     @Test
-    public void testRequestRouting() throws Exception {
+    void testRequestRouting() throws Exception {
         final RequestRouter<Long> requestRouter = RequestRouter.<Long>builder(UriPatternType.URI_PATTERN)
                 .addRoute("somehost.somedomain", "/*", 0L)
                 .addRoute("someotherhost.somedomain", "/foo/*", 1L)
@@ -67,7 +67,7 @@ public class TestRequestRouter {
     }
 
     @Test
-    public void testDefaultAuthorityResolution() throws Exception {
+    void testDefaultAuthorityResolution() throws Exception {
         final RequestRouter<Long> requestRouter = RequestRouter.<Long>builder(UriPatternType.URI_PATTERN)
                 .addRoute(new URIAuthority("somehost", -1), "/*", 0L)
                 .addRoute(new URIAuthority("somehost", 80), "/*", 1L)
@@ -89,7 +89,7 @@ public class TestRequestRouter {
     }
 
     @Test
-    public void testCustomAuthorityResolution() throws Exception {
+    void testCustomAuthorityResolution() throws Exception {
         final RequestRouter<Long> requestRouter = RequestRouter.<Long>builder(UriPatternType.URI_PATTERN)
                 .addRoute(new URIAuthority("somehost", -1), "/*", 1L)
                 .addRoute(new URIAuthority("someotherhost", -1), "/*", 2L)
@@ -112,7 +112,7 @@ public class TestRequestRouter {
     }
 
     @Test
-    public void testDownstreamResolution() throws Exception {
+    void testDownstreamResolution() throws Exception {
         final RequestRouter<Long> requestRouter = RequestRouter.<Long>builder(UriPatternType.URI_PATTERN)
                 .addRoute(new URIAuthority("somehost", 80), "/*", 1L)
                 .addRoute(new URIAuthority("someotherhost", 80), "/*", 10L)

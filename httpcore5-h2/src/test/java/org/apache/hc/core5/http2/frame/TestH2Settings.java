@@ -31,10 +31,10 @@ import org.apache.hc.core5.http2.config.H2Setting;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestH2Settings {
+class TestH2Settings {
 
     @Test
-    public void testH2ParamBasics() throws Exception {
+    void testH2ParamBasics() {
         for (final H2Param param: H2Param.values()) {
             Assertions.assertEquals(param, H2Param.valueOf(param.getCode()));
             Assertions.assertEquals(param.name(), H2Param.toString(param.getCode()));
@@ -46,7 +46,7 @@ public class TestH2Settings {
     }
 
     @Test
-    public void testH2SettingBasics() throws Exception {
+    void testH2SettingBasics() {
 
         final H2Setting setting1 = new H2Setting(H2Param.ENABLE_PUSH, 0);
         final H2Setting setting2 = new H2Setting(H2Param.INITIAL_WINDOW_SIZE, 1024);

@@ -40,10 +40,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link CharArrayBuffer}.
  *
  */
-public class TestCharArrayBuffer {
+class TestCharArrayBuffer {
 
     @Test
-    public void testConstructor() throws Exception {
+    void testConstructor() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         Assertions.assertEquals(16, buffer.capacity());
         Assertions.assertEquals(0, buffer.length());
@@ -53,7 +53,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testSimpleAppend() throws Exception {
+    void testSimpleAppend() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         Assertions.assertEquals(16, buffer.capacity());
         Assertions.assertEquals(0, buffer.length());
@@ -87,7 +87,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testExpandAppend() throws Exception {
+    void testExpandAppend() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         Assertions.assertEquals(4, buffer.capacity());
 
@@ -108,7 +108,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testAppendString() throws Exception {
+    void testAppendString() {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append("stuff");
         buffer.append(" and more stuff");
@@ -116,14 +116,14 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testAppendNullString() throws Exception {
+    void testAppendNullString() {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append((String)null);
         Assertions.assertEquals("null", buffer.toString());
     }
 
     @Test
-    public void testAppendCharArrayBuffer() throws Exception {
+    void testAppendCharArrayBuffer() {
         final CharArrayBuffer buffer1 = new CharArrayBuffer(8);
         buffer1.append(" and more stuff");
         final CharArrayBuffer buffer2 = new CharArrayBuffer(8);
@@ -133,7 +133,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testAppendNullCharArrayBuffer() throws Exception {
+    void testAppendNullCharArrayBuffer() {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append((CharArrayBuffer)null);
         buffer.append((CharArrayBuffer)null, 0, 0);
@@ -141,7 +141,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testAppendSingleChar() throws Exception {
+    void testAppendSingleChar() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         buffer.append('1');
         buffer.append('2');
@@ -153,7 +153,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testInvalidCharArrayAppend() throws Exception {
+    void testInvalidCharArrayAppend() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         buffer.append((char[])null, 0, 0);
 
@@ -166,21 +166,21 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testSetLength() throws Exception {
+    void testSetLength() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         buffer.setLength(2);
         Assertions.assertEquals(2, buffer.length());
     }
 
     @Test
-    public void testSetInvalidLength() throws Exception {
+    void testSetInvalidLength() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.setLength(-2));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.setLength(200));
     }
 
     @Test
-    public void testEnsureCapacity() throws Exception {
+    void testEnsureCapacity() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         buffer.ensureCapacity(2);
         Assertions.assertEquals(4, buffer.capacity());
@@ -189,7 +189,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testIndexOf() {
+    void testIndexOf() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("name: value");
         Assertions.assertEquals(4, buffer.indexOf(':'));
@@ -200,7 +200,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testSubstring() {
+    void testSubstring() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append(" name:  value    ");
         Assertions.assertEquals(5, buffer.indexOf(':'));
@@ -212,7 +212,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testSubstringIndexOfOutBound() {
+    void testSubstringIndexOfOutBound() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("stuff");
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.substring(-2, 10));
@@ -224,7 +224,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testAppendAsciiByteArray() throws Exception {
+    void testAppendAsciiByteArray() {
         final String s1 = "stuff";
         final String s2 = " and more stuff";
         final byte[] b1 = s1.getBytes(StandardCharsets.US_ASCII);
@@ -238,7 +238,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testAppendISOByteArray() throws Exception {
+    void testAppendISOByteArray() {
         final byte[] b = new byte[] {0x00, 0x20, 0x7F, -0x80, -0x01};
 
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
@@ -254,21 +254,21 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testAppendNullByteArray() throws Exception {
+    void testAppendNullByteArray() {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append((byte[])null, 0, 0);
         Assertions.assertEquals("", buffer.toString());
     }
 
     @Test
-    public void testAppendNullByteArrayBuffer() throws Exception {
+    void testAppendNullByteArrayBuffer() {
         final CharArrayBuffer buffer = new CharArrayBuffer(8);
         buffer.append((ByteArrayBuffer)null, 0, 0);
         Assertions.assertEquals("", buffer.toString());
     }
 
     @Test
-    public void testInvalidAppendAsciiByteArray() throws Exception {
+    void testInvalidAppendAsciiByteArray() {
         final CharArrayBuffer buffer = new CharArrayBuffer(4);
         buffer.append((byte[])null, 0, 0);
 
@@ -281,7 +281,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization() throws Exception {
         final CharArrayBuffer orig = new CharArrayBuffer(32);
         orig.append('a');
         orig.append('b');
@@ -305,7 +305,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testSubSequence() {
+    void testSubSequence() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append(" name:  value    ");
         Assertions.assertEquals(5, buffer.indexOf(':'));
@@ -315,7 +315,7 @@ public class TestCharArrayBuffer {
     }
 
     @Test
-    public void testSubSequenceIndexOfOutBound() {
+    void testSubSequenceIndexOfOutBound() {
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
         buffer.append("stuff");
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.subSequence(-2, 10));

@@ -41,10 +41,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link BufferedHeader}.
  *
  */
-public class TestBufferedHeader {
+class TestBufferedHeader {
 
     @Test
-    public void testBasicConstructor() throws Exception {
+    void testBasicConstructor() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
         final BufferedHeader header = new BufferedHeader(buf, false);
@@ -55,7 +55,7 @@ public class TestBufferedHeader {
     }
 
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(32);
         buf.append("name: value");
         final BufferedHeader orig = new BufferedHeader(buf, false);
@@ -72,7 +72,7 @@ public class TestBufferedHeader {
     }
 
     @Test
-    public void testInvalidHeaderParsing() throws Exception {
+    void testInvalidHeaderParsing() {
         final CharArrayBuffer buf = new CharArrayBuffer(16);
         buf.clear();
         buf.append("");
@@ -98,7 +98,7 @@ public class TestBufferedHeader {
     }
 
     @Test
-    public void testCRLFNullInHeaderValue() throws Exception {
+    void testCRLFNullInHeaderValue() throws Exception {
         final CharArrayBuffer buf = new CharArrayBuffer(16);
         buf.clear();
         buf.append("name:  blah\0blah  ");

@@ -92,7 +92,7 @@ class TLSTest {
     }
 
     @Test
-    public void testParseBasic() throws Exception {
+    void testParseBasic() throws Exception {
         assertThat(TLS.parse("TLSv1"), CoreMatchers.equalTo(TLS.V_1_0.getVersion()));
         assertThat(TLS.parse("TLSv1.1"), CoreMatchers.equalTo(TLS.V_1_1.getVersion()));
         assertThat(TLS.parse("TLSv1.2"), CoreMatchers.equalTo(TLS.V_1_2.getVersion()));
@@ -101,7 +101,7 @@ class TLSTest {
     }
 
     @Test
-    public void testParseBuffer() throws Exception {
+    void testParseBuffer() throws Exception {
         final Tokenizer.Cursor cursor = new Tokenizer.Cursor(1, 13);
         assertThat(TLS.parse(" TLSv1.2,0000", cursor, Tokenizer.delimiters(',')),
                 CoreMatchers.equalTo(TLS.V_1_2.getVersion()));
@@ -109,7 +109,7 @@ class TLSTest {
     }
 
     @Test
-    public void testParseFailure() throws Exception {
+    void testParseFailure() {
         Assertions.assertThrows(ParseException.class, () -> TLS.parse("Tlsv1"));
         Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSV1"));
         Assertions.assertThrows(ParseException.class, () -> TLS.parse("TLSv"));

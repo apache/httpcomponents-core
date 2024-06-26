@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link ContentType}.
  *
  */
-public class TestContentType {
+class TestContentType {
 
     @Test
-    public void testBasis() throws Exception {
+    void testBasis() throws Exception {
         final ContentType contentType = ContentType.create("text/plain", "US-ASCII");
         Assertions.assertEquals("text/plain", contentType.getMimeType());
         Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
@@ -49,7 +49,7 @@ public class TestContentType {
     }
 
     @Test
-    public void testWithCharset() throws Exception {
+    void testWithCharset() throws Exception {
         ContentType contentType = ContentType.create("text/plain", "US-ASCII");
         Assertions.assertEquals("text/plain", contentType.getMimeType());
         Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
@@ -61,7 +61,7 @@ public class TestContentType {
     }
 
     @Test
-    public void testWithCharsetString() throws Exception {
+    void testWithCharsetString() throws Exception {
         ContentType contentType = ContentType.create("text/plain", "US-ASCII");
         Assertions.assertEquals("text/plain", contentType.getMimeType());
         Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
@@ -73,14 +73,14 @@ public class TestContentType {
     }
 
     @Test
-    public void testLowCaseText() throws Exception {
+    void testLowCaseText() throws Exception {
         final ContentType contentType = ContentType.create("Text/Plain", "ascii");
         Assertions.assertEquals("text/plain", contentType.getMimeType());
         Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
     }
 
     @Test
-    public void testCreateInvalidInput() throws Exception {
+    void testCreateInvalidInput() {
         Assertions.assertThrows(NullPointerException.class, () -> ContentType.create(null, (String) null));
         Assertions.assertThrows(IllegalArgumentException.class, () -> ContentType.create("  ", (String) null));
         Assertions.assertThrows(IllegalArgumentException.class, () -> ContentType.create("stuff;", (String) null));
@@ -88,7 +88,7 @@ public class TestContentType {
     }
 
     @Test
-    public void testParse() throws Exception {
+    void testParse() throws Exception {
         final ContentType contentType = ContentType.parse("text/plain; charset=\"ascii\"");
         Assertions.assertEquals("text/plain", contentType.getMimeType());
         Assertions.assertEquals(StandardCharsets.US_ASCII, contentType.getCharset());
@@ -96,7 +96,7 @@ public class TestContentType {
     }
 
     @Test
-    public void testParseMultiparam() throws Exception {
+    void testParseMultiparam() throws Exception {
         final ContentType contentType = ContentType.parse("text/plain; charset=\"ascii\"; " +
                 "p0 ; p1 = \"blah-blah\"  ; p2 = \" yada yada \" ");
         Assertions.assertEquals("text/plain", contentType.getMimeType());
@@ -110,14 +110,14 @@ public class TestContentType {
     }
 
     @Test
-    public void testParseEmptyCharset() throws Exception {
+    void testParseEmptyCharset() throws Exception {
         final ContentType contentType = ContentType.parse("text/plain; charset=\" \"");
         Assertions.assertEquals("text/plain", contentType.getMimeType());
         Assertions.assertNull(contentType.getCharset());
     }
 
     @Test
-    public void testParseDefaultCharset() throws Exception {
+    void testParseDefaultCharset() throws Exception {
         final ContentType contentType = ContentType.parse("text/plain; charset=\" \"");
         Assertions.assertEquals("text/plain", contentType.getMimeType());
         Assertions.assertNull(contentType.getCharset());
@@ -129,7 +129,7 @@ public class TestContentType {
     }
 
     @Test
-    public void testParseEmptyValue() throws Exception {
+    void testParseEmptyValue() throws Exception {
         Assertions.assertNull(ContentType.parse(null));
         Assertions.assertNull(ContentType.parse(""));
         Assertions.assertNull(ContentType.parse("   "));
@@ -138,7 +138,7 @@ public class TestContentType {
     }
 
     @Test
-    public void testWithParamArrayChange() throws Exception {
+    void testWithParamArrayChange() throws Exception {
         final BasicNameValuePair[] params = {new BasicNameValuePair("charset", "UTF-8"),
                 new BasicNameValuePair("p", "this"),
                 new BasicNameValuePair("p", "that")};
@@ -154,7 +154,7 @@ public class TestContentType {
     }
 
     @Test
-    public void testWithParams() throws Exception {
+    void testWithParams() throws Exception {
         ContentType contentType = ContentType.create("text/plain",
                 new BasicNameValuePair("charset", "UTF-8"),
                 new BasicNameValuePair("p", "this"),

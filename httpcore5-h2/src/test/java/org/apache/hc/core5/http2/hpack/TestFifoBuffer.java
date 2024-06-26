@@ -30,10 +30,10 @@ package org.apache.hc.core5.http2.hpack;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestFifoBuffer {
+class TestFifoBuffer {
 
     @Test
-    public void testAddRemoveCycle() throws Exception {
+    void testAddRemoveCycle() {
 
         final FifoBuffer fifoBuffer = new FifoBuffer(5);
 
@@ -88,7 +88,7 @@ public class TestFifoBuffer {
     }
 
     @Test
-    public void testExpand() throws Exception {
+    void testExpand() {
 
         final HPackHeader h1 = new HPackHeader("h", "1");
         final HPackHeader h2 = new HPackHeader("h", "2");

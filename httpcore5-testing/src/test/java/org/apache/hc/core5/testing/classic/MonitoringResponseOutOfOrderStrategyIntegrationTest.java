@@ -56,7 +56,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
+abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
 
     // Use a 16k buffer for consistent results across systems
     private static final int BUFFER_SIZE = 16 * 1024;
@@ -102,7 +102,7 @@ public abstract class MonitoringResponseOutOfOrderStrategyIntegrationTest {
 
     @Test
     @org.junit.jupiter.api.Timeout(value = 1, unit = TimeUnit.MINUTES)// Failures may hang
-    public void testResponseOutOfOrderWithDefaultStrategy() throws Exception {
+    void testResponseOutOfOrderWithDefaultStrategy() throws Exception {
         final HttpServer server = serverResource.start();
         final HttpRequester requester = clientResource.start();
 

@@ -33,17 +33,17 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for InetAddressUtils.
  */
-public class TestInetAddressUtils {
+class TestInetAddressUtils {
 
     @Test
-    public void testValidIPv4Address() {
+    void testValidIPv4Address() {
         Assertions.assertTrue(InetAddressUtils.isIPv4("127.0.0.1"));
         Assertions.assertTrue(InetAddressUtils.isIPv4("192.168.0.0"));
         Assertions.assertTrue(InetAddressUtils.isIPv4("255.255.255.255"));
     }
 
     @Test
-    public void testInvalidIPv4Address() {
+    void testInvalidIPv4Address() {
         Assertions.assertFalse(InetAddressUtils.isIPv4(" 127.0.0.1 "));  // Blanks not allowed
         Assertions.assertFalse(InetAddressUtils.isIPv4("g.ar.ba.ge"));
         Assertions.assertFalse(InetAddressUtils.isIPv4("192.168.0"));
@@ -52,7 +52,7 @@ public class TestInetAddressUtils {
     }
 
     @Test
-    public void testValidIPv6Address() {
+    void testValidIPv6Address() {
         Assertions.assertTrue(InetAddressUtils.isIPv6Std("2001:0db8:0000:0000:0000:0000:1428:57ab"));
         Assertions.assertTrue(InetAddressUtils.isIPv6Std("2001:db8:0:0:0:0:1428:57ab"));
         Assertions.assertTrue(InetAddressUtils.isIPv6Std("0:0:0:0:0:0:0:0"));
@@ -81,7 +81,7 @@ public class TestInetAddressUtils {
     }
 
     @Test
-    public void testInvalidIPv6Address() {
+    void testInvalidIPv6Address() {
         Assertions.assertFalse(InetAddressUtils.isIPv6("2001:0db8:0000:garb:age0:0000:1428:57ab"));
         Assertions.assertFalse(InetAddressUtils.isIPv6("2001:0gb8:0000:0000:0000:0000:1428:57ab"));
         Assertions.assertFalse(InetAddressUtils.isIPv6Std("0:0:0:0:0:0:0:0:0")); // Too many
@@ -109,7 +109,7 @@ public class TestInetAddressUtils {
     }
 
     @Test
-    public void testValidIPv6BracketAddress() {
+    void testValidIPv6BracketAddress() {
         Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[2001:0db8:0000:0000:0000:0000:1428:57ab]"));
         Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[2001:db8:0:0:0:0:1428:57ab]"));
         Assertions.assertTrue(InetAddressUtils.isIPv6URLBracketed("[0:0:0:0:0:0:0:0]"));
@@ -123,7 +123,7 @@ public class TestInetAddressUtils {
     }
 
     @Test
-    public void testInvalidIPv6BracketAddress() {
+    void testInvalidIPv6BracketAddress() {
         Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("2001:0db8:0000:garb:age0:0000:1428:57ab"));
         Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("[2001:0db8:0000:garb:age0:0000:1428:57ab]"));
         Assertions.assertFalse(InetAddressUtils.isIPv6URLBracketed("2001:0gb8:0000:0000:0000:0000:1428:57ab"));
@@ -160,13 +160,13 @@ public class TestInetAddressUtils {
 
     @Test
     // Test HTTPCLIENT-1319
-    public void testInvalidIPv6AddressIncorrectGroupCount() {
+    void testInvalidIPv6AddressIncorrectGroupCount() {
         Assertions.assertFalse(InetAddressUtils.isIPv6HexCompressed("1:2::4:5:6:7:8:9")); // too many fields in total
         Assertions.assertFalse(InetAddressUtils.isIPv6HexCompressed("1:2:3:4:5:6::8:9")); // too many fields in total
     }
 
     @Test
-    public void testHasValidIPv6ColonCount() {
+    void testHasValidIPv6ColonCount() {
         Assertions.assertFalse(InetAddressUtils.hasValidIPv6ColonCount(""));
         Assertions.assertFalse(InetAddressUtils.hasValidIPv6ColonCount(":"));
         Assertions.assertFalse(InetAddressUtils.hasValidIPv6ColonCount("127.0.0.1"));
@@ -187,13 +187,13 @@ public class TestInetAddressUtils {
     }
 
     @Test
-    public void testValidIPv4MappedIPv6Address() {
+    void testValidIPv4MappedIPv6Address() {
         Assertions.assertTrue(InetAddressUtils.isIPv4MappedIPv6("::FFFF:1.2.3.4"));
         Assertions.assertTrue(InetAddressUtils.isIPv4MappedIPv6("::ffff:255.255.255.255"));
     }
 
     @Test
-    public void testInValidIPv4MappedIPv6Address() {
+    void testInValidIPv4MappedIPv6Address() {
         Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("2001:0db8:0000:0000:0000:0000:1428:57ab"));
         Assertions.assertFalse(InetAddressUtils.isIPv4MappedIPv6("::ffff:1:2:3:4"));
     }

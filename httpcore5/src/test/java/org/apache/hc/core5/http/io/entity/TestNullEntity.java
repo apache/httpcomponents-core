@@ -38,30 +38,30 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class TestNullEntity {
+class TestNullEntity {
 
     @Test
-    public void testLength() {
+    void testLength() {
         assertEquals(0, NullEntity.INSTANCE.getContentLength());
     }
 
     @Test
-    public void testContentType() {
+    void testContentType() {
         assertNull(NullEntity.INSTANCE.getContentType());
     }
 
     @Test
-    public void testContentEncoding() {
+    void testContentEncoding() {
         assertNull(NullEntity.INSTANCE.getContentEncoding());
     }
 
     @Test
-    public void testTrailerNames() {
+    void testTrailerNames() {
         assertEquals(Collections.emptySet(), NullEntity.INSTANCE.getTrailerNames());
     }
 
     @Test
-    public void testContentStream() throws IOException {
+    void testContentStream() throws IOException {
         try (InputStream content = NullEntity.INSTANCE.getContent()) {
             assertEquals(-1, content.read());
         }
@@ -72,19 +72,19 @@ public class TestNullEntity {
     }
 
     @Test
-    public void testWriteTo() throws IOException {
+    void testWriteTo() throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         NullEntity.INSTANCE.writeTo(baos);
         assertEquals(0, baos.size());
     }
 
     @Test
-    public void testIsStreaming() {
+    void testIsStreaming() {
         assertFalse(NullEntity.INSTANCE.isStreaming());
     }
 
     @Test
-    public void testIsChunked() {
+    void testIsChunked() {
         assertFalse(NullEntity.INSTANCE.isChunked());
     }
 }

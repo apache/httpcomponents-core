@@ -31,11 +31,11 @@ import org.apache.hc.core5.http.URIScheme;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 
-public class ClassicIntegrationTests {
+class ClassicIntegrationTests {
 
     @Nested
     @DisplayName("Core transport")
-    public class CoreTransport extends ClassicHttp1CoreTransportTest {
+    class CoreTransport extends ClassicHttp1CoreTransportTest {
 
         public CoreTransport() {
             super(URIScheme.HTTP);
@@ -45,7 +45,7 @@ public class ClassicIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (TLS)")
-    public class CoreTransportTls extends ClassicHttp1CoreTransportTest {
+    class CoreTransportTls extends ClassicHttp1CoreTransportTest {
 
         public CoreTransportTls() {
             super(URIScheme.HTTPS);
@@ -55,7 +55,7 @@ public class ClassicIntegrationTests {
 
     @Nested
     @DisplayName("Authentication")
-    public class Authentication extends ClassicAuthenticationTest {
+    class Authentication extends ClassicAuthenticationTest {
 
         public Authentication() {
             super(false);
@@ -65,7 +65,7 @@ public class ClassicIntegrationTests {
 
     @Nested
     @DisplayName("Authentication (immediate response)")
-    public class AuthenticationImmediateResponse extends ClassicAuthenticationTest {
+    class AuthenticationImmediateResponse extends ClassicAuthenticationTest {
 
         public AuthenticationImmediateResponse() {
             super(true);
@@ -75,7 +75,7 @@ public class ClassicIntegrationTests {
 
     @Nested
     @DisplayName("Out-of-order response monitoring")
-    public class MonitoringResponseOutOfOrderStrategy extends MonitoringResponseOutOfOrderStrategyIntegrationTest {
+    class MonitoringResponseOutOfOrderStrategy extends MonitoringResponseOutOfOrderStrategyIntegrationTest {
 
         public MonitoringResponseOutOfOrderStrategy() {
             super(URIScheme.HTTP);
@@ -85,7 +85,7 @@ public class ClassicIntegrationTests {
 
     @Nested
     @DisplayName("Out-of-order response monitoring (TLS)")
-    public class MonitoringResponseOutOfOrderStrategyTls extends MonitoringResponseOutOfOrderStrategyIntegrationTest {
+    class MonitoringResponseOutOfOrderStrategyTls extends MonitoringResponseOutOfOrderStrategyIntegrationTest {
 
         public MonitoringResponseOutOfOrderStrategyTls() {
             super(URIScheme.HTTPS);
@@ -95,7 +95,7 @@ public class ClassicIntegrationTests {
 
     @Nested
     @DisplayName("Server filters")
-    public class HttpFilters extends ClassicServerBootstrapFilterTest {
+    class HttpFilters extends ClassicServerBootstrapFilterTest {
 
         public HttpFilters() {
             super(URIScheme.HTTP);
@@ -105,7 +105,7 @@ public class ClassicIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (SOCKS)")
-    public class CoreTransportSocksProxy extends ClassicHttp1SocksProxyCoreTransportTest {
+    class CoreTransportSocksProxy extends ClassicHttp1SocksProxyCoreTransportTest {
 
         public CoreTransportSocksProxy() {
             super(URIScheme.HTTP);
@@ -115,7 +115,7 @@ public class ClassicIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (TLS, SOCKS)")
-    public class CoreTransportSocksProxyTls extends ClassicHttp1SocksProxyCoreTransportTest {
+    class CoreTransportSocksProxyTls extends ClassicHttp1SocksProxyCoreTransportTest {
 
         public CoreTransportSocksProxyTls() {
             super(URIScheme.HTTPS);

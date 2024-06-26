@@ -40,10 +40,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link InputStreamEntity}.
  *
  */
-public class TestInputStreamEntity {
+class TestInputStreamEntity {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final byte[] bytes = "Message content".getBytes(StandardCharsets.US_ASCII);
         final InputStreamEntity entity = new InputStreamEntity(new ByteArrayInputStream(bytes), bytes.length, null);
 
@@ -54,20 +54,20 @@ public class TestInputStreamEntity {
     }
 
     @Test
-    public void testNullConstructor() throws Exception {
+    void testNullConstructor() {
         Assertions.assertThrows(NullPointerException.class, () ->
                 new InputStreamEntity(null, 0, null));
     }
 
     @Test
-    public void testUnknownLengthConstructor() throws Exception {
+    void testUnknownLengthConstructor() throws Exception {
         try (final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, null)) {
             Assertions.assertEquals(-1, entity.getContentLength());
         }
     }
 
     @Test
-    public void testWriteTo() throws Exception {
+    void testWriteTo() throws Exception {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(StandardCharsets.US_ASCII);
         final InputStream inStream = new ByteArrayInputStream(bytes);
@@ -85,7 +85,7 @@ public class TestInputStreamEntity {
     }
 
     @Test
-    public void testWriteToPartialContent() throws Exception {
+    void testWriteToPartialContent() throws Exception {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(StandardCharsets.US_ASCII);
         final InputStream inStream = new ByteArrayInputStream(bytes);
@@ -105,7 +105,7 @@ public class TestInputStreamEntity {
     }
 
     @Test
-    public void testWriteToUnknownLength() throws Exception {
+    void testWriteToUnknownLength() throws Exception {
         final String message = "Message content";
         final byte[] bytes = message.getBytes(StandardCharsets.US_ASCII);
         final InputStreamEntity entity = new InputStreamEntity(new ByteArrayInputStream(bytes),
@@ -122,7 +122,7 @@ public class TestInputStreamEntity {
     }
 
     @Test
-    public void testWriteToNull() throws Exception {
+    void testWriteToNull() throws Exception {
         try (final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, 0, null)) {
             Assertions.assertThrows(NullPointerException.class, () -> entity.writeTo(null));
         }}

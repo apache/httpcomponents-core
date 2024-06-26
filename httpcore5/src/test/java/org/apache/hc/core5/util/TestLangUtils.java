@@ -34,10 +34,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link LangUtils}.
  *
  */
-public class TestLangUtils {
+class TestLangUtils {
 
     @Test
-    public void testBasicHash() {
+    void testBasicHash() {
         final Integer i = Integer.valueOf(1234);
         final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, i.hashCode());
         final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, i);
@@ -45,14 +45,14 @@ public class TestLangUtils {
     }
 
     @Test
-    public void testNullObjectHash() {
+    void testNullObjectHash() {
         final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, null);
         final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, 0);
         Assertions.assertEquals(h1, h2);
     }
 
     @Test
-    public void testBooleanHash() {
+    void testBooleanHash() {
         final int h1 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
         final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
         final int h3 = LangUtils.hashCode(LangUtils.HASH_SEED, true);

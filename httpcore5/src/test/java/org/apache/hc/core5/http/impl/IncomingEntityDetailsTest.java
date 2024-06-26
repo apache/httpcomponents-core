@@ -46,10 +46,10 @@ import org.apache.hc.core5.http.message.HeaderGroup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class IncomingEntityDetailsTest {
+class IncomingEntityDetailsTest {
 
     @Test
-    public void getContentLengthEmpty() {
+    void getContentLengthEmpty() {
         final MessageHeaders messageHeaders = new HeaderGroup();
         final IncomingEntityDetails incomingEntityDetails = new IncomingEntityDetails(messageHeaders);
         assertAll(
@@ -61,13 +61,13 @@ public class IncomingEntityDetailsTest {
     }
 
     @Test
-    public void messageHeadersNull() {
+    void messageHeadersNull() {
         Assertions.assertThrows(NullPointerException.class, () -> new IncomingEntityDetails(null),
                 "Message Header Null");
     }
 
     @Test
-    public void getContentLength() {
+    void getContentLength() {
         final MessageHeaders messageHeaders = new HeaderGroup();
         final HeaderGroup headerGroup = new HeaderGroup();
         final Header header = new BasicHeader("name", "value");
@@ -80,7 +80,7 @@ public class IncomingEntityDetailsTest {
     }
 
     @Test
-    public void getTrailerNames() {
+    void getTrailerNames() {
         final HeaderGroup messageHeaders = new HeaderGroup();
         final Header header = new BasicHeader(HttpHeaders.TRAILER, "a, b, c, c");
         messageHeaders.setHeaders(header);

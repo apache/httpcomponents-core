@@ -39,10 +39,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link IdentityOutputStream}.
  */
-public class TestIdentityOutputStream {
+class TestIdentityOutputStream {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);
@@ -58,7 +58,7 @@ public class TestIdentityOutputStream {
     }
 
     @Test
-    public void testClose() throws Exception {
+    void testClose() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);
@@ -70,7 +70,7 @@ public class TestIdentityOutputStream {
     }
 
     @Test
-    public void testBasicWrite() throws Exception {
+    void testBasicWrite() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);
@@ -90,7 +90,7 @@ public class TestIdentityOutputStream {
     }
 
     @Test
-    public void testClosedCondition() throws Exception {
+    void testClosedCondition() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
         final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);

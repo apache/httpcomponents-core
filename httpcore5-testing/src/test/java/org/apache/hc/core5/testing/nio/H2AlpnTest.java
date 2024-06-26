@@ -67,7 +67,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class H2AlpnTest {
+abstract class H2AlpnTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -111,7 +111,7 @@ public abstract class H2AlpnTest {
     }
 
     @Test
-    public void testALPN() throws Exception {
+    void testALPN() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), URIScheme.HTTPS);
         final ListenerEndpoint listener = future.get();

@@ -45,12 +45,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class TestPathAsyncEntityProducer {
+class TestPathAsyncEntityProducer {
 
     private File tempFile;
 
     @AfterEach
-    public void cleanup() {
+    void cleanup() {
         if (tempFile != null) {
             tempFile.delete();
             tempFile = null;
@@ -58,7 +58,7 @@ public class TestPathAsyncEntityProducer {
     }
 
     @BeforeEach
-    public void setup() throws Exception {
+    void setup() throws Exception {
         tempFile = File.createTempFile("testing", ".txt");
         try (final Writer writer = new OutputStreamWriter(new FileOutputStream(tempFile), StandardCharsets.US_ASCII)) {
             writer.append("abcdef");
@@ -67,7 +67,7 @@ public class TestPathAsyncEntityProducer {
     }
 
     @Test
-    public void testTextContent() throws Exception {
+    void testTextContent() throws Exception {
 
         final Path tempPath = tempFile.toPath();
         final AsyncEntityProducer producer = new PathEntityProducer(tempPath, ContentType.TEXT_PLAIN, StandardOpenOption.READ);
@@ -87,7 +87,7 @@ public class TestPathAsyncEntityProducer {
     }
 
     @Test
-    public void testTextContentRepeatable() throws Exception {
+    void testTextContentRepeatable() throws Exception {
         final Path tempPath = tempFile.toPath();
         final AsyncEntityProducer producer = new PathEntityProducer(tempPath, ContentType.TEXT_PLAIN, StandardOpenOption.READ);
 

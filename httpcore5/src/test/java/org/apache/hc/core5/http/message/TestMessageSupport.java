@@ -50,7 +50,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestMessageSupport {
+class TestMessageSupport {
 
     private static Set<String> makeSet(final String... tokens) {
         if (tokens == null) {
@@ -62,35 +62,35 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testTokenSetFormatting() throws Exception {
+    void testTokenSetFormatting() {
         final Header header = MessageSupport.header(HttpHeaders.TRAILER, makeSet("z", "b", "a"));
         Assertions.assertNotNull(header);
         Assertions.assertEquals("z, b, a", header.getValue());
     }
 
     @Test
-    public void testTokenListFormatting() throws Exception {
+    void testTokenListFormatting() {
         final Header header = MessageSupport.headerOfTokens(HttpHeaders.TRAILER, Arrays.asList("z", "b", "a", "a"));
         Assertions.assertNotNull(header);
         Assertions.assertEquals("z, b, a, a", header.getValue());
     }
 
     @Test
-    public void testTokenSetFormattingSameName() throws Exception {
+    void testTokenSetFormattingSameName() {
         final Header header = MessageSupport.header(HttpHeaders.TRAILER, makeSet("a", "a", "a"));
         Assertions.assertNotNull(header);
         Assertions.assertEquals("a", header.getValue());
     }
 
     @Test
-    public void testTokenListFormattingSameName() throws Exception {
+    void testTokenListFormattingSameName() {
         final Header header = MessageSupport.header(HttpHeaders.TRAILER, "a", "a", "a");
         Assertions.assertNotNull(header);
         Assertions.assertEquals("a, a, a", header.getValue());
     }
 
     @Test
-    public void testParseTokensWithConsumer() throws Exception {
+    void testParseTokensWithConsumer() {
         final String s = "a, b, c, c";
         final ParserCursor cursor = new ParserCursor(0, s.length());
         final List<String> tokens = new ArrayList<>();
@@ -99,7 +99,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testParseTokenHeaderWithConsumer() throws Exception {
+    void testParseTokenHeaderWithConsumer() {
         final Header header = new BasicHeader(HttpHeaders.TRAILER, "a, b, c, c");
         final List<String> tokens = new ArrayList<>();
         MessageSupport.parseTokens(header, tokens::add);
@@ -107,7 +107,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testParseTokenBufferWithConsumer() throws Exception {
+    void testParseTokenBufferWithConsumer() {
         final CharArrayBuffer buf = new CharArrayBuffer(128);
         buf.append("stuff: a, b, c, c");
         final Header header = BufferedHeader.create(buf);
@@ -115,20 +115,20 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testParseTokens() throws Exception {
+    void testParseTokens() {
         final String s = "a, b, c, c";
         final ParserCursor cursor = new ParserCursor(0, s.length());
         Assertions.assertEquals(makeSet("a", "b", "c"), MessageSupport.parseTokens(s, cursor));
     }
 
     @Test
-    public void testParseTokenHeader() throws Exception {
+    void testParseTokenHeader() {
         final Header header = new BasicHeader(HttpHeaders.TRAILER, "a, b, c, c");
         Assertions.assertEquals(makeSet("a", "b", "c"), MessageSupport.parseTokens(header));
     }
 
     @Test
-    public void testParseTokenBuffer() throws Exception {
+    void testParseTokenBuffer() {
         final CharArrayBuffer buf = new CharArrayBuffer(128);
         buf.append("stuff: a, b, c, c");
         final Header header = BufferedHeader.create(buf);
@@ -136,7 +136,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testElementListFormatting() throws Exception {
+    void testElementListFormatting() {
         final List<HeaderElement> elements = Arrays.asList(
                 new BasicHeaderElement("name1", "value1", new BasicNameValuePair("param", "regular_stuff")),
                 new BasicHeaderElement("name2", "value2", new BasicNameValuePair("param", "this\\that")),
@@ -152,7 +152,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testElementArrayFormatting() throws Exception {
+    void testElementArrayFormatting() {
         final HeaderElement[] elements = {
                 new BasicHeaderElement("name1", "value1", new BasicNameValuePair("param", "regular_stuff")),
                 new BasicHeaderElement("name2", "value2", new BasicNameValuePair("param", "this\\that")),
@@ -168,7 +168,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testParseElementsBufferWithConsumer() throws Exception {
+    void testParseElementsBufferWithConsumer() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         buf.append("name1 = value1; name2; name3=\"value3\" , name4=value4; " +
                 "name5=value5, name6= ; name7 = value7; name8 = \" value8\"");
@@ -205,7 +205,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testParseElementsHeaderWithConsumer() throws Exception {
+    void testParseElementsHeaderWithConsumer() {
         final Header header = new BasicHeader("Some-Header",
                 "name1 = value1; name2; name3=\"value3\" , name4=value4; " +
                 "name5=value5, name6= ; name7 = value7; name8 = \" value8\"");
@@ -241,7 +241,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testParseElementsHeader() throws Exception {
+    void testParseElementsHeader() {
         final Header header = new BasicHeader("Some-Header",
                 "name1 = value1; name2; name3=\"value3\" , name4=value4; " +
                         "name5=value5, name6= ; name7 = value7; name8 = \" value8\"");
@@ -276,7 +276,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testParamListFormatting() throws Exception {
+    void testParamListFormatting() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         MessageSupport.formatParameters(buf, Arrays.asList(
                 new BasicNameValuePair("param", "regular_stuff"),
@@ -288,7 +288,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testParamArrayFormatting() throws Exception {
+    void testParamArrayFormatting() {
         final CharArrayBuffer buf = new CharArrayBuffer(64);
         MessageSupport.formatParameters(buf,
                 new BasicNameValuePair("param", "regular_stuff"),
@@ -300,7 +300,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testParseParams() {
+    void testParseParams() {
         final String s =
                 "test; test1 =  stuff   ; test2 =  \"stuff; stuff\"; test3=stuff,123";
         final CharArrayBuffer buffer = new CharArrayBuffer(16);
@@ -322,7 +322,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testAddContentHeaders() throws Exception {
+    void testAddContentHeaders() {
         final HttpEntity entity = HttpEntities.create("some stuff with trailers", StandardCharsets.US_ASCII,
                 new BasicHeader("z", "this"), new BasicHeader("b", "that"), new BasicHeader("a", "this and that"));
         final HttpMessage message = new BasicHttpResponse(200);
@@ -339,7 +339,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testContentHeadersAlreadyPresent() throws Exception {
+    void testContentHeadersAlreadyPresent() {
         final HttpEntity entity = HttpEntities.create("some stuff with trailers", StandardCharsets.US_ASCII,
                 new BasicHeader("z", "this"), new BasicHeader("b", "that"), new BasicHeader("a", "this and that"));
         final HttpMessage message = new BasicHttpResponse(200);
@@ -359,7 +359,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testHopByHopHeaders() {
+    void testHopByHopHeaders() {
         Assertions.assertTrue(MessageSupport.isHopByHop("Connection"));
         Assertions.assertTrue(MessageSupport.isHopByHop("connection"));
         Assertions.assertTrue(MessageSupport.isHopByHop("coNNection"));
@@ -368,7 +368,7 @@ public class TestMessageSupport {
     }
 
     @Test
-    public void testHopByHopHeadersConnectionSpecific() {
+    void testHopByHopHeadersConnectionSpecific() {
         final HttpResponse response = BasicResponseBuilder.create(HttpStatus.SC_OK)
                 .addHeader(HttpHeaders.CONNECTION, "blah, blah, this, that")
                 .addHeader(HttpHeaders.CONTENT_TYPE, ContentType.TEXT_PLAIN.toString())

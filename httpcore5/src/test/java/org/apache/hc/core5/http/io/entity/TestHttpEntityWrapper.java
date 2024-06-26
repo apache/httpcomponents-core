@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link HttpEntityWrapper}.
  *
  */
-public class TestHttpEntityWrapper {
+class TestHttpEntityWrapper {
 
     @Test
-    public void testBasics() throws Exception {
+    void testBasics() throws Exception {
         final StringEntity entity = new StringEntity("Message content", ContentType.TEXT_PLAIN, "blah", false);
         try (final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity)) {
 
@@ -56,12 +56,12 @@ public class TestHttpEntityWrapper {
     }
 
     @Test
-    public void testIllegalConstructor() throws Exception {
+    void testIllegalConstructor() {
         Assertions.assertThrows(NullPointerException.class, () -> new HttpEntityWrapper(null));
     }
 
     @Test
-    public void testWriteTo() throws Exception {
+    void testWriteTo() throws Exception {
         final String s = "Message content";
         final byte[] bytes = s.getBytes(StandardCharsets.US_ASCII);
         final StringEntity entity = new StringEntity(s);
@@ -90,7 +90,7 @@ public class TestHttpEntityWrapper {
     }
 
     @Test
-    public void testConsumeContent() throws Exception {
+    void testConsumeContent() throws Exception {
         final String s = "Message content";
         final StringEntity entity = new StringEntity(s);
         final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity);

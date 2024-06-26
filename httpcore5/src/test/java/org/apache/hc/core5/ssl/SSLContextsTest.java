@@ -43,7 +43,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.junit.jupiter.api.Test;
 
-public class SSLContextsTest {
+class SSLContextsTest {
 
     @Test
     void createDefault() {

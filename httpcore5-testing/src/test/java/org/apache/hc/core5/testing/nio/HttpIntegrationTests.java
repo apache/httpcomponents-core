@@ -31,11 +31,11 @@ import org.apache.hc.core5.http.URIScheme;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 
-public class HttpIntegrationTests {
+class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (HTTP/1.1)")
-    public class CoreTransport extends Http1CoreTransportTest {
+    class CoreTransport extends Http1CoreTransportTest {
 
         public CoreTransport() {
             super(URIScheme.HTTP);
@@ -45,7 +45,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (HTTP/1.1, TLS)")
-    public class CoreTransportTls extends Http1CoreTransportTest {
+    class CoreTransportTls extends Http1CoreTransportTest {
 
         public CoreTransportTls() {
             super(URIScheme.HTTPS);
@@ -55,7 +55,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (H2)")
-    public class CoreTransportH2 extends H2CoreTransportTest {
+    class CoreTransportH2 extends H2CoreTransportTest {
 
         public CoreTransportH2() {
             super(URIScheme.HTTP);
@@ -65,7 +65,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (H2, TLS)")
-    public class CoreTransportH2Tls extends H2CoreTransportTest {
+    class CoreTransportH2Tls extends H2CoreTransportTest {
 
         public CoreTransportH2Tls() {
             super(URIScheme.HTTPS);
@@ -75,7 +75,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (H2, multiplexing)")
-    public class CoreTransportH2Multiplexing extends H2CoreTransportMultiplexingTest {
+    class CoreTransportH2Multiplexing extends H2CoreTransportMultiplexingTest {
 
         public CoreTransportH2Multiplexing() {
             super(URIScheme.HTTP);
@@ -85,7 +85,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (H2, multiplexing, TLS)")
-    public class CoreTransportH2MultiplexingTls extends H2CoreTransportMultiplexingTest {
+    class CoreTransportH2MultiplexingTls extends H2CoreTransportMultiplexingTest {
 
         public CoreTransportH2MultiplexingTls() {
             super(URIScheme.HTTPS);
@@ -95,7 +95,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Server filters")
-    public class HttpFilters extends AsyncServerBootstrapFilterTest {
+    class HttpFilters extends AsyncServerBootstrapFilterTest {
 
         public HttpFilters() {
             super();
@@ -105,7 +105,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("H2 Server filters")
-    public class H2Filters extends H2ServerBootstrapFiltersTest {
+    class H2Filters extends H2ServerBootstrapFiltersTest {
 
         public H2Filters() {
             super();
@@ -115,7 +115,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Authentication")
-    public class Authentication extends Http1AuthenticationTest {
+    class Authentication extends Http1AuthenticationTest {
 
         public Authentication() {
             super(false);
@@ -125,7 +125,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Authentication (immediate response)")
-    public class AuthenticationImmediateResponse extends Http1AuthenticationTest {
+    class AuthenticationImmediateResponse extends Http1AuthenticationTest {
 
         public AuthenticationImmediateResponse() {
             super(true);
@@ -135,7 +135,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (HTTP/1.1, SOCKS)")
-    public class CoreTransportSocksProxy extends Http1SocksProxyCoreTransportTest {
+    class CoreTransportSocksProxy extends Http1SocksProxyCoreTransportTest {
 
         public CoreTransportSocksProxy() {
             super(URIScheme.HTTP);
@@ -145,7 +145,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (HTTP/1.1, TLS, SOCKS)")
-    public class CoreTransportSocksProxyTls extends Http1SocksProxyCoreTransportTest {
+    class CoreTransportSocksProxyTls extends Http1SocksProxyCoreTransportTest {
 
         public CoreTransportSocksProxyTls() {
             super(URIScheme.HTTPS);
@@ -155,7 +155,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (H2, SOCKS)")
-    public class CoreTransportH2SocksProxy extends H2SocksProxyCoreTransportTest {
+    class CoreTransportH2SocksProxy extends H2SocksProxyCoreTransportTest {
 
         public CoreTransportH2SocksProxy() {
             super(URIScheme.HTTP);
@@ -165,7 +165,7 @@ public class HttpIntegrationTests {
 
     @Nested
     @DisplayName("Core transport (H2, TLS, SOCKS)")
-    public class CoreTransportH2SocksProxyTls extends H2SocksProxyCoreTransportTest {
+    class CoreTransportH2SocksProxyTls extends H2SocksProxyCoreTransportTest {
 
         public CoreTransportH2SocksProxyTls() {
             super(URIScheme.HTTPS);

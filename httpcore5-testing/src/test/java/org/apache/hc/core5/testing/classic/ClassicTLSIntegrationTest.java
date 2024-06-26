@@ -66,7 +66,7 @@ import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class ClassicTLSIntegrationTest {
+class ClassicTLSIntegrationTest {
 
     private static final Timeout TIMEOUT = Timeout.ofSeconds(30);
 
@@ -105,7 +105,7 @@ public class ClassicTLSIntegrationTest {
     };
 
     @Test
-    public void testTLSSuccess() throws Exception {
+    void testTLSSuccess() throws Exception {
         server = ServerBootstrap.bootstrap()
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
@@ -150,7 +150,7 @@ public class ClassicTLSIntegrationTest {
     }
 
     @Test
-    public void testTLSTrustFailure() throws Exception {
+    void testTLSTrustFailure() throws Exception {
         server = ServerBootstrap.bootstrap()
                 .setSocketConfig(SocketConfig.custom()
                         .setSoTimeout(TIMEOUT)
@@ -183,7 +183,7 @@ public class ClassicTLSIntegrationTest {
     }
 
     @Test
-    public void testTLSClientAuthFailure() throws Exception {
+    void testTLSClientAuthFailure() throws Exception {
         server = ServerBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createClientSSLContext())
                 .setSocketConfig(SocketConfig.custom()
@@ -218,7 +218,7 @@ public class ClassicTLSIntegrationTest {
     }
 
     @Test
-    public void testSSLDisabledByDefault() throws Exception {
+    void testSSLDisabledByDefault() throws Exception {
         server = ServerBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createServerSSLContext())
                 .setSslSetupHandler(sslParameters -> sslParameters.setProtocols(new String[]{"SSLv3"}))
@@ -247,7 +247,7 @@ public class ClassicTLSIntegrationTest {
     }
 
     @Test
-    public void testWeakCiphersDisabledByDefault() throws Exception {
+    void testWeakCiphersDisabledByDefault() throws Exception {
 
         requester = RequesterBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createClientSSLContext())
@@ -300,7 +300,7 @@ public class ClassicTLSIntegrationTest {
     }
 
     @Test
-    public void testHostNameVerification() throws Exception {
+    void testHostNameVerification() throws Exception {
         server = ServerBootstrap.bootstrap()
                 .setSslContext(SSLTestContexts.createServerSSLContext())
                 .setRequestRouter((r, c) -> null)

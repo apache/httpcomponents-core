@@ -42,10 +42,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Unit tests for {@link DefaultHttpResponseParser}.
  */
-public class TestResponseParser {
+class TestResponseParser {
 
     @Test
-    public void testBasicMessageParsing() throws Exception {
+    void testBasicMessageParsing() throws Exception {
         final String s =
             "HTTP/1.1 200 OK\r\n" +
             "Server: whatever\r\n" +
@@ -65,7 +65,7 @@ public class TestResponseParser {
     }
 
     @Test
-    public void testConnectionClosedException() throws Exception {
+    void testConnectionClosedException() throws Exception {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {});
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
 
@@ -75,7 +75,7 @@ public class TestResponseParser {
     }
 
     @Test
-    public void testBasicMessageParsingLeadingEmptyLines() throws Exception {
+    void testBasicMessageParsingLeadingEmptyLines() throws Exception {
         final String s =
                 "\r\n" +
                 "\r\n" +
@@ -96,7 +96,7 @@ public class TestResponseParser {
     }
 
     @Test
-    public void testBasicMessageParsingTooManyLeadingEmptyLines() throws Exception {
+    void testBasicMessageParsingTooManyLeadingEmptyLines() {
         final String s =
                 "\r\n" +
                 "\r\n" +
@@ -114,7 +114,7 @@ public class TestResponseParser {
     }
 
     @Test
-    public void testMessageParsingTimeout() throws Exception {
+    void testMessageParsingTimeout() throws Exception {
         final String s =
             "HTTP\000/1.1 200\000 OK\r\n" +
             "Server: wha\000tever\r\n" +

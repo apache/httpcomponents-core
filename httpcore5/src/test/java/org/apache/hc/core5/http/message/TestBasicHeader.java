@@ -33,22 +33,22 @@ import org.junit.jupiter.api.Test;
 /**
  * Tests for {@link BasicHeader}.
  */
-public class TestBasicHeader {
+class TestBasicHeader {
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         final Header param = new BasicHeader("name", "value");
         Assertions.assertEquals("name", param.getName());
         Assertions.assertEquals("value", param.getValue());
     }
 
     @Test
-    public void testInvalidName() {
+    void testInvalidName() {
         Assertions.assertThrows(NullPointerException.class, () -> new BasicHeader(null, null));
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         final Header param1 = new BasicHeader("name1", "value1");
         Assertions.assertEquals("name1: value1", param1.toString());
         final Header param2 = new BasicHeader("name1", null);

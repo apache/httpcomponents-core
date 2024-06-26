@@ -66,7 +66,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-public abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
+abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
 
     private static final Timeout TIMEOUT = Timeout.ofMinutes(1);
 
@@ -132,7 +132,7 @@ public abstract class Http1CoreTransportTest extends HttpCoreTransportTest {
     }
 
     @Test
-    public void testSequentialRequestsNonPersistentConnection() throws Exception {
+    void testSequentialRequestsNonPersistentConnection() throws Exception {
         final HttpAsyncServer server = serverResource.start();
         final Future<ListenerEndpoint> future = server.listen(new InetSocketAddress(0), scheme);
         final ListenerEndpoint listener = future.get();

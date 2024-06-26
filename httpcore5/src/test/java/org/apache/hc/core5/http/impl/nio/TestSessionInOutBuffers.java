@@ -50,7 +50,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Simple tests for {@link SessionInputBuffer} and {@link SessionOutputBuffer}.
  */
-public class TestSessionInOutBuffers {
+class TestSessionInOutBuffers {
 
     private static WritableByteChannel newChannel(final ByteArrayOutputStream outStream) {
         return Channels.newChannel(outStream);
@@ -69,7 +69,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testReadLineChunks() throws Exception {
+    void testReadLineChunks() throws Exception {
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16);
 
         ReadableByteChannel channel = newChannel("One\r\nTwo\r\nThree");
@@ -107,7 +107,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testLineLimit() throws Exception {
+    void testLineLimit() throws Exception {
         final String s = "LoooooooooooooooooooooooooOOOOOOOOOOOOOOOOOOoooooooooooooooooooooong line\r\n";
         final CharArrayBuffer line = new CharArrayBuffer(64);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(128, 128);
@@ -124,7 +124,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testLineLimitBufferFull() throws Exception {
+    void testLineLimitBufferFull() throws Exception {
         final String s = "LoooooooooooooooooooooooooOOOOOOOOOOOOOOOOOOoooooooooooooooooooooong line\r\n";
         final CharArrayBuffer line = new CharArrayBuffer(64);
         final SessionInputBuffer inbuf1 = new SessionInputBufferImpl(32, 32);
@@ -141,7 +141,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testWriteLineChunks() throws Exception {
+    void testWriteLineChunks() throws Exception {
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(16, 16, 0);
 
@@ -195,7 +195,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testNonASCIIWriteLine() throws Exception {
+    void testNonASCIIWriteLine() throws Exception {
         final String testString = "123\u010Anew-header-from-some-header:injected-value";
         final String expectedResult = "123?new-header-from-some-header:injected-value";
 
@@ -223,7 +223,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testBasicReadWriteLine() throws Exception {
+    void testBasicReadWriteLine() throws Exception {
 
         final String[] teststrs = new String[5];
         teststrs[0] = "Hello";
@@ -269,7 +269,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testComplexReadWriteLine() throws Exception {
+    void testComplexReadWriteLine() throws Exception {
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
         outbuf.write(ByteBuffer.wrap(new byte[] {'a', '\n'}));
         outbuf.write(ByteBuffer.wrap(new byte[] {'\r', '\n'}));
@@ -345,7 +345,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testReadOneByte() throws Exception {
+    void testReadOneByte() throws Exception {
         // make the buffer larger than that of transmitter
         final byte[] out = new byte[40];
         for (int i = 0; i < out.length; i++) {
@@ -366,7 +366,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testReadByteBuffer() throws Exception {
+    void testReadByteBuffer() throws Exception {
         final byte[] pattern = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, 0);
@@ -383,7 +383,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testReadByteBufferWithMaxLen() throws Exception {
+    void testReadByteBufferWithMaxLen() throws Exception {
         final byte[] pattern = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, 0);
@@ -403,7 +403,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testReadToChannel() throws Exception {
+    void testReadToChannel() throws Exception {
         final byte[] pattern = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, 0);
@@ -418,7 +418,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testReadToChannelWithMaxLen() throws Exception {
+    void testReadToChannelWithMaxLen() throws Exception {
         final byte[] pattern = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
         final ReadableByteChannel channel = newChannel(pattern);
         final SessionInputBuffer inbuf = new SessionInputBufferImpl(4096, 1024, 0);
@@ -435,7 +435,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testWriteByteBuffer() throws Exception {
+    void testWriteByteBuffer() throws Exception {
         final byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024);
@@ -450,7 +450,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testWriteFromChannel() throws Exception {
+    void testWriteFromChannel() throws Exception {
         final byte[] pattern = "0123456789ABCDEF0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(4096, 1024);
@@ -485,7 +485,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testMultibyteCodedReadWriteLine() throws Exception {
+    void testMultibyteCodedReadWriteLine() throws Exception {
         final String s1 = constructString(SWISS_GERMAN_HELLO);
         final String s2 = constructString(RUSSIAN_HELLO);
         final String s3 = "Like hello and stuff";
@@ -533,7 +533,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testInputMatchesBufferLength() throws Exception {
+    void testInputMatchesBufferLength() {
         final String s1 = "abcde";
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
@@ -542,7 +542,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testMalformedInputActionReport() throws Exception {
+    void testMalformedInputActionReport() throws Exception {
         final String s = constructString(SWISS_GERMAN_HELLO);
         final byte[] tmp = s.getBytes(StandardCharsets.ISO_8859_1);
 
@@ -559,7 +559,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testMalformedInputActionIgnore() throws Exception {
+    void testMalformedInputActionIgnore() throws Exception {
         final String s = constructString(SWISS_GERMAN_HELLO);
         final byte[] tmp = s.getBytes(StandardCharsets.ISO_8859_1);
 
@@ -576,7 +576,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testMalformedInputActionReplace() throws Exception {
+    void testMalformedInputActionReplace() throws Exception {
         final String s = constructString(SWISS_GERMAN_HELLO);
         final byte[] tmp = s.getBytes(StandardCharsets.ISO_8859_1);
 
@@ -593,7 +593,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testUnmappableInputActionReport() throws Exception {
+    void testUnmappableInputActionReport() {
         final String s = "This text contains a circumflex \u0302!!!";
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
@@ -606,7 +606,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testUnmappableInputActionIgnore() throws Exception {
+    void testUnmappableInputActionIgnore() throws Exception {
         final String s = "This text contains a circumflex \u0302!!!";
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);
@@ -624,7 +624,7 @@ public class TestSessionInOutBuffers {
     }
 
     @Test
-    public void testUnmappableInputActionReplace() throws Exception {
+    void testUnmappableInputActionReplace() throws Exception {
         final String s = "This text contains a circumflex \u0302 !!!";
         final CharsetEncoder encoder = StandardCharsets.ISO_8859_1.newEncoder();
         encoder.onMalformedInput(CodingErrorAction.IGNORE);

@@ -30,10 +30,10 @@ package org.apache.hc.core5.http.impl.routing;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestPathPatternMatcher {
+class TestPathPatternMatcher {
 
     @Test
-    public void testPathMatching() throws Exception {
+    void testPathMatching() {
         final PathPatternMatcher matcher = PathPatternMatcher.INSTANCE;
 
         Assertions.assertTrue(matcher.match("/*", "/foo/request"));
@@ -46,7 +46,7 @@ public class TestPathPatternMatcher {
     }
 
     @Test
-    public void testBetterMatch() throws Exception {
+    void testBetterMatch() {
         final PathPatternMatcher matcher = PathPatternMatcher.INSTANCE;
 
         Assertions.assertTrue(matcher.isBetter("/a*", "/*"));

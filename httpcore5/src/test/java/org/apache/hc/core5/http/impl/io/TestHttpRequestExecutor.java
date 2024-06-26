@@ -50,10 +50,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
-public class TestHttpRequestExecutor {
+class TestHttpRequestExecutor {
 
     @Test
-    public void testInvalidInput() throws Exception {
+    void testInvalidInput() {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         final ClassicHttpResponse response = new BasicClassicHttpResponse(200, "OK");
@@ -99,7 +99,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testBasicExecution() throws Exception {
+    void testBasicExecution() throws Exception {
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
@@ -127,7 +127,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionSkipIntermediateResponses() throws Exception {
+    void testExecutionSkipIntermediateResponses() throws Exception {
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
@@ -172,7 +172,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionNoResponseBody() throws Exception {
+    void testExecutionNoResponseBody() throws Exception {
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
@@ -197,7 +197,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionHead() throws Exception {
+    void testExecutionHead() throws Exception {
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
@@ -222,7 +222,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionEntityEnclosingRequest() throws Exception {
+    void testExecutionEntityEnclosingRequest() throws Exception {
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
@@ -250,7 +250,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionEntityEnclosingRequestWithExpectContinueSuccess() throws Exception {
+    void testExecutionEntityEnclosingRequestWithExpectContinueSuccess() throws Exception {
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
@@ -282,7 +282,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionEntityEnclosingRequestWithExpectContinueFailure() throws Exception {
+    void testExecutionEntityEnclosingRequestWithExpectContinueFailure() throws Exception {
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
@@ -314,7 +314,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionEntityEnclosingRequestWithExpectContinueMultiple1xxResponses() throws Exception {
+    void testExecutionEntityEnclosingRequestWithExpectContinueMultiple1xxResponses() throws Exception {
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
@@ -362,7 +362,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionEntityEnclosingRequestWithExpectContinueNoResponse() throws Exception {
+    void testExecutionEntityEnclosingRequestWithExpectContinueNoResponse() throws Exception {
         final HttpProcessor httprocessor = Mockito.mock(HttpProcessor.class);
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
@@ -393,7 +393,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionIOException() throws Exception {
+    void testExecutionIOException() throws Exception {
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 
@@ -406,7 +406,7 @@ public class TestHttpRequestExecutor {
     }
 
     @Test
-    public void testExecutionRuntimeException() throws Exception {
+    void testExecutionRuntimeException() throws Exception {
         final HttpClientConnection conn = Mockito.mock(HttpClientConnection.class);
         final HttpRequestExecutor executor = new HttpRequestExecutor();
 

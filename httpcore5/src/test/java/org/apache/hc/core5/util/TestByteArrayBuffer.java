@@ -41,10 +41,10 @@ import org.junit.jupiter.api.Test;
  * Unit tests for {@link ByteArrayBuffer}.
  *
  */
-public class TestByteArrayBuffer {
+class TestByteArrayBuffer {
 
     @Test
-    public void testConstructor() throws Exception {
+    void testConstructor() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         Assertions.assertEquals(16, buffer.capacity());
         Assertions.assertEquals(0, buffer.length());
@@ -54,7 +54,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testSimpleAppend() throws Exception {
+    void testSimpleAppend() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         Assertions.assertEquals(16, buffer.capacity());
         Assertions.assertEquals(0, buffer.length());
@@ -86,7 +86,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testExpandAppend() throws Exception {
+    void testExpandAppend() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         Assertions.assertEquals(4, buffer.capacity());
 
@@ -105,7 +105,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testAppendHeapByteBuffer() {
+    void testAppendHeapByteBuffer() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         Assertions.assertEquals(4, buffer.capacity());
 
@@ -126,7 +126,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testAppendHeapByteBufferWithOffset() {
+    void testAppendHeapByteBufferWithOffset() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         Assertions.assertEquals(4, buffer.capacity());
 
@@ -150,7 +150,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testAppendDirectByteBuffer() {
+    void testAppendDirectByteBuffer() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         Assertions.assertEquals(4, buffer.capacity());
 
@@ -172,7 +172,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testInvalidAppend() throws Exception {
+    void testInvalidAppend() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         buffer.append((byte[])null, 0, 0);
 
@@ -185,7 +185,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testAppendOneByte() throws Exception {
+    void testAppendOneByte() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         Assertions.assertEquals(4, buffer.capacity());
 
@@ -202,21 +202,21 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testSetLength() throws Exception {
+    void testSetLength() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         buffer.setLength(2);
         Assertions.assertEquals(2, buffer.length());
     }
 
     @Test
-    public void testSetInvalidLength() throws Exception {
+    void testSetInvalidLength() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.setLength(-2));
         Assertions.assertThrows(IndexOutOfBoundsException.class, () -> buffer.setLength(200));
     }
 
     @Test
-    public void testEnsureCapacity() throws Exception {
+    void testEnsureCapacity() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         buffer.ensureCapacity(2);
         Assertions.assertEquals(4, buffer.capacity());
@@ -225,7 +225,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testIndexOf() throws Exception {
+    void testIndexOf() {
         final byte COLON = (byte) ':';
         final byte COMMA = (byte) ',';
         final byte[] bytes = "name1: value1; name2: value2".getBytes(StandardCharsets.US_ASCII);
@@ -244,7 +244,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testAppendCharArrayAsAscii() throws Exception {
+    void testAppendCharArrayAsAscii() {
         final String s1 = "stuff";
         final String s2 = " and more stuff";
         final char[] b1 = s1.toCharArray();
@@ -258,28 +258,28 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testAppendNullCharArray() throws Exception {
+    void testAppendNullCharArray() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         buffer.append((char[])null, 0, 0);
         Assertions.assertEquals(0, buffer.length());
     }
 
     @Test
-    public void testAppendEmptyCharArray() throws Exception {
+    void testAppendEmptyCharArray() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         buffer.append(new char[] {}, 0, 0);
         Assertions.assertEquals(0, buffer.length());
     }
 
     @Test
-    public void testAppendNullCharArrayBuffer() throws Exception {
+    void testAppendNullCharArrayBuffer() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         buffer.append((CharArrayBuffer)null, 0, 0);
         Assertions.assertEquals(0, buffer.length());
     }
 
     @Test
-    public void testAppendNullByteBuffer() throws Exception {
+    void testAppendNullByteBuffer() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(8);
         final ByteBuffer nullBuffer = null;
         buffer.append(nullBuffer);
@@ -287,7 +287,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testInvalidAppendCharArrayAsAscii() throws Exception {
+    void testInvalidAppendCharArrayAsAscii() {
         final ByteArrayBuffer buffer = new ByteArrayBuffer(4);
         buffer.append((char[])null, 0, 0);
 
@@ -300,7 +300,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testSerialization() throws Exception {
+    void testSerialization() throws Exception {
         final ByteArrayBuffer orig = new ByteArrayBuffer(32);
         orig.append(1);
         orig.append(2);
@@ -324,7 +324,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testControlCharFiltering() throws Exception {
+    void testControlCharFiltering() {
         final char[] chars = new char[256];
         for (char i = 0; i < 256; i++) {
             chars[i] = i;
@@ -346,7 +346,7 @@ public class TestByteArrayBuffer {
     }
 
     @Test
-    public void testUnicodeFiltering() throws Exception {
+    void testUnicodeFiltering() {
         // Various languages
         Assertions.assertEquals("?????", new String(asByteArray("буквы".toCharArray()), StandardCharsets.ISO_8859_1));
         Assertions.assertEquals("????", new String(asByteArray("四字熟語".toCharArray()), StandardCharsets.ISO_8859_1));

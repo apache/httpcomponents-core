@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.message.HeaderGroup;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class TestDefaultContentLengthStrategy {
+class TestDefaultContentLengthStrategy {
 
     static class TestHttpMessage extends HeaderGroup implements HttpMessage {
 
@@ -65,7 +65,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithChunkTransferEncoding() throws Exception {
+    void testEntityWithChunkTransferEncoding() throws Exception {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "Chunked");
@@ -74,7 +74,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithChunkTransferEncodingAndEmptyTokens() throws Exception {
+    void testEntityWithChunkTransferEncodingAndEmptyTokens() throws Exception {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", ",,Chunked,,");
@@ -83,7 +83,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithChunkTransferEncodingDoubleChunk() throws Exception {
+    void testEntityWithChunkTransferEncodingDoubleChunk() {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "Chunked,Chunked");
@@ -92,7 +92,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithChunkTransferEncodingUnknown1() throws Exception {
+    void testEntityWithChunkTransferEncodingUnknown1() {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "blah");
@@ -101,7 +101,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithChunkTransferEncodingUnknown2() throws Exception {
+    void testEntityWithChunkTransferEncodingUnknown2() {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "blah, chunked");
@@ -110,7 +110,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithChunkTransferEncodingUnknown3() throws Exception {
+    void testEntityWithChunkTransferEncodingUnknown3() {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "chunked,blah");
@@ -119,7 +119,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithIdentityTransferEncoding() throws Exception {
+    void testEntityWithIdentityTransferEncoding() {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Transfer-Encoding", "Identity");
@@ -128,7 +128,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithContentLength() throws Exception {
+    void testEntityWithContentLength() throws Exception  {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "100");
@@ -136,7 +136,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithInvalidContentLength() throws Exception {
+    void testEntityWithInvalidContentLength() {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "whatever");
@@ -145,7 +145,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityWithNegativeContentLength() throws Exception {
+    void testEntityWithNegativeContentLength() {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "-10");
@@ -154,7 +154,7 @@ public class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    public void testEntityNoContentDelimiter() throws Exception {
+    void testEntityNoContentDelimiter() throws Exception {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         Assertions.assertEquals(ContentLengthStrategy.UNDEFINED, lenStrategy.determineLength(message));

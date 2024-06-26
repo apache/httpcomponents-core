@@ -61,7 +61,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-public class BenchmarkToolTest {
+class BenchmarkToolTest {
 
     public static Stream<Arguments> protocols() {
         return Stream.of(
@@ -73,7 +73,7 @@ public class BenchmarkToolTest {
     private HttpAsyncServer server;
     private InetSocketAddress address;
 
-    public void setup(final HttpVersionPolicy versionPolicy) throws Exception {
+    void setup(final HttpVersionPolicy versionPolicy) throws Exception {
         server = H2ServerBootstrap.bootstrap()
                 .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
                         .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new BasicServerExchangeHandler<>(
@@ -111,7 +111,7 @@ public class BenchmarkToolTest {
     }
 
     @AfterEach
-    public void shutdown() throws Exception {
+    void shutdown() {
         if (server != null) {
             server.close(CloseMode.IMMEDIATE);
         }
@@ -120,7 +120,7 @@ public class BenchmarkToolTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("protocols")
-    public void testBasics(final HttpVersionPolicy versionPolicy) throws Exception {
+    void testBasics(final HttpVersionPolicy versionPolicy) throws Exception {
         setup(versionPolicy);
         final BenchmarkConfig config = BenchmarkConfig.custom()
                 .setKeepAlive(true)

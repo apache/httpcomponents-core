@@ -44,10 +44,10 @@ import org.mockito.Mockito;
 /**
  * Simple tests for {@link ChunkEncoder}.
  */
-public class TestChunkEncoder {
+class TestChunkEncoder {
 
     @Test
-    public void testBasicCoding() throws Exception {
+    void testBasicCoding() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
@@ -68,7 +68,7 @@ public class TestChunkEncoder {
     }
 
     @Test
-    public void testChunkNoExceed() throws Exception {
+    void testChunkNoExceed() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 16);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
@@ -85,7 +85,7 @@ public class TestChunkEncoder {
     }
 
     @Test // See HTTPCORE-239
-    public void testLimitedChannel() throws Exception {
+    void testLimitedChannel() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(16, 16);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
@@ -118,7 +118,7 @@ public class TestChunkEncoder {
     }
 
     @Test
-    public void testBufferFragments() throws Exception {
+    void testBufferFragments() throws Exception {
         final WritableByteChannelMock channel = Mockito.spy(new WritableByteChannelMock(1024));
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 1024);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
@@ -137,7 +137,7 @@ public class TestChunkEncoder {
     }
 
     @Test
-    public void testChunkExceed() throws Exception {
+    void testChunkExceed() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(16, 16);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
@@ -155,7 +155,7 @@ public class TestChunkEncoder {
     }
 
     @Test
-    public void testCodingEmptyBuffer() throws Exception {
+    void testCodingEmptyBuffer() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
@@ -181,7 +181,7 @@ public class TestChunkEncoder {
     }
 
     @Test
-    public void testCodingCompleted() throws Exception {
+    void testCodingCompleted() throws Exception {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();
@@ -197,7 +197,7 @@ public class TestChunkEncoder {
     }
 
     @Test
-    public void testInvalidConstructor() {
+    void testInvalidConstructor() {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
 
@@ -207,7 +207,7 @@ public class TestChunkEncoder {
     }
 
     @Test
-    public void testTrailers() throws IOException {
+    void testTrailers() throws IOException {
         final WritableByteChannelMock channel = new WritableByteChannelMock(64);
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 128);
         final BasicHttpTransportMetrics metrics = new BasicHttpTransportMetrics();

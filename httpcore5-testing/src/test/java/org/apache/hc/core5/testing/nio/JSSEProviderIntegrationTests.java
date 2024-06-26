@@ -32,11 +32,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-public class JSSEProviderIntegrationTests {
+class JSSEProviderIntegrationTests {
 
     @Nested
     @DisplayName("Oracle (default)")
-    public class Oracle extends JSSEProviderIntegrationTest {
+    class Oracle extends JSSEProviderIntegrationTest {
 
         public Oracle() {
             super("Oracle", null);
@@ -47,7 +47,7 @@ public class JSSEProviderIntegrationTests {
     @Nested
     @DisplayName("Conscrypt (TLSv1.2)")
     @DisabledOnOs(OS.MAC)
-    public class ConscryptTlsV1_2 extends JSSEProviderIntegrationTest {
+    class ConscryptTlsV1_2 extends JSSEProviderIntegrationTest {
 
         public ConscryptTlsV1_2() {
             super("Conscrypt", "TLSv1.2");
@@ -58,7 +58,7 @@ public class JSSEProviderIntegrationTests {
     @Nested
     @DisplayName("Conscrypt (TLSv1.3)")
     @DisabledOnOs(OS.MAC)
-    public class ConscryptTlsV1_3 extends JSSEProviderIntegrationTest {
+    class ConscryptTlsV1_3 extends JSSEProviderIntegrationTest {
 
         public ConscryptTlsV1_3() {
             super("Conscrypt", "TLSv1.3");
