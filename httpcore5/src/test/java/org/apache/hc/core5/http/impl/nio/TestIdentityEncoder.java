@@ -115,7 +115,9 @@ class TestIdentityEncoder {
         encoder.write(CodecTestUtils.wrap("stuff"));
         encoder.complete();
 
-        Assertions.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
+        final ByteBuffer wrapped = CodecTestUtils.wrap("more stuff");
+
+        Assertions.assertThrows(IllegalStateException.class, () -> encoder.write(wrapped));
     }
 
     @Test

@@ -50,7 +50,7 @@ class TestFrameworkTest {
         final Map<String, Object> request = test.initRequest();
 
         Assertions.assertNotNull(request, "request should not be null");
-        Assertions.assertEquals(request.get(METHOD), "GET", "Default method should be GET");
+        Assertions.assertEquals("GET", request.get(METHOD), "Default method should be GET");
 
         Assertions.assertEquals(TestingFramework.DEFAULT_REQUEST_BODY,
                 request.get(BODY), "Default request body expected.");

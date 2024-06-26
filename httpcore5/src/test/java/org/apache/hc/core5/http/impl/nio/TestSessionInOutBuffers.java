@@ -538,7 +538,7 @@ class TestSessionInOutBuffers {
         final SessionOutputBuffer outbuf = new SessionOutputBufferImpl(1024, 5);
         final CharArrayBuffer chbuffer = new CharArrayBuffer(16);
         chbuffer.append(s1);
-        outbuf.writeLine(chbuffer);
+        Assertions.assertDoesNotThrow(() -> outbuf.writeLine(chbuffer));
     }
 
     @Test

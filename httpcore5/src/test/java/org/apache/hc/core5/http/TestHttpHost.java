@@ -90,16 +90,16 @@ class TestHttpHost {
                         "http", InetAddress.getByAddress("someotherhost",new byte[] {127,0,0,1}), 80);
 
         Assertions.assertEquals(host1.hashCode(), host1.hashCode());
-        Assertions.assertTrue(host1.hashCode() != host2.hashCode());
-        Assertions.assertTrue(host1.hashCode() != host3.hashCode());
+        Assertions.assertNotEquals(host1.hashCode(), host2.hashCode());
+        Assertions.assertNotEquals(host1.hashCode(), host3.hashCode());
         Assertions.assertEquals(host2.hashCode(), host4.hashCode());
         Assertions.assertEquals(host2.hashCode(), host5.hashCode());
-        Assertions.assertTrue(host5.hashCode() != host6.hashCode());
-        Assertions.assertTrue(host7.hashCode() != host8.hashCode());
-        Assertions.assertTrue(host8.hashCode() != host9.hashCode());
+        Assertions.assertNotEquals(host5.hashCode(), host6.hashCode());
+        Assertions.assertNotEquals(host7.hashCode(), host8.hashCode());
+        Assertions.assertNotEquals(host8.hashCode(), host9.hashCode());
         Assertions.assertEquals(host9.hashCode(), host10.hashCode());
-        Assertions.assertTrue(host10.hashCode() != host11.hashCode());
-        Assertions.assertTrue(host9.hashCode() != host11.hashCode());
+        Assertions.assertNotEquals(host10.hashCode(), host11.hashCode());
+        Assertions.assertNotEquals(host9.hashCode(), host11.hashCode());
     }
 
     @Test
@@ -127,7 +127,7 @@ class TestHttpHost {
         Assertions.assertEquals(host2, host5);
         Assertions.assertNotEquals(host5, host6);
         Assertions.assertNotEquals(host7, host8);
-        Assertions.assertFalse(host7.equals(host9));
+        Assertions.assertNotEquals(host7, host9);
         Assertions.assertNotEquals(null, host1);
         Assertions.assertNotEquals("http://somehost", host1);
         Assertions.assertNotEquals("http://somehost", host9);

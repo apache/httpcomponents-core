@@ -147,7 +147,7 @@ class TestEntityUtils {
         final String content = constructString(SWISS_GERMAN_HELLO);
         final byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
         final BasicHttpEntity entity = new BasicHttpEntity(new ByteArrayInputStream(bytes), ContentType.TEXT_PLAIN);
-        final String s = EntityUtils.toString(entity);
+        Assertions.assertDoesNotThrow(() -> EntityUtils.toString(entity));
     }
 
     @Test

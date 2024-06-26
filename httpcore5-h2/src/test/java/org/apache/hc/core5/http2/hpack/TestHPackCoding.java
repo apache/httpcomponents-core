@@ -154,7 +154,7 @@ class TestHPackCoding {
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackDecoder.decodePlainString(buffer, src);
-        Assertions.assertEquals(new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII), "custom-key");
+        Assertions.assertEquals("custom-key", new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII));
         Assertions.assertEquals(4, src.remaining());
     }
 
@@ -188,7 +188,8 @@ class TestHPackCoding {
 
         final ByteArrayBuffer buffer = new ByteArrayBuffer(16);
         HPackDecoder.decodeHuffman(buffer, src);
-        Assertions.assertEquals(new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII), "www.example.com");
+        Assertions.assertEquals("www.example.com",
+                new String(buffer.array(), 0, buffer.length(), StandardCharsets.US_ASCII));
         Assertions.assertFalse(src.hasRemaining(), "Decoding completed");
     }
 
@@ -240,7 +241,7 @@ class TestHPackCoding {
             decoder.decodeString(wrap(buffer), strBuf);
             strBuf.delete(0,strBuf.length());
         }
-        Assertions.assertEquals(decoder.getTmpBufSize(), 256);
+        Assertions.assertEquals(256, decoder.getTmpBufSize());
     }
 
     static final int SWISS_GERMAN_HELLO[] = {

@@ -70,7 +70,7 @@ class TestChunkCoding {
         in.close();
 
         final String result = new String(out.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals(result, CHUNKED_RESULT);
+        Assertions.assertEquals(CHUNKED_RESULT, result);
 
         final Header[] footers = in.getFooters();
         Assertions.assertNotNull(footers);

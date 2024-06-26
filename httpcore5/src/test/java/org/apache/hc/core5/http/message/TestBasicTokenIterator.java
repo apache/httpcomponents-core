@@ -50,13 +50,13 @@ class TestBasicTokenIterator {
         Iterator<String>  ti  = new BasicTokenIterator(hit);
 
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token0", "token0", ti.next());
+        Assertions.assertEquals("token0", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token1", "token1", ti.next());
+        Assertions.assertEquals("token1", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token2", "token2", ti.next());
+        Assertions.assertEquals("token2", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token3", "token3", ti.next());
+        Assertions.assertEquals("token3", ti.next());
         Assertions.assertFalse(ti.hasNext());
 
 
@@ -67,7 +67,7 @@ class TestBasicTokenIterator {
         ti  = new BasicTokenIterator(hit);
 
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token0", "token0", ti.next());
+        Assertions.assertEquals("token0", ti.next());
         Assertions.assertFalse(ti.hasNext());
     }
 
@@ -87,15 +87,15 @@ class TestBasicTokenIterator {
         final Iterator<String>  ti  = new BasicTokenIterator(hit);
 
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token0", "token0", ti.next());
+        Assertions.assertEquals("token0", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token1", "token1", ti.next());
+        Assertions.assertEquals("token1", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token2", "token2", ti.next());
+        Assertions.assertEquals("token2", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token3", "token3", ti.next());
+        Assertions.assertEquals("token3", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token4", "token4", ti.next());
+        Assertions.assertEquals("token4", ti.next());
         Assertions.assertFalse(ti.hasNext());
     }
 
@@ -135,17 +135,17 @@ class TestBasicTokenIterator {
         final Iterator<String>  ti  = new BasicTokenIterator(hit);
 
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token0", "token0", ti.next());
+        Assertions.assertEquals("token0", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token1", "token1", ti.next());
+        Assertions.assertEquals("token1", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token2", "token2", ti.next());
+        Assertions.assertEquals("token2", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token3", "token3", ti.next());
+        Assertions.assertEquals("token3", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token4", "token4", ti.next());
+        Assertions.assertEquals("token4", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token5", "token5", ti.next());
+        Assertions.assertEquals("token5", ti.next());
         Assertions.assertFalse(ti.hasNext());
     }
 
@@ -164,17 +164,17 @@ class TestBasicTokenIterator {
         final Iterator<String>  ti  = new BasicTokenIterator(hit);
 
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token0", "token0", ti.next());
+        Assertions.assertEquals("token0", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token1", "token1", ti.next());
+        Assertions.assertEquals("token1", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token2", "token2", ti.next());
+        Assertions.assertEquals("token2",  ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token3", "token3", ti.next());
+        Assertions.assertEquals("token3", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token4", "token4", ti.next());
+        Assertions.assertEquals("token4", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token5", "token5", ti.next());
+        Assertions.assertEquals("token5", ti.next());
         Assertions.assertFalse(ti.hasNext());
     }
 

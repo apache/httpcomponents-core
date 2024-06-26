@@ -57,7 +57,6 @@ class HttpResponseWrapperTest {
         final HttpResponse response1 = new BasicHttpResponse(200, "OK");
         final HttpResponseWrapper httpResponseWrapper1 = new HttpResponseWrapper(response1);
 
-        Assertions.assertNotNull(httpResponseWrapper1.getCode());
         Assertions.assertEquals(200, httpResponseWrapper1.getCode());
 
         final HttpResponse response2 = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");

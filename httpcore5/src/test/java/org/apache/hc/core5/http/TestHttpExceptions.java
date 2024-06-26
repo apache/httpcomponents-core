@@ -42,18 +42,18 @@ class TestHttpExceptions {
     @Test
     void testConstructor() {
         final Throwable cause = new Exception();
-        new HttpException();
-        new HttpException("Oppsie");
-        new HttpException("Oppsie", cause);
-        new ProtocolException();
-        new ProtocolException("Oppsie");
-        new ProtocolException("Oppsie", cause);
-        new NoHttpResponseException("Oppsie");
-        new ConnectionClosedException("Oppsie");
-        new MethodNotSupportedException("Oppsie");
-        new MethodNotSupportedException("Oppsie", cause);
-        new UnsupportedHttpVersionException();
-        new UnsupportedHttpVersionException("Oppsie");
+        Assertions.assertDoesNotThrow(() -> new HttpException());
+        Assertions.assertDoesNotThrow(() -> new HttpException("Oppsie"));
+        Assertions.assertDoesNotThrow(() -> new HttpException("Oppsie", cause));
+        Assertions.assertDoesNotThrow(() -> new ProtocolException());
+        Assertions.assertDoesNotThrow(() -> new ProtocolException("Oppsie"));
+        Assertions.assertDoesNotThrow(() -> new ProtocolException("Oppsie", cause));
+        Assertions.assertDoesNotThrow(() -> new NoHttpResponseException("Oppsie"));
+        Assertions.assertDoesNotThrow(() -> new ConnectionClosedException("Oppsie"));
+        Assertions.assertDoesNotThrow(() -> new MethodNotSupportedException("Oppsie"));
+        Assertions.assertDoesNotThrow(() -> new MethodNotSupportedException("Oppsie", cause));
+        Assertions.assertDoesNotThrow(() -> new UnsupportedHttpVersionException());
+        Assertions.assertDoesNotThrow(() -> new UnsupportedHttpVersionException("Oppsie"));
     }
 
     @Test

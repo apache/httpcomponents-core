@@ -131,7 +131,9 @@ class TestLengthDelimitedEncoder {
                 channel, outbuf, metrics, 5);
         encoder.write(CodecTestUtils.wrap("stuff"));
 
-        Assertions.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
+        final ByteBuffer wrapped = CodecTestUtils.wrap("more stuff");
+
+        Assertions.assertThrows(IllegalStateException.class, () -> encoder.write(wrapped));
     }
 
     @Test

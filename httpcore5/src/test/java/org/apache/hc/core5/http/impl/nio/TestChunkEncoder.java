@@ -192,7 +192,9 @@ class TestChunkEncoder {
         encoder.write(CodecTestUtils.wrap("90"));
         encoder.complete();
 
-        Assertions.assertThrows(IllegalStateException.class, () -> encoder.write(CodecTestUtils.wrap("more stuff")));
+        final ByteBuffer wrapped = CodecTestUtils.wrap("more stuff");
+
+        Assertions.assertThrows(IllegalStateException.class, () -> encoder.write(wrapped));
         Assertions.assertThrows(IllegalStateException.class, () -> encoder.complete());
     }
 

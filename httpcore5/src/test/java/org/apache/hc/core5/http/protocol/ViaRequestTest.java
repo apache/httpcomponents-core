@@ -52,9 +52,9 @@ class ViaRequestTest {
         final ViaRequest interceptor = new ViaRequest();
         interceptor.process(request, request.getEntity(), context);
 
-        assertEquals(request.getHeader(HttpHeaders.VIA).getName(), HttpHeaders.VIA);
+        assertEquals(HttpHeaders.VIA, request.getHeader(HttpHeaders.VIA).getName());
         assertNotNull(request.getHeader(HttpHeaders.VIA));
-        assertEquals(request.getHeader(HttpHeaders.VIA).getValue(), "HTTP 1.1 somehost:8888");
+        assertEquals("HTTP 1.1 somehost:8888", request.getHeader(HttpHeaders.VIA).getValue());
 
     }
 
@@ -68,9 +68,9 @@ class ViaRequestTest {
         final ViaRequest interceptor = new ViaRequest();
         interceptor.process(request, request.getEntity(), context);
 
-        assertEquals(request.getHeader(HttpHeaders.VIA).getName(), HttpHeaders.VIA);
+        assertEquals(HttpHeaders.VIA, request.getHeader(HttpHeaders.VIA).getName());
         assertNotNull(request.getHeader(HttpHeaders.VIA));
-        assertEquals(request.getHeader(HttpHeaders.VIA).getValue(), "HTTP 1.1 somehost");
+        assertEquals("HTTP 1.1 somehost", request.getHeader(HttpHeaders.VIA).getValue());
     }
 
 
@@ -109,7 +109,7 @@ class ViaRequestTest {
         final ViaRequest interceptor = new ViaRequest();
         interceptor.process(request, request.getEntity(), context);
 
-        assertEquals(request.getHeader(HttpHeaders.VIA).getName(), HttpHeaders.VIA);
+        assertEquals(HttpHeaders.VIA, request.getHeader(HttpHeaders.VIA).getName());
         assertNotNull(request.getHeader(HttpHeaders.VIA));
         assertEquals(request.getHeader(HttpHeaders.VIA).getValue(), viaValue);
 

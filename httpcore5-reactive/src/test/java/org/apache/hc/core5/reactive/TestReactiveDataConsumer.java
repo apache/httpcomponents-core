@@ -177,7 +177,7 @@ class TestReactiveDataConsumer {
         consumer.consume(data.duplicate());
         consumer.streamEnd(null);
 
-        Assertions.assertEquals(Flowable.fromPublisher(consumer).count().blockingGet().longValue(), 3L);
+        Assertions.assertEquals(3L, Flowable.fromPublisher(consumer).count().blockingGet().longValue());
     }
 
     @Test
