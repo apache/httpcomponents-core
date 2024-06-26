@@ -70,8 +70,8 @@ class TestHost {
         final Host host4 = new Host("somehost", 80);
 
         Assertions.assertEquals(host1.hashCode(), host1.hashCode());
-        Assertions.assertTrue(host1.hashCode() != host2.hashCode());
-        Assertions.assertTrue(host1.hashCode() != host3.hashCode());
+        Assertions.assertNotEquals(host1.hashCode(), host2.hashCode());
+        Assertions.assertNotEquals(host1.hashCode(), host3.hashCode());
         Assertions.assertEquals(host2.hashCode(), host4.hashCode());
     }
 

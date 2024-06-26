@@ -58,7 +58,6 @@ class TestBasicMessages {
     @Test
     void testSetResponseStatus() {
         final HttpResponse response1 = new BasicHttpResponse(200, "OK");
-        Assertions.assertNotNull(response1.getCode());
         Assertions.assertEquals(200, response1.getCode());
 
         final HttpResponse response2 = new BasicHttpResponse(HttpStatus.SC_BAD_REQUEST, "Bad Request");

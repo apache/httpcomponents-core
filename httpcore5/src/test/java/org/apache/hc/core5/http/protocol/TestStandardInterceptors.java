@@ -960,7 +960,7 @@ class TestStandardInterceptors {
         final BasicClassicHttpRequest request = new BasicClassicHttpRequest(Method.GET, "/");
         request.setVersion(HttpVersion.HTTP_1_0);
         final RequestValidateHost interceptor = new RequestValidateHost();
-        interceptor.process(request, request.getEntity(), context);
+        Assertions.assertDoesNotThrow(() -> interceptor.process(request, request.getEntity(), context));
     }
 
     @Test
@@ -1032,7 +1032,7 @@ class TestStandardInterceptors {
         request.setAuthority(new URIAuthority("somehost", 8888));
         request.setPath("/path");
         final RequestConformance interceptor = new RequestConformance();
-        interceptor.process(request, request.getEntity(), context);
+        Assertions.assertDoesNotThrow(() -> interceptor.process(request, request.getEntity(), context));
     }
 
     @Test
@@ -1079,7 +1079,7 @@ class TestStandardInterceptors {
         request.setAuthority(new URIAuthority("somehost", 8888));
         request.setPath("/path");
         final RequestConformance interceptor = new RequestConformance();
-        interceptor.process(request, request.getEntity(), context);
+        Assertions.assertDoesNotThrow(() -> interceptor.process(request, request.getEntity(), context));
     }
 
     @Test
@@ -1100,7 +1100,7 @@ class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NO_CONTENT, "No Content");
         final ResponseConformance interceptor = new ResponseConformance();
-        interceptor.process(response, response.getEntity(), context);
+        Assertions.assertDoesNotThrow(() -> interceptor.process(response, response.getEntity(), context));
     }
 
     @Test
@@ -1108,7 +1108,7 @@ class TestStandardInterceptors {
         final HttpCoreContext context = HttpCoreContext.create();
         final ClassicHttpResponse response = new BasicClassicHttpResponse(HttpStatus.SC_NOT_MODIFIED, "Not Modified");
         final ResponseConformance interceptor = new ResponseConformance();
-        interceptor.process(response, response.getEntity(), context);
+        Assertions.assertDoesNotThrow(() -> interceptor.process(response, response.getEntity(), context));
     }
 
     @Test

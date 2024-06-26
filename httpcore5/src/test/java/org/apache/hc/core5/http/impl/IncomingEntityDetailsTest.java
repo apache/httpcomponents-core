@@ -56,7 +56,7 @@ class IncomingEntityDetailsTest {
                 () -> assertEquals(-1, incomingEntityDetails.getContentLength()),
                 () -> assertNull(incomingEntityDetails.getContentType()),
                 () -> assertNull(incomingEntityDetails.getContentEncoding()),
-                () -> assertEquals(incomingEntityDetails.getTrailerNames().size(), 0)
+                () -> assertEquals(0, incomingEntityDetails.getTrailerNames().size())
         );
     }
 

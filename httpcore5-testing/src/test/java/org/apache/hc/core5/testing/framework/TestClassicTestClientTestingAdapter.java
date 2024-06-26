@@ -217,7 +217,7 @@ class TestClassicTestClientTestingAdapter {
             public void handle(final ClassicHttpRequest request, final ClassicHttpResponse response, final HttpContext context)
                     throws HttpException, IOException {
                 try {
-                    Assertions.assertEquals("method not expected", "junk", request.getMethod());
+                    Assertions.assertEquals("junk", request.getMethod(), "method not expected");
                 } catch (final Throwable t) {
                     thrown = t;
                 }

@@ -95,7 +95,7 @@ class TestHttpEntityWrapper {
         final StringEntity entity = new StringEntity(s);
         final HttpEntityWrapper wrapped = new HttpEntityWrapper(entity);
         EntityUtils.consume(wrapped);
-        EntityUtils.consume(wrapped);
+        Assertions.assertDoesNotThrow(() -> EntityUtils.consume(wrapped));
     }
 
 }

@@ -56,7 +56,7 @@ class TestContentLengthInputStream {
         outputStream.write(buffer, 0, len);
 
         final String result = new String(outputStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals(result, "1234567890");
+        Assertions.assertEquals("1234567890", result);
         in.close();
     }
 

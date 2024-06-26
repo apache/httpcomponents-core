@@ -69,11 +69,11 @@ class TestURIAuthority {
         final URIAuthority host7 = new URIAuthority("user", "somehost", 80);
 
         Assertions.assertEquals(host1.hashCode(), host1.hashCode());
-        Assertions.assertTrue(host1.hashCode() != host2.hashCode());
-        Assertions.assertTrue(host1.hashCode() != host3.hashCode());
+        Assertions.assertNotEquals(host1.hashCode(), host2.hashCode());
+        Assertions.assertNotEquals(host1.hashCode(), host3.hashCode());
         Assertions.assertEquals(host2.hashCode(), host4.hashCode());
         Assertions.assertEquals(host2.hashCode(), host5.hashCode());
-        Assertions.assertTrue(host5.hashCode() != host6.hashCode());
+        Assertions.assertNotEquals(host5.hashCode(), host6.hashCode());
         Assertions.assertEquals(host6.hashCode(), host7.hashCode());
     }
 

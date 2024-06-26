@@ -57,7 +57,7 @@ class TestLangUtils {
         final int h2 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
         final int h3 = LangUtils.hashCode(LangUtils.HASH_SEED, true);
         final int h4 = LangUtils.hashCode(LangUtils.HASH_SEED, false);
-        Assertions.assertTrue(h1 != h2);
+        Assertions.assertNotEquals(h1, h2);
         Assertions.assertEquals(h1, h3);
         Assertions.assertEquals(h2, h4);
     }
