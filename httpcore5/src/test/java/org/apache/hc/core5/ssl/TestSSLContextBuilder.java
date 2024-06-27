@@ -525,11 +525,11 @@ class TestSSLContextBuilder {
         try (final SSLSocket clientSocket = (SSLSocket) clientSslContext.getSocketFactory().createSocket()) {
             clientSocket.connect(new InetSocketAddress("localhost", localPort), TIMEOUT.toMillisecondsIntBound());
             clientSocket.setSoTimeout(TIMEOUT.toMillisecondsIntBound());
-
-            clientSocket.startHandshake();
-            final InputStream inputStream = clientSocket.getInputStream();
-
-            Assertions.assertThrows(IOException.class, inputStream::read);
+            Assertions.assertThrows(IOException.class, () -> {
+                clientSocket.startHandshake();
+                final InputStream inputStream = clientSocket.getInputStream();
+                inputStream.read();
+            });
         }
     }
 
