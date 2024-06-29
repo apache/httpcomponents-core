@@ -43,6 +43,7 @@ import org.apache.hc.core5.http.WritableByteChannelMock;
 import org.apache.hc.core5.http.nio.DataStreamChannel;
 import org.apache.hc.core5.util.Timeout;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -64,23 +65,17 @@ public class TestSharedOutputBuffer {
         }
 
         @Override
-        public synchronized  void requestOutput() {
-            notifyAll();
+        public synchronized void requestOutput() {
         }
 
         @Override
         public synchronized void endStream(final List<? extends Header> trailers) throws IOException {
             channel.close();
-            notifyAll();
         }
 
         @Override
         public void endStream() throws IOException {
             endStream(null);
-        }
-
-        public synchronized void awaitOutputRequest() throws InterruptedException {
-            wait();
         }
 
     }
@@ -137,7 +132,7 @@ public class TestSharedOutputBuffer {
         Assertions.assertEquals(30, outputBuffer.capacity());
     }
 
-    @Test
+    @RepeatedTest(20)
     public void testMultithreadingWriteStream() throws Exception {
 
         final Charset charset = StandardCharsets.US_ASCII;
@@ -147,36 +142,37 @@ public class TestSharedOutputBuffer {
         final DataStreamChannelMock dataStreamChannel = new DataStreamChannelMock(channel);
 
         final ExecutorService executorService = Executors.newFixedThreadPool(2);
-        final Future<Boolean> task1 = executorService.submit(() -> {
-            final byte[] tmp = "1234567890".getBytes(charset);
-            outputBuffer.write(tmp, 0, tmp.length);
-            outputBuffer.write(tmp, 0, tmp.length);
-            outputBuffer.write('1');
-            outputBuffer.write('2');
-            outputBuffer.write(tmp, 0, tmp.length);
-            outputBuffer.write(tmp, 0, tmp.length);
-            outputBuffer.write(tmp, 0, tmp.length);
-            outputBuffer.writeCompleted();
-            outputBuffer.writeCompleted();
-            return Boolean.TRUE;
-        });
-        final Future<Boolean> task2 = executorService.submit(() -> {
-            for (;;) {
-                outputBuffer.flush(dataStreamChannel);
-                if (outputBuffer.isEndStream()) {
-                    break;
+        try {
+            final Future<Boolean> task1 = executorService.submit(() -> {
+                final byte[] tmp = "1234567890".getBytes(charset);
+                outputBuffer.write(tmp, 0, tmp.length);
+                outputBuffer.write(tmp, 0, tmp.length);
+                outputBuffer.write('1');
+                outputBuffer.write('2');
+                outputBuffer.write(tmp, 0, tmp.length);
+                outputBuffer.write(tmp, 0, tmp.length);
+                outputBuffer.write(tmp, 0, tmp.length);
+                outputBuffer.writeCompleted();
+                outputBuffer.writeCompleted();
+                return Boolean.TRUE;
+            });
+            final Future<Boolean> task2 = executorService.submit(() -> {
+                for (;;) {
+                    outputBuffer.flush(dataStreamChannel);
+                    if (outputBuffer.isEndStream()) {
+                        break;
+                    }
                 }
-                if (!outputBuffer.hasData()) {
-                    dataStreamChannel.awaitOutputRequest();
-                }
-            }
-            return Boolean.TRUE;
-        });
+                return Boolean.TRUE;
+            });
 
-        Assertions.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
-        Assertions.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+            Assertions.assertEquals(Boolean.TRUE, task1.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
+            Assertions.assertEquals(Boolean.TRUE, task2.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
 
-        Assertions.assertEquals("1234567890123456789012123456789012345678901234567890", new String(channel.toByteArray(), charset));
+            Assertions.assertEquals("1234567890123456789012123456789012345678901234567890", new String(channel.toByteArray(), charset));
+        } finally {
+            executorService.shutdownNow();
+        }
     }
 
     @Test
