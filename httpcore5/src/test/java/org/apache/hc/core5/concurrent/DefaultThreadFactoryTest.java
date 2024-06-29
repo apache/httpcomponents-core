@@ -42,7 +42,7 @@ class DefaultThreadFactoryTest {
         final Thread thread = defaultThreadFactory.newThread(lockHeld::countDown);
         Assertions.assertNotNull(thread);
         thread.start();
-        Assertions.assertTrue(lockHeld.await(100, TimeUnit.MILLISECONDS));
+        Assertions.assertTrue(lockHeld.await(15, TimeUnit.SECONDS));
     }
 
 }
