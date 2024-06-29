@@ -96,6 +96,11 @@ public class RequestRouter<T> implements HttpRequestMapper<T> {
             return singleAuthority.equals(authority) ? router : null;
         }
 
+        @Override
+        public String toString() {
+            return singleAuthority + " " + router;
+        }
+
     }
 
     static class NoAuthorityResolver<T> implements Function<URIAuthority, T> {
