@@ -232,8 +232,12 @@ public class SSLIOSession implements IOSession {
                 }
                 final IOEventHandler handler = session.getHandler();
                 if (handshakeStateRef.get() != TLSHandShakeState.COMPLETE) {
-                    session.close(CloseMode.GRACEFUL);
-                    close(CloseMode.IMMEDIATE);
+                    if (cause instanceof SSLHandshakeException) {
+                        close(CloseMode.GRACEFUL);
+                    } else {
+                        session.close(CloseMode.GRACEFUL);
+                        close(CloseMode.IMMEDIATE);
+                    }
                 }
                 if (handler != null) {
                     handler.exception(protocolSession, cause);
@@ -467,13 +471,17 @@ public class SSLIOSession implements IOSession {
                 this.sslEngine.closeOutbound();
                 this.outboundClosedCount.incrementAndGet();
             }
-            if (this.status == Status.CLOSING && this.sslEngine.isOutboundDone()
+            final HandshakeStatus handshakeStatus = this.sslEngine.getHandshakeStatus();
+            if (this.status == Status.CLOSING
+                    && (handshakeStatus == HandshakeStatus.NOT_HANDSHAKING || handshakeStatus == HandshakeStatus.FINISHED)
+                    && !this.outEncrypted.hasData()
+                    && this.sslEngine.isOutboundDone()
                     && (this.endOfStream || this.sslEngine.isInboundDone())) {
                 this.status = Status.CLOSED;
             }
             // Abnormal session termination
             if (this.status.compareTo(Status.CLOSING) <= 0 && this.endOfStream
-                    && this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_UNWRAP) {
+                    && handshakeStatus == HandshakeStatus.NEED_UNWRAP) {
                 this.status = Status.CLOSED;
             }
             if (this.status == Status.CLOSED) {
@@ -484,7 +492,7 @@ public class SSLIOSession implements IOSession {
                 return;
             }
             // Is there a task pending?
-            if (this.sslEngine.getHandshakeStatus() == HandshakeStatus.NEED_TASK) {
+            if (handshakeStatus == HandshakeStatus.NEED_TASK) {
                 doRunTask();
             }
             // Need to toggle the event mask for this channel?
@@ -527,7 +535,7 @@ public class SSLIOSession implements IOSession {
     private int sendEncryptedData() throws IOException {
         this.session.getLock().lock();
         try {
-            if (!this.outEncrypted.hasData()) {
+            if (this.status == Status.ACTIVE && !this.outEncrypted.hasData()) {
                 // If the buffer isn't acquired or is empty, call write() with an empty buffer.
                 // This will ensure that tests performed by write() still take place without
                 // having to acquire and release an empty buffer (e.g. connection closed,
@@ -719,6 +727,8 @@ public class SSLIOSession implements IOSession {
                     // in the JSSE provider. For instance
                     // com.android.org.conscrypt.NativeCrypto#SSL_get_shutdown can
                     // throw NPE at this point
+                    doHandshake(this);
+                    sendEncryptedData();
                     updateEventMask();
                 } catch (final CancelledKeyException ex) {
                     this.session.close(CloseMode.GRACEFUL);

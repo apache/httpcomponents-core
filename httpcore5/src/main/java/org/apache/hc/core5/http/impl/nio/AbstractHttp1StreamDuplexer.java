@@ -36,6 +36,7 @@ import java.nio.channels.WritableByteChannel;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -164,6 +165,8 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         } finally {
             final CloseMode closeMode;
             if (cause instanceof ConnectionClosedException) {
+                closeMode = CloseMode.GRACEFUL;
+            } else if (cause instanceof SSLHandshakeException) {
                 closeMode = CloseMode.GRACEFUL;
             } else if (cause instanceof IOException) {
                 closeMode = CloseMode.IMMEDIATE;
