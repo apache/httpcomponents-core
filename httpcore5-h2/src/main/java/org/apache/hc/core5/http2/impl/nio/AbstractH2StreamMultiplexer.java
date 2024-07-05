@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.concurrent.CancellableDependency;
@@ -697,6 +698,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
             connState = ConnectionHandshake.SHUTDOWN;
             final CloseMode closeMode;
             if (cause instanceof ConnectionClosedException) {
+                closeMode = CloseMode.GRACEFUL;
+            } else if (cause instanceof SSLHandshakeException) {
                 closeMode = CloseMode.GRACEFUL;
             } else if (cause instanceof IOException) {
                 closeMode = CloseMode.IMMEDIATE;
