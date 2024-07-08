@@ -45,9 +45,9 @@ import java.io.InputStream;
 public interface ResponseOutOfOrderStrategy {
 
     /**
-     * Called before each write to the to a socket {@link java.io.OutputStream} with the number of
-     * bytes that have already been sent, and the size of the write that will occur if this check
-     * does not encounter an out of order response.
+     * Called before each write to the socket {@link java.io.OutputStream} with the number of
+     * bytes that have already been sent, and the size of the next chunk to be written that
+     * will occur if this check does not encounter an out of order response.
      *
      * @param request The current request.
      * @param connection The connection used to send the current request.
