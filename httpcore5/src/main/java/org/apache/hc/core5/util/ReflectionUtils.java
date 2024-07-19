@@ -27,7 +27,9 @@
 
 package org.apache.hc.core5.util;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.SocketOption;
 
 import org.apache.hc.core5.annotation.Internal;
 
@@ -72,4 +74,16 @@ public final class ReflectionUtils {
         return 7;
     }
 
+    /**
+     * @since 5.3
+     */
+    public static <T> SocketOption<T> getExtendedSocketOptionOrNull(final String fieldName) {
+        try {
+            final Class<?> extendedSocketOptionsClass = Class.forName("jdk.net.ExtendedSocketOptions");
+            final Field field = extendedSocketOptionsClass.getField(fieldName);
+            return (SocketOption)field.get((Object)null);
+        } catch (final Exception ignore) {
+            return null;
+        }
+    }
 }
