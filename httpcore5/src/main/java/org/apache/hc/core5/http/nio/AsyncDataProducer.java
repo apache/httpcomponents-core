@@ -39,8 +39,18 @@ public interface AsyncDataProducer extends ResourceHolder {
      * Returns the number of bytes immediately available for output.
      * This method can be used as a hint to control output events
      * of the underlying I/O session.
+     * <p>
+     * Please note this method should return zero if the data producer
+     * is unable to produce any more data, in which case
+     * {@link #produce(DataStreamChannel)} method will not get triggered.
+     * The producer can resume writing out data asynchronously
+     * once more data becomes available or request output readiness events
+     * with {@link DataStreamChannel#requestOutput()}.
      *
      * @return the number of bytes immediately available for output
+     *
+     * @see #produce(DataStreamChannel)
+     * @see DataStreamChannel#requestOutput()
      */
     int available();
 
@@ -48,8 +58,13 @@ public interface AsyncDataProducer extends ResourceHolder {
      * Triggered to signal the ability of the underlying data channel
      * to accept more data. The data producer can choose to write data
      * immediately inside the call or asynchronously at some later point.
+     * <p>
+     * Please note this method gets triggered only if {@link #available()}
+     * returns a positive value.
      *
-     * @param channel the data channel capable to accepting more data.
+     * @param channel the data channel capable of accepting more data.
+     *
+     * @see #available()
      */
     void produce(DataStreamChannel channel) throws IOException;
 
