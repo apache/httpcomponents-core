@@ -30,12 +30,18 @@ package org.apache.hc.core5.util;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import javax.net.ServerSocketFactory;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketOption;
 
 import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPCOUNT;
 import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPIDLE;
 import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPINTERVAL;
+import static org.apache.hc.core5.util.ReflectionUtils.callGetter;
 import static org.apache.hc.core5.util.ReflectionUtils.determineJRELevel;
+import static org.apache.hc.core5.util.ReflectionUtils.setOption;
 import static org.apache.hc.core5.util.ReflectionUtils.getExtendedSocketOptionOrNull;
 
 public class TestReflectionUtils {
@@ -53,6 +59,51 @@ public class TestReflectionUtils {
         // 2. Windows may not support TCP_KEEPIDLE, TCP_KEEPINTERVAL, TCP_KEEPCOUNT.
         if (determineJRELevel() > 8 && isWindows() == false) {
             Assertions.assertNotNull(socketOption);
+        }
+    }
+
+    @Test
+    public void testSetOption() throws IOException {
+        if (determineJRELevel() > 8 && isWindows() == false) {
+            {
+                // test Socket
+                final Socket sock = new Socket();
+                setOption(sock, TCP_KEEPIDLE, 20);
+                setOption(sock, TCP_KEEPINTERVAL, 21);
+                setOption(sock, TCP_KEEPCOUNT, 22);
+
+                final SocketOption<Integer> tcpKeepIdle = getExtendedSocketOptionOrNull(TCP_KEEPIDLE);
+                assert tcpKeepIdle != null;
+                Assertions.assertEquals(20, callGetter(sock, "Option", tcpKeepIdle, SocketOption.class, Integer.class));
+
+                final SocketOption<Integer> tcpKeepInterval = getExtendedSocketOptionOrNull(TCP_KEEPINTERVAL);
+                assert tcpKeepInterval != null;
+                Assertions.assertEquals(21, callGetter(sock, "Option", tcpKeepInterval, SocketOption.class, Integer.class));
+
+                final SocketOption<Integer> tcpKeepCount = getExtendedSocketOptionOrNull(TCP_KEEPCOUNT);
+                assert tcpKeepCount != null;
+                Assertions.assertEquals(22, callGetter(sock, "Option", tcpKeepCount, SocketOption.class, Integer.class));
+            }
+
+            {
+                // test ServerSocket
+                final ServerSocket serverSocket = ServerSocketFactory.getDefault().createServerSocket();
+                setOption(serverSocket, TCP_KEEPIDLE, 20);
+                setOption(serverSocket, TCP_KEEPINTERVAL, 21);
+                setOption(serverSocket, TCP_KEEPCOUNT, 22);
+
+                final SocketOption<Integer> tcpKeepIdle = getExtendedSocketOptionOrNull(TCP_KEEPIDLE);
+                assert tcpKeepIdle != null;
+                Assertions.assertEquals(20, callGetter(serverSocket, "Option", tcpKeepIdle, SocketOption.class, Integer.class));
+
+                final SocketOption<Integer> tcpKeepInterval = getExtendedSocketOptionOrNull(TCP_KEEPINTERVAL);
+                assert tcpKeepInterval != null;
+                Assertions.assertEquals(21, callGetter(serverSocket, "Option", tcpKeepInterval, SocketOption.class, Integer.class));
+
+                final SocketOption<Integer> tcpKeepCount = getExtendedSocketOptionOrNull(TCP_KEEPCOUNT);
+                assert tcpKeepCount != null;
+                Assertions.assertEquals(22, callGetter(serverSocket, "Option", tcpKeepCount, SocketOption.class, Integer.class));
+            }
         }
     }
 

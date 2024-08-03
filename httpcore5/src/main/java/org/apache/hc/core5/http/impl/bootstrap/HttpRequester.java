@@ -82,8 +82,13 @@ import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.pool.PoolEntry;
 import org.apache.hc.core5.pool.PoolStats;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPCOUNT;
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPIDLE;
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPINTERVAL;
 
 /**
  * HTTP/1.1 client side message exchange initiator.
@@ -248,6 +253,15 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         }
         if (socketConfig.getSndBufSize() > 0) {
             sock.setSendBufferSize(socketConfig.getSndBufSize());
+        }
+        if (this.socketConfig.getTcpKeepIdle() > 0) {
+            ReflectionUtils.setOption(sock, TCP_KEEPIDLE, this.socketConfig.getTcpKeepIdle());
+        }
+        if (this.socketConfig.getTcpKeepInterval() > 0) {
+            ReflectionUtils.setOption(sock, TCP_KEEPINTERVAL, this.socketConfig.getTcpKeepInterval());
+        }
+        if (this.socketConfig.getTcpKeepCount() > 0) {
+            ReflectionUtils.setOption(sock, TCP_KEEPCOUNT, this.socketConfig.getTcpKeepCount());
         }
         final int linger = socketConfig.getSoLinger().toMillisecondsIntBound();
         if (linger >= 0) {

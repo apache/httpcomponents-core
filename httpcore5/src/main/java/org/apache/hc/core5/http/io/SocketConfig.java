@@ -150,6 +150,7 @@ public class SocketConfig {
 
     /**
      *  @see Builder#setTcpKeepIdle(int)
+     * @since 5.3
      */
     public int getTcpKeepInterval() {
         return this.tcpKeepInterval;
@@ -157,6 +158,7 @@ public class SocketConfig {
 
     /**
      * @see Builder#setTcpKeepInterval(int)
+     * @since 5.3
      */
     public int getTcpKeepIdle() {
         return this.tcpKeepIdle;
@@ -164,6 +166,7 @@ public class SocketConfig {
 
     /**
      * @see Builder#setTcpKeepCount(int)
+     * @since 5.3
      */
     public int getTcpKeepCount() {
         return this.tcpKeepCount;
@@ -388,6 +391,8 @@ public class SocketConfig {
          * <p>
          * Default: {@code -1} (system default)
          * </p>
+         * @return the time (in seconds) the connection needs to remain idle before TCP starts
+         * @since 5.3
          */
         public Builder setTcpKeepIdle(final int tcpKeepIdle) {
             this.tcpKeepIdle = tcpKeepIdle;
@@ -399,6 +404,8 @@ public class SocketConfig {
          * <p>
          * Default: {@code -1} (system default)
          * </p>
+         * @return the time (in seconds) between individual keepalive probes.
+         * @since 5.3
          */
         public Builder setTcpKeepInterval(final int tcpKeepInterval) {
             this.tcpKeepInterval = tcpKeepInterval;
@@ -410,6 +417,8 @@ public class SocketConfig {
          * <p>
          * Default: {@code -1} (system default)
          * </p>
+         * @return the maximum number of keepalive probes TCP should send before dropping the connection.
+         * @since 5.3
          */
         public Builder setTcpKeepCount(final int tcpKeepCount) {
             this.tcpKeepCount = tcpKeepCount;

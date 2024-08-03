@@ -46,12 +46,13 @@ public final class ReflectionUtils {
         }
     }
 
-    public static <T> T callGetter(final Object object, final String getterName, final Class<T> resultType) {
+    public static <T> T callGetter(final Object object, final String getterName, final Object arg, final Class argType, final Class<T> resultType) {
         try {
             final Class<?> clazz = object.getClass();
-            final Method method = clazz.getMethod("get" + getterName);
+            final Method method;
+            method = clazz.getMethod("get" + getterName, argType);
             method.setAccessible(true);
-            return resultType.cast(method.invoke(object));
+            return resultType.cast(method.invoke(object, arg));
         } catch (final Exception ignore) {
             return null;
         }
@@ -84,6 +85,25 @@ public final class ReflectionUtils {
             return (SocketOption)field.get((Object)null);
         } catch (final Exception ignore) {
             return null;
+        }
+    }
+
+    /**
+     * object can be ServerSocket or Socket
+     *
+     * @since 5.3
+     */
+    public static <T> void setOption(final T object, final String fieldName, final T value) {
+        try {
+            final Class<?> serverSocketClass = object.getClass();
+            final Method setOptionMethod = serverSocketClass.getMethod("setOption", SocketOption.class, Object.class);
+            final SocketOption<Integer> tcpKeepIdle = getExtendedSocketOptionOrNull(fieldName);
+            if (tcpKeepIdle == null) {
+                throw new UnsupportedOperationException(fieldName + " is not supported in the current jdk");
+            }
+            setOptionMethod.invoke(object, tcpKeepIdle, value);
+        } catch (final Exception ignore) {
+            throw new UnsupportedOperationException(fieldName + " is not supported in the current jdk");
         }
     }
 }

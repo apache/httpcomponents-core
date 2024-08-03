@@ -57,8 +57,13 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.Args;
+import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
+
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPCOUNT;
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPIDLE;
+import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPINTERVAL;
 
 /**
  * HTTP/1.1 server side message exchange handler.
@@ -144,6 +149,15 @@ public class HttpServer implements ModalCloseable {
             this.serverSocket.setReuseAddress(this.socketConfig.isSoReuseAddress());
             if (this.socketConfig.getRcvBufSize() > 0) {
                 this.serverSocket.setReceiveBufferSize(this.socketConfig.getRcvBufSize());
+            }
+            if (this.socketConfig.getTcpKeepIdle() > 0) {
+                ReflectionUtils.setOption(this.serverSocket, TCP_KEEPIDLE, this.socketConfig.getTcpKeepIdle());
+            }
+            if (this.socketConfig.getTcpKeepInterval() > 0) {
+                ReflectionUtils.setOption(this.serverSocket, TCP_KEEPINTERVAL, this.socketConfig.getTcpKeepInterval());
+            }
+            if (this.socketConfig.getTcpKeepCount() > 0) {
+                ReflectionUtils.setOption(this.serverSocket, TCP_KEEPCOUNT, this.socketConfig.getTcpKeepCount());
             }
             if (this.sslSetupHandler != null && this.serverSocket instanceof SSLServerSocket) {
                 final SSLServerSocket sslServerSocket = (SSLServerSocket) this.serverSocket;
