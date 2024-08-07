@@ -152,16 +152,16 @@ public class SocketConfig {
      *  @see Builder#setTcpKeepIdle(int)
      * @since 5.3
      */
-    public int getTcpKeepInterval() {
-        return this.tcpKeepInterval;
+    public int getTcpKeepIdle() {
+        return this.tcpKeepIdle;
     }
 
     /**
      * @see Builder#setTcpKeepInterval(int)
      * @since 5.3
      */
-    public int getTcpKeepIdle() {
-        return this.tcpKeepIdle;
+    public int getTcpKeepInterval() {
+        return this.tcpKeepInterval;
     }
 
     /**

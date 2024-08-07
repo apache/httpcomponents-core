@@ -61,9 +61,9 @@ import org.apache.hc.core5.util.ReflectionUtils;
 import org.apache.hc.core5.util.TimeValue;
 import org.apache.hc.core5.util.Timeout;
 
-import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPCOUNT;
-import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPIDLE;
-import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPINTERVAL;
+import static org.apache.hc.core5.util.NetUtils.TCP_KEEPCOUNT;
+import static org.apache.hc.core5.util.NetUtils.TCP_KEEPIDLE;
+import static org.apache.hc.core5.util.NetUtils.TCP_KEEPINTERVAL;
 
 /**
  * HTTP/1.1 server side message exchange handler.

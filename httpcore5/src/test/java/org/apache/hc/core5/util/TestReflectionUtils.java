@@ -36,9 +36,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketOption;
 
-import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPCOUNT;
-import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPIDLE;
-import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPINTERVAL;
+import static org.apache.hc.core5.util.NetUtils.TCP_KEEPCOUNT;
+import static org.apache.hc.core5.util.NetUtils.TCP_KEEPIDLE;
+import static org.apache.hc.core5.util.NetUtils.TCP_KEEPINTERVAL;
 import static org.apache.hc.core5.util.ReflectionUtils.callGetter;
 import static org.apache.hc.core5.util.ReflectionUtils.determineJRELevel;
 import static org.apache.hc.core5.util.ReflectionUtils.setOption;
@@ -53,8 +53,8 @@ public class TestReflectionUtils {
         testGetExtendedSocketOption(TCP_KEEPCOUNT);
     }
 
-    private void testGetExtendedSocketOption(final String option) {
-        final SocketOption socketOption = getExtendedSocketOptionOrNull(option);
+    private <T> void testGetExtendedSocketOption(final String option) {
+        final SocketOption<T> socketOption = getExtendedSocketOptionOrNull(option);
         // 1.Partial versions of jdk1.8 contain TCP_KEEPIDLE, TCP_KEEPINTERVAL, TCP_KEEPCOUNT.
         // 2. Windows may not support TCP_KEEPIDLE, TCP_KEEPINTERVAL, TCP_KEEPCOUNT.
         if (determineJRELevel() > 8 && isWindows() == false) {
@@ -110,4 +110,5 @@ public class TestReflectionUtils {
     public static boolean isWindows() {
         return System.getProperty("os.name").contains("Windows");
     }
+
 }

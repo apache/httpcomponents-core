@@ -47,9 +47,9 @@ import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.util.ReflectionUtils;
 
-import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPCOUNT;
-import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPIDLE;
-import static org.apache.hc.core5.reactor.SingleCoreIOReactor.TCP_KEEPINTERVAL;
+import static org.apache.hc.core5.util.NetUtils.TCP_KEEPCOUNT;
+import static org.apache.hc.core5.util.NetUtils.TCP_KEEPIDLE;
+import static org.apache.hc.core5.util.NetUtils.TCP_KEEPINTERVAL;
 
 class RequestListener implements Runnable {
 
