@@ -27,7 +27,10 @@
 
 package org.apache.hc.core5.util;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.SocketOption;
 
 import org.apache.hc.core5.annotation.Internal;
 
@@ -45,11 +48,24 @@ public final class ReflectionUtils {
     }
 
     public static <T> T callGetter(final Object object, final String getterName, final Class<T> resultType) {
+        return callGetter(object, getterName, null, null, resultType);
+    }
+
+    public static <T> T callGetter(final Object object, final String getterName, final Object arg, final Class argType, final Class<T> resultType) {
         try {
             final Class<?> clazz = object.getClass();
-            final Method method = clazz.getMethod("get" + getterName);
-            method.setAccessible(true);
-            return resultType.cast(method.invoke(object));
+            final Method method;
+            if (arg != null) {
+                assert argType != null;
+                method = clazz.getMethod("get" + getterName, argType);
+                method.setAccessible(true);
+                return resultType.cast(method.invoke(object, arg));
+            } else {
+                assert argType == null;
+                method = clazz.getMethod("get" + getterName);
+                method.setAccessible(true);
+                return resultType.cast(method.invoke(object));
+            }
         } catch (final Exception ignore) {
             return null;
         }
@@ -70,6 +86,41 @@ public final class ReflectionUtils {
             }
         }
         return 7;
+    }
+
+    /**
+     * @since 5.3
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> SocketOption<T> getExtendedSocketOptionOrNull(final String fieldName) {
+        try {
+            final Class<?> extendedSocketOptionsClass = Class.forName("jdk.net.ExtendedSocketOptions");
+            final Field field = extendedSocketOptionsClass.getField(fieldName);
+            return (SocketOption)field.get((Object)null);
+        } catch (final Exception ignore) {
+            return null;
+        }
+    }
+
+    /**
+     * object can be ServerSocket or Socket
+     *
+     * @since 5.3
+     */
+    public static <T> void setOption(final T object, final String fieldName, final T value) throws IOException {
+        try {
+            final Class<?> serverSocketClass = object.getClass();
+            final Method setOptionMethod = serverSocketClass.getMethod("setOption", SocketOption.class, Object.class);
+            final SocketOption<Integer> socketOption = getExtendedSocketOptionOrNull(fieldName);
+            if (socketOption == null) {
+                throw new UnsupportedOperationException(fieldName + " is not supported in the current jdk");
+            }
+            setOptionMethod.invoke(object, socketOption, value);
+        } catch (final UnsupportedOperationException e) {
+            throw e;
+        } catch (final Exception e) {
+            throw new IOException("failed to call setOption", e);
+        }
     }
 
 }
