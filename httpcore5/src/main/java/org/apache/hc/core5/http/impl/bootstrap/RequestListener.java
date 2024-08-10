@@ -45,6 +45,7 @@ import org.apache.hc.core5.http.io.HttpConnectionFactory;
 import org.apache.hc.core5.http.io.HttpServerConnection;
 import org.apache.hc.core5.http.io.SocketConfig;
 import org.apache.hc.core5.io.Closer;
+import org.apache.hc.core5.io.SocketSupport;
 
 class RequestListener implements Runnable {
 
@@ -90,6 +91,15 @@ class RequestListener implements Runnable {
         }
         if (this.socketConfig.getSoLinger().toSeconds() >= 0) {
             socket.setSoLinger(true, this.socketConfig.getSoLinger().toSecondsIntBound());
+        }
+        if (this.socketConfig.getTcpKeepIdle() > 0) {
+            SocketSupport.setOption(this.serverSocket, SocketSupport.TCP_KEEPIDLE, this.socketConfig.getTcpKeepIdle());
+        }
+        if (this.socketConfig.getTcpKeepInterval() > 0) {
+            SocketSupport.setOption(this.serverSocket, SocketSupport.TCP_KEEPINTERVAL, this.socketConfig.getTcpKeepInterval());
+        }
+        if (this.socketConfig.getTcpKeepCount() > 0) {
+            SocketSupport.setOption(this.serverSocket, SocketSupport.TCP_KEEPCOUNT, this.socketConfig.getTcpKeepCount());
         }
         if (!(socket instanceof SSLSocket) && sslSocketFactory != null) {
             final SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(socket, null, -1, false);

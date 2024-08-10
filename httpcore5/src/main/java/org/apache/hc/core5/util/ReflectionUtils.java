@@ -45,11 +45,27 @@ public final class ReflectionUtils {
     }
 
     public static <T> T callGetter(final Object object, final String getterName, final Class<T> resultType) {
+        return callGetter(object, getterName, null, null, resultType);
+    }
+
+    /**
+     * @sunce 5.3
+     */
+    public static <T> T callGetter(final Object object, final String getterName, final Object arg, final Class<?> argType, final Class<T> resultType) {
         try {
             final Class<?> clazz = object.getClass();
-            final Method method = clazz.getMethod("get" + getterName);
-            method.setAccessible(true);
-            return resultType.cast(method.invoke(object));
+            final Method method;
+            if (arg != null) {
+                assert argType != null;
+                method = clazz.getMethod("get" + getterName, argType);
+                method.setAccessible(true);
+                return resultType.cast(method.invoke(object, arg));
+            } else {
+                assert argType == null;
+                method = clazz.getMethod("get" + getterName);
+                method.setAccessible(true);
+                return resultType.cast(method.invoke(object));
+            }
         } catch (final Exception ignore) {
             return null;
         }

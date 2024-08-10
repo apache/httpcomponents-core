@@ -76,6 +76,7 @@ import org.apache.hc.core5.http.protocol.HttpProcessor;
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.Closer;
 import org.apache.hc.core5.io.ModalCloseable;
+import org.apache.hc.core5.io.SocketSupport;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.pool.ConnPoolControl;
 import org.apache.hc.core5.pool.ManagedConnPool;
@@ -248,6 +249,15 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         }
         if (socketConfig.getSndBufSize() > 0) {
             sock.setSendBufferSize(socketConfig.getSndBufSize());
+        }
+        if (this.socketConfig.getTcpKeepIdle() > 0) {
+            SocketSupport.setOption(sock, SocketSupport.TCP_KEEPIDLE, this.socketConfig.getTcpKeepIdle());
+        }
+        if (this.socketConfig.getTcpKeepInterval() > 0) {
+            SocketSupport.setOption(sock, SocketSupport.TCP_KEEPINTERVAL, this.socketConfig.getTcpKeepInterval());
+        }
+        if (this.socketConfig.getTcpKeepCount() > 0) {
+            SocketSupport.setOption(sock, SocketSupport.TCP_KEEPCOUNT, this.socketConfig.getTcpKeepCount());
         }
         final int linger = socketConfig.getSoLinger().toMillisecondsIntBound();
         if (linger >= 0) {

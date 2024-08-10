@@ -56,6 +56,9 @@ public class SocketConfig {
     private final int sndBufSize;
     private final int rcvBufSize;
     private final int backlogSize;
+    private final int tcpKeepIdle;
+    private final int tcpKeepInterval;
+    private final int tcpKeepCount;
     private final SocketAddress socksProxyAddress;
 
     SocketConfig(
@@ -67,6 +70,9 @@ public class SocketConfig {
             final int sndBufSize,
             final int rcvBufSize,
             final int backlogSize,
+            final int tcpKeepIdle,
+            final int tcpKeepInterval,
+            final int tcpKeepCount,
             final SocketAddress socksProxyAddress) {
         super();
         this.soTimeout = soTimeout;
@@ -77,6 +83,9 @@ public class SocketConfig {
         this.sndBufSize = sndBufSize;
         this.rcvBufSize = rcvBufSize;
         this.backlogSize = backlogSize;
+        this.tcpKeepIdle = tcpKeepIdle;
+        this.tcpKeepInterval = tcpKeepInterval;
+        this.tcpKeepCount = tcpKeepCount;
         this.socksProxyAddress = socksProxyAddress;
     }
 
@@ -140,6 +149,30 @@ public class SocketConfig {
     }
 
     /**
+     *  @see Builder#setTcpKeepIdle(int)
+     * @since 5.3
+     */
+    public int getTcpKeepIdle() {
+        return this.tcpKeepIdle;
+    }
+
+    /**
+     * @see Builder#setTcpKeepInterval(int)
+     * @since 5.3
+     */
+    public int getTcpKeepInterval() {
+        return this.tcpKeepInterval;
+    }
+
+    /**
+     * @see Builder#setTcpKeepCount(int)
+     * @since 5.3
+     */
+    public int getTcpKeepCount() {
+        return this.tcpKeepCount;
+    }
+
+    /**
      * @see Builder#setSocksProxyAddress(SocketAddress)
      */
     public SocketAddress getSocksProxyAddress() {
@@ -157,6 +190,9 @@ public class SocketConfig {
                 .append(", sndBufSize=").append(this.sndBufSize)
                 .append(", rcvBufSize=").append(this.rcvBufSize)
                 .append(", backlogSize=").append(this.backlogSize)
+                .append(", tcpKeepIdle=").append(this.tcpKeepIdle)
+                .append(", tcpKeepInterval=").append(this.tcpKeepInterval)
+                .append(", tcpKeepCount=").append(this.tcpKeepCount)
                 .append(", socksProxyAddress=").append(this.socksProxyAddress)
                 .append("]");
         return builder.toString();
@@ -177,6 +213,9 @@ public class SocketConfig {
             .setSndBufSize(config.getSndBufSize())
             .setRcvBufSize(config.getRcvBufSize())
             .setBacklogSize(config.getBacklogSize())
+            .setTcpKeepIdle(config.getTcpKeepIdle())
+            .setTcpKeepInterval(config.getTcpKeepInterval())
+            .setTcpKeepCount(config.getTcpKeepCount())
             .setSocksProxyAddress(config.getSocksProxyAddress());
     }
 
@@ -190,6 +229,9 @@ public class SocketConfig {
         private int sndBufSize;
         private int rcvBufSize;
         private int backlogSize;
+        private int tcpKeepIdle;
+        private int tcpKeepInterval;
+        private int tcpKeepCount;
         private SocketAddress socksProxyAddress;
 
         Builder() {
@@ -201,6 +243,9 @@ public class SocketConfig {
             this.sndBufSize = 0;
             this.rcvBufSize = 0;
             this.backlogSize = 0;
+            this.tcpKeepIdle = -1;
+            this.tcpKeepInterval = -1;
+            this.tcpKeepCount = -1;
             this.socksProxyAddress = null;
         }
 
@@ -341,6 +386,46 @@ public class SocketConfig {
         }
 
         /**
+         * Determines the time (in seconds) the connection needs to remain idle before TCP starts
+         * sending keepalive probes.
+         * <p>
+         * Default: {@code -1} (system default)
+         * </p>
+         * @return the time (in seconds) the connection needs to remain idle before TCP starts
+         * @since 5.3
+         */
+        public Builder setTcpKeepIdle(final int tcpKeepIdle) {
+            this.tcpKeepIdle = tcpKeepIdle;
+            return this;
+        }
+
+        /**
+         * Determines the time (in seconds) between individual keepalive probes.
+         * <p>
+         * Default: {@code -1} (system default)
+         * </p>
+         * @return the time (in seconds) between individual keepalive probes.
+         * @since 5.3
+         */
+        public Builder setTcpKeepInterval(final int tcpKeepInterval) {
+            this.tcpKeepInterval = tcpKeepInterval;
+            return this;
+        }
+
+        /**
+         * Determines the maximum number of keepalive probes TCP should send before dropping the connection.
+         * <p>
+         * Default: {@code -1} (system default)
+         * </p>
+         * @return the maximum number of keepalive probes TCP should send before dropping the connection.
+         * @since 5.3
+         */
+        public Builder setTcpKeepCount(final int tcpKeepCount) {
+            this.tcpKeepCount = tcpKeepCount;
+            return this;
+        }
+
+        /**
          * The address of the SOCKS proxy to use.
          */
         public Builder setSocksProxyAddress(final SocketAddress socksProxyAddress) {
@@ -354,6 +439,7 @@ public class SocketConfig {
                     soReuseAddress,
                     soLinger != null ? soLinger : TimeValue.NEG_ONE_SECOND,
                     soKeepAlive, tcpNoDelay, sndBufSize, rcvBufSize, backlogSize,
+                    tcpKeepIdle, tcpKeepInterval, tcpKeepCount,
                     socksProxyAddress);
         }
 
