@@ -180,7 +180,7 @@ public class SessionInputBufferImpl implements SessionInputBuffer {
     @Override
     public int read(final byte[] b, final int off, final int len, final InputStream inputStream) throws IOException {
         Args.notNull(inputStream, "Input stream");
-        if (b == null) {
+        if (b == null || b.length == 0 || len == 0) {
             return 0;
         }
         if (hasBufferedData()) {

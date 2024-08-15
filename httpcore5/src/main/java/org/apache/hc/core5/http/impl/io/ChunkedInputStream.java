@@ -170,12 +170,13 @@ public class ChunkedInputStream extends InputStream {
      * @throws IOException in case of an I/O error
      */
     @Override
-    public int read (final byte[] b, final int off, final int len) throws IOException {
-
+    public int read(final byte[] b, final int off, final int len) throws IOException {
         if (closed) {
             throw new StreamClosedException();
         }
-
+        if (len == 0) {
+            return 0;
+        }
         if (eof) {
             return -1;
         }
@@ -206,7 +207,7 @@ public class ChunkedInputStream extends InputStream {
      * @throws IOException in case of an I/O error
      */
     @Override
-    public int read (final byte[] b) throws IOException {
+    public int read(final byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
 

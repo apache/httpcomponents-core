@@ -109,6 +109,9 @@ public class ByteBufferEntity extends AbstractHttpEntity {
 
             @Override
             public int read(final byte[] bytes, final int off, final int len) throws IOException {
+                if (len == 0) {
+                    return 0;
+                }
                 if (!buffer.hasRemaining()) {
                     return -1;
                 }

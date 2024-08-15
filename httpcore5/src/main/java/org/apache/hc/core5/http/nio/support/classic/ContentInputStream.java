@@ -54,6 +54,9 @@ public class ContentInputStream extends InputStream {
 
     @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
+        if (len == 0) {
+            return 0;
+        }
         return this.buffer.read(b, off, len);
     }
 

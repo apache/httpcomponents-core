@@ -128,6 +128,9 @@ public class EofSensorInputStream extends InputStream {
 
     @Override
     public int read(final byte[] b, final int off, final int len) throws IOException {
+        if (len == 0) {
+            return 0;
+        }
         int readLen = -1;
 
         if (isReadAllowed()) {

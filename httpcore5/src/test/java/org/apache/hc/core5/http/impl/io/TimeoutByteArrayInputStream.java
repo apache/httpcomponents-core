@@ -73,6 +73,9 @@ class TimeoutByteArrayInputStream extends InputStream {
                ((off + len) > b.length) || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException("off: "+off+" len: "+len+" b.length: "+b.length);
         }
+        if (len == 0) {
+            return 0;
+        }
         if (this.pos >= this.count) {
             return -1;
         }

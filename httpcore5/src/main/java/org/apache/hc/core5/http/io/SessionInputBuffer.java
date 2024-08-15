@@ -76,6 +76,7 @@ public interface SessionInputBuffer {
      * {@code off+len} is greater than the length of the array
      * {@code b}, then an {@code IndexOutOfBoundsException} is
      * thrown.
+     * <p> If {@code len} is zero, then no bytes are read and 0 is returned.
      *
      * @param      b     the buffer into which the data is read.
      * @param      off   the start offset in array {@code b}
