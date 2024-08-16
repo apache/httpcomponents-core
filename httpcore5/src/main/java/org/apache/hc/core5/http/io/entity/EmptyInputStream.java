@@ -97,6 +97,9 @@ public final class EmptyInputStream extends InputStream {
      */
     @Override
     public int read(final byte[] buf, final int off, final int len) {
+        if (len == 0) {
+            return 0;
+        }
         return -1;
     }
 

@@ -77,6 +77,9 @@ class MultiByteArrayInputStream extends InputStream {
                ((off + len) > b.length) || ((off + len) < 0)) {
             throw new IndexOutOfBoundsException();
         }
+        if (len == 0) {
+            return 0;
+        }
         advance();
         if (this.current == null) {
             return -1;

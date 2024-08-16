@@ -161,11 +161,12 @@ public class ContentLengthInputStream extends InputStream {
         if (closed) {
             throw new StreamClosedException();
         }
-
+        if (len == 0) {
+            return 0;
+        }
         if (pos >= contentLength) {
             return -1;
         }
-
         int chunk = len;
         if (pos + len > contentLength) {
             chunk = (int) (contentLength - pos);

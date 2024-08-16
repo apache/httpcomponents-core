@@ -96,6 +96,9 @@ public class IdentityInputStream extends InputStream {
         if (this.closed) {
             throw new StreamClosedException();
         }
+        if (len == 0) {
+            return 0;
+        }
         return this.buffer.read(b, off, len, this.inputStream);
     }
 
