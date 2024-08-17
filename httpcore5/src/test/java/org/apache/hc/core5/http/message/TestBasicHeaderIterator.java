@@ -35,7 +35,7 @@ import org.junit.jupiter.api.Test;
 
 
 /**
- * Tests for {@link java.util.Iterator} of {@link org.apache.hc.core5.http.Header}s.
+ * Tests for {@link Iterator} of {@link org.apache.hc.core5.http.Header}s.
  *
  */
 class TestBasicHeaderIterator {

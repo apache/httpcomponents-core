@@ -136,7 +136,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link org.apache.hc.core5.http.protocol.HttpProcessor} instance.
+     * Sets {@link org.apache.hc.core5.http.protocol.HttpProcessor} instance.
      */
     public final AsyncServerBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
@@ -144,7 +144,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link org.apache.hc.core5.http.ConnectionReuseStrategy} instance.
+     * Sets {@link org.apache.hc.core5.http.ConnectionReuseStrategy} instance.
      */
     public final AsyncServerBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         this.connStrategy = connStrategy;
@@ -152,7 +152,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link TlsStrategy} instance.
+     * Sets {@link TlsStrategy} instance.
      */
     public final AsyncServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
@@ -160,7 +160,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns TLS handshake {@link Timeout}.
+     * Sets TLS handshake {@link Timeout}.
      */
     public final AsyncServerBootstrap setTlsHandshakeTimeout(final Timeout handshakeTimeout) {
         this.handshakeTimeout = handshakeTimeout;
@@ -168,7 +168,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link IOSession} {@link Decorator} instance.
+     * Sets {@link IOSession} {@link Decorator} instance.
      */
     public final AsyncServerBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
@@ -176,7 +176,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link Exception} {@link Callback} instance.
+     * Sets {@link Exception} {@link Callback} instance.
      */
     public final AsyncServerBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
         this.exceptionCallback = exceptionCallback;
@@ -184,7 +184,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link IOSessionListener} instance.
+     * Sets {@link IOSessionListener} instance.
      */
     public final AsyncServerBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
         this.sessionListener = sessionListener;
@@ -201,7 +201,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpRequestMapper} instance.
+     * Sets {@link HttpRequestMapper} instance.
      *
      * @see org.apache.hc.core5.http.impl.routing.RequestRouter
      * @since 5.3
@@ -212,7 +212,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Assigns {@link Http1StreamListener} instance.
+     * Sets {@link Http1StreamListener} instance.
      *
      * @since 5.0
      */

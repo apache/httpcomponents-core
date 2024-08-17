@@ -127,7 +127,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns local interface for the listener.
+     * Sets local interface for the listener.
      */
     public final ServerBootstrap setLocalAddress(final InetAddress localAddress) {
         this.localAddress = localAddress;
@@ -159,7 +159,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpProcessor} instance.
+     * Sets {@link HttpProcessor} instance.
      */
     public final ServerBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
@@ -167,7 +167,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link ConnectionReuseStrategy} instance.
+     * Sets {@link ConnectionReuseStrategy} instance.
      */
     public final ServerBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         this.connStrategy = connStrategy;
@@ -175,7 +175,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpResponseFactory} instance.
+     * Sets {@link HttpResponseFactory} instance.
      */
     public final ServerBootstrap setResponseFactory(final HttpResponseFactory<ClassicHttpResponse> responseFactory) {
         this.responseFactory = responseFactory;
@@ -232,7 +232,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpRequestMapper} instance.
+     * Sets {@link HttpRequestMapper} instance.
      *
      * @see org.apache.hc.core5.http.impl.routing.RequestRouter
      * @since 5.3
@@ -243,7 +243,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpConnectionFactory} instance.
+     * Sets {@link HttpConnectionFactory} instance.
      */
     public final ServerBootstrap setConnectionFactory(
             final HttpConnectionFactory<? extends DefaultBHttpServerConnection> connectionFactory) {
@@ -252,7 +252,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link javax.net.ServerSocketFactory} instance.
+     * Sets {@link javax.net.ServerSocketFactory} instance.
      */
     public final ServerBootstrap setServerSocketFactory(final ServerSocketFactory serverSocketFactory) {
         this.serverSocketFactory = serverSocketFactory;
@@ -260,7 +260,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link javax.net.ssl.SSLContext} instance.
+     * Sets {@link javax.net.ssl.SSLContext} instance.
      * <p>
      * Please note this value can be overridden by the {@link #setServerSocketFactory(
      *   javax.net.ServerSocketFactory)} method.
@@ -271,7 +271,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link Callback} for {@link SSLParameters}.
+     * Sets {@link Callback} for {@link SSLParameters}.
      */
     public final ServerBootstrap setSslSetupHandler(final Callback<SSLParameters> sslSetupHandler) {
         this.sslSetupHandler = sslSetupHandler;
@@ -279,7 +279,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link ExceptionListener} instance.
+     * Sets {@link ExceptionListener} instance.
      */
     public final ServerBootstrap setExceptionListener(final ExceptionListener exceptionListener) {
         this.exceptionListener = exceptionListener;
@@ -287,7 +287,7 @@ public class ServerBootstrap {
     }
 
     /**
-     * Assigns {@link ExceptionListener} instance.
+     * Sets {@link ExceptionListener} instance.
      */
     public final ServerBootstrap setStreamListener(final Http1StreamListener streamListener) {
         this.streamListener = streamListener;

@@ -110,6 +110,8 @@ public class H2RequesterBootstrap {
 
     /**
      * Sets I/O reactor configuration.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
         this.ioReactorConfig = ioReactorConfig;
@@ -117,7 +119,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link HttpProcessor} instance.
+     * Sets {@link HttpProcessor} instance.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
@@ -126,6 +130,8 @@ public class H2RequesterBootstrap {
 
     /**
      * Sets HTTP protocol version policy
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setVersionPolicy(final HttpVersionPolicy versionPolicy) {
         this.versionPolicy = versionPolicy;
@@ -134,6 +140,8 @@ public class H2RequesterBootstrap {
 
     /**
      * Sets HTTP/2 protocol parameters
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setH2Config(final H2Config h2Config) {
         this.h2Config = h2Config;
@@ -142,6 +150,8 @@ public class H2RequesterBootstrap {
 
     /**
      * Sets HTTP/1.1 protocol parameters
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setHttp1Config(final Http1Config http1Config) {
         this.http1Config = http1Config;
@@ -150,6 +160,8 @@ public class H2RequesterBootstrap {
 
     /**
      * Sets message char coding.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
         this.charCodingConfig = charCodingConfig;
@@ -172,7 +184,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link PoolReusePolicy} instance.
+     * Sets {@link PoolReusePolicy} instance.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setPoolReusePolicy(final PoolReusePolicy poolReusePolicy) {
         this.poolReusePolicy = poolReusePolicy;
@@ -180,7 +194,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link PoolConcurrencyPolicy} instance.
+     * Sets {@link PoolConcurrencyPolicy} instance.
+     *
+     * @return this instance.
      */
     @Experimental
     public final H2RequesterBootstrap setPoolConcurrencyPolicy(final PoolConcurrencyPolicy poolConcurrencyPolicy) {
@@ -189,7 +205,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link TlsStrategy} instance.
+     * Sets {@link TlsStrategy} instance.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
@@ -202,7 +220,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link IOSession} {@link Decorator} instance.
+     * Sets {@link IOSession} {@link Decorator} instance.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
@@ -210,7 +230,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link Exception} {@link Callback} instance.
+     * Sets {@link Exception} {@link Callback} instance.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
         this.exceptionCallback = exceptionCallback;
@@ -218,7 +240,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link IOSessionListener} instance.
+     * Sets {@link IOSessionListener} instance.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
         this.sessionListener = sessionListener;
@@ -226,7 +250,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link H2StreamListener} instance.
+     * Sets {@link H2StreamListener} instance.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setStreamListener(final H2StreamListener streamListener) {
         this.streamListener = streamListener;
@@ -234,7 +260,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link Http1StreamListener} instance.
+     * Sets {@link Http1StreamListener} instance.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setStreamListener(final Http1StreamListener http1StreamListener) {
         this.http1StreamListener = http1StreamListener;
@@ -242,7 +270,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link ConnPoolListener} instance.
+     * Sets {@link ConnPoolListener} instance.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setConnPoolListener(final ConnPoolListener<HttpHost> connPoolListener) {
         this.connPoolListener = connPoolListener;
@@ -250,7 +280,9 @@ public class H2RequesterBootstrap {
     }
 
     /**
-     * Assigns {@link UriPatternType} for handler registration.
+     * Sets {@link UriPatternType} for handler registration.
+     *
+     * @return this instance.
      */
     public final H2RequesterBootstrap setUriPatternType(final UriPatternType uriPatternType) {
         this.uriPatternType = uriPatternType;
@@ -263,6 +295,7 @@ public class H2RequesterBootstrap {
      *
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
+     * @return this instance.
      */
     public final H2RequesterBootstrap register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
@@ -278,6 +311,7 @@ public class H2RequesterBootstrap {
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
+     * @return this instance.
      *
      * @since 5.3
      */

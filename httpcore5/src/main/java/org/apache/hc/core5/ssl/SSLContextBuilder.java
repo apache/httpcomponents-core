@@ -124,7 +124,7 @@ public class SSLContextBuilder {
      *            "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
      *            Cryptography Architecture Standard Algorithm Name
      *            Documentation</a> for more information.
-     * @return this builder
+     * @return this instance.
      * @see <a href=
      *      "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SSLContext">Java
      *      Cryptography Architecture Standard Algorithm Name Documentation</a>
@@ -147,7 +147,7 @@ public class SSLContextBuilder {
     /**
      * Sets the JCA provider to use for creating trust stores.
      * @param provider provider to use for creating trust stores.
-     * @return this builder
+     * @return this instance.
      * @since 5.2
      */
     public SSLContextBuilder setTrustStoreProvider(final Provider provider) {
@@ -158,7 +158,7 @@ public class SSLContextBuilder {
     /**
      * Sets the JCA provider name to use for creating trust stores.
      * @param name Name of the provider to use for creating trust stores, the provider must be registered with the JCA.
-     * @return this builder
+     * @return this instance.
      * @since 5.2
      */
     public SSLContextBuilder setTrustStoreProvider(final String name) throws NoSuchProviderException {
@@ -169,7 +169,7 @@ public class SSLContextBuilder {
     /**
      * Sets the JCA provider to use for creating key stores.
      * @param provider provider to use for creating key stores.
-     * @return this builder
+     * @return this instance.
      * @since 5.2
      */
     public SSLContextBuilder setKeyStoreProvider(final Provider provider) {
@@ -180,7 +180,7 @@ public class SSLContextBuilder {
     /**
      * Sets the JCA provider name to use for creating key stores.
      * @param name Name of the provider to use for creating key stores, the provider must be registered with the JCA.
-     * @return this builder
+     * @return this instance.
      * @since 5.2
      */
     public SSLContextBuilder setKeyStoreProvider(final String name) throws NoSuchProviderException {
@@ -197,7 +197,7 @@ public class SSLContextBuilder {
      *            "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#KeyStore">Java
      *            Cryptography Architecture Standard Algorithm Name
      *            Documentation</a> for more information.
-     * @return this builder
+     * @return this instance.
      * @see <a href=
      *      "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#KeyStore">Java
      *      Cryptography Architecture Standard Algorithm Name Documentation</a>
@@ -217,7 +217,7 @@ public class SSLContextBuilder {
      *            "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#KeyManagerFactory">Java
      *            Cryptography Architecture Standard Algorithm Name
      *            Documentation</a> for more information.
-     * @return this builder
+     * @return this instance.
      * @see <a href=
      *      "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#KeyManagerFactory">Java
      *      Cryptography Architecture Standard Algorithm Name Documentation</a>
@@ -237,7 +237,7 @@ public class SSLContextBuilder {
      *            "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#TrustManagerFactory">Java
      *            Cryptography Architecture Standard Algorithm Name
      *            Documentation</a> for more information.
-     * @return this builder
+     * @return this instance.
      * @see <a href=
      *      "https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#TrustManagerFactory">Java
      *      Cryptography Architecture Standard Algorithm Name Documentation</a>
@@ -257,6 +257,7 @@ public class SSLContextBuilder {
      * @param trustStrategy
      *            custom trust strategy to use; can be {@code null} in which case
      *            only the default trust managers will be used
+     * @return this instance.
      */
     public SSLContextBuilder loadTrustMaterial(
             final KeyStore trustStore,
@@ -285,6 +286,7 @@ public class SSLContextBuilder {
     }
 
     /**
+     * @return this instance.
      * @since 5.2
      */
     public SSLContextBuilder loadTrustMaterial(
@@ -293,6 +295,7 @@ public class SSLContextBuilder {
     }
 
     /**
+     * @return this instance.
      * @since 5.2
      */
     public SSLContextBuilder loadTrustMaterial(
@@ -302,6 +305,7 @@ public class SSLContextBuilder {
     }
 
     /**
+     * @return this instance.
      * @since 5.2
      */
     public SSLContextBuilder loadTrustMaterial(
@@ -380,6 +384,7 @@ public class SSLContextBuilder {
     }
 
     /**
+     * @return this instance.
      * @since 5.2
      */
     public SSLContextBuilder loadKeyMaterial(
@@ -391,6 +396,7 @@ public class SSLContextBuilder {
     }
 
     /**
+     * @return this instance.
      * @since 5.2
      */
     public SSLContextBuilder loadKeyMaterial(

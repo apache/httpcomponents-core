@@ -135,7 +135,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements Ht
      * @param parser line parser to use.
      * @param headerLines List of header lines. This list will be used to store
      *   intermediate results. This makes it possible to resume parsing of
-     *   headers in case of a {@link java.io.InterruptedIOException}.
+     *   headers in case of a {@link InterruptedIOException}.
      *
      * @return array of HTTP headers
      *

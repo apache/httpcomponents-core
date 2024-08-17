@@ -138,7 +138,7 @@ public class URIBuilder {
      * Sets the authority.
      *
      * @param authority the authority.
-     * @return this.
+     * @return this instance.
      * @since 5.2
      */
     public URIBuilder setAuthority(final NamedEndpoint authority) {
@@ -152,7 +152,7 @@ public class URIBuilder {
      * Sets the authority.
      *
      * @param authority the authority.
-     * @return this.
+     * @return this instance.
      * @since 5.2
      */
     public URIBuilder setAuthority(final URIAuthority authority) {
@@ -166,7 +166,7 @@ public class URIBuilder {
      * Sets the Charset.
      *
      * @param charset the Charset.
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setCharset(final Charset charset) {
         this.charset = charset;
@@ -411,7 +411,7 @@ public class URIBuilder {
     /**
      * Sets URI scheme.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setScheme(final String scheme) {
         this.scheme = !TextUtils.isBlank(scheme) ? scheme : null;
@@ -422,7 +422,7 @@ public class URIBuilder {
      * Sets the URI scheme specific part.
      *
      * @param schemeSpecificPart
-     * @return this.
+     * @return this instance.
      * @since 5.1
      */
     public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart) {
@@ -435,7 +435,7 @@ public class URIBuilder {
      *
      * @param schemeSpecificPart
      * @param nvps Optional, can be null. Variable arguments list of NameValuePair query parameters to be reused by the specific scheme part
-     * @return this.
+     * @return this instance.
      * @since 5.1
      */
     public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart, final NameValuePair... nvps) {
@@ -447,7 +447,7 @@ public class URIBuilder {
      *
      * @param schemeSpecificPart
      * @param nvps Optional, can be null. List of query parameters to be reused by the specific scheme part
-     * @return this.
+     * @return this instance.
      * @since 5.1
      */
     public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart, final List <NameValuePair> nvps) {
@@ -467,7 +467,7 @@ public class URIBuilder {
      * Sets URI user info. The value is expected to be unescaped and may contain non ASCII
      * characters.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setUserInfo(final String userInfo) {
         this.userInfo = !TextUtils.isBlank(userInfo) ? userInfo : null;
@@ -481,7 +481,7 @@ public class URIBuilder {
      * Sets URI user info as a combination of username and password. These values are expected to
      * be unescaped and may contain non ASCII characters.
      *
-     * @return this.
+     * @return this instance.
      *
      * @deprecated The use of clear-text passwords in {@link URI}s has been deprecated and is strongly
      * discouraged.
@@ -494,7 +494,7 @@ public class URIBuilder {
     /**
      * Sets URI host.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setHost(final InetAddress host) {
         this.host = host != null ? host.getHostAddress() : null;
@@ -508,7 +508,7 @@ public class URIBuilder {
      * {@code [::1]} is not. It is dangerous to call {@code uriBuilder.setHost(uri.getHost())} due
      * to {@link URI#getHost()} returning URI encoded values.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setHost(final String host) {
         this.host = host;
@@ -521,7 +521,7 @@ public class URIBuilder {
      * Sets the scheme, host name, and port.
      *
      * @param httpHost the scheme, host name, and port.
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setHttpHost(final HttpHost httpHost) {
         setScheme(httpHost.getSchemeName());
@@ -533,7 +533,7 @@ public class URIBuilder {
     /**
      * Sets URI port.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setPort(final int port) {
         this.port = port < 0 ? -1 : port;
@@ -545,7 +545,7 @@ public class URIBuilder {
     /**
      * Sets URI path. The value is expected to be unescaped and may contain non ASCII characters.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setPath(final String path) {
         setPathSegments(path != null ? splitPath(path) : null);
@@ -556,7 +556,7 @@ public class URIBuilder {
     /**
      * Appends path to URI. The value is expected to be unescaped and may contain non ASCII characters.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder appendPath(final String path) {
         if (path != null) {
@@ -568,7 +568,7 @@ public class URIBuilder {
     /**
      * Sets URI path. The value is expected to be unescaped and may contain non ASCII characters.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setPathSegments(final String... pathSegments) {
         return setPathSegments(Arrays.asList(pathSegments));
@@ -577,7 +577,7 @@ public class URIBuilder {
     /**
      * Appends segments URI path. The value is expected to be unescaped and may contain non ASCII characters.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder appendPathSegments(final String... pathSegments) {
         return appendPathSegments(Arrays.asList(pathSegments));
@@ -587,7 +587,7 @@ public class URIBuilder {
      * Sets rootless URI path (the first segment does not start with a /).
      * The value is expected to be unescaped and may contain non ASCII characters.
      *
-     * @return this.
+     * @return this instance.
      *
      * @since 5.1
      */
@@ -598,7 +598,7 @@ public class URIBuilder {
     /**
      * Sets URI path. The value is expected to be unescaped and may contain non ASCII characters.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setPathSegments(final List<String> pathSegments) {
         this.pathSegments = pathSegments != null && !pathSegments.isEmpty() ? new ArrayList<>(pathSegments) : null;
@@ -611,7 +611,7 @@ public class URIBuilder {
     /**
      * Appends segments to URI path. The value is expected to be unescaped and may contain non ASCII characters.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder appendPathSegments(final List<String> pathSegments) {
         if (pathSegments != null && !pathSegments.isEmpty()) {
@@ -629,7 +629,7 @@ public class URIBuilder {
      * Sets rootless URI path (the first segment does not start with a /).
      * The value is expected to be unescaped and may contain non ASCII characters.
      *
-     * @return this.
+     * @return this instance.
      *
      * @since 5.1
      */
@@ -644,7 +644,7 @@ public class URIBuilder {
     /**
      * Removes URI query.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder removeQuery() {
         this.queryParams = null;
@@ -662,7 +662,7 @@ public class URIBuilder {
      * will remove custom query if present.
      * </p>
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setParameters(final List <NameValuePair> nameValuePairs) {
         if (this.queryParams == null) {
@@ -687,7 +687,7 @@ public class URIBuilder {
      * will remove custom query if present.
      * </p>
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder addParameters(final List<NameValuePair> nameValuePairs) {
         if (this.queryParams == null) {
@@ -710,7 +710,7 @@ public class URIBuilder {
      * will remove custom query if present.
      * </p>
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setParameters(final NameValuePair... nameValuePairs) {
         if (this.queryParams == null) {
@@ -735,7 +735,7 @@ public class URIBuilder {
      * will remove custom query if present.
      * </p>
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder addParameter(final String param, final String value) {
         return addParameter(new BasicNameValuePair(param, value));
@@ -749,7 +749,7 @@ public class URIBuilder {
      * will remove custom query if present.
      * </p>
      *
-     * @return this.
+     * @return this instance.
      * @since 5.2
      */
     public URIBuilder addParameter(final NameValuePair nameValuePair) {
@@ -773,7 +773,7 @@ public class URIBuilder {
      * will remove custom query if present, even when no parameter was actually removed.
      * </p>
      *
-     * @return this.
+     * @return this instance.
      * @since 5.2
      */
     public URIBuilder removeParameter(final String param) {
@@ -795,7 +795,7 @@ public class URIBuilder {
      * will remove custom query if present.
      * </p>
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setParameter(final String param, final String value) {
         if (this.queryParams == null) {
@@ -814,7 +814,7 @@ public class URIBuilder {
     /**
      * Clears URI query parameters.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder clearParameters() {
         this.queryParams = null;
@@ -831,7 +831,7 @@ public class URIBuilder {
      * will remove query parameters if present.
      * </p>
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setCustomQuery(final String query) {
         this.query = !TextUtils.isBlank(query) ? query : null;
@@ -845,7 +845,7 @@ public class URIBuilder {
      * Sets URI fragment. The value is expected to be unescaped and may contain non ASCII
      * characters.
      *
-     * @return this.
+     * @return this instance.
      */
     public URIBuilder setFragment(final String fragment) {
         this.fragment = !TextUtils.isBlank(fragment) ? fragment : null;

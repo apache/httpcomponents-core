@@ -229,7 +229,7 @@ public class RequestRouter<T> implements HttpRequestMapper<T> {
         }
 
         /**
-         * Assigns custom {@link URIAuthority} resolution {@link Function} that can be used to normalize or re-write
+         * Sets custom {@link URIAuthority} resolution {@link Function} that can be used to normalize or re-write
          * the authority specified in incoming requests prior to request routing. The function can return
          * a new {@link URIAuthority} instance representing an identity of the service authoritative to handle
          * the request or {@code null} if an authoritative service cannot be found or is unknown.
@@ -240,7 +240,7 @@ public class RequestRouter<T> implements HttpRequestMapper<T> {
         }
 
         /**
-         * Assigns a downstream request mapper that can be used as a fallback in case no authoritative service can be found
+         * Sets a downstream request mapper that can be used as a fallback in case no authoritative service can be found
          * to handle an incoming request. Using this method request mappers can be linked to form a chain of responsibility,
          * with each link representing a different authority.
          */

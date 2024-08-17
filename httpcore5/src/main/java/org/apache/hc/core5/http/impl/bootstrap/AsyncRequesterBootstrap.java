@@ -87,6 +87,8 @@ public class AsyncRequesterBootstrap {
 
     /**
      * Sets I/O reactor configuration.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
         this.ioReactorConfig = ioReactorConfig;
@@ -95,6 +97,8 @@ public class AsyncRequesterBootstrap {
 
     /**
      * Sets HTTP/1.1 protocol parameters
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setHttp1Config(final Http1Config http1Config) {
         this.http1Config = http1Config;
@@ -103,6 +107,8 @@ public class AsyncRequesterBootstrap {
 
     /**
      * Sets message char coding.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
         this.charCodingConfig = charCodingConfig;
@@ -110,7 +116,9 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link HttpProcessor} instance.
+     * Sets {@link HttpProcessor} instance.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
@@ -118,7 +126,9 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link ConnectionReuseStrategy} instance.
+     * Sets {@link ConnectionReuseStrategy} instance.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         this.connStrategy = connStrategy;
@@ -141,7 +151,9 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link PoolReusePolicy} instance.
+     * Sets {@link PoolReusePolicy} instance.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setPoolReusePolicy(final PoolReusePolicy poolReusePolicy) {
         this.poolReusePolicy = poolReusePolicy;
@@ -149,7 +161,9 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link PoolConcurrencyPolicy} instance.
+     * Sets {@link PoolConcurrencyPolicy} instance.
+     *
+     * @return this instance.
      */
     @Experimental
     public final AsyncRequesterBootstrap setPoolConcurrencyPolicy(final PoolConcurrencyPolicy poolConcurrencyPolicy) {
@@ -158,7 +172,7 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link TlsStrategy} instance.
+     * Sets {@link TlsStrategy} instance.
      */
     public final AsyncRequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
@@ -171,7 +185,9 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link IOSession} {@link Decorator} instance.
+     * Sets {@link IOSession} {@link Decorator} instance.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
@@ -179,7 +195,9 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link Exception} {@link Callback} instance.
+     * Sets {@link Exception} {@link Callback} instance.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
         this.exceptionCallback = exceptionCallback;
@@ -187,7 +205,9 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link IOSessionListener} instance.
+     * Sets {@link IOSessionListener} instance.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
         this.sessionListener = sessionListener;
@@ -195,7 +215,9 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link Http1StreamListener} instance.
+     * Sets {@link Http1StreamListener} instance.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setStreamListener(final Http1StreamListener streamListener) {
         this.streamListener = streamListener;
@@ -203,7 +225,9 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link ConnPoolListener} instance.
+     * Sets {@link ConnPoolListener} instance.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setConnPoolListener(final ConnPoolListener<HttpHost> connPoolListener) {
         this.connPoolListener = connPoolListener;

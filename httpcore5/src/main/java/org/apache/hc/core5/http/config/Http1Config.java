@@ -174,6 +174,7 @@ public class Http1Config {
          * Presently only {@link HttpVersion#HTTP_1_0} and {@link HttpVersion#HTTP_1_1} are
          * supported.
          *
+         * @return this instance.
          * @since 5.3
          */
         public Builder setVersion(final HttpVersion version) {

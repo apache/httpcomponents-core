@@ -81,6 +81,8 @@ public class H2MultiplexingRequesterBootstrap {
 
     /**
      * Sets I/O reactor configuration.
+     *
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
         this.ioReactorConfig = ioReactorConfig;
@@ -88,7 +90,9 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link HttpProcessor} instance.
+     * Sets {@link HttpProcessor} instance.
+     *
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
@@ -97,6 +101,8 @@ public class H2MultiplexingRequesterBootstrap {
 
     /**
      * Sets HTTP/2 protocol parameters
+     *
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap setH2Config(final H2Config h2Config) {
         this.h2Config = h2Config;
@@ -105,6 +111,8 @@ public class H2MultiplexingRequesterBootstrap {
 
     /**
      * Sets message char coding.
+     *
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
         this.charCodingConfig = charCodingConfig;
@@ -112,7 +120,9 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link TlsStrategy} instance.
+     * Sets {@link TlsStrategy} instance.
+     *
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
@@ -125,7 +135,9 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link IOSession} {@link Decorator} instance.
+     * Sets {@link IOSession} {@link Decorator} instance.
+     *
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
@@ -133,7 +145,9 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link Exception} {@link Callback} instance.
+     * Sets {@link Exception} {@link Callback} instance.
+     *
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
         this.exceptionCallback = exceptionCallback;
@@ -141,7 +155,9 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link IOSessionListener} instance.
+     * Sets {@link IOSessionListener} instance.
+     *
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
         this.sessionListener = sessionListener;
@@ -149,7 +165,9 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link H2StreamListener} instance.
+     * Sets {@link H2StreamListener} instance.
+     *
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap setStreamListener(final H2StreamListener streamListener) {
         this.streamListener = streamListener;
@@ -157,7 +175,9 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
-     * Assigns {@link UriPatternType} for handler registration.
+     * Sets {@link UriPatternType} for handler registration.
+     *
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap setUriPatternType(final UriPatternType uriPatternType) {
         this.uriPatternType = uriPatternType;
@@ -170,6 +190,7 @@ public class H2MultiplexingRequesterBootstrap {
      *
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
+     * @return this instance.
      */
     public final H2MultiplexingRequesterBootstrap register(final String uriPattern, final Supplier<AsyncPushConsumer> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
@@ -185,6 +206,7 @@ public class H2MultiplexingRequesterBootstrap {
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
+     * @return this instance.
      *
      * @since 5.3
      */
@@ -197,6 +219,7 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
+     * @return this instance.
      * @deprecated Use {@link #register(String, String, Supplier)}.
      */
     @Deprecated

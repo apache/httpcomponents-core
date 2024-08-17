@@ -28,6 +28,7 @@
 package org.apache.hc.core5.http.io;
 
 import java.net.SocketAddress;
+import java.net.SocketOptions;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -251,6 +252,8 @@ public class SocketConfig {
 
         /**
          * @see #setSoTimeout(Timeout)
+         *
+         * @return this instance.
          */
         public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
             this.soTimeout = Timeout.of(soTimeout, timeUnit);
@@ -263,7 +266,7 @@ public class SocketConfig {
          * Default: 3 minutes
          * </p>
          *
-         * @return the default socket timeout value for blocking I/O operations.
+         * @return this instance.
          * @see java.net.SocketOptions#SO_TIMEOUT
          */
         public Builder setSoTimeout(final Timeout soTimeout) {
@@ -272,13 +275,13 @@ public class SocketConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter
+         * Determines the default value of the {@link SocketOptions#SO_REUSEADDR} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code false}
          * </p>
          *
-         * @return the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter.
+         * @return this instance.
          * @see java.net.SocketOptions#SO_REUSEADDR
          */
         public Builder setSoReuseAddress(final boolean soReuseAddress) {
@@ -288,6 +291,8 @@ public class SocketConfig {
 
         /**
          * @see #setSoLinger(TimeValue)
+         *
+         * @return this instance.
          */
         public Builder setSoLinger(final int soLinger, final TimeUnit timeUnit) {
             this.soLinger = Timeout.of(soLinger, timeUnit);
@@ -295,13 +300,13 @@ public class SocketConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
+         * Determines the default value of the {@link SocketOptions#SO_LINGER} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code -1}
          * </p>
          *
-         * @return the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter.
+         * @return this instance.
          * @see java.net.SocketOptions#SO_LINGER
          */
         public Builder setSoLinger(final TimeValue soLinger) {
@@ -310,13 +315,13 @@ public class SocketConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter
+         * Determines the default value of the {@link SocketOptions#SO_KEEPALIVE} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code false}
          * </p>
          *
-         * @return the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter.
+         * @return this instance.
          * @see java.net.SocketOptions#SO_KEEPALIVE
          */
         public Builder setSoKeepAlive(final boolean soKeepAlive) {
@@ -325,13 +330,13 @@ public class SocketConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
+         * Determines the default value of the {@link SocketOptions#TCP_NODELAY} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code false}
          * </p>
          *
-         * @return the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter.
+         * @return this instance.
          * @see java.net.SocketOptions#TCP_NODELAY
          */
         public Builder setTcpNoDelay(final boolean tcpNoDelay) {
@@ -340,13 +345,13 @@ public class SocketConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
+         * Determines the default value of the {@link SocketOptions#SO_SNDBUF} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code 0} (system default)
          * </p>
          *
-         * @return the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter.
+         * @return this instance.
          * @see java.net.SocketOptions#SO_SNDBUF
          * @since 4.4
          */
@@ -356,13 +361,13 @@ public class SocketConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
+         * Determines the default value of the {@link SocketOptions#SO_RCVBUF} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code 0} (system default)
          * </p>
          *
-         * @return the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter.
+         * @return this instance.
          * @see java.net.SocketOptions#SO_RCVBUF
          * @since 4.4
          */
@@ -377,7 +382,8 @@ public class SocketConfig {
          * <p>
          * Default: {@code 0} (system default)
          * </p>
-         * @return the maximum queue length for incoming connection indications
+         *
+         * @return this instance.
          * @since 4.4
          */
         public Builder setBacklogSize(final int backlogSize) {
@@ -391,7 +397,8 @@ public class SocketConfig {
          * <p>
          * Default: {@code -1} (system default)
          * </p>
-         * @return the time (in seconds) the connection needs to remain idle before TCP starts
+         *
+         * @return this instance.
          * @since 5.3
          */
         public Builder setTcpKeepIdle(final int tcpKeepIdle) {
@@ -404,7 +411,8 @@ public class SocketConfig {
          * <p>
          * Default: {@code -1} (system default)
          * </p>
-         * @return the time (in seconds) between individual keepalive probes.
+         *
+         * @return this instance.
          * @since 5.3
          */
         public Builder setTcpKeepInterval(final int tcpKeepInterval) {
@@ -417,7 +425,8 @@ public class SocketConfig {
          * <p>
          * Default: {@code -1} (system default)
          * </p>
-         * @return the maximum number of keepalive probes TCP should send before dropping the connection.
+         *
+         * @return this instance.
          * @since 5.3
          */
         public Builder setTcpKeepCount(final int tcpKeepCount) {
@@ -427,6 +436,8 @@ public class SocketConfig {
 
         /**
          * The address of the SOCKS proxy to use.
+         *
+         * @return this instance.
          */
         public Builder setSocksProxyAddress(final SocketAddress socksProxyAddress) {
             this.socksProxyAddress = socksProxyAddress;

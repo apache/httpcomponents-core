@@ -34,7 +34,7 @@ import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
 
 /**
- * {@link java.util.Iterator} of {@link org.apache.hc.core5.http.Header} tokens..
+ * {@link Iterator} of {@link org.apache.hc.core5.http.Header} tokens..
  *
  * @since 4.0
  */

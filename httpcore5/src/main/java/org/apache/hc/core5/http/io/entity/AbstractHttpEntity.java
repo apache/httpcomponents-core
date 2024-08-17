@@ -122,7 +122,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      * @param entity    The entity to write, never null.
      * @param outStream Where to write the entity, never null.
      * @throws IOException                   if the entity cannot generate its content stream; also thrown if the output stream is closed.
-     * @throws UnsupportedOperationException if entity content cannot be represented as {@link java.io.InputStream}.
+     * @throws UnsupportedOperationException if entity content cannot be represented as {@link InputStream}.
      */
     public static void writeTo(final HttpEntity entity, final OutputStream outStream) throws IOException {
         Args.notNull(entity, "Entity");
@@ -143,7 +143,7 @@ public abstract class AbstractHttpEntity implements HttpEntity {
      *
      * @param outStream Where to write the entity, never null.
      * @throws IOException                   if the entity cannot generate its content stream; also thrown if the output stream is closed.
-     * @throws UnsupportedOperationException if entity content cannot be represented as {@link java.io.InputStream}.
+     * @throws UnsupportedOperationException if entity content cannot be represented as {@link InputStream}.
      */
     @Override
     public void writeTo(final OutputStream outStream) throws IOException {

@@ -36,7 +36,7 @@ import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.Asserts;
 
 /**
- * {@link java.util.Iterator} of {@link org.apache.hc.core5.http.Header}s. For use by {@link HeaderGroup}.
+ * {@link Iterator} of {@link org.apache.hc.core5.http.Header}s. For use by {@link HeaderGroup}.
  *
  * @since 4.0
  */

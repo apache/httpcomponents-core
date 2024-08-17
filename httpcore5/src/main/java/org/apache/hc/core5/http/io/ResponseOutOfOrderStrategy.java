@@ -32,11 +32,13 @@ import org.apache.hc.core5.http.ClassicHttpRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 
 /**
  * Represents a strategy to determine how frequently the client should check for an out of order response.
  * An out of order response is sent before the server has read the full request. If the client fails to
- * check for an early response then a {@link java.net.SocketException} or {@link java.net.SocketTimeoutException}
+ * check for an early response then a {@link SocketException} or {@link SocketTimeoutException}
  * may be thrown while writing the request entity after a timeout is reached on either the client or server.
  *
  * @since 5.1
@@ -45,7 +47,7 @@ import java.io.InputStream;
 public interface ResponseOutOfOrderStrategy {
 
     /**
-     * Called before each write to the socket {@link java.io.OutputStream} with the number of
+     * Called before each write to the socket {@link IOException} with the number of
      * bytes that have already been sent, and the size of the next chunk to be written that
      * will occur if this check does not encounter an out of order response.
      *

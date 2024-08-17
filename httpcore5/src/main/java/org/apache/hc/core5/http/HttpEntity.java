@@ -102,7 +102,7 @@ public interface HttpEntity extends EntityDetails, Closeable {
      *
      * @throws IOException if the stream could not be created
      * @throws UnsupportedOperationException
-     *  if entity content cannot be represented as {@link java.io.InputStream}.
+     *  if entity content cannot be represented as {@link InputStream}.
      *
      * @see #isRepeatable()
      */

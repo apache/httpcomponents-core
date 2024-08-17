@@ -115,6 +115,7 @@ public class H2ServerBootstrap {
     /**
      * Sets canonical name (fully qualified domain name) of the server.
      *
+     * @return this instance.
      * @since 5.0
      */
     public final H2ServerBootstrap setCanonicalHostName(final String canonicalHostName) {
@@ -124,6 +125,8 @@ public class H2ServerBootstrap {
 
     /**
      * Sets I/O reactor configuration.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
         this.ioReactorConfig = ioReactorConfig;
@@ -131,7 +134,9 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpProcessor} instance.
+     * Sets {@link HttpProcessor} instance.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
@@ -140,6 +145,8 @@ public class H2ServerBootstrap {
 
     /**
      * Sets HTTP protocol version policy
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setVersionPolicy(final HttpVersionPolicy versionPolicy) {
         this.versionPolicy = versionPolicy;
@@ -148,6 +155,8 @@ public class H2ServerBootstrap {
 
     /**
      * Sets HTTP/2 protocol parameters
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setH2Config(final H2Config h2Config) {
         this.h2Config = h2Config;
@@ -156,6 +165,8 @@ public class H2ServerBootstrap {
 
     /**
      * Sets HTTP/1.1 protocol parameters
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setHttp1Config(final Http1Config http1Config) {
         this.http1Config = http1Config;
@@ -164,6 +175,8 @@ public class H2ServerBootstrap {
 
     /**
      * Sets message char coding.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setCharset(final CharCodingConfig charCodingConfig) {
         this.charCodingConfig = charCodingConfig;
@@ -171,7 +184,9 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link TlsStrategy} instance.
+     * Sets {@link TlsStrategy} instance.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
@@ -184,7 +199,9 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link IOSession} {@link Decorator} instance.
+     * Sets {@link IOSession} {@link Decorator} instance.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
@@ -192,7 +209,9 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link Exception} {@link Callback} instance.
+     * Sets {@link Exception} {@link Callback} instance.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
         this.exceptionCallback = exceptionCallback;
@@ -200,7 +219,9 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link IOSessionListener} instance.
+     * Sets {@link IOSessionListener} instance.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
         this.sessionListener = sessionListener;
@@ -208,7 +229,9 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link H2StreamListener} instance.
+     * Sets {@link H2StreamListener} instance.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setStreamListener(final H2StreamListener h2StreamListener) {
         this.h2StreamListener = h2StreamListener;
@@ -216,7 +239,9 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link Http1StreamListener} instance.
+     * Sets {@link Http1StreamListener} instance.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap setStreamListener(final Http1StreamListener http1StreamListener) {
         this.http1StreamListener = http1StreamListener;
@@ -224,6 +249,7 @@ public class H2ServerBootstrap {
     }
 
     /**
+     * @return this instance.
      * @deprecated Use {@link RequestRouter}.
      */
     @Deprecated
@@ -233,8 +259,9 @@ public class H2ServerBootstrap {
     }
 
     /**
-     * Assigns {@link HttpRequestMapper} instance.
+     * Sets {@link HttpRequestMapper} instance.
      *
+     * @return this instance.
      * @see org.apache.hc.core5.http.impl.routing.RequestRouter
      * @since 5.3
      */
@@ -249,6 +276,7 @@ public class H2ServerBootstrap {
      *
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
+     * @return this instance.
      */
     public final H2ServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
@@ -264,6 +292,7 @@ public class H2ServerBootstrap {
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
+     * @return this instance.
      *
      * @since 5.3
      */
@@ -276,6 +305,7 @@ public class H2ServerBootstrap {
     }
 
     /**
+     * @return this instance.
      * @deprecated Use {@link #register(String, String, Supplier)}.
      */
     @Deprecated
@@ -289,6 +319,7 @@ public class H2ServerBootstrap {
      *
      * @param uriPattern the pattern to register the handler for.
      * @param requestHandler the handler.
+     * @return this instance.
      */
     public final <T> H2ServerBootstrap register(
             final String uriPattern,
@@ -304,6 +335,7 @@ public class H2ServerBootstrap {
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param requestHandler the handler.
+     * @return this instance.
      *
      * @since 5.3
      */
@@ -316,6 +348,7 @@ public class H2ServerBootstrap {
     }
 
     /**
+     * @return this instance.
      * @deprecated Use {@link #register(String, String, Supplier)}.
      */
     @Deprecated
@@ -339,6 +372,8 @@ public class H2ServerBootstrap {
 
     /**
      * Adds the filter after the filter with the given name.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap addFilterAfter(final String existing, final String name, final AsyncFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
@@ -350,6 +385,8 @@ public class H2ServerBootstrap {
 
     /**
      * Replace an existing filter with the given name with new filter.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap replaceFilter(final String existing, final AsyncFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
@@ -360,6 +397,8 @@ public class H2ServerBootstrap {
 
     /**
      * Add an filter to the head of the processing list.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap addFilterFirst(final String name, final AsyncFilterHandler filterHandler) {
         Args.notNull(name, "Name");
@@ -370,6 +409,8 @@ public class H2ServerBootstrap {
 
     /**
      * Add an filter to the tail of the processing list.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap addFilterLast(final String name, final AsyncFilterHandler filterHandler) {
         Args.notNull(name, "Name");

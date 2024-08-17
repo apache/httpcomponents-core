@@ -28,6 +28,7 @@
 package org.apache.hc.core5.net;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
 
@@ -39,7 +40,7 @@ import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Tokenizer;
 
 /**
- * Represents authority component of request {@link java.net.URI}.
+ * Represents authority component of request {@link URI}.
  *
  * @since 5.0
  */

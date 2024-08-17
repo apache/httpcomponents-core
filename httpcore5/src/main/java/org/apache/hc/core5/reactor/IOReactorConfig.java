@@ -28,6 +28,7 @@
 package org.apache.hc.core5.reactor;
 
 import java.net.SocketAddress;
+import java.net.SocketOptions;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hc.core5.annotation.Contract;
@@ -332,11 +333,13 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines time interval at which the I/O reactor wakes up to check for timed out sessions
+         * Sets time interval at which the I/O reactor wakes up to check for timed out sessions
          * and session requests.
          * <p>
          * Default: {@code 1000} milliseconds.
          * </p>
+         *
+         * @return this instance.
          */
         public Builder setSelectInterval(final TimeValue selectInterval) {
             this.selectInterval = selectInterval;
@@ -344,10 +347,12 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the number of I/O dispatch threads to be used by the I/O reactor.
+         * Sets the number of I/O dispatch threads to be used by the I/O reactor.
          * <p>
          * Default: {@code 2}
          * </p>
+         *
+         * @return this instance.
          */
         public Builder setIoThreadCount(final int ioThreadCount) {
             this.ioThreadCount = ioThreadCount;
@@ -355,12 +360,13 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default socket timeout value for non-blocking I/O operations.
+         * Sets the default socket timeout value for non-blocking I/O operations.
          * <p>
          * Default: {@code 0} (no timeout)
          * </p>
          *
-         * @see java.net.SocketOptions#SO_TIMEOUT
+         * @return this instance.
+         * @see SocketOptions#SO_TIMEOUT
          */
         public Builder setSoTimeout(final int soTimeout, final TimeUnit timeUnit) {
             this.soTimeout = Timeout.of(soTimeout, timeUnit);
@@ -368,12 +374,13 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default socket timeout value for non-blocking I/O operations.
+         * Sets the default socket timeout value for non-blocking I/O operations.
          * <p>
          * Default: {@code 0} (no timeout)
          * </p>
          *
-         * @see java.net.SocketOptions#SO_TIMEOUT
+         * @return this instance.
+         * @see SocketOptions#SO_TIMEOUT
          */
         public Builder setSoTimeout(final Timeout soTimeout) {
             this.soTimeout = soTimeout;
@@ -381,13 +388,14 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_REUSEADDR} parameter
+         * Sets the default value of the {@link SocketOptions#SO_REUSEADDR} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code false}
          * </p>
          *
-         * @see java.net.SocketOptions#SO_REUSEADDR
+         * @return this instance.
+         * @see SocketOptions#SO_REUSEADDR
          */
         public Builder setSoReuseAddress(final boolean soReuseAddress) {
             this.soReuseAddress = soReuseAddress;
@@ -395,13 +403,14 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
+         * Sets the default value of the {@link SocketOptions#SO_LINGER} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code -1}
          * </p>
          *
-         * @see java.net.SocketOptions#SO_LINGER
+         * @return this instance.
+         * @see SocketOptions#SO_LINGER
          */
         public Builder setSoLinger(final int soLinger, final TimeUnit timeUnit) {
             this.soLinger = TimeValue.of(soLinger, timeUnit);
@@ -409,13 +418,14 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_LINGER} parameter
+         * Sets the default value of the {@link SocketOptions#SO_LINGER} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code -1}
          * </p>
          *
-         * @see java.net.SocketOptions#SO_LINGER
+         * @return this instance.
+         * @see SocketOptions#SO_LINGER
          */
         public Builder setSoLinger(final TimeValue soLinger) {
             this.soLinger = soLinger;
@@ -423,13 +433,14 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_KEEPALIVE} parameter
+         * Sets the default value of the {@link SocketOptions#SO_KEEPALIVE} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code -1}
          * </p>
          *
-         * @see java.net.SocketOptions#SO_KEEPALIVE
+         * @return this instance.
+         * @see SocketOptions#SO_KEEPALIVE
          */
         public Builder setSoKeepAlive(final boolean soKeepAlive) {
             this.soKeepAlive = soKeepAlive;
@@ -437,13 +448,14 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#TCP_NODELAY} parameter
+         * Sets the default value of the {@link SocketOptions#TCP_NODELAY} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code false}
          * </p>
          *
-         * @see java.net.SocketOptions#TCP_NODELAY
+         * @return this instance.
+         * @see SocketOptions#TCP_NODELAY
          */
         public Builder setTcpNoDelay(final boolean tcpNoDelay) {
             this.tcpNoDelay = tcpNoDelay;
@@ -451,13 +463,14 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#IP_TOS} parameter
+         * Sets the default value of the {@link SocketOptions#IP_TOS} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code 0}
          * </p>
          *
-         * @see java.net.SocketOptions#IP_TOS
+         * @return this instance.
+         * @see SocketOptions#IP_TOS
          *
          * @since 5.1
          */
@@ -467,13 +480,14 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_SNDBUF} parameter
+         * Sets the default value of the {@link SocketOptions#SO_SNDBUF} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code 0} (system default)
          * </p>
          *
-         * @see java.net.SocketOptions#SO_SNDBUF
+         * @return this instance.
+         * @see SocketOptions#SO_SNDBUF
          */
         public Builder setSndBufSize(final int sndBufSize) {
             this.sndBufSize = sndBufSize;
@@ -481,13 +495,14 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default value of the {@link java.net.SocketOptions#SO_RCVBUF} parameter
+         * Sets the default value of the {@link SocketOptions#SO_RCVBUF} parameter
          * for newly created sockets.
          * <p>
          * Default: {@code 0} (system default)
          * </p>
          *
-         * @see java.net.SocketOptions#SO_RCVBUF
+         * @return this instance.
+         * @see SocketOptions#SO_RCVBUF
          */
         public Builder setRcvBufSize(final int rcvBufSize) {
             this.rcvBufSize = rcvBufSize;
@@ -495,11 +510,12 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the default backlog size value for server sockets binds.
+         * Sets the default backlog size value for server sockets binds.
          * <p>
          * Default: {@code 0} (system default)
          * </p>
          *
+         * @return this instance.
          * @since 4.4
          */
         public Builder setBacklogSize(final int backlogSize) {
@@ -508,9 +524,10 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the time (in seconds) the connection needs to remain idle before TCP starts
+         * Sets the time (in seconds) the connection needs to remain idle before TCP starts
          * sending keepalive probes.
          *
+         * @return this instance.
          * @since 5.3
          */
         public Builder setTcpKeepIdle(final int tcpKeepIdle) {
@@ -519,8 +536,9 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the time (in seconds) between individual keepalive probes.
+         * Sets the time (in seconds) between individual keepalive probes.
          *
+         * @return this instance.
          * @since 5.3
          */
         public Builder setTcpKeepInterval(final int tcpKeepInterval) {
@@ -529,8 +547,9 @@ public final class IOReactorConfig {
         }
 
         /**
-         * Determines the maximum number of keepalive probes TCP should send before dropping the connection.
+         * Sets the maximum number of keepalive probes TCP should send before dropping the connection.
          *
+         * @return this instance.
          * @since 5.3
          */
         public Builder setTcpKeepCount(final int tcpKeepCount) {
@@ -539,7 +558,9 @@ public final class IOReactorConfig {
         }
 
         /**
-         * The address of the SOCKS proxy to use.
+         * Sets the address of the SOCKS proxy to use.
+         *
+         * @return this instance.
          */
         public Builder setSocksProxyAddress(final SocketAddress socksProxyAddress) {
             this.socksProxyAddress = socksProxyAddress;
@@ -547,7 +568,9 @@ public final class IOReactorConfig {
         }
 
         /**
-         * The username to provide to the SOCKS proxy for username/password authentication.
+         * Sets the username to provide to the SOCKS proxy for username/password authentication.
+         *
+         * @return this instance.
          */
         public Builder setSocksProxyUsername(final String socksProxyUsername) {
             this.socksProxyUsername = socksProxyUsername;
@@ -555,7 +578,9 @@ public final class IOReactorConfig {
         }
 
         /**
-         * The password to provide to the SOCKS proxy for username/password authentication.
+         * Sets the password to provide to the SOCKS proxy for username/password authentication.
+         *
+         * @return this instance.
          */
         public Builder setSocksProxyPassword(final String socksProxyPassword) {
             this.socksProxyPassword = socksProxyPassword;

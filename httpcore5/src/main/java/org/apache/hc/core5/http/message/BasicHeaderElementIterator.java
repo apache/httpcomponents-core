@@ -34,7 +34,7 @@ import org.apache.hc.core5.http.HeaderElement;
 import org.apache.hc.core5.util.Args;
 
 /**
- * {@link java.util.Iterator} of {@link org.apache.hc.core5.http.HeaderElement}s.
+ * {@link Iterator} of {@link org.apache.hc.core5.http.HeaderElement}s.
  *
  * @since 4.0
  */
