@@ -44,6 +44,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 /**
  * Default {@link org.apache.hc.core5.http.nio.NHttpMessageParser} implementation for {@link HttpRequest}s.
  *
+ * @param <T> The type of {@link HttpRequest}.
  * @since 4.1
  */
 public class DefaultHttpRequestParser<T extends HttpRequest> extends AbstractMessageParser<T> {

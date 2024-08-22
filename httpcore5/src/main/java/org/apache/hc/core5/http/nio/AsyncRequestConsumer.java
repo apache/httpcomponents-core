@@ -37,7 +37,7 @@ import org.apache.hc.core5.http.protocol.HttpContext;
 /**
  * Abstract asynchronous request consumer.
  *
- * @param <T> request representation.
+ * @param <T> the future result type returned for callbacks.
  *
  * @since 5.0
  */

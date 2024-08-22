@@ -37,6 +37,7 @@ import org.apache.hc.core5.http.HttpConnection;
 /**
  * Factory for {@link HttpConnection} instances.
  *
+ * @param <T> The type of {@link HttpConnection}.
  * @since 4.3
  */
 public interface HttpConnectionFactory<T extends HttpConnection> {

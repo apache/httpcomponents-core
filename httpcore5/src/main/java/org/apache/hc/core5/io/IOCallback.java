@@ -32,6 +32,7 @@ import java.io.IOException;
 /**
  * Abstract I/O callback.
  *
+ * @param <T> the type of the input to the operation.
  * @since 5.0
  */
 public interface IOCallback<T> {

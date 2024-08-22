@@ -36,6 +36,7 @@ import org.apache.hc.core5.http.MessageHeaders;
 /**
  * Message writer intended to serialize HTTP message head to an output stream.
  *
+ * @param <T> The type of {@link MessageHeaders}.
  * @since 4.0
  */
 public interface HttpMessageWriter<T extends MessageHeaders> {

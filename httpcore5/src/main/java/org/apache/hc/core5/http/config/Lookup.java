@@ -29,8 +29,9 @@ package org.apache.hc.core5.http.config;
 
 
 /**
- * Generic lookup by low-case string ID.
+ * Generic lookup by lower-case string ID.
  *
+ * @param <I> the type of values to lookup.
  * @since 4.3
  */
 public interface Lookup<I> {

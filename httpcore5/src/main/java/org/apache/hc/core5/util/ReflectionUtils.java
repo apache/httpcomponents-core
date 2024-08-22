@@ -49,7 +49,8 @@ public final class ReflectionUtils {
     }
 
     /**
-     * @sunce 5.3
+     * @param <T> The return type.
+     * @since 5.3
      */
     public static <T> T callGetter(final Object object, final String getterName, final Object arg, final Class<?> argType, final Class<T> resultType) {
         try {

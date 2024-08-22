@@ -37,6 +37,7 @@ import org.apache.hc.core5.util.TextUtils;
 /**
  * Generic registry of items keyed by low-case string ID.
  *
+ * @param <I> the type of values to lookup.
  * @since 4.3
  */
 @Contract(threading = ThreadingBehavior.SAFE)

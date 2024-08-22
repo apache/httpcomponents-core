@@ -68,6 +68,7 @@ public final class H2TlsSupport {
     }
 
     /**
+     * @return the given SSLParameters.
      * @since 5.3
      */
     public static SSLParameters enforceRequirements(

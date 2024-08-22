@@ -49,6 +49,7 @@ import org.apache.hc.core5.util.TextUtils;
 /**
  * Builder for {@link BasicHttpRequest} instances.
  *
+ * @param <T> The request type to build.
  * @since 5.1
  */
 public abstract class AbstractRequestBuilder<T> extends AbstractMessageBuilder<T> {

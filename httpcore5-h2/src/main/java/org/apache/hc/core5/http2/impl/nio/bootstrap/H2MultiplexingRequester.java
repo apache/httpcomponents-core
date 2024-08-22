@@ -264,6 +264,7 @@ public class H2MultiplexingRequester extends AsyncRequester{
     }
 
     /**
+     * @param <T> The result type returned by the Future's {@code get} method.
      * @since 5.3
      */
     public final <T> Future<T> execute(
@@ -304,6 +305,7 @@ public class H2MultiplexingRequester extends AsyncRequester{
     }
 
     /**
+     * @param <T> The result type returned by the Future's {@code get} method.
      * @since 5.3
      */
     public final <T> Future<T> execute(

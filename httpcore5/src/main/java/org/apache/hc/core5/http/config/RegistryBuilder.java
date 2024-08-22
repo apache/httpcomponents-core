@@ -36,6 +36,7 @@ import org.apache.hc.core5.util.TextUtils;
 /**
  * Builder for {@link Registry} instances.
  *
+ * @param <I> the type of Registry values.
  * @since 4.3
  */
 public final class RegistryBuilder<I> {

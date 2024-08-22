@@ -32,6 +32,7 @@ import org.apache.hc.core5.http.MessageHeaders;
 /**
  * Factory for {@link HttpMessageWriter} instances.
  *
+ * @param <T> The type of {@link MessageHeaders}.
  * @since 4.3
  */
 public interface HttpMessageWriterFactory<T extends MessageHeaders> {

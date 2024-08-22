@@ -36,7 +36,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.http.Header;
 
 /**
- * Abstract byte stream channel
+ * Abstract byte stream channel.
  * <p>
  * Implementations are expected to be thread-safe.
  * </p>

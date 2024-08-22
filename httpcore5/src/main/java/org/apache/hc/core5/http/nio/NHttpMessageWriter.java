@@ -35,6 +35,7 @@ import org.apache.hc.core5.http.MessageHeaders;
 /**
  * Message writer intended to serialize HTTP message head to a session buffer.
  *
+ * @param <T> The type of {@link MessageHeaders}.
  * @since 4.0
  */
 public interface NHttpMessageWriter<T extends MessageHeaders> {

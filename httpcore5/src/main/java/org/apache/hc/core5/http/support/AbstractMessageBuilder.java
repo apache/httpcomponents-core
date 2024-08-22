@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.message.HeaderGroup;
 /**
  * Abstract {@link HttpMessage} builder.
  *
+ * @param <T> The message type to build.
  * @since 5.1
  */
 public abstract class AbstractMessageBuilder<T> {

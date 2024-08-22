@@ -39,6 +39,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
 /**
  * Default {@link org.apache.hc.core5.http.nio.NHttpMessageWriter} implementation for {@link HttpResponse}s.
  *
+ * @param <T> The type of {@link HttpResponse}.
  * @since 4.1
  */
 public class DefaultHttpResponseWriter<T extends HttpResponse> extends AbstractMessageWriter<T> {

@@ -36,6 +36,9 @@ import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Writes to a byte stream channel.
+ */
 public class BasicDataStreamChannel implements DataStreamChannel {
 
     private final WritableByteChannel byteChannel;

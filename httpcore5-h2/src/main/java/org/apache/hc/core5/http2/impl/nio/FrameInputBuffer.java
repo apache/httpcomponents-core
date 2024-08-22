@@ -101,9 +101,8 @@ public final class FrameInputBuffer {
      *
      * @param src the source buffer or {@code null} if not available.
      * @param channel the underlying data channel.
-     *
      * @return a complete frame or {@code null} a complete frame cannot be read.
-     *
+     * @throws IOException in case of an I/O error.
      * @since 5.1
      */
     public RawFrame read(final ByteBuffer src, final ReadableByteChannel channel) throws IOException {
@@ -190,6 +189,8 @@ public final class FrameInputBuffer {
      * Attempts to read a complete frame from the underlying data channel.
      *
      * @param channel the underlying data channel.
+     * @return a complete frame or {@code null} a complete frame cannot be read.
+     * @throws IOException in case of an I/O error.
      */
     public RawFrame read(final ReadableByteChannel channel) throws IOException {
         return read(null, channel);

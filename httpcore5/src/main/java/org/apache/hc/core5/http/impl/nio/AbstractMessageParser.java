@@ -46,6 +46,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * Abstract {@link NHttpMessageParser} that serves as a base for all message
  * parser implementations.
  *
+ * @param <T> The type of {@link HttpMessage}.
  * @since 4.0
  */
 public abstract class AbstractMessageParser<T extends HttpMessage> implements NHttpMessageParser<T> {

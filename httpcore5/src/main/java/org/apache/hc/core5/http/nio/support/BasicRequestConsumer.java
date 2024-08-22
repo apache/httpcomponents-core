@@ -49,6 +49,7 @@ import org.apache.hc.core5.util.Args;
  * Basic implementation of {@link AsyncRequestConsumer} that represents the request message as
  * a {@link Message} and relies on a {@link AsyncEntityConsumer} to process request entity stream.
  *
+ * @param <T> The message body type.
  * @since 5.0
  */
 public class BasicRequestConsumer<T> implements AsyncRequestConsumer<Message<HttpRequest, T>> {

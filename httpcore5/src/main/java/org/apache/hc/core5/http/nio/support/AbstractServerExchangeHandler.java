@@ -52,6 +52,7 @@ import org.apache.hc.core5.util.Asserts;
 /**
  * Abstract server side message exchange handler.
  *
+ * @param <T> the type of request messages.
  * @since 5.0
  */
 public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExchangeHandler {

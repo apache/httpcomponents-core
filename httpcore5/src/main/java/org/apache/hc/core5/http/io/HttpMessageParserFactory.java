@@ -33,6 +33,7 @@ import org.apache.hc.core5.http.config.Http1Config;
 /**
  * Factory for {@link HttpMessageParser} instances.
  *
+ * @param <T> The type of {@link MessageHeaders}.
  * @since 4.3
  */
 public interface HttpMessageParserFactory<T extends MessageHeaders> {

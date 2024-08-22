@@ -317,6 +317,7 @@ public class H2ServerBootstrap {
      * Registers the given {@link AsyncServerRequestHandler} as a default handler for URIs
      * matching the given pattern.
      *
+     * @param <T> request handler representation.
      * @param uriPattern the pattern to register the handler for.
      * @param requestHandler the handler.
      * @return this instance.
@@ -332,6 +333,7 @@ public class H2ServerBootstrap {
      * Registers the given {@link AsyncServerRequestHandler} as a handler for URIs
      * matching the given host and the pattern.
      *
+     * @param <T> request handler representation.
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param requestHandler the handler.
@@ -348,6 +350,7 @@ public class H2ServerBootstrap {
     }
 
     /**
+     * @param <T> request handler representation.
      * @return this instance.
      * @deprecated Use {@link #register(String, String, Supplier)}.
      */
@@ -361,6 +364,8 @@ public class H2ServerBootstrap {
 
     /**
      * Adds the filter before the filter with the given name.
+     *
+     * @return this instance.
      */
     public final H2ServerBootstrap addFilterBefore(final String existing, final String name, final AsyncFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");

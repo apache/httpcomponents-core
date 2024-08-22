@@ -35,7 +35,7 @@ import org.apache.hc.core5.http.HttpException;
  * Handler that encapsulates the process of generating a response object
  * from a {@link ClassicHttpResponse}.
  *
- *
+ * @param <T> the type of the response.
  * @since 4.0
  */
 @FunctionalInterface

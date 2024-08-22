@@ -38,6 +38,7 @@ import org.apache.hc.core5.http.nio.support.AbstractServerExchangeHandler;
 import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
+ * @param <T> The message body type.
  * @since 5.0
  */
 public abstract class MessageExchangeHandler<T> extends AbstractServerExchangeHandler<Message<HttpRequest, T>> {

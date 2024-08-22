@@ -324,6 +324,7 @@ public class H2RequesterBootstrap {
     }
 
     /**
+     * @return this instance.
      * @deprecated Use {@link #register(String, String, Supplier)}.
      */
     @Deprecated

@@ -34,6 +34,7 @@ import org.apache.hc.core5.http.message.BasicHttpRequest;
 /**
  * Builder for {@link BasicHttpRequest} instances.
  *
+ * @param <T> The response type to build.
  * @since 5.1
  */
 public abstract class AbstractResponseBuilder<T> extends AbstractMessageBuilder<T> {

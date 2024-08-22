@@ -46,6 +46,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * Abstract base class for HTTP message writers that serialize output to
  * an instance of {@link org.apache.hc.core5.http.io.SessionOutputBuffer}.
  *
+ * @param <T> The type of {@link HttpMessage}.
  * @since 4.0
  */
 public abstract class AbstractMessageWriter<T extends HttpMessage> implements HttpMessageWriter<T> {

@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.impl.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +50,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * Abstract base class for HTTP message parsers that obtain input from
  * an instance of {@link org.apache.hc.core5.http.io.SessionInputBuffer}.
  *
+ * @param <T> The type of {@link HttpMessage}.
  * @since 4.0
  */
 public abstract class AbstractMessageParser<T extends HttpMessage> implements HttpMessageParser<T> {

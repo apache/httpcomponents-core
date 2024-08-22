@@ -32,6 +32,7 @@ import org.apache.hc.core5.annotation.ThreadingBehavior;
 /**
  * Connection pool event listener.
  *
+ * @param <T> the route type that represents the opposite endpoint of a pooled connection.
  * @since 5.0
  */
 @Contract(threading = ThreadingBehavior.STATELESS)

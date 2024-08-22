@@ -91,6 +91,7 @@ public class TimeValue implements Comparable<TimeValue> {
      * Returns the given {@code timeValue} if it is not {@code null}, if {@code null} then returns the given
      * {@code defaultValue}.
      *
+     * @param <T> The type of {@link TimeValue}.
      * @param timeValue may be {@code null}
      * @param defaultValue may be {@code null}
      * @return {@code timeValue} or {@code defaultValue}

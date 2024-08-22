@@ -51,6 +51,7 @@ import org.apache.hc.core5.util.Args;
  * of {@link AsyncRequestProducer} to generate request message
  * and {@link AsyncResponseConsumer} to process the response message returned by the server.
  *
+ * @param <T> The result type.
  * @since 5.0
  */
 public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeHandler {

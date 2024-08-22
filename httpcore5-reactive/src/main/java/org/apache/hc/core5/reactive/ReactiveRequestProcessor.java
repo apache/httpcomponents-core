@@ -54,6 +54,8 @@ public interface ReactiveRequestProcessor {
      * @param context the actual execution context.
      * @param requestBody a reactive stream representing the request body.
      * @param responseBodyCallback a callback to invoke with the response body, if any.
+     * @throws HttpException in case of HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
      */
     void processRequest(
             HttpRequest request,

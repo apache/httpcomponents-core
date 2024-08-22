@@ -36,8 +36,7 @@ import org.apache.hc.core5.http.MessageHeaders;
 /**
  * Message parser intended to build HTTP message head from an input stream.
  *
- * @param <T>
- *            {@link MessageHeaders} or a subclass
+ * @param <T> The type of {@link MessageHeaders}.
  *
  * @since 4.0
  */

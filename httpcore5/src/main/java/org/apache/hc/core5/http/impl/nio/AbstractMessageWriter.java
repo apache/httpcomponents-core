@@ -36,8 +36,8 @@ import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.HttpMessage;
 import org.apache.hc.core5.http.message.BasicLineFormatter;
 import org.apache.hc.core5.http.message.LineFormatter;
-import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.http.nio.NHttpMessageWriter;
+import org.apache.hc.core5.http.nio.SessionOutputBuffer;
 import org.apache.hc.core5.util.Args;
 import org.apache.hc.core5.util.CharArrayBuffer;
 
@@ -45,6 +45,7 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  * Abstract {@link NHttpMessageWriter} that serves as a base for all message
  * writer implementations.
  *
+ * @param <T> The type of {@link HttpMessage}.
  * @since 4.0
  */
 public abstract class AbstractMessageWriter<T extends HttpMessage> implements NHttpMessageWriter<T> {
