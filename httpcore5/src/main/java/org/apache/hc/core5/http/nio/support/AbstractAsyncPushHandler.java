@@ -62,6 +62,8 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
      *
      * @param promise the promised request message.
      * @param responseMessage the pushed response message.
+     * @throws IOException in case of an I/O error.
+     * @throws HttpException in case of an HTTP protocol violation.
      */
     protected abstract void handleResponse(
             final HttpRequest promise, final T responseMessage) throws IOException, HttpException;

@@ -30,6 +30,7 @@ package org.apache.hc.core5.function;
 /**
  * Abstract decorator.
  *
+ * @param <T> The type of object to decorate.
  * @since 5.0
  */
 @FunctionalInterface

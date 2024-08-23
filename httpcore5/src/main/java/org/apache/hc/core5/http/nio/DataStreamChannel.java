@@ -74,6 +74,8 @@ public interface DataStreamChannel extends StreamChannel<ByteBuffer> {
      * Please note that some data streams may not support trailers
      * and may silently ignore the trailers parameter.
      * </p>
+     *
+     * @throws IOException in case of an I/O error.
      */
     void endStream(List<? extends Header> trailers) throws IOException;
 

@@ -49,6 +49,7 @@ public interface CapacityChannel {
      *
      * @param increment non-negative number of extra bytes the consumer
      * can accept.
+     * @throws IOException in case of an I/O error.
      */
     void update(int increment) throws IOException;
 

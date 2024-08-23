@@ -43,6 +43,7 @@ public interface HttpRequestMapper<T> {
      * @param request the request to map to a handler
      * @return HTTP request handler or {@code null} if no match
      * is found.
+     * @throws HttpException in case of an HTTP protocol violation.
      */
     T resolve(HttpRequest request, HttpContext context) throws HttpException;
 

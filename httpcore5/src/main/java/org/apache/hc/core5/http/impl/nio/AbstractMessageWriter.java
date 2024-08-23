@@ -79,6 +79,7 @@ public abstract class AbstractMessageWriter<T extends HttpMessage> implements NH
      * Writes out the first line of {@link HttpMessage}.
      *
      * @param message HTTP message.
+     * @throws IOException in case of an I/O error.
      */
     protected abstract void writeHeadLine(T message, CharArrayBuffer buffer) throws IOException;
 

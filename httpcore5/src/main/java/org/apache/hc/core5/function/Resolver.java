@@ -30,6 +30,8 @@ package org.apache.hc.core5.function;
 /**
  * Abstract resolver from input to output.
  *
+ * @param <I> the input type.
+ * @param <O> the output type.
  * @since 5.0
  */
 @FunctionalInterface

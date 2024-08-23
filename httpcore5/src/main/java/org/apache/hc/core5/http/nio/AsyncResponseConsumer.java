@@ -52,6 +52,8 @@ public interface AsyncResponseConsumer<T> extends AsyncDataConsumer {
      * @param context the actual execution context.
      * @param resultCallback the result callback called when response processing
      *                       has been completed successfully or unsuccessfully.
+     * @throws HttpException in case of an HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
      */
     void consumeResponse(HttpResponse response, EntityDetails entityDetails, HttpContext context,
                          FutureCallback<T> resultCallback) throws HttpException, IOException;
@@ -61,6 +63,8 @@ public interface AsyncResponseConsumer<T> extends AsyncDataConsumer {
      *
      * @param response the intermediate (1xx) HTTP response.
      * @param context the actual execution context.
+     * @throws HttpException in case of an HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
      */
     void informationResponse(HttpResponse response, HttpContext context) throws HttpException, IOException;
 

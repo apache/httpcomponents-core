@@ -30,6 +30,8 @@ package org.apache.hc.core5.function;
 /**
  * Abstract object factory.
  *
+ * @param <P> The factory's input type.
+ * @param <T> The type of object produced by this factory.
  * @since 5.0
  */
 @FunctionalInterface

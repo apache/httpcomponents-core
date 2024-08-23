@@ -50,6 +50,8 @@ public interface AsyncPushConsumer extends AsyncDataConsumer {
      * @param entityDetails the response entity details or {@code null} if the response
      *                      does not enclose an entity.
      * @param context the actual execution context.
+     * @throws HttpException in case of an HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
      */
     void consumePromise(HttpRequest promise, HttpResponse response, EntityDetails entityDetails,
                         HttpContext context) throws HttpException, IOException;

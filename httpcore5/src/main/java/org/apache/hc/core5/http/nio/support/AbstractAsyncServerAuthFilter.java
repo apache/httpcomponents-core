@@ -74,6 +74,7 @@ public abstract class AbstractAsyncServerAuthFilter<T> implements AsyncFilterHan
      * @param authorizationValue the authorization header value.
      * @param context the actual execution context.
      * @return authorization token
+     * @throws HttpException in case of an HTTP protocol violation.
      */
     protected abstract T parseChallengeResponse(String authorizationValue, HttpContext context) throws HttpException;
 

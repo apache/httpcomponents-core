@@ -49,6 +49,7 @@ public interface HttpClientResponseHandler<T> {
      * @return A value determined by the response
      *
      * @throws IOException in case of a problem or the connection was aborted
+     * @throws HttpException in case of an HTTP protocol violation.
      */
     T handleResponse(ClassicHttpResponse response) throws HttpException, IOException;
 

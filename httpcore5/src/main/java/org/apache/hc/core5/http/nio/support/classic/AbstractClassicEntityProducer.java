@@ -68,6 +68,7 @@ public abstract class AbstractClassicEntityProducer implements AsyncEntityProduc
      *
      * @param contentType the entity content type
      * @param outputStream the output stream
+     * @throws IOException in case of an I/O error.
      */
     protected abstract void produceData(ContentType contentType, OutputStream outputStream) throws IOException;
 

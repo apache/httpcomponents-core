@@ -54,6 +54,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
      *
      * @param entity   the entity to wrap, not null
      * @throws IllegalArgumentException if wrapped is null
+     * @throws IOException in case of an I/O error.
      */
     public BufferedHttpEntity(final HttpEntity entity) throws IOException {
         super(entity);

@@ -133,6 +133,7 @@ public class DefaultBHttpServerConnection extends BHttpConnectionBase implements
     }
 
     /**
+     * @throws IOException in case of an I/O error.
      * @since 5.3
      */
     public void bind(final SSLSocket sslSocket, final Socket baseSocket) throws IOException {

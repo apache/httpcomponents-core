@@ -79,12 +79,14 @@ public abstract class AbstractCharDataConsumer implements AsyncDataConsumer {
      *
      * @param src the data packet.
      * @param endOfStream flag indicating whether this data packet is the last in the data stream.
-     *
+     * @throws IOException in case of an I/O error.
      */
     protected abstract void data(CharBuffer src, boolean endOfStream) throws IOException;
 
     /**
      * Triggered to signal completion of data processing.
+     *
+     * @throws IOException in case of an I/O error.
      */
     protected abstract void completed() throws IOException;
 

@@ -93,6 +93,8 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
      * @param response the outgoing response.
      * @param responseStream the response entity output stream.
      * @param context the actual execution context.
+     * @throws IOException in case of an I/O error.
+     * @throws HttpException in case of an HTTP protocol violation.
      */
     protected abstract void handle(
             HttpRequest request, InputStream requestStream,

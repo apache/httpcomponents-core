@@ -108,7 +108,7 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
      * Flushes content of the session buffer to the channel and updates transport metrics.
      *
      * @return number of bytes written to the channel.
-     *
+     * @throws IOException in case of an I/O error.
      * @since 4.3
      */
     protected int flushToChannel() throws IOException {
@@ -126,7 +126,7 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
      * Flushes content of the given buffer to the channel and updates transport metrics.
      *
      * @return number of bytes written to the channel.
-     *
+     * @throws IOException in case of an I/O error.
      * @since 4.3
      */
     protected int writeToChannel(final ByteBuffer src) throws IOException {
@@ -146,7 +146,7 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
      * @param src source.
      * @param limit max number of bytes to transfer.
      * @return number of bytes transferred.
-     *
+     * @throws IOException in case of an I/O error.
      * @since 4.3
      */
     protected int writeToChannel(final ByteBuffer src, final int limit) throws IOException {
@@ -159,7 +159,7 @@ public abstract class AbstractContentEncoder implements ContentEncoder {
      * @param src source.
      * @param limit max number of bytes to transfer.
      * @return number of bytes transferred.
-     *
+     * @throws IOException in case of an I/O error.
      * @since 4.3
      */
     protected int writeToBuffer(final ByteBuffer src, final int limit) throws IOException {

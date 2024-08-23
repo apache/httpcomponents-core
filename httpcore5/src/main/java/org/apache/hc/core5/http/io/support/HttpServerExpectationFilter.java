@@ -39,9 +39,9 @@ import org.apache.hc.core5.http.HttpStatus;
 import org.apache.hc.core5.http.io.HttpFilterChain;
 import org.apache.hc.core5.http.io.HttpFilterHandler;
 import org.apache.hc.core5.http.message.BasicClassicHttpResponse;
+import org.apache.hc.core5.http.protocol.HttpContext;
 import org.apache.hc.core5.http.support.ExpectSupport;
 import org.apache.hc.core5.http.support.Expectation;
-import org.apache.hc.core5.http.protocol.HttpContext;
 
 /**
  * HttpServerExpectationFilter add support for the Expect-Continue handshake
@@ -59,6 +59,7 @@ public class HttpServerExpectationFilter implements HttpFilterHandler {
      * @param request the incoming HTTP request.
      * @param context the actual execution context.
      * @return {@code true} if the request meets expectations or {@code false} otherwise.
+     * @throws HttpException in case of an HTTP protocol violation.
      */
     protected boolean verify(final ClassicHttpRequest request, final HttpContext context) throws HttpException {
         return true;
@@ -71,6 +72,7 @@ public class HttpServerExpectationFilter implements HttpFilterHandler {
      * @param expectationFailed the final HTTP response.
      * @return the content entity for the final HTTP response with an error status
      *  representing the cause of expectation failure.
+     * @throws HttpException in case of an HTTP protocol violation.
      */
     protected HttpEntity generateResponseContent(final HttpResponse expectationFailed) throws HttpException {
         return null;

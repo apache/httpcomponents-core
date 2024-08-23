@@ -71,6 +71,7 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
      * @param entityDetails the request entity details.
      * @param context the actual execution context.
      * @return the request consumer.
+     * @throws HttpException in case of an HTTP protocol violation.
      */
     protected abstract AsyncRequestConsumer<T> supplyConsumer(
             HttpRequest request,
@@ -86,6 +87,8 @@ public abstract class AbstractServerExchangeHandler<T> implements AsyncServerExc
      * @param requestMessage the request message.
      * @param responseTrigger the response trigger.
      * @param context the actual execution context.
+     * @throws HttpException in case of an HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
      */
     protected abstract void handle(
             T requestMessage,

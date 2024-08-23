@@ -49,6 +49,7 @@ public interface IOEventHandler {
      * Triggered after the given session has been just created.
      *
      * @param session the I/O session.
+     * @throws IOException in case of an I/O error.
      */
     void connected(IOSession session) throws IOException;
 
@@ -56,6 +57,7 @@ public interface IOEventHandler {
      * Triggered when the given session has input pending.
      *
      * @param session the I/O session.
+     * @throws IOException in case of an I/O error.
      */
     void inputReady(IOSession session, ByteBuffer src) throws IOException;
 
@@ -63,6 +65,7 @@ public interface IOEventHandler {
      * Triggered when the given session is ready for output.
      *
      * @param session the I/O session.
+     * @throws IOException in case of an I/O error.
      */
     void outputReady(IOSession session) throws IOException;
 
@@ -71,6 +74,7 @@ public interface IOEventHandler {
      *
      * @param session the I/O session.
      * @param timeout the timeout.
+     * @throws IOException in case of an I/O error.
      */
     void timeout(IOSession session, Timeout timeout) throws IOException;
 

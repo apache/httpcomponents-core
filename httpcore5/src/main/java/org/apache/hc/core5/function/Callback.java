@@ -30,6 +30,7 @@ package org.apache.hc.core5.function;
 /**
  * Abstract callback.
  *
+ * @param <T> The type of object consumed by the callback.
  * @since 5.0
  */
 @FunctionalInterface

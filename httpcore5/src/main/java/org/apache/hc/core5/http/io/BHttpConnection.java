@@ -65,6 +65,7 @@ public interface BHttpConnection extends HttpConnection {
      * @return  {@code true} if attempts to use this connection are likely
      *          to fail and this connection should be closed,
      *          or {@code false} if they are likely to succeed
+     * @throws IOException in case of an I/O error.
      */
     boolean isStale() throws IOException;
 

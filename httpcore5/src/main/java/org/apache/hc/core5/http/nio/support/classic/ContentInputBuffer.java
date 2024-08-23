@@ -78,6 +78,7 @@ public interface ContentInputBuffer {
      * {@code -1} if the end of content stream has been reached.
      *
      * @return one byte
+     * @throws IOException in case of an I/O error.
      */
     int read() throws IOException;
 

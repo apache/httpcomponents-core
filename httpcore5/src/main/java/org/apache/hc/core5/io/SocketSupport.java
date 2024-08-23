@@ -59,6 +59,7 @@ public class SocketSupport {
      * Object can be ServerSocket or Socket.
      *
      * @param <T> ServerSocket or Socket.
+     * @throws IOException in case of an I/O error.
      */
     public static <T> void setOption(final T object, final String fieldName, final T value) throws IOException {
         try {

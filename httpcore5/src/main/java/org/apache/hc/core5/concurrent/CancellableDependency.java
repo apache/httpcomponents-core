@@ -37,6 +37,8 @@ public interface CancellableDependency extends Cancellable {
     /**
      * Sets {@link Cancellable} dependency on another ongoing process or
      * operation represented by {@link Cancellable}.
+     *
+     * @param cancellable another ongoing process or operation.
      */
     void setDependency(Cancellable cancellable);
 

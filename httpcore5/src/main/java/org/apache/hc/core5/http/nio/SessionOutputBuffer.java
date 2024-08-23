@@ -92,6 +92,7 @@ public interface SessionOutputBuffer {
      * Reads a sequence of bytes from the source channel into this buffer.
      *
      * @param src the source channel.
+     * @throws IOException in case of an I/O error.
      */
     void write(ReadableByteChannel src)
         throws IOException;
@@ -105,6 +106,7 @@ public interface SessionOutputBuffer {
      * specific implementations of this interface.
      *
      * @param src the source buffer.
+     * @throws CharacterCodingException when a character encoding error occurs.
      */
     void writeLine(CharArrayBuffer src)
         throws CharacterCodingException;

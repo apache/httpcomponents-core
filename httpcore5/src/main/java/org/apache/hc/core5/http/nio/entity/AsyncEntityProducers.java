@@ -222,6 +222,7 @@ public final class AsyncEntityProducers {
     }
 
     /**
+     * @throws IOException in case of an I/O error.
      * @since 5.2
      */
     public static AsyncEntityProducer create(final Path content, final ContentType contentType, final Header... trailers) throws IOException {
@@ -229,6 +230,7 @@ public final class AsyncEntityProducers {
     }
 
     /**
+     * @throws IOException in case of an I/O error.
      * @since 5.2
      */
     public static AsyncEntityProducer create(final Path content, final ContentType contentType, final OpenOption... options) throws IOException {

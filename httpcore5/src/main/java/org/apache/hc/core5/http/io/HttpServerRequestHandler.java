@@ -58,6 +58,8 @@ public interface HttpServerRequestHandler {
          * Sends an intermediate informational HTTP response to the client.
          *
          * @param response the intermediate (1xx) HTTP response
+         * @throws HttpException in case of an HTTP protocol violation.
+         * @throws IOException in case of an I/O error.
          */
         void sendInformation(ClassicHttpResponse response) throws HttpException, IOException;
 
@@ -65,6 +67,8 @@ public interface HttpServerRequestHandler {
          * Sends a final HTTP response to the client.
          *
          * @param response the final (non 1xx) HTTP response
+         * @throws HttpException in case of an HTTP protocol violation.
+         * @throws IOException in case of an I/O error.
          */
         void submitResponse(ClassicHttpResponse response) throws HttpException, IOException;
 
@@ -76,6 +80,8 @@ public interface HttpServerRequestHandler {
      * @param request the actual request.
      * @param responseTrigger the response trigger.
      * @param context the actual execution context.
+     * @throws HttpException in case of an HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
      */
     void handle(
             ClassicHttpRequest request,

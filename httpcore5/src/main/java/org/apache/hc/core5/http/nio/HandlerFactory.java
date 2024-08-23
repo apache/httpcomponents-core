@@ -46,6 +46,7 @@ public interface HandlerFactory<T extends ResourceHolder> {
      * @param request the incoming request head.
      * @param context the actual execution context.
      * @return handler
+     * @throws HttpException in case of an HTTP protocol violation.
      */
     T create(HttpRequest request, HttpContext context) throws HttpException;
 

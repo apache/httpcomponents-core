@@ -149,6 +149,7 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
      * {@link StreamChannel} passed to this method is threading-safe.
      *
      * @param channel the data channel capable to accepting more data.
+     * @throws IOException in case of an I/O error.
      */
     protected abstract void produceData(StreamChannel<CharBuffer> channel) throws IOException;
 

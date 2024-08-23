@@ -51,12 +51,15 @@ public interface StreamChannel<T extends Buffer> {
      *
      * @param src source of data
      * @return The number of elements written, possibly zero
+     * @throws IOException in case of an I/O error.
      */
     int write(T src) throws IOException;
 
     /**
      * Terminates the underlying data stream and optionally writes
      * a closing sequence.
+     *
+     * @throws IOException in case of an I/O error.
      */
     void endStream() throws IOException;
 }

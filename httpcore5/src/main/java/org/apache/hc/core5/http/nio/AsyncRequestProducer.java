@@ -46,11 +46,13 @@ public interface AsyncRequestProducer extends AsyncDataProducer {
      *
      * @param channel the request channel capable to accepting a request message.
      * @param context the actual execution context.
+     * @throws HttpException in case of an HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
      */
     void sendRequest(RequestChannel channel, HttpContext context) throws HttpException, IOException;
 
     /**
-     * Determines whether the producer can consistently produce the same content
+     * Tests whether the producer can consistently produce the same content
      * after invocation of {@link ResourceHolder#releaseResources()}.
      */
     boolean isRepeatable();

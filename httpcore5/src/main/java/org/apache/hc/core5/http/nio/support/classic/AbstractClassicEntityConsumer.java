@@ -77,6 +77,7 @@ public abstract class AbstractClassicEntityConsumer<T> implements AsyncEntityCon
      * @param contentType the entity content type
      * @param inputStream the input stream
      * @return the result of entity processing.
+     * @throws IOException in case of an I/O error.
      */
     protected abstract T consumeData(ContentType contentType, InputStream inputStream) throws IOException;
 

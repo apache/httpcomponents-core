@@ -63,7 +63,7 @@ public interface AsyncDataProducer extends ResourceHolder {
      * returns a positive value.
      *
      * @param channel the data channel capable of accepting more data.
-     *
+     * @throws IOException in case of an I/O error.
      * @see #available()
      */
     void produce(DataStreamChannel channel) throws IOException;

@@ -45,10 +45,11 @@ public interface HttpConnectionFactory<T extends HttpConnection> {
     T createConnection(Socket socket) throws IOException;
 
     /**
-     * Create TLS connection with a {@link SSLSocket} layered over a plain {@link Socket}.
+     * Creates TLS connection with a {@link SSLSocket} layered over a plain {@link Socket}.
+     *
      * @param sslSocket the SSL socket. May be {@code null}.
      * @param socket the plain socket SSL socket has been layered over.
-     *
+     * @throws IOException in case of an I/O error.
      * @since 5.3
      */
     default T createConnection(SSLSocket sslSocket, Socket socket) throws IOException {

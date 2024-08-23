@@ -27,6 +27,8 @@
 
 package org.apache.hc.core5.reactor;
 
+import java.io.IOException;
+
 import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.io.ModalCloseable;
 import org.apache.hc.core5.util.TimeValue;
@@ -81,7 +83,7 @@ public interface IOReactor extends ModalCloseable {
      * the completion of the reactor shutdown.
      *
      * @param waitTime wait time.
-     *
+     * @throws IOException in case of an I/O error.
      * @since 5.0
      */
     void awaitShutdown(TimeValue waitTime) throws InterruptedException;

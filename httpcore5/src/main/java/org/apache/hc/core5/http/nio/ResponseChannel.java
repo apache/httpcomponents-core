@@ -53,6 +53,8 @@ public interface ResponseChannel {
      *
      * @param response an intermediate (1xx) HTTP response.
      * @param context the actual execution context.
+     * @throws HttpException in case of an HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
      */
     void sendInformation(HttpResponse response, HttpContext context) throws HttpException, IOException;
 
@@ -63,6 +65,8 @@ public interface ResponseChannel {
      * @param entityDetails the response entity details or {@code null} if the response
      *                      does not enclose an entity.
      * @param context the actual execution context.
+     * @throws HttpException in case of an HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
      */
     void sendResponse(HttpResponse response, EntityDetails entityDetails, HttpContext context) throws HttpException, IOException;
 
@@ -73,6 +77,8 @@ public interface ResponseChannel {
      * @param promise the request message header used as a promise.
      * @param responseProducer the push response message producer.
      * @param context the actual execution context.
+     * @throws HttpException in case of an HTTP protocol violation.
+     * @throws IOException in case of an I/O error.
      */
     void pushPromise(HttpRequest promise, AsyncPushProducer responseProducer, HttpContext context) throws HttpException, IOException;
 
