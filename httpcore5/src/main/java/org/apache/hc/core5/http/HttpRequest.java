@@ -58,6 +58,7 @@ public interface HttpRequest extends HttpMessage {
     /**
      * Sets URI path of this request message.
      *
+     * @param path The URI path of this request message.
      * @since 5.0
      */
     void setPath(String path);
@@ -66,7 +67,6 @@ public interface HttpRequest extends HttpMessage {
      * Returns scheme of this request message.
      *
      * @return  the scheme or {@code null}.
-     *
      * @since 5.0
      */
     String getScheme();
@@ -74,6 +74,7 @@ public interface HttpRequest extends HttpMessage {
     /**
      * Sets scheme of this request message.
      *
+     * @param scheme The scheme of this request message.
      * @since 5.0
      */
     void setScheme(String scheme);
@@ -82,7 +83,6 @@ public interface HttpRequest extends HttpMessage {
      * Returns authority of this request message.
      *
      * @return  the authority or {@code null}.
-     *
      * @since 5.0
      */
     URIAuthority getAuthority();
@@ -90,6 +90,7 @@ public interface HttpRequest extends HttpMessage {
     /**
      * Sets authority of this request message.
      *
+     * @param authority The authority of this request message.
      * @since 5.0
      */
     void setAuthority(URIAuthority authority);
@@ -99,7 +100,6 @@ public interface HttpRequest extends HttpMessage {
      * Applicable to HTTP/1.1 version or earlier.
      *
      * @return  the request URI.
-     *
      * @since 5.0
      */
     String getRequestUri();
@@ -108,7 +108,7 @@ public interface HttpRequest extends HttpMessage {
      * Returns full request URI of this request message.
      *
      * @return  the request URI.
-     *
+     * @throws URISyntaxException Thrown when a string could not be parsed as a URI reference.
      * @since 5.0
      */
     URI getUri() throws URISyntaxException;
@@ -117,7 +117,6 @@ public interface HttpRequest extends HttpMessage {
      * Sets the full request URI of this request message.
      *
      * @param requestUri the request URI.
-     *
      * @since 5.0
      */
     void setUri(final URI requestUri);

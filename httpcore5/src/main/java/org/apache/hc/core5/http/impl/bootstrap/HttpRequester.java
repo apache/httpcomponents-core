@@ -288,9 +288,8 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
                 Closer.closeQuietly(sslSocket);
                 throw ex;
             }
-        } else {
-            return connectFactory.createConnection(sock);
         }
+        return connectFactory.createConnection(sock);
     }
 
     public ClassicHttpResponse execute(

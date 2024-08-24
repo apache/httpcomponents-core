@@ -146,8 +146,9 @@ public enum TLS {
     }
 
     /**
-     * Check if a given protocol is considered secure and is enabled by default.
+     * Tests if a given protocol is considered secure and is enabled by default.
      *
+     * @param protocol The value to test.
      * @return {@code true} if the given protocol is secure and enabled, otherwise return {@code
      * false}.
      * @since 5.2

@@ -120,9 +120,8 @@ class RequestListener implements Runnable {
                 Closer.closeQuietly(sslSocket);
                 throw ex;
             }
-        } else {
-            return this.connectionFactory.createConnection(socket);
         }
+        return this.connectionFactory.createConnection(socket);
     }
 
     @Override

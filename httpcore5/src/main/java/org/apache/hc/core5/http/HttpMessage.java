@@ -41,7 +41,9 @@ public interface HttpMessage extends MessageHeaders {
      * For incoming messages it represents protocol version this message was transmitted with.
      * For outgoing messages it represents a hint what protocol version should be used to transmit
      * the message.
+     * </p>
      *
+     * @param version The protocol version.
      * @since 5.0
      */
     void setVersion(ProtocolVersion version);
@@ -52,7 +54,9 @@ public interface HttpMessage extends MessageHeaders {
      * For incoming messages it represents protocol version this message was transmitted with.
      * For outgoing messages it represents a hint what protocol version should be used to transmit
      * the message.
+     * </p>
      *
+     * @return The protocol version.
      * @since 5.0
      */
     ProtocolVersion getVersion();

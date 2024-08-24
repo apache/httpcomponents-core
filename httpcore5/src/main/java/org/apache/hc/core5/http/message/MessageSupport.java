@@ -495,9 +495,8 @@ public class MessageSupport {
             result.addAll(HOP_BY_HOP);
             result.addAll(parseTokens(connectionHeader));
             return result;
-        } else {
-            return HOP_BY_HOP;
         }
+        return HOP_BY_HOP;
     }
 
 }

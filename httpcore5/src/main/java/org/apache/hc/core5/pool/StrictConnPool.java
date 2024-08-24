@@ -191,7 +191,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         final boolean acquiredLock;
 
         try {
-            if (Timeout.isPositive(requestTimeout)) {
+            if (TimeValue.isPositive(requestTimeout)) {
                 acquiredLock = this.lock.tryLock(requestTimeout.getDuration(), requestTimeout.getTimeUnit());
             } else {
                 this.lock.lockInterruptibly();

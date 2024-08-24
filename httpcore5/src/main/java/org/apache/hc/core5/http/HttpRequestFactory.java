@@ -32,6 +32,7 @@ import java.net.URI;
 /**
  * A factory for {@link HttpRequest} objects.
  *
+ * @param <T> The type of {@link HttpRequest}.
  * @since 4.0
  */
 public interface HttpRequestFactory<T extends HttpRequest> {

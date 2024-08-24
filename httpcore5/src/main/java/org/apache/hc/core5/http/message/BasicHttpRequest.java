@@ -235,11 +235,12 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
     }
 
     /**
-     * Sets a flag that the {@link #getRequestUri()} method should return the request URI
-     * in an absolute form.
+     * Sets whether {@link #getRequestUri()} should return the request URI in an absolute form.
      * <p>
      * This flag can used when the request is going to be transmitted via an HTTP/1.1 proxy.
+     * </p>
      *
+     * @param absoluteRequestUri Whether {@link #getRequestUri()} should return the request URI in an absolute form.
      * @since 5.1
      */
     public void setAbsoluteRequestUri(final boolean absoluteRequestUri) {
@@ -252,9 +253,8 @@ public class BasicHttpRequest extends HeaderGroup implements HttpRequest {
             final StringBuilder buf = new StringBuilder();
             assembleRequestUri(buf);
             return buf.toString();
-        } else {
-            return getPath();
         }
+        return getPath();
     }
 
     @Override

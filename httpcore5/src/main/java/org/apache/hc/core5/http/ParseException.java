@@ -39,7 +39,7 @@ public class ParseException extends ProtocolException {
     private final int errorOffset;
 
     /**
-     * Creates a {@link ParseException} without details.
+     * Constructs a new {@link ParseException} without details.
      */
     public ParseException() {
         super();
@@ -47,7 +47,7 @@ public class ParseException extends ProtocolException {
     }
 
     /**
-     * Creates a {@link ParseException} with a detail message.
+     * Constructs a new {@link ParseException} with a detail message.
      *
      * @param message the exception detail message, or {@code null}
      */
@@ -57,7 +57,7 @@ public class ParseException extends ProtocolException {
     }
 
     /**
-     * Creates a {@link ParseException} with parsing context details.
+     * Constructs a new {@link ParseException} with parsing context details.
      *
      * @since 5.0
      */
@@ -69,7 +69,7 @@ public class ParseException extends ProtocolException {
     }
 
     /**
-     * Creates a {@link ParseException} with parsing context details.
+     * Constructs a new {@link ParseException} with parsing context details.
      *
      * @since 5.0
      */

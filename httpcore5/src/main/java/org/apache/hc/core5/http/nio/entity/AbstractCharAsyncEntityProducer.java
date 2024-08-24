@@ -182,13 +182,12 @@ public abstract class AbstractCharAsyncEntityProducer implements AsyncEntityProd
     public final int available() {
         if (state == State.ACTIVE) {
             return availableData();
-        } else {
-            lock.lock();
-            try {
-                return bytebuf.position();
-            } finally {
-                lock.unlock();
-            }
+        }
+        lock.lock();
+        try {
+            return bytebuf.position();
+        } finally {
+            lock.unlock();
         }
     }
 

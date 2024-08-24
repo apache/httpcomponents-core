@@ -259,6 +259,10 @@ public final class ContentType implements Serializable {
     }
 
     /**
+     * Gets the named parameter's value.
+     *
+     * @param name The parameter name.
+     * @return The parameter value.
      * @since 4.3
      */
     public String getParameter(final String name) {
@@ -380,7 +384,8 @@ public final class ContentType implements Serializable {
      *        characters {@code <">, <;>, <,>} reserved by the HTTP specification.
      * @param params parameters.
      * @return content type
-     *
+     * @throws UnsupportedCharsetException If no support for a named Charset is available
+     *         in this instance of the Java virtual machine.
      * @since 4.4
      */
     public static ContentType create(
@@ -487,6 +492,8 @@ public final class ContentType implements Serializable {
      *
      * @param params parameters.
      * @return a new instance with this MIME type and the given parameters.
+     * @throws UnsupportedCharsetException If no support for a named Charset is available
+     *         in this instance of the Java virtual machine.
      * @since 4.4
      */
     public ContentType withParameters(

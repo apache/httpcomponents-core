@@ -169,13 +169,12 @@ public abstract class AbstractBinAsyncEntityProducer implements AsyncEntityProdu
     public final int available() {
         if (state == State.ACTIVE) {
             return availableData();
-        } else {
-            lock.lock();
-            try {
-                return byteBuffer.position();
-            } finally {
-                lock.unlock();
-            }
+        }
+        lock.lock();
+        try {
+            return byteBuffer.position();
+        } finally {
+            lock.unlock();
         }
     }
 

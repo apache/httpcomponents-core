@@ -32,20 +32,65 @@ import java.util.Locale;
 import org.apache.hc.core5.util.Args;
 
 /**
- * Common HTTP methods defined by the HTTP spec.
+ * Common HTTP methods defined by the HTTP specification.
+ * <p>
+ * Each method is:
+ * </p>
+ * <ul>
+ * <li>Either <em>safe</em> or <em>unsafe</em>: An HTTP method is safe if it doesn't change the state of the server. In other words, a method is safe if it's
+ * read-only.</li>
+ * <li>Either <em>idempotent</em> or <em>non-idempotent</em>: An HTTP method is idempotent if making a single request has the same effect as making several
+ * identical requests. All safe methods are also idempotent, but not all idempotent methods are safe. For example, {@code PUT} and {@code DELETE} are both
+ * idempotent but unsafe.</li>
+ * </ul>
  *
  * @since 5.0
  */
 public enum Method {
 
+    /**
+     * The HTTP {@code GET} method is safe and idempotent.
+     */
     GET(true, true),
+
+    /**
+     * The HTTP {@code HEAD} method is safe and idempotent.
+     */
     HEAD(true, true),
+
+    /**
+     * The HTTP {@code POST} method is unsafe and non-idempotent.
+     */
     POST(false, false),
+
+    /**
+     * The HTTP {@code PUT} method is unsafe and idempotent.
+     */
     PUT(false, true),
+
+    /**
+     * The HTTP {@code DELETE} method is unsafe and idempotent.
+     */
     DELETE(false, true),
+
+    /**
+     * The HTTP {@code CONNECT} method is unsafe and non-idempotent.
+     */
     CONNECT(false, false),
+
+    /**
+     * The HTTP {@code TRACE} method is safe and idempotent.
+     */
     TRACE(true, true),
+
+    /**
+     * The HTTP {@code OPTIONS} method is safe and idempotent.
+     */
     OPTIONS(true, true),
+
+    /**
+     * The HTTP {@code PATCH} method is unsafe and non-idempotent.
+     */
     PATCH(false, false);
 
     private final boolean safe;
@@ -56,10 +101,20 @@ public enum Method {
         this.idempotent = idempotent;
     }
 
+    /**
+     * Tests whether this method is safe.
+     *
+     * @return whether this method is safe.
+     */
     public boolean isSafe() {
         return safe;
     }
 
+    /**
+     * Tests whether this method is idempotent.
+     *
+     * @return whether this method is idempotent.
+     */
     public boolean isIdempotent() {
         return idempotent;
     }

@@ -40,6 +40,9 @@ import org.apache.hc.core5.http.URIScheme;
  */
 public final class DefaultAddressResolver implements Resolver<HttpHost, InetSocketAddress> {
 
+    /**
+     * The singleton instance.
+     */
     public static final DefaultAddressResolver INSTANCE = new DefaultAddressResolver();
 
     @Override
@@ -58,9 +61,8 @@ public final class DefaultAddressResolver implements Resolver<HttpHost, InetSock
         }
         if (host.getAddress() != null) {
             return new InetSocketAddress(host.getAddress(), port);
-        } else {
-            return new InetSocketAddress(host.getHostName(), port);
         }
+        return new InetSocketAddress(host.getHostName(), port);
     }
 
 }

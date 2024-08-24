@@ -173,6 +173,8 @@ public class AsyncRequesterBootstrap {
 
     /**
      * Sets {@link TlsStrategy} instance.
+     *
+     * @return this instance.
      */
     public final AsyncRequesterBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;

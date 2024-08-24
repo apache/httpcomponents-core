@@ -32,6 +32,7 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.channels.SelectionKey;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -433,11 +434,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     @Override
     public String toString() {
         final IOSession currentSession = currentSessionRef.get();
-        if (currentSession != null) {
-            return currentSession.toString();
-        } else {
-            return ioSession.toString();
-        }
+        return Objects.toString(currentSession != null ? currentSession: ioSession, null);
     }
 
 }

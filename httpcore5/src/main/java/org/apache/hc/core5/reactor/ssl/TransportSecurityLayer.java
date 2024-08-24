@@ -51,6 +51,7 @@ public interface TransportSecurityLayer {
      * @param initializer SSL session initialization callback.
      * @param verifier SSL session verification callback.
      * @param handshakeTimeout the timeout to use while performing the TLS handshake; may be {@code null}.
+     * @throws UnsupportedOperationException Thrown the requested operation is not supported.
      */
     void startTls(
             SSLContext sslContext,
@@ -71,7 +72,7 @@ public interface TransportSecurityLayer {
      * @param initializer SSL session initialization callback.
      * @param verifier SSL session verification callback.
      * @param handshakeTimeout the timeout to use while performing the TLS handshake; may be {@code null}.
-     *
+     * @throws UnsupportedOperationException Thrown the requested operation is not supported.
      * @since 5.2
      */
     default void startTls(
@@ -89,7 +90,7 @@ public interface TransportSecurityLayer {
     }
 
     /**
-     * Returns details of a fully established TLS session.
+     * Gets the details of a fully established TLS session.
      *
      * @return TLS session details.
      */

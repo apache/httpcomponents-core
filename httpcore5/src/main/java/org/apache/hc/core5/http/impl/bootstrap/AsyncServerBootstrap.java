@@ -105,6 +105,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets canonical name (fully qualified domain name) of the server.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setCanonicalHostName(final String canonicalHostName) {
         this.canonicalHostName = canonicalHostName;
@@ -113,6 +115,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets I/O reactor configuration.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
         this.ioReactorConfig = ioReactorConfig;
@@ -121,6 +125,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets HTTP/1.1 protocol parameters.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setHttp1Config(final Http1Config http1Config) {
         this.http1Config = http1Config;
@@ -129,6 +135,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets connection configuration.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
         this.charCodingConfig = charCodingConfig;
@@ -137,6 +145,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets {@link org.apache.hc.core5.http.protocol.HttpProcessor} instance.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
@@ -145,6 +155,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets {@link org.apache.hc.core5.http.ConnectionReuseStrategy} instance.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         this.connStrategy = connStrategy;
@@ -153,6 +165,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets {@link TlsStrategy} instance.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
         this.tlsStrategy = tlsStrategy;
@@ -161,6 +175,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets TLS handshake {@link Timeout}.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setTlsHandshakeTimeout(final Timeout handshakeTimeout) {
         this.handshakeTimeout = handshakeTimeout;
@@ -169,6 +185,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets {@link IOSession} {@link Decorator} instance.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
@@ -177,6 +195,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets {@link Exception} {@link Callback} instance.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
         this.exceptionCallback = exceptionCallback;
@@ -185,6 +205,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Sets {@link IOSessionListener} instance.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
         this.sessionListener = sessionListener;
@@ -192,6 +214,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
+     * @return this instance.
      * @deprecated Use {@link RequestRouter}.
      */
     @Deprecated
@@ -203,6 +226,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets {@link HttpRequestMapper} instance.
      *
+     * @return this instance.
      * @see org.apache.hc.core5.http.impl.routing.RequestRouter
      * @since 5.3
      */
@@ -214,6 +238,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets {@link Http1StreamListener} instance.
      *
+     * @return this instance.
      * @since 5.0
      */
     public final AsyncServerBootstrap setStreamListener(final Http1StreamListener streamListener) {
@@ -227,6 +252,7 @@ public class AsyncServerBootstrap {
      *
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
+     * @return this instance.
      */
     public final AsyncServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
         Args.notBlank(uriPattern, "URI pattern");
@@ -242,7 +268,7 @@ public class AsyncServerBootstrap {
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param supplier the handler supplier.
-     *
+     * @return this instance.
      * @since 5.3
      */
     public final AsyncServerBootstrap register(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
@@ -255,6 +281,8 @@ public class AsyncServerBootstrap {
 
     /**
      * @deprecated use {@link #register(String, String, Supplier)}.
+     *
+     * @return this instance.
      */
     @Deprecated
     public final AsyncServerBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
@@ -265,8 +293,10 @@ public class AsyncServerBootstrap {
      * Registers the given {@link AsyncServerRequestHandler} as a default handler for URIs
      * matching the given pattern.
      *
+     * @param <T> the AsyncServerRequestHandler request representation type.
      * @param uriPattern the pattern to register the handler for.
      * @param requestHandler the handler.
+     * @return this instance.
      */
     public final <T> AsyncServerBootstrap register(
             final String uriPattern,
@@ -282,7 +312,7 @@ public class AsyncServerBootstrap {
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param requestHandler the handler.
-     *
+     * @return this instance.
      * @since 5.3
      */
     public final <T> AsyncServerBootstrap register(final String hostname, final String uriPattern, final AsyncServerRequestHandler<T> requestHandler) {
@@ -291,6 +321,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
+     * @return this instance.
      * @deprecated Use {@link #register(String, String, AsyncServerRequestHandler)}.
      */
     @Deprecated
@@ -303,6 +334,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Adds the filter before the filter with the given name.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap addFilterBefore(final String existing, final String name, final AsyncFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
@@ -314,6 +347,8 @@ public class AsyncServerBootstrap {
 
     /**
      * Adds the filter after the filter with the given name.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap addFilterAfter(final String existing, final String name, final AsyncFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
@@ -324,7 +359,9 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Replace an existing filter with the given name with new filter.
+     * Replaces an existing filter with the given name with new filter.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap replaceFilter(final String existing, final AsyncFilterHandler filterHandler) {
         Args.notBlank(existing, "Existing");
@@ -334,7 +371,9 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Add an filter to the head of the processing list.
+     * Adds an filter to the head of the processing list.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap addFilterFirst(final String name, final AsyncFilterHandler filterHandler) {
         Args.notNull(name, "Name");
@@ -344,7 +383,9 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Add an filter to the tail of the processing list.
+     * Adds an filter to the tail of the processing list.
+     *
+     * @return this instance.
      */
     public final AsyncServerBootstrap addFilterLast(final String name, final AsyncFilterHandler filterHandler) {
         Args.notNull(name, "Name");

@@ -102,6 +102,7 @@ public final class StatusLine implements Serializable {
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#INFORMATIONAL}.
      *
+     * @return Whether this status code's class is {@link StatusClass#INFORMATIONAL}.
      * @since 5.1
      */
     public boolean isInformational() {
@@ -111,6 +112,7 @@ public final class StatusLine implements Serializable {
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#SUCCESSFUL}.
      *
+     * @return Whether this status code's class is {@link StatusClass#SUCCESSFUL}.
      * @since 5.1
      */
     public boolean isSuccessful() {
@@ -120,6 +122,7 @@ public final class StatusLine implements Serializable {
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#REDIRECTION}.
      *
+     * @return Whether this status code's class is {@link StatusClass#REDIRECTION}.
      * @since 5.1
      */
     public boolean isRedirection() {
@@ -129,6 +132,7 @@ public final class StatusLine implements Serializable {
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#CLIENT_ERROR}.
      *
+     * @return Whether this status code's class is {@link StatusClass#CLIENT_ERROR}.
      * @since 5.1
      */
     public boolean isClientError() {
@@ -138,6 +142,7 @@ public final class StatusLine implements Serializable {
     /**
      * Whether this status code is in the HTTP series {@link StatusClass#SERVER_ERROR}.
      *
+     * @return Whether this status code's class is {@link StatusClass#SERVER_ERROR}.
      * @since 5.1
      */
     public boolean isServerError() {
@@ -148,6 +153,7 @@ public final class StatusLine implements Serializable {
      * Whether this status code is in the HTTP series {@link StatusClass#CLIENT_ERROR}
      * or {@link StatusClass#SERVER_ERROR}.
      *
+     * @return Whether this status code's class is {@link StatusClass#CLIENT_ERROR} or {@link StatusClass#SERVER_ERROR}.
      * @since 5.1
      */
     public boolean isError() {

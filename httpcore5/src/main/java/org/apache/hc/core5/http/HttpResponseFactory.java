@@ -30,6 +30,7 @@ package org.apache.hc.core5.http;
 /**
  * A factory for {@link HttpResponse} objects.
  *
+ * @param <T> The type of {@link HttpResponse}.
  * @since 4.0
  */
 public interface HttpResponseFactory<T extends HttpResponse> {

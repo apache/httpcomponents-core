@@ -138,6 +138,10 @@ public final class URIAuthority implements NamedEndpoint, Serializable {
 
     /**
      * Creates a {@code URIAuthority} instance from a string. Text may not contain any blanks.
+     *
+     * @param s The value to parse
+     * @return The parsed URIAuthority.
+     * @throws URISyntaxException Thrown if a string could not be parsed as a URIAuthority.
      */
     public static URIAuthority create(final String s) throws URISyntaxException {
         if (TextUtils.isBlank(s)) {

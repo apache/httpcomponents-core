@@ -146,6 +146,7 @@ public class SSLContextBuilder {
 
     /**
      * Sets the JCA provider to use for creating trust stores.
+     *
      * @param provider provider to use for creating trust stores.
      * @return this instance.
      * @since 5.2
@@ -157,8 +158,10 @@ public class SSLContextBuilder {
 
     /**
      * Sets the JCA provider name to use for creating trust stores.
+     *
      * @param name Name of the provider to use for creating trust stores, the provider must be registered with the JCA.
      * @return this instance.
+     * @throws NoSuchProviderException if no provider with the specified name is installed or if name is null.
      * @since 5.2
      */
     public SSLContextBuilder setTrustStoreProvider(final String name) throws NoSuchProviderException {
@@ -168,6 +171,7 @@ public class SSLContextBuilder {
 
     /**
      * Sets the JCA provider to use for creating key stores.
+     *
      * @param provider provider to use for creating key stores.
      * @return this instance.
      * @since 5.2
@@ -179,8 +183,10 @@ public class SSLContextBuilder {
 
     /**
      * Sets the JCA provider name to use for creating key stores.
+     *
      * @param name Name of the provider to use for creating key stores, the provider must be registered with the JCA.
      * @return this instance.
+     * @throws NoSuchProviderException if no provider with the specified name is installed or if name is null.
      * @since 5.2
      */
     public SSLContextBuilder setKeyStoreProvider(final String name) throws NoSuchProviderException {
@@ -258,6 +264,8 @@ public class SSLContextBuilder {
      *            custom trust strategy to use; can be {@code null} in which case
      *            only the default trust managers will be used
      * @return this instance.
+     * @throws NoSuchAlgorithmException if no Provider supports a KeyManagerFactorySpi implementation for the specified algorithm.
+     * @throws KeyStoreException if a TrustManagerFactory operation fails.
      */
     public SSLContextBuilder loadTrustMaterial(
             final KeyStore trustStore,
@@ -287,6 +295,10 @@ public class SSLContextBuilder {
 
     /**
      * @return this instance.
+     * @throws NoSuchAlgorithmException if no Provider supports a KeyManagerFactorySpi implementation for the specified algorithm.
+     * @throws KeyStoreException if no Provider supports a KeyStoreSpi implementation for the specified type.
+     * @throws CertificateException if any of the certificates in the keystore could not be loaded.
+     * @throws IOException if an I/O exception occurs.
      * @since 5.2
      */
     public SSLContextBuilder loadTrustMaterial(
@@ -296,6 +308,10 @@ public class SSLContextBuilder {
 
     /**
      * @return this instance.
+     * @throws NoSuchAlgorithmException if no Provider supports a KeyManagerFactorySpi implementation for the specified algorithm.
+     * @throws KeyStoreException if no Provider supports a KeyStoreSpi implementation for the specified type.
+     * @throws CertificateException if any of the certificates in the keystore could not be loaded.
+     * @throws IOException if an I/O exception occurs.
      * @since 5.2
      */
     public SSLContextBuilder loadTrustMaterial(
@@ -306,6 +322,10 @@ public class SSLContextBuilder {
 
     /**
      * @return this instance.
+     * @throws NoSuchAlgorithmException if no Provider supports a KeyManagerFactorySpi implementation for the specified algorithm.
+     * @throws KeyStoreException if no Provider supports a KeyStoreSpi implementation for the specified type.
+     * @throws CertificateException if any of the certificates in the keystore could not be loaded.
+     * @throws IOException if an I/O exception occurs.
      * @since 5.2
      */
     public SSLContextBuilder loadTrustMaterial(
@@ -385,6 +405,11 @@ public class SSLContextBuilder {
 
     /**
      * @return this instance.
+     * @throws NoSuchAlgorithmException if no Provider supports a KeyManagerFactorySpi implementation for the specified algorithm.
+     * @throws KeyStoreException if no Provider supports a KeyStoreSpi implementation for the specified type.
+     * @throws CertificateException if any of the certificates in the keystore could not be loaded.
+     * @throws IOException if an I/O exception occurs.
+     * @throws UnrecoverableKeyException if the key cannot be recovered (for example, the given password is wrong).
      * @since 5.2
      */
     public SSLContextBuilder loadKeyMaterial(
@@ -397,6 +422,11 @@ public class SSLContextBuilder {
 
     /**
      * @return this instance.
+     * @throws NoSuchAlgorithmException if no Provider supports a KeyManagerFactorySpi implementation for the specified algorithm.
+     * @throws KeyStoreException if no Provider supports a KeyStoreSpi implementation for the specified type.
+     * @throws CertificateException if any of the certificates in the keystore could not be loaded.
+     * @throws IOException if an I/O exception occurs.
+     * @throws UnrecoverableKeyException if the key cannot be recovered (for example, the given password is wrong).
      * @since 5.2
      */
     public SSLContextBuilder loadKeyMaterial(
@@ -447,6 +477,9 @@ public class SSLContextBuilder {
         return loadKeyMaterial(url, storePassword, keyPassword, null);
     }
 
+    /**
+     * @throws KeyManagementException if this SSLContext operation fails.
+     */
     protected void initSSLContext(
             final SSLContext sslContext,
             final Collection<KeyManager> keyManagers,
@@ -458,6 +491,12 @@ public class SSLContextBuilder {
                 secureRandom);
     }
 
+    /**
+     * @throws KeyStoreException        if no Provider supports a KeyStoreSpi implementation for the specified type.
+     * @throws IOException              if an I/O error occurs.
+     * @throws NoSuchAlgorithmException if the algorithm used to check the integrity of the keystore cannot be found.
+     * @throws CertificateException     if any of the certificates in the keystore could not be loaded
+     */
     private KeyStore loadKeyStore(final Path file, final char[] password, final OpenOption... openOptions)
             throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
         final KeyStore keyStore = KeyStore.getInstance(keyStoreType);
@@ -476,6 +515,13 @@ public class SSLContextBuilder {
         return keyStore;
     }
 
+    /**
+     * Builds a new SSLContext.
+     *
+     * @return a new SSLContext.
+     * @throws NoSuchAlgorithmException if no Provider supports a KeyManagerFactorySpi implementation for the specified algorithm.
+     * @throws KeyManagementException if this SSLContext operation fails.
+     */
     public SSLContext build() throws NoSuchAlgorithmException, KeyManagementException {
         final SSLContext sslContext;
         final String protocolStr = this.protocol != null ? this.protocol : TLS;
@@ -608,6 +654,9 @@ public class SSLContextBuilder {
 
     }
 
+    /**
+     * @throws NoSuchProviderException if no provider with the specified name is installed or if name is null.
+     */
     private Provider requireNonNullProvider(final String name) throws NoSuchProviderException {
         final Provider provider = Security.getProvider(name);
         if (provider == null) {

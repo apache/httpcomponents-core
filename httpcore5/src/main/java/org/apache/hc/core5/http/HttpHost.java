@@ -137,6 +137,7 @@ public final class HttpHost implements NamedEndpoint, Serializable {
     /**
      * Creates {@code HttpHost} instance from a string. Text may not contain any blanks.
      *
+     * @throws URISyntaxException Thrown when a string could not be parsed as a URI reference.
      * @since 4.4
      */
     public static HttpHost create(final String s) throws URISyntaxException {

@@ -101,11 +101,7 @@ public class HttpCoreContext implements HttpContext {
         if (context == null) {
             return null;
         }
-        if (context instanceof HttpCoreContext) {
-            return (HttpCoreContext) context;
-        } else {
-            return new Delegate(context);
-        }
+        return context instanceof HttpCoreContext ? (HttpCoreContext) context : new Delegate(context);
     }
 
     /**
@@ -176,20 +172,13 @@ public class HttpCoreContext implements HttpContext {
 
     @Override
     public Object removeAttribute(final String id) {
-        if (map != null) {
-            return map.remove(id);
-        } else {
-            return null;
-        }
+        return map != null ? map.remove(id) : null;
     }
 
     public <T> T getAttribute(final String id, final Class<T> clazz) {
         Args.notNull(clazz, "Attribute class");
         final Object obj = getAttribute(id);
-        if (obj == null) {
-            return null;
-        }
-        return clazz.cast(obj);
+        return obj != null ? clazz.cast(obj) : null ;
     }
 
     /**

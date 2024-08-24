@@ -212,17 +212,15 @@ public class InetAddressUtils {
         }
         if (index == -1) {
             return isIPv6Std(input) || isIPv6HexCompressed(input);
-        } else {
-            final CharSequence address = input.subSequence(0, index);
-            if (isIPv6Std(address) || isIPv6HexCompressed(address)) {
-                // Check if the scope ID is valid
-                final CharSequence scopeId = input.subSequence(index + 1, input.length());
-                // Scope ID should be a non-empty character sequence consisting of only alphanumeric characters or "-"
-                return scopeId.length() != 0 && SCOPE_ID_PATTERN.matcher(scopeId).matches();
-            } else {
-                return false;
-            }
         }
+        final CharSequence address = input.subSequence(0, index);
+        if (isIPv6Std(address) || isIPv6HexCompressed(address)) {
+            // Check if the scope ID is valid
+            final CharSequence scopeId = input.subSequence(index + 1, input.length());
+            // Scope ID should be a non-empty character sequence consisting of only alphanumeric characters or "-"
+            return scopeId.length() != 0 && SCOPE_ID_PATTERN.matcher(scopeId).matches();
+        }
+        return false;
     }
 
     /**

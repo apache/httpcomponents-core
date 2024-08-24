@@ -46,6 +46,7 @@ import org.apache.hc.core5.util.Args;
  * the data stream content and keeps the list of trailers received with
  * the data stream.
  *
+ * @param <T> entity representation.
  * @since 5.0
  */
 public class DigestingEntityConsumer<T> implements AsyncEntityConsumer<T> {

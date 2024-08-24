@@ -74,6 +74,7 @@ public class Http1Config {
     /**
      * The effective protocol level expressed by the minor version of HTTP/1.x.
      *
+     * @return The effective protocol level.
      * @since 5.3
      */
     public HttpVersion getVersion() {
@@ -174,6 +175,7 @@ public class Http1Config {
          * Presently only {@link HttpVersion#HTTP_1_0} and {@link HttpVersion#HTTP_1_1} are
          * supported.
          *
+         * @param version the effective HTTP/1.x protocol level.
          * @return this instance.
          * @since 5.3
          */

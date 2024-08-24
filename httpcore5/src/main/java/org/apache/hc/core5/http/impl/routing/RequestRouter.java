@@ -180,9 +180,8 @@ public class RequestRouter<T> implements HttpRequestMapper<T> {
         if (pathRouter == null) {
             if (downstream != null) {
                 return downstream.resolve(request, context);
-            } else {
-                throw new MisdirectedRequestException("Not authoritative");
             }
+            throw new MisdirectedRequestException("Not authoritative");
         }
         String path = request.getPath();
         final int i = path.indexOf('?');

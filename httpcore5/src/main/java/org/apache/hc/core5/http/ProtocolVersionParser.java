@@ -64,7 +64,7 @@ public class ProtocolVersionParser {
         final int lowerBound = cursor.getLowerBound();
         final int upperBound = cursor.getUpperBound();
         final String token1 = tokenizer.parseToken(buffer, cursor,
-                delimiterPredicate != null ? (ch) -> delimiterPredicate.test(ch) || FULL_STOP_OR_BLANK.test(ch) : FULL_STOP_OR_BLANK);
+                delimiterPredicate != null ? ch -> delimiterPredicate.test(ch) || FULL_STOP_OR_BLANK.test(ch) : FULL_STOP_OR_BLANK);
         final int major;
         try {
             major = Integer.parseInt(token1);
@@ -80,7 +80,7 @@ public class ProtocolVersionParser {
         } else {
             cursor.updatePos(cursor.getPos() + 1);
             final String token2 = tokenizer.parseToken(buffer, cursor,
-                    delimiterPredicate != null ? (ch) -> delimiterPredicate.test(ch) || BLANK.test(ch) : BLANK);
+                    delimiterPredicate != null ? ch -> delimiterPredicate.test(ch) || BLANK.test(ch) : BLANK);
             final int minor;
             try {
                 minor = Integer.parseInt(token2);

@@ -40,6 +40,7 @@ import org.apache.hc.core5.http.nio.CapacityChannel;
 /**
  * No-op {@link AsyncEntityConsumer} that discards all data from the data stream.
  *
+ * @param <T> entity representation.
  * @since 5.2
  */
 public final class DiscardingEntityConsumer<T> implements AsyncEntityConsumer<T> {

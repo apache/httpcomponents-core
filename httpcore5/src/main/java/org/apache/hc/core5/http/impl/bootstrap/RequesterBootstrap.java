@@ -89,6 +89,8 @@ public class RequesterBootstrap {
 
     /**
      * Sets {@link HttpProcessor} instance.
+     *
+     * @return this instance.
      */
     public final RequesterBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
         this.httpProcessor = httpProcessor;
@@ -97,6 +99,8 @@ public class RequesterBootstrap {
 
     /**
      * Sets HTTP/1 protocol configuration.
+     *
+     * @return this instance.
      */
     public final RequesterBootstrap setHttp1Config(final Http1Config http1Config) {
         this.http1Config = http1Config;
@@ -105,6 +109,8 @@ public class RequesterBootstrap {
 
     /**
      * Sets {@link ConnectionReuseStrategy} instance.
+     *
+     * @return this instance.
      */
     public final RequesterBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
         this.connReuseStrategy = connStrategy;
@@ -113,6 +119,8 @@ public class RequesterBootstrap {
 
     /**
      * Sets socket configuration.
+     *
+     * @return this instance.
      */
     public final RequesterBootstrap setSocketConfig(final SocketConfig socketConfig) {
         this.socketConfig = socketConfig;
@@ -136,6 +144,8 @@ public class RequesterBootstrap {
 
     /**
      * Sets {@link Callback} for {@link SSLParameters}.
+     *
+     * @return this instance.
      */
     public final RequesterBootstrap setSslSetupHandler(final Callback<SSLParameters> sslSetupHandler) {
         this.sslSetupHandler = sslSetupHandler;
@@ -144,6 +154,8 @@ public class RequesterBootstrap {
 
     /**
      * Sets {@link SSLSessionVerifier} instance.
+     *
+     * @return this instance.
      */
     public final RequesterBootstrap setSslSessionVerifier(final SSLSessionVerifier sslSessionVerifier) {
         this.sslSessionVerifier = sslSessionVerifier;
