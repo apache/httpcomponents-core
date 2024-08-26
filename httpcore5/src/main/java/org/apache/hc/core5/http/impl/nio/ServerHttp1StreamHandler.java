@@ -297,7 +297,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         }
     }
 
-    void produceOutput() throws HttpException, IOException {
+    void produceOutput() throws IOException {
         switch (responseState) {
             case BODY:
                 exchangeHandler.produce(internalDataChannel);

@@ -1145,7 +1145,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
     }
 
-    private void consumeSettingsFrame(final ByteBuffer payload) throws HttpException, IOException {
+    private void consumeSettingsFrame(final ByteBuffer payload) throws IOException {
         final H2Config.Builder configBuilder = H2Config.initial();
         while (payload.hasRemaining()) {
             final int code = payload.getShort();
