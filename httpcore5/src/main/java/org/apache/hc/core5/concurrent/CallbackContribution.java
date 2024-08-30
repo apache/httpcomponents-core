@@ -27,7 +27,7 @@
 package org.apache.hc.core5.concurrent;
 
 /**
- * Convenience base class for {@link FutureCallback}s that contribute a result
+ * Abstracts implementations of {@link FutureCallback}s that contribute a result
  * of the operation to another {@link FutureCallback}.
  *
  * @param <T> the future result type of an asynchronous operation.
@@ -37,6 +37,11 @@ public abstract class CallbackContribution<T> implements FutureCallback<T> {
 
     private final FutureCallback<?> callback;
 
+    /**
+     * Constructs a new instance for a FutureCallback.
+     *
+     * @param callback the FutureCallback, may be {@code null}.
+     */
     public CallbackContribution(final FutureCallback<?> callback) {
         this.callback = callback;
     }

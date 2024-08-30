@@ -42,6 +42,13 @@ import org.apache.hc.core5.http.HttpConnection;
  */
 public interface HttpConnectionFactory<T extends HttpConnection> {
 
+    /**
+     * Creates TLS connection with a {@link SSLSocket} layered over a plain {@link Socket}.
+     *
+     * @param socket the plain socket SSL socket has been layered over.
+     * @return a new HttpConnection.
+     * @throws IOException in case of an I/O error.
+     */
     T createConnection(Socket socket) throws IOException;
 
     /**
@@ -49,6 +56,7 @@ public interface HttpConnectionFactory<T extends HttpConnection> {
      *
      * @param sslSocket the SSL socket. May be {@code null}.
      * @param socket the plain socket SSL socket has been layered over.
+     * @return a new HttpConnection.
      * @throws IOException in case of an I/O error.
      * @since 5.3
      */

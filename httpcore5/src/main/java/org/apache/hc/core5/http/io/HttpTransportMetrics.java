@@ -35,7 +35,9 @@ package org.apache.hc.core5.http.io;
 public interface HttpTransportMetrics {
 
     /**
-     * Returns the number of bytes transferred.
+     * Gets the number of bytes transferred.
+     *
+     * @return the number of bytes transferred.
      */
     long getBytesTransferred();
 

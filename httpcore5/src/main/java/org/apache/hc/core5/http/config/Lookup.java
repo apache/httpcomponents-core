@@ -36,6 +36,12 @@ package org.apache.hc.core5.http.config;
  */
 public interface Lookup<I> {
 
+    /**
+     * Looks up a value using a lower-case string ID.
+     *
+     * @param name The lookup name.
+     * @return The matching value.
+     */
     I lookup(String name);
 
 }

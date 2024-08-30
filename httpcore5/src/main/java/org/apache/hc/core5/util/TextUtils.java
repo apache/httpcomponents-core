@@ -32,6 +32,8 @@ import java.util.Locale;
 import org.apache.hc.core5.annotation.Internal;
 
 /**
+ * Tests and converts Strings and CharSequence.
+ *
  * @since 4.3
  */
 public final class TextUtils {
@@ -41,7 +43,10 @@ public final class TextUtils {
     }
 
     /**
-     * Returns true if the parameter is null or of zero length
+     * Tests whether the parameter is null or of zero length.
+     *
+     * @param s The CharSequence to test.
+     * @return whether the parameter is null or of zero length.
      */
     public static boolean isEmpty(final CharSequence s) {
         return length(s) == 0;
@@ -91,6 +96,10 @@ public final class TextUtils {
     }
 
     /**
+     * Tests whether a CharSequence contains any whitespace.
+     *
+     * @param s The CharSequence to test.
+     * @return whether a CharSequence contains any whitespace.
      * @since 4.4
      */
     public static boolean containsBlanks(final CharSequence s) {
@@ -120,8 +129,8 @@ public final class TextUtils {
             return null;
         }
         final StringBuilder buffer = new StringBuilder(bytes.length * 2);
-        for (int i = 0; i < bytes.length; i++) {
-            final int unsignedB = bytes[i] & 0xff;
+        for (final byte element : bytes) {
+            final int unsignedB = element & 0xff;
             if (unsignedB < 16) {
                 buffer.append('0');
             }
@@ -131,9 +140,10 @@ public final class TextUtils {
     }
 
     /**
-     * Returns lower case representation of the given string
-     * using {@link Locale#ROOT}.
+     * Converts a String to its lower case representation using {@link Locale#ROOT}.
      *
+     * @param s The String to convert
+     * @return The converted String.
      * @since 5.2
      */
     public static String toLowerCase(final String s) {
@@ -163,9 +173,10 @@ public final class TextUtils {
     }
 
     /**
-     * Casts character to byte filtering non-visible and non-ASCII characters
-     * before conversion
+     * Casts character to byte filtering non-visible and non-ASCII characters before conversion.
      *
+     * @param c The character to cast.
+     * @return The given character or {@code '?'}.
      * @since 5.2
      */
     @Internal
@@ -174,9 +185,8 @@ public final class TextUtils {
             (c >= 0xA0 && c <= 0xFF) || // Visible ISO-8859-1
              c == 0x09) {               // TAB
             return (byte) c;
-        } else {
-            return '?';
         }
+        return '?';
     }
 
 }

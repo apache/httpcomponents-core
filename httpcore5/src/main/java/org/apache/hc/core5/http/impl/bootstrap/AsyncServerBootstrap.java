@@ -59,6 +59,7 @@ import org.apache.hc.core5.http.nio.support.BasicServerExchangeHandler;
 import org.apache.hc.core5.http.nio.support.DefaultAsyncResponseExchangeHandlerFactory;
 import org.apache.hc.core5.http.nio.support.TerminalAsyncServerFilter;
 import org.apache.hc.core5.http.protocol.HttpProcessor;
+import org.apache.hc.core5.http.protocol.LookupRegistry;
 import org.apache.hc.core5.http.protocol.UriPatternType;
 import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.net.URIAuthority;
@@ -99,6 +100,11 @@ public class AsyncServerBootstrap {
         this.filters = new ArrayList<>();
     }
 
+    /**
+     * Creates a new AsyncServerBootstrap instance.
+     *
+     * @return a new AsyncServerBootstrap instance.
+     */
     public static AsyncServerBootstrap bootstrap() {
         return new AsyncServerBootstrap();
     }
@@ -106,6 +112,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets canonical name (fully qualified domain name) of the server.
      *
+     * @param canonicalHostName canonical name (fully qualified domain name) of the server.
      * @return this instance.
      */
     public final AsyncServerBootstrap setCanonicalHostName(final String canonicalHostName) {
@@ -116,6 +123,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets I/O reactor configuration.
      *
+     * @param ioReactorConfig I/O reactor configuration.
      * @return this instance.
      */
     public final AsyncServerBootstrap setIOReactorConfig(final IOReactorConfig ioReactorConfig) {
@@ -126,6 +134,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets HTTP/1.1 protocol parameters.
      *
+     * @param http1Config  HTTP/1.1 protocol parameters.
      * @return this instance.
      */
     public final AsyncServerBootstrap setHttp1Config(final Http1Config http1Config) {
@@ -134,8 +143,9 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Sets connection configuration.
+     * Sets char coding configuration.
      *
+     * @param charCodingConfig char coding configuration.
      * @return this instance.
      */
     public final AsyncServerBootstrap setCharCodingConfig(final CharCodingConfig charCodingConfig) {
@@ -144,8 +154,9 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Sets {@link org.apache.hc.core5.http.protocol.HttpProcessor} instance.
+     * Sets {@link HttpProcessor} instance.
      *
+     * @param httpProcessor {@link HttpProcessor} instance.
      * @return this instance.
      */
     public final AsyncServerBootstrap setHttpProcessor(final HttpProcessor httpProcessor) {
@@ -154,8 +165,9 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * Sets {@link org.apache.hc.core5.http.ConnectionReuseStrategy} instance.
+     * Sets {@link ConnectionReuseStrategy} instance.
      *
+     * @param connStrategy {@link ConnectionReuseStrategy} instance.
      * @return this instance.
      */
     public final AsyncServerBootstrap setConnectionReuseStrategy(final ConnectionReuseStrategy connStrategy) {
@@ -166,6 +178,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets {@link TlsStrategy} instance.
      *
+     * @param tlsStrategy {@link TlsStrategy} instance.
      * @return this instance.
      */
     public final AsyncServerBootstrap setTlsStrategy(final TlsStrategy tlsStrategy) {
@@ -176,6 +189,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets TLS handshake {@link Timeout}.
      *
+     * @param handshakeTimeout TLS handshake {@link Timeout}.
      * @return this instance.
      */
     public final AsyncServerBootstrap setTlsHandshakeTimeout(final Timeout handshakeTimeout) {
@@ -186,6 +200,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets {@link IOSession} {@link Decorator} instance.
      *
+     * @param ioSessionDecorator {@link IOSession} {@link Decorator} instance.
      * @return this instance.
      */
     public final AsyncServerBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
@@ -196,6 +211,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets {@link Exception} {@link Callback} instance.
      *
+     * @param exceptionCallback {@link Exception} {@link Callback} instance.
      * @return this instance.
      */
     public final AsyncServerBootstrap setExceptionCallback(final Callback<Exception> exceptionCallback) {
@@ -206,6 +222,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets {@link IOSessionListener} instance.
      *
+     * @param sessionListener {@link IOSessionListener} instance.
      * @return this instance.
      */
     public final AsyncServerBootstrap setIOSessionListener(final IOSessionListener sessionListener) {
@@ -214,11 +231,14 @@ public class AsyncServerBootstrap {
     }
 
     /**
+     * Sets a LookupRegistry for Suppliers of AsyncServerExchangeHandler.
+     *
+     * @param lookupRegistry LookupRegistry for Suppliers of AsyncServerExchangeHandler.
      * @return this instance.
      * @deprecated Use {@link RequestRouter}.
      */
     @Deprecated
-    public final AsyncServerBootstrap setLookupRegistry(final org.apache.hc.core5.http.protocol.LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry) {
+    public final AsyncServerBootstrap setLookupRegistry(final LookupRegistry<Supplier<AsyncServerExchangeHandler>> lookupRegistry) {
         this.lookupRegistry = lookupRegistry;
         return this;
     }
@@ -226,6 +246,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets {@link HttpRequestMapper} instance.
      *
+     * @param requestRouter {@link HttpRequestMapper} instance.
      * @return this instance.
      * @see org.apache.hc.core5.http.impl.routing.RequestRouter
      * @since 5.3
@@ -238,6 +259,7 @@ public class AsyncServerBootstrap {
     /**
      * Sets {@link Http1StreamListener} instance.
      *
+     * @param streamListener {@link Http1StreamListener} instance.
      * @return this instance.
      * @since 5.0
      */
@@ -250,8 +272,8 @@ public class AsyncServerBootstrap {
      * Registers the given {@link AsyncServerExchangeHandler} {@link Supplier} as a default handler for URIs
      * matching the given pattern.
      *
-     * @param uriPattern the pattern to register the handler for.
-     * @param supplier the handler supplier.
+     * @param uriPattern the non-null pattern to register the handler for.
+     * @param supplier the non-null handler supplier.
      * @return this instance.
      */
     public final AsyncServerBootstrap register(final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
@@ -263,11 +285,11 @@ public class AsyncServerBootstrap {
 
     /**
      * Registers the given {@link AsyncServerExchangeHandler} {@link Supplier} as a handler for URIs
-     * matching the given host and the pattern.
+     * matching the given host and pattern.
      *
-     * @param hostname the host name
-     * @param uriPattern the pattern to register the handler for.
-     * @param supplier the handler supplier.
+     * @param hostname the non-null host name.
+     * @param uriPattern the non-null pattern to register the handler for.
+     * @param supplier the non-null handler supplier.
      * @return this instance.
      * @since 5.3
      */
@@ -280,9 +302,14 @@ public class AsyncServerBootstrap {
     }
 
     /**
-     * @deprecated use {@link #register(String, String, Supplier)}.
+     * Registers the given {@link AsyncServerExchangeHandler} {@link Supplier} as a handler for URIs
+     * matching the given host and pattern.
      *
+     * @param hostname the host name.
+     * @param uriPattern the pattern to register the handler for.
+     * @param supplier the handler supplier.
      * @return this instance.
+     * @deprecated use {@link #register(String, String, Supplier)}.
      */
     @Deprecated
     public final AsyncServerBootstrap registerVirtual(final String hostname, final String uriPattern, final Supplier<AsyncServerExchangeHandler> supplier) {
@@ -307,8 +334,9 @@ public class AsyncServerBootstrap {
 
     /**
      * Registers the given {@link AsyncServerRequestHandler} as a handler for URIs
-     * matching the given host and the pattern.
+     * matching the given host and pattern.
      *
+     * @param <T> the request type.
      * @param hostname the host name
      * @param uriPattern the pattern to register the handler for.
      * @param requestHandler the handler.
@@ -321,6 +349,7 @@ public class AsyncServerBootstrap {
     }
 
     /**
+     * @param <T> the request type.
      * @return this instance.
      * @deprecated Use {@link #register(String, String, AsyncServerRequestHandler)}.
      */

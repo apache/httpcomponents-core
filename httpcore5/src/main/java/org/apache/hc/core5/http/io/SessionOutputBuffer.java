@@ -74,6 +74,7 @@ public interface SessionOutputBuffer {
      * @param      b     the data.
      * @param      off   the start offset in the data.
      * @param      len   the number of bytes to write.
+     * @param      outputStream the target OutputStream.
      * @throws  IOException  if an I/O error occurs.
      */
     void write(byte[] b, int off, int len, OutputStream outputStream) throws IOException;
@@ -83,6 +84,7 @@ public interface SessionOutputBuffer {
      * to this session buffer.
      *
      * @param      b   the data.
+     * @param      outputStream the target OutputStream.
      * @throws  IOException  if an I/O error occurs.
      */
     void write(byte[] b, OutputStream outputStream) throws IOException;
@@ -91,6 +93,7 @@ public interface SessionOutputBuffer {
      * Writes the specified byte to this session buffer.
      *
      * @param      b   the {@code byte}.
+     * @param      outputStream the target OutputStream.
      * @throws  IOException  if an I/O error occurs.
      */
     void write(int b, OutputStream outputStream) throws IOException;
@@ -103,6 +106,7 @@ public interface SessionOutputBuffer {
      * specific implementations of this interface.
      *
      * @param      buffer   the buffer containing chars of the line.
+     * @param      outputStream the target OutputStream.
      * @throws  IOException  if an I/O error occurs.
      */
     void writeLine(CharArrayBuffer buffer, OutputStream outputStream) throws IOException;
@@ -115,6 +119,7 @@ public interface SessionOutputBuffer {
      * stream, such bytes should immediately be written to their
      * intended destination.
      *
+     * @param      outputStream the target OutputStream.
      * @throws  IOException  if an I/O error occurs.
      */
     void flush(OutputStream outputStream) throws IOException;

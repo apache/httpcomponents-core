@@ -33,7 +33,7 @@ import org.apache.hc.core5.http.HttpRequestInterceptor;
 import org.apache.hc.core5.http.HttpResponseInterceptor;
 
 /**
- * HTTP protocol processor is a collection of protocol interceptors that
+ * Collects protocol interceptors that
  * implements the 'Chain of Responsibility' pattern, where each individual
  * protocol interceptor is expected to work on a particular aspect of the HTTP
  * protocol the interceptor is responsible for.

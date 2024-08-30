@@ -33,13 +33,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation defines behavioral contract enforced at runtime by instances of annotated classes.
+ * Defines behavioral contract enforced at runtime by instances of annotated classes.
  */
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
 public @interface Contract {
 
+    /**
+     * Gets the threading behavior for annotated type.
+     * <p>
+     * The default value is {@link ThreadingBehavior#UNSAFE}.
+     * </p>
+     *
+     * @return the threading behavior for annotated type.
+     */
     ThreadingBehavior threading() default ThreadingBehavior.UNSAFE;
 
 }

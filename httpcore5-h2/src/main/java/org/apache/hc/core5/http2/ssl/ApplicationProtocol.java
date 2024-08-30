@@ -34,8 +34,19 @@ package org.apache.hc.core5.http2.ssl;
  */
 public enum ApplicationProtocol {
 
-    HTTP_2("h2"), HTTP_1_1("http/1.1");
+    /**
+     * The HTTP/2 application protocol.
+     */
+    HTTP_2("h2"),
 
+    /**
+     * The HTTP/1.1 application protocol.
+     */
+    HTTP_1_1("http/1.1");
+
+    /**
+     * The application protocol ID.
+     */
     public final String id;
 
     ApplicationProtocol(final String id) {

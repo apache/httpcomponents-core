@@ -59,10 +59,12 @@ class MultiCoreIOReactor implements IOReactor {
 
     /**
      * Activates all worker I/O reactors.
+     * <p>
      * The I/O main reactor will start reacting to I/O events and triggering
      * notification methods. The worker I/O reactor in their turn will start
      * reacting to I/O events and dispatch I/O event notifications to the
      * {@link IOEventHandler} associated with the given I/O session.
+     * </p>
      */
     public final void start() {
         if (this.status.compareAndSet(IOReactorStatus.INACTIVE, IOReactorStatus.ACTIVE)) {

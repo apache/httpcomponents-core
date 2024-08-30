@@ -57,6 +57,11 @@ public class BasicFuture<T> implements Future<T>, Cancellable {
     private final ReentrantLock lock;
     private final Condition condition;
 
+    /**
+     * Constructs a new instance for a FutureCallback.
+     *
+     * @param callback the FutureCallback, may be {@code null}.
+     */
     public BasicFuture(final FutureCallback<T> callback) {
         super();
         this.callback = callback;

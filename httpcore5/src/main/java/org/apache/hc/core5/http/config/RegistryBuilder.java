@@ -43,6 +43,12 @@ public final class RegistryBuilder<I> {
 
     private final Map<String, I> items;
 
+    /**
+     * Creates a new RegistryBuilder.
+     *
+     * @param <I> the type of Registry values.
+     * @return a new RegistryBuilder.
+     */
     public static <I> RegistryBuilder<I> create() {
         return new RegistryBuilder<>();
     }
@@ -52,6 +58,13 @@ public final class RegistryBuilder<I> {
         this.items = new HashMap<>();
     }
 
+    /**
+     * Registers the given item for the given ID.
+     *
+     * @param id The ID key, converted to lower-case.
+     * @param item The item to register.
+     * @return this instance.
+     */
     public RegistryBuilder<I> register(final String id, final I item) {
         Args.notEmpty(id, "ID");
         Args.notNull(item, "Item");
@@ -59,6 +72,11 @@ public final class RegistryBuilder<I> {
         return this;
     }
 
+    /**
+     * Creates a new Registry with the registered items.
+     *
+     * @return a new Registry with the registered items.
+     */
     public Registry<I> build() {
         return new Registry<>(items);
     }
