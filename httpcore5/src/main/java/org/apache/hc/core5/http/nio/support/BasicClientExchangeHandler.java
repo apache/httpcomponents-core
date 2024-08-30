@@ -68,9 +68,9 @@ public final class BasicClientExchangeHandler<T> implements AsyncClientExchangeH
             final FutureCallback<T> resultCallback) {
         this.requestProducer = Args.notNull(requestProducer, "Request producer");
         this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
-        this.completed = new AtomicBoolean(false);
+        this.completed = new AtomicBoolean();
         this.resultCallback = resultCallback;
-        this.outputTerminated = new AtomicBoolean(false);
+        this.outputTerminated = new AtomicBoolean();
     }
 
     @Override

@@ -111,7 +111,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
             final EntityDetails entityDetails,
             final ResponseChannel responseChannel,
             final HttpContext context) throws HttpException, IOException {
-        final AtomicBoolean responseCommitted = new AtomicBoolean(false);
+        final AtomicBoolean responseCommitted = new AtomicBoolean();
 
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
         final HttpResponse responseWrapper = new HttpResponseWrapper(response){

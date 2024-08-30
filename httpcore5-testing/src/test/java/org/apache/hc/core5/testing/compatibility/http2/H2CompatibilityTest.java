@@ -285,24 +285,16 @@ public class H2CompatibilityTest {
             System.out.println("*** httpbin.org HTTP/1.1 simple request execution ***");
 
             final List<Message<HttpRequest, AsyncEntityProducer>> requestMessages = Arrays.asList(
-                    new Message<>(
-                            new BasicHttpRequest(Method.GET, target, "/headers"),
-                            null),
+                    new Message<>(new BasicHttpRequest(Method.GET, target, "/headers")),
                     new Message<>(
                             new BasicHttpRequest(Method.POST, target, "/anything"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
                     new Message<>(
                             new BasicHttpRequest(Method.PUT, target, "/anything"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),
-                    new Message<>(
-                            new BasicHttpRequest(Method.GET, target, "/drip"),
-                            null),
-                    new Message<>(
-                            new BasicHttpRequest(Method.GET, target, "/bytes/20000"),
-                            null),
-                    new Message<>(
-                            new BasicHttpRequest(Method.GET, target, "/delay/2"),
-                            null),
+                    new Message<>(new BasicHttpRequest(Method.GET, target, "/drip")),
+                    new Message<>(new BasicHttpRequest(Method.GET, target, "/bytes/20000")),
+                    new Message<>(new BasicHttpRequest(Method.GET, target, "/delay/2")),
                     new Message<>(
                             new BasicHttpRequest(Method.POST, target, "/delay/2"),
                             new StringAsyncEntityProducer("some important message", ContentType.TEXT_PLAIN)),

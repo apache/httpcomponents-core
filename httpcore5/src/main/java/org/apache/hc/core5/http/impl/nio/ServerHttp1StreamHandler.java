@@ -149,8 +149,8 @@ class ServerHttp1StreamHandler implements ResourceHolder {
         this.connectionReuseStrategy = connectionReuseStrategy;
         this.exchangeHandlerFactory = exchangeHandlerFactory;
         this.context = context;
-        this.responseCommitted = new AtomicBoolean(false);
-        this.done = new AtomicBoolean(false);
+        this.responseCommitted = new AtomicBoolean();
+        this.done = new AtomicBoolean();
         this.keepAlive = true;
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.IDLE;

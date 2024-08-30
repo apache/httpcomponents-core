@@ -37,6 +37,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -63,7 +64,7 @@ class TestAbstractHttp1StreamDuplexerCapacityWindow {
         final CapacityWindow window = new CapacityWindow(0, ioSession);
         window.update(1);
         Assertions.assertEquals(1, window.getWindow());
-        Mockito.verify(ioSession).setEvent(Mockito.eq(SelectionKey.OP_READ));
+        Mockito.verify(ioSession).setEvent(ArgumentMatchers.eq(SelectionKey.OP_READ));
         Mockito.verifyNoMoreInteractions(ioSession);
     }
 
@@ -72,7 +73,7 @@ class TestAbstractHttp1StreamDuplexerCapacityWindow {
         final CapacityWindow window = new CapacityWindow(1, ioSession);
         window.removeCapacity(1);
         Assertions.assertEquals(0, window.getWindow());
-        Mockito.verify(ioSession).clearEvent(Mockito.eq(SelectionKey.OP_READ));
+        Mockito.verify(ioSession).clearEvent(ArgumentMatchers.eq(SelectionKey.OP_READ));
         Mockito.verifyNoMoreInteractions(ioSession);
     }
 

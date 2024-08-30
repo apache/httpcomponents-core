@@ -29,7 +29,7 @@ package org.apache.hc.core5.concurrent;
 /**
  * A callback interface that gets invoked upon completion of a {@link java.util.concurrent.Future}.
  *
- * @param <T> the future result type returned by this callback.
+ * @param <T> the future result type consumed by this callback.
  * @since 4.2
  */
 public interface FutureCallback<T> {

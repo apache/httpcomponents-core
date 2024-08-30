@@ -25,57 +25,50 @@
  *
  */
 
-package org.apache.hc.core5.reactor;
+package org.apache.hc.core5.concurrent;
 
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.nio.channels.SelectionKey;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.io.Closer;
+/**
+ * Counts all method calls.
+ *
+ * @param <T> the future result type consumed by this callback.
+ */
+public class CountingFutureCallback<T> implements FutureCallback<T> {
 
-class ListenerEndpointImpl implements ListenerEndpoint {
+    private final AtomicLong count = new AtomicLong();
 
-    private final SelectionKey key;
-    final SocketAddress address;
-    final Object attachment;
-    private final AtomicBoolean closed;
-
-    public ListenerEndpointImpl(final SelectionKey key, final Object attachment, final SocketAddress address) {
-        super();
-        this.key = key;
-        this.address = address;
-        this.attachment = attachment;
-        this.closed = new AtomicBoolean();
+    @Override
+    public void cancelled() {
+        count.incrementAndGet();
     }
 
     @Override
-    public SocketAddress getAddress() {
-        return this.address;
+    public void completed(final T result) {
+        count.incrementAndGet();
     }
 
     @Override
-    public String toString() {
-        return "endpoint: " + address;
+    public void failed(final Exception ex) {
+        count.incrementAndGet();
     }
 
-    @Override
-    public boolean isClosed() {
-        return this.closed.get();
+    /**
+     * The atomic count as an AtomicLong.
+     *
+     * @return atomic count as an AtomicLong.
+     */
+    public AtomicLong getAtomicCount() {
+        return count;
     }
 
-    @Override
-    public void close() throws IOException {
-        if (closed.compareAndSet(false, true)) {
-            key.cancel();
-            key.channel().close();
-        }
-    }
-
-    @Override
-    public void close(final CloseMode closeMode) {
-        Closer.closeQuietly(this);
+    /**
+     * The atomic count as a long.
+     *
+     * @return atomic count as a long.
+     */
+    public long getCount() {
+        return count.longValue();
     }
 
 }

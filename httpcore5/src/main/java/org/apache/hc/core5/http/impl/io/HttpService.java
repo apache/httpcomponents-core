@@ -197,7 +197,7 @@ public class HttpService {
             final HttpServerConnection conn,
             final HttpContext localContext) throws IOException, HttpException {
 
-        final AtomicBoolean responseSubmitted = new AtomicBoolean(false);
+        final AtomicBoolean responseSubmitted = new AtomicBoolean();
         final HttpCoreContext context = HttpCoreContext.cast(localContext);
         try {
             final ClassicHttpRequest request = conn.receiveRequestHeader();

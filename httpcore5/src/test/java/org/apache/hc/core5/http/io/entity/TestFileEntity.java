@@ -49,9 +49,9 @@ class TestFileEntity {
         try (final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN)) {
 
             Assertions.assertEquals(tmpfile.length(), httpentity.getContentLength());
-            final InputStream content = httpentity.getContent();
-            Assertions.assertNotNull(content);
-            content.close();
+            try (InputStream content = httpentity.getContent()) {
+                Assertions.assertNotNull(content);
+            }
             Assertions.assertTrue(httpentity.isRepeatable());
             Assertions.assertFalse(httpentity.isStreaming());
             Assertions.assertTrue(tmpfile.delete(), "Failed to delete " + tmpfile);
@@ -68,12 +68,12 @@ class TestFileEntity {
         final File tmpfile = File.createTempFile("testfile", ".txt");
         tmpfile.deleteOnExit();
 
-        final FileOutputStream outStream = new FileOutputStream(tmpfile);
-        outStream.write(0);
-        outStream.write(1);
-        outStream.write(2);
-        outStream.write(3);
-        outStream.close();
+        try (FileOutputStream outStream = new FileOutputStream(tmpfile)) {
+            outStream.write(0);
+            outStream.write(1);
+            outStream.write(2);
+            outStream.write(3);
+        }
 
         try (final FileEntity httpentity = new FileEntity(tmpfile, ContentType.TEXT_PLAIN)) {
 

@@ -78,8 +78,8 @@ class ClientPushH2StreamHandler implements H2StreamHandler {
         this.connMetrics = connMetrics;
         this.pushHandlerFactory = pushHandlerFactory;
         this.context = context;
-        this.failed = new AtomicBoolean(false);
-        this.done = new AtomicBoolean(false);
+        this.failed = new AtomicBoolean();
+        this.done = new AtomicBoolean();
         this.requestState = MessageState.HEADERS;
         this.responseState = MessageState.HEADERS;
     }

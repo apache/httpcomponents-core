@@ -29,9 +29,8 @@ package org.apache.hc.core5.http.nio.entity;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.CountingFutureCallback;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
@@ -78,28 +77,9 @@ class TestAbstractBinAsyncEntityConsumer {
 
     @Test
     void testConsumeData() throws Exception {
-
         final AsyncEntityConsumer<byte[]> consumer = new ByteArrayAsyncEntityConsumer();
-
-        final AtomicLong count = new AtomicLong(0);
-        consumer.streamStart(new BasicEntityDetails(-1, ContentType.APPLICATION_OCTET_STREAM), new FutureCallback<byte[]>() {
-
-            @Override
-            public void completed(final byte[] result) {
-                count.incrementAndGet();
-            }
-
-            @Override
-            public void failed(final Exception ex) {
-                count.incrementAndGet();
-            }
-
-            @Override
-            public void cancelled() {
-                count.incrementAndGet();
-            }
-
-        });
+        final CountingFutureCallback<byte[]> countingCallback = new CountingFutureCallback<>();
+        consumer.streamStart(new BasicEntityDetails(-1, ContentType.APPLICATION_OCTET_STREAM), countingCallback);
 
         consumer.consume(ByteBuffer.wrap(new byte[]{'1', '2', '3'}));
         consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
@@ -109,7 +89,7 @@ class TestAbstractBinAsyncEntityConsumer {
         consumer.streamEnd(null);
 
         Assertions.assertArrayEquals(new byte[] {'1', '2', '3', '4', '5'}, consumer.getContent());
-        Assertions.assertEquals(1L, count.longValue());
+        Assertions.assertEquals(1L, countingCallback.getCount());
     }
 
 }

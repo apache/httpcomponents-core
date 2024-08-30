@@ -41,18 +41,18 @@ class TestContentLengthOutputStream {
     void testBasics() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
-        final OutputStream out = new ContentLengthOutputStream(outbuffer, outputStream, 15L);
+        try (OutputStream out = new ContentLengthOutputStream(outbuffer, outputStream, 15L)) {
 
-        final byte[] tmp = new byte[10];
-        out.write(tmp, 0, 10);
-        out.write(1);
-        out.write(tmp, 0, 10);
-        out.write(tmp, 0, 10);
-        out.write(tmp);
-        out.write(1);
-        out.write(2);
-        out.flush();
-        out.close();
+            final byte[] tmp = new byte[10];
+            out.write(tmp, 0, 10);
+            out.write(1);
+            out.write(tmp, 0, 10);
+            out.write(tmp, 0, 10);
+            out.write(tmp);
+            out.write(1);
+            out.write(2);
+            out.flush();
+        }
         final byte[] data = outputStream.toByteArray();
         Assertions.assertEquals(15, data.length);
     }

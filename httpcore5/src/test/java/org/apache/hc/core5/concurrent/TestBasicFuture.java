@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.util.TimeoutValueException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 class TestBasicFuture {
@@ -60,7 +61,7 @@ class TestBasicFuture {
         future.completed(result);
         future.failed(boom);
         Mockito.verify(callback).completed(result);
-        Mockito.verify(callback, Mockito.never()).failed(Mockito.any());
+        Mockito.verify(callback, Mockito.never()).failed(ArgumentMatchers.any());
         Mockito.verify(callback, Mockito.never()).cancelled();
 
         Assertions.assertSame(result, future.get());
@@ -81,7 +82,7 @@ class TestBasicFuture {
         future.completed(result);
         future.failed(boom);
         Mockito.verify(callback).completed(result);
-        Mockito.verify(callback, Mockito.never()).failed(Mockito.any());
+        Mockito.verify(callback, Mockito.never()).failed(ArgumentMatchers.any());
         Mockito.verify(callback, Mockito.never()).cancelled();
 
         Assertions.assertSame(result, future.get(1, TimeUnit.MILLISECONDS));
@@ -97,7 +98,7 @@ class TestBasicFuture {
         final Exception boom = new Exception();
         future.failed(boom);
         future.completed(result);
-        Mockito.verify(callback, Mockito.never()).completed(Mockito.any());
+        Mockito.verify(callback, Mockito.never()).completed(ArgumentMatchers.any());
         Mockito.verify(callback).failed(boom);
         Mockito.verify(callback, Mockito.never()).cancelled();
 
@@ -119,8 +120,8 @@ class TestBasicFuture {
         future.cancel(true);
         future.failed(boom);
         future.completed(result);
-        Mockito.verify(callback, Mockito.never()).completed(Mockito.any());
-        Mockito.verify(callback, Mockito.never()).failed(Mockito.any());
+        Mockito.verify(callback, Mockito.never()).completed(ArgumentMatchers.any());
+        Mockito.verify(callback, Mockito.never()).failed(ArgumentMatchers.any());
         Mockito.verify(callback).cancelled();
 
         assertThrows(CancellationException.class, future::get);
@@ -214,24 +215,15 @@ class TestBasicFuture {
 
     @Test
     void testConcurrentOperations() throws InterruptedException, ExecutionException {
-        final FutureCallback<Object> callback = new FutureCallback<Object>() {
-            public void completed(final Object result) {
-            }
-
-            public void failed(final Exception ex) {
-            }
-
-            public void cancelled() {
-            }
-        };
+        final FutureCallback<Object> callback = FutureCallbackAdapter.getInstance();
 
         final ExecutorService executor = Executors.newFixedThreadPool(3);
         final BasicFuture<Object> future = new BasicFuture<>(callback);
         final Object expectedResult = new Object();
 
-        final AtomicBoolean completedSuccessfully = new AtomicBoolean(false);
-        final AtomicBoolean failedSuccessfully = new AtomicBoolean(false);
-        final AtomicBoolean cancelledSuccessfully = new AtomicBoolean(false);
+        final AtomicBoolean completedSuccessfully = new AtomicBoolean();
+        final AtomicBoolean failedSuccessfully = new AtomicBoolean();
+        final AtomicBoolean cancelledSuccessfully = new AtomicBoolean();
 
         // Run 3 tasks concurrently: complete, fail, and cancel the future.
         final Future<?> future1 = executor.submit(() -> completedSuccessfully.set(future.completed(expectedResult)));
@@ -260,23 +252,14 @@ class TestBasicFuture {
 
     @Test
     void testGetWithTimeout() {
-        final AtomicBoolean isFutureCompleted = new AtomicBoolean(false);
+        final AtomicBoolean isFutureCompleted = new AtomicBoolean();
 
-        final FutureCallback<String> callback = new FutureCallback<String>() {
+        final FutureCallback<String> callback = new FutureCallbackAdapter<String>() {
             @Override
             public void completed(final String result) {
                 isFutureCompleted.set(true);
             }
 
-            @Override
-            public void failed(final Exception ex) {
-                // Nothing to do here for this example
-            }
-
-            @Override
-            public void cancelled() {
-                // Nothing to do here for this example
-            }
         };
 
         final BasicFuture<String> future = new BasicFuture<>(callback);

@@ -42,25 +42,48 @@ public final class Message<H extends MessageHeaders, B> {
     private final H head;
     private final B body;
 
+    /**
+     * Constructs a new instance.
+     *
+     * @param head The message head.
+     * @since 5.3
+     */
+    public Message(final H head) {
+        this(head, null);
+    }
+
+    /**
+     * Constructs a new instance.
+     *
+     * @param head The message head.
+     * @param body The message body.
+     */
     public Message(final H head, final B body) {
         this.head = Args.notNull(head, "Message head");
         this.body = body;
     }
 
+    /**
+     * Gets the message head.
+     *
+     * @return the message head.
+     */
     public H getHead() {
         return head;
     }
 
+    /**
+     * Gets the message body.
+     *
+     * @return the message body.
+     */
     public B getBody() {
         return body;
     }
 
     @Override
     public String toString() {
-        return "[" +
-                "head=" + head +
-                ", body=" + body +
-                ']';
+        return "[head=" + head + ", body=" + body + ']';
     }
 
 }

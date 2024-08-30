@@ -33,11 +33,10 @@ import java.net.InetSocketAddress;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.Cancellable;
-import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.CountDownLatchFutureCallback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
@@ -233,7 +232,7 @@ abstract class H2CoreTransportMultiplexingTest {
 
         final int reqNo = 20;
 
-        final CountDownLatch countDownLatch = new CountDownLatch(reqNo);
+        final CountDownLatchFutureCallback<Message<HttpResponse, String>> countDownLatch = new CountDownLatchFutureCallback<>(reqNo);
         final Random random = new Random();
         final HttpHost target = new HttpHost(scheme.id, "localhost", address.getPort());
         for (int i = 0; i < reqNo; i++) {
@@ -241,24 +240,7 @@ abstract class H2CoreTransportMultiplexingTest {
                     new BasicClientExchangeHandler<>(new BasicRequestProducer(Method.POST, target, "/stuff",
                             new StringAsyncEntityProducer("some stuff", ContentType.TEXT_PLAIN)),
                             new BasicResponseConsumer<>(new StringAsyncEntityConsumer()),
-                            new FutureCallback<Message<HttpResponse, String>>() {
-
-                                @Override
-                                public void completed(final Message<HttpResponse, String> result) {
-                                    countDownLatch.countDown();
-                                }
-
-                                @Override
-                                public void failed(final Exception ex) {
-                                    countDownLatch.countDown();
-                                }
-
-                                @Override
-                                public void cancelled() {
-                                    countDownLatch.countDown();
-                                }
-
-                            }),
+                            countDownLatch),
                     TIMEOUT,
                     HttpCoreContext.create());
             Thread.sleep(random.nextInt(10));

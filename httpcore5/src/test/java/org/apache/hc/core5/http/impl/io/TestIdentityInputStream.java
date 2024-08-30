@@ -45,17 +45,17 @@ class TestIdentityInputStream {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
-        final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);
-        final byte[] tmp = new byte[2];
-        Assertions.assertEquals(2, in.read(tmp, 0, tmp.length));
-        Assertions.assertEquals('a', tmp[0]);
-        Assertions.assertEquals('b', tmp[1]);
-        Assertions.assertEquals('c', in.read());
-        Assertions.assertEquals(-1, in.read(tmp, 0, tmp.length));
-        Assertions.assertEquals(-1, in.read());
-        Assertions.assertEquals(-1, in.read(tmp, 0, tmp.length));
-        Assertions.assertEquals(-1, in.read());
-        in.close();
+        try (IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream)) {
+            final byte[] tmp = new byte[2];
+            Assertions.assertEquals(2, in.read(tmp, 0, tmp.length));
+            Assertions.assertEquals('a', tmp[0]);
+            Assertions.assertEquals('b', tmp[1]);
+            Assertions.assertEquals('c', in.read());
+            Assertions.assertEquals(-1, in.read(tmp, 0, tmp.length));
+            Assertions.assertEquals(-1, in.read());
+            Assertions.assertEquals(-1, in.read(tmp, 0, tmp.length));
+            Assertions.assertEquals(-1, in.read());
+        }
     }
 
     @Test
@@ -79,10 +79,10 @@ class TestIdentityInputStream {
         final byte[] input = new byte[] {'a', 'b', 'c'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 16, 1024, null);
-        final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);
-        in.read();
-        Assertions.assertEquals(2, in.available());
-        in.close();
+        try (IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream)) {
+            in.read();
+            Assertions.assertEquals(2, in.available());
+        }
     }
 
     @Test
@@ -90,11 +90,11 @@ class TestIdentityInputStream {
         final byte[] input = new byte[] {'a', 'b', 'c', 'd', 'e', 'f'};
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(input);
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(new BasicHttpTransportMetrics(), 16, 0, 1024, null);
-        final IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream);
-        final byte[] tmp = new byte[3];
-        Assertions.assertEquals(3, in.read(tmp));
-        Assertions.assertEquals(3, in.available());
-        in.close();
+        try (IdentityInputStream in = new IdentityInputStream(inBuffer, inputStream)) {
+            final byte[] tmp = new byte[3];
+            Assertions.assertEquals(3, in.read(tmp));
+            Assertions.assertEquals(3, in.available());
+        }
     }
 
 }

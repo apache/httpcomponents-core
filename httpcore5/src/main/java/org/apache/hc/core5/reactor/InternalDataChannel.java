@@ -89,7 +89,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
                 ioSessionDecorator != null ? ioSessionDecorator.decorate(ioSession) : ioSession);
         this.eventHandlerRef = new AtomicReference<>();
         this.protocolUpgradeHandlerMap = new ConcurrentHashMap<>();
-        this.closed = new AtomicBoolean(false);
+        this.closed = new AtomicBoolean();
     }
 
     @Override

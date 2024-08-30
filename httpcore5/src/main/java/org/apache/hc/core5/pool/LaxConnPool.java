@@ -96,7 +96,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
         this.disposalCallback = disposalCallback;
         this.connPoolListener = connPoolListener;
         this.routeToPool = new ConcurrentHashMap<>();
-        this.isShutDown = new AtomicBoolean(false);
+        this.isShutDown = new AtomicBoolean();
         this.defaultMaxPerRoute = defaultMaxPerRoute;
     }
 
@@ -382,7 +382,7 @@ public class LaxConnPool<T, C extends ModalCloseable> implements ManagedConnPool
             this.leased = new ConcurrentHashMap<>();
             this.available = new ConcurrentLinkedDeque<>();
             this.pending = new ConcurrentLinkedDeque<>();
-            this.terminated = new AtomicBoolean(false);
+            this.terminated = new AtomicBoolean();
             this.allocated = new AtomicInteger(0);
             this.releaseSeqNum = new AtomicLong(0);
             this.max = max;

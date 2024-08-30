@@ -84,17 +84,15 @@ public class BasicResponseConsumer<T> implements AsyncResponseConsumer<Message<H
 
                 @Override
                 public void completed(final T body) {
-                    final Message<HttpResponse, T> result = new Message<>(response, body);
                     if (resultCallback != null) {
-                        resultCallback.completed(result);
+                        resultCallback.completed(new Message<>(response, body));
                     }
                 }
 
             });
         } else {
-            final Message<HttpResponse, T> result = new Message<>(response, null);
             if (resultCallback != null) {
-                resultCallback.completed(result);
+                resultCallback.completed(new Message<>(response));
             }
         }
     }

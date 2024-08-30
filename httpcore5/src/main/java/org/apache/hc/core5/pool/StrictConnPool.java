@@ -107,7 +107,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
         this.completedRequests = new ConcurrentLinkedQueue<>();
         this.maxPerRoute = new HashMap<>();
         this.lock = new ReentrantLock();
-        this.isShutDown = new AtomicBoolean(false);
+        this.isShutDown = new AtomicBoolean();
         this.defaultMaxPerRoute = defaultMaxPerRoute;
         this.maxTotal = maxTotal;
     }
@@ -695,7 +695,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
             this.state = state;
             this.deadline = Deadline.calculate(requestTimeout);
             this.future = future;
-            this.completed = new AtomicBoolean(false);
+            this.completed = new AtomicBoolean();
         }
 
         public T getRoute() {

@@ -37,6 +37,11 @@ public abstract class FutureContribution<T> implements FutureCallback<T> {
 
     private final BasicFuture<?> future;
 
+    /**
+     * Constructs a new instance to callback the given {@link BasicFuture}.
+     *
+     * @param future The callback.
+     */
     public FutureContribution(final BasicFuture<?> future) {
         this.future = future;
     }

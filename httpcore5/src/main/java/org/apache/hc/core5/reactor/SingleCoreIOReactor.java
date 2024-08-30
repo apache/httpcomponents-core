@@ -82,7 +82,7 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         this.ioSessionDecorator = ioSessionDecorator;
         this.sessionListener = sessionListener;
         this.sessionShutdownCallback = sessionShutdownCallback;
-        this.shutdownInitiated = new AtomicBoolean(false);
+        this.shutdownInitiated = new AtomicBoolean();
         this.closedSessions = new ConcurrentLinkedQueue<>();
         this.channelQueue = new ConcurrentLinkedQueue<>();
         this.requestQueue = new ConcurrentLinkedQueue<>();

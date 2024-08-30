@@ -76,7 +76,7 @@ class RequestListener implements Runnable {
         this.sslSetupHandler = sslSetupHandler;
         this.exceptionListener = exceptionListener;
         this.executorService = executorService;
-        this.terminated = new AtomicBoolean(false);
+        this.terminated = new AtomicBoolean();
     }
 
     private HttpServerConnection createConnection(final Socket socket) throws IOException {

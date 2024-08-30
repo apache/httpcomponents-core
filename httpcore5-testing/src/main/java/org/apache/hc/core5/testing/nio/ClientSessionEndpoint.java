@@ -66,7 +66,7 @@ public final class ClientSessionEndpoint implements ModalCloseable {
     public ClientSessionEndpoint(final IOSession ioSession) {
         super();
         this.ioSession = ioSession;
-        this.closed = new AtomicBoolean(false);
+        this.closed = new AtomicBoolean();
     }
 
     public void execute(final Command command, final Command.Priority priority) {

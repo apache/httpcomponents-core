@@ -45,14 +45,14 @@ class TestIdentityOutputStream {
     void testBasics() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
-        final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);
+        try (OutputStream out = new IdentityOutputStream(outbuffer, outputStream)) {
 
-        final byte[] tmp = new byte[10];
-        out.write(tmp, 0, 10);
-        out.write(tmp);
-        out.write(1);
-        out.flush();
-        out.close();
+            final byte[] tmp = new byte[10];
+            out.write(tmp, 0, 10);
+            out.write(tmp);
+            out.write(1);
+            out.flush();
+        }
         final byte[] data = outputStream.toByteArray();
         Assertions.assertEquals(21, data.length);
     }
@@ -73,20 +73,20 @@ class TestIdentityOutputStream {
     void testBasicWrite() throws Exception {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         final SessionOutputBuffer outbuffer = new SessionOutputBufferImpl(16);
-        final OutputStream out = new IdentityOutputStream(outbuffer, outputStream);
-        out.write(new byte[] {'a', 'b'}, 0, 2);
-        out.write('c');
-        out.flush();
+        try (OutputStream out = new IdentityOutputStream(outbuffer, outputStream)) {
+            out.write(new byte[] { 'a', 'b' }, 0, 2);
+            out.write('c');
+            out.flush();
 
-        final byte[] input = outputStream.toByteArray();
+            final byte[] input = outputStream.toByteArray();
 
-        Assertions.assertNotNull(input);
-        final byte[] expected = new byte[] {'a', 'b', 'c'};
-        Assertions.assertEquals(expected.length, input.length);
-        for (int i = 0; i < expected.length; i++) {
-            Assertions.assertEquals(expected[i], input[i]);
+            Assertions.assertNotNull(input);
+            final byte[] expected = new byte[] { 'a', 'b', 'c' };
+            Assertions.assertEquals(expected.length, input.length);
+            for (int i = 0; i < expected.length; i++) {
+                Assertions.assertEquals(expected[i], input[i]);
+            }
         }
-        out.close();
     }
 
     @Test

@@ -24,58 +24,44 @@
  * <http://www.apache.org/>.
  *
  */
+package org.apache.hc.core5.concurrent;
 
-package org.apache.hc.core5.reactor;
+/**
+ * Provides an extensible default adatper for {@link FutureCallback} implementation.
+ *
+ * @param <T> the future result type consumed by this callback.
+ */
+public class FutureCallbackAdapter<T> implements FutureCallback<T> {
 
-import java.io.IOException;
-import java.net.SocketAddress;
-import java.nio.channels.SelectionKey;
-import java.util.concurrent.atomic.AtomicBoolean;
+    /**
+     * The singleton instance.
+     */
+    private static final FutureCallbackAdapter<?> INSTANCE = new FutureCallbackAdapter<>();
 
-import org.apache.hc.core5.io.CloseMode;
-import org.apache.hc.core5.io.Closer;
-
-class ListenerEndpointImpl implements ListenerEndpoint {
-
-    private final SelectionKey key;
-    final SocketAddress address;
-    final Object attachment;
-    private final AtomicBoolean closed;
-
-    public ListenerEndpointImpl(final SelectionKey key, final Object attachment, final SocketAddress address) {
-        super();
-        this.key = key;
-        this.address = address;
-        this.attachment = attachment;
-        this.closed = new AtomicBoolean();
+    /**
+     * Get the singleton instance typed as {@code T}.
+     *
+     * @param <T> the future result type consumed by this callback.
+     * @return The singleton instance.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> FutureCallbackAdapter<T> getInstance() {
+        return (FutureCallbackAdapter<T>) INSTANCE;
     }
 
     @Override
-    public SocketAddress getAddress() {
-        return this.address;
+    public void cancelled() {
+        // noop
     }
 
     @Override
-    public String toString() {
-        return "endpoint: " + address;
+    public void completed(final T result) {
+        // noop
     }
 
     @Override
-    public boolean isClosed() {
-        return this.closed.get();
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (closed.compareAndSet(false, true)) {
-            key.cancel();
-            key.channel().close();
-        }
-    }
-
-    @Override
-    public void close(final CloseMode closeMode) {
-        Closer.closeQuietly(this);
+    public void failed(final Exception ex) {
+        // noop
     }
 
 }

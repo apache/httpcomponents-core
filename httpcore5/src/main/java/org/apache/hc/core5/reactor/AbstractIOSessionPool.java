@@ -64,7 +64,7 @@ public abstract class AbstractIOSessionPool<T> implements ModalCloseable {
     public AbstractIOSessionPool() {
         super();
         this.sessionPool = new ConcurrentHashMap<>();
-        this.closed = new AtomicBoolean(false);
+        this.closed = new AtomicBoolean();
         this.lock = new ReentrantLock();
     }
 

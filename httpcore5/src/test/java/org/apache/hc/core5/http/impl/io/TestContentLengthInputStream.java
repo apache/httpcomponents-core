@@ -46,64 +46,64 @@ class TestContentLengthInputStream {
         final String s = "1234567890123456";
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(s.getBytes(StandardCharsets.US_ASCII));
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
-        final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 10L);
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 10L)) {
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        final byte[] buffer = new byte[50];
-        int len = in.read(buffer, 0, 2);
-        outputStream.write(buffer, 0, len);
-        len = in.read(buffer);
-        outputStream.write(buffer, 0, len);
+            final byte[] buffer = new byte[50];
+            int len = in.read(buffer, 0, 2);
+            outputStream.write(buffer, 0, len);
+            len = in.read(buffer);
+            outputStream.write(buffer, 0, len);
 
-        final String result = new String(outputStream.toByteArray(), StandardCharsets.US_ASCII);
-        Assertions.assertEquals("1234567890", result);
-        in.close();
+            final String result = new String(outputStream.toByteArray(), StandardCharsets.US_ASCII);
+            Assertions.assertEquals("1234567890", result);
+        }
     }
 
     @Test
     void testSkip() throws IOException {
         final ByteArrayInputStream inputStream1 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inBuffer1 = new SessionInputBufferImpl(16);
-        final InputStream in1 = new ContentLengthInputStream(inBuffer1, inputStream1, 10L);
-        Assertions.assertEquals(10, in1.skip(10));
-        Assertions.assertEquals(-1, in1.read());
-        in1.close();
+        try (InputStream in1 = new ContentLengthInputStream(inBuffer1, inputStream1, 10L)) {
+            Assertions.assertEquals(10, in1.skip(10));
+            Assertions.assertEquals(-1, in1.read());
+        }
 
         final ByteArrayInputStream inputStream2 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inBuffer2 = new SessionInputBufferImpl(16);
-        final InputStream in2 = new ContentLengthInputStream(inBuffer2, inputStream2, 10L);
-        in2.read();
-        Assertions.assertEquals(9, in2.skip(10));
-        Assertions.assertEquals(-1, in2.read());
-        in2.close();
+        try (InputStream in2 = new ContentLengthInputStream(inBuffer2, inputStream2, 10L)) {
+            in2.read();
+            Assertions.assertEquals(9, in2.skip(10));
+            Assertions.assertEquals(-1, in2.read());
+        }
 
         final ByteArrayInputStream inputStream3 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inBuffer3 = new SessionInputBufferImpl(16);
-        final InputStream in3 = new ContentLengthInputStream(inBuffer3, inputStream3, 2L);
-        in3.read();
-        in3.read();
-        Assertions.assertTrue(in3.skip(10) <= 0);
-        Assertions.assertEquals(0, in3.skip(-1));
-        Assertions.assertEquals(-1, in3.read());
-        in3.close();
+        try (InputStream in3 = new ContentLengthInputStream(inBuffer3, inputStream3, 2L)) {
+            in3.read();
+            in3.read();
+            Assertions.assertTrue(in3.skip(10) <= 0);
+            Assertions.assertEquals(0, in3.skip(-1));
+            Assertions.assertEquals(-1, in3.read());
+        }
 
         final ByteArrayInputStream inputStream4 = new ByteArrayInputStream(new byte[20]);
         final SessionInputBuffer inBuffer4 = new SessionInputBufferImpl(16);
-        final InputStream in4 = new ContentLengthInputStream(inBuffer4, inputStream4, 10L);
-        Assertions.assertEquals(5,in4.skip(5));
-        Assertions.assertEquals(5, in4.read(new byte[20]));
-        in4.close();
+        try (InputStream in4 = new ContentLengthInputStream(inBuffer4, inputStream4, 10L)) {
+            Assertions.assertEquals(5, in4.skip(5));
+            Assertions.assertEquals(5, in4.read(new byte[20]));
+        }
     }
 
     @Test
     void testAvailable() throws IOException {
         final ByteArrayInputStream inputStream = new ByteArrayInputStream(new byte[] {1, 2, 3});
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16);
-        final InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 3L);
-        Assertions.assertEquals(0, in.available());
-        in.read();
-        Assertions.assertEquals(2, in.available());
-        in.close();
+        try (InputStream in = new ContentLengthInputStream(inBuffer, inputStream, 3L)) {
+            Assertions.assertEquals(0, in.available());
+            in.read();
+            Assertions.assertEquals(2, in.available());
+        }
     }
 
     @Test

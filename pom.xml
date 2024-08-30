@@ -107,6 +107,12 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.httpcomponents.core5</groupId>
+        <artifactId>httpcore5</artifactId>
+        <classifier>tests</classifier>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.conscrypt</groupId>
         <artifactId>conscrypt-openjdk-uber</artifactId>
         <version>${conscrypt.version}</version>

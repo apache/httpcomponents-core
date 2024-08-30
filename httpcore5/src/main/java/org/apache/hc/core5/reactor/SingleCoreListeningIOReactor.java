@@ -68,7 +68,7 @@ class SingleCoreListeningIOReactor extends AbstractSingleCoreIOReactor implement
         this.callback = callback;
         this.requestQueue = new ConcurrentLinkedQueue<>();
         this.endpoints = new ConcurrentHashMap<>();
-        this.paused = new AtomicBoolean(false);
+        this.paused = new AtomicBoolean();
         this.selectTimeoutMillis = this.reactorConfig.getSelectInterval().toMilliseconds();
     }
 

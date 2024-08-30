@@ -28,11 +28,10 @@
 package org.apache.hc.core5.testing.nio;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.CountDownLatchFutureCallback;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.URIScheme;
@@ -113,29 +112,18 @@ class H2ConnPoolTest {
 
         final H2MultiplexingRequester requester = clientResource.start();
         final H2ConnPool connPool = requester.getConnPool();
-        final CountDownLatch latch = new CountDownLatch(n);
+        final CountDownLatchFutureCallback<IOSession> latch = new CountDownLatchFutureCallback<IOSession>(n) {
+
+            @Override
+            public void completed(final IOSession session) {
+                session.enqueue(new PingCommand(new BasicPingHandler(
+                        result -> countDown()
+                        )), Command.Priority.IMMEDIATE);
+            }
+
+        };
         for (int i = 0; i < n; i++) {
-            connPool.getSession(target, TIMEOUT, new FutureCallback<IOSession>() {
-
-                @Override
-                public void completed(final IOSession session) {
-                    session.enqueue(new PingCommand(new BasicPingHandler(
-                            result -> {
-                                latch.countDown();
-                            })), Command.Priority.IMMEDIATE);
-                }
-
-                @Override
-                public void failed(final Exception ex) {
-                    latch.countDown();
-                }
-
-                @Override
-                public void cancelled() {
-                    latch.countDown();
-                }
-
-            });
+            connPool.getSession(target, TIMEOUT, latch);
         }
         Assertions.assertTrue(latch.await(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit()));
 
@@ -153,27 +141,10 @@ class H2ConnPoolTest {
 
         final H2MultiplexingRequester requester = clientResource.start();
         final H2ConnPool connPool = requester.getConnPool();
-        final CountDownLatch latch = new CountDownLatch(n);
+        final CountDownLatchFutureCallback<IOSession> latch = new CountDownLatchFutureCallback<>(n);
 
         for (int i = 0; i < n; i++) {
-            connPool.getSession(target, TIMEOUT, new FutureCallback<IOSession>() {
-
-                @Override
-                public void completed(final IOSession session) {
-                    latch.countDown();
-                }
-
-                @Override
-                public void failed(final Exception ex) {
-                    latch.countDown();
-                }
-
-                @Override
-                public void cancelled() {
-                    latch.countDown();
-                }
-
-            });
+            connPool.getSession(target, TIMEOUT, latch);
         }
 
         requester.initiateShutdown();

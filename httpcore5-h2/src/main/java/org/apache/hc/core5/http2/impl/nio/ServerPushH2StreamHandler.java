@@ -105,9 +105,9 @@ class ServerPushH2StreamHandler implements H2StreamHandler {
         this.connMetrics = connMetrics;
         this.pushProducer = pushProducer;
         this.context = context;
-        this.responseCommitted = new AtomicBoolean(false);
-        this.failed = new AtomicBoolean(false);
-        this.done = new AtomicBoolean(false);
+        this.responseCommitted = new AtomicBoolean();
+        this.failed = new AtomicBoolean();
+        this.done = new AtomicBoolean();
         this.requestState = MessageState.COMPLETE;
         this.responseState = MessageState.IDLE;
     }

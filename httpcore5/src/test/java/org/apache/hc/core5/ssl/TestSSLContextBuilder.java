@@ -463,9 +463,8 @@ class TestSSLContextBuilder {
 
         this.executorService = Executors.newSingleThreadExecutor();
         final Future<Principal> future = this.executorService.submit(() -> {
-            final SSLSocket socket = (SSLSocket) serverSocket.accept();
             Principal clientPrincipal = null;
-            try {
+            try (SSLSocket socket = (SSLSocket) serverSocket.accept()) {
                 final SSLSession session = socket.getSession();
                 try {
                     clientPrincipal = session.getPeerPrincipal();
@@ -474,8 +473,6 @@ class TestSSLContextBuilder {
                 final OutputStream outputStream = socket.getOutputStream();
                 outputStream.write(new byte [] {'H', 'i'});
                 outputStream.flush();
-            } finally {
-                socket.close();
             }
             return clientPrincipal;
         });

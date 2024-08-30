@@ -49,6 +49,7 @@ import org.apache.hc.core5.reactor.ProtocolIOSession;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -139,9 +140,9 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertThrows(H2ConnectionException.class, () ->
                 streamMultiplexer.onInput(ByteBuffer.wrap(bytes)));
         Mockito.verify(h2StreamListener).onFrameInput(
-                Mockito.same(streamMultiplexer),
-                Mockito.eq(1),
-                Mockito.any());
+                ArgumentMatchers.same(streamMultiplexer),
+                ArgumentMatchers.eq(1),
+                ArgumentMatchers.any());
 
         Assertions.assertThrows(H2ConnectionException.class, () -> {
             int pos = 0;
@@ -154,9 +155,9 @@ class TestAbstractH2StreamMultiplexer {
             }
 
             Mockito.verify(h2StreamListener).onFrameInput(
-                    Mockito.same(streamMultiplexer),
-                    Mockito.eq(1),
-                    Mockito.any());
+                    ArgumentMatchers.same(streamMultiplexer),
+                    ArgumentMatchers.eq(1),
+                    ArgumentMatchers.any());
         });
     }
 
@@ -190,9 +191,9 @@ class TestAbstractH2StreamMultiplexer {
         Assertions.assertThrows(H2ConnectionException.class, () ->
                 streamMultiplexer.onInput(ByteBuffer.wrap(bytes)));
         Mockito.verify(h2StreamListener).onFrameInput(
-                Mockito.same(streamMultiplexer),
-                Mockito.eq(1),
-                Mockito.any());
+                ArgumentMatchers.same(streamMultiplexer),
+                ArgumentMatchers.eq(1),
+                ArgumentMatchers.any());
 
         Assertions.assertThrows(H2ConnectionException.class, () -> {
             int pos = 0;
@@ -205,9 +206,9 @@ class TestAbstractH2StreamMultiplexer {
             }
 
             Mockito.verify(h2StreamListener).onFrameInput(
-                    Mockito.same(streamMultiplexer),
-                    Mockito.eq(1),
-                    Mockito.any());
+                    ArgumentMatchers.same(streamMultiplexer),
+                    ArgumentMatchers.eq(1),
+                    ArgumentMatchers.any());
         });
     }
 

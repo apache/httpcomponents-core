@@ -110,9 +110,9 @@ class TestURIAuthority {
     void testSerialization() throws Exception {
         final URIAuthority orig = new URIAuthority("somehost", 8080);
         final ByteArrayOutputStream outbuffer = new ByteArrayOutputStream();
-        final ObjectOutputStream outStream = new ObjectOutputStream(outbuffer);
-        outStream.writeObject(orig);
-        outStream.close();
+        try (ObjectOutputStream outStream = new ObjectOutputStream(outbuffer)) {
+            outStream.writeObject(orig);
+        }
         final byte[] raw = outbuffer.toByteArray();
         final ByteArrayInputStream inBuffer = new ByteArrayInputStream(raw);
         final ObjectInputStream inStream = new ObjectInputStream(inBuffer);

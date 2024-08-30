@@ -31,9 +31,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicLong;
 
-import org.apache.hc.core5.concurrent.FutureCallback;
+import org.apache.hc.core5.concurrent.CountingFutureCallback;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpException;
 import org.apache.hc.core5.http.impl.BasicEntityDetails;
@@ -81,28 +80,9 @@ class TestAbstractCharAsyncEntityConsumer {
 
     @Test
     void testConsumeData() throws Exception {
-
         final AsyncEntityConsumer<String> consumer = new StringBuilderAsyncEntityConsumer();
-
-        final AtomicLong count = new AtomicLong(0);
-        consumer.streamStart(new BasicEntityDetails(-1, ContentType.TEXT_PLAIN), new FutureCallback<String>() {
-
-            @Override
-            public void completed(final String result) {
-                count.incrementAndGet();
-            }
-
-            @Override
-            public void failed(final Exception ex) {
-                count.incrementAndGet();
-            }
-
-            @Override
-            public void cancelled() {
-                count.incrementAndGet();
-            }
-
-        });
+        final CountingFutureCallback<String> countingCallback = new CountingFutureCallback<>();
+        consumer.streamStart(new BasicEntityDetails(-1, ContentType.TEXT_PLAIN), countingCallback);
 
         consumer.consume(ByteBuffer.wrap(new byte[]{'1', '2', '3'}));
         consumer.consume(ByteBuffer.wrap(new byte[]{'4', '5'}));
@@ -112,7 +92,7 @@ class TestAbstractCharAsyncEntityConsumer {
         consumer.streamEnd(null);
 
         Assertions.assertEquals("12345", consumer.getContent());
-        Assertions.assertEquals(1L, count.longValue());
+        Assertions.assertEquals(1L, countingCallback.getCount());
     }
 
     @Test
@@ -120,25 +100,8 @@ class TestAbstractCharAsyncEntityConsumer {
 
         final AsyncEntityConsumer<String> consumer = new StringBuilderAsyncEntityConsumer();
 
-        final AtomicLong count = new AtomicLong(0);
-        consumer.streamStart(new BasicEntityDetails(-1, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8)), new FutureCallback<String>() {
-
-            @Override
-            public void completed(final String result) {
-                count.incrementAndGet();
-            }
-
-            @Override
-            public void failed(final Exception ex) {
-                count.incrementAndGet();
-            }
-
-            @Override
-            public void cancelled() {
-                count.incrementAndGet();
-            }
-
-        });
+        final CountingFutureCallback<String> countingCallback = new CountingFutureCallback<>();
+        consumer.streamStart(new BasicEntityDetails(-1, ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8)), countingCallback);
 
         final byte[] stuff = "stuff".getBytes(StandardCharsets.UTF_8);
         final byte[] splitCharacter = "£".getBytes(StandardCharsets.UTF_8);
@@ -162,7 +125,7 @@ class TestAbstractCharAsyncEntityConsumer {
         consumer.streamEnd(null);
 
         Assertions.assertEquals("stuff£stuff£stuff", consumer.getContent());
-        Assertions.assertEquals(1L, count.longValue());
+        Assertions.assertEquals(1L, countingCallback.getCount());
     }
 
 }

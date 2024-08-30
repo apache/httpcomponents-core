@@ -211,7 +211,7 @@ abstract class ReactiveClientTest {
     void testRequestTimeout() throws Exception {
         final InetSocketAddress address = startServer();
         final HttpAsyncRequester requester = clientResource.start();
-        final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean(false);
+        final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean();
         final Publisher<ByteBuffer> publisher = Flowable.<ByteBuffer>never()
                 .doOnCancel(() -> requestPublisherWasCancelled.set(true));
         final ReactiveEntityProducer producer = new ReactiveEntityProducer(publisher, -1, null, null);
@@ -237,7 +237,7 @@ abstract class ReactiveClientTest {
     void testResponseCancellation() throws Exception {
         final InetSocketAddress address = startServer();
         final HttpAsyncRequester requester = clientResource.start();
-        final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean(false);
+        final AtomicBoolean requestPublisherWasCancelled = new AtomicBoolean();
         final AtomicReference<Throwable> requestStreamError = new AtomicReference<>();
         final Publisher<ByteBuffer> stream = Reactive3TestUtils.produceStream(Long.MAX_VALUE, 1024, null)
                 .doOnCancel(() -> requestPublisherWasCancelled.set(true))
@@ -250,7 +250,7 @@ abstract class ReactiveClientTest {
         final Message<HttpResponse, Publisher<ByteBuffer>> response = consumer.getResponseFuture()
                 .get(RESULT_TIMEOUT.getDuration(), RESULT_TIMEOUT.getTimeUnit());
 
-        final AtomicBoolean responsePublisherWasCancelled = new AtomicBoolean(false);
+        final AtomicBoolean responsePublisherWasCancelled = new AtomicBoolean();
         final List<ByteBuffer> outputBuffers = Flowable.fromPublisher(response.getBody())
                 .doOnCancel(() -> responsePublisherWasCancelled.set(true))
                 .take(3)
