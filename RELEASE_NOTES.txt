@@ -1,9 +1,8 @@
-Release 5.3 BETA1
+Release 5.3
 ------------------
 
-This is the first BETA release in the 5.3 release series. It features a re-designed
-classic (blocking) TLS session management and server-side request routing APIs.
-It is likely to be the last BETA release in the 5.3 release series.
+This is the first GA release in the 5.3 release series. This release finalizes the 5.3 APIs
+and improves integration test configuration APIs along with many test code improvements.
 
 
 Notable changes and features included in the 5.3 series:
@@ -14,13 +13,41 @@ Notable changes and features included in the 5.3 series:
 
 * Compatibility with Java Virtual Threads and Java 21 Runtime.
 
-* Message parsing API improvements and performance optimization
+* Message parsing API improvements and performance optimization.
 
 * TLS client endpoints to make use of JSSE Endpoint Identification by default.
 
 * Redesign of server-side request routing API.
 
 * Redesign of TLS session handling by classic (blocking) connections.
+
+
+Change Log
+-------------------
+
+* Improved Javadoc.
+  Contributed by Gary Gregory <ggregory at apache.org>
+
+* HTTPCORE-761: Support ExtendedSocketOption (#473).
+  Contributed by kkewwei <kewei.11 at bytedance.com>
+
+* Attempt to shut down the connection gracefully in case of a TLS handshake exception.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+* Test classes and methods should have default package visibility.
+  Contributed by strangelookingnerd <49242855+strangelookingnerd at users.noreply.github.com>
+
+* Simplified configuration API of test servers and clients.
+  Contributed by Oleg Kalnichevski <olegk at apache.org>
+
+
+
+Release 5.3 BETA1
+------------------
+
+This is the first BETA release in the 5.3 release series. It features a re-designed
+classic (blocking) TLS session management and server-side request routing APIs.
+It is likely to be the last BETA release in the 5.3 release series.
 
 
 Change Log
