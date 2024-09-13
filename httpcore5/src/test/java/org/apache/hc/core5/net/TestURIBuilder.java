@@ -973,4 +973,30 @@ class TestURIBuilder {
                 .setFragment("fragment");
         Assertions.assertThrows(URISyntaxException.class, uribuilder::build);
     }
+
+    @Test
+    void testSetPlusAsBlank() throws Exception {
+        // Case 1: Plus as blank, "+" should be treated as space
+        URIBuilder uriBuilder = new URIBuilder("http://localhost?param=hello+world")
+                .setPlusAsBlank(true);
+        List<NameValuePair> params = uriBuilder.getQueryParams();
+        Assertions.assertEquals("hello world", params.get(0).getValue());
+
+        // Case 2: Plus as plus, "+" should remain "+"
+        uriBuilder = new URIBuilder("http://localhost?param=hello+world")
+                .setPlusAsBlank(false);
+        params = uriBuilder.getQueryParams();
+        Assertions.assertEquals("hello+world", params.get(0).getValue());
+
+        // Case 3: '%20' always interpreted as space
+        uriBuilder = new URIBuilder("http://localhost?param=hello%20world")
+                .setPlusAsBlank(true);
+        params = uriBuilder.getQueryParams();
+        Assertions.assertEquals("hello world", params.get(0).getValue());
+
+        uriBuilder = new URIBuilder("http://localhost?param=hello%20world")
+                .setPlusAsBlank(false);
+        params = uriBuilder.getQueryParams();
+        Assertions.assertEquals("hello world", params.get(0).getValue());
+    }
 }

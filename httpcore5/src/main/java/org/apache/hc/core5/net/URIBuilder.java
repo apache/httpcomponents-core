@@ -88,6 +88,8 @@ public class URIBuilder {
     private String fragment;
     private String encodedFragment;
 
+    private boolean plusAsBlank;
+
     /**
      * Constructs an empty instance.
      */
@@ -190,6 +192,33 @@ public class URIBuilder {
      */
     public Charset getCharset() {
         return charset;
+    }
+
+    /**
+     * Sets whether the plus sign ('+') should be interpreted as a blank space (' ') when parsing
+     * the query parameters of the URI.
+     * <p>
+     * In HTTP URLs, query strings may contain spaces encoded as '+' characters or as '%20'.
+     * This flag controls whether '+' is interpreted as a space or remains as a plus sign.
+     * </p>
+     *
+     * <p>
+     * If the query string was already set, calling this method will re-parse the query
+     * using the updated flag. This ensures that the query parameters are processed correctly
+     * based on the specified interpretation of the '+' character.
+     * </p>
+     *
+     * @param plusAsBlank {@code true} to interpret '+' as a space, {@code false} to keep '+' as a literal plus sign.
+     * @return this {@link URIBuilder} instance for method chaining.
+     * @since 5.4
+     */
+    public URIBuilder setPlusAsBlank(final boolean plusAsBlank) {
+        this.plusAsBlank = plusAsBlank;
+        // Re-parse the query string using the updated flag
+        if (this.encodedQuery != null) {
+            this.queryParams = parseQuery(this.encodedQuery, this.charset, this.plusAsBlank);
+        }
+        return this;
     }
 
     private static final char QUERY_PARAM_SEPARATOR = '&';
@@ -402,7 +431,7 @@ public class URIBuilder {
         this.pathSegments = parsePath(uri.getRawPath(), charset);
         this.pathRootless = uri.getRawPath() == null || !uri.getRawPath().startsWith("/");
         this.encodedQuery = uri.getRawQuery();
-        this.queryParams = parseQuery(uri.getRawQuery(), charset, false);
+        this.queryParams = parseQuery(uri.getRawQuery(), charset, this.plusAsBlank);
         this.encodedFragment = uri.getRawFragment();
         this.fragment = uri.getFragment();
         this.charset = charset;
