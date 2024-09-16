@@ -254,14 +254,16 @@ class TestHPackCoding {
     };
 
     private static String constructHelloString(final int[] raw, final int n) {
+        final StringBuilder str = new StringBuilder(raw.length);
+        for (final int element : raw) {
+            str.append((char) element);
+        }
         final StringBuilder buffer = new StringBuilder();
         for (int j = 0; j < n; j++) {
             if (j > 0) {
                 buffer.append("; ");
             }
-            for (int i = 0; i < raw.length; i++) {
-                buffer.append((char) raw[i]);
-            }
+            buffer.append(str);
         }
         return buffer.toString();
     }

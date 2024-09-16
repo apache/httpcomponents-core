@@ -63,7 +63,6 @@ import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.AfterEachCallback;
-import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 class ClassicTLSIntegrationTest {
@@ -73,35 +72,25 @@ class ClassicTLSIntegrationTest {
     private HttpServer server;
 
     @RegisterExtension
-    public final AfterEachCallback serverCleanup = new AfterEachCallback() {
-
-        @Override
-        public void afterEach(final ExtensionContext context) throws Exception {
-            if (server != null) {
-                try {
-                    server.close(CloseMode.IMMEDIATE);
-                } catch (final Exception ignore) {
-                }
+    public final AfterEachCallback serverCleanup = context -> {
+        if (server != null) {
+            try {
+                server.close(CloseMode.IMMEDIATE);
+            } catch (final Exception ignore) {
             }
         }
-
     };
 
     private HttpRequester requester;
 
     @RegisterExtension
-    public final AfterEachCallback clientCleanup = new AfterEachCallback() {
-
-        @Override
-        public void afterEach(final ExtensionContext context) throws Exception {
-            if (requester != null) {
-                try {
-                    requester.close(CloseMode.GRACEFUL);
-                } catch (final Exception ignore) {
-                }
+    public final AfterEachCallback clientCleanup = context -> {
+        if (requester != null) {
+            try {
+                requester.close(CloseMode.GRACEFUL);
+            } catch (final Exception ignore) {
             }
         }
-
     };
 
     @Test

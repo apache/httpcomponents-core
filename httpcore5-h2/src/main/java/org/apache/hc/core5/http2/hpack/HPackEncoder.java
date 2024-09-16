@@ -243,8 +243,7 @@ public final class HPackEncoder {
         if (entries == null || entries.isEmpty()) {
             return 0;
         }
-        for (int i = 0; i < entries.size(); i++) {
-            final HPackEntry entry = entries.get(i);
+        for (final HPackEntry entry : entries) {
             if (Objects.equals(value, entry.getHeader().getValue())) {
                 return entry.getIndex();
             }
@@ -303,8 +302,8 @@ public final class HPackEncoder {
     void encodeHeaders(
             final ByteArrayBuffer dst, final List<? extends Header> headers,
             final boolean noIndexing, final boolean useHuffman) throws CharacterCodingException {
-        for (int i = 0; i < headers.size(); i++) {
-            encodeHeader(dst, headers.get(i), noIndexing, useHuffman);
+        for (final Header header : headers) {
+            encodeHeader(dst, header, noIndexing, useHuffman);
         }
     }
 

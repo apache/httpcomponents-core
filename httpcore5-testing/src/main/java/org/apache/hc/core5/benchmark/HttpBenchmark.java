@@ -33,6 +33,7 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.ByteChannel;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -456,28 +457,25 @@ public class HttpBenchmark {
         final HttpVersion version = HttpVersion.HTTP_1_1;
 
         final CountDownLatch completionLatch = new CountDownLatch(config.getConcurrencyLevel());
-        final BenchmarkWorker[] workers = new BenchmarkWorker[config.getConcurrencyLevel()];
-        for (int i = 0; i < workers.length; i++) {
+        final List<BenchmarkWorker> workers = new ArrayList<>(config.getConcurrencyLevel());
+        for (int i = 0; i < config.getConcurrencyLevel(); i++) {
             final HttpCoreContext context = HttpCoreContext.create();
             context.setProtocolVersion(version);
-            final BenchmarkWorker worker = new BenchmarkWorker(
+            workers.add(new BenchmarkWorker(
                     requester,
                     host,
                     context,
                     requestCount,
                     completionLatch,
                     stats,
-                    config);
-            workers[i] = worker;
+                    config));
         }
 
         final long deadline = config.getTimeLimit() != null ? config.getTimeLimit().toMilliseconds() : Long.MAX_VALUE;
 
         final long startTime = System.currentTimeMillis();
 
-        for (int i = 0; i < workers.length; i++) {
-            workers[i].execute();
-        }
+        workers.forEach(BenchmarkWorker::execute);
 
         completionLatch.await(deadline, TimeUnit.MILLISECONDS);
 
@@ -487,9 +485,7 @@ public class HttpBenchmark {
 
         final long endTime = System.currentTimeMillis();
 
-        for (int i = 0; i < workers.length; i++) {
-            workers[i].releaseResources();
-        }
+        workers.forEach(BenchmarkWorker::releaseResources);
 
         return new Results(
                 stats.getServerName(),

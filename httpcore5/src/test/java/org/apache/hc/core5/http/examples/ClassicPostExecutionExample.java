@@ -105,12 +105,12 @@ public class ClassicPostExecutionExample {
         };
 
         final String requestUri = "/post";
-        for (int i = 0; i < requestBodies.length; i++) {
+        for (final HttpEntity element : requestBodies) {
             final ClassicHttpRequest request = ClassicRequestBuilder.get()
                     .setHttpHost(target)
                     .setPath(requestUri)
                     .build();
-            request.setEntity(requestBodies[i]);
+            request.setEntity(element);
             try (ClassicHttpResponse response = httpRequester.execute(target, request, Timeout.ofSeconds(5), context)) {
                 System.out.println(requestUri + "->" + response.getCode());
                 System.out.println(EntityUtils.toString(response.getEntity()));

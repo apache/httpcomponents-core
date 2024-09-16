@@ -59,7 +59,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.EndpointDetails;
 import org.apache.hc.core5.http.EntityDetails;
@@ -584,47 +583,40 @@ abstract class H2IntegrationTest {
         final H2TestClient client = resources.client();
 
         final BlockingQueue<Exception> pushResultQueue = new LinkedBlockingDeque<>();
-        server.register("/hello", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("/hello", () -> new MessageExchangeHandler<Void>(new DiscardingEntityConsumer<>()) {
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new MessageExchangeHandler<Void>(new DiscardingEntityConsumer<>()) {
+            protected void handle(
+                    final Message<HttpRequest, Void> request,
+                    final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
+                    final HttpContext context) throws IOException, HttpException {
+
+                responseTrigger.pushPromise(
+                        new BasicHttpRequest(Method.GET, new HttpHost(scheme.id, "localhost"), "/stuff"),
+                        context, new BasicPushProducer(AsyncEntityProducers.create("Pushing all sorts of stuff")) {
 
                     @Override
-                    protected void handle(
-                            final Message<HttpRequest, Void> request,
-                            final AsyncServerRequestHandler.ResponseTrigger responseTrigger,
-                            final HttpContext context) throws IOException, HttpException {
-
-                        responseTrigger.pushPromise(
-                                new BasicHttpRequest(Method.GET, new HttpHost(scheme.id, "localhost"), "/stuff"),
-                                context, new BasicPushProducer(AsyncEntityProducers.create("Pushing all sorts of stuff")) {
-
-                            @Override
-                            public void failed(final Exception cause) {
-                                pushResultQueue.add(cause);
-                                super.failed(cause);
-                            }
-
-                        });
-                        responseTrigger.pushPromise(
-                                new BasicHttpRequest(Method.GET, new HttpHost(scheme.id, "localhost"), "/more-stuff"),
-                                context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)) {
-
-                            @Override
-                            public void failed(final Exception cause) {
-                                pushResultQueue.add(cause);
-                                super.failed(cause);
-                            }
-
-                        });
-                        responseTrigger.submitResponse(
-                                new BasicResponseProducer(HttpStatus.SC_OK, AsyncEntityProducers.create("Hi there")),
-                                context);
+                    public void failed(final Exception cause) {
+                        pushResultQueue.add(cause);
+                        super.failed(cause);
                     }
-                };
-            }
 
+                });
+                responseTrigger.pushPromise(
+                        new BasicHttpRequest(Method.GET, new HttpHost(scheme.id, "localhost"), "/more-stuff"),
+                        context, new BasicPushProducer(new MultiLineEntityProducer("Pushing lots of stuff", 500)) {
+
+                    @Override
+                    public void failed(final Exception cause) {
+                        pushResultQueue.add(cause);
+                        super.failed(cause);
+                    }
+
+                });
+                responseTrigger.submitResponse(
+                        new BasicResponseProducer(HttpStatus.SC_OK, AsyncEntityProducers.create("Hi there")),
+                        context);
+            }
         });
         final InetSocketAddress serverEndpoint = server.start();
 
@@ -773,66 +765,59 @@ abstract class H2IntegrationTest {
         final H2TestServer server = resources.server();
         final H2TestClient client = resources.client();
 
-        server.register("*", new Supplier<AsyncServerExchangeHandler>() {
+        server.register("*", () -> new AsyncServerExchangeHandler() {
+
+            private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>();
 
             @Override
-            public AsyncServerExchangeHandler get() {
-                return new AsyncServerExchangeHandler() {
-
-                    private final AtomicReference<AsyncResponseProducer> responseProducer = new AtomicReference<>();
-
-                    @Override
-                    public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
-                        capacityChannel.update(Integer.MAX_VALUE);
-                    }
-
-                    @Override
-                    public void consume(final ByteBuffer src) throws IOException {
-                    }
-
-                    @Override
-                    public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
-                    }
-
-                    @Override
-                    public void handleRequest(
-                            final HttpRequest request,
-                            final EntityDetails entityDetails,
-                            final ResponseChannel responseChannel,
-                            final HttpContext context) throws HttpException, IOException {
-                        final AsyncResponseProducer producer;
-                        final Header h = request.getFirstHeader("password");
-                        if (h != null && "secret".equals(h.getValue())) {
-                            producer = new BasicResponseProducer(HttpStatus.SC_OK, "All is well");
-                        } else {
-                            producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
-                        }
-                        responseProducer.set(producer);
-                        producer.sendResponse(responseChannel, context);
-                    }
-
-                    @Override
-                    public int available() {
-                        final AsyncResponseProducer producer = this.responseProducer.get();
-                        return producer.available();
-                    }
-
-                    @Override
-                    public void produce(final DataStreamChannel channel) throws IOException {
-                        final AsyncResponseProducer producer = this.responseProducer.get();
-                        producer.produce(channel);
-                    }
-
-                    @Override
-                    public void failed(final Exception cause) {
-                    }
-
-                    @Override
-                    public void releaseResources() {
-                    }
-                };
+            public void updateCapacity(final CapacityChannel capacityChannel) throws IOException {
+                capacityChannel.update(Integer.MAX_VALUE);
             }
 
+            @Override
+            public void consume(final ByteBuffer src) throws IOException {
+            }
+
+            @Override
+            public void streamEnd(final List<? extends Header> trailers) throws HttpException, IOException {
+            }
+
+            @Override
+            public void handleRequest(
+                    final HttpRequest request,
+                    final EntityDetails entityDetails,
+                    final ResponseChannel responseChannel,
+                    final HttpContext context) throws HttpException, IOException {
+                final AsyncResponseProducer producer;
+                final Header h = request.getFirstHeader("password");
+                if (h != null && "secret".equals(h.getValue())) {
+                    producer = new BasicResponseProducer(HttpStatus.SC_OK, "All is well");
+                } else {
+                    producer = new BasicResponseProducer(HttpStatus.SC_UNAUTHORIZED, "You shall not pass");
+                }
+                responseProducer.set(producer);
+                producer.sendResponse(responseChannel, context);
+            }
+
+            @Override
+            public int available() {
+                final AsyncResponseProducer producer = this.responseProducer.get();
+                return producer.available();
+            }
+
+            @Override
+            public void produce(final DataStreamChannel channel) throws IOException {
+                final AsyncResponseProducer producer = this.responseProducer.get();
+                producer.produce(channel);
+            }
+
+            @Override
+            public void failed(final Exception cause) {
+            }
+
+            @Override
+            public void releaseResources() {
+            }
         });
         final InetSocketAddress serverEndpoint = server.start();
 

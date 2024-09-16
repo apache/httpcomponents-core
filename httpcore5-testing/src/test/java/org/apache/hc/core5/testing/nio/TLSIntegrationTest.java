@@ -103,35 +103,25 @@ class TLSIntegrationTest {
     private HttpAsyncServer server;
 
     @RegisterExtension
-    public final AfterEachCallback serverCleanup = new AfterEachCallback() {
-
-        @Override
-        public void afterEach(final ExtensionContext context) throws Exception {
-            if (server != null) {
-                try {
-                    server.close(CloseMode.IMMEDIATE);
-                } catch (final Exception ignore) {
-                }
+    public final AfterEachCallback serverCleanup = context -> {
+        if (server != null) {
+            try {
+                server.close(CloseMode.IMMEDIATE);
+            } catch (final Exception ignore) {
             }
         }
-
     };
 
     private HttpAsyncRequester client;
 
     @RegisterExtension
-    public final AfterEachCallback clientCleanup = new AfterEachCallback() {
-
-        @Override
-        public void afterEach(final ExtensionContext context) throws Exception {
-            if (client != null) {
-                try {
-                    client.close(CloseMode.GRACEFUL);
-                } catch (final Exception ignore) {
-                }
+    public final AfterEachCallback clientCleanup = context -> {
+        if (client != null) {
+            try {
+                client.close(CloseMode.GRACEFUL);
+            } catch (final Exception ignore) {
             }
         }
-
     };
 
     HttpAsyncServer createServer(final TlsStrategy tlsStrategy) {

@@ -85,8 +85,8 @@ public class ServerH2PrefaceHandler extends PrefaceHandlerBase {
         }
         final ByteBuffer data = inBuf.data();
         if (data.remaining() >= PREFACE.length) {
-            for (int i = 0; i < PREFACE.length; i++) {
-                if (data.get() != PREFACE[i]) {
+            for (final byte element : PREFACE) {
+                if (data.get() != element) {
                     throw new ProtocolNegotiationException("Unexpected HTTP/2 preface");
                 }
             }

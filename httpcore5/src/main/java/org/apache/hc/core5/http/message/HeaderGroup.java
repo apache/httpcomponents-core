@@ -234,8 +234,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public Header getFirstHeader(final String name) {
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
+        for (final Header header : this.headers) {
             if (header.getName().equalsIgnoreCase(name)) {
                 return header;
             }
@@ -256,8 +255,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     public Header getHeader(final String name) throws ProtocolException {
         int count = 0;
         Header singleHeader = null;
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
+        for (final Header header : this.headers) {
             if (header.getName().equalsIgnoreCase(name)) {
                 singleHeader = header;
                 count++;
@@ -311,8 +309,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
      */
     @Override
     public boolean containsHeader(final String name) {
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
+        for (final Header header : this.headers) {
             if (header.getName().equalsIgnoreCase(name)) {
                 return true;
             }
@@ -331,8 +328,7 @@ public class HeaderGroup implements MessageHeaders, Serializable {
     @Override
     public int countHeaders(final String name) {
         int count = 0;
-        for (int i = 0; i < this.headers.size(); i++) {
-            final Header header = this.headers.get(i);
+        for (final Header header : this.headers) {
             if (header.getName().equalsIgnoreCase(name)) {
                 count++;
             }

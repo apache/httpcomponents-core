@@ -609,11 +609,7 @@ public class StrictConnPool<T, C extends ModalCloseable> implements ManagedConnP
     public void enumLeased(final Callback<PoolEntry<T, C>> callback) {
         this.lock.lock();
         try {
-            final Iterator<PoolEntry<T, C>> it = this.leased.iterator();
-            while (it.hasNext()) {
-                final PoolEntry<T, C> entry = it.next();
-                callback.execute(entry);
-            }
+            leased.forEach(callback::execute);
             processPendingRequests();
         } finally {
             this.lock.unlock();
