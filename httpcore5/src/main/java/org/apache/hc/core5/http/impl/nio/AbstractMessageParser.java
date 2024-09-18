@@ -66,6 +66,10 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     private int emptyLineCount;
 
     /**
+     * Constructs a new instance for a subclass.
+     *
+     * @param http1Config HTTP/1.1 protocol parameters.
+     * @param lineParser How to parse lines in an HTTP message.
      * @since 5.3
      */
     public AbstractMessageParser(final Http1Config http1Config, final LineParser lineParser) {
@@ -77,6 +81,10 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     }
 
     /**
+     * Constructs a new instance for a subclass.
+     *
+     * @param lineParser How to parse lines in an HTTP message.
+     * @param messageConstraints HTTP/1.1 protocol parameters.
      * @deprecated Use {@link #AbstractMessageParser(Http1Config, LineParser)}
      */
     @Deprecated
@@ -147,7 +155,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
     public T parse(
             final SessionInputBuffer sessionBuffer, final boolean endOfStream) throws IOException, HttpException {
         Args.notNull(sessionBuffer, "Session input buffer");
-        while (this.state !=State.COMPLETED) {
+        while (this.state != State.COMPLETED) {
             if (this.lineBuf == null) {
                 this.lineBuf = new CharArrayBuffer(64);
             } else {
@@ -188,7 +196,7 @@ public abstract class AbstractMessageParser<T extends HttpMessage> implements NH
                 this.state = State.COMPLETED;
             }
         }
-        if (this.state ==State. COMPLETED) {
+        if (this.state == State.COMPLETED) {
             for (final CharArrayBuffer buffer : this.headerBufs) {
                 this.message.addHeader(this.lineParser.parseHeader(buffer));
             }
