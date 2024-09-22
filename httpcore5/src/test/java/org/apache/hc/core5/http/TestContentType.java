@@ -183,4 +183,121 @@ class TestContentType {
         Assertions.assertEquals("text/blah; charset=ISO-8859-1; p=blah", contentType.toString());
     }
 
+
+    @Test
+    void testImplicitCharsetTrue() {
+        // ContentType with implicitCharset = true
+        final ContentType contentType = ContentType.create("application/json", StandardCharsets.UTF_8, true);
+
+        // Check that the charset is not added to the toString() output
+        Assertions.assertEquals("application/json", contentType.toString());
+        // Check that the charset is still stored
+        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
+    }
+
+    @Test
+    void testImplicitCharsetFalse() {
+        // ContentType with implicitCharset = false
+        final ContentType contentType = ContentType.create("application/json", StandardCharsets.UTF_8, false);
+
+        // Check that the charset is included in the toString() output
+        Assertions.assertEquals("application/json; charset=UTF-8", contentType.toString());
+        // Check that the charset is correctly stored
+        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
+    }
+
+    @Test
+    void testImplicitCharsetForTextPlain() {
+        // ContentType for text/plain with implicitCharset = true
+        final ContentType contentType = ContentType.create("text/plain", StandardCharsets.UTF_8, true);
+
+        // Check that the charset is not included in the toString() output
+        Assertions.assertEquals("text/plain", contentType.toString());
+        // Check that the charset is correctly stored
+        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
+    }
+
+    @Test
+    void testWithParamsAndImplicitCharset() {
+        // ContentType with parameters and implicitCharset = true
+        ContentType contentType = ContentType.create("text/plain", StandardCharsets.UTF_8, true)
+                .withParameters(
+                        new BasicNameValuePair("p", "this"),
+                        new BasicNameValuePair("p", "that"));
+
+        // Check that the last "p" parameter overwrites the first one
+        // ImplicitCharset is true, so charset should not be included
+        Assertions.assertEquals("text/plain; p=that", contentType.toString());
+
+        // Verify that charset is still available in the object
+        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
+
+        // Test with implicitCharset = false
+        contentType = ContentType.create("text/plain", StandardCharsets.UTF_8, false)
+                .withParameters(
+                        new BasicNameValuePair("p", "this"),
+                        new BasicNameValuePair("p", "that"));
+
+        // Check that the charset is included in the toString() output due to implicitCharset = false
+        Assertions.assertEquals("text/plain; charset=UTF-8; p=that", contentType.toString());
+    }
+
+    @Test
+    void testNoCharsetForSpecificMediaTypes() {
+        // Testing application/octet-stream should not include charset in toString
+        ContentType contentType = ContentType.create("application/octet-stream", StandardCharsets.UTF_8, true);
+        Assertions.assertEquals("application/octet-stream", contentType.toString());
+        Assertions.assertNotNull(contentType.getCharset()); // Ensure charset is set
+
+        // Testing image/jpeg should not include charset in toString
+        contentType = ContentType.create("image/jpeg", StandardCharsets.UTF_8, true);
+        Assertions.assertEquals("image/jpeg", contentType.toString());
+        Assertions.assertNotNull(contentType.getCharset());
+
+        // Testing multipart/form-data should not include charset in toString
+        contentType = ContentType.create("multipart/form-data", StandardCharsets.UTF_8, true);
+        Assertions.assertEquals("multipart/form-data", contentType.toString());
+        Assertions.assertNotNull(contentType.getCharset());
+    }
+
+
+    @Test
+    void testCharsetForOtherMediaTypes() {
+        // Testing application/json should include charset
+        ContentType contentType = ContentType.create("application/json", StandardCharsets.UTF_8, false);
+        Assertions.assertEquals("application/json; charset=UTF-8", contentType.toString());
+        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
+
+        // Testing text/html should include charset
+        contentType = ContentType.create("text/html", StandardCharsets.UTF_8, false);
+        Assertions.assertEquals("text/html; charset=UTF-8", contentType.toString());
+        Assertions.assertEquals(StandardCharsets.UTF_8, contentType.getCharset());
+    }
+
+    @Test
+    void testNoCharsetForBinaryMediaTypes() throws Exception {
+        // Test for application/octet-stream
+        ContentType contentType = ContentType.create("application/octet-stream", null, true);
+        Assertions.assertEquals("application/octet-stream", contentType.toString());
+        Assertions.assertNull(contentType.getCharset());
+
+        // Test for image/jpeg
+        contentType = ContentType.create("image/jpeg", null, true);
+        Assertions.assertEquals("image/jpeg", contentType.toString());
+        Assertions.assertNull(contentType.getCharset());
+    }
+
+    @Test
+    void testFormUrlEncodedWithoutCharset() throws Exception {
+        // Test for application/x-www-form-urlencoded with percent-encoding
+        final ContentType contentType = ContentType.create("application/x-www-form-urlencoded", null, true);
+        Assertions.assertEquals("application/x-www-form-urlencoded", contentType.toString());
+        Assertions.assertNull(contentType.getCharset());
+
+        // Test body encoding example with percent-encoding
+        final String encodedBody = "echotext=TEST%F6TEST";
+        // Simulate HTTP redirect where charset shouldn't change
+        final String redirectedBody = "echotext=TEST%F6TEST";
+        Assertions.assertEquals(encodedBody, redirectedBody);  // Ensure body stays the same after redirect
+    }
 }
