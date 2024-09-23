@@ -331,7 +331,7 @@ public class URIBuilder {
      * Builds a {@link URI} instance.
      */
     public URI build() throws URISyntaxException {
-        if ((URIScheme.HTTPS.same(scheme) || URIScheme.HTTP.same(scheme))  && (TextUtils.isBlank(host))) {
+        if ((URIScheme.HTTPS.same(scheme) || URIScheme.HTTP.same(scheme)) && (TextUtils.isBlank(host))) {
             throw new URISyntaxException(scheme, "http/https URI cannot have an empty host identifier");
         }
         return new URI(buildString());
@@ -479,7 +479,7 @@ public class URIBuilder {
      * @return this instance.
      * @since 5.1
      */
-    public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart, final List <NameValuePair> nvps) {
+    public URIBuilder setSchemeSpecificPart(final String schemeSpecificPart, final List<NameValuePair> nvps) {
         this.encodedSchemeSpecificPart = null;
         if (!TextUtils.isBlank(schemeSpecificPart)) {
             final StringBuilder sb = new StringBuilder(schemeSpecificPart);
@@ -693,7 +693,7 @@ public class URIBuilder {
      *
      * @return this instance.
      */
-    public URIBuilder setParameters(final List <NameValuePair> nameValuePairs) {
+    public URIBuilder setParameters(final List<NameValuePair> nameValuePairs) {
         if (this.queryParams == null) {
             this.queryParams = new ArrayList<>();
         } else {

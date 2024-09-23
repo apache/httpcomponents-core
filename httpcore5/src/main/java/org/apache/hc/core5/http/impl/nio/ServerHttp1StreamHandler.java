@@ -178,7 +178,7 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             httpProcessor.process(response, responseEntityDetails, context);
 
             final boolean endStream = responseEntityDetails == null ||
-                    (receivedRequest != null && Method.HEAD.isSame(receivedRequest.getMethod()));
+                    receivedRequest != null && Method.HEAD.isSame(receivedRequest.getMethod());
 
             if (!connectionReuseStrategy.keepAlive(receivedRequest, response, context)) {
                 keepAlive = false;
@@ -264,9 +264,9 @@ class ServerHttp1StreamHandler implements ResourceHolder {
             try {
                 handler = exchangeHandlerFactory.create(request, context);
             } catch (final MisdirectedRequestException ex) {
-                handler =  new ImmediateResponseExchangeHandler(HttpStatus.SC_MISDIRECTED_REQUEST, ex.getMessage());
+                handler = new ImmediateResponseExchangeHandler(HttpStatus.SC_MISDIRECTED_REQUEST, ex.getMessage());
             } catch (final HttpException ex) {
-                handler =  new ImmediateResponseExchangeHandler(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+                handler = new ImmediateResponseExchangeHandler(HttpStatus.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
             }
             if (handler == null) {
                 handler = new ImmediateResponseExchangeHandler(HttpStatus.SC_NOT_FOUND, "Cannot handle request");

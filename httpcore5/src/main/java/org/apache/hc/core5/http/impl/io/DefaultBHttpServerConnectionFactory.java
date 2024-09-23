@@ -149,7 +149,8 @@ public class DefaultBHttpServerConnectionFactory implements HttpConnectionFactor
         private HttpMessageParserFactory<ClassicHttpRequest> requestParserFactory;
         private HttpMessageWriterFactory<ClassicHttpResponse> responseWriterFactory;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder scheme(final String scheme) {
             this.scheme = scheme;

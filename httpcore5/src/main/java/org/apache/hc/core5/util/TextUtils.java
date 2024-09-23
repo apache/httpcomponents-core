@@ -181,9 +181,9 @@ public final class TextUtils {
      */
     @Internal
     public static byte castAsByte(final int c) {
-        if ((c >= 0x20 && c <= 0x7E) || // Visible ASCII
-            (c >= 0xA0 && c <= 0xFF) || // Visible ISO-8859-1
-             c == 0x09) {               // TAB
+        if (c >= 0x20 && c <= 0x7E || // Visible ASCII
+                c >= 0xA0 && c <= 0xFF || // Visible ISO-8859-1
+                c == 0x09) {               // TAB
             return (byte) c;
         }
         return '?';

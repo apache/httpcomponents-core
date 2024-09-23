@@ -176,7 +176,7 @@ class ServerH2StreamHandler implements H2StreamHandler {
             final List<Header> responseHeaders = DefaultH2ResponseConverter.INSTANCE.convert(response);
 
             final boolean endStream = responseEntityDetails == null ||
-                    (receivedRequest != null && Method.HEAD.isSame(receivedRequest.getMethod()));
+                    receivedRequest != null && Method.HEAD.isSame(receivedRequest.getMethod());
             outputChannel.submit(responseHeaders, endStream);
             connMetrics.incrementResponseCount();
             if (responseEntityDetails == null) {

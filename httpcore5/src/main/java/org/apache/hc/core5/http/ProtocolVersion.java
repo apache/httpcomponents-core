@@ -148,9 +148,9 @@ public class ProtocolVersion implements Serializable {
         }
         final ProtocolVersion that = (ProtocolVersion) obj;
 
-        return (this.protocol.equals(that.protocol) &&
-               (this.major == that.major) &&
-               (this.minor == that.minor));
+        return this.protocol.equals(that.protocol) &&
+               this.major == that.major &&
+               this.minor == that.minor;
     }
 
     /**
@@ -180,7 +180,7 @@ public class ProtocolVersion implements Serializable {
      *          can be called with the argument, {@code false} otherwise
      */
     public boolean isComparable(final ProtocolVersion that) {
-        return (that != null) && this.protocol.equals(that.protocol);
+        return that != null && this.protocol.equals(that.protocol);
     }
 
 
@@ -223,7 +223,7 @@ public class ProtocolVersion implements Serializable {
      *          {@code false} otherwise
      */
     public final boolean greaterEquals(final ProtocolVersion version) {
-        return isComparable(version) && (compareToVersion(version) >= 0);
+        return isComparable(version) && compareToVersion(version) >= 0;
     }
 
 
@@ -238,7 +238,7 @@ public class ProtocolVersion implements Serializable {
      *          {@code false} otherwise
      */
     public final boolean lessEquals(final ProtocolVersion version) {
-        return isComparable(version) && (compareToVersion(version) <= 0);
+        return isComparable(version) && compareToVersion(version) <= 0;
     }
 
     @Internal

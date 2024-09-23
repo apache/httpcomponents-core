@@ -29,7 +29,7 @@ package org.apache.hc.core5.http2.impl.nio.bootstrap;
 
 class FilterEntry<T> {
 
-    enum Position {BEFORE, AFTER, REPLACE, FIRST, LAST}
+    enum Position { BEFORE, AFTER, REPLACE, FIRST, LAST }
 
     final Position position;
     final String name;

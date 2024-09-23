@@ -66,8 +66,8 @@ final class HuffmanEncoder {
         }
 
         if (n > 0) {
-            current <<= (8 - n);
-            current |= (0xFF >>> n); // this should be EOS symbol
+            current <<= 8 - n;
+            current |= 0xFF >>> n; // this should be EOS symbol
             out.append((int) current);
         }
     }
@@ -93,8 +93,8 @@ final class HuffmanEncoder {
         }
 
         if (n > 0) {
-            current <<= (8 - n);
-            current |= (0xFF >>> n); // this should be EOS symbol
+            current <<= 8 - n;
+            current |= 0xFF >>> n; // this should be EOS symbol
             out.append((int) current);
         }
     }

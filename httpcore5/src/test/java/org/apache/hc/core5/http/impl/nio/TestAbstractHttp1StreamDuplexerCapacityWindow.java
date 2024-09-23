@@ -32,7 +32,6 @@ import java.nio.channels.SelectionKey;
 
 import org.apache.hc.core5.http.impl.nio.AbstractHttp1StreamDuplexer.CapacityWindow;
 import org.apache.hc.core5.reactor.IOSession;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,7 +92,7 @@ class TestAbstractHttp1StreamDuplexerCapacityWindow {
     }
 
     @Test
-    void windowCannotOverflow() throws IOException{
+    void windowCannotOverflow() throws IOException {
         final CapacityWindow window = new CapacityWindow(Integer.MAX_VALUE, ioSession);
         window.update(1);
         Assertions.assertEquals(Integer.MAX_VALUE, window.getWindow());

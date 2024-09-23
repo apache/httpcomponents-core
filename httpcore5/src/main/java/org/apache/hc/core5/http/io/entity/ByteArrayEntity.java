@@ -198,7 +198,7 @@ public class ByteArrayEntity extends AbstractHttpEntity {
      * @param chunked         Whether this entity should be chunked.
      */
     public ByteArrayEntity(
-            final byte[] buf, final int off, final int len, final ContentType contentType,  final boolean chunked) {
+            final byte[] buf, final int off, final int len, final ContentType contentType, final boolean chunked) {
         this(buf, off, len, contentType, null, chunked);
     }
 

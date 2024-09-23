@@ -55,8 +55,8 @@ import org.apache.hc.core5.util.CharArrayBuffer;
  */
 public abstract class AbstractMessageParser<T extends HttpMessage> implements HttpMessageParser<T> {
 
-    private static final int HEAD_LINE    = 0;
-    private static final int HEADERS      = 1;
+    private static final int HEAD_LINE = 0;
+    private static final int HEADERS = 1;
 
     private final Http1Config http1Config;
     private final List<CharArrayBuffer> headerLines;

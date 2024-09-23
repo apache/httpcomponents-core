@@ -75,7 +75,7 @@ class TestTlsCiphers {
     }
 
    @Test
-    void excludeH2Blacklisted (){
+    void excludeH2Blacklisted () {
        final String[] mixCipherSuites = {
                "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384",
                "TLS_RSA_WITH_AES_256_CBC_SHA256",
@@ -92,7 +92,7 @@ class TestTlsCiphers {
    }
 
     @Test
-    void excludeWeak (){
+    void excludeWeak () {
         final String[] weakCiphersSuites = {
                 "SSL_RSA_WITH_RC4_128_SHA",
                 "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
@@ -124,7 +124,7 @@ class TestTlsCiphers {
     }
 
     @Test
-    void excludeWeakNull(){
+    void excludeWeakNull() {
         Assertions.assertNull(TlsCiphers.excludeWeak((String[]) null));
     }
 

@@ -78,9 +78,9 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         if (b == null) {
             return;
         }
-        if ((off < 0) || (off > b.length) || (len < 0) ||
-                ((off + len) < 0) || ((off + len) > b.length)) {
-            throw new IndexOutOfBoundsException("off: "+off+" len: "+len+" b.length: "+b.length);
+        if (off < 0 || off > b.length || len < 0 ||
+                (off + len) < 0 || (off + len) > b.length) {
+            throw new IndexOutOfBoundsException("off: " + off + " len: " + len + " b.length: " + b.length);
         }
         if (len == 0) {
             return;
@@ -177,9 +177,9 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
         if (b == null) {
             return;
         }
-        if ((off < 0) || (off > b.length) || (len < 0) ||
-                ((off + len) < 0) || ((off + len) > b.length)) {
-            throw new IndexOutOfBoundsException("off: "+off+" len: "+len+" b.length: "+b.length);
+        if (off < 0 || off > b.length || len < 0 ||
+                (off + len) < 0 || (off + len) > b.length) {
+            throw new IndexOutOfBoundsException("off: " + off + " len: " + len + " b.length: " + b.length);
         }
         if (len == 0) {
             return;
@@ -322,7 +322,7 @@ public final class CharArrayBuffer implements CharSequence, Serializable {
      */
     public void setLength(final int len) {
         if (len < 0 || len > this.array.length) {
-            throw new IndexOutOfBoundsException("len: "+len+" < 0 or > buffer len: "+this.array.length);
+            throw new IndexOutOfBoundsException("len: " + len + " < 0 or > buffer len: " + this.array.length);
         }
         this.len = len;
     }

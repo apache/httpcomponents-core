@@ -238,7 +238,7 @@ public final class HPackDecoder {
             nameLen = decodeString(src, buf);
             name = buf.toString();
         } else {
-            final HPackHeader existing =  this.dynamicTable.getHeader(index);
+            final HPackHeader existing = this.dynamicTable.getHeader(index);
             if (existing == null) {
                 throw new HPackException("Invalid header index");
             }
@@ -258,7 +258,7 @@ public final class HPackDecoder {
     HPackHeader decodeIndexedHeader(final ByteBuffer src) throws HPackException {
 
         final int index = decodeInt(src, 7);
-        final HPackHeader existing =  this.dynamicTable.getHeader(index);
+        final HPackHeader existing = this.dynamicTable.getHeader(index);
         if (existing == null) {
             throw new HPackException("Invalid header index");
         }

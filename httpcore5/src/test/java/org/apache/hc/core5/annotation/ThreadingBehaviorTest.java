@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 class ThreadingBehaviorTest {
 
     @Test
-    void testName(){
+    void testName() {
         assertEquals("SAFE", ThreadingBehavior.SAFE.name());
         assertEquals("SAFE_CONDITIONAL", ThreadingBehavior.SAFE_CONDITIONAL.name());
         assertEquals("IMMUTABLE_CONDITIONAL", ThreadingBehavior.IMMUTABLE_CONDITIONAL.name());

@@ -408,7 +408,7 @@ public class H2CompatibilityTest {
         }
     }
 
-    enum TestResult {OK, NOK}
+    enum TestResult { OK, NOK }
 
     private void logResult(
             final TestResult result,

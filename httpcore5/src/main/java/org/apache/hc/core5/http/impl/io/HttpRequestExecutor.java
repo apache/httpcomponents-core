@@ -179,7 +179,7 @@ public class HttpRequestExecutor {
                             }
                             response = null;
                             continue;
-                        } else if (status >= HttpStatus.SC_CLIENT_ERROR){
+                        } else if (status >= HttpStatus.SC_CLIENT_ERROR) {
                             conn.terminateRequest(request);
                         } else {
                             conn.sendRequestEntity(request);
@@ -347,7 +347,8 @@ public class HttpRequestExecutor {
         private ConnectionReuseStrategy connReuseStrategy;
         private Http1StreamListener streamListener;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder withWaitForContinue(final Timeout waitForContinue) {
             this.waitForContinue = waitForContinue;

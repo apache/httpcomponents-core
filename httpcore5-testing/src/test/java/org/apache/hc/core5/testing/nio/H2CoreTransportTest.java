@@ -59,7 +59,7 @@ abstract class H2CoreTransportTest extends HttpCoreTransportTest {
                         IOReactorConfig.custom()
                                 .setSoTimeout(TIMEOUT)
                                 .build())
-                .setRequestRouter(RequestRouter.<Supplier< AsyncServerExchangeHandler>>builder()
+                .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
                         .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
                         .build())

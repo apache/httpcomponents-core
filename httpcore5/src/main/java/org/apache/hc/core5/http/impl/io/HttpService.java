@@ -165,8 +165,8 @@ public class HttpService {
             final ConnectionReuseStrategy connReuseStrategy,
             final Http1StreamListener streamListener) {
         super();
-        this.processor =  Args.notNull(processor, "HTTP processor");
-        this.requestHandler =  Args.notNull(requestHandler, "Request handler");
+        this.processor = Args.notNull(processor, "HTTP processor");
+        this.requestHandler = Args.notNull(requestHandler, "Request handler");
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
         this.connReuseStrategy = connReuseStrategy != null ? connReuseStrategy : DefaultConnectionReuseStrategy.INSTANCE;
         this.streamListener = streamListener;
@@ -334,7 +334,8 @@ public class HttpService {
         private ConnectionReuseStrategy connReuseStrategy;
         private Http1StreamListener streamListener;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder withHttpProcessor(final HttpProcessor processor) {
             this.processor = processor;

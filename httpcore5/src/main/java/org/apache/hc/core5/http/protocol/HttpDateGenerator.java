@@ -79,7 +79,7 @@ public class HttpDateGenerator {
                 .parseCaseInsensitive()
                 .appendPattern(pattern)
                 .toFormatter();
-        this.zoneId =  zoneId;
+        this.zoneId = zoneId;
         this.lock = new ReentrantLock();
     }
 

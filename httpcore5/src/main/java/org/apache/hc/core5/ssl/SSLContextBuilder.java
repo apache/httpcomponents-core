@@ -81,7 +81,7 @@ import org.apache.hc.core5.util.Args;
  */
 public class SSLContextBuilder {
 
-    static final String TLS   = "TLS";
+    static final String TLS = "TLS";
 
     private String protocol;
     private final Set<KeyManager> keyManagers;

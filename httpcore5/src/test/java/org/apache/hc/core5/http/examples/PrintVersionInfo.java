@@ -53,10 +53,10 @@ public class PrintVersionInfo {
      *                  a list of packages for which to get version info.
      */
     public static void main(final String args[]) {
-        final String[]    pckgs = (args.length > 0) ? args : MODULE_LIST;
+        final String[] pckgs = (args.length > 0) ? args : MODULE_LIST;
         VersionInfo[] via = VersionInfo.loadVersionInfo(pckgs, null);
         System.out.println("version info for thread context classloader:");
-        for (int i=0; i<via.length; i++)
+        for (int i = 0; i < via.length; i++)
             System.out.println(via[i]);
 
         System.out.println();
@@ -66,9 +66,9 @@ public class PrintVersionInfo {
         // there may be a problem with multiple versions in the classpath
 
         via = VersionInfo.loadVersionInfo
-            (pckgs, PrintVersionInfo.class.getClassLoader());
+                (pckgs, PrintVersionInfo.class.getClassLoader());
         System.out.println("version info for static classloader:");
-        for (int i=0; i<via.length; i++)
+        for (int i = 0; i < via.length; i++)
             System.out.println(via[i]);
     }
 }

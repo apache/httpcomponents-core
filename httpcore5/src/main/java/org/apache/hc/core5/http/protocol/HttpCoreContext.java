@@ -54,7 +54,7 @@ public class HttpCoreContext implements HttpContext {
      * @deprecated Use getter methods
      */
     @Deprecated
-    public static final String CONNECTION_ENDPOINT  = HttpContext.RESERVED_PREFIX + "connection-endpoint";
+    public static final String CONNECTION_ENDPOINT = HttpContext.RESERVED_PREFIX + "connection-endpoint";
 
     /**
      * @deprecated Use getter methods
@@ -66,13 +66,13 @@ public class HttpCoreContext implements HttpContext {
      * @deprecated Use getter methods
      */
     @Deprecated
-    public static final String HTTP_REQUEST     = HttpContext.RESERVED_PREFIX + "request";
+    public static final String HTTP_REQUEST = HttpContext.RESERVED_PREFIX + "request";
 
     /**
      * @deprecated Use getter methods
      */
     @Deprecated
-    public static final String HTTP_RESPONSE    = HttpContext.RESERVED_PREFIX + "response";
+    public static final String HTTP_RESPONSE = HttpContext.RESERVED_PREFIX + "response";
 
     public static HttpCoreContext create() {
         return new HttpCoreContext();

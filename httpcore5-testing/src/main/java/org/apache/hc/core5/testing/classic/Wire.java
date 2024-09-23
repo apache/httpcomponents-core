@@ -55,7 +55,7 @@ public class Wire {
                 buffer.insert(0, header);
                 this.log.debug("{} {}", this.id, buffer);
                 buffer.setLength(0);
-            } else if ((ch < Chars.SP) || (ch >= Chars.DEL)) {
+            } else if (ch < Chars.SP || ch >= Chars.DEL) {
                 buffer.append("[0x");
                 buffer.append(Integer.toHexString(ch));
                 buffer.append("]");

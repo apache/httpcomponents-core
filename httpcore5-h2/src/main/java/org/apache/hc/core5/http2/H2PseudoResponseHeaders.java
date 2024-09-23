@@ -34,6 +34,6 @@ package org.apache.hc.core5.http2;
  */
 public final class H2PseudoResponseHeaders {
 
-    public static final String STATUS    = ":status";
+    public static final String STATUS = ":status";
 
 }

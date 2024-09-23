@@ -78,6 +78,7 @@ public class ContentInputStream extends InputStream {
         // read and discard the remainder of the message
         final byte[] tmp = new byte[1024];
         while (this.buffer.read(tmp, 0, tmp.length) >= 0) {
+            // ignored
         }
         super.close();
     }

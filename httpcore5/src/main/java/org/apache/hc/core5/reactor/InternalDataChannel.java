@@ -434,7 +434,7 @@ final class InternalDataChannel extends InternalChannel implements ProtocolIOSes
     @Override
     public String toString() {
         final IOSession currentSession = currentSessionRef.get();
-        return Objects.toString(currentSession != null ? currentSession: ioSession, null);
+        return Objects.toString(currentSession != null ? currentSession : ioSession, null);
     }
 
 }

@@ -37,17 +37,16 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link BasicTokenIterator}.
- *
  */
 class TestBasicTokenIterator {
 
     @Test
     void testSingleHeader() {
         Header[] headers = new Header[]{
-            new BasicHeader("Name", "token0,token1, token2 , token3")
+                new BasicHeader("Name", "token0,token1, token2 , token3")
         };
         Iterator<Header> hit = new BasicHeaderIterator(headers, null);
-        Iterator<String>  ti  = new BasicTokenIterator(hit);
+        Iterator<String> ti = new BasicTokenIterator(hit);
 
         Assertions.assertTrue(ti.hasNext());
         Assertions.assertEquals("token0", ti.next());
@@ -61,10 +60,10 @@ class TestBasicTokenIterator {
 
 
         headers = new Header[]{
-            new BasicHeader("Name", "token0")
+                new BasicHeader("Name", "token0")
         };
         hit = new BasicHeaderIterator(headers, null);
-        ti  = new BasicTokenIterator(hit);
+        ti = new BasicTokenIterator(hit);
 
         Assertions.assertTrue(ti.hasNext());
         Assertions.assertEquals("token0", ti.next());
@@ -75,16 +74,16 @@ class TestBasicTokenIterator {
     @Test
     void testMultiHeader() {
         final Header[] headers = new Header[]{
-            new BasicHeader("Name", "token0,token1"),
-            new BasicHeader("Name", ""),
-            new BasicHeader("Name", "token2"),
-            new BasicHeader("Name", " "),
-            new BasicHeader("Name", "token3 "),
-            new BasicHeader("Name", ","),
-            new BasicHeader("Name", "token4"),
+                new BasicHeader("Name", "token0,token1"),
+                new BasicHeader("Name", ""),
+                new BasicHeader("Name", "token2"),
+                new BasicHeader("Name", " "),
+                new BasicHeader("Name", "token3 "),
+                new BasicHeader("Name", ","),
+                new BasicHeader("Name", "token4"),
         };
         final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
-        final Iterator<String>  ti  = new BasicTokenIterator(hit);
+        final Iterator<String> ti = new BasicTokenIterator(hit);
 
         Assertions.assertTrue(ti.hasNext());
         Assertions.assertEquals("token0", ti.next());
@@ -103,19 +102,19 @@ class TestBasicTokenIterator {
     @Test
     void testEmpty() {
         final Header[] headers = new Header[]{
-            new BasicHeader("Name", " "),
-            new BasicHeader("Name", ""),
-            new BasicHeader("Name", ","),
-            new BasicHeader("Name", " ,, "),
+                new BasicHeader("Name", " "),
+                new BasicHeader("Name", ""),
+                new BasicHeader("Name", ","),
+                new BasicHeader("Name", " ,, "),
         };
         Iterator<Header> hit = new BasicHeaderIterator(headers, null);
-        Iterator<String>  ti  = new BasicTokenIterator(hit);
+        Iterator<String> ti = new BasicTokenIterator(hit);
 
         Assertions.assertFalse(ti.hasNext());
 
 
         hit = new BasicHeaderIterator(headers, "empty");
-        ti  = new BasicTokenIterator(hit);
+        ti = new BasicTokenIterator(hit);
 
         Assertions.assertFalse(ti.hasNext());
     }
@@ -124,15 +123,15 @@ class TestBasicTokenIterator {
     @Test
     void testValueStart() {
         final Header[] headers = new Header[]{
-            new BasicHeader("Name", "token0"),
-            new BasicHeader("Name", " token1"),
-            new BasicHeader("Name", ",token2"),
-            new BasicHeader("Name", " ,token3"),
-            new BasicHeader("Name", ", token4"),
-            new BasicHeader("Name", " , token5"),
+                new BasicHeader("Name", "token0"),
+                new BasicHeader("Name", " token1"),
+                new BasicHeader("Name", ",token2"),
+                new BasicHeader("Name", " ,token3"),
+                new BasicHeader("Name", ", token4"),
+                new BasicHeader("Name", " , token5"),
         };
         final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
-        final Iterator<String>  ti  = new BasicTokenIterator(hit);
+        final Iterator<String> ti = new BasicTokenIterator(hit);
 
         Assertions.assertTrue(ti.hasNext());
         Assertions.assertEquals("token0", ti.next());
@@ -153,22 +152,22 @@ class TestBasicTokenIterator {
     @Test
     void testValueEnd() {
         final Header[] headers = new Header[]{
-            new BasicHeader("Name", "token0"),
-            new BasicHeader("Name", "token1 "),
-            new BasicHeader("Name", "token2,"),
-            new BasicHeader("Name", "token3 ,"),
-            new BasicHeader("Name", "token4, "),
-            new BasicHeader("Name", "token5 , "),
+                new BasicHeader("Name", "token0"),
+                new BasicHeader("Name", "token1 "),
+                new BasicHeader("Name", "token2,"),
+                new BasicHeader("Name", "token3 ,"),
+                new BasicHeader("Name", "token4, "),
+                new BasicHeader("Name", "token5 , "),
         };
         final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
-        final Iterator<String>  ti  = new BasicTokenIterator(hit);
+        final Iterator<String> ti = new BasicTokenIterator(hit);
 
         Assertions.assertTrue(ti.hasNext());
         Assertions.assertEquals("token0", ti.next());
         Assertions.assertTrue(ti.hasNext());
         Assertions.assertEquals("token1", ti.next());
         Assertions.assertTrue(ti.hasNext());
-        Assertions.assertEquals("token2",  ti.next());
+        Assertions.assertEquals("token2", ti.next());
         Assertions.assertTrue(ti.hasNext());
         Assertions.assertEquals("token3", ti.next());
         Assertions.assertTrue(ti.hasNext());
@@ -183,13 +182,13 @@ class TestBasicTokenIterator {
         Assertions.assertThrows(NullPointerException.class, () -> new BasicTokenIterator(null));
 
         final Header[] headers = new Header[]{
-            new BasicHeader("Name", " "),
-            new BasicHeader("Name", ""),
-            new BasicHeader("Name", ","),
-            new BasicHeader("Name", " ,, "),
+                new BasicHeader("Name", " "),
+                new BasicHeader("Name", ""),
+                new BasicHeader("Name", ","),
+                new BasicHeader("Name", " ,, "),
         };
         final Iterator<Header> hit = new BasicHeaderIterator(headers, null);
-        final Iterator<String>  ti  = new BasicTokenIterator(hit);
+        final Iterator<String> ti = new BasicTokenIterator(hit);
 
         Assertions.assertThrows(NoSuchElementException.class, () -> ti.next());
         Assertions.assertThrows(UnsupportedOperationException.class, () -> ti.remove());

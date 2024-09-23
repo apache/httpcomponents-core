@@ -148,7 +148,7 @@ public class ConscryptServerTlsStrategy implements TlsStrategy {
      * @since 5.2
      */
     public ConscryptServerTlsStrategy() {
-        this(SSLContexts.createSystemDefault(),  (SSLBufferMode) null, null, null);
+        this(SSLContexts.createSystemDefault(), (SSLBufferMode) null, null, null);
     }
 
     /**

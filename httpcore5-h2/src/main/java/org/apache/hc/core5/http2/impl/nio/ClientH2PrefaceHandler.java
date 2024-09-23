@@ -107,7 +107,7 @@ public class ClientH2PrefaceHandler extends PrefaceHandlerBase {
     /**
      * @return true if the entire preface has been written out
      */
-    private boolean writeOutPreface(final IOSession session, final ByteBuffer preface) throws IOException  {
+    private boolean writeOutPreface(final IOSession session, final ByteBuffer preface) throws IOException {
         if (preface.hasRemaining()) {
             session.write(preface);
         }

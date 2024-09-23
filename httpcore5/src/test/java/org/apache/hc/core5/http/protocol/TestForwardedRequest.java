@@ -118,9 +118,8 @@ class TestForwardedRequest {
 
         // Check the value of the Forwarded header
         final String expectedValue = "by=" + remoteAddress.getHostName() + ":" + remoteAddress.getPort() +
-                ";for=" + localAddress.getHostName()  + ":" + localAddress.getPort() +
+                ";for=" + localAddress.getHostName() + ":" + localAddress.getPort() +
                 ";host=\"" + host + "\";port=" + port + ";proto=" + version.getProtocol();
-
 
         assertEquals(expectedValue, request.getFirstHeader(FORWARDED_HEADER_NAME).getValue());
     }

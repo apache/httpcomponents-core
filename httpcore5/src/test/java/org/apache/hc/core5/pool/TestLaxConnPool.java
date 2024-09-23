@@ -156,7 +156,8 @@ class TestLaxConnPool {
         try (final LaxConnPool<String, HttpConnection> pool = new LaxConnPool<>(2)) {
             Assertions.assertThrows(NullPointerException.class,
                     () -> pool.lease(null, null, Timeout.ZERO_MILLISECONDS, null));
-        }}
+        }
+    }
 
     @Test
     void testReleaseUnknownEntry() {

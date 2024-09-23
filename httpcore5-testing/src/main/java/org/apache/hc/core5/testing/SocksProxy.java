@@ -76,13 +76,13 @@ public class SocksProxy {
                         final Thread t2 = pumpStream(target.getInputStream(), output);
                         try {
                             t1.join();
-                        } catch (final InterruptedException e) {
+                        } catch (final InterruptedException ignored) {
                         }
                         try {
                             t2.join();
-                        } catch (final InterruptedException e) {
+                        } catch (final InterruptedException ignored) {
                         }
-                    } catch (final IOException e) {
+                    } catch (final IOException ignored) {
                     } finally {
                         parent.cleanupSocksProxyHandler(SocksProxyHandler.this);
                     }
@@ -178,7 +178,7 @@ public class SocksProxy {
                                 output.write(buffer, 0, read);
                                 output.flush();
                             }
-                        } catch (final IOException e) {
+                        } catch (final IOException ignored) {
                         } finally {
                             shutdown();
                         }
@@ -193,12 +193,12 @@ public class SocksProxy {
         public void shutdown() {
             try {
                 this.socket.close();
-            } catch (final IOException e) {
+            } catch (final IOException ignored) {
             }
             if (this.remote != null) {
                 try {
                     this.remote.close();
-                } catch (final IOException e) {
+                } catch (final IOException ignored) {
                 }
             }
         }
@@ -232,12 +232,12 @@ public class SocksProxy {
                             final Socket socket = server.accept();
                             startSocksProxyHandler(socket);
                         }
-                    } catch (final IOException e) {
+                    } catch (final IOException ignored) {
                     } finally {
                         if (server != null) {
                             try {
                                 server.close();
-                            } catch (final IOException e) {
+                            } catch (final IOException ignored) {
                             }
                             server = null;
                         }
@@ -258,7 +258,7 @@ public class SocksProxy {
             if (this.server != null) {
                 try {
                     this.server.close();
-                } catch (final IOException e) {
+                } catch (final IOException ignored) {
                 } finally {
                     this.server = null;
                 }

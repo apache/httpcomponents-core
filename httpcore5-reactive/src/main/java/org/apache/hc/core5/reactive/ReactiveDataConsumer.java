@@ -137,7 +137,7 @@ final class ReactiveDataConsumer implements AsyncDataConsumer, Publisher<ByteBuf
                     return;
                 }
                 ByteBuffer next;
-                while (requests.get() > 0 && ((next = buffers.poll()) != null)) {
+                while (requests.get() > 0 && (next = buffers.poll()) != null) {
                     final int bytesFreed = next.remaining();
                     s.onNext(next);
                     requests.decrementAndGet();

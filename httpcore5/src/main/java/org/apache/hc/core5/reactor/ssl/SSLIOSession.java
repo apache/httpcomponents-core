@@ -611,7 +611,7 @@ public class SSLIOSession implements IOSession {
                         if (sslEngine.isInboundDone()) {
                             endOfStream = true;
                         }
-                        if(inPlainBuf.position() > 0) {
+                        if (inPlainBuf.position() > 0) {
                             inPlainBuf.flip();
                             try {
                                 ensureHandler().inputReady(protocolSession, inPlainBuf.hasRemaining() ? inPlainBuf : null);

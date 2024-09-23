@@ -119,7 +119,7 @@ public class BasicHeaderValueFormatter implements HeaderValueFormatter {
 
         boolean quoteFlag = quote;
         if (!quoteFlag) {
-            for (int i = 0; (i < value.length()) && !quoteFlag; i++) {
+            for (int i = 0; i < value.length() && !quoteFlag; i++) {
                 quoteFlag = isSeparator(value.charAt(i));
             }
         }

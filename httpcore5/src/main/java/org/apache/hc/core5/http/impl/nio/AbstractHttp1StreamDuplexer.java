@@ -82,7 +82,7 @@ import org.apache.hc.core5.util.Timeout;
 abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, OutgoingMessage extends HttpMessage>
         implements Identifiable, HttpConnection {
 
-    private enum ConnectionState { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
+    private enum ConnectionState { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN }
 
     private final ProtocolIOSession ioSession;
     private final Http1Config http1Config;
@@ -514,7 +514,7 @@ abstract class AbstractHttp1StreamDuplexer<IncomingMessage extends HttpMessage, 
         }
     }
 
-    enum MessageDelineation { NONE, CHUNK_CODED, MESSAGE_HEAD}
+    enum MessageDelineation { NONE, CHUNK_CODED, MESSAGE_HEAD }
 
     MessageDelineation endOutputStream(final List<? extends Header> trailers) throws IOException {
         ioSession.getLock().lock();

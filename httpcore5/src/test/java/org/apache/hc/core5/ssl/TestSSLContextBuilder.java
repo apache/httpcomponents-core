@@ -257,10 +257,10 @@ class TestSSLContextBuilder {
 
     @Test
     void testBuildTSWithNoSuchProvider() {
-        Assertions.assertThrows(NoSuchProviderException.class, ()->
-            SSLContextBuilder.create()
-                    .setTrustStoreProvider("no-such-provider")
-                    .build());
+        Assertions.assertThrows(NoSuchProviderException.class, () ->
+                SSLContextBuilder.create()
+                        .setTrustStoreProvider("no-such-provider")
+                        .build());
     }
 
     @Test

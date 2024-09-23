@@ -89,9 +89,9 @@ public class BasicHeaderIterator implements Iterator<Header> {
             return -1;
         }
 
-        final int to = this.allHeaders.length-1;
+        final int to = this.allHeaders.length - 1;
         boolean found = false;
-        while (!found && (from < to)) {
+        while (!found && from < to) {
             from++;
             found = filterHeader(from);
         }
@@ -107,7 +107,7 @@ public class BasicHeaderIterator implements Iterator<Header> {
      *          iteration, {@code false} to skip
      */
     private boolean filterHeader(final int index) {
-        return (this.headerName == null) ||
+        return this.headerName == null ||
             this.headerName.equalsIgnoreCase(this.allHeaders[index].getName());
     }
 

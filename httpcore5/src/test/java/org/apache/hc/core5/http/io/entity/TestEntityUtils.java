@@ -223,7 +223,7 @@ class TestEntityUtils {
     void testParseUTF8Entity() throws Exception {
         final String ru_hello = constructString(RUSSIAN_HELLO);
         final String ch_hello = constructString(SWISS_GERMAN_HELLO);
-        final List <NameValuePair> parameters = new ArrayList<>();
+        final List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("russian", ru_hello));
         parameters.add(new BasicNameValuePair("swiss", ch_hello));
 

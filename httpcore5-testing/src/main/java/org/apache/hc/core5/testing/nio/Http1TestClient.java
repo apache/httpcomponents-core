@@ -49,7 +49,7 @@ import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.util.Asserts;
 import org.apache.hc.core5.util.Timeout;
 
-public class Http1TestClient extends AsyncRequester  {
+public class Http1TestClient extends AsyncRequester {
 
     private final SSLContext sslContext;
     private final SSLSessionInitializer sslSessionInitializer;

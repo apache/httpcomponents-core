@@ -295,7 +295,7 @@ final class SocksProxyProtocolHandler implements IOEventHandler {
         if (!(sessionRequest.remoteAddress instanceof InetSocketAddress)) {
             throw new IOException("Unsupported address class: " + sessionRequest.remoteAddress.getClass());
         }
-        final InetSocketAddress targetAddress = ((InetSocketAddress) sessionRequest.remoteAddress);
+        final InetSocketAddress targetAddress = (InetSocketAddress) sessionRequest.remoteAddress;
         if (targetAddress.isUnresolved()) {
             this.buffer.put(ATYP_DOMAINNAME);
             final String hostName = targetAddress.getHostName();

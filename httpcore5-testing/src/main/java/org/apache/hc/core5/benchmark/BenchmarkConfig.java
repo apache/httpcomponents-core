@@ -222,7 +222,7 @@ public class BenchmarkConfig {
                 ", useAcceptGZip=" + useAcceptGZip +
                 ", payloadText='" + payloadText + '\'' +
                 ", soapAction='" + soapAction + '\'' +
-                ", forceHttp2=" + forceHttp2+
+                ", forceHttp2=" + forceHttp2 +
                 ", disableSSLVerification=" + disableSSLVerification +
                 ", trustStorePath='" + trustStorePath + '\'' +
                 ", identityStorePath='" + identityStorePath + '\'' +

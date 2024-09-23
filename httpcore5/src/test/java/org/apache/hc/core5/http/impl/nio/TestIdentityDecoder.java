@@ -229,7 +229,7 @@ class TestIdentityDecoder {
             final FileChannel fchannel = testfile.getChannel();
             long pos = beginning.length;
             while (!decoder.isCompleted()) {
-                if(testfile.length() < pos) {
+                if (testfile.length() < pos) {
                     testfile.setLength(pos);
                 }
                 final long bytesRead = decoder.transfer(fchannel, pos, 10);

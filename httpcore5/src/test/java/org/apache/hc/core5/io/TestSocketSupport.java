@@ -41,7 +41,7 @@ import org.junit.jupiter.api.Test;
 public class TestSocketSupport {
 
     @Test
-    public void testGetExtendedSocketOptionOrNull() {
+    void testGetExtendedSocketOptionOrNull() {
         testGetExtendedSocketOption(SocketSupport.TCP_KEEPIDLE);
         testGetExtendedSocketOption(SocketSupport.TCP_KEEPINTERVAL);
         testGetExtendedSocketOption(SocketSupport.TCP_KEEPCOUNT);
@@ -57,7 +57,7 @@ public class TestSocketSupport {
     }
 
     @Test
-    public void testSetOption() throws IOException {
+    void testSetOption() throws IOException {
         if (ReflectionUtils.determineJRELevel() > 8 && isWindows() == false) {
             {
                 // test Socket

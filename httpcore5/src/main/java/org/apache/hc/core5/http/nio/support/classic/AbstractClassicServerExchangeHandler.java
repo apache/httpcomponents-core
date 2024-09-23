@@ -114,7 +114,7 @@ public abstract class AbstractClassicServerExchangeHandler implements AsyncServe
         final AtomicBoolean responseCommitted = new AtomicBoolean();
 
         final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_OK);
-        final HttpResponse responseWrapper = new HttpResponseWrapper(response){
+        final HttpResponse responseWrapper = new HttpResponseWrapper(response) {
 
             private void ensureNotCommitted() {
                 Asserts.check(!responseCommitted.get(), "Response already committed");

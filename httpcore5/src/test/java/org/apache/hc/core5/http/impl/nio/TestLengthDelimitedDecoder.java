@@ -322,7 +322,7 @@ class TestLengthDelimitedDecoder {
         final int i = inbuf.fill(channel);
         Assertions.assertEquals(7, i);
 
-        final byte[] beginning =  "beginning; ".getBytes(StandardCharsets.US_ASCII);
+        final byte[] beginning = "beginning; ".getBytes(StandardCharsets.US_ASCII);
 
         createTempFile();
         RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw");
@@ -338,7 +338,7 @@ class TestLengthDelimitedDecoder {
 
             long pos = beginning.length;
             while (!decoder.isCompleted()) {
-                if(testfile.length() < pos) {
+                if (testfile.length() < pos) {
                     testfile.setLength(pos);
                 }
                 final long bytesRead = decoder.transfer(fchannel, pos, 10);
@@ -451,7 +451,7 @@ class TestLengthDelimitedDecoder {
                 channel, inbuf, metrics, 16);
 
         createTempFile();
-        try (RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw")) {
+        try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
 
             long bytesRead = decoder.transfer(fchannel, 0, 6);
@@ -545,7 +545,7 @@ class TestLengthDelimitedDecoder {
                 channel, inbuf, metrics, 20);
 
         createTempFile();
-        try (RandomAccessFile testfile  = new RandomAccessFile(this.tmpfile, "rw")) {
+        try (RandomAccessFile testfile = new RandomAccessFile(this.tmpfile, "rw")) {
             final FileChannel fchannel = testfile.getChannel();
             final long bytesRead = decoder.transfer(fchannel, 0, Integer.MAX_VALUE);
             Assertions.assertEquals(10, bytesRead);

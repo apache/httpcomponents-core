@@ -47,8 +47,8 @@ public class BasicHeaderValueParser implements HeaderValueParser {
 
     public final static BasicHeaderValueParser INSTANCE = new BasicHeaderValueParser();
 
-    private final static char PARAM_DELIMITER                = ';';
-    private final static char ELEM_DELIMITER                 = ',';
+    private final static char PARAM_DELIMITER = ';';
+    private final static char ELEM_DELIMITER = ',';
 
     private static final Tokenizer.Delimiter TOKEN_DELIMITER = Tokenizer.delimiters('=', PARAM_DELIMITER, ELEM_DELIMITER);
     private static final Tokenizer.Delimiter VALUE_DELIMITER = Tokenizer.delimiters(PARAM_DELIMITER, ELEM_DELIMITER);
