@@ -708,7 +708,7 @@ class TestTestingFramework {
                 final Map<String, Object> tempResponseExpectations = new HashMap<>(responseExpectations);
                 tempResponseExpectations.put(STATUS, 201);
                 final Map<String, Object> response = super.execute(defaultURI, request, requestHandler, tempResponseExpectations);
-                Assertions.assertEquals(200,  response.get(STATUS));
+                Assertions.assertEquals(200, response.get(STATUS));
 
                 return response;
             }

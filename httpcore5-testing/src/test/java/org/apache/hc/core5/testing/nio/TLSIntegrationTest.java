@@ -183,7 +183,7 @@ class TLSIntegrationTest {
                     @Override
                     public void completed(final AsyncClientEndpoint clientEndpoint) {
                         try {
-                            ((TlsUpgradeCapable) clientEndpoint).   tlsUpgrade(
+                            ((TlsUpgradeCapable) clientEndpoint).tlsUpgrade(
                                     target,
                                     new FutureContribution<ProtocolIOSession>(tlsFuture) {
 

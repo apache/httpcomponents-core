@@ -55,10 +55,10 @@ public final class Host implements NamedEndpoint, Serializable {
         if (s == null || s.length() < 4) {
             return false;
         }
-        return ((s.charAt(0) == 'x' || s.charAt(0) == 'X') &&
+        return (s.charAt(0) == 'x' || s.charAt(0) == 'X') &&
                 (s.charAt(1) == 'n' || s.charAt(1) == 'N') &&
                 s.charAt(2) == '-' &&
-                s.charAt(3) == '-');
+                s.charAt(3) == '-';
     }
 
     public Host(final String name, final int port) {

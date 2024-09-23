@@ -67,7 +67,7 @@ public class ClassicTestResources implements BeforeEachCallback, AfterEachCallba
 
         LOG.debug("Starting up test client");
         client = new ClassicTestClient(
-                scheme == URIScheme.HTTPS  ? SSLTestContexts.createClientSSLContext() : null,
+                scheme == URIScheme.HTTPS ? SSLTestContexts.createClientSSLContext() : null,
                 SocketConfig.custom()
                         .setSoTimeout(socketTimeout)
                         .build());

@@ -81,7 +81,7 @@ import org.apache.hc.core5.util.Timeout;
  *
  * @since 5.0
  */
-public class H2MultiplexingRequester extends AsyncRequester{
+public class H2MultiplexingRequester extends AsyncRequester {
 
     private final H2ConnPool connPool;
 

@@ -429,7 +429,7 @@ public class HttpRequester implements ConnPoolControl<HttpHost>, ModalCloseable 
         return execute(targetHost, request, null, connectTimeout, context);
     }
 
-    public <T> T  execute(
+    public <T> T execute(
             final HttpHost targetHost,
             final ClassicHttpRequest request,
             final Timeout connectTimeout,

@@ -78,10 +78,10 @@ class TestBasicHeaderIterator {
     @Test
     void testFirstLastOneNone() {
         final Header[] headers = new Header[]{
-            new BasicHeader("match"   , "value0"),
-            new BasicHeader("mismatch", "value1, value1.1"),
-            new BasicHeader("single"  , "value2=whatever"),
-            new BasicHeader("match"   , "value3;tag=nil"),
+                new BasicHeader("match", "value0"),
+                new BasicHeader("mismatch", "value1, value1.1"),
+                new BasicHeader("single", "value2=whatever"),
+                new BasicHeader("match", "value3;tag=nil"),
         };
 
         // without filter

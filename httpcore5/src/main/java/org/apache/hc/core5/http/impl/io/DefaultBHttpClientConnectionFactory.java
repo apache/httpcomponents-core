@@ -168,7 +168,8 @@ public class DefaultBHttpClientConnectionFactory
         private HttpMessageWriterFactory<ClassicHttpRequest> requestWriterFactory;
         private HttpMessageParserFactory<ClassicHttpResponse> responseParserFactory;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public Builder http1Config(final Http1Config http1Config) {
             this.http1Config = http1Config;

@@ -128,7 +128,7 @@ class TestDefaultContentLengthStrategy {
     }
 
     @Test
-    void testEntityWithContentLength() throws Exception  {
+    void testEntityWithContentLength() throws Exception {
         final ContentLengthStrategy lenStrategy = new DefaultContentLengthStrategy();
         final HttpMessage message = new TestHttpMessage();
         message.addHeader("Content-Length", "100");

@@ -136,9 +136,11 @@ public class RequestContent implements HttpRequestInterceptor {
             MessageSupport.addContentEncodingHeader(request, entity);
         }
     }
+
     private boolean isContentEnclosingMethod(final String method) {
-        return (Method.POST.isSame(method)||Method.PUT.isSame(method)||Method.PATCH.isSame(method));
+        return Method.POST.isSame(method) || Method.PUT.isSame(method) || Method.PATCH.isSame(method);
     }
+
     /**
      * Validates the presence of the Content-Type header for an OPTIONS request.
      *

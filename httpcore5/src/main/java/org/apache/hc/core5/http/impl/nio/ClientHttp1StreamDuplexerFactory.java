@@ -76,7 +76,7 @@ public final class ClientHttp1StreamDuplexerFactory {
             final Http1StreamListener streamListener) {
         this.httpProcessor = Args.notNull(httpProcessor, "HTTP processor");
         this.http1Config = http1Config != null ? http1Config : Http1Config.DEFAULT;
-        this.charCodingConfig = charCodingConfig !=  null ? charCodingConfig : CharCodingConfig.DEFAULT;
+        this.charCodingConfig = charCodingConfig != null ? charCodingConfig : CharCodingConfig.DEFAULT;
         this.connectionReuseStrategy = connectionReuseStrategy != null ? connectionReuseStrategy :
                 DefaultConnectionReuseStrategy.INSTANCE;
         this.responseParserFactory = responseParserFactory != null ? responseParserFactory :

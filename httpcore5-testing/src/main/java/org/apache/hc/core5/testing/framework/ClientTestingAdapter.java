@@ -110,14 +110,14 @@ public class ClientTestingAdapter {
      * See the documentation for the same method in {@link ClientPOJOAdapter}.
      */
     public boolean isRequestSupported(final Map<String, Object> request) {
-        return (adapter == null) || adapter.checkRequestSupport(request) == null;
+        return adapter == null || adapter.checkRequestSupport(request) == null;
     }
 
     /**
      * See the documentation for the same method in {@link ClientPOJOAdapter}.
      */
     public Map<String, Object> modifyRequest(final Map<String, Object> request) {
-       return (adapter == null) ? request : adapter.modifyRequest(request);
+       return adapter == null ? request : adapter.modifyRequest(request);
     }
 
     /**

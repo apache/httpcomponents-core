@@ -49,7 +49,7 @@ public final class IOReactorConfig {
 
     private final TimeValue selectInterval;
     private final int ioThreadCount;
-    private final Timeout  soTimeout;
+    private final Timeout soTimeout;
     private final boolean soReuseAddress;
     private final TimeValue soLinger;
     private final boolean soKeepAlive;
@@ -296,7 +296,7 @@ public final class IOReactorConfig {
 
         private TimeValue selectInterval;
         private int ioThreadCount;
-        private Timeout  soTimeout;
+        private Timeout soTimeout;
         private boolean soReuseAddress;
         private TimeValue soLinger;
         private boolean soKeepAlive;

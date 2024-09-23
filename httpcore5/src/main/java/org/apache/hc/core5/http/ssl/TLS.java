@@ -43,7 +43,7 @@ import org.apache.hc.core5.util.Tokenizer;
  */
 public enum TLS {
 
-    V_1_0("TLSv1",   new ProtocolVersion("TLS", 1, 0)),
+    V_1_0("TLSv1", new ProtocolVersion("TLS", 1, 0)),
     V_1_1("TLSv1.1", new ProtocolVersion("TLS", 1, 1)),
     V_1_2("TLSv1.2", new ProtocolVersion("TLS", 1, 2)),
     V_1_3("TLSv1.3", new ProtocolVersion("TLS", 1, 3));

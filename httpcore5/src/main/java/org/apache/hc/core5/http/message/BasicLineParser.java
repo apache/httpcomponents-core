@@ -67,7 +67,7 @@ public class BasicLineParser implements LineParser {
      *                  is not relevant, only the protocol name.
      */
     public BasicLineParser(final ProtocolVersion proto) {
-        this.protocol = proto != null? proto : HttpVersion.HTTP_1_1;
+        this.protocol = proto != null ? proto : HttpVersion.HTTP_1_1;
         this.tokenizer = Tokenizer.INSTANCE;
     }
 
@@ -82,7 +82,7 @@ public class BasicLineParser implements LineParser {
             final CharArrayBuffer buffer,
             final ParserCursor cursor) throws ParseException {
         final String protoname = this.protocol.getProtocol();
-        final int protolength  = protoname.length();
+        final int protolength = protoname.length();
 
         this.tokenizer.skipWhiteSpace(buffer, cursor);
 
@@ -96,7 +96,7 @@ public class BasicLineParser implements LineParser {
 
         // check the protocol name and slash
         boolean ok = true;
-        for (int i = 0; ok && (i < protolength); i++) {
+        for (int i = 0; ok && i < protolength; i++) {
             ok = buffer.charAt(pos + i) == protoname.charAt(i);
         }
         if (ok) {

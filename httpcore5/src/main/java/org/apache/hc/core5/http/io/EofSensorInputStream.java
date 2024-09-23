@@ -135,7 +135,7 @@ public class EofSensorInputStream extends InputStream {
 
         if (isReadAllowed()) {
             try {
-                readLen = wrappedStream.read(b,  off,  len);
+                readLen = wrappedStream.read(b, off, len);
                 checkEOF(readLen);
             } catch (final IOException ex) {
                 checkAbort();
@@ -195,7 +195,7 @@ public class EofSensorInputStream extends InputStream {
     private void checkEOF(final int eof) throws IOException {
 
         final InputStream toCheckStream = wrappedStream;
-        if ((toCheckStream != null) && (eof < 0)) {
+        if (toCheckStream != null && eof < 0) {
             try {
                 boolean scws = true; // should close wrapped stream?
                 if (eofWatcher != null) {

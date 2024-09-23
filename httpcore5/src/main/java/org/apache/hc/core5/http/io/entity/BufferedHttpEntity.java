@@ -91,7 +91,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
      */
     @Override
     public boolean isChunked() {
-        return (buffer == null) && super.isChunked();
+        return buffer == null && super.isChunked();
     }
 
     /**
@@ -119,7 +119,7 @@ public class BufferedHttpEntity extends HttpEntityWrapper {
     // non-javadoc, see interface HttpEntity
     @Override
     public boolean isStreaming() {
-        return (buffer == null) && super.isStreaming();
+        return buffer == null && super.isStreaming();
     }
 
 } // class BufferedHttpEntity

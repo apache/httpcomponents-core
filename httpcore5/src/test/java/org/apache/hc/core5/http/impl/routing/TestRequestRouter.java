@@ -117,7 +117,7 @@ class TestRequestRouter {
                 .addRoute(new URIAuthority("somehost", 80), "/*", 1L)
                 .addRoute(new URIAuthority("someotherhost", 80), "/*", 10L)
                 .resolveAuthority((scheme, authority) -> authority)
-                .downstream(((request, context) -> -1L))
+                .downstream((request, context) -> -1L)
                 .build();
 
         final HttpCoreContext context = HttpCoreContext.create();

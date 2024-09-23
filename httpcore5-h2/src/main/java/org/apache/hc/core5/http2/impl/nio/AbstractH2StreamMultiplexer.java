@@ -97,7 +97,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
     private static final long LINGER_TIME = 1000; // 1 second
     private static final long CONNECTION_WINDOW_LOW_MARK = 10 * 1024 * 1024; // 10 MiB
 
-    enum ConnectionHandshake { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN}
+    enum ConnectionHandshake { READY, ACTIVE, GRACEFUL_SHUTDOWN, SHUTDOWN }
     enum SettingsHandshake { READY, TRANSMITTED, ACKED }
 
     private final ProtocolIOSession ioSession;
@@ -304,7 +304,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         buf.append((byte)(promisedStreamId >> 24));
         buf.append((byte)(promisedStreamId >> 16));
         buf.append((byte)(promisedStreamId >> 8));
-        buf.append((byte)(promisedStreamId));
+        buf.append((byte) promisedStreamId);
 
         hPackEncoder.encodeHeaders(buf, headers, localConfig.isCompressionEnabled());
 
@@ -684,7 +684,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
                     final H2Error errorCode;
                     if (cause instanceof H2ConnectionException) {
                         errorCode = H2Error.getByCode(((H2ConnectionException) cause).getCode());
-                    } else if (cause instanceof ProtocolException){
+                    } else if (cause instanceof ProtocolException) {
                         errorCode = H2Error.PROTOCOL_ERROR;
                     } else {
                         errorCode = H2Error.INTERNAL_ERROR;
@@ -1539,7 +1539,7 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         }
 
         boolean localReset(final H2Error error) throws IOException {
-            return localReset(error!= null ? error.getCode() : H2Error.INTERNAL_ERROR.getCode());
+            return localReset(error != null ? error.getCode() : H2Error.INTERNAL_ERROR.getCode());
         }
 
         @Override

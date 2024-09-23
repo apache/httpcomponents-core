@@ -101,7 +101,7 @@ public class HttpProtocolNegotiator implements HttpConnectionEventHandler {
         startProtocol(httpVersion);
     }
     @Override
-    public void inputReady(final IOSession session, final ByteBuffer src) throws IOException  {
+    public void inputReady(final IOSession session, final ByteBuffer src) throws IOException {
         throw new ProtocolNegotiationException("Unexpected input");
     }
 

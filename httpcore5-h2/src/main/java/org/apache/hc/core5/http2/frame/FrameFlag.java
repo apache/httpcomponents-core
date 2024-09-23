@@ -33,11 +33,11 @@ package org.apache.hc.core5.http2.frame;
  */
 public enum FrameFlag {
 
-    END_STREAM    (0x01),
-    ACK           (0x01),
-    END_HEADERS   (0x04),
-    PADDED        (0x08),
-    PRIORITY      (0x20);
+    END_STREAM(0x01),
+    ACK(0x01),
+    END_HEADERS(0x04),
+    PADDED(0x08),
+    PRIORITY(0x20);
 
     final int value;
 

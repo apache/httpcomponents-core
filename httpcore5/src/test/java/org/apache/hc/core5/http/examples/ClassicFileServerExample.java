@@ -131,7 +131,7 @@ public class ClassicFileServerExample {
 
     }
 
-    static class HttpFileHandler implements HttpRequestHandler  {
+    static class HttpFileHandler implements HttpRequestHandler {
 
         private final String docRoot;
 

@@ -302,7 +302,8 @@ public class Deadline {
     private void setLastCheck() {
         if (!frozen) {
             this.lastCheck = System.currentTimeMillis();
-        }}
+        }
+    }
 
     @Override
     public String toString() {

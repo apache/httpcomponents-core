@@ -73,7 +73,7 @@ class TLSTest {
 
     @Test
     void excludeWeakNull() {
-        assertNull((TLS.excludeWeak((String[]) null)));
+        assertNull(TLS.excludeWeak((String[]) null));
     }
 
     @Test

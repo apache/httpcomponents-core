@@ -88,15 +88,15 @@ class TestHttpVersion {
 
         Assertions.assertNotEquals(ver1, Float.valueOf(1.1f));
 
-        Assertions.assertEquals(HttpVersion.HTTP_0_9, (new HttpVersion(0, 9)));
-        Assertions.assertEquals(HttpVersion.HTTP_1_0, (new HttpVersion(1, 0)));
-        Assertions.assertEquals(HttpVersion.HTTP_1_1, (new HttpVersion(1, 1)));
-        Assertions.assertNotEquals(HttpVersion.HTTP_1_0, (new HttpVersion(1, 1)));
+        Assertions.assertEquals(HttpVersion.HTTP_0_9, new HttpVersion(0, 9));
+        Assertions.assertEquals(HttpVersion.HTTP_1_0, new HttpVersion(1, 0));
+        Assertions.assertEquals(HttpVersion.HTTP_1_1, new HttpVersion(1, 1));
+        Assertions.assertNotEquals(HttpVersion.HTTP_1_0, new HttpVersion(1, 1));
 
-        Assertions.assertEquals(HttpVersion.HTTP_0_9, (new ProtocolVersion("HTTP", 0, 9)));
-        Assertions.assertEquals(HttpVersion.HTTP_1_0, (new ProtocolVersion("HTTP", 1, 0)));
-        Assertions.assertEquals(HttpVersion.HTTP_1_1, (new ProtocolVersion("HTTP", 1, 1)));
-        Assertions.assertNotEquals(HttpVersion.HTTP_1_1, (new ProtocolVersion("http", 1, 1)));
+        Assertions.assertEquals(HttpVersion.HTTP_0_9, new ProtocolVersion("HTTP", 0, 9));
+        Assertions.assertEquals(HttpVersion.HTTP_1_0, new ProtocolVersion("HTTP", 1, 0));
+        Assertions.assertEquals(HttpVersion.HTTP_1_1, new ProtocolVersion("HTTP", 1, 1));
+        Assertions.assertNotEquals(HttpVersion.HTTP_1_1, new ProtocolVersion("http", 1, 1));
 
         Assertions.assertEquals(HttpVersion.HTTP_0_9, new ProtocolVersion("HTTP", 0, 9));
         Assertions.assertEquals(HttpVersion.HTTP_1_0, new ProtocolVersion("HTTP", 1, 0));

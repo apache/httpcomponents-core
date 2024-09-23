@@ -93,9 +93,9 @@ public class TestingFrameworkRequestHandler implements HttpRequestHandler {
      */
     public void assertNothingThrown() throws TestingFrameworkException {
         if (thrown != null) {
-            final TestingFrameworkException e = (thrown instanceof TestingFrameworkException ?
+            final TestingFrameworkException e = thrown instanceof TestingFrameworkException ?
                                                           (TestingFrameworkException) thrown :
-                                                          new TestingFrameworkException(thrown));
+                                                          new TestingFrameworkException(thrown);
             thrown = null;
             throw e;
         }

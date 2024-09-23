@@ -334,7 +334,7 @@ public class Tokenizer {
         final int indexTo = cursor.getUpperBound();
         for (int i = indexFrom; i < indexTo; i++) {
             final char current = buf.charAt(i);
-            if ((delimiterPredicate != null && delimiterPredicate.test(current)) || isWhitespace(current)) {
+            if (delimiterPredicate != null && delimiterPredicate.test(current) || isWhitespace(current)) {
                 break;
             }
             pos++;
@@ -372,7 +372,7 @@ public class Tokenizer {
         final int indexTo = cursor.getUpperBound();
         for (int i = indexFrom; i < indexTo; i++) {
             final char current = buf.charAt(i);
-            if ((delimiterPredicate != null && delimiterPredicate.test(current))
+            if (delimiterPredicate != null && delimiterPredicate.test(current)
                     || isWhitespace(current) || current == DQUOTE) {
                 break;
             }

@@ -51,7 +51,7 @@ public class SingleLineResponseHandler extends BasicServerExchangeHandler<Messag
                           final HttpRequest request,
                           final EntityDetails entityDetails,
                           final HttpContext context) throws HttpException {
-                      return new BasicRequestConsumer<>(entityDetails != null? new StringAsyncEntityConsumer() : null);
+                      return new BasicRequestConsumer<>(entityDetails != null ? new StringAsyncEntityConsumer() : null);
                   }
 
                   @Override

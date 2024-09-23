@@ -92,7 +92,7 @@ public class ClassicResponseBuilder extends AbstractResponseBuilder<ClassicHttpR
     }
 
     @Override
-    public ClassicResponseBuilder addHeader(final String name, final    String value) {
+    public ClassicResponseBuilder addHeader(final String name, final String value) {
         super.addHeader(name, value);
         return this;
     }

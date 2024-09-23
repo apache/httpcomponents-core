@@ -52,14 +52,14 @@ public final class PathPatternMatcher {
         if (pattern.equals("*") || pattern.equals(path)) {
             return true;
         }
-        return (pattern.endsWith("*") && path.startsWith(pattern.substring(0, pattern.length() - 1)))
-                || (pattern.startsWith("*") && path.endsWith(pattern.substring(1)));
+        return pattern.endsWith("*") && path.startsWith(pattern.substring(0, pattern.length() - 1))
+                || pattern.startsWith("*") && path.endsWith(pattern.substring(1));
     }
 
     public boolean isBetter(final String pattern, final String bestMatch) {
         return bestMatch == null
-                || (bestMatch.length() < pattern.length())
-                || (bestMatch.length() == pattern.length() && pattern.endsWith("*"));
+                || bestMatch.length() < pattern.length()
+                || bestMatch.length() == pattern.length() && pattern.endsWith("*");
     }
 
 }

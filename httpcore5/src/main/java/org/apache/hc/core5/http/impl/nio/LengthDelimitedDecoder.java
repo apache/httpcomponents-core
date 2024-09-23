@@ -73,7 +73,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
         if (isCompleted()) {
             return -1;
         }
-        final int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
+        final int chunk = (int) Math.min(this.contentLength - this.len, Integer.MAX_VALUE);
 
         final int bytesRead;
         if (this.buffer.hasData()) {
@@ -113,7 +113,7 @@ public class LengthDelimitedDecoder extends AbstractContentDecoder implements Fi
             return -1;
         }
 
-        final int chunk = (int) Math.min((this.contentLength - this.len), Integer.MAX_VALUE);
+        final int chunk = (int) Math.min(this.contentLength - this.len, Integer.MAX_VALUE);
 
         final long bytesRead;
         if (this.buffer.hasData()) {

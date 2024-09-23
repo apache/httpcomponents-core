@@ -159,7 +159,7 @@ class TestBHttpConnectionBase {
         Assertions.assertEquals("chunked", entity.getContentEncoding());
         final InputStream content = entity.getContent();
         Assertions.assertNotNull(content);
-        Assertions.assertTrue((content instanceof ContentLengthInputStream));
+        Assertions.assertInstanceOf(ContentLengthInputStream.class, content);
     }
 
     @Test
@@ -172,7 +172,7 @@ class TestBHttpConnectionBase {
         Assertions.assertEquals(-1, entity.getContentLength());
         final InputStream content = entity.getContent();
         Assertions.assertNotNull(content);
-        Assertions.assertTrue((content instanceof ChunkedInputStream));
+        Assertions.assertInstanceOf(ChunkedInputStream.class, content);
     }
 
     @Test
@@ -185,7 +185,7 @@ class TestBHttpConnectionBase {
         Assertions.assertEquals(-1, entity.getContentLength());
         final InputStream content = entity.getContent();
         Assertions.assertNotNull(content);
-        Assertions.assertTrue((content instanceof IdentityInputStream));
+        Assertions.assertInstanceOf(IdentityInputStream.class, content);
     }
 
     @Test

@@ -44,7 +44,7 @@ import org.apache.hc.core5.util.Args;
  *
  * @since 5.0
  */
-public class AsyncResponseBuilder extends AbstractResponseBuilder<AsyncResponseProducer>  {
+public class AsyncResponseBuilder extends AbstractResponseBuilder<AsyncResponseProducer> {
 
     private AsyncEntityProducer entityProducer;
 

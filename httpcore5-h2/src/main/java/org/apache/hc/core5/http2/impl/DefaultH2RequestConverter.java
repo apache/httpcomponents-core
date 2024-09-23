@@ -181,7 +181,7 @@ public final class DefaultH2RequestConverter implements H2MessageConverter<HttpR
         headers.add(new BasicHeader(H2PseudoRequestHeaders.METHOD, message.getMethod(), false));
         if (optionMethod) {
             headers.add(new BasicHeader(H2PseudoRequestHeaders.AUTHORITY, message.getAuthority(), false));
-        }  else {
+        } else {
             headers.add(new BasicHeader(H2PseudoRequestHeaders.SCHEME, message.getScheme(), false));
             if (message.getAuthority() != null) {
                 headers.add(new BasicHeader(H2PseudoRequestHeaders.AUTHORITY, message.getAuthority(), false));

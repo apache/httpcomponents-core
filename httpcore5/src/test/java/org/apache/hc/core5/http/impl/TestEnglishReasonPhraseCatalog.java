@@ -52,15 +52,15 @@ class TestEnglishReasonPhraseCatalog {
     for (final Field f : publicFields) {
         final int modifiers = f.getModifiers();
 
-        if ( (f.getType() == int.class)
+        if (f.getType() == int.class
             && Modifier.isPublic(modifiers)
             && Modifier.isFinal(modifiers)
-            && Modifier.isStatic(modifiers) )
+            && Modifier.isStatic(modifiers))
         {
             final int iValue = f.getInt(null);
             final String text = EnglishReasonPhraseCatalog.
                             INSTANCE.getReason(iValue, null);
-            Assertions.assertNotNull("text is null for HttpStatus."+f.getName(), text);
+            Assertions.assertNotNull("text is null for HttpStatus." + f.getName(), text);
             Assertions.assertTrue(text.length() > 0);
         }
     }

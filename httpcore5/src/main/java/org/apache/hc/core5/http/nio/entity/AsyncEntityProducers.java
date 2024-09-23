@@ -81,7 +81,7 @@ public final class AsyncEntityProducers {
     }
 
     public static AsyncEntityProducer createUrlEncoded(
-            final Iterable <? extends NameValuePair> parameters, final Charset charset) {
+            final Iterable<? extends NameValuePair> parameters, final Charset charset) {
         final ContentType contentType = charset != null ?
                 ContentType.APPLICATION_FORM_URLENCODED.withCharset(charset) :
                 ContentType.APPLICATION_FORM_URLENCODED;

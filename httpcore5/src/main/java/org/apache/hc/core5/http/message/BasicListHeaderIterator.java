@@ -96,9 +96,9 @@ class BasicListHeaderIterator implements Iterator<Header> {
             return -1;
         }
 
-        final int to = this.allHeaders.size()-1;
+        final int to = this.allHeaders.size() - 1;
         boolean found = false;
-        while (!found && (from < to)) {
+        while (!found && from < to) {
             from++;
             found = filterHeader(from);
         }
@@ -143,7 +143,7 @@ class BasicListHeaderIterator implements Iterator<Header> {
             throw new NoSuchElementException("Iteration already finished.");
         }
 
-        this.lastIndex    = current;
+        this.lastIndex = current;
         this.currentIndex = findNext(current);
 
         return this.allHeaders.get(current);

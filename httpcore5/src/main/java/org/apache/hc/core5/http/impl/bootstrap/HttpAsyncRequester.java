@@ -538,7 +538,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
                     return false;
                 }
                 final IOEventHandler handler = ioSession.getHandler();
-                return (handler instanceof HttpConnection) && ((HttpConnection) handler).isOpen();
+                return handler instanceof HttpConnection && ((HttpConnection) handler).isOpen();
             }
             return false;
         }

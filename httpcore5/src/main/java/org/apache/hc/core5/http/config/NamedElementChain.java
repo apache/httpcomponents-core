@@ -183,7 +183,7 @@ public class NamedElementChain<E> {
         }
 
         public Node getNext() {
-            return next != master ? next: null;
+            return next != master ? next : null;
         }
 
         @Override

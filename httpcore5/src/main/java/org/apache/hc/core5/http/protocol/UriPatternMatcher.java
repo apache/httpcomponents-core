@@ -149,8 +149,9 @@ public class UriPatternMatcher<T> implements LookupRegistry<T> {
                 for (final String pattern : this.map.keySet()) {
                     if (matchUriRequestPattern(pattern, path)) {
                         // we have a match. is it any better?
-                        if (bestMatch == null || (bestMatch.length() < pattern.length())
-                                || (bestMatch.length() == pattern.length() && pattern.endsWith("*"))) {
+                        if (bestMatch == null
+                                || bestMatch.length() < pattern.length()
+                                || bestMatch.length() == pattern.length() && pattern.endsWith("*")) {
                             obj = this.map.get(pattern);
                             bestMatch = pattern;
                         }

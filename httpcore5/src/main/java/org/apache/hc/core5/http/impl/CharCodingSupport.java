@@ -49,7 +49,7 @@ public final class CharCodingSupport {
         if (charset != null) {
             return charset.newDecoder()
                     .onMalformedInput(malformed != null ? malformed : CodingErrorAction.REPORT)
-                    .onUnmappableCharacter(unmappable != null ? unmappable: CodingErrorAction.REPORT);
+                    .onUnmappableCharacter(unmappable != null ? unmappable : CodingErrorAction.REPORT);
         }
         return null;
     }
@@ -64,7 +64,7 @@ public final class CharCodingSupport {
             final CodingErrorAction unmappable = cconfig.getUnmappableInputAction();
             return charset.newEncoder()
                     .onMalformedInput(malformed != null ? malformed : CodingErrorAction.REPORT)
-                    .onUnmappableCharacter(unmappable != null ? unmappable: CodingErrorAction.REPORT);
+                    .onUnmappableCharacter(unmappable != null ? unmappable : CodingErrorAction.REPORT);
         }
         return null;
     }

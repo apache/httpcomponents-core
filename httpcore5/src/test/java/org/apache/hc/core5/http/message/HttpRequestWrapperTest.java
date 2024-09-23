@@ -88,7 +88,7 @@ class HttpRequestWrapperTest {
         Assertions.assertEquals(new URIAuthority("host", 9443), httpRequestWrapper.getAuthority());
         Assertions.assertEquals("https", httpRequestWrapper.getScheme());
         Assertions.assertEquals(new URI("https://host:9443/stuff?param=value"), httpRequestWrapper.getUri());
-        httpRequestWrapper.setScheme((URIScheme.HTTP.id));
+        httpRequestWrapper.setScheme(URIScheme.HTTP.id);
         Assertions.assertEquals("http", httpRequestWrapper.getScheme());
     }
 

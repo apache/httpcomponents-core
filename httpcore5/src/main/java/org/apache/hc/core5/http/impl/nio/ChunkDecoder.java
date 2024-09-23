@@ -119,7 +119,7 @@ public class ChunkDecoder extends AbstractContentDecoder {
         final int maxLineLen = this.http1Config.getMaxLineLength();
         if (maxLineLen > 0 &&
                 (this.lineBuf.length() > maxLineLen ||
-                        (!lineComplete && this.buffer.length() > maxLineLen))) {
+                        !lineComplete && this.buffer.length() > maxLineLen)) {
             throw new MessageConstraintException("Maximum line length limit exceeded");
         }
         if (lineComplete) {

@@ -339,7 +339,8 @@ class TestStrictConnPool {
             totals = pool.getTotalStats();
             Assertions.assertEquals(2, totals.getAvailable());
             Assertions.assertEquals(0, totals.getLeased());
-            Assertions.assertEquals(0, totals.getPending());}
+            Assertions.assertEquals(0, totals.getPending());
+        }
     }
 
     @Test

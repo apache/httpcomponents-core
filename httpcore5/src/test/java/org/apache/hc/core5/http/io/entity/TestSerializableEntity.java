@@ -46,7 +46,9 @@ class TestSerializableEntity {
 
         public final String stringValue = "Hello";
 
-        public SerializableObject() {}
+        public SerializableObject() {
+        }
+
     }
 
     @Test

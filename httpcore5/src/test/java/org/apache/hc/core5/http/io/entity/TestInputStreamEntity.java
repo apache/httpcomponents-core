@@ -125,5 +125,6 @@ class TestInputStreamEntity {
     void testWriteToNull() throws Exception {
         try (final InputStreamEntity entity = new InputStreamEntity(EmptyInputStream.INSTANCE, 0, null)) {
             Assertions.assertThrows(NullPointerException.class, () -> entity.writeTo(null));
-        }}
+        }
+    }
 }

@@ -56,8 +56,8 @@ public class VersionInfo {
     public final static String VERSION_PROPERTY_FILE = "version.properties";
 
     // the property names
-    public final static String PROPERTY_MODULE    = "info.module";
-    public final static String PROPERTY_RELEASE   = "info.release";
+    public final static String PROPERTY_MODULE = "info.module";
+    public final static String PROPERTY_RELEASE = "info.release";
     /**
      * @deprecated This will be removed in 6.0.
      */
@@ -98,11 +98,11 @@ public class VersionInfo {
     protected VersionInfo(final String pckg, final String module,
                           final String release, final String time, final String clsldr) {
         Args.notNull(pckg, "Package identifier");
-        infoPackage     = pckg;
-        infoModule      = (module  != null) ? module  : UNAVAILABLE;
-        infoRelease     = (release != null) ? release : UNAVAILABLE;
-        infoTimestamp   = (time    != null) ? time    : UNAVAILABLE;
-        infoClassloader = (clsldr  != null) ? clsldr  : UNAVAILABLE;
+        infoPackage = pckg;
+        infoModule = module != null ? module : UNAVAILABLE;
+        infoRelease = release != null ? release : UNAVAILABLE;
+        infoTimestamp = time != null ? time : UNAVAILABLE;
+        infoClassloader = clsldr != null ? clsldr : UNAVAILABLE;
     }
 
 
@@ -274,13 +274,12 @@ public class VersionInfo {
 
         if (info != null) {
             module = (String) info.get(PROPERTY_MODULE);
-            if ((module != null) && (module.length() < 1)) {
+            if (module != null && module.length() < 1) {
                 module = null;
             }
 
             release = (String) info.get(PROPERTY_RELEASE);
-            if ((release != null) && ((release.length() < 1) ||
-                                      (release.equals("${project.version}")))) {
+            if (release != null && (release.length() < 1 || release.equals("${project.version}"))) {
                 release = null;
             }
         } // if info

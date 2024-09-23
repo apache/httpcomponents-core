@@ -87,13 +87,13 @@ public class ClassicReverseProxyExample {
 
                     @Override
                     public void onRequestHead(final HttpConnection connection, final HttpRequest request) {
-                        System.out.println("[proxy->origin] " + Thread.currentThread()  + " " +
+                        System.out.println("[proxy->origin] " + Thread.currentThread() + " " +
                                 request.getMethod() + " " + request.getRequestUri());
                     }
 
                     @Override
                     public void onResponseHead(final HttpConnection connection, final HttpResponse response) {
-                        System.out.println("[proxy<-origin] " + Thread.currentThread()  + " status " + response.getCode());
+                        System.out.println("[proxy<-origin] " + Thread.currentThread() + " status " + response.getCode());
                     }
 
                     @Override
@@ -155,7 +155,7 @@ public class ClassicReverseProxyExample {
                         if (ex instanceof SocketException) {
                             System.out.println("[client->proxy] " + Thread.currentThread() + " " + ex.getMessage());
                         } else {
-                            System.out.println("[client->proxy] " + Thread.currentThread()  + " " + ex.getMessage());
+                            System.out.println("[client->proxy] " + Thread.currentThread() + " " + ex.getMessage());
                             ex.printStackTrace(System.out);
                         }
                     }
@@ -198,7 +198,7 @@ public class ClassicReverseProxyExample {
             TextUtils.toLowerCase(HttpHeaders.UPGRADE))));
 
 
-    static class ProxyHandler implements HttpRequestHandler  {
+    static class ProxyHandler implements HttpRequestHandler {
 
         private final HttpHost targetHost;
         private final HttpRequester requester;

@@ -27,18 +27,18 @@
 
 package org.apache.hc.core5.http.io.entity;
 
-import org.apache.hc.core5.annotation.Contract;
-import org.apache.hc.core5.annotation.ThreadingBehavior;
-import org.apache.hc.core5.function.Supplier;
-import org.apache.hc.core5.http.Header;
-import org.apache.hc.core5.http.HttpEntity;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+
+import org.apache.hc.core5.annotation.Contract;
+import org.apache.hc.core5.annotation.ThreadingBehavior;
+import org.apache.hc.core5.function.Supplier;
+import org.apache.hc.core5.http.Header;
+import org.apache.hc.core5.http.HttpEntity;
 
 /**
  * An empty entity with no content-type. This type may be used for convenience
@@ -51,7 +51,8 @@ public final class NullEntity implements HttpEntity {
 
     public static final NullEntity INSTANCE = new NullEntity();
 
-    private NullEntity() {}
+    private NullEntity() {
+    }
 
     @Override
     public boolean isRepeatable() {
@@ -64,7 +65,8 @@ public final class NullEntity implements HttpEntity {
     }
 
     @Override
-    public void writeTo(final OutputStream outStream) throws IOException {}
+    public void writeTo(final OutputStream outStream) throws IOException {
+    }
 
     @Override
     public boolean isStreaming() {
@@ -77,7 +79,8 @@ public final class NullEntity implements HttpEntity {
     }
 
     @Override
-    public void close() throws IOException {}
+    public void close() throws IOException {
+    }
 
     @Override
     public long getContentLength() {

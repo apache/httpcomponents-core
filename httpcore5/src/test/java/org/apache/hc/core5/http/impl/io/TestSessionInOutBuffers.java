@@ -103,7 +103,7 @@ class TestSessionInOutBuffers {
         final long bytesWritten = tmetrics.getBytesTransferred();
         long expected = 0;
         for (final String teststr : teststrs) {
-            expected += (teststr.length() + 2/*CRLF*/);
+            expected += teststr.length() + 2/*CRLF*/;
         }
         Assertions.assertEquals(expected, bytesWritten);
 
@@ -151,7 +151,7 @@ class TestSessionInOutBuffers {
         outbuffer.write(buffer.toString().getBytes(StandardCharsets.US_ASCII), outputStream);
         outbuffer.flush(outputStream);
         bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        Assertions.assertEquals(8 + 14 +2, bytesWritten);
+        Assertions.assertEquals(8 + 14 + 2, bytesWritten);
 
         buffer.setLength(0);
         for (int i = 0; i < 15; i++) {
@@ -249,7 +249,7 @@ class TestSessionInOutBuffers {
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
         long expected = 0;
         for (final String teststr : teststrs) {
-            expected += (teststr.length() + 2/*CRLF*/);
+            expected += teststr.length() + 2/*CRLF*/;
         }
         Assertions.assertEquals(expected, bytesWritten);
 
@@ -459,11 +459,11 @@ class TestSessionInOutBuffers {
         Assertions.assertEquals(0, inBuffer1.readLine(chbuffer, inputStream));
     }
 
-    static final int SWISS_GERMAN_HELLO [] = {
+    static final int[] SWISS_GERMAN_HELLO = {
         0x47, 0x72, 0xFC, 0x65, 0x7A, 0x69, 0x5F, 0x7A, 0xE4, 0x6D, 0xE4
     };
 
-    static final int RUSSIAN_HELLO [] = {
+    static final int[] RUSSIAN_HELLO = {
         0x412, 0x441, 0x435, 0x43C, 0x5F, 0x43F, 0x440, 0x438,
         0x432, 0x435, 0x442
     };
@@ -501,9 +501,9 @@ class TestSessionInOutBuffers {
         }
         outbuffer.flush(outputStream);
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        final long expected = ((s1.getBytes(StandardCharsets.UTF_8).length + 2)+
+        final long expected = ((s1.getBytes(StandardCharsets.UTF_8).length + 2) +
                 (s2.getBytes(StandardCharsets.UTF_8).length + 2) +
-                (s3.getBytes(StandardCharsets.UTF_8).length + 2)) * 10;
+                (s3.getBytes(StandardCharsets.UTF_8).length + 2)) * 10L;
         Assertions.assertEquals(expected, bytesWritten);
 
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.UTF_8.newDecoder());
@@ -572,7 +572,7 @@ class TestSessionInOutBuffers {
         outbuffer.writeLine(chbuffer, outputStream);
         outbuffer.flush(outputStream);
         final long bytesWritten = outbuffer.getMetrics().getBytesTransferred();
-        final long expected = ((s1.getBytes(StandardCharsets.UTF_8).length + 2)) * 10 + 2;
+        final long expected = ((s1.getBytes(StandardCharsets.UTF_8).length + 2)) * 10L + 2;
         Assertions.assertEquals(expected, bytesWritten);
 
         final SessionInputBuffer inBuffer = new SessionInputBufferImpl(16, StandardCharsets.UTF_8.newDecoder());

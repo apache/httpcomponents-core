@@ -43,6 +43,9 @@ class TestPathPatternMatcher {
         Assertions.assertFalse(matcher.match("/foo/request", "/foo/requesta"));
         Assertions.assertFalse(matcher.match("/foo/*", "foo/request"));
         Assertions.assertFalse(matcher.match("/foo/*", "/bar/foo"));
+        Assertions.assertTrue(matcher.match("*/action.do", "/xxxxx/action.do"));
+        Assertions.assertTrue(matcher.match("*/foo/action.do", "/xxxxx/foo/action.do"));
+        Assertions.assertFalse(matcher.match("*.do", "foo.dont"));
     }
 
     @Test
@@ -53,6 +56,7 @@ class TestPathPatternMatcher {
         Assertions.assertTrue(matcher.isBetter("/a*", "*"));
         Assertions.assertTrue(matcher.isBetter("/*", "*"));
         Assertions.assertTrue(matcher.isBetter("/a/b*", "/a*"));
+        Assertions.assertTrue(matcher.isBetter("/a/*", "/a/b"));
     }
 
 }

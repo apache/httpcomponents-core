@@ -58,7 +58,7 @@ public class DefaultThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(final Runnable target) {
-        final Thread thread = new Thread(this.group, target, this.namePrefix + "-"  + this.count.incrementAndGet());
+        final Thread thread = new Thread(this.group, target, this.namePrefix + "-" + this.count.incrementAndGet());
         thread.setDaemon(daemon);
         return thread;
     }

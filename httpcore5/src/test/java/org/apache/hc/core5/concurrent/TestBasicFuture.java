@@ -138,7 +138,7 @@ class TestBasicFuture {
             try {
                 Thread.sleep(100);
                 future.completed(result);
-            } catch (final InterruptedException boom) {
+            } catch (final InterruptedException expected) {
             }
         });
         t.setDaemon(true);
@@ -157,7 +157,7 @@ class TestBasicFuture {
             try {
                 Thread.sleep(100);
                 future.failed(boom);
-            } catch (final InterruptedException ex) {
+            } catch (final InterruptedException expected) {
             }
         });
         t.setDaemon(true);
@@ -179,7 +179,7 @@ class TestBasicFuture {
             try {
                 Thread.sleep(100);
                 future.cancel(true);
-            } catch (final InterruptedException ex) {
+            } catch (final InterruptedException expected) {
             }
         });
         t.setDaemon(true);
@@ -197,7 +197,7 @@ class TestBasicFuture {
             try {
                 Thread.sleep(200);
                 future.completed(result);
-            } catch (final InterruptedException ex) {
+            } catch (final InterruptedException expected) {
             }
         });
         t.setDaemon(true);

@@ -79,7 +79,7 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             threads[i] = (threadFactory != null ? threadFactory : THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
         }
         this.ioReactor = new MultiCoreIOReactor(this.workers, threads);
-        this.workerSelector =  IOWorkers.newSelector(workers);
+        this.workerSelector = IOWorkers.newSelector(workers);
     }
 
     public DefaultConnectingIOReactor(

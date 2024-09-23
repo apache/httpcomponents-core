@@ -342,7 +342,7 @@ public class TestingFramework {
         if (actualStatus == null) {
             throw new TestingFrameworkException("Returned status is null.");
         }
-        if ((expectedStatus != null) && (! actualStatus.equals(expectedStatus))) {
+        if (expectedStatus != null && !actualStatus.equals(expectedStatus)) {
             throw new TestingFrameworkException("Expected status not found. expected="
                                                   + expectedStatus + "; actual=" + actualStatus);
         }
@@ -353,7 +353,7 @@ public class TestingFramework {
         if (actualBody == null) {
             throw new TestingFrameworkException("Returned body is null.");
         }
-        if ((expectedBody != null) && (! actualBody.equals(expectedBody))) {
+        if (expectedBody != null && !actualBody.equals(expectedBody)) {
             throw new TestingFrameworkException("Expected body not found. expected="
                                     + expectedBody + "; actual=" + actualBody);
         }
@@ -373,7 +373,7 @@ public class TestingFramework {
     }
 
     private void assertHeadersMatchExpectation(final Map<String, String> actualHeaders,
-                                               final Map<String, String>  expectedHeaders)
+                                               final Map<String, String> expectedHeaders)
             throws TestingFrameworkException {
         if (expectedHeaders == null) {
             return;
@@ -392,7 +392,7 @@ public class TestingFramework {
     }
 
     private String getDefaultURI() {
-        return "http://localhost:" + port  + "/";
+        return "http://localhost:" + port + "/";
     }
 
     /**
