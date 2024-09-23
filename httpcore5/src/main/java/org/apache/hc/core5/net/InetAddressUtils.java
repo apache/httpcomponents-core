@@ -101,6 +101,10 @@ public class InetAddressUtils {
     private static final int MAX_COLON_COUNT = 7;
 
     /**
+     * Tests whether the parameter is a valid IPv4 address
+     *
+     * @param input the address character sequence to check for validity
+     * @return true if the input parameter is a valid IPv4 address
      * @deprecated Use {@link #isIPv4(CharSequence)}
      */
     @Deprecated
@@ -109,7 +113,7 @@ public class InetAddressUtils {
     }
 
     /**
-     * Checks whether the parameter is a valid IPv4 address
+     * Tests whether the parameter is a valid IPv4 address.
      *
      * @param input the address character sequence to check for validity
      * @return true if the input parameter is a valid IPv4 address
@@ -120,6 +124,10 @@ public class InetAddressUtils {
     }
 
     /**
+     * Tests if an IPv6 address is an IPv4-mapped IPv6 address.
+     *
+     * @param  input the IPv6 address to be checked
+     * @return true if the IPv6 address is an IPv4-mapped IPv6 address, false otherwise.
      * @deprecated Use {@link #isIPv4MappedIPv6(CharSequence)}
      */
     @Deprecated
@@ -128,7 +136,7 @@ public class InetAddressUtils {
     }
 
     /**
-     * Check if an IPv6 address is an IPv4-mapped IPv6 address.
+     * Tests if an IPv6 address is an IPv4-mapped IPv6 address.
      *
      * @param  input the IPv6 address to be checked
      * @return true if the IPv6 address is an IPv4-mapped IPv6 address, false otherwise.
@@ -150,6 +158,10 @@ public class InetAddressUtils {
     }
 
     /**
+     * Tests whether the parameter is a valid standard (non-compressed) IPv6 address
+     *
+     * @param input the address character sequence to check for validity
+     * @return true if the input parameter is a valid standard (non-compressed) IPv6 address
      * @deprecated Use {@link #isIPv6Std(CharSequence)}
      */
     @Deprecated
@@ -158,7 +170,7 @@ public class InetAddressUtils {
     }
 
     /**
-     * Checks whether the parameter is a valid standard (non-compressed) IPv6 address
+     * Tests whether the parameter is a valid standard (non-compressed) IPv6 address
      *
      * @param input the address character sequence to check for validity
      * @return true if the input parameter is a valid standard (non-compressed) IPv6 address
@@ -169,6 +181,10 @@ public class InetAddressUtils {
     }
 
     /**
+     * Tests whether the parameter is a valid compressed IPv6 address
+     *
+     * @param input the address character sequence to check for validity
+     * @return true if the input parameter is a valid compressed IPv6 address
      * @deprecated Use {@link #isIPv6HexCompressed(CharSequence)}
      */
     @Deprecated
@@ -177,7 +193,7 @@ public class InetAddressUtils {
     }
 
     /**
-     * Checks whether the parameter is a valid compressed IPv6 address
+     * Tests whether the parameter is a valid compressed IPv6 address
      *
      * @param input the address character sequence to check for validity
      * @return true if the input parameter is a valid compressed IPv6 address
@@ -188,6 +204,10 @@ public class InetAddressUtils {
     }
 
     /**
+     * Tests whether the parameter is a valid IPv6 address (including compressed).
+     *
+     * @param input the address character sequence to check for validity
+     * @return true if the input parameter is a valid standard or compressed IPv6 address
      * @deprecated Use {@link #isIPv6(CharSequence)}
      */
     @Deprecated
@@ -196,7 +216,7 @@ public class InetAddressUtils {
     }
 
     /**
-     * Checks whether the parameter is a valid IPv6 address (including compressed).
+     * Tests whether the parameter is a valid IPv6 address (including compressed).
      *
      * @param input the address character sequence to check for validity
      * @return true if the input parameter is a valid standard or compressed IPv6 address
@@ -224,6 +244,11 @@ public class InetAddressUtils {
     }
 
     /**
+     * Tests whether the parameter is a valid URL formatted bracketed IPv6 address (including compressed).
+     * This matches only bracketed values e.g. {@code [::1]}.
+     *
+     * @param input the address character sequence to check for validity
+     * @return true if the input parameter is a valid URL-formatted bracketed IPv6 address
      * @deprecated Use {@link #isIPv6URLBracketed(CharSequence)}
      */
     @Deprecated
@@ -232,7 +257,7 @@ public class InetAddressUtils {
     }
 
     /**
-     * Checks whether the parameter is a valid URL formatted bracketed IPv6 address (including compressed).
+     * Tests whether the parameter is a valid URL formatted bracketed IPv6 address (including compressed).
      * This matches only bracketed values e.g. {@code [::1]}.
      *
      * @param input the address character sequence to check for validity
@@ -251,6 +276,8 @@ public class InetAddressUtils {
     /**
      * Formats {@link SocketAddress} as text.
      *
+     * @param buffer The target buffer to append.
+     * @param socketAddress The SocketAddress to append to {@code buffer}.
      * @since 5.0
      */
     public static void formatAddress(
@@ -271,8 +298,12 @@ public class InetAddressUtils {
     }
 
     /**
-     * Returns canonical name (fully qualified domain name) of the localhost.
+     * Gets the canonical name of the local host, a fully qualified domain name.
+     * <p>
+     * This can be {@code "localhost"} or a fully qualified domain name like {@code "host.docker.internal"}.
+     * </p>
      *
+     * @return the canonical name of the local host.
      * @since 5.0
      */
     public static String getCanonicalLocalHostName() {
