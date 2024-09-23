@@ -33,7 +33,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.Future;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
-import org.apache.hc.core5.concurrent.FutureContribution;
+import org.apache.hc.core5.concurrent.CompletingFutureContribution;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
@@ -120,14 +120,7 @@ class TLSUpgradeTest {
 
         // Upgrade to TLS
         final BasicFuture<TlsDetails> tlsFuture = new BasicFuture<>(null);
-        ((TlsUpgradeCapable) clientEndpoint).tlsUpgrade(target, new FutureContribution<ProtocolIOSession>(tlsFuture) {
-
-            @Override
-            public void completed(final ProtocolIOSession protocolIOSession) {
-                tlsFuture.completed(protocolIOSession.getTlsDetails());
-            }
-
-        });
+        ((TlsUpgradeCapable) clientEndpoint).tlsUpgrade(target, new CompletingFutureContribution<>(tlsFuture, ProtocolIOSession::getTlsDetails));
 
         final TlsDetails tlsDetails = tlsFuture.get(TIMEOUT.getDuration(), TIMEOUT.getTimeUnit());
         Assertions.assertNotNull(tlsDetails);

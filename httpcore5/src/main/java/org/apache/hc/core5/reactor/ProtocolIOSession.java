@@ -40,6 +40,7 @@ public interface ProtocolIOSession extends IOSession, TransportSecurityLayer {
 
     /**
      * Switches this I/O session to the application protocol with the given ID.
+     *
      * @param protocolId the application protocol ID
      * @param callback the result callback
      * @throws UnsupportedOperationException if application protocol switch
@@ -52,10 +53,8 @@ public interface ProtocolIOSession extends IOSession, TransportSecurityLayer {
     /**
      * Registers protocol upgrade handler with the given application protocol ID.
      *
-     * @since 5.2
      * @param protocolId the application protocol ID
      * @param upgradeHandler the upgrade handler.
-     *
      * @since 5.2
      */
     default void registerProtocol(String protocolId, ProtocolUpgradeHandler upgradeHandler) {
