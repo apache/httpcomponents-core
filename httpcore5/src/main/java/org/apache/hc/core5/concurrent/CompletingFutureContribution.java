@@ -24,45 +24,47 @@
  * <http://www.apache.org/>.
  *
  */
+
 package org.apache.hc.core5.concurrent;
 
+import java.util.Objects;
+import java.util.function.Function;
+
 /**
- * Convenience base class for {@link FutureCallback}s that contribute a result
- * of the operation to another {@link BasicFuture}.
+ * Completes a result on a {@link BasicFuture}.
  *
  * @param <T> the future result type of an asynchronous operation for this type.
- * @since 5.1
+ * @param <U> the future result type of an asynchronous operation for the {@link FutureCallback}.
+ * @since 5.4
  */
-public abstract class FutureContribution<T> implements FutureCallback<T> {
+public class CompletingFutureContribution<T, U> extends FutureContribution<T> {
 
-    private final BasicFuture<?> future;
+    private final Function<T, U> resultProvider;
 
     /**
      * Constructs a new instance to callback the given {@link BasicFuture}.
      *
      * @param future The callback.
      */
-    public FutureContribution(final BasicFuture<?> future) {
-        this.future = future;
-    }
-
-    @Override
-    public final void failed(final Exception ex) {
-        if (future != null) {
-            future.failed(ex);
-        }
-    }
-
-    @Override
-    public final void cancelled() {
-        if (future != null) {
-            future.cancel();
-        }
-    }
-
     @SuppressWarnings("unchecked")
-    <R> BasicFuture<R> getFuture() {
-        return (BasicFuture<R>) future;
+    public CompletingFutureContribution(final BasicFuture<U> future) {
+        this(future, (Function<T, U>) Function.identity());
+    }
+
+    /**
+     * Constructs a new instance to callback the given {@link BasicFuture}.
+     *
+     * @param future The callback.
+     * @param resultProvider Provides the result to complete the future.
+     */
+    public CompletingFutureContribution(final BasicFuture<U> future, final Function<T, U> resultProvider) {
+        super(future);
+        this.resultProvider = Objects.requireNonNull(resultProvider, "resultProvider");
+    }
+
+    @Override
+    public void completed(final T result) {
+        getFuture().completed(resultProvider.apply(result));
     }
 
 }

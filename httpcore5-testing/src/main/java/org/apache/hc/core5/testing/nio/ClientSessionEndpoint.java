@@ -34,8 +34,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hc.core5.annotation.Contract;
 import org.apache.hc.core5.annotation.ThreadingBehavior;
 import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.CompletingFutureContribution;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.http.ConnectionClosedException;
 import org.apache.hc.core5.http.nio.AsyncClientExchangeHandler;
 import org.apache.hc.core5.http.nio.AsyncPushConsumer;
@@ -103,14 +103,7 @@ public final class ClientSessionEndpoint implements ModalCloseable {
         Asserts.check(!closed.get(), "Connection is already closed");
         final BasicFuture<T> future = new BasicFuture<>(callback);
         execute(new BasicClientExchangeHandler<>(requestProducer, responseConsumer,
-                new FutureContribution<T>(future) {
-
-                    @Override
-                    public void completed(final T result) {
-                        future.completed(result);
-                    }
-
-                }),
+                new CompletingFutureContribution<T, T>(future)),
                 pushHandlerFactory, context);
         return future;
     }

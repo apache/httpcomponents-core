@@ -35,8 +35,8 @@ import java.util.concurrent.Future;
 import javax.net.ssl.SSLContext;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.CompletingFutureContribution;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.function.Supplier;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.config.CharCodingConfig;
@@ -53,7 +53,6 @@ import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorStatus;
-import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.ssl.SSLSessionInitializer;
 import org.apache.hc.core5.reactor.ssl.SSLSessionVerifier;
 import org.apache.hc.core5.util.Args;
@@ -209,14 +208,7 @@ public class H2TestClient extends AsyncRequester {
             final Timeout timeout,
             final FutureCallback<ClientSessionEndpoint> callback) {
         final BasicFuture<ClientSessionEndpoint> future = new BasicFuture<>(callback);
-        requestSession(host, timeout, new FutureContribution<IOSession>(future) {
-
-            @Override
-            public void completed(final IOSession session) {
-                future.completed(new ClientSessionEndpoint(session));
-            }
-
-        });
+        requestSession(host, timeout, new CompletingFutureContribution<>(future, ClientSessionEndpoint::new));
         return future;
     }
 
