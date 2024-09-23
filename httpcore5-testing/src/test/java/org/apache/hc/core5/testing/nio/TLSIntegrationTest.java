@@ -40,6 +40,7 @@ import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLSession;
 
 import org.apache.hc.core5.concurrent.BasicFuture;
+import org.apache.hc.core5.concurrent.CompletingFutureContribution;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.function.Supplier;
@@ -178,21 +179,14 @@ class TLSIntegrationTest {
         client.connect(
                 new HttpHost(URIScheme.HTTP.id, "localhost", address.getPort()),
                 TIMEOUT, null,
-                new FutureContribution<AsyncClientEndpoint>(tlsFuture) {
+                new FutureContribution<AsyncClientEndpoint, TlsDetails>(tlsFuture) {
 
                     @Override
                     public void completed(final AsyncClientEndpoint clientEndpoint) {
                         try {
                             ((TlsUpgradeCapable) clientEndpoint).tlsUpgrade(
                                     target,
-                                    new FutureContribution<ProtocolIOSession>(tlsFuture) {
-
-                                        @Override
-                                        public void completed(final ProtocolIOSession protocolIOSession) {
-                                            tlsFuture.completed(protocolIOSession.getTlsDetails());
-                                        }
-
-                                    });
+                                    new CompletingFutureContribution<>(tlsFuture, ProtocolIOSession::getTlsDetails));
                         } catch (final Exception ex) {
                             tlsFuture.failed(ex);
                         }

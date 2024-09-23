@@ -76,7 +76,7 @@ class TestComplexFuture {
     void testCancelledWithCallback() {
         final ComplexFuture<Object> future = new ComplexFuture<>(null);
 
-        final Future<Object> dependency1 = new BasicFuture<>(new FutureContribution<Object>(future) {
+        final Future<Object> dependency1 = new BasicFuture<>(new FutureContribution<Object, Object>(future) {
 
             @Override
             public void completed(final Object result) {

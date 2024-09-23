@@ -37,9 +37,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.CallbackContribution;
+import org.apache.hc.core5.concurrent.CompletingFutureContribution;
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.http.ConnectionClosedException;
@@ -417,14 +417,7 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
         final AsyncClientExchangeHandler exchangeHandler = new BasicClientExchangeHandler<>(
                 requestProducer,
                 responseConsumer,
-                new FutureContribution<T>(future) {
-
-                    @Override
-                    public void completed(final T result) {
-                        future.completed(result);
-                    }
-
-                });
+                new CompletingFutureContribution<T, T>(future));
         execute(target, exchangeHandler, pushHandlerFactory, timeout, context != null ? context : HttpCoreContext.create());
         return future;
     }

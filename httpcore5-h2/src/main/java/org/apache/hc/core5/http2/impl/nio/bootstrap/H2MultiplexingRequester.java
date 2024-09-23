@@ -37,9 +37,9 @@ import java.util.concurrent.Future;
 import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.Cancellable;
 import org.apache.hc.core5.concurrent.CancellableDependency;
+import org.apache.hc.core5.concurrent.CompletingFutureContribution;
 import org.apache.hc.core5.concurrent.ComplexFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
-import org.apache.hc.core5.concurrent.FutureContribution;
 import org.apache.hc.core5.function.Callback;
 import org.apache.hc.core5.function.Decorator;
 import org.apache.hc.core5.function.Resolver;
@@ -282,14 +282,7 @@ public class H2MultiplexingRequester extends AsyncRequester {
         final AsyncClientExchangeHandler exchangeHandler = new BasicClientExchangeHandler<>(
                 requestProducer,
                 responseConsumer,
-                new FutureContribution<T>(future) {
-
-                    @Override
-                    public void completed(final T result) {
-                        future.completed(result);
-                    }
-
-                });
+                new CompletingFutureContribution<T, T>(future));
         execute(target, exchangeHandler, pushHandlerFactory, future, timeout, context != null ? context : HttpCoreContext.create());
         return future;
     }

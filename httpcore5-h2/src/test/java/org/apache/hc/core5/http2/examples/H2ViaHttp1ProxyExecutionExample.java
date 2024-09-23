@@ -148,7 +148,7 @@ public class H2ViaHttp1ProxyExecutionExample {
                 proxy,
                 Timeout.ofSeconds(30),
                 null,
-                new FutureContribution<AsyncClientEndpoint>(tunnelFuture) {
+                new FutureContribution<AsyncClientEndpoint, AsyncClientEndpoint>(tunnelFuture) {
 
                     @Override
                     public void completed(final AsyncClientEndpoint endpoint) {
@@ -157,7 +157,7 @@ public class H2ViaHttp1ProxyExecutionExample {
                             endpoint.execute(
                                     new BasicRequestProducer(connect, null),
                                     new BasicResponseConsumer<>(new DiscardingEntityConsumer<>()),
-                                    new FutureContribution<Message<HttpResponse, Void>>(tunnelFuture) {
+                                    new FutureContribution<Message<HttpResponse, Void>, AsyncClientEndpoint>(tunnelFuture) {
 
                                         @Override
                                         public void completed(final Message<HttpResponse, Void> message) {
@@ -165,7 +165,7 @@ public class H2ViaHttp1ProxyExecutionExample {
                                             if (response.getCode() == HttpStatus.SC_OK) {
                                                 ((TlsUpgradeCapable) endpoint).tlsUpgrade(
                                                         target,
-                                                        new FutureContribution<ProtocolIOSession>(tunnelFuture) {
+                                                        new FutureContribution<ProtocolIOSession, AsyncClientEndpoint>(tunnelFuture) {
 
                                                             @Override
                                                             public void completed(final ProtocolIOSession protocolSession) {
