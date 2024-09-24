@@ -26,6 +26,8 @@
  */
 package org.apache.hc.core5.concurrent;
 
+import java.util.Objects;
+
 /**
  * Convenience base class for {@link FutureCallback}s that contribute a result
  * of the operation to another {@link BasicFuture}.
@@ -40,24 +42,20 @@ public abstract class FutureContribution<T> implements FutureCallback<T> {
     /**
      * Constructs a new instance to callback the given {@link BasicFuture}.
      *
-     * @param future The callback.
+     * @param future The callback, non-null.
      */
     public FutureContribution(final BasicFuture<?> future) {
-        this.future = future;
+        this.future = Objects.requireNonNull(future);
     }
 
     @Override
     public final void failed(final Exception ex) {
-        if (future != null) {
-            future.failed(ex);
-        }
+        future.failed(ex);
     }
 
     @Override
     public final void cancelled() {
-        if (future != null) {
-            future.cancel();
-        }
+        future.cancel();
     }
 
     @SuppressWarnings("unchecked")
