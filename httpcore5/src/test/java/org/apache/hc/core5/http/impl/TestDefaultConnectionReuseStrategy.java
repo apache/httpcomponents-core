@@ -318,5 +318,13 @@ class TestDefaultConnectionReuseStrategy {
         Assertions.assertFalse(reuseStrategy.keepAlive(null, response, context));
     }
 
+    @Test
+    void testRequestTimeout408Response() {
+        final HttpResponse response = new BasicHttpResponse(HttpStatus.SC_REQUEST_TIMEOUT, "Request Timeout");
+        response.addHeader("Connection", "keep-alive");
+        reuseStrategy = new DefaultConnectionReuseStrategy(true);
+        Assertions.assertFalse(reuseStrategy.keepAlive(null, response, context));
+    }
+
 }
 

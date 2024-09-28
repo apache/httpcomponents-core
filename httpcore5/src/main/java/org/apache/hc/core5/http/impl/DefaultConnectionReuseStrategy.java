@@ -70,8 +70,44 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
 
     public static final DefaultConnectionReuseStrategy INSTANCE = new DefaultConnectionReuseStrategy();
 
+    /**
+     * Flag to determine whether the connection should be forcibly closed on receiving a 408 status code.
+     * If {@code true}, the connection will be closed when a 408 (Request Timeout) response is encountered,
+     * regardless of the "Connection" header's value.
+     * @since 5.5
+     */
+    private final boolean forceCloseOn408;
+
+    /**
+     * Default constructor that initializes the strategy with the default behavior:
+     * connections are not forcibly closed on a 408 status code unless explicitly signaled by the server.
+     * <p>
+     * This constructor maintains backward compatibility and adheres to the HTTP protocol as it is,
+     * meaning that connections will be kept alive by default unless the server includes a "Connection: close"
+     * header or other headers that imply the connection should be closed.
+     */
     public DefaultConnectionReuseStrategy() {
-        super();
+        this(false); // Default behavior: do not force-close on 408
+    }
+
+    /**
+     * Constructor to initialize the strategy with a customizable behavior for handling 408 responses.
+     * <p>
+     * When {@code forceCloseOn408} is set to {@code true}, the strategy will forcefully close connections
+     * upon encountering a 408 (Request Timeout) response, regardless of the presence of the "Connection: close"
+     * header in the response. This is particularly useful when interacting with servers that send 408 responses
+     * without properly indicating that the connection should be closed.
+     * <p>
+     * If {@code forceCloseOn408} is set to {@code false}, the strategy will follow the standard HTTP protocol
+     * behavior, only closing the connection if the server explicitly signals to do so (e.g., by including a
+     * "Connection: close" header or other relevant headers).
+     *
+     * @param forceCloseOn408 {@code true} to force connection close on 408 responses;
+     *                        {@code false} to use the default HTTP behavior.
+     * @since 5.5
+     */
+    public DefaultConnectionReuseStrategy(final boolean forceCloseOn408) {
+        this.forceCloseOn408 = forceCloseOn408;
     }
 
     // see interface ConnectionReuseStrategy
@@ -79,6 +115,10 @@ public class DefaultConnectionReuseStrategy implements ConnectionReuseStrategy {
     public boolean keepAlive(
             final HttpRequest request, final HttpResponse response, final HttpContext context) {
         Args.notNull(response, "HTTP response");
+
+        if (forceCloseOn408 && response.getCode() == HttpStatus.SC_REQUEST_TIMEOUT) {
+            return false; // Force connection close on 408 if configured to do so
+        }
 
         if (request != null) {
             // Consider framing of a request message with both Content-Length and Content-Length headers faulty
