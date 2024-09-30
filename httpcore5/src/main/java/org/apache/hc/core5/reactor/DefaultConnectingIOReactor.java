@@ -62,7 +62,8 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
-            final Callback<IOSession> sessionShutdownCallback) {
+            final Callback<IOSession> sessionShutdownCallback,
+            final IOReactorMetricsListener threadPoolListener) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
         this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
         this.workers = new SingleCoreIOReactor[workerCount];
@@ -74,12 +75,24 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
                     ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT,
                     ioSessionDecorator,
                     sessionListener,
-                    sessionShutdownCallback);
+                    sessionShutdownCallback,
+                    threadPoolListener);
             this.workers[i] = dispatcher;
             threads[i] = (threadFactory != null ? threadFactory : THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
         }
         this.ioReactor = new MultiCoreIOReactor(this.workers, threads);
         this.workerSelector = IOWorkers.newSelector(workers);
+    }
+
+    public DefaultConnectingIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig ioReactorConfig,
+            final ThreadFactory threadFactory,
+            final Decorator<IOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
+            final IOSessionListener sessionListener,
+            final Callback<IOSession> sessionShutdownCallback) {
+        this(eventHandlerFactory,ioReactorConfig, threadFactory,ioSessionDecorator, exceptionCallback, sessionListener, sessionShutdownCallback, null);
     }
 
     public DefaultConnectingIOReactor(

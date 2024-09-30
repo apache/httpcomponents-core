@@ -60,7 +60,8 @@ public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
                 LoggingIOSessionDecorator.INSTANCE,
                 LoggingExceptionCallback.INSTANCE,
                 LoggingIOSessionListener.INSTANCE,
-                sessionShutdownCallback);
+                sessionShutdownCallback,
+                LoggingReactorMetricsListener.INSTANCE);
     }
 
     public Future<ListenerEndpoint> listen(final InetSocketAddress address) {

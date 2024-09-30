@@ -49,6 +49,7 @@ import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Timeout;
@@ -77,6 +78,7 @@ public class AsyncRequesterBootstrap {
     private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
+    private IOReactorMetricsListener threadPoolListener;
 
     private AsyncRequesterBootstrap() {
     }
@@ -217,6 +219,17 @@ public class AsyncRequesterBootstrap {
     }
 
     /**
+     * Sets {@link IOReactorMetricsListener} instance.
+     *
+     * @return this instance.
+     * @since 5.4
+     */
+    public final AsyncRequesterBootstrap setIOReactorMetricsListener(final IOReactorMetricsListener threadPoolListener) {
+        this.threadPoolListener = threadPoolListener;
+        return this;
+    }
+
+    /**
      * Sets {@link Http1StreamListener} instance.
      *
      * @return this instance.
@@ -279,7 +292,8 @@ public class AsyncRequesterBootstrap {
                 sessionListener,
                 connPool,
                 tlsStrategyCopy,
-                handshakeTimeout);
+                handshakeTimeout,
+                threadPoolListener);
     }
 
 }

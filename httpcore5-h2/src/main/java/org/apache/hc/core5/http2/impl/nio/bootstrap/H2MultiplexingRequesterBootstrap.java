@@ -47,6 +47,7 @@ import org.apache.hc.core5.http2.impl.nio.H2StreamListener;
 import org.apache.hc.core5.http2.nio.support.DefaultAsyncPushConsumerFactory;
 import org.apache.hc.core5.http2.ssl.H2ClientTlsStrategy;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
@@ -70,6 +71,8 @@ public class H2MultiplexingRequesterBootstrap {
     private Callback<Exception> exceptionCallback;
     private IOSessionListener sessionListener;
     private H2StreamListener streamListener;
+
+    private IOReactorMetricsListener threadPoolListener;
 
     private H2MultiplexingRequesterBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -165,6 +168,17 @@ public class H2MultiplexingRequesterBootstrap {
     }
 
     /**
+     * Sets {@link IOReactorMetricsListener} instance.
+     *
+     * @return this instance.
+     * @since 5.4
+     */
+    public final H2MultiplexingRequesterBootstrap setIOReactorMetricsListener(final IOReactorMetricsListener threadPoolListener) {
+        this.threadPoolListener = threadPoolListener;
+        return this;
+    }
+
+    /**
      * Sets {@link H2StreamListener} instance.
      *
      * @return this instance.
@@ -243,7 +257,8 @@ public class H2MultiplexingRequesterBootstrap {
                 exceptionCallback,
                 sessionListener,
                 DefaultAddressResolver.INSTANCE,
-                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy());
+                tlsStrategy != null ? tlsStrategy : new H2ClientTlsStrategy(),
+                threadPoolListener);
     }
 
 }

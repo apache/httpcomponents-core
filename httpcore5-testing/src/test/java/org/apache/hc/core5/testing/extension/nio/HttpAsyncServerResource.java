@@ -36,6 +36,7 @@ import org.apache.hc.core5.io.CloseMode;
 import org.apache.hc.core5.testing.SSLTestContexts;
 import org.apache.hc.core5.testing.nio.LoggingExceptionCallback;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
+import org.apache.hc.core5.testing.nio.LoggingReactorMetricsListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
 import org.junit.jupiter.api.Assertions;
@@ -66,7 +67,8 @@ public class HttpAsyncServerResource implements BeforeEachCallback, AfterEachCal
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_SERVER)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                .setIOSessionListener(LoggingIOSessionListener.INSTANCE);
+                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
+                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE);
         bootstrapCustomizer.accept(bootstrap);
         server = bootstrap.create();
     }

@@ -147,6 +147,7 @@ class TLSIntegrationTest {
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
+                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE)
                 .setRequestRouter(RequestRouter.<Supplier<AsyncServerExchangeHandler>>builder()
                         .addRoute(RequestRouter.LOCAL_AUTHORITY, "*", () -> new EchoHandler(2048))
                         .resolveAuthority(RequestRouter.LOCAL_AUTHORITY_RESOLVER)
@@ -165,6 +166,7 @@ class TLSIntegrationTest {
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
+                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE)
                 .create();
     }
 

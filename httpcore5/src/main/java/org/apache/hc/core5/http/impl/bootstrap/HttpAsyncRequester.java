@@ -78,6 +78,7 @@ import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.reactor.IOEventHandler;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -111,9 +112,10 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final IOSessionListener sessionListener,
             final ManagedConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy,
-            final Timeout handshakeTimeout) {
+            final Timeout handshakeTimeout,
+            final IOReactorMetricsListener threadPoolListener) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
-                ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE);
+                ShutdownCommand.GRACEFUL_IMMEDIATE_CALLBACK, DefaultAddressResolver.INSTANCE, threadPoolListener);
         this.connPool = Args.notNull(connPool, "Connection pool");
         this.tlsStrategy = tlsStrategy;
         this.handshakeTimeout = handshakeTimeout;
@@ -129,9 +131,10 @@ public class HttpAsyncRequester extends AsyncRequester implements ConnPoolContro
             final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
-            final ManagedConnPool<HttpHost, IOSession> connPool) {
+            final ManagedConnPool<HttpHost, IOSession> connPool,
+            final IOReactorMetricsListener threadPoolListener) {
         this(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool,
-                null, null);
+                null, null, threadPoolListener);
     }
 
     @Override

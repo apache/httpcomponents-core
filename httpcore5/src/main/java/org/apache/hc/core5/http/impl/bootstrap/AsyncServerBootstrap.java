@@ -64,6 +64,7 @@ import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
@@ -93,6 +94,7 @@ public class AsyncServerBootstrap {
     private Callback<Exception> exceptionCallback;
     private IOSessionListener sessionListener;
     private Http1StreamListener streamListener;
+    private IOReactorMetricsListener threadPoolListener;
 
     private AsyncServerBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -204,6 +206,17 @@ public class AsyncServerBootstrap {
      */
     public final AsyncServerBootstrap setIOSessionDecorator(final Decorator<IOSession> ioSessionDecorator) {
         this.ioSessionDecorator = ioSessionDecorator;
+        return this;
+    }
+
+    /**
+     * Sets {@link IOReactorMetricsListener} instance.
+     *
+     * @return this instance.
+     * @since 5.4
+     */
+    public final AsyncServerBootstrap setIOReactorMetricsListener(final IOReactorMetricsListener threadPoolListener) {
+        this.threadPoolListener = threadPoolListener;
         return this;
     }
 
@@ -504,7 +517,7 @@ public class AsyncServerBootstrap {
                 tlsStrategy,
                 handshakeTimeout);
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback,
-                sessionListener);
+                sessionListener, threadPoolListener);
     }
 
 }

@@ -38,6 +38,7 @@ import org.apache.hc.core5.testing.nio.LoggingExceptionCallback;
 import org.apache.hc.core5.testing.nio.LoggingH2StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
+import org.apache.hc.core5.testing.nio.LoggingReactorMetricsListener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -65,7 +66,8 @@ public class H2MultiplexingRequesterResource implements BeforeEachCallback, Afte
                 .setStreamListener(LoggingH2StreamListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                .setIOSessionListener(LoggingIOSessionListener.INSTANCE);
+                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
+                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE);
         bootstrapCustomizer.accept(bootstrap);
         requester = bootstrap.create();
     }
