@@ -35,7 +35,7 @@
   <name>Apache HttpComponents Core Parent</name>
   <version>5.4-alpha1-SNAPSHOT</version>
   <description>Apache HttpComponents Core is a library of components for building HTTP enabled services</description>
-  <url>https://hc.apache.org/httpcomponents-core-5.3.x/${project.version}/</url>
+  <url>https://hc.apache.org/httpcomponents-core-5.4.x/${project.version}/</url>
   <inceptionYear>2005</inceptionYear>
   <packaging>pom</packaging>
 
@@ -55,7 +55,7 @@
     <site>
       <id>apache.website</id>
       <name>Apache HttpComponents Website</name>
-      <url>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/site/components/httpcomponents-core-5.3.x/LATEST/</url>
+      <url>scm:svn:https://svn.apache.org/repos/asf/httpcomponents/site/components/httpcomponents-core-5.4.x/LATEST/</url>
     </site>
   </distributionManagement>
 
