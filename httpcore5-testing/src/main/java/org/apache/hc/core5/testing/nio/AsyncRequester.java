@@ -65,6 +65,7 @@ public class AsyncRequester extends IOReactorExecutor<DefaultConnectingIOReactor
                 LoggingIOSessionDecorator.INSTANCE,
                 LoggingExceptionCallback.INSTANCE,
                 LoggingIOSessionListener.INSTANCE,
+                LoggingReactorMetricsListener.INSTANCE,
                 sessionShutdownCallback);
     }
 

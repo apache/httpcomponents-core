@@ -68,6 +68,7 @@ import org.apache.hc.core5.testing.nio.LoggingH2StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
+import org.apache.hc.core5.testing.nio.LoggingReactorMetricsListener;
 import org.apache.hc.core5.util.TextUtils;
 import org.apache.hc.core5.util.Timeout;
 
@@ -110,6 +111,7 @@ public class H2CompatibilityTest {
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
+                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE)
                 .create();
     }
 

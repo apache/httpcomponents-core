@@ -60,6 +60,7 @@ public class AsyncServer extends IOReactorExecutor<DefaultListeningIOReactor> {
                 LoggingIOSessionDecorator.INSTANCE,
                 LoggingExceptionCallback.INSTANCE,
                 LoggingIOSessionListener.INSTANCE,
+                LoggingReactorMetricsListener.INSTANCE,
                 sessionShutdownCallback);
     }
 

@@ -44,6 +44,7 @@ import org.apache.hc.core5.net.NamedEndpoint;
 import org.apache.hc.core5.pool.ManagedConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ProtocolIOSession;
@@ -71,8 +72,9 @@ public class H2AsyncRequester extends HttpAsyncRequester {
             final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
-            final ManagedConnPool<HttpHost, IOSession> connPool) {
-        super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool);
+            final ManagedConnPool<HttpHost, IOSession> connPool,
+            final IOReactorMetricsListener threadPoolListener) {
+        super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool, threadPoolListener);
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
     }
 
@@ -91,9 +93,10 @@ public class H2AsyncRequester extends HttpAsyncRequester {
             final IOSessionListener sessionListener,
             final ManagedConnPool<HttpHost, IOSession> connPool,
             final TlsStrategy tlsStrategy,
-            final Timeout handshakeTimeout) {
+            final Timeout handshakeTimeout,
+            final IOReactorMetricsListener threadPoolListener) {
         super(ioReactorConfig, eventHandlerFactory, ioSessionDecorator, exceptionCallback, sessionListener, connPool,
-                tlsStrategy, handshakeTimeout);
+                tlsStrategy, handshakeTimeout, threadPoolListener);
         this.versionPolicy = versionPolicy != null ? versionPolicy : HttpVersionPolicy.NEGOTIATE;
     }
 

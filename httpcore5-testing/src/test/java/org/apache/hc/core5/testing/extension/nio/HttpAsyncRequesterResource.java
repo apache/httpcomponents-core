@@ -38,6 +38,7 @@ import org.apache.hc.core5.testing.classic.LoggingConnPoolListener;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
+import org.apache.hc.core5.testing.nio.LoggingReactorMetricsListener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -67,7 +68,8 @@ public class HttpAsyncRequesterResource implements BeforeEachCallback, AfterEach
                 .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
                 .setStreamListener(LoggingHttp1StreamListener.INSTANCE_CLIENT)
                 .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
-                .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE);
+                .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
+                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE);
         bootstrapCustomizer.accept(bootstrap);
         requester = bootstrap.create();
     }

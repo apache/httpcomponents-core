@@ -65,6 +65,7 @@ import org.apache.hc.core5.pool.PoolReusePolicy;
 import org.apache.hc.core5.pool.StrictConnPool;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
@@ -99,6 +100,8 @@ public class H2RequesterBootstrap {
     private H2StreamListener streamListener;
     private Http1StreamListener http1StreamListener;
     private ConnPoolListener<HttpHost> connPoolListener;
+    private IOReactorMetricsListener threadPoolListener;
+
 
     private H2RequesterBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -250,6 +253,17 @@ public class H2RequesterBootstrap {
     }
 
     /**
+     * Sets {@link IOReactorMetricsListener} instance.
+     *
+     * @return this instance.
+     * @since 5.4
+     */
+    public final H2RequesterBootstrap setIOReactorMetricsListener(final IOReactorMetricsListener threadPoolListener) {
+        this.threadPoolListener = threadPoolListener;
+        return this;
+    }
+
+    /**
      * Sets {@link H2StreamListener} instance.
      *
      * @return this instance.
@@ -393,7 +407,8 @@ public class H2RequesterBootstrap {
                 sessionListener,
                 connPool,
                 actualTlsStrategy,
-                handshakeTimeout);
+                handshakeTimeout,
+                threadPoolListener);
     }
 
 }

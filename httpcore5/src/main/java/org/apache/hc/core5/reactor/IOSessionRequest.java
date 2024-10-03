@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.hc.core5.annotation.Internal;
 import org.apache.hc.core5.concurrent.BasicFuture;
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.io.CloseMode;
@@ -49,6 +50,9 @@ final class IOSessionRequest implements Future<IOSession> {
     final Timeout timeout;
     final Object attachment;
     final BasicFuture<IOSession> future;
+
+    private final long enqueueTime;
+
 
     private final AtomicReference<ModalCloseable> closeableRef;
 
@@ -67,6 +71,9 @@ final class IOSessionRequest implements Future<IOSession> {
         this.attachment = attachment;
         this.future = new BasicFuture<>(callback);
         this.closeableRef = new AtomicReference<>();
+
+        // Set the time when this request is created
+        this.enqueueTime = System.currentTimeMillis();
     }
 
     public void completed(final ProtocolIOSession ioSession) {
@@ -126,5 +133,12 @@ final class IOSessionRequest implements Future<IOSession> {
                 ", attachment=" + attachment +
                 ']';
     }
+
+    // Getter for enqueueTime
+    @Internal
+    public long getEnqueueTime() {
+        return enqueueTime;
+    }
+
 
 }

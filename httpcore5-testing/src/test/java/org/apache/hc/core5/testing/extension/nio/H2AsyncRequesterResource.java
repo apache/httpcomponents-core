@@ -40,6 +40,7 @@ import org.apache.hc.core5.testing.nio.LoggingH2StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingHttp1StreamListener;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionDecorator;
 import org.apache.hc.core5.testing.nio.LoggingIOSessionListener;
+import org.apache.hc.core5.testing.nio.LoggingReactorMetricsListener;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
@@ -69,7 +70,8 @@ public class H2AsyncRequesterResource implements BeforeEachCallback, AfterEachCa
                 .setConnPoolListener(LoggingConnPoolListener.INSTANCE)
                 .setIOSessionDecorator(LoggingIOSessionDecorator.INSTANCE)
                 .setExceptionCallback(LoggingExceptionCallback.INSTANCE)
-                .setIOSessionListener(LoggingIOSessionListener.INSTANCE);
+                .setIOSessionListener(LoggingIOSessionListener.INSTANCE)
+                .setIOReactorMetricsListener(LoggingReactorMetricsListener.INSTANCE);
         bootstrapCustomizer.accept(bootstrap);
         requester = bootstrap.create();
     }

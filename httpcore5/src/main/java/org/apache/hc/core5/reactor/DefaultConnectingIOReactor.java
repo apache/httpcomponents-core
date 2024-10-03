@@ -55,6 +55,9 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
 
     private final static ThreadFactory THREAD_FACTORY = new DefaultThreadFactory("I/O client dispatch", true);
 
+    /**
+     * @since 5.4
+     */
     public DefaultConnectingIOReactor(
             final IOEventHandlerFactory eventHandlerFactory,
             final IOReactorConfig ioReactorConfig,
@@ -62,6 +65,7 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
             final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
+            final IOReactorMetricsListener threadPoolListener,
             final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
         this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
@@ -74,12 +78,24 @@ public class DefaultConnectingIOReactor extends AbstractIOReactorBase {
                     ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT,
                     ioSessionDecorator,
                     sessionListener,
+                    threadPoolListener,
                     sessionShutdownCallback);
             this.workers[i] = dispatcher;
             threads[i] = (threadFactory != null ? threadFactory : THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));
         }
         this.ioReactor = new MultiCoreIOReactor(this.workers, threads);
         this.workerSelector = IOWorkers.newSelector(workers);
+    }
+
+    public DefaultConnectingIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig ioReactorConfig,
+            final ThreadFactory threadFactory,
+            final Decorator<IOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
+            final IOSessionListener sessionListener,
+            final Callback<IOSession> sessionShutdownCallback) {
+        this(eventHandlerFactory,ioReactorConfig, threadFactory,ioSessionDecorator, exceptionCallback, sessionListener, null, sessionShutdownCallback);
     }
 
     public DefaultConnectingIOReactor(

@@ -45,6 +45,7 @@ import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
 import org.apache.hc.core5.reactor.IOReactorService;
 import org.apache.hc.core5.reactor.IOReactorStatus;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
@@ -64,6 +65,7 @@ public class AsyncServer extends AbstractConnectionInitiatorBase implements IORe
             final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
+            final IOReactorMetricsListener threadPoolListener,
             final Callback<IOSession> sessionShutdownCallback) {
         this.ioReactor = new DefaultListeningIOReactor(
                 eventHandlerFactory,
@@ -73,6 +75,7 @@ public class AsyncServer extends AbstractConnectionInitiatorBase implements IORe
                 ioSessionDecorator,
                 exceptionCallback,
                 sessionListener,
+                threadPoolListener,
                 sessionShutdownCallback);
     }
 

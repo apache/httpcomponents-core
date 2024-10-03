@@ -71,6 +71,7 @@ import org.apache.hc.core5.net.InetAddressUtils;
 import org.apache.hc.core5.net.URIAuthority;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.util.Args;
@@ -102,6 +103,7 @@ public class H2ServerBootstrap {
     private IOSessionListener sessionListener;
     private H2StreamListener h2StreamListener;
     private Http1StreamListener http1StreamListener;
+    private IOReactorMetricsListener threadPoolListener;
 
     private H2ServerBootstrap() {
         this.routeEntries = new ArrayList<>();
@@ -208,6 +210,18 @@ public class H2ServerBootstrap {
         return this;
     }
 
+
+    /**
+     * Sets {@link IOReactorMetricsListener} instance.
+     *
+     * @return this instance.
+     * @since 5.4
+     */
+    public final H2ServerBootstrap setIOReactorMetricsListener(final IOReactorMetricsListener threadPoolListener) {
+        this.threadPoolListener = threadPoolListener;
+        return this;
+    }
+
     /**
      * Sets {@link Exception} {@link Callback} instance.
      *
@@ -247,7 +261,6 @@ public class H2ServerBootstrap {
         this.http1StreamListener = http1StreamListener;
         return this;
     }
-
     /**
      * @return this instance.
      * @deprecated Use {@link RequestRouter}.
@@ -522,7 +535,7 @@ public class H2ServerBootstrap {
                 handshakeTimeout);
 
         return new HttpAsyncServer(ioEventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback,
-                sessionListener, actualCanonicalHostName);
+                sessionListener, threadPoolListener, actualCanonicalHostName);
     }
 
 }

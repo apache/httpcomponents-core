@@ -80,6 +80,22 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
             final Callback<IOSession> sessionShutdownCallback) {
+        this(eventHandlerFactory, ioReactorConfig, dispatchThreadFactory, listenerThreadFactory, ioSessionDecorator, exceptionCallback, sessionListener, null, sessionShutdownCallback);
+    }
+
+    /**
+     * @since 5.4
+     */
+    public DefaultListeningIOReactor(
+            final IOEventHandlerFactory eventHandlerFactory,
+            final IOReactorConfig ioReactorConfig,
+            final ThreadFactory dispatchThreadFactory,
+            final ThreadFactory listenerThreadFactory,
+            final Decorator<IOSession> ioSessionDecorator,
+            final Callback<Exception> exceptionCallback,
+            final IOSessionListener sessionListener,
+            final IOReactorMetricsListener threadPoolListener,
+            final Callback<IOSession> sessionShutdownCallback) {
         Args.notNull(eventHandlerFactory, "Event handler factory");
         this.workerCount = ioReactorConfig != null ? ioReactorConfig.getIoThreadCount() : IOReactorConfig.DEFAULT.getIoThreadCount();
         this.workers = new SingleCoreIOReactor[workerCount];
@@ -91,6 +107,7 @@ public class DefaultListeningIOReactor extends AbstractIOReactorBase implements 
                     ioReactorConfig != null ? ioReactorConfig : IOReactorConfig.DEFAULT,
                     ioSessionDecorator,
                     sessionListener,
+                    threadPoolListener,
                     sessionShutdownCallback);
             this.workers[i] = dispatcher;
             threads[i + 1] = (dispatchThreadFactory != null ? dispatchThreadFactory : DISPATCH_THREAD_FACTORY).newThread(new IOReactorWorker(dispatcher));

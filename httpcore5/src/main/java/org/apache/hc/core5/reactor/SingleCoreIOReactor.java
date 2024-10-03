@@ -42,6 +42,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.function.Callback;
@@ -68,6 +70,11 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private final AtomicBoolean shutdownInitiated;
     private final long selectTimeoutMillis;
     private volatile long lastTimeoutCheckMillis;
+    private final IOReactorMetricsListener threadPoolListener;
+
+    // Atomic variables for tracking total wait time and count of processed requests
+    private final AtomicLong totalWaitTime = new AtomicLong(0);
+    private final AtomicInteger processedRequestCount = new AtomicInteger(0);
 
     SingleCoreIOReactor(
             final Callback<Exception> exceptionCallback,
@@ -75,12 +82,14 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
             final IOReactorConfig reactorConfig,
             final Decorator<IOSession> ioSessionDecorator,
             final IOSessionListener sessionListener,
+            final IOReactorMetricsListener threadPoolListener,
             final Callback<IOSession> sessionShutdownCallback) {
         super(exceptionCallback);
         this.eventHandlerFactory = Args.notNull(eventHandlerFactory, "Event handler factory");
         this.reactorConfig = Args.notNull(reactorConfig, "I/O reactor config");
         this.ioSessionDecorator = ioSessionDecorator;
         this.sessionListener = sessionListener;
+        this.threadPoolListener = threadPoolListener;
         this.sessionShutdownCallback = sessionShutdownCallback;
         this.shutdownInitiated = new AtomicBoolean();
         this.closedSessions = new ConcurrentLinkedQueue<>();
@@ -135,6 +144,8 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
                 processPendingChannels();
                 processPendingConnectionRequests();
             }
+
+            reportStatusToThreadPoolListener();
 
             // Exit select loop if graceful shutdown has been completed
             if (getStatus() == IOReactorStatus.SHUTTING_DOWN && this.selector.keys().isEmpty()) {
@@ -315,6 +326,15 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
     private void processPendingConnectionRequests() {
         IOSessionRequest sessionRequest;
         for (int i = 0; i < MAX_CHANNEL_REQUESTS && (sessionRequest = this.requestQueue.poll()) != null; i++) {
+            if (threadPoolListener != null) {
+                // Calculate wait time safely without keeping long-lived state
+                final long waitTimeMillis = System.currentTimeMillis() - sessionRequest.getEnqueueTime();
+
+                // Accumulate total wait time and increment count atomically
+                totalWaitTime.addAndGet(waitTimeMillis);
+                processedRequestCount.incrementAndGet();
+                threadPoolListener.onQueueWaitTime(waitTimeMillis);
+            }
             if (!sessionRequest.isCancelled()) {
                 final SocketChannel socketChannel;
                 try {
@@ -391,6 +411,57 @@ class SingleCoreIOReactor extends AbstractSingleCoreIOReactor implements Connect
         IOSessionRequest sessionRequest;
         while ((sessionRequest = this.requestQueue.poll()) != null) {
             sessionRequest.cancel();
+        }
+    }
+
+    /**
+     * Reports the current status of the I/O reactor's thread pool to the
+     * configured metrics listener.
+     *
+     * <p>This method gathers three key metrics:</p>
+     * <ul>
+     *     <li><strong>Active Threads:</strong> The number of currently active threads
+     *     handling I/O sessions.</li>
+     *     <li><strong>Pending Connections:</strong> The number of connection requests
+     *     waiting to be processed.</li>
+     *     <li><strong>Saturation Percentage:</strong> The ratio of active threads to the
+     *     maximum allowed connections (defined by {@code MAX_CHANNEL_REQUESTS}),
+     *     expressed as a percentage. It provides insight into how saturated the thread
+     *     pool is relative to its maximum capacity. The formula for calculating saturation
+     *     is:
+     *     <pre>
+     *     saturationPercentage = (activeThreads / MAX_CHANNEL_REQUESTS) * 100.0
+     *     </pre></li>
+     * </ul>
+     * <p>
+     * If the number of pending connections exceeds {@code MAX_CHANNEL_REQUESTS},
+     * resource starvation is detected, and an appropriate event is reported.
+     *
+     */
+    private void reportStatusToThreadPoolListener() {
+        if (threadPoolListener != null) {
+
+            // Calculate the number of active threads (connections)
+            final int activeThreads = (int) this.selector.keys().stream()
+                    .filter(key -> key.isValid() && key.attachment() instanceof InternalChannel)
+                    .count();
+
+            // Calculate the number of pending connection requests
+            final int pendingConnections = this.requestQueue.size();
+
+            // Calculate saturation as a percentage of active connections to max allowed connections
+            final double saturationPercentage = ((double) activeThreads / MAX_CHANNEL_REQUESTS) * 100.0;
+
+            // Report thread pool status: active sessions and pending connections
+            threadPoolListener.onThreadPoolStatus(activeThreads, pendingConnections);
+
+            // Report thread pool saturation
+            threadPoolListener.onThreadPoolSaturation(saturationPercentage);
+
+            // Detect resource starvation if pending connections exceed threshold
+            if (pendingConnections > MAX_CHANNEL_REQUESTS) {
+                threadPoolListener.onResourceStarvationDetected();
+            }
         }
     }
 

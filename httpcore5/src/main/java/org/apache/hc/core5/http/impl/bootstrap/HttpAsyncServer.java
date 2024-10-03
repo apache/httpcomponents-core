@@ -39,6 +39,7 @@ import org.apache.hc.core5.reactor.EndpointParameters;
 import org.apache.hc.core5.http.nio.command.ShutdownCommand;
 import org.apache.hc.core5.reactor.IOEventHandlerFactory;
 import org.apache.hc.core5.reactor.IOReactorConfig;
+import org.apache.hc.core5.reactor.IOReactorMetricsListener;
 import org.apache.hc.core5.reactor.IOSession;
 import org.apache.hc.core5.reactor.IOSessionListener;
 import org.apache.hc.core5.reactor.ListenerEndpoint;
@@ -64,9 +65,10 @@ public class HttpAsyncServer extends AsyncServer {
             final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
             final IOSessionListener sessionListener,
+            final IOReactorMetricsListener threadPoolListener,
             final String canonicalName) {
         super(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener,
-                        ShutdownCommand.GRACEFUL_NORMAL_CALLBACK);
+                threadPoolListener, ShutdownCommand.GRACEFUL_NORMAL_CALLBACK);
         this.canonicalName = canonicalName;
     }
 
@@ -79,8 +81,9 @@ public class HttpAsyncServer extends AsyncServer {
             final IOReactorConfig ioReactorConfig,
             final Decorator<IOSession> ioSessionDecorator,
             final Callback<Exception> exceptionCallback,
-            final IOSessionListener sessionListener) {
-        this(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener, null);
+            final IOSessionListener sessionListener,
+            final IOReactorMetricsListener threadPoolListener) {
+        this(eventHandlerFactory, ioReactorConfig, ioSessionDecorator, exceptionCallback, sessionListener, threadPoolListener, null);
     }
 
     /**
