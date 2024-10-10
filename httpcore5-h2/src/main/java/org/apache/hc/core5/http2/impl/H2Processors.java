@@ -35,10 +35,12 @@ import org.apache.hc.core5.http.protocol.RequestUserAgent;
 import org.apache.hc.core5.http.protocol.ResponseConformance;
 import org.apache.hc.core5.http.protocol.ResponseDate;
 import org.apache.hc.core5.http.protocol.ResponseServer;
+import org.apache.hc.core5.http2.protocol.H2RequestConformance;
 import org.apache.hc.core5.http2.protocol.H2RequestConnControl;
 import org.apache.hc.core5.http2.protocol.H2RequestContent;
 import org.apache.hc.core5.http2.protocol.H2RequestTargetHost;
 import org.apache.hc.core5.http2.protocol.H2RequestValidateHost;
+import org.apache.hc.core5.http2.protocol.H2ResponseConformance;
 import org.apache.hc.core5.http2.protocol.H2ResponseConnControl;
 import org.apache.hc.core5.http2.protocol.H2ResponseContent;
 import org.apache.hc.core5.util.TextUtils;
@@ -55,6 +57,7 @@ public final class H2Processors {
         return HttpProcessorBuilder.create()
                 .addAll(
                         ResponseConformance.INSTANCE,
+                        H2ResponseConformance.INSTANCE,
                         ResponseDate.INSTANCE,
                         new ResponseServer(!TextUtils.isBlank(serverInfo) ? serverInfo :
                                 VersionInfo.getSoftwareInfo(SOFTWARE, "org.apache.hc.core5", H2Processors.class)),
@@ -62,6 +65,7 @@ public final class H2Processors {
                         H2ResponseConnControl.INSTANCE)
                 .addAll(
                         H2RequestValidateHost.INSTANCE,
+                        H2RequestConformance.INSTANCE,
                         RequestConformance.INSTANCE);
     }
 
@@ -76,6 +80,9 @@ public final class H2Processors {
     public static HttpProcessorBuilder customClient(final String agentInfo) {
         return HttpProcessorBuilder.create()
                 .addAll(
+                        H2ResponseConformance.INSTANCE)
+                .addAll(
+                        H2RequestConformance.INSTANCE,
                         H2RequestTargetHost.INSTANCE,
                         H2RequestContent.INSTANCE,
                         H2RequestConnControl.INSTANCE,

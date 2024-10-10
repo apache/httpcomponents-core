@@ -84,54 +84,6 @@ class TestDefaultH2ResponseConverter {
     }
 
     @Test
-    void testConvertFromFieldsConnectionHeader() {
-        final List<Header> headers = Arrays.asList(
-                new BasicHeader(":status", "200"),
-                new BasicHeader("location", "http://www.example.com/"),
-                new BasicHeader("connection", "keep-alive"));
-
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header 'connection: keep-alive' is illegal for HTTP/2 messages");
-    }
-
-    @Test
-    void testConvertFromFieldsKeepAliveHeader() {
-        final List<Header> headers = Arrays.asList(
-            new BasicHeader(":status", "200"),
-            new BasicHeader("location", "http://www.example.com/"),
-            new BasicHeader("keep-alive", "timeout=5, max=1000"));
-
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header 'keep-alive: timeout=5, max=1000' is illegal for HTTP/2 messages");
-    }
-
-    @Test
-    void testConvertFromFieldsTransferEncodingHeader() {
-        final List<Header> headers = Arrays.asList(
-            new BasicHeader(":status", "200"),
-            new BasicHeader("location", "http://www.example.com/"),
-            new BasicHeader("transfer-encoding", "gzip"));
-
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header 'transfer-encoding: gzip' is illegal for HTTP/2 messages");
-    }
-
-    @Test
-    void testConvertFromFieldsUpgradeHeader() {
-        final List<Header> headers = Arrays.asList(
-            new BasicHeader(":status", "200"),
-            new BasicHeader("location", "http://www.example.com/"),
-            new BasicHeader("upgrade", "example/1, foo/2"));
-
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(headers),
-                "Header 'upgrade: example/1, foo/2' is illegal for HTTP/2 messages");
-    }
-
-    @Test
     void testConvertFromFieldsMissingStatus() {
         final List<Header> headers = Arrays.asList(
                 new BasicHeader("location", "http://www.example.com/"),
@@ -195,16 +147,6 @@ class TestDefaultH2ResponseConverter {
         final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
         Assertions.assertThrows(HttpException.class, () -> converter.convert(response),
                 "Response status 99 is invalid");
-    }
-
-    @Test
-    void testConvertFromMessageConnectionHeader() {
-        final HttpResponse response = new BasicHttpResponse(200);
-        response.addHeader("Connection", "Keep-Alive");
-
-        final DefaultH2ResponseConverter converter = new DefaultH2ResponseConverter();
-        Assertions.assertThrows(HttpException.class, () -> converter.convert(response),
-                "Header 'Connection: Keep-Alive' is illegal for HTTP/2 messages");
     }
 
     @Test
