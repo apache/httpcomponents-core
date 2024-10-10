@@ -29,6 +29,7 @@ package org.apache.hc.core5.http.nio.support;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.hc.core5.concurrent.FutureCallback;
 import org.apache.hc.core5.http.EntityDetails;
@@ -52,9 +53,11 @@ import org.apache.hc.core5.util.Args;
 public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
 
     private final AsyncResponseConsumer<T> responseConsumer;
+    private final AtomicReference<HttpRequest> promiseRef;
 
     public AbstractAsyncPushHandler(final AsyncResponseConsumer<T> responseConsumer) {
         this.responseConsumer = Args.notNull(responseConsumer, "Response consumer");
+        this.promiseRef = new AtomicReference<>();
     }
 
     /**
@@ -83,6 +86,7 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
             final HttpResponse response,
             final EntityDetails entityDetails,
             final HttpContext httpContext) throws HttpException, IOException {
+        promiseRef.compareAndSet(null, promise);
         responseConsumer.consumeResponse(response, entityDetails, httpContext, new FutureCallback<T>() {
 
             @Override
@@ -96,7 +100,6 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
 
             @Override
             public void failed(final Exception cause) {
-                handleError(promise, cause);
                 releaseResources();
             }
 
@@ -126,6 +129,7 @@ public abstract class AbstractAsyncPushHandler<T> implements AsyncPushConsumer {
     @Override
     public final void failed(final Exception cause) {
         responseConsumer.failed(cause);
+        handleError(promiseRef.get(), cause);
         releaseResources();
     }
 
