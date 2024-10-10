@@ -159,8 +159,8 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.pingHandlers = new ConcurrentLinkedQueue<>();
         this.outputRequests = new AtomicInteger(0);
         this.lastStreamId = new AtomicInteger(0);
-        this.hPackEncoder = new HPackEncoder(CharCodingSupport.createEncoder(charCodingConfig));
-        this.hPackDecoder = new HPackDecoder(CharCodingSupport.createDecoder(charCodingConfig));
+        this.hPackEncoder = new HPackEncoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createEncoder(charCodingConfig));
+        this.hPackDecoder = new HPackDecoder(H2Config.INIT.getHeaderTableSize(), CharCodingSupport.createDecoder(charCodingConfig));
         this.streamMap = new ConcurrentHashMap<>();
         this.remoteConfig = H2Config.INIT;
         this.connInputWindow = new AtomicInteger(H2Config.INIT.getInitialWindowSize());
@@ -169,8 +169,6 @@ abstract class AbstractH2StreamMultiplexer implements Identifiable, HttpConnecti
         this.initInputWinSize = H2Config.INIT.getInitialWindowSize();
         this.initOutputWinSize = H2Config.INIT.getInitialWindowSize();
 
-        this.hPackDecoder.setMaxTableSize(H2Config.INIT.getHeaderTableSize());
-        this.hPackEncoder.setMaxTableSize(H2Config.INIT.getHeaderTableSize());
         this.hPackDecoder.setMaxListSize(H2Config.INIT.getMaxHeaderListSize());
 
         this.lowMark = H2Config.INIT.getInitialWindowSize() / 2;
