@@ -39,15 +39,19 @@ final class InboundDynamicTable {
     private int maxSize;
     private int currentSize;
 
-    InboundDynamicTable(final StaticTable staticTable) {
+    InboundDynamicTable(final int maxSize, final StaticTable staticTable) {
         this.staticTable = staticTable;
         this.headers = new FifoBuffer(256);
-        this.maxSize = Integer.MAX_VALUE;
+        this.maxSize = maxSize;
         this.currentSize = 0;
     }
 
+    InboundDynamicTable(final int maxSize) {
+        this(maxSize, StaticTable.INSTANCE);
+    }
+
     InboundDynamicTable() {
-        this(StaticTable.INSTANCE);
+        this(Integer.MAX_VALUE);
     }
 
     public int getMaxSize() {

@@ -45,16 +45,20 @@ final class OutboundDynamicTable {
     private int maxSize;
     private int currentSize;
 
-    OutboundDynamicTable(final StaticTable staticTable) {
+    OutboundDynamicTable(final int maxSize, final StaticTable staticTable) {
         this.staticTable = staticTable;
         this.headers = new FifoLinkedList();
         this.mapByName = new HashMap<>();
-        this.maxSize = Integer.MAX_VALUE;
+        this.maxSize = maxSize;
         this.currentSize = 0;
     }
 
+    OutboundDynamicTable(final int maxSize) {
+        this(maxSize, StaticTable.INSTANCE);
+    }
+
     OutboundDynamicTable() {
-        this(StaticTable.INSTANCE);
+        this(Integer.MAX_VALUE);
     }
 
     public int getMaxSize() {
